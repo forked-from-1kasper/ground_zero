@@ -12,6 +12,9 @@ namespace unit
 
   def ind {π : unit → Sort u} (g : π star) : Π (x : unit), π x
   | star := g
+
+  def uniq : Π (x : unit), x = star
+  | star := eq.refl star
 end unit
 
 end ground_zero
