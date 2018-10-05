@@ -5,7 +5,7 @@ namespace ground_zero
 inductive {u} Path {α : Type u} : α → α → Type u
 | lam (f : 𝕀 → α) : Path (f 𝕀.i₀) (f 𝕀.i₁)
 notation `<` binder `>` r:(scoped P, Path.lam P) := r
-infix `⇝`:30 := Path
+infix ` ⇝ `:30 := Path
 
 namespace Path
   universes u v
@@ -18,13 +18,14 @@ namespace Path
 
   def compute {α : Type u} {a b : α} (p : a ⇝ b) : 𝕀 → α :=
   𝕀.rec a b (to_eq p)
-  infix `#` := compute
+  infix ` # ` := compute
 
   @[refl] def refl {α : Type u} (a : α) : a ⇝ a := <i> a
   @[refl] def rfl {α : Type u} {a : α} : a ⇝ a := <i> a
 
   @[symm] def symm {α : Type u} {a b : α} (p : a ⇝ b) : b ⇝ a :=
   <i> p # −i
+  postfix `⁻¹` := symm
 
   def funext {α : Type u} {β : Type v} {f g : α → β}
     (p : Π (x : α), f x ⇝ g x) : f ⇝ g :=
@@ -48,13 +49,19 @@ namespace Path
   def face₀ {α : Type u} {a b : α} (p : a ⇝ b) : α := p # 𝕀.i₀
   def face₁ {α : Type u} {a b : α} (p : a ⇝ b) : α := p # 𝕀.i₁
 
+  def comp_test₀ {α : Type u} {a b : α} (p : a ⇝ b) : (p # 𝕀.i₀) ⇝ a := rfl
+  def comp_test₁ {α : Type u} {a b : α} (p : a ⇝ b) : (p # 𝕀.i₁) ⇝ b := rfl
+
+  -- fail
+  --def symm_test {α : Type u} {a b : α} (p : a ⇝ b) : (p⁻¹)⁻¹ ⇝ p := rfl
+
   def trans {α : Type u} {a b c : α} (p : a ⇝ b) (q : b ⇝ c) : a ⇝ c :=
   from_eq (eq.trans (to_eq p) (to_eq q))
   infix ⬝ := trans
 
   def comp {α : Type u} {a b c d : α}
     (bottom : b ⇝ c) (left : b ⇝ a) (right : c ⇝ d) : a ⇝ d :=
-  trans (trans (symm left) bottom) right
+  left⁻¹ ⬝ bottom ⬝ right
 
   --transport (<i> C (comp (<_> A) a [(i=0) -> <_> a,(i=1) -> p])
   --                 (fill (<_> A) a [(i=0) -> <_> a,(i=1) -> p])) d
@@ -63,6 +70,17 @@ namespace Path
     (b : α) (p : a ⇝ b) : π b p :=
   subst (<i> π (comp (<j> a) (<j> a) p # i) {!!}) h
 end Path
+
+inductive {u} PathP (σ : 𝕀 → Type u) : σ 𝕀.i₀ → σ 𝕀.i₁ → Type u
+| lam (f : Π (i : 𝕀), σ i) : PathP (f 𝕀.i₀) (f 𝕀.i₁)
+namespace PathP
+  universe n
+
+  def square {α : Type n} {a₀ a₁ b₀ b₁ : α}
+    (u : Path a₀ a₁) (v : Path b₀ b₁)
+    (r₀ : Path a₀ b₀) (r₁ : Path a₁ b₁) :=
+    PathP (λ i, Path (u # i) (v # i)) r₀ r₁
+end PathP
 
 namespace cubicaltt
   def add (m : ℕ) : ℕ → ℕ

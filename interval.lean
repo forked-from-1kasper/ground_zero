@@ -24,10 +24,21 @@ namespace 𝕀
   end
 
   instance : prop 𝕀 := ⟨trunc.uniq⟩
+  instance trunc_functions {α : Type u} : prop (∥α∥ → ∥α∥) :=
+  ⟨begin intros, funext, apply trunc.uniq end⟩
 
   def neg : 𝕀 → 𝕀 :=
   trunc.rec (trunc.elem ∘ bnot)
   prefix `−`:20 := neg
+
+  def bool_to_interval (f : bool → bool → bool) (a b : 𝕀) : 𝕀 :=
+  trunc.rec (λ a, trunc.rec (λ b, trunc.elem $ f a b) b) a
+
+  def min : 𝕀 → 𝕀 → 𝕀 := bool_to_interval band
+  def max : 𝕀 → 𝕀 → 𝕀 := bool_to_interval bor
+
+  notation r `∧` s := min r s
+  notation r `∨` s := max r s
 
   def funext {α : Sort u} {β : Sort v} {f g : α → β}
     (p : Π (x : α), f x = g x) : f = g := begin
