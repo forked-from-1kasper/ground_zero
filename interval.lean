@@ -17,6 +17,14 @@ namespace 𝕀
     bool.rec (eq.trivial_loop b₀) ⟨b₁, s⟩ b in
   eq.end_point ∘ trunc.rec f
 
+  def hrec {β : 𝕀 → Sort u} (b₀ : β i₀) (b₁ : β i₁)
+    (s : b₀ == b₁) (x : 𝕀) : β x :=
+  @quot.hrec_on bool (λ _ _, true) β x
+    (λ i, bool.rec_on i b₀ b₁)
+    (λ a b _,
+      begin simp, induction a; induction b; simp,
+            apply s, symmetry, apply s end)
+
   def ind {β : 𝕀 → Prop} (b₀ : β i₀) (b₁ : β i₁) :
     Π (x : 𝕀), β x := begin
     intros, apply trunc.ind, intros,

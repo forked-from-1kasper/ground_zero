@@ -24,17 +24,17 @@ namespace equiv
     apply r₁, apply r₂
   end
 
-  def linv {α β : Type u} (f : α → β) :=
+  def linv {α : Type u} {β : Type v} (f : α → β) :=
   Σ' (g : β → α), g ∘ f ~ id
 
-  def rinv {α β : Type u} (f : α → β) :=
+  def rinv {α : Type u} {β : Type v} (f : α → β) :=
   Σ' (g : β → α), f ∘ g ~ id
 
-  def biinv {α β : Type u} (f : α → β) :=
+  def biinv {α : Type u} {β : Type v} (f : α → β) :=
   linv f × rinv f
 end equiv
 
-def {u} equiv (α β : Type u) :=
+def {u v} equiv (α : Type u) (β : Type v) :=
 Σ (f : α → β), equiv.biinv f
 infix `≃`:25 := equiv
 

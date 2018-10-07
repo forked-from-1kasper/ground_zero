@@ -68,7 +68,8 @@ namespace Path
 
   def J {α : Type u} {a : α} {π : Π (b : α), a ⇝ b → Sort u} (h : π a (refl a))
     (b : α) (p : a ⇝ b) : π b p :=
-  subst (<i> π (comp (<j> a) (<j> a) p # i) {!!}) h
+  transport (<i> π (comp (<j> a) (<j> a) p # i)
+            (@𝕀.hrec (λ i, a ⇝ (p # i)) (refl a) p {!!} i)) h
 end Path
 
 inductive {u} PathP (σ : 𝕀 → Type u) : σ 𝕀.i₀ → σ 𝕀.i₁ → Type u
@@ -79,9 +80,20 @@ namespace heq
   def from_homo {α : Type u} {a b : α} (h : a = b) : a == b :=
   begin induction h, reflexivity end
 
-  def map {α : Sort u} {β : α → Sort v} {a b : α}
+  def heq_map {α : Sort u} {β : α → Sort v} {a b : α}
   (f : Π (x : α), β x) (p : a = b) : f a == f b :=
   begin induction p, reflexivity end
+
+  def to_heq {σ : 𝕀 → Type u} {a : σ 𝕀.i₀} {b : σ 𝕀.i₁}
+    (p : PathP σ a b) : a == b :=
+  PathP.rec (λ f, heq_map f 𝕀.seg) p
+
+  def from_heq {σ : 𝕀 → Type u} {a : σ 𝕀.i₀} {b : σ 𝕀.i₁}
+    (p : a == b) : PathP σ a b :=
+  PathP.lam (𝕀.hrec a b p)
+
+  def only_refl {α : Type u} {a b : α} (p : a = b) : p == (eq.refl a) :=
+  begin induction p, trivial end
 end heq
 
 namespace PathP
@@ -93,7 +105,7 @@ namespace PathP
 
   def conn_and {α : Type u} {a b : α} (p : a ⇝ b) :
     PathP (λ i, a ⇝ (p # i)) (Path.refl a) p :=
-  sorry
+  PathP.lam (λ i, <j> p # (i ∧ j))
 end PathP
 
 namespace cubicaltt
