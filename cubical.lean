@@ -2,22 +2,70 @@ import ground_zero.interval
 
 namespace ground_zero
 
-inductive {u} Path {α : Type u} : α → α → Type u
-| lam (f : 𝕀 → α) : Path (f 𝕀.i₀) (f 𝕀.i₁)
-notation `<` binder `>` r:(scoped P, Path.lam P) := r
+inductive {u} PathP (σ : 𝕀 → Type u) : σ 𝕀.i₀ → σ 𝕀.i₁ → Type u
+| lam (f : Π (i : 𝕀), σ i) : PathP (f 𝕀.i₀) (f 𝕀.i₁)
+notation `<` binder `>` r:(scoped P, PathP.lam P) := r
+
+def {u} Path {α : Type u} (a b : α) := PathP (λ _, α) a b
 infix ` ⇝ `:30 := Path
+
+namespace heq
+  universes u v
+  def from_homo {α : Type u} {a b : α} (h : a = b) : a == b :=
+  begin induction h, reflexivity end
+
+  def map {α : Sort u} {β : α → Sort v} {a b : α}
+  (f : Π (x : α), β x) (p : a = b) : f a == f b :=
+  begin induction p, reflexivity end
+
+  def only_refl {α : Type u} {a b : α} (p : a = b) : p == (eq.refl a) :=
+  begin induction p, trivial end
+end heq
+
+namespace PathP
+  universe u
+
+  def to_heq {σ : 𝕀 → Type u} {a : σ 𝕀.i₀} {b : σ 𝕀.i₁}
+    (p : PathP σ a b) : a == b :=
+  PathP.rec (λ f, heq.map f 𝕀.seg) p
+
+  def from_heq {σ : 𝕀 → Type u} {a : σ 𝕀.i₀} {b : σ 𝕀.i₁}
+    (p : a == b) : PathP σ a b :=
+  PathP.lam (𝕀.hrec a b p)
+
+  def compute {σ : 𝕀 → Type u} {a : σ 𝕀.i₀} {b : σ 𝕀.i₁} (p : PathP σ a b) : Π (i : 𝕀), σ i :=
+  𝕀.hrec a b (to_heq p)
+
+  -- ???
+  --infix ` # ` := compute
+
+  --def conn_and {α : Type u} {a b : α} (p : a ⇝ b) :
+  --  PathP (λ i, a ⇝ (compute p i)) (<i> a) p :=
+  --PathP.lam (λ i, <j> compute p (i ∧ j))
+
+  def square {α : Type u} {a₀ a₁ b₀ b₁ : α}
+    (u : Path a₀ a₁) (v : Path b₀ b₁)
+    (r₀ : Path a₀ b₀) (r₁ : Path a₁ b₁) :=
+  PathP (λ i, (compute u i) ⇝ (compute v i)) r₀ r₁
+end PathP
+
+--inductive {u} Path {α : Type u} : α → α → Type u
+--| lam (f : 𝕀 → α) : Path (f 𝕀.i₀) (f 𝕀.i₁)
+--notation `<` binder `>` r:(scoped P, Path.lam P) := r
+--infix ` ⇝ `:30 := Path
 
 namespace Path
   universes u v
 
   def to_eq {α : Type u} {a b : α} (p : a ⇝ b) : a = b :=
-  Path.rec (λ f, eq.map f 𝕀.seg) p
+  PathP.rec (λ f, eq.map f 𝕀.seg) p
 
   def from_eq {α : Type u} {a b : α} (p : a = b) : a ⇝ b :=
-  Path.lam (𝕀.rec a b p)
+  PathP.lam (𝕀.rec a b p)
 
   def compute {α : Type u} {a b : α} (p : a ⇝ b) : 𝕀 → α :=
-  𝕀.rec a b (to_eq p)
+  PathP.compute p
+  --𝕀.rec a b (to_eq p)
   infix ` # ` := compute
 
   @[refl] def refl {α : Type u} (a : α) : a ⇝ a := <i> a
@@ -71,42 +119,6 @@ namespace Path
   transport (<i> π (comp (<j> a) (<j> a) p # i)
             (@𝕀.hrec (λ i, a ⇝ (p # i)) (refl a) p {!!} i)) h
 end Path
-
-inductive {u} PathP (σ : 𝕀 → Type u) : σ 𝕀.i₀ → σ 𝕀.i₁ → Type u
-| lam (f : Π (i : 𝕀), σ i) : PathP (f 𝕀.i₀) (f 𝕀.i₁)
-
-namespace heq
-  universes u v
-  def from_homo {α : Type u} {a b : α} (h : a = b) : a == b :=
-  begin induction h, reflexivity end
-
-  def heq_map {α : Sort u} {β : α → Sort v} {a b : α}
-  (f : Π (x : α), β x) (p : a = b) : f a == f b :=
-  begin induction p, reflexivity end
-
-  def to_heq {σ : 𝕀 → Type u} {a : σ 𝕀.i₀} {b : σ 𝕀.i₁}
-    (p : PathP σ a b) : a == b :=
-  PathP.rec (λ f, heq_map f 𝕀.seg) p
-
-  def from_heq {σ : 𝕀 → Type u} {a : σ 𝕀.i₀} {b : σ 𝕀.i₁}
-    (p : a == b) : PathP σ a b :=
-  PathP.lam (𝕀.hrec a b p)
-
-  def only_refl {α : Type u} {a b : α} (p : a = b) : p == (eq.refl a) :=
-  begin induction p, trivial end
-end heq
-
-namespace PathP
-  universe u
-  def square {α : Type u} {a₀ a₁ b₀ b₁ : α}
-    (u : Path a₀ a₁) (v : Path b₀ b₁)
-    (r₀ : Path a₀ b₀) (r₁ : Path a₁ b₁) :=
-    PathP (λ i, Path (u # i) (v # i)) r₀ r₁
-
-  def conn_and {α : Type u} {a b : α} (p : a ⇝ b) :
-    PathP (λ i, a ⇝ (p # i)) (Path.refl a) p :=
-  PathP.lam (λ i, <j> p # (i ∧ j))
-end PathP
 
 namespace cubicaltt
   def add (m : ℕ) : ℕ → ℕ
