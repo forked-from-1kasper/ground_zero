@@ -8,6 +8,22 @@ namespace equiv
   Π (x : α), f x = g x
   infix `~` := homotopy
 
+  @[refl] def homotopy.id {α : Type u} {π : α → Type v}
+    (f : Π (x : α), π x) : f ~ f :=
+  begin simp [homotopy] end
+
+  @[symm] def homotopy.symm {α : Type u} {π : α → Type v}
+    (f g : Π (x : α), π x) (h : f ~ g) : g ~ f := begin
+    simp [homotopy] at *, intros,
+    apply eq.symm, apply h
+  end
+
+  @[trans] def homotopy.trans {α : Type u} {π : α → Type v}
+    (f g h : Π (x : α), π x) (r₁ : f ~ g) (r₂ : g ~ h) : f ~ h := begin
+    simp [homotopy] at *, intros, apply eq.trans,
+    apply r₁, apply r₂
+  end
+
   def linv {α β : Type u} (f : α → β) :=
   Σ' (g : β → α), g ∘ f ~ id
 

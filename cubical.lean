@@ -73,13 +73,27 @@ end Path
 
 inductive {u} PathP (σ : 𝕀 → Type u) : σ 𝕀.i₀ → σ 𝕀.i₁ → Type u
 | lam (f : Π (i : 𝕀), σ i) : PathP (f 𝕀.i₀) (f 𝕀.i₁)
-namespace PathP
-  universe n
 
-  def square {α : Type n} {a₀ a₁ b₀ b₁ : α}
+namespace heq
+  universes u v
+  def from_homo {α : Type u} {a b : α} (h : a = b) : a == b :=
+  begin induction h, reflexivity end
+
+  def map {α : Sort u} {β : α → Sort v} {a b : α}
+  (f : Π (x : α), β x) (p : a = b) : f a == f b :=
+  begin induction p, reflexivity end
+end heq
+
+namespace PathP
+  universe u
+  def square {α : Type u} {a₀ a₁ b₀ b₁ : α}
     (u : Path a₀ a₁) (v : Path b₀ b₁)
     (r₀ : Path a₀ b₀) (r₁ : Path a₁ b₁) :=
     PathP (λ i, Path (u # i) (v # i)) r₀ r₁
+
+  def conn_and {α : Type u} {a b : α} (p : a ⇝ b) :
+    PathP (λ i, a ⇝ (p # i)) (Path.refl a) p :=
+  sorry
 end PathP
 
 namespace cubicaltt

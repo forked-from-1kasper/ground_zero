@@ -1,3 +1,5 @@
+import ground_zero.equiv
+
 namespace ground_zero
 
 universes u v f
@@ -22,6 +24,17 @@ namespace product
   def ind {π : α × β → Type f} (g : Π (x : α) (y : β), π (intro x y)) :
     Π (x : α × β), π x
   | (intro a b) := g a b
+
+  def univ {ν : Type f} : (ν → α × β) ≃ (ν → α) × (ν → β) := begin
+    let e₁ : (ν → α × β) → (ν → α) × (ν → β) :=
+    λ f, intro (pr₁ ∘ f) (pr₂ ∘ f),
+    let e₂ : (ν → α) × (ν → β) → (ν → α × β) :=
+    λ f x, intro (f.pr₁ x) (f.pr₂ x),
+    existsi e₁, split; existsi e₂,
+    { simp [equiv.homotopy], intro f, funext,
+      simp [e₁, e₂], admit },
+    { admit }
+  end
 end product
 
 end ground_zero
