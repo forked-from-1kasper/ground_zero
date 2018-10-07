@@ -36,7 +36,7 @@ namespace PathP
   def compute {σ : 𝕀 → Type u} {a : σ 𝕀.i₀} {b : σ 𝕀.i₁} (p : PathP σ a b) : Π (i : 𝕀), σ i :=
   𝕀.hrec a b (to_heq p)
 
-  -- ???
+  -- ??? it works wrong!
   --infix ` # ` := compute
 
   --def conn_and {α : Type u} {a b : α} (p : a ⇝ b) :
@@ -49,11 +49,6 @@ namespace PathP
   PathP (λ i, (compute u i) ⇝ (compute v i)) r₀ r₁
 end PathP
 
---inductive {u} Path {α : Type u} : α → α → Type u
---| lam (f : 𝕀 → α) : Path (f 𝕀.i₀) (f 𝕀.i₁)
---notation `<` binder `>` r:(scoped P, Path.lam P) := r
---infix ` ⇝ `:30 := Path
-
 namespace Path
   universes u v
 
@@ -65,8 +60,11 @@ namespace Path
 
   def compute {α : Type u} {a b : α} (p : a ⇝ b) : 𝕀 → α :=
   PathP.compute p
-  --𝕀.rec a b (to_eq p)
   infix ` # ` := compute
+
+  def only_refl {α : Type u} {a b : α}
+    (p : a ⇝ b) : PathP (λ i, a ⇝ (p # i)) (<i> a) p :=
+  sorry
 
   @[refl] def refl {α : Type u} (a : α) : a ⇝ a := <i> a
   @[refl] def rfl {α : Type u} {a : α} : a ⇝ a := <i> a
@@ -114,10 +112,10 @@ namespace Path
   --transport (<i> C (comp (<_> A) a [(i=0) -> <_> a,(i=1) -> p])
   --                 (fill (<_> A) a [(i=0) -> <_> a,(i=1) -> p])) d
 
-  def J {α : Type u} {a : α} {π : Π (b : α), a ⇝ b → Sort u} (h : π a (refl a))
-    (b : α) (p : a ⇝ b) : π b p :=
+  def J {α : Type u} {a : α} {π : Π (b : α), a ⇝ b → Type u}
+    (h : π a (refl a)) (b : α) (p : a ⇝ b) : π b p :=
   transport (<i> π (comp (<j> a) (<j> a) p # i)
-            (@𝕀.hrec (λ i, a ⇝ (p # i)) (refl a) p {!!} i)) h
+                   (PathP.compute (only_refl p) i)) h
 end Path
 
 namespace cubicaltt
