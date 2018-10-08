@@ -19,6 +19,14 @@ quot.sound (generalized.rel.mk a b)
     (f : Π (a : α), π (generalized.f a)) : Π (x : generalized α), π x :=
   @quot.ind (const α) generalized.rel π (λ (x : const α), const.rec f x)
 
+-- current definition is incorrect
+def {u} uniq {α : Type u} (a b : {α}) : a = b := begin
+  induction a, induction b,
+  induction a, induction b,
+  apply (@quot.sound (const α) generalized.rel (const.f a) (const.f b) (generalized.rel.mk a b)),
+  repeat { trivial }
+end
+
 def {u} generalized.repeat {α : Sort u} : ℕ → Sort u
 | 0 := α
 | (n+1) := {generalized.repeat n}
