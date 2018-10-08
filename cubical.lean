@@ -63,8 +63,9 @@ namespace Path
   infix ` # ` := compute
 
   def only_refl {α : Type u} {a b : α}
-    (p : a ⇝ b) : PathP (λ i, a ⇝ (p # i)) (<i> a) p :=
-  sorry
+    (p : a ⇝ b) : PathP (λ i, a ⇝ (p # i)) (<i> a) p := begin
+    admit
+  end
 
   @[refl] def refl {α : Type u} (a : α) : a ⇝ a := <i> a
   @[refl] def rfl {α : Type u} {a : α} : a ⇝ a := <i> a
