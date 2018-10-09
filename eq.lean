@@ -27,6 +27,9 @@ namespace ground_zero.eq
   { point := trivial_loop a,
     intro := λ t, eq.trans (path_from_trivial_loop t.snd)
                            (psigma.eq (by trivial) (by trivial)) }
+
+  infix ⬝ := eq.trans
+  postfix ⁻¹ := eq.symm
 end ground_zero.eq
 
 namespace ground_zero.not

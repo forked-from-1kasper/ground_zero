@@ -9,6 +9,7 @@ section
 end
 
 namespace pushout
+  -- https://github.com/leanprover/lean2/blob/master/hott/hit/pushout.hlean
   variables {α β σ : Type u} {f : σ → α} {g : σ → β}
   def inl (x : α) : pushout f g :=
   quot.mk (pushout_rel f g) (sum.inl x)
