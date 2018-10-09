@@ -2,7 +2,10 @@ import ground_zero.suspension ground_zero.eq
 
 namespace ground_zero
 
-def circle := ∑bool
+notation `S⁻¹` := empty
+notation `S⁰` := bool
+
+def circle := ∑S⁰
 notation `S¹` := circle
 
 namespace circle
