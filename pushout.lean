@@ -19,6 +19,14 @@ namespace pushout
 
   def glue (x : σ) : inl (f x) = inr (g x) :=
   quot.sound (pushout_rel.mk x)
+
+  def rec {δ : Type u} (inl₁ : α → δ) (inr₁ : β → δ)
+    (glue₁ : Π (x : σ), inl₁ (f x) = inr₁ (g x)) : pushout f g → δ := begin
+    intro h, apply @quot.lift (α ⊕ β) (pushout_rel f g) δ
+    (begin intro x, cases x, apply inl₁ x, apply inr₁ x end),
+    intros a b H, cases H with x, simp, apply glue₁ x,
+    assumption
+  end
 end pushout
 
 end ground_zero

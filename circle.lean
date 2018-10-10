@@ -1,9 +1,13 @@
-import ground_zero.suspension ground_zero.eq
+import ground_zero.suspension ground_zero.eq ground_zero.equiv
 
 namespace ground_zero
 
 notation `S⁻¹` := empty
 notation `S⁰` := bool
+
+theorem up_dim : ∑S⁻¹ ≃ S⁰ := begin
+  admit
+end
 
 def circle := ∑S⁰
 notation `S¹` := circle

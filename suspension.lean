@@ -15,6 +15,9 @@ namespace suspension
 
   def merid {α : Type u} (a : α) : north = south :=
   pushout.glue a
+
+  def rec {α β : Type u} (n s : β) (m : α → n = s) : ∑α → β :=
+  pushout.rec (λ _, n) (λ _, s) m
 end suspension
 
 end ground_zero
