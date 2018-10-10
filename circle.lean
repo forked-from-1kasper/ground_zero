@@ -22,6 +22,9 @@ namespace circle
 
   def base : S¹ := base₁
   def loop : base = base := seg₂ ⬝ seg₁⁻¹
+
+  def {u} rec {β : Type u} (b : β) (ℓ : b = b) : S¹ → β :=
+  suspension.rec b b (λ _, ℓ)
 end circle
 
 end ground_zero
