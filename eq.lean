@@ -3,6 +3,8 @@ open ground_zero.structures (contr)
 
 namespace ground_zero.eq
   universes u v
+  infix ⬝ := eq.trans
+  postfix ⁻¹ := eq.symm
 
   def map {α : Sort u} {β : Sort v} {a b : α}
     (f : α → β) (p : a = b) : f a = f b :=
@@ -25,11 +27,9 @@ namespace ground_zero.eq
 
   instance signl_contr {α : Sort u} (a : α) : contr (singl a) :=
   { point := trivial_loop a,
-    intro := λ t, eq.trans (path_from_trivial_loop t.snd)
-                           (psigma.eq (by trivial) (by trivial)) }
+    intro := λ t, (path_from_trivial_loop t.snd) ⬝
+                  (psigma.eq (by trivial) (by trivial)) }
 
-  infix ⬝ := eq.trans
-  postfix ⁻¹ := eq.symm
 end ground_zero.eq
 
 namespace ground_zero.not

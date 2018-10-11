@@ -10,11 +10,13 @@ notation `S⁻¹` := empty
 notation `S⁰` := bool
 
 theorem up_dim : ∑S⁻¹ ≃ S⁰ :=
-  let f : ∑S⁻¹ → S⁰ :=
-  suspension.rec ff tt (λ (e : empty), begin induction e end) in
-  let g : S⁰ → ∑S⁻¹ :=
-  λ b, match b with ff := suspension.north | tt := suspension.south end in
-  begin
+let f : ∑S⁻¹ → S⁰ :=
+suspension.rec ff tt (λ (e : empty), begin induction e end) in
+let g : S⁰ → ∑S⁻¹ :=
+λ b, match b with
+  ff := suspension.north
+| tt := suspension.south
+end in begin
   existsi f, split; existsi g,
   admit, admit
 end

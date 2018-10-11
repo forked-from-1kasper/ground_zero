@@ -1,4 +1,4 @@
-import ground_zero.interval
+import ground_zero.interval ground_zero.heq
 
 namespace ground_zero
 
@@ -8,19 +8,6 @@ notation `<` binder `>` r:(scoped P, PathP.lam P) := r
 
 def {u} Path {α : Type u} (a b : α) := PathP (λ _, α) a b
 infix ` ⇝ `:30 := Path
-
-namespace heq
-  universes u v
-  def from_homo {α : Type u} {a b : α} (h : a = b) : a == b :=
-  begin induction h, reflexivity end
-
-  def map {α : Sort u} {β : α → Sort v} {a b : α}
-  (f : Π (x : α), β x) (p : a = b) : f a == f b :=
-  begin induction p, reflexivity end
-
-  def only_refl {α : Type u} {a b : α} (p : a = b) : p == (eq.refl a) :=
-  begin induction p, trivial end
-end heq
 
 namespace PathP
   universe u
