@@ -9,20 +9,36 @@ def int := quot int.rel
 notation ℤ := int
 
 namespace nat.product
-  def add (x y : ℕ × ℕ) : ℕ × ℕ :=
-  begin
+  def add (x y : ℕ × ℕ) : ℕ × ℕ := begin
     cases x with a b, cases y with c d,
     split, apply a + c, apply b + d
   end
-  instance : has_add (ℕ × ℕ) := ⟨nat.product.add⟩
+  instance : has_add (ℕ × ℕ) := ⟨add⟩
+
+  def mul (x y : ℕ × ℕ) : ℕ × ℕ := begin
+    cases x with a b, cases y with c d,
+    split, apply a * c + b * d,
+    apply a * d + b * c
+  end
+  instance : has_mul (ℕ × ℕ) := ⟨mul⟩
 
   lemma add_comm (x y : ℕ × ℕ) : x + y = y + x := begin
     cases x with a b, cases y with c d,
-    repeat { rw [nat_rw] },
-    simp [has_add.add], simp [nat.product.add]
+    simp [has_add.add], simp [add]
   end
 
-  lemma rw (a b : ℕ × ℕ) : nat.product.add a b = a + b :=
+  lemma mul_comm (x y : ℕ × ℕ) : x * y = y * x := begin
+    cases x with a b, cases y with c d,
+    simp [has_mul.mul], simp [mul],
+    rw [nat.mul_comm c a], rw [nat.mul_comm d b],
+    rw [nat.mul_comm c b], rw [nat.mul_comm d a],
+    rw [nat.add_comm (b * c) (a * d)]
+  end
+
+  lemma rw.add (a b : ℕ × ℕ) : nat.product.add a b = a + b :=
+  by trivial
+
+  lemma rw.mul (a b : ℕ × ℕ) : nat.product.mul a b = a * b :=
   by trivial
 end nat.product
 
@@ -76,7 +92,7 @@ namespace int
     apply lift₂ nat.product.add,
     { intros x y u H,
       cases x with a b, cases y with c d,
-      repeat { rw [nat.product.rw] },
+      repeat { rw [nat.product.rw.add] },
       rw [nat.product.add_comm u (a, b)],
       rw [nat.product.add_comm u (c, d)],
       apply add_saves_int, assumption },
@@ -87,6 +103,28 @@ namespace int
 
   instance : has_add int := ⟨add⟩
   instance : has_sub int := ⟨λ a b, a + (-b)⟩
+
+  def mul : int → int → int := begin
+    apply lift₂ nat.product.mul,
+    { intros x y z H,
+      cases x with a b, cases y with c d,
+      cases z with u v, simp [nat.product.mul],
+      apply quot.sound, simp [rel],
+      rw [←nat.add_assoc (u * a)],
+      rw [←nat.add_assoc (u * b)],
+
+      rw [←nat.left_distrib u a d],
+      rw [←nat.left_distrib v b c],
+
+      rw [←nat.left_distrib u b c],
+      rw [←nat.left_distrib v a d],
+      
+      simp [rel] at H, rw [H] },
+    { intros x y,
+      apply eq.map mk,
+      apply nat.product.mul_comm }
+  end
+  instance : has_mul int := ⟨mul⟩
 
   theorem k_equiv (a b k : ℕ) : mk (a, b) = mk (a + k, b + k) :=
   begin apply quot.sound, simp [rel] end
