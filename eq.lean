@@ -29,8 +29,10 @@ namespace ground_zero.eq
   { point := trivial_loop a,
     intro := λ t, (path_from_trivial_loop t.snd) ⬝
                   (psigma.eq (by trivial) (by trivial)) }
-
 end ground_zero.eq
+
+namespace ground_zero.gruppoid
+end ground_zero.gruppoid
 
 namespace ground_zero.not
   notation `¬` a := a → empty
