@@ -74,7 +74,7 @@ namespace Path
   equiv.subst (to_eq p)
 
   def transport {α β : Type u} : (α ⇝ β) → (α → β) :=
-  sigma.fst ∘ equiv.idtoeqv ∘ to_eq
+  psigma.fst ∘ equiv.idtoeqv ∘ to_eq
 
   def idtoeqv (α β : Type u) (p : α ⇝ β) : α ≃ β :=
   transport (<i> α ≃ p # i) (equiv.id α)
@@ -104,6 +104,15 @@ namespace Path
     (h : π a (refl a)) (b : α) (p : a ⇝ b) : π b p :=
   transport (<i> π (comp (<j> a) (<j> a) p # i)
                    (PathP.compute (only_refl p) i)) h
+
+  theorem general_equality_condition {α : Type u} {a b : α} : (a ⇝ b) ≃ (a = b) := begin
+    existsi to_eq, split; existsi from_eq,
+    { simp [equiv.homotopy],
+      intro p,
+      induction p,
+      admit },
+    { trivial }
+  end
 end Path
 
 namespace cubicaltt

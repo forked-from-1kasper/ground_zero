@@ -1,5 +1,7 @@
 import ground_zero.eq
 
+abbreviation builtin.int := int
+
 namespace ground_zero
 
 def int.rel : ℕ × ℕ → ℕ × ℕ → Prop
@@ -128,6 +130,23 @@ namespace int
 
   theorem k_equiv (a b k : ℕ) : mk (a, b) = mk (a + k, b + k) :=
   begin apply quot.sound, simp [rel] end
+
+  def from_builtin : builtin.int → int
+  | (n+1:ℕ) := mk (n+1, 0)
+  | 0 := mk (0, 0)
+  | -[1+n] := mk (0, n+1)
+
+  def to_builtin : int → builtin.int :=
+  quot.lift
+    (λ (x : ℕ × ℕ), int.of_nat x.fst - int.of_nat x.snd)
+    (begin
+      intros x y H,
+      cases x with a b,
+      cases y with c d,
+      simp,
+      simp [rel] at H,
+      admit
+    end)
 end int
 
 end ground_zero
