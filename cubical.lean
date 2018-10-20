@@ -109,7 +109,7 @@ namespace Path
     existsi to_eq, split; existsi from_eq,
     { simp [equiv.homotopy],
       intro p,
-      induction p,
+      induction p, simp [from_eq],
       admit },
     { trivial }
   end

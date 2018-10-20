@@ -106,6 +106,27 @@ namespace int
   instance : has_add int := ⟨add⟩
   instance : has_sub int := ⟨λ a b, a + (-b)⟩
 
+  instance : has_zero int := ⟨mk (0, 0)⟩
+  instance : has_one int := ⟨mk (1, 0)⟩
+
+  theorem inv_append (a : int) : a + (-a) = 0 := begin
+    induction a, cases a with u v,
+    simp [has_neg.neg], apply quot.sound,
+    simp [nat.product.add], simp [rel]
+  end
+
+  theorem send_to_right {a b c : int} : (a + b = c) → (a = c - b) := begin
+    intro h, induction a, induction b, induction c,
+    cases a with x y, cases b with u v, cases c with p q,
+    simp [has_sub.sub, has_neg.neg], simp [mk],
+    simp [has_add.add] at *, apply quot.sound,
+    simp [nat.product.add], simp [rel],
+    rw [←nat.add_assoc x u q],
+    rw [←nat.add_assoc y v p],
+    simp [add, lift₂, mk] at h,
+    admit, repeat { trivial }
+  end
+
   def mul : int → int → int := begin
     apply lift₂ nat.product.mul,
     { intros x y z H,

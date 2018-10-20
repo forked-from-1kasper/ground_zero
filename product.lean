@@ -24,8 +24,9 @@ namespace product
     λ f x, intro (f.pr₁ x) (f.pr₂ x),
     existsi e₁, split; existsi e₂,
     { simp [equiv.homotopy], intro f, funext,
-      simp [e₁, e₂], admit },
-    { admit }
+      simp [e₁, e₂], simp, apply product.uniq },
+    { simp [equiv.homotopy], intro x,
+      cases x with f g, simp }
   end
 end product
 

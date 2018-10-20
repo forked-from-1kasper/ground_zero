@@ -1,4 +1,5 @@
 import ground_zero.trunc ground_zero.eq ground_zero.structures
+import ground_zero.equiv
 open ground_zero.trunc ground_zero.structures
 
 namespace ground_zero
@@ -49,7 +50,7 @@ namespace 𝕀
   notation r `∨` s := max r s
 
   def funext {α : Sort u} {β : Sort v} {f g : α → β}
-    (p : Π (x : α), f x = g x) : f = g := begin
+    (p : f ~ g) : f = g := begin
     let pₓ := λ (x : α), rec (f x) (g x) (p x),
     let q := λ (i : 𝕀) (x : α), pₓ x i,
     apply (eq.map q seg)

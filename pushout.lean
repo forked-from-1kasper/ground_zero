@@ -22,7 +22,6 @@ namespace pushout
   def glue (x : σ) : inl (f x) = inr (g x) :=
   quot.sound (pushout_rel.mk x)
 
-
   def ind {δ : pushout f g → Type j}
     (inl₁ : Π (x : α), δ (inl x)) (inr₁ : Π (x : β), δ (inr x))
     (glue₁ : Π (x : σ), inl₁ (f x) == inr₁ (g x)) : Π (x : pushout f g), δ x := begin
