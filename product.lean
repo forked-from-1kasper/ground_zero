@@ -1,4 +1,4 @@
-import ground_zero.equiv
+import ground_zero.equiv ground_zero.interval
 
 namespace ground_zero
 
@@ -10,7 +10,7 @@ namespace product
   def elim {γ : Sort t} (g : α → β → γ) (x : α × β) : γ :=
   g x.pr₁ x.pr₂
 
-  def uniq : Π (x : α × β), (intro x.pr₁ x.pr₂) = x 
+  def uniq : Π (x : α × β), (intro x.pr₁ x.pr₂) = x :> (α × β)
   | (intro a b) := eq.refl (intro a b)
 
   def ind {π : α × β → Type t} (g : Π (x : α) (y : β), π (intro x y)) :
@@ -23,8 +23,8 @@ namespace product
     let e₂ : (ν → α) × (ν → β) → (ν → α × β) :=
     λ f x, intro (f.pr₁ x) (f.pr₂ x),
     existsi e₁, split; existsi e₂,
-    { simp [equiv.homotopy], intro f, funext,
-      simp [e₁, e₂], simp, apply product.uniq },
+    { simp [equiv.homotopy], intro f, apply interval.funext,
+      simp [e₁, e₂], intro x, simp, apply product.uniq },
     { simp [equiv.homotopy], intro x,
       cases x with f g, simp }
   end

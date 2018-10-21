@@ -1,4 +1,4 @@
-import ground_zero.heq
+import ground_zero.heq ground_zero.eq ground_zero.support
 
 namespace ground_zero
 universes u v k j
@@ -19,8 +19,8 @@ namespace pushout
   def inr (x : β) : pushout f g :=
   quot.mk (pushout_rel f g) (sum.inr x)
 
-  def glue (x : σ) : inl (f x) = inr (g x) :=
-  quot.sound (pushout_rel.mk x)
+  def glue (x : σ) : inl (f x) = inr (g x) :> pushout f g :=
+  support.of_builtin $ quot.sound (pushout_rel.mk x)
 
   def ind {δ : pushout f g → Type j}
     (inl₁ : Π (x : α), δ (inl x)) (inr₁ : Π (x : β), δ (inr x))
@@ -30,9 +30,10 @@ namespace pushout
   end
 
   def rec {δ : Type j} (inl₁ : α → δ) (inr₁ : β → δ)
-    (glue₁ : Π (x : σ), inl₁ (f x) = inr₁ (g x)) :
+    (glue₁ : Π (x : σ), inl₁ (f x) = inr₁ (g x) :> δ) :
     pushout f g → δ :=
-  @ind α β σ f g (λ _, δ) inl₁ inr₁ (λ x, heq.from_homo $ glue₁ x)
+  @ind α β σ f g (λ _, δ) inl₁ inr₁
+    (λ x, heq.from_homo $ support.to_builtin $ glue₁ x)
 end pushout
 
 end ground_zero

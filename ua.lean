@@ -4,36 +4,36 @@ open ground_zero.equiv (idtoeqv) ground_zero.not
 open ground_zero.equiv (homotopy)
 open ground_zero.structures
 
+universe u
+axiom ua {α β : Sort u} : α ≃ β → (α = β :> _)
+
 namespace ground_zero.ua
 
-universe u
-axiom ua {α β : Type u} : α ≃ β → α = β
-
 axiom comp_rule {α β : Type u} (e : α ≃ β) (x : α) :
-  ground_zero.equiv.transport (ua e) x = e.fst x
-axiom prop_uniq {α β : Type u} (p : α = β) : (ua (idtoeqv p)) = p
+  ground_zero.equiv.transport (ua e) x = e.fst x :> _
+axiom prop_uniq {α β : Type u} (p : α = β :> _) :
+  (ua (idtoeqv p)) = p :> _
 
 def bool_to_universe : bool → Type
 | tt := ground_zero.unit
 | ff := empty
 
-theorem ff_neq_tt (h : ff = tt) : empty :=
-@eq.rec bool tt bool_to_universe ground_zero.unit.star ff (eq.symm h)
+theorem ff_neq_tt (h : ff = tt :> bool) : empty :=
+@ground_zero.eq.rec bool tt (λ b _, bool_to_universe b) ground_zero.unit.star ff h⁻¹
 
--- lol
-theorem univalence_Lean_fail : empty := begin
+noncomputable theorem univalence_Lean_fail
+  (error : hset Type) : empty := begin
   let e : bool ≃ bool :=
-  begin existsi bnot, split; existsi bnot; simp [homotopy] end,
-  let p : bool = bool := ua e,
+  begin existsi bnot, split; existsi bnot; simp [homotopy]; intro x; simp end,
+  let p : bool = bool :> Type := ua e,
   let h₁ := ground_zero.equiv.transport p tt,
-  let h₂ := ground_zero.equiv.transport p tt,
-  let g₁ : h₁ = ff := comp_rule e tt,
-  let g₂ : h₂ = tt := eq.refl tt,
-  let oops : h₁ = h₂ := by trivial,
-  let uh_oh := eq.trans (eq.trans (eq.symm g₁) oops) g₂,
+  let h₂ := ground_zero.equiv.transport
+            (ground_zero.eq.refl bool) tt,
+  let g₁ : h₁ = ff :> _ := comp_rule e tt,
+  let g₂ : h₂ = tt :> _ := by reflexivity,
+  let oops : h₁ = h₂ :> _ := ground_zero.eq.map (λ p, ground_zero.equiv.transport p tt) (hset.intro p (ground_zero.eq.refl bool)),
+  let uh_oh := g₁⁻¹ ⬝ oops ⬝ g₂,
   apply ff_neq_tt, apply uh_oh
 end
-
-#reduce univalence_Lean_fail
 
 end ground_zero.ua

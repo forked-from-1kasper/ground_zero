@@ -1,9 +1,11 @@
 import ground_zero.interval ground_zero.heq
+import ground_zero.support
+open ground_zero.interval
 
 namespace ground_zero
 
-inductive {u} PathP (σ : 𝕀 → Type u) : σ 𝕀.i₀ → σ 𝕀.i₁ → Type u
-| lam (f : Π (i : 𝕀), σ i) : PathP (f 𝕀.i₀) (f 𝕀.i₁)
+inductive {u} PathP (σ : 𝕀 → Type u) : σ i₀ → σ i₁ → Type u
+| lam (f : Π (i : 𝕀), σ i) : PathP (f i₀) (f i₁)
 notation `<` binder `>` r:(scoped P, PathP.lam P) := r
 
 def {u} Path {α : Type u} (a b : α) := PathP (λ _, α) a b
@@ -12,16 +14,16 @@ infix ` ⇝ `:30 := Path
 namespace PathP
   universe u
 
-  def to_heq {σ : 𝕀 → Type u} {a : σ 𝕀.i₀} {b : σ 𝕀.i₁}
+  def to_heq {σ : 𝕀 → Type u} {a : σ i₀} {b : σ i₁}
     (p : PathP σ a b) : a == b :=
-  PathP.rec (λ f, heq.map f 𝕀.seg) p
+  PathP.rec (λ f, heq.map f (support.to_builtin interval.seg)) p
 
-  def from_heq {σ : 𝕀 → Type u} {a : σ 𝕀.i₀} {b : σ 𝕀.i₁}
+  def from_heq {σ : 𝕀 → Type u} {a : σ i₀} {b : σ i₁}
     (p : a == b) : PathP σ a b :=
-  PathP.lam (𝕀.hrec a b p)
+  PathP.lam (interval.hrec a b p)
 
-  def compute {σ : 𝕀 → Type u} {a : σ 𝕀.i₀} {b : σ 𝕀.i₁} (p : PathP σ a b) : Π (i : 𝕀), σ i :=
-  𝕀.hrec a b (to_heq p)
+  def compute {σ : 𝕀 → Type u} {a : σ i₀} {b : σ i₁} (p : PathP σ a b) : Π (i : 𝕀), σ i :=
+  interval.hrec a b (to_heq p)
 
   -- ??? it works wrong!
   --infix ` # ` := compute
@@ -39,11 +41,11 @@ end PathP
 namespace Path
   universes u v
 
-  def to_eq {α : Type u} {a b : α} (p : a ⇝ b) : a = b :=
-  PathP.rec (λ f, eq.map f 𝕀.seg) p
+  def to_eq {α : Type u} {a b : α} (p : a ⇝ b) : a = b :> α :=
+  PathP.rec (λ f, eq.map f seg) p
 
-  def from_eq {α : Type u} {a b : α} (p : a = b) : a ⇝ b :=
-  PathP.lam (𝕀.rec a b p)
+  def from_eq {α : Type u} {a b : α} (p : a = b :> α) : a ⇝ b :=
+  PathP.lam (interval.rec a b p)
 
   def compute {α : Type u} {a b : α} (p : a ⇝ b) : 𝕀 → α :=
   PathP.compute p
@@ -80,11 +82,11 @@ namespace Path
   transport (<i> α ≃ p # i) (equiv.id α)
 
   def test_eta {α : Type u} {a b : α} (p : Path a b) : Path p p := rfl
-  def face₀ {α : Type u} {a b : α} (p : a ⇝ b) : α := p # 𝕀.i₀
-  def face₁ {α : Type u} {a b : α} (p : a ⇝ b) : α := p # 𝕀.i₁
+  def face₀ {α : Type u} {a b : α} (p : a ⇝ b) : α := p # i₀
+  def face₁ {α : Type u} {a b : α} (p : a ⇝ b) : α := p # i₁
 
-  def comp_test₀ {α : Type u} {a b : α} (p : a ⇝ b) : (p # 𝕀.i₀) ⇝ a := rfl
-  def comp_test₁ {α : Type u} {a b : α} (p : a ⇝ b) : (p # 𝕀.i₁) ⇝ b := rfl
+  def comp_test₀ {α : Type u} {a b : α} (p : a ⇝ b) : (p # i₀) ⇝ a := rfl
+  def comp_test₁ {α : Type u} {a b : α} (p : a ⇝ b) : (p # i₁) ⇝ b := rfl
 
   -- fail
   --def symm_test {α : Type u} {a b : α} (p : a ⇝ b) : (p⁻¹)⁻¹ ⇝ p := rfl
@@ -105,13 +107,13 @@ namespace Path
   transport (<i> π (comp (<j> a) (<j> a) p # i)
                    (PathP.compute (only_refl p) i)) h
 
-  theorem general_equality_condition {α : Type u} {a b : α} : (a ⇝ b) ≃ (a = b) := begin
+  theorem general_equality_condition {α : Type u} {a b : α} : (a ⇝ b) ≃ (a = b :> α) := begin
     existsi to_eq, split; existsi from_eq,
     { simp [equiv.homotopy],
       intro p,
       induction p, simp [from_eq],
       admit },
-    { trivial }
+    { intro x, admit }
   end
 end Path
 
@@ -144,6 +146,9 @@ namespace cubicaltt
   def add_comm₃ {a b c : ℕ} : add a (add b c) ⇝ add c (add b a) :=
   let r : add a (add b c) ⇝ add a (add c b) := <i> add a (add_comm b c # i) in
   Path.comp (add_comm a (add c b)) (<j> r # −j) (<j> add_assoc c b a # −j)
+
+  example (n m : ℕ) (h : n ⇝ m) : (nat.succ n ⇝ nat.succ m) :=
+  <i> nat.succ (h # i)
 end cubicaltt
 
 end ground_zero

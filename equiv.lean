@@ -1,3 +1,5 @@
+import ground_zero.eq
+
 namespace ground_zero
 
 structure {u v} product (α : Sort u) (β : Sort v) :=
@@ -11,12 +13,12 @@ namespace equiv
 
   def homotopy {α : Sort u} {π : α → Sort v}
     (f g : Π (x : α), π x) :=
-  Π (x : α), f x = g x
+  Π (x : α), f x = g x :> π x
   infix ` ~ ` := homotopy
 
   @[refl] def homotopy.id {α : Sort u} {π : α → Sort v}
     (f : Π (x : α), π x) : f ~ f :=
-  begin simp [homotopy] end
+  begin simp [homotopy], intro x, reflexivity end
 
   @[symm] def homotopy.symm {α : Sort u} {π : α → Sort v}
     (f g : Π (x : α), π x) (h : f ~ g) : g ~ f := begin
@@ -47,24 +49,33 @@ infix ` ≃ `:25 := equiv
 namespace equiv
   universes u v
 
-  def id (α : Type u) : α ≃ α := begin
+  def f {α : Sort u} {β : Sort v} (e : α ≃ β) : α → β :=
+  e.fst
+
+  def g₁ {α : Sort u} {β : Sort v} (e : α ≃ β) : β → α :=
+  e.snd.pr₁.fst
+
+  def g₂ {α : Sort u} {β : Sort v} (e : α ≃ β) : β → α :=
+  e.snd.pr₂.fst
+
+  @[refl] def id (α : Sort u) : α ≃ α := begin
     simp [equiv], existsi id,
     simp [biinv], simp [equiv.linv, equiv.rinv],
     split,
     repeat {
-      existsi id,
-      simp [homotopy]
+      existsi id, simp [homotopy],
+      intro, reflexivity
     }
   end
 
-  def idtoeqv {α β : Type u} (p : α = β) : α ≃ β :=
+  def idtoeqv {α β : Sort u} (p : α = β :> _) : α ≃ β :=
   begin induction p, apply id end
 
-  def transport {α β : Type u} : (α = β) → (α → β) :=
+  def transport {α β : Sort u} : (α = β :> _) → (α → β) :=
   psigma.fst ∘ idtoeqv
 
-  def subst {α : Type u} {π : α → Type v} {a b : α}
-    (p : a = b) : π a → π b :=
+  def subst {α : Sort u} {π : α → Sort v} {a b : α}
+    (p : a = b :> α) : π a → π b :=
   begin induction p, assume x, apply x end
 end equiv
 

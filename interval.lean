@@ -5,18 +5,21 @@ open ground_zero.trunc ground_zero.structures
 namespace ground_zero
 
 def 𝕀 := ∥bool∥
-namespace 𝕀
+abbreviation interval := 𝕀
+
+namespace interval
   universes u v
 
   def i₀ : 𝕀 := trunc.elem ff
   def i₁ : 𝕀 := trunc.elem tt
-  def seg : i₀ = i₁ := trunc.uniq i₀ i₁
+  def seg : i₀ = i₁ :> 𝕀 := trunc.uniq i₀ i₁
 
   @[inline, recursor 4]
-  def rec {β : Sort u} (b₀ : β) (b₁ : β) (s : b₀ = b₁) : 𝕀 → β :=
-  let f (b : bool) : eq.singl b₀ :=
-    bool.rec (eq.trivial_loop b₀) ⟨b₁, s⟩ b in
-  eq.end_point ∘ trunc.rec f
+  def rec {β : Sort u} (b₀ : β) (b₁ : β)
+    (s : b₀ = b₁ :> β) : 𝕀 → β :=
+  let f (b : bool) : singl b₀ :=
+    bool.rec (singl.trivial_loop b₀) ⟨b₁, s⟩ b in
+  singl.point ∘ trunc.rec f
 
   def hrec {β : 𝕀 → Sort u} (b₀ : β i₀) (b₁ : β i₁)
     (s : b₀ == b₁) (x : 𝕀) : β x :=
@@ -32,9 +35,16 @@ namespace 𝕀
     induction a, apply b₀, apply b₁
   end
 
+  def funext {α : Sort u} {β : Sort v} {f g : α → β}
+    (p : f ~ g) : f = g :> _ := begin
+    let pₓ := λ (x : α), rec (f x) (g x) (p x),
+    let q := λ (i : 𝕀) (x : α), pₓ x i,
+    apply (eq.map q seg)
+  end
+
   instance : prop 𝕀 := ⟨trunc.uniq⟩
   instance trunc_functions {α : Type u} : prop (∥α∥ → ∥α∥) :=
-  ⟨begin intros, funext, apply trunc.uniq end⟩
+  ⟨begin intros, apply funext, intro x, apply trunc.uniq end⟩
 
   def neg : 𝕀 → 𝕀 :=
   trunc.rec (trunc.elem ∘ bnot)
@@ -48,13 +58,6 @@ namespace 𝕀
 
   notation r `∧` s := min r s
   notation r `∨` s := max r s
-
-  def funext {α : Sort u} {β : Sort v} {f g : α → β}
-    (p : f ~ g) : f = g := begin
-    let pₓ := λ (x : α), rec (f x) (g x) (p x),
-    let q := λ (i : 𝕀) (x : α), pₓ x i,
-    apply (eq.map q seg)
-  end
-end 𝕀
+end interval
 
 end ground_zero

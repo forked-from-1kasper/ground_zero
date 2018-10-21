@@ -13,14 +13,16 @@ namespace suspension
   def north {α : Type u} : suspension α := pushout.inl ground_zero.unit.star
   def south {α : Type u} : suspension α := pushout.inr ground_zero.unit.star
 
-  def merid {α : Type u} (a : α) : north = south :=
+  def merid {α : Type u} (a : α) :
+    north = south :> suspension α :=
   pushout.glue a
 
   def ind {α : Type u} {β : ∑α → Type v} (n : β north) (s : β south)
     (m : α → n == s) : Π (x : ∑α), β x :=
   sorry
 
-  def rec {α : Type u} {β : Type v} (n s : β) (m : α → n = s) : ∑α → β :=
+  def rec {α : Type u} {β : Type v} (n s : β)
+    (m : α → n = s :> β) : ∑α → β :=
   pushout.rec (λ _, n) (λ _, s) m
 end suspension
 

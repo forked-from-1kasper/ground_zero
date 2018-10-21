@@ -90,6 +90,10 @@ namespace int
     rw [nat.add_assoc]
   end
 
+  def {u v} eq_map {α : Sort u} {β : Sort v} {a b : α}
+    (f : α → β) (p : a = b) : f a = f b :=
+  begin induction p, reflexivity end
+
   def add : int → int → int := begin
     apply lift₂ nat.product.add,
     { intros x y u H,
@@ -99,7 +103,7 @@ namespace int
       rw [nat.product.add_comm u (c, d)],
       apply add_saves_int, assumption },
     { intros x y,
-      apply eq.map mk,
+      apply eq_map mk,
       apply nat.product.add_comm }
   end
 
@@ -144,7 +148,7 @@ namespace int
       
       simp [rel] at H, rw [H] },
     { intros x y,
-      apply eq.map mk,
+      apply eq_map mk,
       apply nat.product.mul_comm }
   end
   instance : has_mul int := ⟨mul⟩
