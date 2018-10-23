@@ -2,8 +2,11 @@ import ground_zero.pushout ground_zero.unit
 
 namespace ground_zero
 
+abbreviation unit₀ : Type := ground_zero.unit
+abbreviation star₀ : unit₀ := ground_zero.unit.star
+
 def {u} suspension (α : Type u) :=
-pushout (λ (a : α), ground_zero.unit.star) (λ _, ground_zero.unit.star)
+pushout (λ (a : α), star₀) (λ _, star₀)
 notation `∑` := suspension
 
 namespace suspension
@@ -19,7 +22,10 @@ namespace suspension
 
   def ind {α : Type u} {β : ∑α → Type v} (n : β north) (s : β south)
     (m : α → n == s) : Π (x : ∑α), β x :=
-  sorry
+  pushout.ind
+    (begin intro x, induction x, apply n end)
+    (begin intro x, induction x, apply s end)
+    (by assumption)
 
   def rec {α : Type u} {β : Type v} (n s : β)
     (m : α → n = s :> β) : ∑α → β :=

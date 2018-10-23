@@ -11,11 +11,29 @@ universe u
 class prop (α : Sort u) :=
 (intro : Π (a b : α), a = b :> α)
 
-class hset (α : Type u) :=
+class hset (α : Sort u) :=
 (intro {a b : α} (p q : a = b :> α) : p = q :> _)
 
 class contr (α : Sort u) :=
 (point : α) (intro : Π (a : α), point = a :> α)
+
+inductive homotopy_level
+| minus_two
+| succ : homotopy_level → homotopy_level
+
+notation `−2` := homotopy_level.minus_two
+notation `−1` := homotopy_level.succ −2
+
+instance : has_zero homotopy_level := ⟨homotopy_level.succ −1⟩
+
+def is_n_type : Sort u → homotopy_level → Sort (max 1 u)
+| α homotopy_level.minus_two := contr α
+| α (homotopy_level.succ n) := Π (x y : α),
+  is_n_type (x = y :> α) n
+
+def n_type (n : homotopy_level) :=
+Σ' (α : Sort u), is_n_type α n
+notation n `-Type` := n_type n
 
 instance contr_is_prop (α : Sort u) [contr α] : prop α :=
 ⟨λ a b, (contr.intro a)⁻¹ ⬝ (contr.intro b)⟩

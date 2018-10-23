@@ -127,7 +127,7 @@ namespace int
     simp [nat.product.add], simp [rel],
     rw [←nat.add_assoc x u q],
     rw [←nat.add_assoc y v p],
-    simp [add, lift₂, mk] at h,
+    simp [add, lift₂, mk, nat.product.add] at h,
     admit, repeat { trivial }
   end
 

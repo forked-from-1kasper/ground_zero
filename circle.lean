@@ -7,7 +7,7 @@ namespace ground_zero
 universe u
 
 notation `S⁻¹` := empty
-notation `S⁰` := bool
+notation [parsing_only] `S⁰` := bool
 
 theorem up_dim : ∑S⁻¹ ≃ S⁰ :=
 let f : ∑S⁻¹ → S⁰ :=
@@ -18,7 +18,9 @@ let g : S⁰ → ∑S⁻¹ :=
 | tt := suspension.south
 end in begin
   existsi f, split; existsi g,
-  admit, admit
+  { intro x, simp, admit },
+  { intro x, simp, induction x,
+    repeat { trivial } }
 end
 
 def circle := ∑S⁰
@@ -38,5 +40,13 @@ namespace circle
   def rec {β : Type u} (b : β) (ℓ : b = b :> β) : S¹ → β :=
   suspension.rec b b (λ _, ℓ)
 end circle
+
+namespace ncircle
+  def S : ℕ → Sort _
+  | 0 := S¹
+  | (n+1) := ∑(S n)
+
+  notation `S²` := S 2
+end ncircle
 
 end ground_zero

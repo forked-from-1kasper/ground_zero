@@ -1,6 +1,8 @@
 import ground_zero.structures ground_zero.equiv
-import ground_zero.support
+import ground_zero.support ground_zero.circle
+
 open ground_zero.structures
+open ground_zero.ncircle (S)
 
 namespace ground_zero
 
@@ -61,4 +63,24 @@ namespace trunc
   end
 
 end trunc
+
+inductive {u} ntrunc.core (α : Sort u) : ℕ → Sort (u + 1)
+| elem {n : ℕ} : α → ntrunc.core n
+| hub {n : ℕ} : (S (n + 1) → ntrunc.core n) → ntrunc.core n
+
+inductive {u} ntrunc.rel (α : Sort u) (n : ℕ) :
+  ntrunc.core α n → ntrunc.core α n → Prop
+| spoke (r : (S (n + 1) → ntrunc.core α n)) (x : S (n + 1)) :
+  ntrunc.rel (r x) (ntrunc.core.hub r)
+
+def {u} ntrunc (α : Sort u) (n : ℕ) :=
+@quot (ntrunc.core α n) (ntrunc.rel α n)
+
+namespace ntrunc
+  universe u
+
+  def elem {α : Sort u} {n : ℕ} (a : α) : ntrunc α n :=
+  quot.mk (rel α n) (core.elem a)
+end ntrunc
+
 end ground_zero

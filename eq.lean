@@ -38,6 +38,19 @@ namespace eq
   def map {α : Sort u} {β : Sort v} {a b : α}
     (f : α → β) (p : a = b :> α) : f a = f b :> β :=
   begin induction p, reflexivity end
+  infix # := map
+
+  structure pointed :=
+  (α : Sort u) (a : α)
+
+  def loop_space (X : pointed) : pointed :=
+  { α := X.a = X.a :> X.α,
+    a := eq.refl X.a }
+
+  def iterated_loop_space : pointed → ℕ → pointed
+  | X 0 := X
+  | X (n+1) := iterated_loop_space (loop_space X) n
+  notation `Ω` `[` n `]` X := iterated_loop_space X n
 end eq
 
 namespace not
