@@ -35,12 +35,13 @@ namespace interval
     induction a, apply b₀, apply b₁
   end
 
+  def homotopy {α : Sort u} {β : Sort v} {f g : α → β}
+    (p : f ~ g) (x : α) : 𝕀 → β :=
+  rec (f x) (g x) (p x)
+
   def funext {α : Sort u} {β : Sort v} {f g : α → β}
-    (p : f ~ g) : f = g :> _ := begin
-    let pₓ := λ (x : α), rec (f x) (g x) (p x),
-    let q := λ (i : 𝕀) (x : α), pₓ x i,
-    apply (eq.map q seg)
-  end
+    (p : f ~ g) : f = g :> _ :=
+  eq.map (λ (i : 𝕀) (x : α), homotopy p x i) seg
 
   instance : prop 𝕀 := ⟨trunc.uniq⟩
   instance trunc_functions {α : Type u} : prop (∥α∥ → ∥α∥) :=

@@ -8,7 +8,7 @@ def int.rel : ℕ × ℕ → ℕ × ℕ → Prop
 | (a, b) (c, d) := a + d = b + c
 
 def int := quot int.rel
-notation ℤ := int
+local notation ℤ := int
 
 namespace nat.product
   def add (x y : ℕ × ℕ) : ℕ × ℕ := begin
@@ -46,7 +46,7 @@ end nat.product
 
 namespace int
 
-  def mk : ℕ × ℕ → int := quot.mk rel
+  def mk : ℕ × ℕ → ℤ := quot.mk rel
   def pos (n : ℕ) := mk (n, 0)
   def neg (n : ℕ) := mk (0, n)
 
@@ -66,8 +66,10 @@ namespace int
   by trivial
 
   def lift₂ (f : ℕ × ℕ → ℕ × ℕ → ℕ × ℕ)
-    (h₁ : Π (a b x : ℕ × ℕ) (H : rel a b), mk (f x a) = mk (f x b))
-    (h₂ : Π (a b : ℕ × ℕ), mk (f a b) = mk (f b a))
+    (h₁ : Π (a b x : ℕ × ℕ) (H : rel a b),
+      mk (f x a) = mk (f x b))
+    (h₂ : Π (a b : ℕ × ℕ),
+      mk (f a b) = mk (f b a))
     (x y : int) : int :=
   quot.lift
     (λ x, quot.lift
@@ -113,13 +115,13 @@ namespace int
   instance : has_zero int := ⟨mk (0, 0)⟩
   instance : has_one int := ⟨mk (1, 0)⟩
 
-  theorem inv_append (a : int) : a + (-a) = 0 := begin
+  theorem inv_append (a : ℤ) : a + (-a) = 0 := begin
     induction a, cases a with u v,
     simp [has_neg.neg], apply quot.sound,
     simp [nat.product.add], simp [rel]
   end
 
-  theorem send_to_right {a b c : int} : (a + b = c) → (a = c - b) := begin
+  theorem send_to_right {a b c : ℤ} : (a + b = c) → (a = c - b) := begin
     intro h, induction a, induction b, induction c,
     cases a with x y, cases b with u v, cases c with p q,
     simp [has_sub.sub, has_neg.neg], simp [mk],
@@ -131,7 +133,7 @@ namespace int
     admit, repeat { trivial }
   end
 
-  def mul : int → int → int := begin
+  def mul : ℤ → ℤ → ℤ := begin
     apply lift₂ nat.product.mul,
     { intros x y z H,
       cases x with a b, cases y with c d,
@@ -156,20 +158,18 @@ namespace int
   theorem k_equiv (a b k : ℕ) : mk (a, b) = mk (a + k, b + k) :=
   begin apply quot.sound, simp [rel] end
 
-  def from_builtin : builtin.int → int
+  def from_builtin : builtin.int → ℤ
   | (n+1:ℕ) := mk (n+1, 0)
   | 0 := mk (0, 0)
   | -[1+n] := mk (0, n+1)
 
-  def to_builtin : int → builtin.int :=
+  def to_builtin : ℤ → builtin.int :=
   quot.lift
     (λ (x : ℕ × ℕ), int.of_nat x.fst - int.of_nat x.snd)
     (begin
       intros x y H,
-      cases x with a b,
-      cases y with c d,
-      simp,
-      simp [rel] at H,
+      cases x with a b, cases y with c d,
+      simp, simp [rel] at H,
       admit
     end)
 end int

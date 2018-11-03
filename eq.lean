@@ -41,16 +41,16 @@ namespace eq
   infix # := map
 
   structure pointed :=
-  (α : Sort u) (a : α)
+  (space : Sort u) (point : space)
 
   def loop_space (X : pointed) : pointed :=
-  { α := X.a = X.a :> X.α,
-    a := eq.refl X.a }
+  ⟨X.point = X.point :> X.space, eq.refl X.point⟩
 
   def iterated_loop_space : pointed → ℕ → pointed
   | X 0 := X
   | X (n+1) := iterated_loop_space (loop_space X) n
-  notation `Ω` `[` n `]` X := iterated_loop_space X n
+
+  notation `Ω` `[` n `]` `, ` X := (iterated_loop_space X n).space
 end eq
 
 namespace not

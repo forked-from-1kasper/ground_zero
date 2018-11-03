@@ -77,6 +77,9 @@ namespace equiv
   def subst {α : Sort u} {π : α → Sort v} {a b : α}
     (p : a = b :> α) : π a → π b :=
   begin induction p, assume x, apply x end
+
+  reserve infix `▸`
+  infix `▸` := subst
 end equiv
 
 end ground_zero

@@ -39,6 +39,10 @@ namespace circle
 
   def rec {β : Type u} (b : β) (ℓ : b = b :> β) : S¹ → β :=
   suspension.rec b b (λ _, ℓ)
+
+  def ind {β : S¹ → Type u} (b : β base)
+    (ℓ : b == seg₁ ▸ b) : Π (x : S¹), β x :=
+  suspension.ind b (seg₁ ▸ b) (λ _, ℓ)
 end circle
 
 namespace ncircle

@@ -78,7 +78,7 @@ namespace Path
   def transport {α β : Type u} : (α ⇝ β) → (α → β) :=
   psigma.fst ∘ equiv.idtoeqv ∘ to_eq
 
-  def idtoeqv (α β : Type u) (p : α ⇝ β) : α ≃ β :=
+  def idtoeqv {α β : Type u} (p : α ⇝ β) : α ≃ β :=
   transport (<i> α ≃ p # i) (equiv.id α)
 
   def test_eta {α : Type u} {a b : α} (p : Path a b) : Path p p := rfl
@@ -107,11 +107,10 @@ namespace Path
   transport (<i> π (comp (<j> a) (<j> a) p # i)
                    (PathP.compute (only_refl p) i)) h
 
-  theorem general_equality_condition {α : Type u} {a b : α} : (a ⇝ b) ≃ (a = b :> α) := begin
+  theorem general_equality_condition {α : Type u} {a b : α} :
+    (a ⇝ b) ≃ (a = b :> α) := begin
     existsi to_eq, split; existsi from_eq,
-    { simp [equiv.homotopy],
-      intro p,
-      induction p, simp [from_eq],
+    { intro p, simp, induction p, simp [from_eq],
       admit },
     { intro x, admit }
   end
@@ -133,7 +132,7 @@ namespace cubicaltt
   def add_zero_inv : Π (a : ℕ), a ⇝ add a nat.zero :=
   Path.refl
 
-  def add_comm (a : ℕ) : Π (b : ℕ), (add a b) ⇝ (add b a)
+  def add_comm (a : ℕ) : Π (b : ℕ), add a b ⇝ add b a
   | 0 := <i> (add_zero a) # −i
   | (b+1) := Path.comp (<i> nat.succ (add_comm b # i))
                        (<j> nat.succ (add a b))
@@ -147,7 +146,7 @@ namespace cubicaltt
   let r : add a (add b c) ⇝ add a (add c b) := <i> add a (add_comm b c # i) in
   Path.comp (add_comm a (add c b)) (<j> r # −j) (<j> add_assoc c b a # −j)
 
-  example (n m : ℕ) (h : n ⇝ m) : (nat.succ n ⇝ nat.succ m) :=
+  example (n m : ℕ) (h : n ⇝ m) : nat.succ n ⇝ nat.succ m :=
   <i> nat.succ (h # i)
 end cubicaltt
 

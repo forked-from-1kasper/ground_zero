@@ -11,7 +11,8 @@ namespace sigma
   def elim {γ : Type t} (g : Π (x : α), β x → γ) : sigma β → γ
   | ⟨a, b⟩ := g a b
 
-  def ind {π : sigma β → Type t} (g : Π (a : α) (b : β a), π ⟨a, b⟩) : Π (x : sigma β), π x
+  def ind {π : sigma β → Type t} (g : Π (a : α) (b : β a), π ⟨a, b⟩) :
+    Π (x : sigma β), π x
   | ⟨a, b⟩ := g a b
 end sigma
 

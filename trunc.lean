@@ -70,17 +70,39 @@ inductive {u} ntrunc.core (α : Sort u) : ℕ → Sort (u + 1)
 
 inductive {u} ntrunc.rel (α : Sort u) (n : ℕ) :
   ntrunc.core α n → ntrunc.core α n → Prop
-| spoke (r : (S (n + 1) → ntrunc.core α n)) (x : S (n + 1)) :
+| spoke (r : S (n + 1) → ntrunc.core α n) (x : S (n + 1)) :
   ntrunc.rel (r x) (ntrunc.core.hub r)
 
-def {u} ntrunc (α : Sort u) (n : ℕ) :=
-@quot (ntrunc.core α n) (ntrunc.rel α n)
+def {u} ntrunc (n : homotopy_level) (α : Sort u) :=
+match n with
+| homotopy_level.minus_two := ground_zero.unit
+| homotopy_level.succ n :=
+  @quot (ntrunc.core α (homotopy_level.succ n))
+        (ntrunc.rel α (homotopy_level.succ n))
+end
+
+def strunc := ntrunc 0
+notation `∥` α `∥₀` := strunc α
 
 namespace ntrunc
   universe u
 
-  def elem {α : Sort u} {n : ℕ} (a : α) : ntrunc α n :=
-  quot.mk (rel α n) (core.elem a)
+  def elem {α : Sort u} {n : homotopy_level} (a : α) :
+    ntrunc n α :=
+  match n with
+  | homotopy_level.minus_two := ground_zero.unit.star
+  | homotopy_level.succ n :=
+    quot.mk (rel α (homotopy_level.succ n)) (core.elem a)
+  end
+
+  theorem truncation_is_correct {α : Sort u} {n : homotopy_level} :
+    is_n_type (ntrunc n α) n := begin
+    induction n with n ih,
+    { unfold is_n_type, simp [ntrunc],
+      apply contr.mk ground_zero.unit.star,
+      intro x, induction x, reflexivity },
+    admit
+  end
 end ntrunc
 
 end ground_zero
