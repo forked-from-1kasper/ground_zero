@@ -26,7 +26,7 @@ end in begin
       (by reflexivity)
       (by reflexivity)
       _ x,
-    intro x, induction x },
+    intro u, induction u },
   { intro x, simp, induction x,
     repeat { trivial } }
 end
