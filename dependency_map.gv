@@ -1,0 +1,52 @@
+digraph dependency_map {
+  trunc -> algebra
+  structures -> algebra
+  eq -> algebra
+
+  suspension -> circle
+  structures -> circle
+  interval -> circle
+
+  interval -> cubical
+  heq -> cubical
+  support -> cubical
+
+  eq -> equiv
+  eq -> int
+
+  trunc -> interval
+  eq -> interval
+  structures -> interval
+  equiv -> interval
+
+  eq -> mere_eq_lemma
+  trunc -> mere_eq_lemma
+
+  circle -> ntrunc
+
+  equiv -> product
+  interval -> product
+
+  heq -> pushout
+  eq -> pushout
+  support -> pushout
+
+  unit -> structures
+  equiv -> structures
+  eq -> structures
+
+  eq -> support
+
+  pushout -> suspension
+  unit -> suspension
+
+  structures -> trunc
+  support -> trunc
+
+  equiv -> ua
+  eq -> ua
+  structures -> ua
+  unit -> ua
+
+  equiv -> unit  
+}

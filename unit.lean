@@ -1,3 +1,5 @@
+import ground_zero.equiv
+
 namespace ground_zero
 
 universe u
@@ -13,7 +15,7 @@ namespace unit
   def ind {π : unit → Sort u} (g : π star) : Π (x : unit), π x
   | star := g
 
-  def uniq : Π (x : unit), x = star
+  def uniq : Π (x : unit), x = star :> _
   | star := eq.refl star
 end unit
 

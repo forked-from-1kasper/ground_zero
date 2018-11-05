@@ -56,7 +56,7 @@ namespace trunc
   theorem equiv_iff_trunc {α β : Type u}
     (f : α → β) (g : β → α) : ∥α∥ ≃ ∥β∥ := begin
     existsi lift f, split; existsi lift g;
-    { simp [equiv.homotopy], intro x, apply uniq }
+    { intro x, apply uniq }
   end
 
 end trunc
