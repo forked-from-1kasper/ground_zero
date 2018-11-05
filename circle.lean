@@ -6,7 +6,7 @@ namespace ground_zero
 
 universes u v
 
-notation `S⁻¹` := empty
+notation [parsing_only] `S⁻¹` := empty
 notation [parsing_only] `S⁰` := bool
 
 local infix ` = ` := eq
@@ -39,13 +39,13 @@ namespace circle
   def base₁ : S¹ := suspension.north
   def base₂ : S¹ := suspension.south
 
-  def seg₁ : base₁ = base₂ :> S¹ := suspension.merid ff
-  def seg₂ : base₁ = base₂ :> S¹ := suspension.merid tt
+  def seg₁ : base₁ = base₂ := suspension.merid ff
+  def seg₂ : base₁ = base₂ := suspension.merid tt
 
   def base : S¹ := base₁
-  def loop : base = base :> S¹ := seg₂ ⬝ seg₁⁻¹
+  def loop : base = base := seg₂ ⬝ seg₁⁻¹
 
-  def rec {β : Type u} (b : β) (ℓ : b = b :> β) : S¹ → β :=
+  def rec {β : Type u} (b : β) (ℓ : b = b) : S¹ → β :=
   suspension.rec b b (λ _, ℓ)
 
   notation u ` =[` p `] ` v := equiv.subst p u = v
@@ -59,6 +59,17 @@ namespace circle
       refine heq.trans p _,
       admit
     end)
+
+  def loops := Ω[1], ⟨S¹, base⟩
+
+  def succ (l : loops) : loops := l ⬝ loop
+  def pred (l : loops) : loops := l ⬝ loop⁻¹
+
+  def zero := eq.refl base
+  def one := succ zero
+  def two := succ one
+  def three := succ two
+  def fourth := succ three
 end circle
 
 namespace ncircle

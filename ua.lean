@@ -32,8 +32,9 @@ theorem ff_neq_tt (h : ff = tt :> bool) : empty :=
   bool tt (λ b _, bool_to_universe b)
   ground_zero.unit.star ff h⁻¹
 
-noncomputable theorem univalence_Lean_fail
-  (error : hset Type) : empty := begin
+noncomputable theorem universe_not_a_set : ¬(hset Type) :=
+begin
+  intro error,
   let e : bool ≃ bool := begin
     existsi bnot, split; existsi bnot;
     simp [homotopy]; intro x; simp
@@ -47,7 +48,8 @@ noncomputable theorem univalence_Lean_fail
   let g₂ : h₂ = tt :> _ := by reflexivity,
   let oops : h₁ = h₂ :> _ :=
     (λ p, ground_zero.equiv.transport p tt) #
-    (hset.intro p (ground_zero.eq.refl bool)),
+    (@hset.intro Type error bool bool
+                 p (ground_zero.eq.refl bool)),
   let uh_oh := g₁⁻¹ ⬝ oops ⬝ g₂,
   apply ff_neq_tt, apply uh_oh
 end

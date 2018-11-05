@@ -28,6 +28,14 @@ namespace product
     { simp [equiv.homotopy], intro x,
       cases x with f g, simp }
   end
+
+  def swap : α × β → β × α
+  | (intro a b) := intro b a
+
+  theorem comm : α × β ≃ β × α := begin
+    existsi swap, split; existsi swap,
+    repeat { intro x, induction x with a b, simp [swap] }
+  end
 end product
 
 end ground_zero

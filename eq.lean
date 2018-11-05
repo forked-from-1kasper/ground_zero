@@ -19,7 +19,8 @@ by trivial
 -/
 
 namespace eq
-  def rfl {α : Sort u} {a : α} : a = a :> α := eq.refl a
+  @[inline] def rfl {α : Sort u} {a : α} : a = a :> α :=
+  eq.refl a
 
   @[trans] def trans {α : Sort u} {a b c : α}
     (p : a = b :> α) (q : b = c :> α) : a = c :> α := begin
@@ -33,6 +34,25 @@ namespace eq
 
   infix ` ⬝ ` := trans
   postfix ⁻¹ := symm
+
+  def comp_inv {α : Sort u} {a b : α} (p : a = b :> α) :
+    p ⬝ p⁻¹ = eq.refl a :=
+  begin induction p, trivial end
+
+  def refl_left {α : Sort u} {a b : α} (p : a = b :> α) :
+    eq.refl a ⬝ p = p :=
+  begin induction p, trivial end
+
+  def refl_right {α : Sort u} {a b : α} (p : a = b :> α) :
+    p ⬝ eq.refl b = p :=
+  begin induction p, trivial end
+
+  def assoc {α : Sort u} {a b c d : α}
+    (p : a = b :> α) (q : b = c :> α) (r : c = d :> α) :
+    p ⬝ (q ⬝ r) = (p ⬝ q) ⬝ r := begin
+    induction p, induction q, induction r,
+    trivial
+  end
 
   def map {α : Sort u} {β : Sort v} {a b : α}
     (f : α → β) (p : a = b :> α) : f a = f b :> β :=
