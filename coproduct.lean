@@ -5,7 +5,7 @@ universes u v f
 inductive coproduct (α : Type u) (β : Type v)
 | inl {} : α → coproduct
 | inr {} : β → coproduct
-infix `+` := coproduct
+infix ` + ` := coproduct
 
 namespace coproduct
   variables {α : Type u} {β : Type v}

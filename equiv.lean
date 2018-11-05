@@ -78,8 +78,8 @@ namespace equiv
     (p : a = b :> α) : π a → π b :=
   begin induction p, assume x, apply x end
 
-  reserve infix `▸`
-  infix `▸` := subst
+  reserve infix ` ▸ `
+  infix ` ▸ ` := subst
 end equiv
 
 end ground_zero

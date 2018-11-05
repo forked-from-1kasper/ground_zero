@@ -14,6 +14,9 @@ namespace interval
   def i₁ : 𝕀 := trunc.elem tt
   def seg : i₀ = i₁ :> 𝕀 := trunc.uniq i₀ i₁
 
+  abbreviation zero := i₀
+  abbreviation one := i₁
+
   @[inline, recursor 4]
   def rec {β : Sort u} (b₀ : β) (b₁ : β)
     (s : b₀ = b₁ :> β) : 𝕀 → β :=
@@ -21,8 +24,9 @@ namespace interval
     bool.rec (singl.trivial_loop b₀) ⟨b₁, s⟩ b in
   singl.point ∘ trunc.rec f
 
-  def hrec {β : 𝕀 → Sort u} (b₀ : β i₀) (b₁ : β i₁)
-    (s : b₀ == b₁) (x : 𝕀) : β x :=
+  def hrec {β : 𝕀 → Sort u}
+    (b₀ : β i₀) (b₁ : β i₁) (s : b₀ == b₁)
+    (x : 𝕀) : β x :=
   @quot.hrec_on bool (λ _ _, true) β x
     (λ i, bool.rec_on i b₀ b₁)
     (λ a b _,
@@ -40,8 +44,8 @@ namespace interval
   rec (f x) (g x) (p x)
 
   def funext {α : Sort u} {β : Sort v} {f g : α → β}
-    (p : f ~ g) : f = g :> _ :=
-  eq.map (λ (i : 𝕀) (x : α), homotopy p x i) seg
+    (p : f ~ g) : f = g :> (α → β) :=
+  function.swap (homotopy p) # seg
 
   instance : prop 𝕀 := ⟨trunc.uniq⟩
   instance trunc_functions {α : Type u} : prop (∥α∥ → ∥α∥) :=
@@ -52,7 +56,7 @@ namespace interval
   prefix `−`:20 := neg
 
   def bool_to_interval (f : bool → bool → bool) (a b : 𝕀) : 𝕀 :=
-  trunc.rec (λ a, trunc.rec (λ b, trunc.elem $ f a b) b) a
+  trunc.rec (λ a, trunc.rec (trunc.elem ∘ f a) b) a
 
   def min : 𝕀 → 𝕀 → 𝕀 := bool_to_interval band
   def max : 𝕀 → 𝕀 → 𝕀 := bool_to_interval bor

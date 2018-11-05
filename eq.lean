@@ -9,7 +9,6 @@ inductive eq {α : Sort u} (a : α) : α → Sort u
 | refl : eq a
 attribute [refl] eq.refl
 
-
 local infix ` = ` := eq
 notation a ` = ` b ` :> ` α := @eq α a b
 
@@ -32,13 +31,13 @@ namespace eq
     induction p, reflexivity
   end
 
-  infix ⬝ := trans
+  infix ` ⬝ ` := trans
   postfix ⁻¹ := symm
 
   def map {α : Sort u} {β : Sort v} {a b : α}
     (f : α → β) (p : a = b :> α) : f a = f b :> β :=
   begin induction p, reflexivity end
-  infix # := map
+  infix ` # ` := map
 
   structure pointed :=
   (space : Sort u) (point : space)

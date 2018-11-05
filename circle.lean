@@ -1,13 +1,15 @@
-import ground_zero.suspension ground_zero.eq ground_zero.equiv
-import ground_zero.structures
+import ground_zero.suspension ground_zero.structures
+import ground_zero.interval
 open ground_zero.structures (hset)
 
 namespace ground_zero
 
-universe u
+universes u v
 
 notation `S⁻¹` := empty
 notation [parsing_only] `S⁰` := bool
+
+local infix ` = ` := eq
 
 theorem up_dim : ∑S⁻¹ ≃ S⁰ :=
 let f : ∑S⁻¹ → S⁰ :=
@@ -40,17 +42,55 @@ namespace circle
   def rec {β : Type u} (b : β) (ℓ : b = b :> β) : S¹ → β :=
   suspension.rec b b (λ _, ℓ)
 
+  notation u ` =[` p `] ` v := equiv.subst p u = v
+
   def ind {β : S¹ → Type u} (b : β base)
-    (ℓ : b == seg₁ ▸ b) : Π (x : S¹), β x :=
-  suspension.ind b (seg₁ ▸ b) (λ _, ℓ)
+    (ℓ : b =[loop] b) : Π (x : S¹), β x :=
+  suspension.ind b (seg₁ ▸ b)
+    (begin
+      intro x,
+      have p := heq.from_homo (support.to_builtin ℓ⁻¹),
+      refine heq.trans p _,
+      admit
+    end)
 end circle
 
 namespace ncircle
   def S : ℕ → Sort _
-  | 0 := S¹
+  | 0 := S⁰
   | (n+1) := ∑(S n)
 
   notation `S²` := S 2
 end ncircle
+
+def torus := S¹ × S¹
+notation `T²` := torus
+
+namespace torus
+  def b : T² := ⟨circle.base, circle.base⟩
+
+  def inj₁ : S¹ → T² := product.intro circle.base
+  def inj₂ : S¹ → T² := function.swap product.intro circle.base
+
+  -- poloidal and toroidal directions
+  def p : b = b :> T² := inj₁ # circle.loop
+  def q : b = b :> T² :=
+  let path := inj₂ # circle.loop in path
+
+  /-
+  def q : b = b :> T² := inj₂ # circle.loop
+
+  unexpected argument at application
+    eq.map inj₂
+  given argument
+    inj₂
+  expected argument
+    product.intro circle.base
+
+  WTF?
+  -/
+
+  def t : p ⬝ q = q ⬝ p :> b = b :> T² := sorry
+end torus
 
 end ground_zero
