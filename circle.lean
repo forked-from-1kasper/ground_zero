@@ -20,7 +20,13 @@ let g : S⁰ → ∑S⁻¹ :=
 | tt := suspension.south
 end in begin
   existsi f, split; existsi g,
-  { intro x, simp, admit },
+  { intro x, simp,
+    refine @suspension.ind _
+      (λ x, g (f x) = x :> _)
+      (by reflexivity)
+      (by reflexivity)
+      _ x,
+    intro x, induction x },
   { intro x, simp, induction x,
     repeat { trivial } }
 end
