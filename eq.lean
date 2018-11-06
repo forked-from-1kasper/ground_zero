@@ -23,14 +23,12 @@ namespace eq
   eq.refl a
 
   @[trans] def trans {α : Sort u} {a b c : α}
-    (p : a = b :> α) (q : b = c :> α) : a = c :> α := begin
-    induction p, assumption
-  end
+    (p : a = b :> α) (q : b = c :> α) : a = c :> α :=
+  begin induction p, assumption end
 
   @[symm] def symm {α : Sort u} {a b : α} (p : a = b :> α) :
-    b = a :> α := begin
-    induction p, reflexivity
-  end
+    b = a :> α :=
+  begin induction p, reflexivity end
 
   infix ` ⬝ ` := trans
   postfix ⁻¹ := symm

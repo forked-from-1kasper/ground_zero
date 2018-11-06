@@ -1,5 +1,5 @@
 import ground_zero.unit ground_zero.equiv
-import ground_zero.eq
+import ground_zero.eq ground_zero.coproduct
 
 open ground_zero.unit
 
@@ -16,6 +16,13 @@ class hset (α : Sort u) :=
 
 class contr (α : Sort u) :=
 (point : α) (intro : Π (a : α), point = a :> α)
+
+def LEM := Π (α : Type u), prop α → (α + ¬α)
+def law_of_double_negation :=
+Π (α : Type u), prop α → (¬¬α → α)
+
+def LEM_inf := Π (α : Type u), α + ¬α
+notation `LEM∞` := LEM_inf
 
 inductive homotopy_level
 | minus_two
