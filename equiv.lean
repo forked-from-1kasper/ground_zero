@@ -1,4 +1,4 @@
-import ground_zero.eq
+import ground_zero.eq ground_zero.support
 
 namespace ground_zero
 
@@ -47,7 +47,7 @@ def {u v} equiv (α : Sort u) (β : Sort v) :=
 infix ` ≃ `:25 := equiv
 
 namespace equiv
-  universes u v
+  universes u v w
 
   def f {α : Sort u} {β : Sort v} (e : α ≃ β) : α → β :=
   e.fst
@@ -74,6 +74,31 @@ namespace equiv
       existsi id, simp [homotopy],
       intro, reflexivity
     }
+  end
+
+  @[trans] def trans (α : Sort u) (β : Sort v) (γ : Sort w)
+    (e₁ : α ≃ β) (e₂ : β ≃ γ) : α ≃ γ := begin
+    cases e₁ with f₁ H₁,
+    cases H₁ with linv₁ rinv₁,
+    cases linv₁ with g₁ α₁,
+    cases rinv₁ with h₁ β₁,
+
+    cases e₂ with f₂ H₂,
+    cases H₂ with linv₂ rinv₂,
+    cases linv₂ with g₂ α₂,
+    cases rinv₂ with h₂ β₂,
+
+    existsi (f₂ ∘ f₁), split,
+    { existsi (g₁ ∘ g₂),
+      intro x, simp,
+      have p := α₂ (f₁ x), simp at p,
+      rw [support.to_builtin p],
+      have q := α₁ x, simp at q, exact q },
+    { existsi (h₁ ∘ h₂),
+      intro x, simp,
+      have p := β₁ (h₂ x), simp at p,
+      rw [support.to_builtin p],
+      have q := β₂ x, simp at q, exact q }
   end
 
   def idtoeqv {α β : Sort u} (p : α = β :> _) : α ≃ β :=
@@ -121,5 +146,17 @@ namespace qinv
     exact γ₁⁻¹ ⬝ γ₂ ⬝ β x
   end
 end qinv
+
+namespace equiv
+  universes u v
+
+  @[symm] def symm (α : Sort u) (β : Sort v)
+    (e : α ≃ β) : β ≃ α := begin
+    cases e with f H, have q := qinv.b2q f H,
+    cases q with g qinv, cases qinv with α β,
+    existsi g, split; existsi f,
+    exact α, exact β
+  end
+end equiv
 
 end ground_zero

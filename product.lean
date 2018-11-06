@@ -36,6 +36,10 @@ namespace product
     existsi swap, split; existsi swap,
     repeat { intro x, induction x with a b, simp [swap] }
   end
+
+  instance {α : Type u} {β : Type v}
+    [has_one α] [has_one β] : has_one (α × β) :=
+  ⟨intro 1 1⟩
 end product
 
 end ground_zero
