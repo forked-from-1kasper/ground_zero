@@ -1,5 +1,5 @@
-import ground_zero.trunc ground_zero.eq ground_zero.structures
-import ground_zero.equiv
+import ground_zero.trunc ground_zero.eq
+import ground_zero.equiv ground_zero.structures
 open ground_zero.trunc ground_zero.structures
 
 namespace ground_zero
@@ -46,6 +46,11 @@ namespace interval
   def funext {α : Sort u} {β : Sort v} {f g : α → β}
     (p : f ~ g) : f = g :> (α → β) :=
   function.swap (homotopy p) # seg
+
+  def dfunext {α : Sort u} {β : α → Sort v}
+    {f g : Π (x : α), β x}
+    (p : f ~ g) : f = g :> _ :=
+  (λ i x, rec (f x) (g x) (p x) i) # seg
 
   instance : prop 𝕀 := ⟨trunc.uniq⟩
   instance trunc_functions {α : Type u} : prop (∥α∥ → ∥α∥) :=

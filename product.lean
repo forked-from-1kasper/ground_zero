@@ -13,6 +13,11 @@ namespace product
   def uniq : Π (x : α × β), (intro x.pr₁ x.pr₂) = x :> (α × β)
   | (intro a b) := eq.refl (intro a b)
 
+  def construction (a b : α) (c d : β)
+    (p : a = b :> α) (q : c = d :> β) :
+    ⟨a, c⟩ = ⟨b, d⟩ :> α × β :=
+  begin induction p, induction q, reflexivity end
+
   def ind {π : α × β → Type t} (g : Π (x : α) (y : β), π (intro x y)) :
     Π (x : α × β), π x
   | (intro a b) := g a b

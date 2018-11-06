@@ -30,6 +30,8 @@ digraph dependency_map {
   equiv -> product
   interval -> product
 
+  interval -> prop
+
   heq -> pushout
   eq -> pushout
   support -> pushout

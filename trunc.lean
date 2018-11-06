@@ -35,16 +35,6 @@ namespace trunc
 
   def extract {α : Type u} [prop α] : ∥α∥ → α :=
   trunc.rec id
-  theorem prop_equiv {π : Type u} [prop π] : π ≃ ∥π∥ := begin
-    existsi trunc.elem, split,
-    repeat {
-      existsi trunc.extract, intro x,
-      simp [trunc.extract],
-      simp [trunc.rec], simp [trunc.elem],
-      intros, try { apply trunc.uniq },
-      assumption
-    }
-  end
 
   def lift {α β : Type u} (f : α → β) : ∥α∥ → ∥β∥ :=
   trunc.rec (elem ∘ f)
