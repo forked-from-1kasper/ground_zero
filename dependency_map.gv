@@ -49,6 +49,7 @@ digraph dependency_map {
   structures -> trunc
   support -> trunc
 
+  ua [style=dashed]
   equiv -> ua
   eq -> ua
   structures -> ua
