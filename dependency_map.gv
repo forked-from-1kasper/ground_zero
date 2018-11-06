@@ -48,5 +48,9 @@ digraph dependency_map {
   structures -> ua
   unit -> ua
 
-  equiv -> unit  
+  equiv -> unit
+
+  equiv -> nat
+  coproduct -> nat
+  support -> nat
 }

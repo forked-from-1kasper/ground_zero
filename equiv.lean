@@ -58,6 +58,14 @@ namespace equiv
   def g₂ {α : Sort u} {β : Sort v} (e : α ≃ β) : β → α :=
   e.snd.pr₂.fst
 
+  def inv₁ {α : Sort u} {β : Sort v} (e : α ≃ β) :
+    e.g₁ ∘ e.f ~ id :=
+  e.snd.pr₁.snd
+
+  def inv₂ {α : Sort u} {β : Sort v} (e : α ≃ β) :
+    e.f ∘ e.g₂ ~ id :=
+  e.snd.pr₂.snd
+
   @[refl] def id (α : Sort u) : α ≃ α := begin
     simp [equiv], existsi id,
     simp [biinv], simp [equiv.linv, equiv.rinv],
@@ -81,5 +89,37 @@ namespace equiv
   reserve infix ` ▸ `
   infix ` ▸ ` := subst
 end equiv
+
+def {u v} qinv {α : Sort u} {β : Sort v} (f : α → β) :=
+Σ' (g : β → α), (f ∘ g ~ id) × (g ∘ f ~ id)
+
+namespace qinv
+  universes u v
+
+  def equiv (α : Sort u) (β : Sort v) :=
+  Σ' (f : α → β), qinv f
+
+  def q2b {α : Sort u} {β : Sort v} (f : α → β) (q : qinv f) :
+    equiv.biinv f := begin
+    cases q with g H,
+    cases H with α β,
+    split; existsi g,
+    exact β, exact α
+  end
+
+  def b2q {α : Sort u} {β : Sort v} (f : α → β) (b : equiv.biinv f) :
+    qinv f := begin
+    cases b with linv rinv,
+    cases rinv with g α,
+    cases linv with h β,
+
+    existsi g, split,
+    exact α, intro x,
+
+    have γ₁ := β (g (f x)), simp at γ₁,
+    have γ₂ := h # (α (f x)), simp at γ₂,
+    exact γ₁⁻¹ ⬝ γ₂ ⬝ β x
+  end
+end qinv
 
 end ground_zero
