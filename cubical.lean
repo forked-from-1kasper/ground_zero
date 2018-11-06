@@ -16,7 +16,7 @@ namespace PathP
 
   def to_heq {σ : 𝕀 → Type u} {a : σ i₀} {b : σ i₁}
     (p : PathP σ a b) : a == b :=
-  PathP.rec (λ f, heq.map f (support.to_builtin interval.seg)) p
+  PathP.rec (λ f, heq.map f (support.truncation interval.seg)) p
 
   def from_heq {σ : 𝕀 → Type u} {a : σ i₀} {b : σ i₁}
     (p : a == b) : PathP σ a b :=

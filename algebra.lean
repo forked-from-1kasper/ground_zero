@@ -1,4 +1,4 @@
-import ground_zero.trunc ground_zero.structures ground_zero.eq
+import ground_zero.ntrunc ground_zero.structures ground_zero.eq
 open ground_zero.eq (pointed)
 open ground_zero.structures (hset)
 

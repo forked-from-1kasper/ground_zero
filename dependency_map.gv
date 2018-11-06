@@ -1,5 +1,5 @@
 digraph dependency_map {
-  trunc -> algebra
+  ntrunc -> algebra
   structures -> algebra
   eq -> algebra
 
@@ -10,6 +10,9 @@ digraph dependency_map {
   interval -> cubical
   heq -> cubical
   support -> cubical
+
+  eq -> heq
+  support -> heq
 
   eq -> equiv
   eq -> int

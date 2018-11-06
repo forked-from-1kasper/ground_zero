@@ -19,14 +19,14 @@ namespace trunc
   def rec {α : Sort u} {β : Sort v} [prop β]
     (f : α → β) : trunc α → β :=
   @quot.lift α const_rel β f
-  (λ a b _, support.to_builtin $ prop.intro (f a) (f b))
+  (λ a b _, support.truncation $ prop.intro (f a) (f b))
 
   @[recursor] def ind {α : Sort u} {π : ∥α∥ → Prop}
     (f : Π (a : α), π (trunc.elem a)) : Π (x : ∥α∥), π x :=
   @quot.ind α const_rel π f
 
   def uniq {α : Type u} (a b : ∥α∥) : a = b :> ∥α∥ := begin
-    apply support.of_builtin,
+    apply support.inclusion,
     induction a, induction b,
     apply (@quot.sound α const_rel a b true.intro),
     repeat { trivial }

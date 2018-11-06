@@ -55,7 +55,7 @@ namespace circle
   suspension.ind b (seg₁ ▸ b)
     (begin
       intro x,
-      have p := heq.from_homo (support.to_builtin ℓ⁻¹),
+      have p := heq.from_homo (support.truncation ℓ⁻¹),
       refine heq.trans p _,
       admit
     end)

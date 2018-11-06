@@ -45,12 +45,12 @@ theorem equiv_addition {α : Type u} {β : Type v} (γ : Type w)
   existsi f, split; existsi g,
   { intro x, induction x,
     { simp [g, f],
-      rw [support.to_builtin (β' x)],
+      rw [support.truncation (β' x)],
       simp },
     { trivial } },
   { intro x, induction x,
     { simp [f, g],
-      rw [support.to_builtin (α' x)],
+      rw [support.truncation (α' x)],
       simp },
     { trivial } }
 end
