@@ -24,7 +24,7 @@ theorem closed_nat : ℕ ≃ ℕ + unit := begin
     { induction n, simp [code, decode] } }
 end
 
-theorem equiv_addition (α : Type u) (β : Type v) (γ : Type w)
+theorem equiv_addition {α : Type u} {β : Type v} (γ : Type w)
   (e : α ≃ β) : α + γ ≃ β + γ := begin
   induction e with f H,
   have q := qinv.b2q f H,
@@ -53,6 +53,24 @@ theorem equiv_addition (α : Type u) (β : Type v) (γ : Type w)
       rw [support.to_builtin (α' x)],
       simp },
     { trivial } }
+end
+
+example : ℕ ≃ ℕ + unit + unit := begin
+  transitivity, exact closed_nat,
+  apply equiv_addition, exact closed_nat
+end
+
+def iterated_nat : ℕ → Type
+| 0 := ℕ
+| (nat.succ n) := coproduct (iterated_nat n) unit
+
+theorem nat_plus_unit (n : ℕ) : ℕ ≃ iterated_nat n := begin
+  induction n with n ih,
+  { reflexivity },
+  { simp [iterated_nat],
+    have H := equiv_addition unit ih,
+    symmetry, transitivity, exact equiv.symm H,
+    symmetry, exact closed_nat }
 end
 
 end ground_zero.nat

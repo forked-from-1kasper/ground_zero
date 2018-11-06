@@ -76,7 +76,7 @@ namespace equiv
     }
   end
 
-  @[trans] def trans (α : Sort u) (β : Sort v) (γ : Sort w)
+  @[trans] def trans {α : Sort u} {β : Sort v} {γ : Sort w}
     (e₁ : α ≃ β) (e₂ : β ≃ γ) : α ≃ γ := begin
     cases e₁ with f₁ H₁,
     cases H₁ with linv₁ rinv₁,
@@ -150,7 +150,7 @@ end qinv
 namespace equiv
   universes u v
 
-  @[symm] def symm (α : Sort u) (β : Sort v)
+  @[symm] def symm {α : Sort u} {β : Sort v}
     (e : α ≃ β) : β ≃ α := begin
     cases e with f H, have q := qinv.b2q f H,
     cases q with g qinv, cases qinv with α β,
