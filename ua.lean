@@ -13,8 +13,8 @@ axiom J {π : Π (α β : Sort u), α ≃ β → Sort v}
   (h : Π (α : Sort u), π α α (equiv.id α)) :
   Π (α β : Sort u) (e : α ≃ β), π α β e
 axiom Jβrule {π : Π (α β : Sort u), α ≃ β → Sort v}
-  {h : Π (α : Sort u), π α α (equiv.id α)} :
-  Π (α : Sort u), J h α α (equiv.id α) = h α :> π α α (equiv.id α)
+  {h : Π (α : Sort u), π α α (equiv.id α)} {α : Sort u} :
+  J h α α (equiv.id α) = h α :> π α α (equiv.id α)
 
 noncomputable def ua {α β : Sort u} : α ≃ β → α = β :> Sort u :=
 J eq.refl α β
@@ -32,7 +32,7 @@ begin
       ground_zero.equiv.transport (ua e) x = e.fst x :> _)
     _ α β e,
   intros δ u, simp [ua],
-  rw [support.truncation (Jβrule δ)],
+  rw [support.truncation Jβrule],
   simp [equiv.transport], simp [idtoeqv]
 end
 
@@ -44,15 +44,17 @@ theorem prop_uniq {α β : Sort u} (p : α = β :> Sort u) :
   (ua (idtoeqv p)) = p :> _ := begin
   simp [ua], induction p,
   rw [support.truncation idtoeqv_and_id],
-  rw [support.truncation (Jβrule α)]
+  rw [support.truncation Jβrule]
 end
 
 noncomputable theorem univalence (α β : Sort u) :
   (α ≃ β) ≃ (α = β :> Sort u) := begin
   existsi ua, split; existsi idtoeqv,
   { intro e, simp,
-    have g := comp_rule e,
-    admit },
+    refine J _ α β e,
+    intro δ, simp [ua],
+    rw [support.truncation Jβrule],
+    trivial },
   { intro e, simp, apply prop_uniq }
 end
 
