@@ -19,8 +19,6 @@ axiom Jβrule {π : Π (α β : Sort u), α ≃ β → Sort v}
 noncomputable def ua {α β : Sort u} : α ≃ β → α = β :> Sort u :=
 J eq.refl α β
 
---axiom ua {α β : Sort u} : (α ≃ β) → (α = β :> Sort u)
-
 namespace ua
 
 noncomputable theorem comp_rule {α β : Sort u} (e : α ≃ β) :
@@ -71,8 +69,8 @@ noncomputable theorem universe_not_a_set : ¬(hset Type) :=
 begin
   intro error,
   let e : bool ≃ bool := begin
-    existsi bnot, split; existsi bnot;
-    simp [homotopy]; intro x; simp
+    existsi bnot,
+    split; existsi bnot; intro x; simp
   end,
   let p : bool = bool :> Type := ua e,
   let h₁ := ground_zero.equiv.transport p tt,
