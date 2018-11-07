@@ -67,12 +67,9 @@ namespace equiv
   e.snd.pr₂.snd
 
   @[refl] def id (α : Sort u) : α ≃ α := begin
-    simp [equiv], existsi id,
-    simp [biinv], simp [equiv.linv, equiv.rinv],
-    split,
+    existsi id, split,
     repeat {
-      existsi id, simp [homotopy],
-      intro, reflexivity
+      existsi id, intro, reflexivity
     }
   end
 

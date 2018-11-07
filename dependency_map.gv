@@ -54,6 +54,7 @@ digraph dependency_map {
   eq -> ua
   structures -> ua
   unit -> ua
+  support -> ua
 
   equiv -> unit
 
@@ -62,4 +63,7 @@ digraph dependency_map {
   support -> nat
 
   equiv -> lost
+
+  functions
+  sigma
 }

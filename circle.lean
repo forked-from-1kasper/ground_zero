@@ -70,6 +70,34 @@ namespace circle
   def two := succ one
   def three := succ two
   def fourth := succ three
+
+  inductive int
+  | pos : ℕ → int
+  | zero
+  | neg : ℕ → int
+  /-
+    pos 1 is    2
+    pos 0 is    1
+    zero is     0
+    neg 0 is   −1
+    neg 1 is   −2
+  -/
+
+  def pos : ℕ → loops
+  | 0 := loop
+  | (n+1) := pos n ⬝ loop
+
+  def neg : ℕ → loops
+  | 0 := loop
+  | (n+1) := pos n ⬝ loop⁻¹
+
+  def code : int → loops
+  | (int.pos n) := pos n
+  | int.zero := eq.refl base
+  | (int.neg n) := neg n
+
+  example : code (int.pos 2) = loop ⬝ loop ⬝ loop :=
+  by reflexivity
 end circle
 
 namespace ncircle
