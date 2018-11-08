@@ -33,6 +33,8 @@ namespace interval
       begin simp, induction a; induction b; simp,
             apply s, symmetry, apply s end)
 
+  /- β i₀ and β i₁ are Prop,
+     so s : b₀ = b₁ is trivial -/
   def ind {β : 𝕀 → Prop} (b₀ : β i₀) (b₁ : β i₁) :
     Π (x : 𝕀), β x := begin
     intros, apply trunc.ind, intros,
@@ -51,6 +53,10 @@ namespace interval
     {f g : Π (x : α), β x}
     (p : f ~ g) : f = g :> _ :=
   (λ i x, rec (f x) (g x) (p x) i) # seg
+
+  def homotopy_from_path {α : Sort u} {β : α → Sort v}
+    {f g : Π (x : α), β x} (p : f = g :> _) : f ~ g :=
+  begin induction p, apply equiv.homotopy.id end
 
   instance : prop 𝕀 := ⟨trunc.uniq⟩
   instance trunc_functions {α : Type u} : prop (∥α∥ → ∥α∥) :=

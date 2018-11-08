@@ -6,10 +6,22 @@ namespace prop
 
 universe u
 
+lemma transport_composition {α : Sort u} {a x₁ x₂ : α}
+  (p : x₁ = x₂ :> α) (q : a = x₁ :> α) :
+  equiv.transporting (eq a) p q = q ⬝ p :> _ := begin
+  induction p, symmetry, transitivity,
+  apply eq.refl_right, trivial
+end
+
 theorem prop_is_set {α : Sort u} (r : prop α) : hset α := begin
-  destruct r, intros h H,
+  destruct r, intros f H,
   apply structures.hset.mk,
-  intros, admit
+  intros,
+  have g := (equiv.apd (f a) p)⁻¹ ⬝
+            transport_composition p (f a a),
+  transitivity, exact (equiv.rewrite_comp g)⁻¹,
+  simp [eq.trans],
+  admit
 end
 
 lemma prop_is_prop {α : Sort u} : prop (prop α) := begin
@@ -17,11 +29,11 @@ lemma prop_is_prop {α : Sort u} : prop (prop α) := begin
   intros f g,
   have h := prop_is_set f, cases h,
   cases f, cases g,
-  have j := λ a b, h (f a b) (g a b),
+  have p := λ a b, h (f a b) (g a b),
   apply eq.map structures.prop.mk,
   apply interval.dfunext, intro a,
   apply interval.dfunext, intro b,
-  exact j a b
+  exact p a b
 end
 
 lemma prop_equiv {π : Type u} (h : prop π) : π ≃ ∥π∥ := begin
@@ -50,9 +62,7 @@ end
 theorem prop_exercise (π : Type u) : (prop π) ≃ (π ≃ ∥π∥) :=
 begin
   existsi @prop_equiv π, split; existsi prop_from_equiv,
-  { intro x, simp, cases x,
-    have p := @prop_is_prop π,
-    cases p, apply p },
+  { intro x, apply prop_is_prop.intro },
   { intro x, simp,
     cases x with f H,
     cases H with linv rinv,

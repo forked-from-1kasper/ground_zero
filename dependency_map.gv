@@ -55,6 +55,7 @@ digraph dependency_map {
   structures -> ua
   unit -> ua
   support -> ua
+  product -> ua
 
   equiv -> unit
 

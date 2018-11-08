@@ -1,6 +1,6 @@
 import ground_zero.equiv ground_zero.eq 
 import ground_zero.structures ground_zero.unit
-import ground_zero.support
+import ground_zero.support ground_zero.product
 open ground_zero.equiv (idtoeqv) ground_zero.not
 open ground_zero.equiv (homotopy)
 open ground_zero.structures
@@ -10,14 +10,14 @@ namespace ground_zero
 universes u v
 
 axiom J {π : Π (α β : Sort u), α ≃ β → Sort v}
-  (h : Π (α : Sort u), π α α (equiv.id α)) :
-  Π (α β : Sort u) (e : α ≃ β), π α β e
+  (h : Π (α : Sort u), π α α (equiv.id α))
+  {α β : Sort u} (e : α ≃ β) : π α β e
 axiom Jβrule {π : Π (α β : Sort u), α ≃ β → Sort v}
   {h : Π (α : Sort u), π α α (equiv.id α)} {α : Sort u} :
-  J h α α (equiv.id α) = h α :> π α α (equiv.id α)
+  J h (equiv.id α) = h α :> π α α (equiv.id α)
 
 noncomputable def ua {α β : Sort u} : α ≃ β → α = β :> Sort u :=
-J eq.refl α β
+J eq.refl
 
 namespace ua
 
@@ -34,6 +34,10 @@ begin
   simp [equiv.transport], simp [idtoeqv]
 end
 
+theorem refl_on_ua {α : Sort u} :
+  ua (equiv.id α) = eq.refl α :> α = α :> Sort u :=
+begin unfold ua, rw [support.truncation Jβrule] end
+
 theorem idtoeqv_and_id {α : Sort u} :
   idtoeqv (eq.refl α) = equiv.id α :> α ≃ α :=
 begin simp [idtoeqv] end
@@ -49,7 +53,7 @@ noncomputable theorem univalence (α β : Sort u) :
   (α ≃ β) ≃ (α = β :> Sort u) := begin
   existsi ua, split; existsi idtoeqv,
   { intro e, simp,
-    refine J _ α β e,
+    refine J _ e,
     intro δ, simp [ua],
     rw [support.truncation Jβrule],
     trivial },
@@ -85,6 +89,56 @@ begin
                  p (ground_zero.eq.refl bool)),
   let uh_oh := g₁⁻¹ ⬝ oops ⬝ g₂,
   apply ff_neq_tt, apply uh_oh
+end
+
+-- exercise 2.17 (i) in HoTT book
+noncomputable theorem product_equiv₁ {α α' β β' : Sort u}
+  (e₁ : α ≃ α') (e₂ : β ≃ β') : (α × β) ≃ (α' × β') := begin
+  have p := ua e₁, have q := ua e₂,
+  induction p, induction q,
+  reflexivity
+end
+
+noncomputable theorem product_equiv₂ {α α' β β' : Sort u}
+  (e₁ : α ≃ α') (e₂ : β ≃ β') : (α × β) ≃ (α' × β') :=
+begin
+  refine J _ e₁, intro δ,
+  refine J _ e₂, intro σ,
+  reflexivity
+end
+
+theorem product_equiv₃ {α α' β β' : Sort u}
+  (e₁ : α ≃ α') (e₂ : β ≃ β') : (α × β) ≃ (α' × β') := begin
+  cases e₁ with f H, cases H with linv rinv,
+  cases linv with g α₁, cases rinv with h β₁,
+
+  cases e₂ with f' H, cases H with linv' rinv',
+  cases linv' with g' α₂, cases rinv' with h' β₂,
+
+  let encode : α × β → α' × β' := begin
+    intro x, cases x with u v, split,
+    exact f u, exact f' v
+  end,
+
+  let decode₁ : α' × β' → α × β := begin
+    intro x, cases x with u v, split,
+    exact g u, exact g' v
+  end,
+
+  let decode₂ : α' × β' → α × β := begin
+    intro x, cases x with u v, split,
+    exact h u, exact h' v
+  end,
+
+  existsi encode, split,
+  { existsi decode₁, intro x,
+    cases x with u v, simp [encode, decode₁],
+    apply product.construction,
+    exact α₁ u, exact α₂ v },
+  { existsi decode₂, intro x,
+    cases x with u v, simp [encode, decode₂],
+    apply product.construction,
+    exact β₁ u, exact β₂ v }
 end
 
 end ua

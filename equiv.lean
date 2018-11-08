@@ -66,6 +66,10 @@ namespace equiv
     e.f ∘ e.g₂ ~ id :=
   e.snd.pr₂.snd
 
+  instance forward_coe {α : Sort u} {β : Sort v} :
+    has_coe (α ≃ β) (α → β) :=
+  ⟨begin intro e, cases e with f H, exact f end⟩
+
   @[refl] def id (α : Sort u) : α ≃ α := begin
     existsi id, split,
     repeat {
@@ -108,8 +112,27 @@ namespace equiv
     (p : a = b :> α) : π a → π b :=
   begin induction p, assume x, apply x end
 
+  -- subst with explicit π
+  abbreviation transporting {α : Sort u}
+    (π : α → Sort v) {a b : α}
+    (p : a = b :> α) : π a → π b := subst p
+
+  def apd {α : Sort u} {β : α → Sort v} {a b : α}
+    (f : Π (x : α), β x) (p : a = b :> α) :
+    equiv.subst p (f a) = f b :> β b :=
+  begin induction p, reflexivity end
+
+  def rewrite_comp {α : Sort u} {a b c : α}
+    {p : a = b :> α} {q : b = c :> α} {r : a = c :> α}
+    (h : r = p ⬝ q :> a = c :> α) :
+    p⁻¹ ⬝ r = q :> b = c :> α := begin
+    induction p, induction q,
+    simp [eq.symm], simp [eq.trans],
+    simp [eq.trans] at h, exact h
+  end
+
   reserve infix ` ▸ `
-  infix ` ▸ ` := subst
+  infix [parsing_only] ` ▸ ` := subst
 end equiv
 
 def {u v} qinv {α : Sort u} {β : Sort v} (f : α → β) :=

@@ -34,15 +34,15 @@ namespace eq
   postfix ⁻¹ := symm
 
   def comp_inv {α : Sort u} {a b : α} (p : a = b :> α) :
-    p ⬝ p⁻¹ = eq.refl a :=
+    p ⬝ p⁻¹ = eq.refl a :> a = a :> α :=
   begin induction p, trivial end
 
   def refl_left {α : Sort u} {a b : α} (p : a = b :> α) :
-    eq.refl a ⬝ p = p :=
+    eq.refl a ⬝ p = p :> a = b :> α :=
   begin induction p, trivial end
 
   def refl_right {α : Sort u} {a b : α} (p : a = b :> α) :
-    p ⬝ eq.refl b = p :=
+    p ⬝ eq.refl b = p :> a = b :> α :=
   begin induction p, trivial end
 
   def assoc {α : Sort u} {a b c d : α}
