@@ -1,5 +1,5 @@
 import ground_zero.suspension ground_zero.structures
-import ground_zero.interval
+import ground_zero.interval ground_zero.product
 open ground_zero.structures (hset)
 
 namespace ground_zero
@@ -117,25 +117,23 @@ namespace torus
   def inj₁ : S¹ → T² := product.intro circle.base
   def inj₂ : S¹ → T² := function.swap product.intro circle.base
 
+  abbreviation prod {α : Type u} {β : Type v} {a b : α} {c d : β}
+    (p : a = b :> α) (q : c = d :> β) :
+    ⟨a, c⟩ = ⟨b, d⟩ :> α × β :=
+  product.construction a b c d p q
+
   -- poloidal and toroidal directions
-  def p : b = b :> T² := inj₁ # circle.loop
-  def q : b = b :> T² :=
-  let path := inj₂ # circle.loop in path
+  def p : b = b :> T² := prod (eq.refl circle.base) circle.loop
+  def q : b = b :> T² := prod circle.loop (eq.refl circle.base)
 
-  /-
-  def q : b = b :> T² := inj₂ # circle.loop
+  def Φ {π : Type u} {x x' y y' : π}
+    (α : x = x' :> π) (β : y = y' :> π) :
+    prod (eq.refl x) β ⬝ prod α (eq.refl y') =
+    prod α (eq.refl y) ⬝ prod (eq.refl x') β :> _ :=
+  begin induction α, induction β, trivial end
 
-  unexpected argument at application
-    eq.map inj₂
-  given argument
-    inj₂
-  expected argument
-    product.intro circle.base
-
-  WTF?
-  -/
-
-  def t : p ⬝ q = q ⬝ p :> b = b :> T² := sorry
+  def t : p ⬝ q = q ⬝ p :> b = b :> T² :=
+  Φ circle.loop circle.loop
 end torus
 
 end ground_zero
