@@ -7,9 +7,12 @@ digraph dependency_map {
   structures -> circle
   interval -> circle
 
+  equiv -> coproduct
+
   interval -> cubical
   heq -> cubical
   support -> cubical
+  product -> cubical
 
   eq -> heq
   support -> heq

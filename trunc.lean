@@ -45,6 +45,13 @@ namespace trunc
     { intro x, apply uniq }
   end
 
+  def double {α : Type u} (a : α) : α × α := ⟨a, a⟩
+  theorem product_identity {α : Type u} :
+    ∥α∥ ≃ ∥α × α∥ := begin
+    apply equiv_iff_trunc,
+    exact double,
+    exact (begin intro x, cases x with u v, exact u end)
+  end
 end trunc
 
 end ground_zero
