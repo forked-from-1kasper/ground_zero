@@ -34,6 +34,10 @@ namespace product
       cases x with f g, simp }
   end
 
+  def bimap {γ δ : Sort v} (f : α → γ) (g : β → δ) :
+    α × β → γ × δ
+  | (intro a b) := intro (f a) (g b)
+
   def swap : α × β → β × α
   | (intro a b) := intro b a
 

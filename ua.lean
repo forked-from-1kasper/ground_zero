@@ -115,28 +115,13 @@ theorem product_equiv₃ {α α' β β' : Sort u}
   cases e₂ with f' H, cases H with linv' rinv',
   cases linv' with g' α₂, cases rinv' with h' β₂,
 
-  let encode : α × β → α' × β' := begin
-    intro x, cases x with u v, split,
-    exact f u, exact f' v
-  end,
-
-  let decode₁ : α' × β' → α × β := begin
-    intro x, cases x with u v, split,
-    exact g u, exact g' v
-  end,
-
-  let decode₂ : α' × β' → α × β := begin
-    intro x, cases x with u v, split,
-    exact h u, exact h' v
-  end,
-
-  existsi encode, split,
-  { existsi decode₁, intro x,
-    cases x with u v, simp [encode, decode₁],
+  existsi (product.bimap f f'), split,
+  { existsi (product.bimap g g'), intro x,
+    cases x with u v, simp [*],
     apply product.construction,
     exact α₁ u, exact α₂ v },
-  { existsi decode₂, intro x,
-    cases x with u v, simp [encode, decode₂],
+  { existsi (product.bimap h h'), intro x,
+    cases x with u v, simp [*],
     apply product.construction,
     exact β₁ u, exact β₂ v }
 end
