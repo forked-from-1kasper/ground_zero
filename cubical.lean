@@ -46,6 +46,7 @@ def equality {α : Sort u} {a b : α} (p : path a b) : a = b :> α :=
 
 def compute {α : Sort u} {a b : α} (p : path a b) : 𝕀 → α :=
 interval.rec a b (equality p)
+
 infix ` # ` := compute
 notation `<` binder `>` r:(scoped P, path.lam P) := r
 
@@ -64,11 +65,51 @@ notation `<` binder `>` r:(scoped P, path.lam P) := r
   vertices are written from left to right, from bottom to top:
     square a a a b
 -/
-def conn_and {α : Sort u} {a b : α}
-  (p : a = b :> α) : square a a a b :=
-square.lam (λ i j, interval.rec a b p (i ∧ j))
-
 infix ` ⇝ `:30 := path
+
+def conn_and {α : Sort u} {a b : α}
+  (p : a ⇝ b) : square a a a b :=
+square.lam (λ i j, p # (i ∧ j))
+
+def square.const {α : Sort u} (a : α) :
+  square a a a a :=
+square.lam (λ i j, a)
+
+def square.mk {α : Sort u} {a₀ a₁ b₀ b₁ : α}
+  (u : a₀ ⇝ a₁) (v : b₀ ⇝ b₁)
+  (r₀ : a₀ ⇝ b₀) (r₁ : a₁ ⇝ b₁) :
+  square a₀ a₁ b₀ b₁ := sorry
+
+--         u
+--    a₀ -----> a₁
+--    |         |
+-- r­₀ |         | r₁
+--    |         |
+--    V         V
+--    b₀ -----> b₁
+--         v
+def square.extract {α : Sort u} {a b c d : α}
+  (s : square a b c d) : (a ⇝ b) × (b ⇝ c) × (c ⇝ d) × (a ⇝ d) :=
+begin
+  cases s with f, repeat { split },
+  exact <i> f ⟨i, i₀⟩, exact <i> f ⟨−i, i⟩,
+  exact <i> f ⟨i, i₁⟩, exact <i> f ⟨i, i⟩
+end
+
+def square.left {α : Sort u} {a₀ a₁ b₀ b₁ : α}
+  (s : square a₀ a₁ b₀ b₁) : a₀ ⇝ b₀ :=
+begin cases s with f, exact <j> f ⟨i₀, j⟩ end
+
+def square.right {α : Sort u} {a₀ a₁ b₀ b₁ : α}
+  (s : square a₀ a₁ b₀ b₁) : a₁ ⇝ b₁ :=
+begin cases s with f, exact <j> f ⟨i₁, j⟩ end
+
+def square.to_heq {α : Sort u} {a₀ a₁ b₀ b₁ : α}
+  (s : square a₀ a₁ b₀ b₁) :
+  s.left == s.right := begin
+  cases s with f, let p := λ i, <j> f ⟨i, j⟩,
+  exact heq.map p (support.truncation seg)
+end
 
 --def only_refl {α : Type u} {a b : α}
 --  (p : a ⇝ b) : PathP (λ i, a ⇝ (p # i)) (<i> a) p := begin
@@ -121,8 +162,9 @@ left⁻¹ ⬝ bottom ⬝ right
 
 --def J {α : Type u} {a : α} {π : Π (b : α), a ⇝ b → Type u}
 --  (h : π a (refl a)) (b : α) (p : a ⇝ b) : π b p :=
+--let q := homotopy.to_heq (conn_and p) in
 --transport (<i> π (comp (<j> a) (<j> a) p # i)
---                 (PathP.compute (only_refl p) i)) h
+--                 (@interval.hrec (λ i, a ⇝ (p # i)) _ p q i)) h
 
 --theorem general_equality_condition {α : Type u} {a b : α} :
 --  (a ⇝ b) ≃ (a = b :> α) := begin
