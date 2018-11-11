@@ -133,12 +133,18 @@ namespace circle
 
   example : winding (int.pos 2) = loop ⬝ loop ⬝ loop :=
   by reflexivity
+
+  def decode : Π (x : S¹), code x → base = x :=
+  begin
+    intro x, apply @ind (λ x, code x → base = x) winding,
+    admit
+  end
 end circle
 
 namespace ncircle
   def S : ℕ → Sort _
   | 0 := S⁰
-  | (n+1) := ∑(S n)
+  | (n + 1) := ∑(S n)
 
   notation `S²` := S 2
 end ncircle

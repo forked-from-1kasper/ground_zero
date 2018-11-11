@@ -1,4 +1,5 @@
 digraph dependency_map {
+  algebra [style=dashed]
   ntrunc -> algebra
   structures -> algebra
   eq -> algebra
@@ -34,6 +35,7 @@ digraph dependency_map {
   eq -> mere_eq_lemma
   trunc -> mere_eq_lemma
 
+  ntrunc [style=dashed]
   circle -> ntrunc
 
   equiv -> product

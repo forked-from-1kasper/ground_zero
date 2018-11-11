@@ -49,23 +49,6 @@ infix ` ≃ `:25 := equiv
 namespace equiv
   universes u v w
 
-  def f {α : Sort u} {β : Sort v} (e : α ≃ β) : α → β :=
-  e.fst
-
-  def g₁ {α : Sort u} {β : Sort v} (e : α ≃ β) : β → α :=
-  e.snd.pr₁.fst
-
-  def g₂ {α : Sort u} {β : Sort v} (e : α ≃ β) : β → α :=
-  e.snd.pr₂.fst
-
-  def inv₁ {α : Sort u} {β : Sort v} (e : α ≃ β) :
-    e.g₁ ∘ e.f ~ id :=
-  e.snd.pr₁.snd
-
-  def inv₂ {α : Sort u} {β : Sort v} (e : α ≃ β) :
-    e.f ∘ e.g₂ ~ id :=
-  e.snd.pr₂.snd
-
   instance forward_coe {α : Sort u} {β : Sort v} :
     has_coe (α ≃ β) (α → β) :=
   ⟨begin intro e, cases e with f H, exact f end⟩
@@ -125,9 +108,24 @@ namespace equiv
     (π : α → Sort v) {a b : α}
     (p : a = b :> α) : π a → π b := subst p
 
+  lemma transport_comp {α : Sort u} {β : Sort v}
+    {π : β → Sort w} {x y : α}
+    (f : α → β) (p : x = y :> α) (u : π (f x)) :
+    @subst α (π ∘ f) x y p u =
+    subst (f # p) u :>
+    π (f y) :=
+  begin induction p, trivial end
+
+  lemma transport_over_family {α : Sort u}
+    {x y : α} {π δ : α → Sort v}
+    (f : Π (x : α), π x → δ x)
+    (p : x = y :> α) (u : π x) :
+    subst p (f x u) = f y (subst p u) :> δ y :=
+  begin induction p, trivial end
+
   def apd {α : Sort u} {β : α → Sort v} {a b : α}
     (f : Π (x : α), β x) (p : a = b :> α) :
-    equiv.subst p (f a) = f b :> β b :=
+    f a =[p] f b :=
   begin induction p, reflexivity end
 
   def rewrite_comp {α : Sort u} {a b c : α}

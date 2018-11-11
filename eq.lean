@@ -55,7 +55,7 @@ namespace eq
   def map {α : Sort u} {β : Sort v} {a b : α}
     (f : α → β) (p : a = b :> α) : f a = f b :> β :=
   begin induction p, reflexivity end
-  infix ` # ` := map
+  infix [parsing_only] ` # ` := map
 
   class dotted (space : Sort u) :=
   (point : space)
