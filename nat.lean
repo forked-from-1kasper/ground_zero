@@ -1,5 +1,4 @@
-import ground_zero.equiv ground_zero.coproduct
-import ground_zero.support
+import ground_zero.coproduct
 open ground_zero
 
 namespace ground_zero.nat

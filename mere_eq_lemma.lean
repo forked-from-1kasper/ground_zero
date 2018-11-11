@@ -1,4 +1,4 @@
-import ground_zero.eq ground_zero.trunc
+import ground_zero.trunc
 
 namespace ground_zero.mere_eq_lemma
 universe u

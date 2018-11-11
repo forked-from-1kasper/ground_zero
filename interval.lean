@@ -1,5 +1,4 @@
-import ground_zero.trunc ground_zero.eq
-import ground_zero.equiv ground_zero.structures
+import ground_zero.trunc
 open ground_zero.trunc ground_zero.structures
 
 namespace ground_zero

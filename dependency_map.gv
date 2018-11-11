@@ -1,80 +1,53 @@
 digraph dependency_map {
   algebra [style=dashed]
   ntrunc -> algebra
-  structures -> algebra
-  eq -> algebra
 
   circle [style=dashed]
   suspension -> circle
-  structures -> circle
-  interval -> circle
-  eq -> circle
   ua -> circle
 
   equiv -> coproduct
 
-  interval -> cubical
   heq -> cubical
-  support -> cubical
   product -> cubical
 
-  eq -> heq
   support -> heq
 
-  eq -> equiv
   support -> equiv
   functions -> equiv
 
   eq -> int
 
   trunc -> interval
-  eq -> interval
-  structures -> interval
-  equiv -> interval
 
-  eq -> mere_eq_lemma
   trunc -> mere_eq_lemma
 
   ntrunc [style=dashed]
   circle -> ntrunc
 
-  equiv -> product
   interval -> product
 
   interval -> prop
 
   heq -> pushout
-  eq -> pushout
-  support -> pushout
   equiv -> pushout
 
   unit -> structures
-  equiv -> structures
-  eq -> structures
   coproduct -> structures
 
   eq -> support
 
   pushout -> suspension
   unit -> suspension
-  equiv -> suspension
 
   structures -> trunc
-  support -> trunc
 
   ua [style=dashed]
-  equiv -> ua
-  eq -> ua
-  structures -> ua
-  unit -> ua
-  support -> ua
   product -> ua
 
   equiv -> unit
 
-  equiv -> nat
   coproduct -> nat
-  support -> nat
 
   equiv -> lost
 

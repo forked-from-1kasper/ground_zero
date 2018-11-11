@@ -1,4 +1,4 @@
-import ground_zero.eq ground_zero.support ground_zero.functions
+import ground_zero.support ground_zero.functions
 
 namespace ground_zero
 

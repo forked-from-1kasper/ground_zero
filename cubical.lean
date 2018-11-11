@@ -1,5 +1,4 @@
-import ground_zero.interval ground_zero.heq
-import ground_zero.support ground_zero.product
+import ground_zero.heq ground_zero.product
 open ground_zero.interval
 
 namespace ground_zero

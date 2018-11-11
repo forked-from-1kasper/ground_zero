@@ -1,4 +1,4 @@
-import ground_zero.structures ground_zero.support
+import ground_zero.structures
 open ground_zero.structures
 
 namespace ground_zero

@@ -1,6 +1,4 @@
-import ground_zero.suspension ground_zero.structures
-import ground_zero.interval ground_zero.product ground_zero.ua
-import ground_zero.eq
+import ground_zero.suspension ground_zero.ua
 open ground_zero.structures (hset)
 
 namespace ground_zero

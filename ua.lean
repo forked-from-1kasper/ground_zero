@@ -1,6 +1,4 @@
-import ground_zero.equiv ground_zero.eq 
-import ground_zero.structures ground_zero.unit
-import ground_zero.support ground_zero.product
+import ground_zero.product
 open ground_zero.equiv (idtoeqv) ground_zero.not
 open ground_zero.equiv (homotopy)
 open ground_zero.structures

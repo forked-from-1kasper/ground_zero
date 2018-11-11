@@ -1,4 +1,4 @@
-import ground_zero.support ground_zero.eq
+import ground_zero.support
 
 namespace ground_zero.heq
 

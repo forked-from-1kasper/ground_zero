@@ -1,4 +1,4 @@
-import ground_zero.equiv ground_zero.interval
+import ground_zero.interval
 
 namespace ground_zero
 

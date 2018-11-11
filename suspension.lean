@@ -1,4 +1,4 @@
-import ground_zero.pushout ground_zero.unit ground_zero.equiv
+import ground_zero.pushout ground_zero.unit
 
 namespace ground_zero
 

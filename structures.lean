@@ -1,5 +1,4 @@
-import ground_zero.unit ground_zero.equiv
-import ground_zero.eq ground_zero.coproduct
+import ground_zero.unit ground_zero.coproduct
 
 open ground_zero.unit
 

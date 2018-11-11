@@ -1,5 +1,4 @@
-import ground_zero.heq ground_zero.eq ground_zero.support
-import ground_zero.equiv
+import ground_zero.heq ground_zero.equiv
 
 namespace ground_zero
 universes u v w k
