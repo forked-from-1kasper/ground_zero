@@ -3,9 +3,12 @@ digraph dependency_map {
   structures -> algebra
   eq -> algebra
 
+  circle [style=dashed]
   suspension -> circle
   structures -> circle
   interval -> circle
+  eq -> circle
+  ua -> circle
 
   equiv -> coproduct
 
@@ -18,6 +21,9 @@ digraph dependency_map {
   support -> heq
 
   eq -> equiv
+  support -> equiv
+  functions -> equiv
+
   eq -> int
 
   trunc -> interval
@@ -38,6 +44,7 @@ digraph dependency_map {
   heq -> pushout
   eq -> pushout
   support -> pushout
+  equiv -> pushout
 
   unit -> structures
   equiv -> structures
@@ -48,6 +55,7 @@ digraph dependency_map {
 
   pushout -> suspension
   unit -> suspension
+  equiv -> suspension
 
   structures -> trunc
   support -> trunc
@@ -68,6 +76,5 @@ digraph dependency_map {
 
   equiv -> lost
 
-  functions
   sigma
 }

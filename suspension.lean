@@ -1,4 +1,4 @@
-import ground_zero.pushout ground_zero.unit
+import ground_zero.pushout ground_zero.unit ground_zero.equiv
 
 namespace ground_zero
 
@@ -20,8 +20,9 @@ namespace suspension
     north = south :> suspension α :=
   pushout.glue a
 
-  def ind {α : Type u} {β : ∑α → Type v} (n : β north) (s : β south)
-    (m : α → n == s) : Π (x : ∑α), β x :=
+  def ind {α : Type u} {β : ∑α → Type v}
+    (n : β north) (s : β south)
+    (m : Π (x : α), n =[merid x] s) : Π (x : ∑α), β x :=
   pushout.ind
     (begin intro x, induction x, apply n end)
     (begin intro x, induction x, apply s end)

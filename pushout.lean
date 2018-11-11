@@ -1,7 +1,8 @@
 import ground_zero.heq ground_zero.eq ground_zero.support
+import ground_zero.equiv
 
 namespace ground_zero
-universes u v k j
+universes u v w k
 
 section
   parameters {α : Type u} {β : Type v} {σ : Type k} (f : σ → α) (g : σ → β)
@@ -20,20 +21,34 @@ namespace pushout
   quot.mk (pushout_rel f g) (sum.inr x)
 
   def glue (x : σ) : inl (f x) = inr (g x) :> pushout f g :=
-  support.inclusion $ quot.sound (pushout_rel.mk x)
+  support.inclusion (quot.sound $ pushout_rel.mk x)
 
-  def ind {δ : pushout f g → Type j}
+  lemma eq_subst_heq {α : Sort u} {π : α → Sort v}
+    {a b : α} (p : a = b :> α) (x : π a) :
+    x == equiv.subst p x :=
+  begin induction p, reflexivity end
+
+  def ind {δ : pushout f g → Type w}
     (inl₁ : Π (x : α), δ (inl x)) (inr₁ : Π (x : β), δ (inr x))
-    (glue₁ : Π (x : σ), inl₁ (f x) == inr₁ (g x)) : Π (x : pushout f g), δ x := begin
-    intro h, apply quot.hrec_on h (begin intro x, cases x, apply inl₁, apply inr₁ end),
-    intros a b H, cases H with x, simp, apply glue₁ x
+    (glue₁ : Π (x : σ), inl₁ (f x) =[glue x] inr₁ (g x)) :
+    Π (x : pushout f g), δ x := begin
+    intro h, refine quot.hrec_on h _ _,
+    { intro x, induction x, exact inl₁ x, exact inr₁ x },
+    { intros u v H, cases H with x, simp,
+      refine ground_zero.eq.rec _ (glue₁ x),
+      apply eq_subst_heq }
   end
 
-  def rec {δ : Type j} (inl₁ : α → δ) (inr₁ : β → δ)
+  def pathover_of_eq {α : Sort u} {β : Sort v}
+    {a b : α} {a' b' : β}
+    (p : a = b :> α) (q : a' = b') : a' =[p] b' := begin
+    induction p, induction q, trivial
+  end
+
+  def rec {δ : Type w} (inl₁ : α → δ) (inr₁ : β → δ)
     (glue₁ : Π (x : σ), inl₁ (f x) = inr₁ (g x) :> δ) :
     pushout f g → δ :=
-  @ind α β σ f g (λ _, δ) inl₁ inr₁
-    (λ x, heq.inclusion (glue₁ x))
+  ind inl₁ inr₁ (λ x, pathover_of_eq (glue x) (glue₁ x))
 end pushout
 
 end ground_zero

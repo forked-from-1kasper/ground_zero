@@ -57,6 +57,9 @@ namespace eq
   begin induction p, reflexivity end
   infix ` # ` := map
 
+  class dotted (space : Sort u) :=
+  (point : space)
+
   structure pointed :=
   (space : Sort u) (point : space)
 
@@ -67,11 +70,16 @@ namespace eq
   | X 0 := X
   | X (n+1) := iterated_loop_space (loop_space X) n
 
+  def loop_pointed_space (α : Sort u) [h : dotted α] :=
+  iterated_loop_space ⟨α, dotted.point α⟩
+
   notation `Ω` `[` n `]` `, ` X := (iterated_loop_space X n).space
+  notation `Ω¹` X := (loop_pointed_space X 1).space
 end eq
 
 namespace not
   notation `¬` a := a → empty
+  notation a ` ≠ ` b := ¬(a = b :> _)
 end not
 
 end ground_zero

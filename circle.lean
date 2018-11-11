@@ -1,5 +1,6 @@
 import ground_zero.suspension ground_zero.structures
-import ground_zero.interval ground_zero.product
+import ground_zero.interval ground_zero.product ground_zero.ua
+import ground_zero.eq
 open ground_zero.structures (hset)
 
 namespace ground_zero
@@ -42,28 +43,32 @@ namespace circle
   def seg₁ : base₁ = base₂ := suspension.merid ff
   def seg₂ : base₁ = base₂ := suspension.merid tt
 
+  def ind₂ {β : S¹ → Type u} (b₁ : β base₁) (b₂ : β base₂)
+    (ℓ₁ : b₁ =[seg₁] b₂)
+    (ℓ₂ : b₁ =[seg₂] b₂) : Π (x : S¹), β x :=
+  suspension.ind b₁ b₂ (begin
+    intro x, induction x,
+    exact ℓ₁, exact ℓ₂
+  end)
+
   def base : S¹ := base₁
   def loop : base = base := seg₂ ⬝ seg₁⁻¹
 
   def rec {β : Type u} (b : β) (ℓ : b = b) : S¹ → β :=
   suspension.rec b b (λ _, ℓ)
 
-  notation u ` =[` p `] ` v := equiv.subst p u = v
+  theorem recβrule₁ {β : Type u} (b : β) (ℓ : b = b) :
+    rec b ℓ base = b := eq.rfl
 
   def ind {β : S¹ → Type u} (b : β base)
     (ℓ : b =[loop] b) : Π (x : S¹), β x :=
-  suspension.ind b (seg₁ ▸ b)
-    (begin
-      intro x,
-      have p := heq.from_homo (support.truncation ℓ⁻¹),
-      refine heq.trans p _,
-      admit
-    end)
+  ind₂ b (equiv.subst seg₁ b) eq.rfl
+    (begin apply eq.map, reflexivity end)
 
-  def loops := Ω[1], ⟨S¹, base⟩
+  instance pointed_circle : eq.dotted S¹ := ⟨base⟩
 
-  def succ (l : loops) : loops := l ⬝ loop
-  def pred (l : loops) : loops := l ⬝ loop⁻¹
+  def succ (l : Ω¹(S¹)) : Ω¹(S¹) := l ⬝ loop
+  def pred (l : Ω¹(S¹)) : Ω¹(S¹) := l ⬝ loop⁻¹
 
   def zero := eq.refl base
   def one := succ zero
@@ -83,20 +88,50 @@ namespace circle
     neg 1 is   −2
   -/
 
-  def pos : ℕ → loops
+  def int.succ : int → int
+  | (int.pos n) := int.pos (n + 1)
+  | int.zero := int.pos 0
+  | (int.neg 0) := int.zero
+  | (int.neg (n + 1)) := int.neg n
+
+  def int.pred : int → int
+  | (int.pos 0) := int.zero
+  | (int.pos (n + 1)) := int.pos n
+  | int.zero := int.neg 0
+  | (int.neg n) := int.neg (n + 1)
+
+  theorem int.equiv : int ≃ int := begin
+    existsi int.succ, split; existsi int.pred,
+    { intro n, induction n,
+      repeat { trivial },
+      { induction n with n ih,
+        repeat { trivial } } },
+    { intro n, induction n,
+      { induction n with n ih,
+        repeat { trivial } },
+      repeat { trivial } }
+  end
+
+  def code : S¹ → Type :=
+  rec int (ua int.equiv)
+
+  def pos : ℕ → Ω¹(S¹)
   | 0 := loop
   | (n+1) := pos n ⬝ loop
 
-  def neg : ℕ → loops
+  def neg : ℕ → Ω¹(S¹)
   | 0 := loop
   | (n+1) := pos n ⬝ loop⁻¹
 
-  def code : int → loops
+  def encode (x : S¹) (p : base = x) : code x :=
+  equiv.transporting code p int.zero
+
+  def winding : int → Ω¹(S¹)
   | (int.pos n) := pos n
   | int.zero := eq.refl base
   | (int.neg n) := neg n
 
-  example : code (int.pos 2) = loop ⬝ loop ⬝ loop :=
+  example : winding (int.pos 2) = loop ⬝ loop ⬝ loop :=
   by reflexivity
 end circle
 
