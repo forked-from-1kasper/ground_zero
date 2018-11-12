@@ -8,7 +8,7 @@ universe u
 
 lemma transport_composition {α : Sort u} {a x₁ x₂ : α}
   (p : x₁ = x₂ :> α) (q : a = x₁ :> α) :
-  equiv.transporting (eq a) p q = q ⬝ p :> _ := begin
+  equiv.transport (eq a) p q = q ⬝ p :> _ := begin
   induction p, symmetry, transitivity,
   apply eq.refl_right, trivial
 end

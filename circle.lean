@@ -86,6 +86,13 @@ namespace circle
     neg 1 is   −2
   -/
 
+  instance : has_repr int :=
+  ⟨λ x, match x with
+  | (int.pos n) := to_string (n + 1)
+  | int.zero := "0"
+  | (int.neg n) := "−" ++ to_string (n + 1)
+  end⟩
+
   def int.succ : int → int
   | (int.pos n) := int.pos (n + 1)
   | int.zero := int.pos 0
@@ -122,19 +129,24 @@ namespace circle
   | (n+1) := pos n ⬝ loop⁻¹
 
   def encode (x : S¹) (p : base = x) : code x :=
-  equiv.transporting code p int.zero
+  equiv.transport code p int.zero
 
-  def winding : int → Ω¹(S¹)
+  def power : int → Ω¹(S¹)
   | (int.pos n) := pos n
   | int.zero := eq.refl base
   | (int.neg n) := neg n
 
-  example : winding (int.pos 2) = loop ⬝ loop ⬝ loop :=
+  example : power (int.pos 2) = loop ⬝ loop ⬝ loop :=
   by reflexivity
+
+  def winding (x : base = base) : int :=
+  let n : code base := equiv.transportconst (code # x) int.zero in n
+
+  #eval winding (power (int.pos 4))
 
   def decode : Π (x : S¹), code x → base = x :=
   begin
-    intro x, apply @ind (λ x, code x → base = x) winding,
+    intro x, apply @ind (λ x, code x → base = x) power,
     admit
   end
 end circle

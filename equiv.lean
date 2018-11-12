@@ -88,7 +88,7 @@ namespace equiv
   def idtoeqv {α β : Sort u} (p : α = β :> _) : α ≃ β :=
   begin induction p, apply id end
 
-  def transport {α β : Sort u} : (α = β :> _) → (α → β) :=
+  def transportconst {α β : Sort u} : (α = β :> _) → (α → β) :=
   psigma.fst ∘ idtoeqv
 
   def subst {α : Sort u} {π : α → Sort v} {a b : α}
@@ -104,7 +104,7 @@ namespace equiv
   begin induction p, induction q, trivial end
 
   -- subst with explicit π
-  abbreviation transporting {α : Sort u}
+  abbreviation transport {α : Sort u}
     (π : α → Sort v) {a b : α}
     (p : a = b :> α) : π a → π b := subst p
 

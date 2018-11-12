@@ -21,15 +21,15 @@ namespace ua
 
 noncomputable theorem comp_rule {α β : Sort u} (e : α ≃ β) :
   Π (x : α),
-  ground_zero.equiv.transport (ua e) x = e.fst x :> _ :=
+  ground_zero.equiv.transportconst (ua e) x = e.fst x :> _ :=
 begin
   refine @J
     (λ α β e, Π (x : α),
-      ground_zero.equiv.transport (ua e) x = e.fst x :> _)
+      ground_zero.equiv.transportconst (ua e) x = e.fst x :> _)
     _ α β e,
   intros δ u, simp [ua],
   rw [support.truncation Jβrule],
-  simp [equiv.transport], simp [idtoeqv]
+  simp [equiv.transportconst], simp [idtoeqv]
 end
 
 theorem refl_on_ua {α : Sort u} :
@@ -41,8 +41,8 @@ theorem idtoeqv_and_id {α : Sort u} :
 begin simp [idtoeqv] end
 
 theorem prop_uniq {α β : Sort u} (p : α = β :> Sort u) :
-  (ua (idtoeqv p)) = p :> _ := begin
-  simp [ua], induction p,
+  (ua (idtoeqv p)) = p :> α = β :> Sort u := begin
+  unfold ua, induction p,
   rw [support.truncation idtoeqv_and_id],
   rw [support.truncation Jβrule]
 end
@@ -75,14 +75,14 @@ begin
     split; existsi bnot; intro x; simp
   end,
   let p : bool = bool :> Type := ua e,
-  let h₁ := ground_zero.equiv.transport p tt,
+  let h₁ := ground_zero.equiv.transportconst p tt,
   let h₂ :=
-    ground_zero.equiv.transport
+    ground_zero.equiv.transportconst
     (ground_zero.eq.refl bool) tt,
   let g₁ : h₁ = ff :> _ := comp_rule e tt,
   let g₂ : h₂ = tt :> _ := by reflexivity,
   let oops : h₁ = h₂ :> _ :=
-    (λ p, ground_zero.equiv.transport p tt) #
+    (λ p, ground_zero.equiv.transportconst p tt) #
     (@hset.intro Type error bool bool
                  p (ground_zero.eq.refl bool)),
   let uh_oh := g₁⁻¹ ⬝ oops ⬝ g₂,
