@@ -30,24 +30,28 @@ def path.lam {α : Sort u} (f : 𝕀 → α) :
   path (f i₀) (f i₁) :=
 cube.lam f
 
+abbreviation lineP (σ : 𝕀 → Sort u) := Π (i : 𝕀), σ i
+abbreviation line (α : Sort u) := 𝕀 → α
+def line.refl {α : Sort u} (a : α) : line α := λ _, a
+
 def square {α : Sort u} (a b c d : α) :=
 cube 1 (binary.node (binary.leaf a b) (binary.leaf c d))
 def square.lam {α : Sort u} (f : 𝕀 → 𝕀 → α) :
   square (f i₀ i₀) (f i₁ i₀) (f i₀ i₁) (f i₁ i₁) :=
 cube.lam (λ (x : interval_cube 1), product.elim f x)
 
-def line {α : Sort u} {a b : α} (p : a = b :> α) : path a b :=
+def from_equality {α : Sort u} {a b : α} (p : a = b :> α) : path a b :=
 path.lam (interval.rec a b p)
 
-def equality {α : Sort u} {a b : α} (p : path a b) : a = b :> α :=
+def to_equality {α : Sort u} {a b : α} (p : path a b) : a = b :> α :=
 @cube.rec α 0 (begin intros B p, cases B with a b, exact a = b :> α end)
   (λ f, f # seg) (binary.leaf a b) p
 
 def compute {α : Sort u} {a b : α} (p : path a b) : 𝕀 → α :=
-interval.rec a b (equality p)
+interval.rec a b (to_equality p)
 
 infix ` # ` := compute
-notation `<` binder `>` r:(scoped P, path.lam P) := r
+notation `<` binder `> ` r:(scoped P, path.lam P) := r
 
 /-
                      p
@@ -132,10 +136,10 @@ def cong {α : Type u} {β : Type v} {a b : α}
 
 def subst {α : Type u} {π : α → Type v} {a b : α}
   (p : a ⇝ b) : π a → π b :=
-equiv.subst (equality p)
+equiv.subst (to_equality p)
 
 def transport {α β : Type u} : (α ⇝ β) → (α → β) :=
-psigma.fst ∘ equiv.idtoeqv ∘ equality
+psigma.fst ∘ equiv.idtoeqv ∘ to_equality
 
 def idtoeqv {α β : Type u} (p : α ⇝ β) : α ≃ β :=
 transport (<i> α ≃ p # i) (equiv.id α)
@@ -151,7 +155,7 @@ def comp_test₁ {α : Type u} {a b : α} (p : a ⇝ b) : (p # i₁) ⇝ b := rf
 --def symm_test {α : Type u} {a b : α} (p : a ⇝ b) : (p⁻¹)⁻¹ ⇝ p := rfl
 
 def trans {α : Type u} {a b c : α} (p : a ⇝ b) (q : b ⇝ c) : a ⇝ c :=
-line (equality p ⬝ equality q)
+from_equality (to_equality p ⬝ to_equality q)
 infix ⬝ := trans
 
 -- this will be replaced by a more general version in future
@@ -159,19 +163,16 @@ def comp {α : Type u} {a b c d : α}
   (bottom : b ⇝ c) (left : b ⇝ a) (right : c ⇝ d) : a ⇝ d :=
 left⁻¹ ⬝ bottom ⬝ right
 
---def J {α : Type u} {a : α} {π : Π (b : α), a ⇝ b → Type u}
---  (h : π a (refl a)) (b : α) (p : a ⇝ b) : π b p :=
---let q := homotopy.to_heq (conn_and p) in
---transport (<i> π (comp (<j> a) (<j> a) p # i)
---                 (@interval.hrec (λ i, a ⇝ (p # i)) _ p q i)) h
-
---theorem general_equality_condition {α : Type u} {a b : α} :
---  (a ⇝ b) ≃ (a = b :> α) := begin
---  existsi to_eq, split; existsi from_eq,
---  { intro p, simp, induction p, simp [from_eq],
---    admit },
---  { intro x, admit }
---end
+def J {α : Type u} {a : α} {π : Π (b : α), a ⇝ b → Type u}
+  (h : π a (refl a)) (b : α) (p : a ⇝ b) : π b p :=
+let dsingl : lineP (λ i, a ⇝ p # i) :=
+interval.hrec (refl a) p (begin
+  have mltt := to_equality p,
+  cases p with f, unfold refl, unfold path.lam,
+  apply heq.map, funext, refine interval.ind _ _ i,
+  { reflexivity }, { induction mltt, reflexivity }
+end) in
+transport (<i> π (p # i) (dsingl i)) h
 
 end path
 

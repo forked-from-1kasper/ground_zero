@@ -12,7 +12,7 @@ local infix ` = ` := eq
 
 theorem up_dim : ∑S⁻¹ ≃ S⁰ :=
 let f : ∑S⁻¹ → S⁰ :=
-suspension.rec ff tt (λ (e : empty), begin induction e end) in
+suspension.rec ff tt (λ e, by induction e) in
 let g : S⁰ → ∑S⁻¹ :=
 λ b, match b with
   ff := suspension.north
@@ -21,7 +21,7 @@ end in begin
   existsi f, split; existsi g,
   { intro x, simp,
     refine @suspension.ind _
-      (λ x, g (f x) = x :> _)
+      (λ x, g (f x) = x)
       (by reflexivity)
       (by reflexivity)
       _ x,
@@ -169,7 +169,7 @@ namespace torus
   def inj₂ : S¹ → T² := function.swap product.intro circle.base
 
   abbreviation prod {α : Type u} {β : Type v} {a b : α} {c d : β}
-    (p : a = b :> α) (q : c = d :> β) :
+    (p : a = b) (q : c = d) :
     ⟨a, c⟩ = ⟨b, d⟩ :> α × β :=
   product.construction a b c d p q
 
