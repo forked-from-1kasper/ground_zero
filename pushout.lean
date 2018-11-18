@@ -1,4 +1,4 @@
-import ground_zero.heq ground_zero.equiv
+import ground_zero.heq
 
 namespace ground_zero
 universes u v w k
@@ -22,11 +22,6 @@ namespace pushout
   def glue (x : σ) : inl (f x) = inr (g x) :> pushout f g :=
   support.inclusion (quot.sound $ pushout_rel.mk x)
 
-  lemma eq_subst_heq {α : Sort u} {π : α → Sort v}
-    {a b : α} (p : a = b :> α) (x : π a) :
-    x == equiv.subst p x :=
-  begin induction p, reflexivity end
-
   def ind {δ : pushout f g → Type w}
     (inl₁ : Π (x : α), δ (inl x)) (inr₁ : Π (x : β), δ (inr x))
     (glue₁ : Π (x : σ), inl₁ (f x) =[glue x] inr₁ (g x)) :
@@ -35,7 +30,7 @@ namespace pushout
     { intro x, induction x, exact inl₁ x, exact inr₁ x },
     { intros u v H, cases H with x, simp,
       refine ground_zero.eq.rec _ (glue₁ x),
-      apply eq_subst_heq }
+      apply heq.eq_subst_heq }
   end
 
   def pathover_of_eq {α : Sort u} {β : Sort v}

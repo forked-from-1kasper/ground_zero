@@ -141,14 +141,6 @@ namespace circle
 
   def winding (x : base = base) : int :=
   let n : code base := equiv.transportconst (code # x) int.zero in n
-
-  #eval winding (power (int.pos 4))
-
-  def decode : Π (x : S¹), code x → base = x :=
-  begin
-    intro x, apply @ind (λ x, code x → base = x) power,
-    admit
-  end
 end circle
 
 namespace ncircle

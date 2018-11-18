@@ -11,7 +11,7 @@ digraph dependency_map {
   heq -> cubical
   product -> cubical
 
-  support -> heq
+  equiv -> heq
 
   support -> equiv
   functions -> equiv
@@ -19,6 +19,7 @@ digraph dependency_map {
   eq -> int
 
   trunc -> interval
+  heq -> interval
 
   trunc -> mere_eq_lemma
 
@@ -30,7 +31,6 @@ digraph dependency_map {
   interval -> prop
 
   heq -> pushout
-  equiv -> pushout
 
   unit -> structures
   coproduct -> structures

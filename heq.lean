@@ -1,4 +1,4 @@
-import ground_zero.support
+import ground_zero.equiv
 
 namespace ground_zero.heq
 
@@ -15,5 +15,10 @@ begin induction p, reflexivity end
 
 def only_refl {α : Type u} {a b : α} (p : a = b) : p == (eq.refl a) :=
 begin induction p, trivial end
+
+lemma eq_subst_heq {α : Sort u} {π : α → Sort v}
+  {a b : α} (p : a = b :> α) (x : π a) :
+  x == ground_zero.equiv.subst p x :=
+begin induction p, reflexivity end
 
 end ground_zero.heq

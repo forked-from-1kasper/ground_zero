@@ -97,6 +97,14 @@ namespace equiv
 
   notation u ` =[` p `] ` v := equiv.subst p u = v :> _
 
+  lemma dep_path_map {α : Sort u}
+    {π : α → Sort v} {δ : α → Sort w}
+    {a b : α}
+    {p : a = b :> α} {u : π a} {v : π b} (q : u =[p] v)
+    (g : Π {x : α}, π x → δ x) :
+    g u =[p] g v :=
+  begin induction q, induction p, trivial end
+
   theorem subst_comp {α : Sort u}
     {π : α → Sort v} {a b c : α}
     (p : a = b :> α) (q : b = c :> α) (x : π a) :

@@ -5,7 +5,7 @@ namespace ground_zero
 
 namespace path
 
-universes u v
+universes u v r s
 
 inductive binary (α : Sort u) : ℕ → Type u
 | leaf {} : α → α → binary 0
@@ -83,6 +83,9 @@ def square.mk {α : Sort u} {a₀ a₁ b₀ b₁ : α}
   (r₀ : a₀ ⇝ b₀) (r₁ : a₁ ⇝ b₁) :
   square a₀ a₁ b₀ b₁ := sorry
 
+structure tetrad (α : Sort u) (β : Sort v) (γ : Sort r) (δ : Sort s) :=
+(one : α) (two : β) (three : γ) (four : δ)
+
 --         u
 --    a₀ -----> a₁
 --    |         |
@@ -92,26 +95,11 @@ def square.mk {α : Sort u} {a₀ a₁ b₀ b₁ : α}
 --    b₀ -----> b₁
 --         v
 def square.extract {α : Sort u} {a b c d : α}
-  (s : square a b c d) : (a ⇝ b) × (b ⇝ c) × (c ⇝ d) × (a ⇝ d) :=
+  (s : square a b c d) : tetrad (a ⇝ b) (b ⇝ c) (c ⇝ d) (a ⇝ d) :=
 begin
-  cases s with f, repeat { split },
+  cases s with f, split,
   exact <i> f ⟨i, i₀⟩, exact <i> f ⟨−i, i⟩,
   exact <i> f ⟨i, i₁⟩, exact <i> f ⟨i, i⟩
-end
-
-def square.left {α : Sort u} {a₀ a₁ b₀ b₁ : α}
-  (s : square a₀ a₁ b₀ b₁) : a₀ ⇝ b₀ :=
-begin cases s with f, exact <j> f ⟨i₀, j⟩ end
-
-def square.right {α : Sort u} {a₀ a₁ b₀ b₁ : α}
-  (s : square a₀ a₁ b₀ b₁) : a₁ ⇝ b₁ :=
-begin cases s with f, exact <j> f ⟨i₁, j⟩ end
-
-def square.to_heq {α : Sort u} {a₀ a₁ b₀ b₁ : α}
-  (s : square a₀ a₁ b₀ b₁) :
-  s.left == s.right := begin
-  cases s with f, let p := λ i, <j> f ⟨i, j⟩,
-  exact heq.map p (support.truncation seg)
 end
 
 --def only_refl {α : Type u} {a b : α}
@@ -153,9 +141,9 @@ def comp_test₁ {α : Type u} {a b : α} (p : a ⇝ b) : (p # i₁) ⇝ b := rf
 
 -- fail
 --def symm_test {α : Type u} {a b : α} (p : a ⇝ b) : (p⁻¹)⁻¹ ⇝ p := rfl
-
 def trans {α : Type u} {a b c : α} (p : a ⇝ b) (q : b ⇝ c) : a ⇝ c :=
 from_equality (to_equality p ⬝ to_equality q)
+
 infix ⬝ := trans
 
 -- this will be replaced by a more general version in future
@@ -166,11 +154,9 @@ left⁻¹ ⬝ bottom ⬝ right
 def J {α : Type u} {a : α} {π : Π (b : α), a ⇝ b → Type u}
   (h : π a (refl a)) (b : α) (p : a ⇝ b) : π b p :=
 let dsingl : lineP (λ i, a ⇝ p # i) :=
-interval.hrec (refl a) p (begin
+interval.ind (refl a) p (begin
   have mltt := to_equality p,
-  cases p with f, unfold refl, unfold path.lam,
-  apply heq.map, funext, refine interval.ind _ _ i,
-  { reflexivity }, { induction mltt, reflexivity }
+  admit
 end) in
 transport (<i> π (p # i) (dsingl i)) h
 
@@ -184,24 +170,24 @@ def add (m : ℕ) : ℕ → ℕ
 
 def add_zero : Π (a : ℕ), add nat.zero a ⇝ a
 | 0 := <i> nat.zero
-| (a+1) := <i> nat.succ (add_zero a # i)
+| (a + 1) := <i> nat.succ (add_zero a # i)
 
 def add_succ (a : ℕ) : Π (b : ℕ), add (nat.succ a) b ⇝ nat.succ (add a b)
 | 0 := <i> nat.succ a
-| (b+1) := <i> nat.succ (add_succ b # i)
+| (b + 1) := <i> nat.succ (add_succ b # i)
 
 def add_zero_inv : Π (a : ℕ), a ⇝ add a nat.zero :=
 path.refl
 
 def add_comm (a : ℕ) : Π (b : ℕ), add a b ⇝ add b a
 | 0 := <i> (add_zero a) # −i
-| (b+1) := path.comp (<i> nat.succ (add_comm b # i))
-                     (<j> nat.succ (add a b))
-                     (<j> add_succ b a # −j)
+| (b + 1) := path.comp (<i> nat.succ (add_comm b # i))
+                       (<j> nat.succ (add a b))
+                       (<j> add_succ b a # −j)
 
 def add_assoc (a b : ℕ) : Π (c : ℕ), add a (add b c) ⇝ add (add a b) c
 | 0 := <i> add a b
-| (c+1) := <i> nat.succ (add_assoc c # i)
+| (c + 1) := <i> nat.succ (add_assoc c # i)
 
 def add_comm₃ {a b c : ℕ} : add a (add b c) ⇝ add c (add b a) :=
 let r : add a (add b c) ⇝ add a (add c b) := <i> add a (add_comm b c # i) in

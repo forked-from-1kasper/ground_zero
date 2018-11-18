@@ -1,4 +1,4 @@
-import ground_zero.trunc
+import ground_zero.trunc ground_zero.heq
 open ground_zero.trunc ground_zero.structures
 
 namespace ground_zero
@@ -23,21 +23,24 @@ namespace interval
     bool.rec (singl.trivial_loop b₀) ⟨b₁, s⟩ b in
   singl.point ∘ trunc.rec f
 
-  def hrec {β : 𝕀 → Sort u}
-    (b₀ : β i₀) (b₁ : β i₁) (s : b₀ == b₁)
-    (x : 𝕀) : β x :=
-  @quot.hrec_on bool (λ _ _, true) β x
-    (λ i, bool.rec_on i b₀ b₁)
-    (λ a b _,
-      begin simp, induction a; induction b; simp,
-            apply s, symmetry, apply s end)
-
   /- β i₀ and β i₁ are Prop,
      so s : b₀ = b₁ is trivial -/
-  def ind {β : 𝕀 → Prop} (b₀ : β i₀) (b₁ : β i₁) :
+  def hrec {β : 𝕀 → Prop} (b₀ : β i₀) (b₁ : β i₁) :
     Π (x : 𝕀), β x := begin
     intros, apply trunc.ind, intros,
     induction a, apply b₀, apply b₁
+  end
+
+  def ind {π : 𝕀 → Sort u} (b₀ : π i₀) (b₁ : π i₁)
+    (s : b₀ =[seg] b₁) : Π (x : 𝕀), π x := begin
+    intro x, refine quot.hrec_on x _ _,
+    { intro b, cases b, exact b₀, exact b₁ },
+    { intros, induction s,
+      cases a; cases b,
+      { reflexivity },
+      { simp, apply heq.eq_subst_heq },
+      { simp, symmetry, apply heq.eq_subst_heq },
+      { reflexivity } }
   end
 
   def homotopy {α : Sort u} {β : Sort v} {f g : α → β}
