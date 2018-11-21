@@ -1,4 +1,4 @@
-import ground_zero.structures
+import ground_zero.structures ground_zero.heq
 open ground_zero.structures
 
 namespace ground_zero
@@ -14,24 +14,34 @@ namespace trunc
 
   def elem {α : Sort u} : α → ∥α∥ :=
   quot.mk const_rel
-  notation `|` a `|` := elem a
+  --notation `|` a `|` := elem a
 
   def rec {α : Sort u} {β : Sort v} [prop β]
     (f : α → β) : trunc α → β :=
   @quot.lift α const_rel β f
   (λ a b _, support.truncation $ prop.intro (f a) (f b))
 
-  @[recursor] def ind {α : Sort u} {π : ∥α∥ → Prop}
+  @[recursor] def hind {α : Sort u} {π : ∥α∥ → Prop}
     (f : Π (a : α), π (trunc.elem a)) : Π (x : ∥α∥), π x :=
   @quot.ind α const_rel π f
 
-  def uniq {α : Type u} (a b : ∥α∥) : a = b :> ∥α∥ := begin
+  def uniq {α : Sort u} (a b : ∥α∥) : a = b :> ∥α∥ := begin
     apply support.inclusion,
     induction a, induction b,
     apply (@quot.sound α const_rel a b true.intro),
     repeat { trivial }
   end
   instance {α : Type u} : prop ∥α∥ := ⟨trunc.uniq⟩
+
+  @[recursor] def ind {α : Sort u} {π : ∥α∥ → Sort v}
+    (f : Π (a : α), π (elem a))
+    (p : Π (a b : α), f a =[uniq (elem a) (elem b)] f b)
+    (x : ∥α∥) : π x := begin
+    apply quot.hrec_on x f,
+    intros a b H,
+    refine ground_zero.eq.rec _ (p a b),
+    apply heq.eq_subst_heq
+  end
 
   def extract {α : Type u} [prop α] : ∥α∥ → α :=
   trunc.rec id

@@ -41,6 +41,7 @@ digraph dependency_map {
   unit -> suspension
 
   structures -> trunc
+  heq -> trunc
 
   ua [style=dashed]
   product -> ua

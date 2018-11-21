@@ -71,11 +71,13 @@ namespace interval
   def bool_to_interval (f : bool → bool → bool) (a b : 𝕀) : 𝕀 :=
   trunc.rec (λ a, trunc.rec (trunc.elem ∘ f a) b) a
 
-  def min : 𝕀 → 𝕀 → 𝕀 := bool_to_interval band
+  def min (a b : 𝕀) : 𝕀 :=
+  trunc.rec (begin intro x, cases x, exact i₀, exact a end) b
+
   def max : 𝕀 → 𝕀 → 𝕀 := bool_to_interval bor
 
-  notation r `∧` s := min r s
-  notation r `∨` s := max r s
+  notation r `∧`:70 s := min r s
+  notation r `∨`:70 s := max r s
 end interval
 
 end ground_zero

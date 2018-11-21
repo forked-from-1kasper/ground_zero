@@ -4,6 +4,7 @@ namespace ground_zero
 
 structure {u v} product (α : Sort u) (β : Sort v) :=
 intro :: (pr₁ : α) (pr₂ : β)
+attribute [pp_using_anonymous_constructor] product
 
 reserve infix ` × `
 infix ` × ` := product

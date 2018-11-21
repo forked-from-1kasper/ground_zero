@@ -50,7 +50,7 @@ def to_equality {α : Sort u} {a b : α} (p : path a b) : a = b :> α :=
 def compute {α : Sort u} {a b : α} (p : path a b) : 𝕀 → α :=
 interval.rec a b (to_equality p)
 
-infix ` # ` := compute
+infix ` # `:40 := compute
 notation `<` binder `> ` r:(scoped P, path.lam P) := r
 
 /-
@@ -72,7 +72,7 @@ infix ` ⇝ `:30 := path
 
 def conn_and {α : Sort u} {a b : α}
   (p : a ⇝ b) : square a a a b :=
-square.lam (λ i j, p # (i ∧ j))
+square.lam (λ i j, p # i ∧ j)
 
 def square.const {α : Sort u} (a : α) :
   square a a a a :=
@@ -151,14 +151,15 @@ def comp {α : Type u} {a b c d : α}
   (bottom : b ⇝ c) (left : b ⇝ a) (right : c ⇝ d) : a ⇝ d :=
 left⁻¹ ⬝ bottom ⬝ right
 
-def J {α : Type u} {a : α} {π : Π (b : α), a ⇝ b → Type u}
-  (h : π a (refl a)) (b : α) (p : a ⇝ b) : π b p :=
-let dsingl : lineP (λ i, a ⇝ p # i) :=
-interval.ind (refl a) p (begin
-  have mltt := to_equality p,
+lemma eta {α : Type u} {a b : α} (p : a ⇝ b) :
+  (<i> p # i) = p :> a ⇝ b := begin
+  cases p with f, unfold path.lam,
   admit
-end) in
-transport (<i> π (p # i) (dsingl i)) h
+end
+
+--def J {α : Type u} {a : α} {π : Π (b : α), a ⇝ b → Type u}
+--  (h : π a (refl a)) (b : α) (p : a ⇝ b) : π b (<i> p # i) :=
+--transport (<i> π (p # i) (<j> p # i ∧ j)) h
 
 end path
 
