@@ -27,8 +27,9 @@ namespace interval
      so s : b₀ = b₁ is trivial -/
   def hrec {β : 𝕀 → Prop} (b₀ : β i₀) (b₁ : β i₁) :
     Π (x : 𝕀), β x := begin
-    intros, apply trunc.ind, intros,
-    induction a, apply b₀, apply b₁
+    intros, refine trunc.ind _ _ x, intros,
+    { induction a, apply b₀, apply b₁ },
+    { intros, trivial }
   end
 
   def ind {π : 𝕀 → Sort u} (b₀ : π i₀) (b₁ : π i₁)
