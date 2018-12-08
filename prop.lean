@@ -4,7 +4,7 @@ open ground_zero.structures (prop hset)
 namespace ground_zero
 namespace prop
 
-universe u
+universes u v w
 
 lemma transport_composition {α : Sort u} {a x₁ x₂ : α}
   (p : x₁ = x₂ :> α) (q : a = x₁ :> α) :
@@ -69,6 +69,26 @@ begin
     cases linv with f α,
     cases rinv with g β,
     admit }
+end
+
+lemma comp_qinv₁ {α : Sort u} {β : Sort v} {γ : Sort w}
+  (f : α → β) (g : β → α) (H : is_qinv f g) :
+  qinv (λ (h : γ → α), f ∘ h) := begin
+  existsi (λ h, g ∘ h), split,
+  { intro h, apply interval.funext,
+    intro x, exact H.pr₁ (h x) },
+  { intro h, apply interval.funext,
+    intro x, exact H.pr₂ (h x) }
+end
+
+lemma comp_qinv₂ {α : Sort u} {β : Sort v} {γ : Sort w}
+  (f : α → β) (g : β → α) (H : is_qinv f g) :
+  qinv (λ (h : β → γ), h ∘ f) := begin
+  existsi (λ h, h ∘ g), split,
+  { intro h, apply interval.funext,
+    intro x, apply eq.map h, exact H.pr₂ x },
+  { intro h, apply interval.funext,
+    intro x, apply eq.map h, exact H.pr₁ x }
 end
 
 end prop

@@ -96,7 +96,19 @@ namespace equiv
     (p : a = b :> α) : π a → π b :=
   begin induction p, exact functions.idfun end
 
-  notation u ` =[` p `] ` v := equiv.subst p u = v :> _
+  notation u ` =[` p `] ` v := subst p u = v :> _
+
+  def dep_trans {α : Sort u} {π : α → Sort v}
+    {a b c : α} {p : a = b :> α} {q : b = c :> α}
+    {u : π a} {v : π b} {w : π c}
+    (r : u =[p] v) (s : v =[q] w):
+    u =[p ⬝ q] w := begin
+    induction p, induction q,
+    induction r, induction s,
+    reflexivity
+  end
+
+  infix ` ⬝ ` := dep_trans
 
   lemma dep_path_map {α : Sort u}
     {π : α → Sort v} {δ : α → Sort w}
@@ -116,6 +128,8 @@ namespace equiv
   abbreviation transport {α : Sort u}
     (π : α → Sort v) {a b : α}
     (p : a = b :> α) : π a → π b := subst p
+
+  notation u ` =[` P `,` p `] ` v := transport P p u = v :> _
 
   lemma transport_comp {α : Sort u} {β : Sort v}
     {π : β → Sort w} {x y : α}
@@ -150,11 +164,14 @@ namespace equiv
   infix [parsing_only] ` ▸ ` := subst
 end equiv
 
+def {u v} is_qinv {α : Sort u} {β : Sort v} (f : α → β) (g : β → α) :=
+(f ∘ g ~ id) × (g ∘ f ~ id)
+
 def {u v} qinv {α : Sort u} {β : Sort v} (f : α → β) :=
-Σ' (g : β → α), (f ∘ g ~ id) × (g ∘ f ~ id)
+Σ' (g : β → α), is_qinv f g
 
 namespace qinv
-  universes u v
+  universes u v w
 
   def equiv (α : Sort u) (β : Sort v) :=
   Σ' (f : α → β), qinv f
@@ -193,5 +210,10 @@ namespace equiv
     exact α, exact β
   end
 end equiv
+
+-- half adjoint equivalence
+def {u v} ishae {α : Sort u} {β : Sort v} (f : α → β) :=
+Σ' (g : β → α) (η : g ∘ f ~ id) (ϵ : f ∘ g ~ id) (x : α),
+  f # (η x) = ϵ (f x) :> f (g (f x)) = f x :> β
 
 end ground_zero

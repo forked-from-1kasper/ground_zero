@@ -177,6 +177,17 @@ namespace torus
 
   def t : p ⬝ q = q ⬝ p :> b = b :> T² :=
   Φ circle.loop circle.loop
+
+  def ind {π : T² → Type u} (b' : π b)
+    (p' : b' =[p] b') (q' : b' =[q] b')
+    (t' : p' ⬝ q' =[(λ r, equiv.subst r b' = b'), t] q' ⬝ p') :
+    Π (x : T²), π x := begin
+    intro x, cases x with poloidal toroidal,
+    refine circle.ind _ _ poloidal,
+    { refine circle.ind _ _ toroidal,
+      exact b', admit },
+    { admit }
+  end
 end torus
 
 end ground_zero
