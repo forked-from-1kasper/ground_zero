@@ -41,6 +41,14 @@ namespace equiv
 
   def biinv {α : Sort u} {β : Sort v} (f : α → β) :=
   linv f × rinv f
+
+  def homotopy_sqaure {α : Sort u} {β : Sort v}
+    {f g : α → β} (H : f ~ g) {x y : α}
+    (p : x = y :> α) :
+    H x ⬝ (g # p) = (f # p) ⬝ H y :> f x = g y :> β := begin
+    induction p, simp [eq.map], transitivity,
+    apply eq.refl_right, apply eq.refl_left
+  end
 end equiv
 
 def {u v} equiv (α : Sort u) (β : Sort v) :=

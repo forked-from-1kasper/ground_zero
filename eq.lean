@@ -82,4 +82,35 @@ namespace not
   notation a ` ≠ ` b := ¬(a = b :> _)
 end not
 
+namespace whiskering
+  variables {α : Sort u} {a b c : α}
+  variables {p q : a = b :> α} {r s : b = c :> α}
+  variables {ν : p = q} {κ : r = s}
+
+  def right_whs (ν : p = q) (r : b = c) : p ⬝ r = q ⬝ r := begin
+    induction r,
+    exact (eq.refl_right p) ⬝ ν ⬝ (eq.refl_right q)⁻¹
+  end
+  infix ` ⬝ᵣ `:60 := right_whs
+
+  def left_whs (q : a = b) (κ : r = s) : q ⬝ r = q ⬝ s := begin
+    induction q,
+    exact (eq.refl_left r) ⬝ κ ⬝ (eq.refl_left s)⁻¹
+  end
+  infix ` ⬝ₗ `:60 := left_whs
+
+  def horizontal_comp₁ (ν : p = q) (κ : r = s) :=
+  (ν ⬝ᵣ r) ⬝ (q ⬝ₗ κ)
+  infix ` ⋆ `:65 := horizontal_comp₁
+
+  def horizontal_comp₂ (ν : p = q) (κ : r = s) :=
+  (p ⬝ₗ κ) ⬝ (ν ⬝ᵣ s)
+  infix ` ⋆′ `:65 := horizontal_comp₂
+
+  lemma horizontal_comps_uniq : ν ⋆ κ = ν ⋆′ κ := begin
+    induction p, induction r, induction ν, induction κ,
+    reflexivity
+  end
+end whiskering
+
 end ground_zero
