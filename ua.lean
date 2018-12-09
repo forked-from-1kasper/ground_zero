@@ -3,8 +3,10 @@ open ground_zero.equiv (idtoeqv) ground_zero.not
 open ground_zero.equiv (homotopy)
 open ground_zero.structures
 
+
 namespace ground_zero
 
+local infix ` = ` := eq
 universes u v
 
 axiom J {π : Π (α β : Sort u), α ≃ β → Sort v}
@@ -14,47 +16,39 @@ axiom Jβrule {π : Π (α β : Sort u), α ≃ β → Sort v}
   {h : Π (α : Sort u), π α α (equiv.id α)} {α : Sort u} :
   J h (equiv.id α) = h α :> π α α (equiv.id α)
 
-noncomputable def ua {α β : Sort u} : α ≃ β → α = β :> Sort u :=
+noncomputable def ua {α β : Sort u} : α ≃ β → α = β :=
 J eq.refl
 
 namespace ua
 
 noncomputable theorem comp_rule {α β : Sort u} (e : α ≃ β) :
-  Π (x : α),
-  ground_zero.equiv.transportconst (ua e) x = e.fst x :> _ :=
+  Π (x : α), x =[ua e] e.fst x :=
 begin
-  refine @J
-    (λ α β e, Π (x : α),
-      ground_zero.equiv.transportconst (ua e) x = e.fst x :> _)
-    _ α β e,
-  intros δ u, simp [ua],
-  rw [support.truncation Jβrule],
-  simp [equiv.transportconst], simp [idtoeqv]
+  refine J _ e, intros γ x, simp [ua], transitivity,
+  apply eq.map (λ p, equiv.transport functions.idfun p x),
+  exact Jβrule, reflexivity
 end
 
-theorem refl_on_ua {α : Sort u} :
-  ua (equiv.id α) = eq.refl α :> α = α :> Sort u :=
-begin unfold ua, rw [support.truncation Jβrule] end
+noncomputable theorem refl_on_ua {α : Sort u} :
+  ua (equiv.id α) = eq.refl α :=
+begin unfold ua, exact Jβrule end
 
 theorem idtoeqv_and_id {α : Sort u} :
-  idtoeqv (eq.refl α) = equiv.id α :> α ≃ α :=
+  idtoeqv (eq.refl α) = equiv.id α :=
 begin simp [idtoeqv] end
 
-theorem prop_uniq {α β : Sort u} (p : α = β :> Sort u) :
-  (ua (idtoeqv p)) = p :> α = β :> Sort u := begin
-  unfold ua, induction p,
-  rw [support.truncation idtoeqv_and_id],
-  rw [support.truncation Jβrule]
+noncomputable theorem prop_uniq {α β : Sort u} (p : α = β) :
+  (ua (idtoeqv p)) = p := begin
+  unfold ua, induction p, exact Jβrule
 end
 
 noncomputable theorem univalence (α β : Sort u) :
-  (α ≃ β) ≃ (α = β :> Sort u) := begin
+  (α ≃ β) ≃ (α = β) := begin
   existsi ua, split; existsi idtoeqv,
   { intro e, simp,
     refine J _ e,
-    intro δ, simp [ua],
-    rw [support.truncation Jβrule],
-    trivial },
+    intro δ, simp [ua], transitivity,
+    exact idtoeqv # Jβrule, reflexivity },
   { intro e, simp, apply prop_uniq }
 end
 
@@ -62,7 +56,7 @@ def bool_to_universe : bool → Type
 | tt := ground_zero.unit
 | ff := empty
 
-theorem ff_neq_tt (h : ff = tt :> bool) : empty :=
+theorem ff_neq_tt (h : ff = tt) : empty :=
 @ground_zero.eq.rec
   bool tt (λ b _, bool_to_universe b)
   ground_zero.unit.star ff h⁻¹
@@ -74,15 +68,15 @@ begin
     existsi bnot,
     split; existsi bnot; intro x; simp
   end,
-  let p : bool = bool :> Type := ua e,
-  let h₁ := ground_zero.equiv.transportconst p tt,
+  let p : bool = bool := ua e,
+  let h₁ := equiv.transport functions.idfun p tt,
   let h₂ :=
-    ground_zero.equiv.transportconst
+    equiv.transport functions.idfun
     (ground_zero.eq.refl bool) tt,
-  let g₁ : h₁ = ff :> _ := comp_rule e tt,
-  let g₂ : h₂ = tt :> _ := by reflexivity,
-  let oops : h₁ = h₂ :> _ :=
-    (λ p, ground_zero.equiv.transportconst p tt) #
+  let g₁ : h₁ = ff := comp_rule e tt,
+  let g₂ : h₂ = tt := by reflexivity,
+  let oops : h₁ = h₂ :=
+    (λ p, ground_zero.equiv.transport functions.idfun p tt) #
     (@hset.intro Type error bool bool
                  p (ground_zero.eq.refl bool)),
   let uh_oh := g₁⁻¹ ⬝ oops ⬝ g₂,

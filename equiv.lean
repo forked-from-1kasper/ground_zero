@@ -29,7 +29,7 @@ namespace equiv
 
   @[trans] def homotopy.trans {α : Sort u} {π : α → Sort v}
     (f g h : Π (x : α), π x) (r₁ : f ~ g) (r₂ : g ~ h) : f ~ h := begin
-    simp [homotopy] at *, intros, apply eq.trans,
+    simp [homotopy] at *, intros, transitivity,
     apply r₁, apply r₂
   end
 
@@ -175,6 +175,10 @@ end equiv
 def {u v} is_qinv {α : Sort u} {β : Sort v} (f : α → β) (g : β → α) :=
 (f ∘ g ~ id) × (g ∘ f ~ id)
 
+class {u v} has_qinv {α : Sort u} {β : Sort v} (f : α → β) :=
+(inv : β → α) (really_qinv : is_qinv f inv)
+postfix ⁻¹ := has_qinv.inv
+
 def {u v} qinv {α : Sort u} {β : Sort v} (f : α → β) :=
 Σ' (g : β → α), is_qinv f g
 
@@ -223,5 +227,8 @@ end equiv
 def {u v} ishae {α : Sort u} {β : Sort v} (f : α → β) :=
 Σ' (g : β → α) (η : g ∘ f ~ id) (ϵ : f ∘ g ~ id) (x : α),
   f # (η x) = ϵ (f x) :> f (g (f x)) = f x :> β
+
+def {u v} fib {α : Sort u} {β : Sort v} (f : α → β) (y : β) :=
+Σ' (x : α), f x = y :> β
 
 end ground_zero

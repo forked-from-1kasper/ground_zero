@@ -65,6 +65,14 @@ namespace circle
 
   instance pointed_circle : eq.dotted S¹ := ⟨base⟩
 
+  namespace going
+    def trivial : S¹ → S¹ :=
+    rec base (eq.refl base)
+
+    def nontrivial : S¹ → S¹ :=
+    rec base loop
+  end going
+
   def succ (l : Ω¹(S¹)) : Ω¹(S¹) := l ⬝ loop
   def pred (l : Ω¹(S¹)) : Ω¹(S¹) := l ⬝ loop⁻¹
 
