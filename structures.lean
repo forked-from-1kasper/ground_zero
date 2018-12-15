@@ -1,4 +1,4 @@
-import ground_zero.unit ground_zero.coproduct
+import ground_zero.types.unit ground_zero.types.coproduct
 
 open ground_zero.unit
 

@@ -1,7 +1,8 @@
-import ground_zero.heq ground_zero.product
-open ground_zero.interval
+import ground_zero.types.product
 
 namespace ground_zero
+open ground_zero.HITs
+open ground_zero.HITs.interval (i₀ i₁ seg)
 
 namespace path
 

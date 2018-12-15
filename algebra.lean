@@ -1,4 +1,4 @@
-import ground_zero.ntrunc
+import ground_zero.HITs.ntrunc
 open ground_zero.eq (pointed)
 open ground_zero.structures (hset)
 

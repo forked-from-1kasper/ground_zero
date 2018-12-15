@@ -1,8 +1,7 @@
-import ground_zero.product
+import ground_zero.types.product
 open ground_zero.equiv (idtoeqv) ground_zero.not
 open ground_zero.equiv (homotopy)
 open ground_zero.structures
-
 
 namespace ground_zero
 
@@ -22,10 +21,9 @@ J eq.refl
 namespace ua
 
 noncomputable theorem comp_rule {α β : Sort u} (e : α ≃ β) :
-  Π (x : α), x =[ua e] e.fst x :=
-begin
+  Π (x : α), x =[ua e] e.fst x := begin
   refine J _ e, intros γ x, simp [ua], transitivity,
-  apply eq.map (λ p, equiv.transport functions.idfun p x),
+  apply eq.map (λ p, equiv.transport theorems.functions.idfun p x),
   exact Jβrule, reflexivity
 end
 
@@ -65,30 +63,24 @@ noncomputable theorem universe_not_a_set : ¬(hset Type) :=
 begin
   intro error,
   let e : bool ≃ bool := begin
-    existsi bnot,
-    split; existsi bnot; intro x; simp
+    existsi bnot, split; existsi bnot; intro x; simp
   end,
   let p : bool = bool := ua e,
-  let h₁ := equiv.transport functions.idfun p tt,
-  let h₂ :=
-    equiv.transport functions.idfun
-    (ground_zero.eq.refl bool) tt,
-  let g₁ : h₁ = ff := comp_rule e tt,
-  let g₂ : h₂ = tt := by reflexivity,
-  let oops : h₁ = h₂ :=
-    (λ p, ground_zero.equiv.transport functions.idfun p tt) #
+  let h := equiv.transport theorems.functions.idfun p tt,
+  let g : h = ff := comp_rule e tt,
+  let oops : h = tt :=
+    (λ p, equiv.transport theorems.functions.idfun p tt) #
     (@hset.intro Type error bool bool
                  p (ground_zero.eq.refl bool)),
-  let uh_oh := g₁⁻¹ ⬝ oops ⬝ g₂,
-  apply ff_neq_tt, apply uh_oh
+  let uh_oh : ff = tt := g⁻¹ ⬝ oops,
+  apply ff_neq_tt, exact uh_oh
 end
 
 -- exercise 2.17 (i) in HoTT book
 noncomputable theorem product_equiv₁ {α α' β β' : Sort u}
   (e₁ : α ≃ α') (e₂ : β ≃ β') : (α × β) ≃ (α' × β') := begin
   have p := ua e₁, have q := ua e₂,
-  induction p, induction q,
-  reflexivity
+  induction p, induction q, reflexivity
 end
 
 noncomputable theorem product_equiv₂ {α α' β β' : Sort u}

@@ -1,9 +1,10 @@
-import ground_zero.circle
+import ground_zero.HITs.circle
 
 open ground_zero.structures
-open ground_zero.ncircle (S)
+open ground_zero.HITs.ncircle (S)
 
 namespace ground_zero
+namespace HITs
 
 inductive {u} ntrunc.core (α : Sort u) : ℕ → Sort (u + 1)
 | elem {n : ℕ} : α → ntrunc.core n
@@ -46,4 +47,5 @@ namespace ntrunc
   end
 end ntrunc
 
+end HITs
 end ground_zero

@@ -1,4 +1,4 @@
-import ground_zero.support ground_zero.functions
+import ground_zero.support ground_zero.theorems.functions
 
 namespace ground_zero
 
@@ -102,7 +102,7 @@ namespace equiv
 
   def subst {α : Sort u} {π : α → Sort v} {a b : α}
     (p : a = b :> α) : π a → π b :=
-  begin induction p, exact functions.idfun end
+  begin induction p, exact theorems.functions.idfun end
 
   notation u ` =[` p `] ` v := subst p u = v :> _
 

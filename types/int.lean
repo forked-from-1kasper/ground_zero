@@ -1,4 +1,4 @@
-import ground_zero.eq
+import ground_zero.types.eq
 
 abbreviation builtin.int := int
 

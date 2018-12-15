@@ -1,6 +1,8 @@
-import ground_zero.heq
+import ground_zero.types.heq
 
 namespace ground_zero
+namespace HITs
+
 universes u v w k
 
 section
@@ -45,4 +47,5 @@ namespace pushout
   ind inl₁ inr₁ (λ x, pathover_of_eq (glue x) (glue₁ x))
 end pushout
 
+end HITs
 end ground_zero

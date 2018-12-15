@@ -1,4 +1,4 @@
-import ground_zero.interval
+import ground_zero.HITs.interval
 open ground_zero.structures (prop hset)
 
 namespace ground_zero
@@ -31,18 +31,18 @@ lemma prop_is_prop {α : Sort u} : prop (prop α) := begin
   cases f, cases g,
   have p := λ a b, h (f a b) (g a b),
   apply eq.map structures.prop.mk,
-  apply interval.dfunext, intro a,
-  apply interval.dfunext, intro b,
+  apply HITs.interval.dfunext, intro a,
+  apply HITs.interval.dfunext, intro b,
   exact p a b
 end
 
 lemma prop_equiv {π : Type u} (h : prop π) : π ≃ ∥π∥ := begin
-  existsi trunc.elem, split,
+  existsi HITs.trunc.elem, split,
   repeat {
-    existsi trunc.extract, intro x,
-    simp [trunc.extract],
-    simp [trunc.rec], simp [trunc.elem],
-    intros, try { apply trunc.uniq },
+    existsi HITs.trunc.extract, intro x,
+    simp [HITs.trunc.extract],
+    simp [HITs.trunc.rec], simp [HITs.trunc.elem],
+    intros, try { apply HITs.trunc.uniq },
     assumption
   }
 end
@@ -56,7 +56,7 @@ begin
   have p : Π (x : π), eq (g (f x)) x := α,
   rw [←ground_zero.support.truncation (p a)],
   rw [←ground_zero.support.truncation (p b)],
-  rw [support.truncation (trunc.uniq (f a) (f b))]
+  rw [support.truncation (HITs.trunc.uniq (f a) (f b))]
 end
 
 theorem prop_exercise (π : Type u) : (prop π) ≃ (π ≃ ∥π∥) :=
@@ -75,9 +75,9 @@ lemma comp_qinv₁ {α : Sort u} {β : Sort v} {γ : Sort w}
   (f : α → β) (g : β → α) (H : is_qinv f g) :
   qinv (λ (h : γ → α), f ∘ h) := begin
   existsi (λ h, g ∘ h), split,
-  { intro h, apply interval.funext,
+  { intro h, apply HITs.interval.funext,
     intro x, exact H.pr₁ (h x) },
-  { intro h, apply interval.funext,
+  { intro h, apply HITs.interval.funext,
     intro x, exact H.pr₂ (h x) }
 end
 
@@ -85,9 +85,9 @@ lemma comp_qinv₂ {α : Sort u} {β : Sort v} {γ : Sort w}
   (f : α → β) (g : β → α) (H : is_qinv f g) :
   qinv (λ (h : β → γ), h ∘ f) := begin
   existsi (λ h, h ∘ g), split,
-  { intro h, apply interval.funext,
+  { intro h, apply HITs.interval.funext,
     intro x, apply eq.map h, exact H.pr₂ x },
-  { intro h, apply interval.funext,
+  { intro h, apply HITs.interval.funext,
     intro x, apply eq.map h, exact H.pr₁ x }
 end
 

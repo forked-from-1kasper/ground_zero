@@ -1,4 +1,4 @@
-import ground_zero.equiv
+import ground_zero.types.equiv
 
 namespace ground_zero.heq
 

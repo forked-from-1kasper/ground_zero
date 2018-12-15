@@ -1,4 +1,4 @@
-import ground_zero.coproduct
+import ground_zero.types.coproduct
 open ground_zero
 
 namespace ground_zero.nat

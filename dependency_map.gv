@@ -1,56 +1,54 @@
 digraph dependency_map {
   algebra [style=dashed]
-  ntrunc -> algebra
+  "HITs/ntrunc" -> algebra
 
-  circle [style=dashed]
-  suspension -> circle
-  ua -> circle
+  "HITs/circle" [style=dashed]
+  "HITs/suspension" -> "HITs/circle"
+  "theorems/ua" -> "HITs/circle"
 
-  equiv -> coproduct
+  "types/equiv" -> "types/coproduct"
 
-  heq -> cubical
-  product -> cubical
+  "types/product" -> cubical
 
-  equiv -> heq
+  "types/equiv" -> "types/heq"
 
-  support -> equiv
-  functions -> equiv
+  support -> "types/equiv"
+  "theorems/functions" -> "types/equiv"
 
-  eq -> int
+  "types/eq" -> "types/int"
 
-  trunc -> interval
-  heq -> interval
+  "HITs/trunc" -> "HITs/interval"
 
-  trunc -> mere_eq_lemma
+  "HITs/trunc" -> "theorems/mere_eq_lemma"
 
-  ntrunc [style=dashed]
-  circle -> ntrunc
+  "HITs/ntrunc" [style=dashed]
+  "HITs/circle" -> "HITs/ntrunc"
 
-  interval -> product
+  "HITs/interval" -> "types/product"
 
-  interval -> prop
+  "HITs/interval" -> "theorems/prop"
 
-  heq -> pushout
+  "types/heq" -> "HITs/pushout"
 
-  unit -> structures
-  coproduct -> structures
+  "types/unit" -> structures
+  "types/coproduct" -> structures
 
-  eq -> support
+  "types/eq" -> support
 
-  pushout -> suspension
-  unit -> suspension
+  "HITs/pushout" -> "HITs/suspension"
+  "types/unit" -> "HITs/suspension"
 
-  structures -> trunc
-  heq -> trunc
+  structures -> "HITs/trunc"
+  "types/heq" -> "HITs/trunc"
 
-  ua [style=dashed]
-  product -> ua
+  "theorems/ua" [style=dashed]
+  "types/product" -> "theorems/ua"
 
-  equiv -> unit
+  "types/equiv" -> "types/unit"
 
-  coproduct -> nat
+  "types/coproduct" -> "types/nat"
 
-  equiv -> lost
+  "types/equiv" -> "types/lost"
 
-  sigma
+  "types/sigma"
 }

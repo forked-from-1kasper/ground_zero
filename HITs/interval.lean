@@ -1,7 +1,8 @@
-import ground_zero.trunc ground_zero.heq
-open ground_zero.trunc ground_zero.structures
+import ground_zero.HITs.trunc
+open ground_zero.HITs.trunc ground_zero.structures
 
 namespace ground_zero
+namespace HITs
 
 def 𝕀 := ∥bool∥
 abbreviation interval := 𝕀
@@ -23,7 +24,7 @@ namespace interval
     bool.rec (singl.trivial_loop b₀) ⟨b₁, s⟩ b in
   singl.point ∘ trunc.rec f
 
-  /- β i₀ and β i₁ are Prop,
+  /- β i₀ and β i₁ are Prop’s,
      so s : b₀ = b₁ is trivial -/
   def hrec {β : 𝕀 → Prop} (b₀ : β i₀) (b₁ : β i₁) :
     Π (x : 𝕀), β x := begin
@@ -81,4 +82,5 @@ namespace interval
   notation r `∨`:70 s := max r s
 end interval
 
+end HITs
 end ground_zero

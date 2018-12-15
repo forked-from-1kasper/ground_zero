@@ -1,6 +1,7 @@
-import ground_zero.pushout ground_zero.unit
+import ground_zero.HITs.pushout ground_zero.types.unit
 
 namespace ground_zero
+namespace HITs
 
 abbreviation unit₀ : Type := ground_zero.unit
 abbreviation star₀ : unit₀ := ground_zero.unit.star
@@ -33,4 +34,5 @@ namespace suspension
   pushout.rec (λ _, n) (λ _, s) m
 end suspension
 
+end HITs
 end ground_zero

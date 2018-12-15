@@ -1,7 +1,8 @@
-import ground_zero.suspension ground_zero.ua
+import ground_zero.HITs.suspension ground_zero.theorems.ua
 open ground_zero.structures (hset)
 
 namespace ground_zero
+namespace HITs
 
 universes u v
 
@@ -198,4 +199,5 @@ namespace torus
   end
 end torus
 
+end HITs
 end ground_zero

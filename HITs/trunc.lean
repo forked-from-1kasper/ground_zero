@@ -1,7 +1,8 @@
-import ground_zero.structures ground_zero.heq
+import ground_zero.structures ground_zero.types.heq
 open ground_zero.structures
 
 namespace ground_zero
+namespace HITs
 
 def {u} trunc (α : Sort u) := @quot α (λ _ _, true)
 notation `∥` α `∥` := trunc α
@@ -64,4 +65,5 @@ namespace trunc
   end
 end trunc
 
+end HITs
 end ground_zero
