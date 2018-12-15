@@ -70,8 +70,7 @@ begin
   let g : h = ff := comp_rule e tt,
   let oops : h = tt :=
     (λ p, equiv.transport theorems.functions.idfun p tt) #
-    (@hset.intro Type error bool bool
-                 p (ground_zero.eq.refl bool)),
+    (@hset.intro _ error _ _ p (ground_zero.eq.refl bool)),
   let uh_oh : ff = tt := g⁻¹ ⬝ oops,
   apply ff_neq_tt, exact uh_oh
 end
@@ -86,8 +85,8 @@ end
 noncomputable theorem product_equiv₂ {α α' β β' : Sort u}
   (e₁ : α ≃ α') (e₂ : β ≃ β') : (α × β) ≃ (α' × β') :=
 begin
-  refine J _ e₁, intro δ,
-  refine J _ e₂, intro σ,
+  refine J _ e₁, intro A,
+  refine J _ e₂, intro B,
   reflexivity
 end
 
@@ -108,6 +107,22 @@ theorem product_equiv₃ {α α' β β' : Sort u}
     cases x with u v, simp [*],
     apply product.construction,
     exact β₁ u, exact β₂ v }
+end
+
+theorem family_on_bool {π : bool → Sort u} :
+  (π ff × π tt) ≃ Π (b : bool), π b := begin
+  let construct : (π ff × π tt) → Π (b : bool), π b := begin
+    intros x b, cases x with p q,
+    cases b, exact p, exact q
+  end,
+  let deconstruct : (Π (b : bool), π b) → (π ff × π tt) := begin
+    intro H, split, exact H ff, exact H tt
+  end,
+  existsi construct, split; existsi deconstruct,
+  { intro x, cases x with p q, reflexivity },
+  { intro x, apply HITs.interval.dfunext,
+    intro b, induction b,
+    repeat { reflexivity } }
 end
 
 end ua

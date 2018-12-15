@@ -74,6 +74,8 @@ namespace eq
   iterated_loop_space ⟨α, dotted.point α⟩
 
   notation `Ω` `[` n `]` `, ` X := (iterated_loop_space X n).space
+  notation `Θ` `[` n `]` `, ` X := (iterated_loop_space X n).point
+
   notation `Ω¹` X := (loop_pointed_space X 1).space
 end eq
 
