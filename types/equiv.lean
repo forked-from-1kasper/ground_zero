@@ -104,6 +104,12 @@ namespace equiv
     (p : a = b :> α) : π a → π b :=
   begin induction p, exact theorems.functions.idfun end
 
+  def subst_sqr {α : Sort u} {π : α → Sort v} {a b : α}
+    {p q : a = b :> α} (r : p = q :> a = b :> α) (u : π a) :
+    subst p u = subst q u :> π b :=
+  begin induction r, reflexivity end
+  notation `subst²` := subst_sqr
+
   notation u ` =[` p `] ` v := subst p u = v :> _
 
   def dep_trans {α : Sort u} {π : α → Sort v}
@@ -126,7 +132,7 @@ namespace equiv
     g u =[p] g v :=
   begin induction q, induction p, trivial end
 
-  theorem subst_comp {α : Sort u}
+  def subst_comp {α : Sort u}
     {π : α → Sort v} {a b c : α}
     (p : a = b :> α) (q : b = c :> α) (x : π a) :
     subst (p ⬝ q) x = subst q (subst p x) :> π c :=
@@ -136,6 +142,11 @@ namespace equiv
   abbreviation transport {α : Sort u}
     (π : α → Sort v) {a b : α}
     (p : a = b :> α) : π a → π b := subst p
+
+  abbreviation transport_sqr {α : Sort u} (π : α → Sort v) {a b : α}
+    {p q : a = b :> α} (r : p = q :> a = b :> α) (u : π a) :
+    subst p u = subst q u :> π b := subst_sqr r u
+  notation `transport²` := transport_sqr
 
   notation u ` =[` P `,` p `] ` v := transport P p u = v :> _
 

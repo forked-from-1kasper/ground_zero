@@ -62,7 +62,14 @@ namespace circle
   def ind {β : S¹ → Type u} (b : β base)
     (ℓ : b =[loop] b) : Π (x : S¹), β x :=
   ind₂ b (equiv.subst seg₁ b) eq.rfl
-    (begin apply eq.map, reflexivity end)
+    (begin
+      have p := equiv.subst_comp seg₂ seg₁⁻¹ b,
+      have q := (λ p, equiv.subst p (equiv.subst seg₂ b)) #
+                (eq.inv_comp seg₁),
+      transitivity, exact q⁻¹, transitivity,
+      exact equiv.subst_comp seg₁⁻¹ seg₁ (equiv.subst seg₂ b),
+      symmetry, exact equiv.subst seg₁ # (ℓ⁻¹ ⬝ p)
+    end)
 
   instance pointed_circle : eq.dotted S¹ := ⟨base⟩
 
@@ -158,6 +165,24 @@ namespace ncircle
   | (n + 1) := ∑(S n)
 
   notation `S²` := S 2
+
+  abbreviation base₁ : S² := suspension.north
+  abbreviation base₂ : S² := suspension.south
+
+  def loop : base₁ = base₂ := suspension.merid circle.base
+
+  def surf_trans :=
+  (λ p, suspension.merid p ⬝ loop⁻¹) # circle.loop
+
+  abbreviation base : S² := suspension.north
+  def surf : eq.refl base = eq.refl base :=
+  (eq.comp_inv loop)⁻¹ ⬝ surf_trans ⬝ (eq.comp_inv loop)
+
+  def ind {π : S² → Type u} (b : π base)
+    (s : eq.refl b =[λ p, b =[π, p] b, surf] eq.refl b) : Π (x : S²), π x := begin
+    refine suspension.ind b (equiv.subst loop b) _,
+    intro x, apply eq.map, admit
+  end
 end ncircle
 
 def torus := S¹ × S¹

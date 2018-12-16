@@ -30,11 +30,15 @@ namespace eq
     b = a :> α :=
   begin induction p, reflexivity end
 
-  infix ` ⬝ ` := trans
+  infixr ` ⬝ ` := trans
   postfix ⁻¹ := symm
 
   def comp_inv {α : Sort u} {a b : α} (p : a = b :> α) :
     p ⬝ p⁻¹ = eq.refl a :> a = a :> α :=
+  begin induction p, trivial end
+
+  def inv_comp {α : Sort u} {a b : α} (p : a = b :> α) :
+    p⁻¹ ⬝ p = eq.refl b :> b = b :> α :=
   begin induction p, trivial end
 
   def refl_left {α : Sort u} {a b : α} (p : a = b :> α) :
