@@ -35,7 +35,10 @@ instance : has_zero homotopy_level := ⟨homotopy_level.succ −1⟩
 def level_to_n : homotopy_level → ℕ
 | homotopy_level.minus_two := 0
 | (homotopy_level.succ n) := level_to_n n + 1
-instance : has_coe homotopy_level nat := ⟨level_to_n⟩
+
+def n_to_level : ℕ → homotopy_level
+| 0 := homotopy_level.minus_two
+| (n + 1) := homotopy_level.succ (n_to_level n)
 
 def is_n_type : Sort u → homotopy_level → Sort (max 1 u)
 | α homotopy_level.minus_two := contr α

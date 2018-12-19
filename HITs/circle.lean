@@ -73,6 +73,16 @@ namespace circle
 
   instance pointed_circle : eq.dotted S¹ := ⟨base⟩
 
+  theorem natural_equivalence {α : Sort u} :
+    (S¹ → α) ≃ (Σ' (x : α), x = x) := begin
+    let f : (S¹ → α) → (Σ' (x : α), x = x) :=
+    λ g, ⟨g base, g # loop⟩,
+    let g : (Σ' (x : α), x = x) → (S¹ → α) :=
+    λ p x, p.fst,
+    existsi f, split; existsi g,
+    repeat { admit }
+  end
+
   namespace going
     def trivial : S¹ → S¹ :=
     rec base (eq.refl base)
@@ -163,8 +173,10 @@ namespace ncircle
   def S : ℕ → Sort _
   | 0 := S⁰
   | (n + 1) := ∑(S n)
+end ncircle
 
-  notation `S²` := S 2
+namespace sphere
+  notation `S²` := ncircle.S 2
 
   abbreviation base₁ : S² := suspension.north
   abbreviation base₂ : S² := suspension.south
@@ -178,12 +190,18 @@ namespace ncircle
   def surf : eq.refl base = eq.refl base :=
   (eq.comp_inv loop)⁻¹ ⬝ surf_trans ⬝ (eq.comp_inv loop)
 
+  def rec {β : Type u} (b : β) (s : eq.refl b = eq.refl b) : S² → β :=
+  suspension.rec b b (circle.rec (eq.refl b) s)
+
   def ind {π : S² → Type u} (b : π base)
     (s : eq.refl b =[λ p, b =[π, p] b, surf] eq.refl b) : Π (x : S²), π x := begin
     refine suspension.ind b (equiv.subst loop b) _,
-    intro x, apply eq.map, admit
+    intro x, refine circle.ind _ _ x,
+
+    reflexivity,
+    admit
   end
-end ncircle
+end sphere
 
 def torus := S¹ × S¹
 notation `T²` := torus

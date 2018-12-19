@@ -51,6 +51,9 @@ def to_equality {α : Sort u} {a b : α} (p : path a b) : a = b :> α :=
 def compute {α : Sort u} {a b : α} (p : path a b) : 𝕀 → α :=
 interval.rec a b (to_equality p)
 
+def coe (π : 𝕀 → Sort u) (x : π i₀) : Π i, π i :=
+interval.ind x (equiv.subst seg x) eq.rfl
+
 infix ` # `:40 := compute
 notation `<` binder `> ` r:(scoped P, path.lam P) := r
 
@@ -71,7 +74,7 @@ notation `<` binder `> ` r:(scoped P, path.lam P) := r
 -/
 infix ` ⇝ `:30 := path
 
-def conn_and {α : Sort u} {a b : α}
+def square.and {α : Sort u} {a b : α}
   (p : a ⇝ b) : square a a a b :=
 square.lam (λ i j, p # i ∧ j)
 
@@ -124,14 +127,17 @@ def cong {α : Type u} {β : Type v} {a b : α}
 <i> f (p # i)
 
 def subst {α : Type u} {π : α → Type v} {a b : α}
-  (p : a ⇝ b) : π a → π b :=
-equiv.subst (to_equality p)
+  (p : a ⇝ b) (x : π a) : π b :=
+coe (λ i, π (p # i)) x i₁
 
-def transport {α β : Type u} : (α ⇝ β) → (α → β) :=
-psigma.fst ∘ equiv.idtoeqv ∘ to_equality
+abbreviation transport {α : Type u} (π : α → Type v) {a b : α}
+  (p : a ⇝ b) : π a → π b := subst p
+
+def transportconst {α β : Type u} : (α ⇝ β) → (α → β) :=
+transport id
 
 def idtoeqv {α β : Type u} (p : α ⇝ β) : α ≃ β :=
-transport (<i> α ≃ p # i) (equiv.id α)
+transportconst (<i> α ≃ p # i) (equiv.id α)
 
 def test_eta {α : Type u} {a b : α} (p : a ⇝ b) : p ⇝ p := rfl
 def face₀ {α : Type u} {a b : α} (p : a ⇝ b) : α := p # i₀
@@ -143,7 +149,7 @@ def comp_test₁ {α : Type u} {a b : α} (p : a ⇝ b) : (p # i₁) ⇝ b := rf
 -- fail
 --def symm_test {α : Type u} {a b : α} (p : a ⇝ b) : (p⁻¹)⁻¹ ⇝ p := rfl
 def trans {α : Type u} {a b c : α} (p : a ⇝ b) (q : b ⇝ c) : a ⇝ c :=
-from_equality (to_equality p ⬝ to_equality q)
+subst q p
 
 infix ⬝ := trans
 
@@ -155,12 +161,22 @@ left⁻¹ ⬝ bottom ⬝ right
 lemma eta {α : Type u} {a b : α} (p : a ⇝ b) :
   (<i> p # i) = p :> a ⇝ b := begin
   cases p with f, unfold path.lam,
+  have q : (λ i, cube.lam f # i) = f :> _ := begin
+    apply interval.funext, intro x,
+    refine interval.ind _ _ _ x,
+    repeat { reflexivity },
+    admit
+  end,
   admit
 end
 
 --def J {α : Type u} {a : α} {π : Π (b : α), a ⇝ b → Type u}
 --  (h : π a (refl a)) (b : α) (p : a ⇝ b) : π b (<i> p # i) :=
 --transport (<i> π (p # i) (<j> p # i ∧ j)) h
+
+def conn_and {α : Sort u} {a b : α} (p : a ⇝ b) :
+  Π (i : 𝕀), a ⇝ p # i :=
+λ i, <j> p # i ∧ j
 
 end path
 

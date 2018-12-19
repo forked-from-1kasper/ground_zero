@@ -61,6 +61,12 @@ namespace eq
   begin induction p, reflexivity end
   infix [parsing_only] ` # ` := map
 
+  def ap₂ {α : Sort u} {β : Sort v} {a b : α}
+    {p q : a = b :> α} (f : α → β)
+    (r : p = q :> a = b :> α) :
+    f # p = f # q :> f a = f b :> β :=
+  begin induction r, reflexivity end
+
   class dotted (space : Sort u) :=
   (point : space)
 

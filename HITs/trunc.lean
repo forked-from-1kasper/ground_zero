@@ -63,7 +63,17 @@ namespace trunc
     exact double,
     exact (begin intro x, cases x with u v, exact u end)
   end
-end trunc
 
+  def uninhabited_implies_trunc_uninhabited {α : Sort u}
+    (p : α → empty) : ∥α∥ → empty :=
+  rec p
+end trunc
 end HITs
+
+def {u v} surj {α : Sort u} {β : Sort v} (f : α → β) :=
+Π (b : β), ∥fib f b∥
+
+def {u v} embedding {α : Sort u} {β : Sort v} (f : α → β) :=
+Π (x y : α), equiv.biinv (@eq.map _ _ x y f)
+
 end ground_zero
