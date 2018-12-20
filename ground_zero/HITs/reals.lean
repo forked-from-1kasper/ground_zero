@@ -1,17 +1,16 @@
-import ground_zero.HITs.circle
+import ground_zero.HITs.int ground_zero.support
 
 namespace ground_zero.HITs
-local notation `ℤ` := circle.int
 
 inductive reals.rel : ℤ → ℤ → Prop
-| glue (x : ℤ) : reals.rel x (circle.int.succ x)
+| glue (x : ℤ) : reals.rel x (x + 1)
 def reals := quot reals.rel
 notation `ℝ` := reals
 
 namespace reals
 
 def elem : ℤ → ℝ := quot.mk rel
-def glue (z : ℤ) : elem z = elem (circle.int.succ z) :> ℝ :=
+def glue (z : ℤ) : elem z = elem (z + 1) :> ℝ :=
 ground_zero.support.inclusion (quot.sound $ rel.glue z)
 
 end reals
