@@ -30,6 +30,7 @@ digraph dependency_map {
 
   "types/heq" -> "HITs/pushout"
 
+  "HITs/reals" [style=dashed]
   "HITs/circle" -> "HITs/reals"
 
   "types/unit" -> structures

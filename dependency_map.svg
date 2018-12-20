@@ -36,7 +36,7 @@
 </g>
 <!-- HITs/reals -->
 <g id="node20" class="node"><title>HITs/reals</title>
-<ellipse fill="none" stroke="black" cx="310.745" cy="-90" rx="48.9926" ry="18"/>
+<ellipse fill="none" stroke="black" stroke-dasharray="5,2" cx="310.745" cy="-90" rx="48.9926" ry="18"/>
 <text text-anchor="middle" x="310.745" y="-86.3" font-family="Times New Roman,serif" font-size="14.00">HITs/reals</text>
 </g>
 <!-- HITs/circle&#45;&gt;HITs/reals -->
