@@ -118,7 +118,7 @@ end
 <i> p # −i
 postfix `⁻¹` := symm
 
-def funext {α : Type u} {β : Type v} {f g : α → β}
+def funext {α : Type u} {β : α → Type v} {f g : Π (x : α), β x}
   (p : Π (x : α), f x ⇝ g x) : f ⇝ g :=
 <i> λ x, (p x) # i
 
