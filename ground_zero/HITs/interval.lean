@@ -40,8 +40,8 @@ namespace interval
     { intros, induction s,
       cases a; cases b,
       { reflexivity },
-      { simp, apply heq.eq_subst_heq },
-      { simp, symmetry, apply heq.eq_subst_heq },
+      { simp, apply types.heq.eq_subst_heq },
+      { simp, symmetry, apply types.heq.eq_subst_heq },
       { reflexivity } }
   end
 
@@ -60,7 +60,7 @@ namespace interval
 
   def homotopy_from_path {α : Sort u} {β : α → Sort v}
     {f g : Π (x : α), β x} (p : f = g :> _) : f ~ g :=
-  begin induction p, apply equiv.homotopy.id end
+  begin induction p, apply types.equiv.homotopy.id end
 
   instance : prop 𝕀 := ⟨trunc.uniq⟩
   instance trunc_functions {α : Type u} : prop (∥α∥ → ∥α∥) :=

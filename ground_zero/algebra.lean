@@ -1,5 +1,5 @@
 import ground_zero.HITs.ntrunc
-open ground_zero.eq (pointed)
+open ground_zero.types.eq (pointed)
 open ground_zero.structures (hset)
 
 namespace ground_zero.algebra

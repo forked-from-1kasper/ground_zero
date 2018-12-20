@@ -1,6 +1,6 @@
 import ground_zero.types.equiv
 
-namespace ground_zero.heq
+namespace ground_zero.types.heq
 
 universes u v
 def from_homo {α : Type u} {a b : α} (h : a = b) : a == b :=
@@ -18,7 +18,7 @@ begin induction p, trivial end
 
 lemma eq_subst_heq {α : Sort u} {π : α → Sort v}
   {a b : α} (p : a = b :> α) (x : π a) :
-  x == ground_zero.equiv.subst p x :=
+  x == ground_zero.types.equiv.subst p x :=
 begin induction p, reflexivity end
 
-end ground_zero.heq
+end ground_zero.types.heq

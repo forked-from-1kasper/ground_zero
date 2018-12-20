@@ -1,4 +1,4 @@
-namespace ground_zero
+namespace ground_zero.types
 
 universes u v t
 
@@ -16,4 +16,4 @@ namespace sigma
   | ⟨a, b⟩ := g a b
 end sigma
 
-end ground_zero
+end ground_zero.types

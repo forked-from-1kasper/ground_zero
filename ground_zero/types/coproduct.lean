@@ -1,6 +1,6 @@
 import ground_zero.types.equiv
 
-namespace ground_zero
+namespace ground_zero.types
 
 universes u v f
 
@@ -26,4 +26,4 @@ namespace coproduct
   end
 end coproduct
 
-end ground_zero
+end ground_zero.types

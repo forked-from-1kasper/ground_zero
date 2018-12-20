@@ -2,7 +2,7 @@ import ground_zero.types.eq
 
 abbreviation builtin.int := int
 
-namespace ground_zero
+namespace ground_zero.types
 
 def int.rel : ℕ × ℕ → ℕ × ℕ → Prop
 | (a, b) (c, d) := a + d = b + c
@@ -174,4 +174,4 @@ namespace int
     end)
 end int
 
-end ground_zero
+end ground_zero.types

@@ -40,8 +40,8 @@ namespace trunc
     (x : ∥α∥) : π x := begin
     apply quot.hrec_on x f,
     intros a b H,
-    refine ground_zero.eq.rec _ (p a b),
-    apply heq.eq_subst_heq
+    refine types.eq.rec _ (p a b),
+    apply types.heq.eq_subst_heq
   end
 
   def extract {α : Type u} [prop α] : ∥α∥ → α :=
@@ -71,9 +71,9 @@ end trunc
 end HITs
 
 def {u v} surj {α : Sort u} {β : Sort v} (f : α → β) :=
-Π (b : β), ∥fib f b∥
+Π (b : β), ∥types.fib f b∥
 
 def {u v} embedding {α : Sort u} {β : Sort v} (f : α → β) :=
-Π (x y : α), equiv.biinv (@eq.map _ _ x y f)
+Π (x y : α), types.equiv.biinv (@types.eq.map _ _ x y f)
 
 end ground_zero

@@ -3,8 +3,8 @@ import ground_zero.HITs.pushout ground_zero.types.unit
 namespace ground_zero
 namespace HITs
 
-abbreviation unit₀ : Type := ground_zero.unit
-abbreviation star₀ : unit₀ := ground_zero.unit.star
+abbreviation unit₀ : Type := types.unit
+abbreviation star₀ : unit₀ := types.unit.star
 
 def {u} suspension (α : Type u) :=
 pushout (λ (a : α), star₀) (λ _, star₀)
@@ -14,8 +14,8 @@ namespace suspension
   -- https://github.com/leanprover/lean2/blob/master/hott/homotopy/susp.hlean
   universes u v
 
-  def north {α : Type u} : suspension α := pushout.inl ground_zero.unit.star
-  def south {α : Type u} : suspension α := pushout.inr ground_zero.unit.star
+  def north {α : Type u} : suspension α := pushout.inl types.unit.star
+  def south {α : Type u} : suspension α := pushout.inr types.unit.star
 
   def merid {α : Type u} (a : α) :
     north = south :> suspension α :=

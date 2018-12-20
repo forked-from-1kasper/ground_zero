@@ -1,6 +1,6 @@
 import ground_zero.types.equiv
 
-namespace ground_zero
+namespace ground_zero.types
 
 universe u
 
@@ -24,4 +24,4 @@ uninhabited_type code
 namespace lost
 end lost
 
-end ground_zero
+end ground_zero.types

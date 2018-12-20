@@ -1,6 +1,5 @@
 import ground_zero.types.unit ground_zero.types.coproduct
-
-open ground_zero.unit
+open ground_zero.types.unit
 
 namespace ground_zero
 
@@ -55,7 +54,7 @@ instance contr_is_prop (α : Sort u) [contr α] : prop α :=
 instance empty_is_prop : prop empty :=
 ⟨begin intros a, induction a end⟩
 
-instance unit_is_prop : prop ground_zero.unit :=
+instance unit_is_prop : prop types.unit :=
 ⟨begin intros, induction a, induction b, trivial end⟩
 
 instance prop_is_prop {α : Prop} : prop α :=

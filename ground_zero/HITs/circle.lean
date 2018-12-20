@@ -1,4 +1,6 @@
 import ground_zero.HITs.suspension ground_zero.theorems.ua
+open ground_zero.types.equiv (subst)
+open ground_zero.types.eq (renaming refl -> idp)
 open ground_zero.structures (hset)
 
 namespace ground_zero
@@ -9,7 +11,7 @@ universes u v
 notation [parsing_only] `S⁻¹` := empty
 notation [parsing_only] `S⁰` := bool
 
-local infix ` = ` := eq
+local infix ` = ` := types.eq
 
 theorem up_dim : ∑S⁻¹ ≃ S⁰ :=
 let f : ∑S⁻¹ → S⁰ :=
@@ -57,21 +59,21 @@ namespace circle
   suspension.rec b b (λ _, ℓ)
 
   theorem recβrule₁ {β : Type u} (b : β) (ℓ : b = b) :
-    rec b ℓ base = b := eq.rfl
+    rec b ℓ base = b := types.eq.rfl
 
   def ind {β : S¹ → Type u} (b : β base)
     (ℓ : b =[loop] b) : Π (x : S¹), β x :=
-  ind₂ b (equiv.subst seg₁ b) eq.rfl
+  ind₂ b (types.equiv.subst seg₁ b) types.eq.rfl
     (begin
-      have p := equiv.subst_comp seg₂ seg₁⁻¹ b,
-      have q := (λ p, equiv.subst p (equiv.subst seg₂ b)) #
-                (eq.inv_comp seg₁),
+      have p := types.equiv.subst_comp seg₂ seg₁⁻¹ b,
+      have q := (λ p, subst p (subst seg₂ b)) #
+                (types.eq.inv_comp seg₁),
       transitivity, exact q⁻¹, transitivity,
-      exact equiv.subst_comp seg₁⁻¹ seg₁ (equiv.subst seg₂ b),
-      symmetry, exact equiv.subst seg₁ # (ℓ⁻¹ ⬝ p)
+      exact types.equiv.subst_comp seg₁⁻¹ seg₁ (subst seg₂ b),
+      symmetry, exact subst seg₁ # (ℓ⁻¹ ⬝ p)
     end)
 
-  instance pointed_circle : eq.dotted S¹ := ⟨base⟩
+  instance pointed_circle : types.eq.dotted S¹ := ⟨base⟩
 
   theorem natural_equivalence {α : Sort u} :
     (S¹ → α) ≃ (Σ' (x : α), x = x) := begin
@@ -94,7 +96,7 @@ namespace circle
   def succ (l : Ω¹(S¹)) : Ω¹(S¹) := l ⬝ loop
   def pred (l : Ω¹(S¹)) : Ω¹(S¹) := l ⬝ loop⁻¹
 
-  def zero := eq.refl base
+  def zero := idp base
   def one := succ zero
   def two := succ one
   def three := succ two
@@ -155,18 +157,18 @@ namespace circle
   | (n+1) := pos n ⬝ loop⁻¹
 
   def encode (x : S¹) (p : base = x) : code x :=
-  equiv.transport code p int.zero
+  types.equiv.transport code p int.zero
 
   def power : int → Ω¹(S¹)
   | (int.pos n) := pos n
-  | int.zero := eq.refl base
+  | int.zero := idp base
   | (int.neg n) := neg n
 
   example : power (int.pos 2) = loop ⬝ loop ⬝ loop :=
   by reflexivity
 
   def winding (x : base = base) : int :=
-  let n : code base := equiv.transportconst (code # x) int.zero in n
+  let n : code base := types.equiv.transportconst (code # x) int.zero in n
 end circle
 
 namespace ncircle
@@ -187,15 +189,15 @@ namespace sphere
   (λ p, suspension.merid p ⬝ loop⁻¹) # circle.loop
 
   abbreviation base : S² := suspension.north
-  def surf : eq.refl base = eq.refl base :=
-  (eq.comp_inv loop)⁻¹ ⬝ surf_trans ⬝ (eq.comp_inv loop)
+  def surf : types.eq.refl base = types.eq.refl base :=
+  (types.eq.comp_inv loop)⁻¹ ⬝ surf_trans ⬝ (types.eq.comp_inv loop)
 
-  def rec {β : Type u} (b : β) (s : eq.refl b = eq.refl b) : S² → β :=
-  suspension.rec b b (circle.rec (eq.refl b) s)
+  def rec {β : Type u} (b : β) (s : idp b = idp b) : S² → β :=
+  suspension.rec b b (circle.rec (idp b) s)
 
   def ind {π : S² → Type u} (b : π base)
-    (s : eq.refl b =[λ p, b =[π, p] b, surf] eq.refl b) : Π (x : S²), π x := begin
-    refine suspension.ind b (equiv.subst loop b) _,
+    (s : idp b =[λ p, b =[π, p] b, surf] idp b) : Π (x : S²), π x := begin
+    refine suspension.ind b (subst loop b) _,
     intro x, refine circle.ind _ _ x,
 
     reflexivity,
@@ -207,15 +209,16 @@ def torus := S¹ × S¹
 notation `T²` := torus
 
 namespace torus
+  open types.product
   def b : T² := ⟨circle.base, circle.base⟩
 
-  def inj₁ : S¹ → T² := product.intro circle.base
-  def inj₂ : S¹ → T² := function.swap product.intro circle.base
+  def inj₁ : S¹ → T² := types.product.intro circle.base
+  def inj₂ : S¹ → T² := function.swap types.product.intro circle.base
 
   abbreviation prod {α : Type u} {β : Type v} {a b : α} {c d : β}
     (p : a = b) (q : c = d) :
     ⟨a, c⟩ = ⟨b, d⟩ :> α × β :=
-  product.construction a b c d p q
+  construction a b c d p q
 
   -- poloidal and toroidal directions
   def p : b = b :> T² := prod (eq.refl circle.base) circle.loop
@@ -223,8 +226,8 @@ namespace torus
 
   def Φ {π : Type u} {x x' y y' : π}
     (α : x = x' :> π) (β : y = y' :> π) :
-    prod (eq.refl x) β ⬝ prod α (eq.refl y') =
-    prod α (eq.refl y) ⬝ prod (eq.refl x') β :> _ :=
+    prod (idp x) β ⬝ prod α (idp y') =
+    prod α (idp y) ⬝ prod (idp x') β :> _ :=
   begin induction α, induction β, trivial end
 
   def t : p ⬝ q = q ⬝ p :> b = b :> T² :=
@@ -232,7 +235,7 @@ namespace torus
 
   def ind {π : T² → Type u} (b' : π b)
     (p' : b' =[p] b') (q' : b' =[q] b')
-    (t' : p' ⬝ q' =[(λ r, equiv.subst r b' = b'), t] q' ⬝ p') :
+    (t' : p' ⬝ q' =[(λ r, subst r b' = b'), t] q' ⬝ p') :
     Π (x : T²), π x := begin
     intro x, cases x with poloidal toroidal,
     refine circle.ind _ _ poloidal,

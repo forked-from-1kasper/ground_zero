@@ -1,7 +1,7 @@
 import ground_zero.types.coproduct
-open ground_zero
+open ground_zero.types
 
-namespace ground_zero.nat
+namespace ground_zero.types.nat
 
 universes u v w
 
@@ -44,12 +44,12 @@ theorem equiv_addition {α : Type u} {β : Type v} (γ : Type w)
   existsi f, split; existsi g,
   { intro x, induction x,
     { simp [g, f],
-      rw [support.truncation (β' x)],
+      rw [ground_zero.support.truncation (β' x)],
       simp },
     { trivial } },
   { intro x, induction x,
     { simp [f, g],
-      rw [support.truncation (α' x)],
+      rw [ground_zero.support.truncation (α' x)],
       simp },
     { trivial } }
 end
@@ -72,4 +72,4 @@ theorem nat_plus_unit (n : ℕ) : ℕ ≃ iterated_nat n := begin
     symmetry, exact closed_nat }
 end
 
-end ground_zero.nat
+end ground_zero.types.nat

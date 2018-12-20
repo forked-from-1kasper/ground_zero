@@ -1,4 +1,4 @@
-namespace ground_zero
+namespace ground_zero.types
 
 universes u v
 
@@ -125,4 +125,4 @@ namespace whiskering
   end
 end whiskering
 
-end ground_zero
+end ground_zero.types

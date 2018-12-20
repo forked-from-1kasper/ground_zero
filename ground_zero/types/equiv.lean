@@ -1,6 +1,6 @@
 import ground_zero.support ground_zero.theorems.functions
 
-namespace ground_zero
+namespace ground_zero.types
 
 structure {u v} product (α : Sort u) (β : Sort v) :=
 intro :: (pr₁ : α) (pr₂ : β)
@@ -46,8 +46,9 @@ namespace equiv
     {f g : α → β} (H : f ~ g) {x y : α}
     (p : x = y :> α) :
     H x ⬝ (g # p) = (f # p) ⬝ H y :> f x = g y :> β := begin
-    induction p, simp [eq.map], transitivity,
-    apply eq.refl_right, apply eq.refl_left
+    induction p, transitivity,
+    apply eq.refl_right,
+    apply eq.refl_left
   end
 end equiv
 
@@ -85,12 +86,12 @@ namespace equiv
     { existsi (g₁ ∘ g₂),
       intro x, simp,
       have p := α₂ (f₁ x), simp at p,
-      rw [support.truncation p],
+      rw [ground_zero.support.truncation p],
       have q := α₁ x, simp at q, exact q },
     { existsi (h₁ ∘ h₂),
       intro x, simp,
       have p := β₁ (h₂ x), simp at p,
-      rw [support.truncation p],
+      rw [ground_zero.support.truncation p],
       have q := β₂ x, simp at q, exact q }
   end
 
@@ -102,7 +103,7 @@ namespace equiv
 
   def subst {α : Sort u} {π : α → Sort v} {a b : α}
     (p : a = b :> α) : π a → π b :=
-  begin induction p, exact theorems.functions.idfun end
+  begin induction p, exact ground_zero.theorems.functions.idfun end
 
   def subst_sqr {α : Sort u} {π : α → Sort v} {a b : α}
     {p q : a = b :> α} (r : p = q :> a = b :> α) (u : π a) :
@@ -242,4 +243,4 @@ def {u v} ishae {α : Sort u} {β : Sort v} (f : α → β) :=
 def {u v} fib {α : Sort u} {β : Sort v} (f : α → β) (y : β) :=
 Σ' (x : α), f x = y :> β
 
-end ground_zero
+end ground_zero.types

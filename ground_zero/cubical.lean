@@ -1,7 +1,7 @@
 import ground_zero.types.product
 
 namespace ground_zero
-open ground_zero.HITs
+open ground_zero.HITs ground_zero.types
 open ground_zero.HITs.interval (i₀ i₁ seg)
 
 namespace path
@@ -170,13 +170,20 @@ lemma eta {α : Type u} {a b : α} (p : a ⇝ b) :
   admit
 end
 
---def J {α : Type u} {a : α} {π : Π (b : α), a ⇝ b → Type u}
---  (h : π a (refl a)) (b : α) (p : a ⇝ b) : π b (<i> p # i) :=
---transport (<i> π (p # i) (<j> p # i ∧ j)) h
+def interval_contr (i : 𝕀) : i₀ ⇝ i := coe (λ i, i₀ ⇝ i) rfl i
+def seg_path : i₀ ⇝ i₁ := interval_contr i₁
 
 def conn_and {α : Sort u} {a b : α} (p : a ⇝ b) :
   Π (i : 𝕀), a ⇝ p # i :=
 λ i, <j> p # i ∧ j
+
+--def J {α : Type u} {a : α} {π : Π (b : α), a ⇝ b → Type u}
+--  (h : π a (refl a)) (b : α) (p : a ⇝ b) : π b (<i> p # i) :=
+--coe (λ i, π (p # i) (conn_and p i)) h i₁
+
+--def J {α : Type u} {a : α} {π : Π (b : α), a ⇝ b → Type u}
+--  (h : π a (refl a)) (b : α) (p : a ⇝ b) : π b (<i> p # i) :=
+--transport (<i> π (p # i) (<j> p # i ∧ j)) h
 
 end path
 

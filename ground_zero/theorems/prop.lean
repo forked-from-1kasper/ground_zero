@@ -1,14 +1,16 @@
 import ground_zero.HITs.interval
 open ground_zero.structures (prop hset)
+open ground_zero.types.equiv (transport)
+open ground_zero.types
 
 namespace ground_zero
-namespace prop
+namespace theorems.prop
 
 universes u v w
 
 lemma transport_composition {α : Sort u} {a x₁ x₂ : α}
   (p : x₁ = x₂ :> α) (q : a = x₁ :> α) :
-  equiv.transport (eq a) p q = q ⬝ p :> _ := begin
+  transport (types.eq a) p q = q ⬝ p :> _ := begin
   induction p, symmetry, transitivity,
   apply eq.refl_right, trivial
 end
@@ -20,12 +22,11 @@ theorem prop_is_set {α : Sort u} (r : prop α) : hset α := begin
   have g := (equiv.apd (f a) p)⁻¹ ⬝
             transport_composition p (f a a),
   transitivity, exact (equiv.rewrite_comp g)⁻¹,
-  simp [eq.trans],
   admit
 end
 
 lemma prop_is_prop {α : Sort u} : prop (prop α) := begin
-  apply ground_zero.structures.prop.mk,
+  apply structures.prop.mk,
   intros f g,
   have h := prop_is_set f, cases h,
   cases f, cases g,
@@ -53,7 +54,7 @@ begin
   cases e with f H, cases H with linv rinv,
   cases linv with g α, cases rinv with h β,
   intros a b,
-  have p : Π (x : π), eq (g (f x)) x := α,
+  have p : Π (x : π), types.eq (g (f x)) x := α,
   rw [←ground_zero.support.truncation (p a)],
   rw [←ground_zero.support.truncation (p b)],
   rw [support.truncation (HITs.trunc.uniq (f a) (f b))]
@@ -91,5 +92,5 @@ lemma comp_qinv₂ {α : Sort u} {β : Sort v} {γ : Sort w}
     intro x, apply eq.map h, exact H.pr₁ x }
 end
 
-end prop
+end theorems.prop
 end ground_zero

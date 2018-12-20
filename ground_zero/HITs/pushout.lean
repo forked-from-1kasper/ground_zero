@@ -31,8 +31,8 @@ namespace pushout
     intro h, refine quot.hrec_on h _ _,
     { intro x, induction x, exact inl₁ x, exact inr₁ x },
     { intros u v H, cases H with x, simp,
-      refine ground_zero.eq.rec _ (glue₁ x),
-      apply heq.eq_subst_heq }
+      refine types.eq.rec _ (glue₁ x),
+      apply types.heq.eq_subst_heq }
   end
 
   def pathover_of_eq {α : Sort u} {β : Sort v}

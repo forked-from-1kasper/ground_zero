@@ -1,6 +1,6 @@
 import ground_zero.HITs.interval
 
-namespace ground_zero
+namespace ground_zero.types
 
 universes u v t
 
@@ -28,7 +28,7 @@ namespace product
     let e₂ : (ν → α) × (ν → β) → (ν → α × β) :=
     λ f x, intro (f.pr₁ x) (f.pr₂ x),
     existsi e₁, split; existsi e₂,
-    { simp [equiv.homotopy], intro f, apply HITs.interval.funext,
+    { simp [equiv.homotopy], intro f, apply ground_zero.HITs.interval.funext,
       simp [e₁, e₂], intro x, simp, apply product.uniq },
     { simp [equiv.homotopy], intro x,
       cases x with f g, simp }
@@ -51,4 +51,4 @@ namespace product
   ⟨intro 1 1⟩
 end product
 
-end ground_zero
+end ground_zero.types

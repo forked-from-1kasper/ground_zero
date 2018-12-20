@@ -1,6 +1,6 @@
 import ground_zero.types.equiv
 
-namespace ground_zero
+namespace ground_zero.types
 
 universe u
 inductive unit : Sort u
@@ -19,4 +19,4 @@ namespace unit
   | star := eq.refl star
 end unit
 
-end ground_zero
+end ground_zero.types
