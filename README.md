@@ -4,7 +4,7 @@
 
 [All HITs in library](https://github.com/groupoid/lean/tree/master/ground_zero/HITs) are constructed using [quotients](https://leanprover.github.io/theorem_proving_in_lean/axioms_and_computation.html#quotients). Quotients in Lean have good computational properties (`quot.ind` computes), so we can define HITs with them without any other changes in Lean’s kernel.
 
-There’s many basic—not defined in terms of another Higher Inductive Types—HITs: truncations, pushout, homotopical reals.
+There’s many basic—not defined in terms of another Higher Inductive Type—HITs: truncations, pushout, homotopical reals.
 
 Other HITs:
 
