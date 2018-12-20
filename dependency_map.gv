@@ -15,7 +15,7 @@ digraph dependency_map {
   support -> "types/equiv"
   "theorems/functions" -> "types/equiv"
 
-  "types/eq" -> "HITs/int"
+  "types/heq" -> "HITs/int"
 
   "HITs/trunc" -> "HITs/interval"
 
@@ -30,7 +30,7 @@ digraph dependency_map {
 
   "types/heq" -> "HITs/pushout"
 
-  support -> "HITs/reals"
+  "HITs/pushout" -> "HITs/reals"
   "HITs/int" -> "HITs/reals"
 
   "types/unit" -> structures

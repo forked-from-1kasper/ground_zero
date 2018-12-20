@@ -1,11 +1,11 @@
-import ground_zero.types.eq
+import ground_zero.types.heq
 
 abbreviation builtin.int := int
 
 namespace ground_zero.HITs
 
 def int.rel : ℕ × ℕ → ℕ × ℕ → Prop
-| (a, b) (c, d) := a + d = b + c
+| ⟨a, b⟩ ⟨c, d⟩ := a + d = b + c
 
 def int := quot int.rel
 local notation ℤ := int
@@ -31,10 +31,10 @@ namespace nat.product
 
   lemma mul_comm (x y : ℕ × ℕ) : x * y = y * x := begin
     cases x with a b, cases y with c d,
-    simp [has_mul.mul], simp [mul],
-    rw [nat.mul_comm c a], rw [nat.mul_comm d b],
-    rw [nat.mul_comm c b], rw [nat.mul_comm d a],
-    rw [nat.add_comm (b * c) (a * d)]
+    simp [has_mul.mul], simp [mul], split,
+    { rw [nat.mul_comm c a], rw [nat.mul_comm d b] },
+    { rw [nat.mul_comm c b], rw [nat.mul_comm d a],
+      rw [nat.add_comm (b * c) (a * d)] }
   end
 
   lemma rw.add (a b : ℕ × ℕ) : nat.product.add a b = a + b :=
@@ -45,21 +45,39 @@ namespace nat.product
 end nat.product
 
 namespace int
+  universes u v
 
   def mk : ℕ × ℕ → ℤ := quot.mk rel
-  def pos (n : ℕ) := mk (n, 0)
-  def neg (n : ℕ) := mk (0, n)
+  def pos (n : ℕ) := mk ⟨n, 0⟩
+  def neg (n : ℕ) := mk ⟨0, n⟩
+
+  def knife {a b c d : ℕ} (H : a + d = b + c :> ℕ) :
+    mk ⟨a, b⟩ = mk ⟨c, d⟩ :> ℤ :=
+  ground_zero.support.inclusion $ @quot.sound _ int.rel
+    ⟨a, b⟩ ⟨c, d⟩ (ground_zero.support.truncation H)
+
+  def ind {π : ℤ → Sort u}
+    (mk₁ : Π (x : ℕ × ℕ), π (mk x))
+    (knife₁ : Π {a b c d : ℕ} (H : a + d = b + c :> ℕ),
+      mk₁ ⟨a, b⟩ =[knife H] mk₁ ⟨c, d⟩) (x : ℤ) : π x := begin
+    refine quot.hrec_on x _ _,
+    exact mk₁, intros x y p,
+    cases x with a b, cases y with c d,
+    refine ground_zero.types.eq.rec _
+      (knife₁ (ground_zero.support.inclusion p)),
+    apply ground_zero.types.heq.eq_subst_heq
+  end
 
   instance : has_neg int :=
   ⟨quot.lift
-    (λ (x : ℕ × ℕ), mk (x.snd, x.fst))
+    (λ (x : ℕ × ℕ), mk ⟨x.pr₂, x.pr₁⟩)
     (begin
       intros x y H, simp,
       cases x with a b,
       cases y with c d,
       simp, apply quot.sound,
-      simp [rel], symmetry,
-      assumption
+      simp [rel], simp [rel] at H,
+      symmetry, assumption
     end)⟩
 
   lemma nat_rw (a b : ℕ) : nat.add a b = a + b :=
@@ -84,7 +102,7 @@ namespace int
 
   lemma add_saves_int {a b c d : ℕ} (H : a + d = b + c)
     (y : ℕ × ℕ) :
-    mk ((a, b) + y) = mk ((c, d) + y) := begin
+    mk (⟨a, b⟩ + y) = mk (⟨c, d⟩ + y) := begin
     cases y with u v,
     simp [has_add.add],
     apply quot.sound, simp [nat.product.add], simp [rel],
@@ -92,7 +110,7 @@ namespace int
     rw [nat.add_assoc]
   end
 
-  def {u v} eq_map {α : Sort u} {β : Sort v} {a b : α}
+  def eq_map {α : Sort u} {β : Sort v} {a b : α}
     (f : α → β) (p : a = b) : f a = f b :=
   begin induction p, reflexivity end
 
@@ -101,8 +119,8 @@ namespace int
     { intros x y u H,
       cases x with a b, cases y with c d,
       repeat { rw [nat.product.rw.add] },
-      rw [nat.product.add_comm u (a, b)],
-      rw [nat.product.add_comm u (c, d)],
+      rw [nat.product.add_comm u ⟨a, b⟩],
+      rw [nat.product.add_comm u ⟨c, d⟩],
       apply add_saves_int, assumption },
     { intros x y,
       apply eq_map mk,
@@ -112,13 +130,13 @@ namespace int
   instance : has_add int := ⟨add⟩
   instance : has_sub int := ⟨λ a b, a + (-b)⟩
 
-  instance : has_zero int := ⟨mk (0, 0)⟩
-  instance : has_one int := ⟨mk (1, 0)⟩
+  instance : has_zero int := ⟨mk ⟨0, 0⟩⟩
+  instance : has_one int := ⟨mk ⟨1, 0⟩⟩
 
   theorem inv_append (a : ℤ) : a + (-a) = 0 := begin
     induction a, cases a with u v,
     simp [has_neg.neg], apply quot.sound,
-    simp [nat.product.add], simp [rel]
+    simp [nat.product.add], simp [rel],
   end
 
   theorem send_to_right {a b c : ℤ} : (a + b = c) → (a = c - b) := begin
@@ -155,17 +173,17 @@ namespace int
   end
   instance : has_mul int := ⟨mul⟩
 
-  theorem k_equiv (a b k : ℕ) : mk (a, b) = mk (a + k, b + k) :=
+  theorem k_equiv (a b k : ℕ) : mk ⟨a, b⟩ = mk ⟨a + k, b + k⟩ :=
   begin apply quot.sound, simp [rel] end
 
   def from_builtin : builtin.int → ℤ
-  | (n+1:ℕ) := mk (n+1, 0)
-  | 0 := mk (0, 0)
-  | -[1+n] := mk (0, n+1)
+  | (n + 1 : ℕ) := mk ⟨n + 1, 0⟩
+  | 0 := 0
+  | -[1+n] := mk ⟨0, n+1⟩
 
   def to_builtin : ℤ → builtin.int :=
   quot.lift
-    (λ (x : ℕ × ℕ), int.of_nat x.fst - int.of_nat x.snd)
+    (λ (x : ℕ × ℕ), int.of_nat x.pr₁ - int.of_nat x.pr₂)
     (begin
       intros x y H,
       cases x with a b, cases y with c d,
