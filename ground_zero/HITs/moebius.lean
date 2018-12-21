@@ -13,16 +13,19 @@ namespace moebius
   def elem (x y : 𝕀) : moebius :=
   quot.mk rel ⟨x, y⟩
 
-  def a : moebius := quot.mk rel ⟨i₀, i₀⟩
-  def b : moebius := quot.mk rel ⟨i₁, i₀⟩
-  def c : moebius := quot.mk rel ⟨i₀, i₁⟩
-  def d : moebius := quot.mk rel ⟨i₁, i₁⟩
+  def a : moebius := elem i₀ i₀
+  def b : moebius := elem i₁ i₀
+  def c : moebius := elem i₀ i₁
+  def d : moebius := elem i₁ i₁
 
   def up : a ⇝ b :=
-  <i> quot.mk rel ⟨path.seg_path # i, i₀⟩
+  <i> elem (path.seg_path # i) i₀
 
   def down : d ⇝ c :=
-  <i> quot.mk rel ⟨path.seg_path # −i, i₁⟩
+  <i> elem (path.seg_path # −i) i₁
+
+  def edges (x : 𝕀) : (elem x i₀) ⇝ (elem (−x) i₁) :=
+  path.from_equality (support.inclusion (quot.sound $ moebius.rel.edges x))
 end moebius
 
 end ground_zero
