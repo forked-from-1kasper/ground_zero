@@ -82,7 +82,11 @@ namespace circle
     let g : (Σ' (x : α), x = x) → (S¹ → α) :=
     λ p x, p.fst,
     existsi f, split; existsi g,
-    repeat { admit }
+    { intro v, apply HITs.interval.funext,
+      intro x, simp,
+      admit },
+    { intro v, induction v with p q,
+      admit }
   end
 
   namespace going
