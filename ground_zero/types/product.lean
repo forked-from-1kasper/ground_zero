@@ -18,6 +18,11 @@ namespace product
     ⟨a, c⟩ = ⟨b, d⟩ :> α × β :=
   begin induction p, induction q, reflexivity end
 
+  abbreviation prod {α : Type u} {β : Type v} {a b : α} {c d : β}
+    (p : a = b :> α) (q : c = d :> β) :
+    ⟨a, c⟩ = ⟨b, d⟩ :> α × β :=
+  construction a b c d p q
+
   def ind {π : α × β → Type t} (g : Π (x : α) (y : β), π (intro x y)) :
     Π (x : α × β), π x
   | (intro a b) := g a b

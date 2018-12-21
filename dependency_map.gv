@@ -19,6 +19,8 @@ digraph dependency_map {
 
   "HITs/trunc" -> "HITs/interval"
 
+  cubical -> "HITs/moebius"
+
   "HITs/trunc" -> "theorems/mere_eq_lemma"
 
   "HITs/ntrunc" [style=dashed]

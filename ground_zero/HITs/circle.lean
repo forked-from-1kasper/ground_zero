@@ -1,5 +1,5 @@
 import ground_zero.HITs.suspension ground_zero.theorems.ua
-open ground_zero.types.equiv (subst)
+open ground_zero.types.equiv (subst transport)
 open ground_zero.types.eq (renaming refl -> idp)
 open ground_zero.structures (hset)
 
@@ -171,8 +171,10 @@ namespace circle
   example : power (int.pos 2) = loop ⬝ loop ⬝ loop :=
   by reflexivity
 
+  abbreviation bicycle : code base → int := id
+
   def winding (x : base = base) : int :=
-  let n : code base := types.equiv.transportconst (code # x) int.zero in n
+  bicycle (transport code x int.zero)
 end circle
 
 namespace ncircle
@@ -218,11 +220,6 @@ namespace torus
 
   def inj₁ : S¹ → T² := types.product.intro circle.base
   def inj₂ : S¹ → T² := function.swap types.product.intro circle.base
-
-  abbreviation prod {α : Type u} {β : Type v} {a b : α} {c d : β}
-    (p : a = b) (q : c = d) :
-    ⟨a, c⟩ = ⟨b, d⟩ :> α × β :=
-  construction a b c d p q
 
   -- poloidal and toroidal directions
   def p : b = b :> T² := prod (eq.refl circle.base) circle.loop
