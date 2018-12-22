@@ -27,7 +27,7 @@ namespace reals
 
   def rec {π : Sort u} (cz : int → π)
     (sz : Π (z : int), cz z = cz (z + 1) :> π) : R → π :=
-  ind cz (λ x, pushout.pathover_of_eq (glue x) (sz x))
+  ind cz (λ x, ground_zero.types.equiv.pathover_of_eq (glue x) (sz x))
 end reals
 
 namespace geometry

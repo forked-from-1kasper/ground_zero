@@ -25,7 +25,7 @@ namespace moebius
   <i> elem (path.seg_path # −i) i₁
 
   def edges (x : 𝕀) : (elem x i₀) ⇝ (elem (−x) i₁) :=
-  path.from_equality (support.inclusion (quot.sound $ moebius.rel.edges x))
+  path.from_equality (support.inclusion (quot.sound $ rel.edges x))
 end moebius
 
 end ground_zero

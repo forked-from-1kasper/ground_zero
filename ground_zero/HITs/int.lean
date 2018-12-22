@@ -51,6 +51,9 @@ namespace int
   def pos (n : ℕ) := mk ⟨n, 0⟩
   def neg (n : ℕ) := mk ⟨0, n⟩
 
+  instance : has_zero int := ⟨mk ⟨0, 0⟩⟩
+  instance : has_one int := ⟨mk ⟨1, 0⟩⟩
+
   def knife {a b c d : ℕ} (H : a + d = b + c :> ℕ) :
     mk ⟨a, b⟩ = mk ⟨c, d⟩ :> ℤ :=
   ground_zero.support.inclusion $ @quot.sound _ int.rel
@@ -67,6 +70,15 @@ namespace int
       (knife₁ (ground_zero.support.inclusion p)),
     apply ground_zero.types.heq.eq_subst_heq
   end
+
+  def injs {β : Sort u} (pos₁ : ℕ → β) (zero₁ : β) (neg₁ : ℕ → β) :
+    ℕ × ℕ → β
+  | ⟨0, 0⟩ := zero₁
+  | ⟨n, 0⟩ := pos₁ n
+  | ⟨0, n⟩ := neg₁ n
+  | ⟨n + 1, m + 1⟩ := if n > m
+    then injs ⟨n + 1, m⟩
+    else injs ⟨n, m + 1⟩
 
   instance : has_neg int :=
   ⟨quot.lift
@@ -129,9 +141,6 @@ namespace int
 
   instance : has_add int := ⟨add⟩
   instance : has_sub int := ⟨λ a b, a + (-b)⟩
-
-  instance : has_zero int := ⟨mk ⟨0, 0⟩⟩
-  instance : has_one int := ⟨mk ⟨1, 0⟩⟩
 
   theorem inv_append (a : ℤ) : a + (-a) = 0 := begin
     induction a, cases a with u v,

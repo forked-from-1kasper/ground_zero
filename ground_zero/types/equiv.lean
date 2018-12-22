@@ -175,9 +175,14 @@ namespace equiv
     {p : a = b :> α} {q : b = c :> α} {r : a = c :> α}
     (h : r = p ⬝ q :> a = c :> α) :
     p⁻¹ ⬝ r = q :> b = c :> α := begin
-    induction p, induction q,
-    simp [eq.symm], simp [eq.trans],
-    simp [eq.trans] at h, exact h
+    induction p, unfold eq.symm, transitivity,
+    exact eq.refl_left r, exact h ⬝ eq.refl_left q
+  end
+
+  def pathover_of_eq {α : Sort u} {β : Sort v}
+    {a b : α} {a' b' : β}
+    (p : a = b :> α) (q : a' = b' :> β) : a' =[p] b' := begin
+    induction p, induction q, trivial
   end
 
   reserve infix ` ▸ `

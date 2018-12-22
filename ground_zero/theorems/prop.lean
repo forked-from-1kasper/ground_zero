@@ -17,12 +17,10 @@ end
 
 theorem prop_is_set {α : Sort u} (r : prop α) : hset α := begin
   destruct r, intros f H,
-  apply structures.hset.mk,
-  intros,
-  have g := (equiv.apd (f a) p)⁻¹ ⬝
-            transport_composition p (f a a),
-  transitivity, exact (equiv.rewrite_comp g)⁻¹,
-  admit
+  apply structures.hset.mk, intros, have g := f a,
+  transitivity, symmetry, apply equiv.rewrite_comp,
+  exact (equiv.apd g p)⁻¹ ⬝ transport_composition p (g a),
+  induction q, apply types.eq.inv_comp
 end
 
 lemma prop_is_prop {α : Sort u} : prop (prop α) := begin
@@ -54,10 +52,9 @@ begin
   cases e with f H, cases H with linv rinv,
   cases linv with g α, cases rinv with h β,
   intros a b,
-  have p : Π (x : π), types.eq (g (f x)) x := α,
-  rw [←ground_zero.support.truncation (p a)],
-  rw [←ground_zero.support.truncation (p b)],
-  rw [support.truncation (HITs.trunc.uniq (f a) (f b))]
+  transitivity, exact (α a)⁻¹,
+  symmetry, transitivity, exact (α b)⁻¹,
+  apply eq.map g, exact HITs.trunc.uniq (f b) (f a)
 end
 
 theorem prop_exercise (π : Type u) : (prop π) ≃ (π ≃ ∥π∥) :=

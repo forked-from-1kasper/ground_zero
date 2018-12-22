@@ -226,9 +226,9 @@ namespace torus
   def q : b = b :> T² := prod circle.loop (eq.refl circle.base)
 
   def Φ {π : Type u} {x x' y y' : π}
-    (α : x = x' :> π) (β : y = y' :> π) :
+    (α : x = x') (β : y = y') :
     prod (idp x) β ⬝ prod α (idp y') =
-    prod α (idp y) ⬝ prod (idp x') β :> _ :=
+    prod α (idp y) ⬝ prod (idp x') β :=
   begin induction α, induction β, trivial end
 
   def t : p ⬝ q = q ⬝ p :> b = b :> T² :=

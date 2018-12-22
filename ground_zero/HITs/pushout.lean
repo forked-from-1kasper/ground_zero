@@ -35,16 +35,10 @@ namespace pushout
       apply types.heq.eq_subst_heq }
   end
 
-  def pathover_of_eq {α : Sort u} {β : Sort v}
-    {a b : α} {a' b' : β}
-    (p : a = b :> α) (q : a' = b') : a' =[p] b' := begin
-    induction p, induction q, trivial
-  end
-
   def rec {δ : Type w} (inl₁ : α → δ) (inr₁ : β → δ)
     (glue₁ : Π (x : σ), inl₁ (f x) = inr₁ (g x) :> δ) :
     pushout f g → δ :=
-  ind inl₁ inr₁ (λ x, pathover_of_eq (glue x) (glue₁ x))
+  ind inl₁ inr₁ (λ x, types.equiv.pathover_of_eq (glue x) (glue₁ x))
 end pushout
 
 end HITs

@@ -29,6 +29,4 @@ prefix ⁻¹ := group.inv
 def homotopy_group (X : pointed) (n : ℕ) := ∥Ω[n], X∥₀
 notation `π[` n `]` `, ` X := homotopy_group X n
 
-instance first_hset (X : pointed) : hset (π[1], X) := ⟨{!!}⟩
-
 end ground_zero.algebra
