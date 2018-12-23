@@ -21,6 +21,10 @@ namespace equiv
     (f : Π (x : α), π x) : f ~ f :=
   begin simp [homotopy], intro x, reflexivity end
 
+  def homotopy.eq {α : Sort u} {π : α → Sort v}
+    {f g : Π (x : α), π x} (h : f = g :> Π (x : α), π x) : f ~ g :=
+  begin induction h, reflexivity end
+
   @[symm] def homotopy.symm {α : Sort u} {π : α → Sort v}
     (f g : Π (x : α), π x) (h : f ~ g) : g ~ f := begin
     simp [homotopy] at *, intros,
@@ -152,11 +156,10 @@ namespace equiv
   notation u ` =[` P `,` p `] ` v := transport P p u = v :> _
 
   lemma transport_comp {α : Sort u} {β : Sort v}
-    {π : β → Sort w} {x y : α}
+    (π : β → Sort w) {x y : α}
     (f : α → β) (p : x = y :> α) (u : π (f x)) :
-    @subst α (π ∘ f) x y p u =
-    subst (f # p) u :>
-    π (f y) :=
+    @subst _ (π ∘ f) _ _ p u =
+    subst (f # p) u :> π (f y) :=
   begin induction p, trivial end
 
   lemma transport_over_family {α : Sort u}
