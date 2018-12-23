@@ -207,7 +207,7 @@ namespace circle
     transport (types.eq a) q p = p ⬝ q :=
   begin induction p, induction q, trivial end
 
-  noncomputable lemma transport_there (x : int) :
+  noncomputable def transport_there (x : int) :
     transport helix loop x = int.succ x := begin
     transitivity,
     apply types.equiv.transport_comp id helix loop,
@@ -216,7 +216,7 @@ namespace circle
     apply ua.comp_rule
   end
 
-  lemma transport_back (x : int) :
+  def transport_back (x : int) :
     transport helix loop⁻¹ x = int.pred x :=
   sorry
 
