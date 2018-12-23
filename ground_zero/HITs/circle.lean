@@ -236,7 +236,7 @@ namespace torus
 
   def ind {π : T² → Type u} (b' : π b)
     (p' : b' =[p] b') (q' : b' =[q] b')
-    (t' : p' ⬝ q' =[(λ r, subst r b' = b'), t] q' ⬝ p') :
+    (t' : p' ⬝' q' =[(λ r, subst r b' = b'), t] q' ⬝' p') :
     Π (x : T²), π x := begin
     intro x, cases x with poloidal toroidal,
     refine circle.ind _ _ poloidal,

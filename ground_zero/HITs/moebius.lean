@@ -4,13 +4,13 @@ open ground_zero.HITs.interval (i₀ i₁ seg)
 namespace ground_zero
 open ground_zero.HITs
 
-inductive moebius.rel : 𝕀 × 𝕀 → 𝕀 × 𝕀 → Prop
-| edges (x : 𝕀) : moebius.rel ⟨x, i₀⟩ ⟨−x, i₁⟩
+inductive moebius.rel : I × I → I × I → Prop
+| edges (x : I) : moebius.rel ⟨x, i₀⟩ ⟨−x, i₁⟩
 
 def moebius := quot moebius.rel
 
 namespace moebius
-  def elem (x y : 𝕀) : moebius :=
+  def elem (x y : I) : moebius :=
   quot.mk rel ⟨x, y⟩
 
   def a : moebius := elem i₀ i₀
@@ -19,13 +19,13 @@ namespace moebius
   def d : moebius := elem i₁ i₁
 
   def up : a ⇝ b :=
-  <i> elem (path.seg_path # i) i₀
+  <i> elem (Path.seg_path # i) i₀
 
   def down : d ⇝ c :=
-  <i> elem (path.seg_path # −i) i₁
+  <i> elem (Path.seg_path # −i) i₁
 
-  def edges (x : 𝕀) : (elem x i₀) ⇝ (elem (−x) i₁) :=
-  path.from_equality (support.inclusion (quot.sound $ rel.edges x))
+  def edges (x : I) : (elem x i₀) ⇝ (elem (−x) i₁) :=
+  Path.from_equality (support.inclusion (quot.sound $ rel.edges x))
 end moebius
 
 end ground_zero

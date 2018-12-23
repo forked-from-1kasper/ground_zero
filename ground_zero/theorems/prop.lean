@@ -8,6 +8,14 @@ namespace theorems.prop
 
 universes u v w
 
+lemma product_prop {α : Sort u} {β : Sort v} [prop α] [prop β] : prop (α × β) := begin
+  apply structures.prop.mk, intros,
+  cases a with x y, cases b with u v,
+  have p := structures.prop.intro x u,
+  have q := structures.prop.intro y v,
+  induction p, induction q, reflexivity
+end
+
 lemma transport_composition {α : Sort u} {a x₁ x₂ : α}
   (p : x₁ = x₂ :> α) (q : a = x₁ :> α) :
   transport (types.eq a) p q = q ⬝ p :> _ := begin
@@ -46,8 +54,7 @@ lemma prop_equiv {π : Type u} (h : prop π) : π ≃ ∥π∥ := begin
   }
 end
 
-lemma prop_from_equiv {π : Type u} (e : π ≃ ∥π∥) : prop π :=
-begin
+lemma prop_from_equiv {π : Type u} (e : π ≃ ∥π∥) : prop π := begin
   apply structures.prop.mk,
   cases e with f H, cases H with linv rinv,
   cases linv with g α, cases rinv with h β,

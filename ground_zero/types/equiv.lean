@@ -123,7 +123,7 @@ namespace equiv
     reflexivity
   end
 
-  infix ` ⬝ ` := dep_trans
+  infix ` ⬝' `:40 := dep_trans
 
   lemma dep_path_map {α : Sort u}
     {π : α → Sort v} {δ : α → Sort w}
