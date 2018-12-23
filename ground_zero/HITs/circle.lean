@@ -178,7 +178,7 @@ namespace circle
 
   def neg : ℕ → Ω¹(S¹)
   | 0 := loop⁻¹
-  | (n + 1) := pos n ⬝ loop⁻¹
+  | (n + 1) := neg n ⬝ loop⁻¹
 
   def power : int → Ω¹(S¹)
   | (int.pos n) := pos n
@@ -201,6 +201,12 @@ namespace circle
     subst p f = transport γ p ∘ f ∘ transport β p⁻¹ :=
   begin induction p, reflexivity end
 
+  def transport_to_comp
+    {α : Sort u} {a b c : α}
+    (p : a = b) (q : b = c) :
+    transport (types.eq a) q p = p ⬝ q :=
+  begin induction p, induction q, trivial end
+
   noncomputable lemma transport_there (x : int) :
     transport helix loop x = int.succ x := begin
     transitivity,
@@ -210,13 +216,37 @@ namespace circle
     apply ua.comp_rule
   end
 
+  lemma transport_back (x : int) :
+    transport helix loop⁻¹ x = int.pred x :=
+  sorry
+
   def decode : Π (x : S¹), helix x → base = x :=
   @ind (λ x, helix x → base = x) power (begin
     apply HITs.interval.funext, intro x,
     apply types.equiv.homotopy.eq, transitivity,
     exact transport_characterization power loop,
-    admit
+    apply HITs.interval.funext, intro n,
+    simp, transitivity,
+    apply transport_to_comp, transitivity,
+    apply types.eq.map (λ p, power p ⬝ loop),
+    apply transport_back, induction n,
+    -- :-(
+    { induction n with n ih,
+      { apply types.eq.inv_comp },
+      { trivial } },
+    { induction n with n ih,
+      { symmetry, transitivity, symmetry,
+        apply types.eq.refl_right, symmetry,
+        transitivity, apply (types.eq.assoc loop⁻¹ loop⁻¹ loop)⁻¹,
+        apply types.eq.map, apply types.eq.inv_comp },
+      { transitivity,
+        apply (types.eq.assoc (neg n ⬝ loop⁻¹) loop⁻¹ loop)⁻¹,
+        transitivity, apply types.eq.map,
+        apply types.eq.inv_comp, apply types.eq.refl_right } }
   end)
+
+  noncomputable example : winding loop = int.pos 1 :=
+  transport_there (int.pos 0)
 end circle
 
 namespace ncircle
