@@ -1,6 +1,11 @@
 import ground_zero.HITs.int ground_zero.HITs.pushout
 import ground_zero.HITs.interval
 
+/-
+  Homotopical reals R.
+  * HoTT 8.1.5
+-/
+
 namespace ground_zero.HITs
 universe u
 

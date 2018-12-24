@@ -3,6 +3,14 @@ open ground_zero.types.equiv (subst transport)
 open ground_zero.types.eq (renaming refl -> idp)
 open ground_zero.structures (hset)
 
+/-
+  Circle S¹ as Higher Inductive Type.
+  * HoTT 6.4
+
+  π₁(S¹) = ℤ proof.
+  * HoTT 8.1
+-/
+
 namespace ground_zero
 namespace HITs
 

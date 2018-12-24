@@ -1,6 +1,15 @@
 import ground_zero.HITs.trunc
 open ground_zero.HITs.trunc ground_zero.structures
 
+/-
+  The unit interval I as Higher Inductive Type.
+  Proof of functional extensionality from it.
+  * HoTT 6.3
+
+  It is defined as the propositional truncation of bool.
+  * HoTT, chapter 6, exercise 6.13
+-/
+
 namespace ground_zero
 namespace HITs
 

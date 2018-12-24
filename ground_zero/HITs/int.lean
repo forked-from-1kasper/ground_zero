@@ -1,5 +1,10 @@
 import ground_zero.types.heq
 
+/-
+  Integers ℤ as a quotient of ℕ × ℕ.
+  * HoTT 6.10, remark 6.10.7
+-/
+
 abbreviation builtin.int := int
 
 namespace ground_zero.HITs

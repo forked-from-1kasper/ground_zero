@@ -1,6 +1,19 @@
 import ground_zero.cubical
 open ground_zero.HITs.interval (i₀ i₁ seg)
 
+/-
+  The Möbius band as quotient of square I × I.
+  * https://en.wikipedia.org/wiki/M%C3%B6bius_strip#Topology
+
+  -------->
+  |   A   |
+  |       |
+  |   A   |
+  <--------
+  Edges labelled A are joined that
+  so the directions of arrows match.
+-/
+
 namespace ground_zero
 open ground_zero.HITs
 
