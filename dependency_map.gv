@@ -11,7 +11,9 @@ digraph dependency_map {
 
   "types/equiv" -> "types/coproduct"
 
-  "types/product" -> cubical
+  "types/product" -> "cubical/cubes"
+  "cubical/cubes" -> "cubical/path"
+  "cubical/path" -> "cubical/example"
 
   "types/equiv" -> "types/heq"
 
@@ -22,7 +24,7 @@ digraph dependency_map {
 
   "HITs/trunc" -> "HITs/interval"
 
-  cubical -> "HITs/moebius"
+  "cubical/path" -> "HITs/moebius"
 
   "HITs/trunc" -> "theorems/mere_eq_lemma"
 

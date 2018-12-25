@@ -1,4 +1,4 @@
-import ground_zero.cubical
+import ground_zero.cubical.path
 open ground_zero.HITs.interval (i₀ i₁ seg)
 
 /-
@@ -32,13 +32,14 @@ namespace moebius
   def d : moebius := elem i₁ i₁
 
   def up : a ⇝ b :=
-  <i> elem (Path.seg_path # i) i₀
+  <i> elem (cubical.path.seg_path # i) i₀
 
   def down : d ⇝ c :=
-  <i> elem (Path.seg_path # −i) i₁
+  <i> elem (cubical.path.seg_path # −i) i₁
 
   def edges (x : I) : (elem x i₀) ⇝ (elem (−x) i₁) :=
-  Path.from_equality (support.inclusion (quot.sound $ rel.edges x))
+  cubical.cubes.from_equality
+    (support.inclusion (quot.sound $ rel.edges x))
 end moebius
 
 end ground_zero

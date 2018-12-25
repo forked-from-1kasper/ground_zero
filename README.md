@@ -13,7 +13,7 @@ Other HITs:
 * Circle `S¹` is the suspension of the `bool`.
 * Sphere `S²` is the suspension of the circle.
 
-## Cubical Type Theory ([cubical.lean](https://github.com/groupoid/lean/blob/master/ground_zero/cubical.lean))
+## Cubical Type Theory ([cubical.lean](https://github.com/groupoid/lean/blob/master/ground_zero/cubical/path.lean))
 
 In the topology functions from the interval to some type is a paths in this type. In HoTT book path type is defined as a classical inductive type with one constructor:
 
