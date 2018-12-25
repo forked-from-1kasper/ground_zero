@@ -162,13 +162,40 @@ def conn_and {α : Sort u} {a b : α} (p : a ⇝ b) :
 def PathP (σ : I → Type u) (a : σ i₀) (b : σ i₁) :=
 Path (subst seg_path a) b
 
---def J {α : Type u} {a : α} {π : Π (b : α), a ⇝ b → Type u}
---  (h : π a (refl a)) (b : α) (p : a ⇝ b) : π b (<i> p # i) :=
---coe (λ i, π (p # i) (conn_and p i)) h i₁
+/-
+This doesn’t pass typechecking.
 
---def J {α : Type u} {a : α} {π : Π (b : α), a ⇝ b → Type u}
---  (h : π a (refl a)) (b : α) (p : a ⇝ b) : π b (<i> p # i) :=
---transport (<i> π (p # i) (<j> p # i ∧ j)) h
+def J {α : Type u} {a : α} {π : Π (b : α), a ⇝ b → Type u}
+  (h : π a (refl a)) (b : α) (p : a ⇝ b) : π b (<i> p # i) :=
+coe (λ i, π (p # i) (conn_and p i)) h i₁
+
+def J {α : Type u} {a : α} {π : Π (b : α), a ⇝ b → Type u}
+  (h : π a (refl a)) (b : α) (p : a ⇝ b) : π b (<i> p # i) :=
+transport (<i> π (p # i) (<j> p # i ∧ j)) h
+-/
+
+-- dirty way to define J elimination rule
+def hrec {β : I → Sort u}
+  (b₀ : β i₀) (b₁ : β i₁) (s : b₀ == b₁)
+  (x : I) : β x :=
+@quot.hrec_on bool (λ _ _, true) β x
+  (λ i, bool.rec_on i b₀ b₁)
+  (λ a b _,
+    begin simp, induction a; induction b; simp,
+          apply s, symmetry, apply s end)
+
+def J {α : Type u} {a : α} {π : Π (b : α), a ⇝ b → Type u}
+  (h : π a (refl a)) (b : α) (p : a ⇝ b) : π b p :=
+let dsingl : LineP (λ i, a ⇝ p # i) :=
+hrec (refl a) p (begin
+  cases p with f, unfold refl,
+  apply heq.map, funext,
+  refine interval.hrec _ _ i,
+  { reflexivity },
+  { apply support.truncation,
+    apply eq.map, exact seg }
+end) in
+transportconst (<i> π (p # i) (dsingl i)) h
 
 end Path
 
