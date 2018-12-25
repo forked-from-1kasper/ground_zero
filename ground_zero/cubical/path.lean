@@ -55,9 +55,12 @@ def comp_test₁ {α : Sort u} {a b : α} (p : a ⇝ b) : (p # i₁) ⇝ b := rf
 infix ⬝ := composition
 
 -- this will be replaced by a more general version in future
-def comp {α : Sort u} {a b c d : α}
+def kan {α : Sort u} {a b c d : α}
   (bottom : b ⇝ c) (left : b ⇝ a) (right : c ⇝ d) : a ⇝ d :=
 left⁻¹ ⬝ bottom ⬝ right
+
+def kan_op {α : Sort u} {a b : α} (p : a ⇝ a) (q : a ⇝ b) : b ⇝ b :=
+kan p q q
 
 def interval_contr (i : I) : i₀ ⇝ i := coe (λ i, i₀ ⇝ i) rfl i
 def seg_path : i₀ ⇝ i₁ := interval_contr i₁
@@ -65,6 +68,10 @@ def seg_path : i₀ ⇝ i₁ := interval_contr i₁
 def conn_and {α : Sort u} {a b : α} (p : a ⇝ b) :
   LineP (λ i, a ⇝ p # i) :=
 λ i, <j> p # i ∧ j
+
+def conn_or {α : Sort u} {a b : α} (p : a ⇝ b) :
+  LineP (λ i, p # i ⇝ b) :=
+λ i, <j> p # i ∨ j
 
 def PathP (σ : I → Sort u) (a : σ i₀) (b : σ i₁) :=
 Path (subst seg_path a) b

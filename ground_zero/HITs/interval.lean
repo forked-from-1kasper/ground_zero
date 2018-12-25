@@ -85,7 +85,8 @@ namespace interval
   def min (a b : I) : I :=
   trunc.rec (begin intro x, cases x, exact i₀, exact a end) b
 
-  def max : I → I → I := bool_to_interval bor
+  def max (a b : I) : I :=
+  trunc.rec (begin intro x, cases x, exact a, exact i₁ end) b
 
   notation r `∧`:70 s := min r s
   notation r `∨`:70 s := max r s
