@@ -22,8 +22,8 @@ def cong {α : Sort u} {β : Sort v} {a b : α}
   (f : α → β) (p : a ⇝ b) : f a ⇝ f b :=
 <i> f (p # i)
 
-def ap {α : Sort u} {β : α → Sort v} (a x : α)
-  (f : α → β a) (b : β a) (p : a ⇝ x) : f a ⇝ f x :=
+def ap {α : Sort u} {β : α → Sort v} {a b : α}
+  (f : α → β a) (p : a ⇝ b) : f a ⇝ f b :=
 <i> f (p # i)
 
 def subst {α : Sort u} {π : α → Sort v} {a b : α}
