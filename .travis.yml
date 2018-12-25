@@ -1,0 +1,19 @@
+language: generic
+os:
+  - linux
+notifications:
+  email: true
+
+before_install:
+  - wget https://github.com/leanprover/lean-nightly/releases/download/nightly-2018-12-12/lean-3.4.2-nightly-2018-12-12-linux.tar.gz -O lean.tgz
+  - mkdir lean
+  - tar xzf lean.tgz -C lean --strip-components=1
+  - export PATH=$PATH:`pwd`/lean/bin
+
+install:
+  - mkdir groupoid
+  - cd groupoid
+  - git clone https://github.com/groupoid/lean
+  - cd ..
+  - export LEAN_PATH="`pwd`/lean/lib/lean/library:`pwd`/groupoid/lean"
+  - lean --make groupoid/lean/ground_zero
