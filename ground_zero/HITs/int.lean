@@ -156,13 +156,11 @@ namespace int
   theorem send_to_right {a b c : ℤ} : (a + b = c) → (a = c - b) := begin
     intro h, induction a, induction b, induction c,
     cases a with x y, cases b with u v, cases c with p q,
-    simp [has_sub.sub, has_neg.neg], simp [mk],
+    simp [has_sub.sub, has_neg.neg],
+    rw [←h], simp [mk],
     simp [has_add.add] at *, apply quot.sound,
     simp [nat.product.add], simp [rel],
-    rw [←nat.add_assoc x u q],
-    rw [←nat.add_assoc y v p],
-    simp [add, lift₂, mk, nat.product.add] at h,
-    admit, repeat { trivial }
+    repeat { trivial }
   end
 
   def mul : ℤ → ℤ → ℤ := begin
@@ -189,21 +187,6 @@ namespace int
 
   theorem k_equiv (a b k : ℕ) : mk ⟨a, b⟩ = mk ⟨a + k, b + k⟩ :=
   begin apply quot.sound, simp [rel] end
-
-  def from_builtin : builtin.int → ℤ
-  | (n + 1 : ℕ) := mk ⟨n + 1, 0⟩
-  | 0 := 0
-  | -[1+n] := mk ⟨0, n+1⟩
-
-  def to_builtin : ℤ → builtin.int :=
-  quot.lift
-    (λ (x : ℕ × ℕ), int.of_nat x.pr₁ - int.of_nat x.pr₂)
-    (begin
-      intros x y H,
-      cases x with a b, cases y with c d,
-      simp, simp [rel] at H,
-      admit
-    end)
 end int
 
 end ground_zero.HITs
