@@ -24,6 +24,8 @@ digraph dependency_map {
 
   "HITs/trunc" -> "HITs/interval"
 
+  "HITs/pushout" -> "HITs/join"
+
   "cubical/path" -> "HITs/moebius"
 
   "HITs/trunc" -> "theorems/mere_eq_lemma"
