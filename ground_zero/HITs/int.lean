@@ -53,6 +53,8 @@ namespace int
   universes u v
 
   def mk : ℕ × ℕ → ℤ := quot.mk rel
+  def elem (a b : ℕ) : ℤ := quot.mk rel ⟨a, b⟩
+
   def pos (n : ℕ) := mk ⟨n, 0⟩
   def neg (n : ℕ) := mk ⟨0, n⟩
 
@@ -84,6 +86,42 @@ namespace int
   | ⟨n + 1, m + 1⟩ := if n > m
     then injs ⟨n + 1, m⟩
     else injs ⟨n, m + 1⟩
+
+  def simplify : ℕ × ℕ → ℕ × ℕ
+  | ⟨0, 0⟩ := ⟨0, 0⟩
+  | ⟨n, 0⟩ := ⟨n, 0⟩
+  | ⟨0, n⟩ := ⟨0, n⟩
+  | ⟨n + 1, m + 1⟩ := if n > m
+    then simplify ⟨n + 1, m⟩
+    else simplify ⟨n, m + 1⟩
+
+  /-
+  theorem simplify_correct (x : ℕ × ℕ) : mk x = mk (simplify x) := begin
+    apply quot.sound, cases x with u v,
+    induction u with u ih₁,
+    { induction v with v ih,
+      repeat { simp [simplify, rel] } },
+    { induction v with v ih₂,
+      { simp [simplify, rel] },
+      { simp [simplify],
+        refine @decidable.rec_on (u > v)
+               (λ h, rel ⟨nat.succ u, nat.succ v⟩
+                    (ite (u > v) (simplify ⟨u + 1, v⟩)
+                                 (simplify ⟨u, v + 1⟩)))
+               (nat.decidable_le (v + 1) u) _ _,
+        -- ???
+        admit, admit
+         } }
+  end
+
+  def blade {π : ℤ → Sort u}
+    (pos₁ : Π (n : ℕ), π (elem n 0))
+    (zero₁ : π 0)
+    (neg₁ : Π (n : ℕ), π (elem 0 n)) :
+    Π x, π x := begin
+    refine ind _ _, admit, admit
+  end
+  -/
 
   instance : has_neg int :=
   ⟨quot.lift
