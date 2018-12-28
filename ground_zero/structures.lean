@@ -4,7 +4,7 @@ open ground_zero.types.unit
 namespace ground_zero
 
 namespace structures
-universe u
+universes u v
 
 class prop (α : Sort u) :=
 (intro : Π (a b : α), a = b :> α)
@@ -60,10 +60,21 @@ instance unit_is_prop : prop types.unit :=
 instance prop_is_prop {α : Prop} : prop α :=
 ⟨begin intros, trivial end⟩
 
-inductive Trunc (α : Sort u) : Prop
-| elem : α → Trunc
-def Trunc.uniq {α : Sort u} (a b : Trunc α) : a = b :> Trunc α :=
-by trivial
+inductive truncation (α : Sort u) : Prop
+| elem : α → truncation
+def truncation.uniq {α : Sort u} (a b : truncation α) :
+  a = b :> truncation α := types.eq.rfl
+
+def K (α : Sort u) :=
+Π (a : α) (p : a = a :> α), p = types.eq.refl a :> a = a :> α
+
+theorem K_iff_set (α : Sort u) : K α ↔ hset α := begin
+  split,
+  { intro h, split,
+    intros, induction q, apply h },
+  { intro h, unfold K,
+    intros, apply h.intro }
+end
 
 end structures
 
@@ -73,7 +84,6 @@ structure {u} singl {α : Sort u} (a : α) :=
 (point : α) (intro : a = point :> α)
 
 namespace singl
-
 universe u
 
 def trivial_loop {α : Sort u} (a : α) : singl a :=
@@ -89,7 +99,7 @@ begin induction t, simp end
 
 instance signl_contr {α : Sort u} (a : α) : structures.contr (singl a) :=
 { point := trivial_loop a,
-  intro := λ t, (path_from_trivial_loop t.intro) ⬝ (singl.eq t) }
+  intro := λ t, path_from_trivial_loop t.intro ⬝ singl.eq t }
 
 end singl
 

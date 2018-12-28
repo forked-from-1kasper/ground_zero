@@ -11,7 +11,7 @@ open ground_zero.HITs.ncircle (S)
 namespace ground_zero
 namespace HITs
 
-local infix ` = ` := eq
+local infix ` = ` := types.eq
 
 inductive {u} ntrunc.core (α : Sort u) : ℕ → Sort (u + 1)
 | elem {n : ℕ} : α → ntrunc.core n

@@ -1,3 +1,5 @@
+import ground_zero.proto
+
 namespace ground_zero.types
 
 universes u v

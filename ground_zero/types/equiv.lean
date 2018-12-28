@@ -174,6 +174,12 @@ namespace equiv
     f a =[p] f b :=
   begin induction p, reflexivity end
 
+  def apd₂ {α : Sort u} {β : α → Sort v} {a b : α}
+    {p q : a = b :> α} (f : Π (x : α), β x)
+    (r : p = q :> a = b :> α) :
+    apd f p =[r] apd f q :=
+  begin induction r, reflexivity end
+
   def rewrite_comp {α : Sort u} {a b c : α}
     {p : a = b :> α} {q : b = c :> α} {r : a = c :> α}
     (h : r = p ⬝ q :> a = c :> α) :

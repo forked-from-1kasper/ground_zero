@@ -1,4 +1,6 @@
 digraph dependency_map {
+  proto -> "types/eq"
+
   algebra [style=dashed]
   "HITs/ntrunc" -> algebra
 
