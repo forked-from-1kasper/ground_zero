@@ -5,6 +5,9 @@ open ground_zero.HITs.interval (i₀ i₁ seg)
 namespace ground_zero.cubical.path
 universes u v
 
+def coe (π : I → Sort u) (x : π i₀) : Π i, π i :=
+interval.ind x (equiv.subst seg x) eq.rfl
+
 @[refl] def refl {α : Sort u} (a : α) : a ⇝ a := <i> a
 @[refl] def rfl {α : Sort u} {a : α} : a ⇝ a := <i> a
 
@@ -73,9 +76,6 @@ def conn_or {α : Sort u} {a b : α} (p : a ⇝ b) :
   LineP (λ i, p # i ⇝ b) :=
 λ i, <j> p # i ∨ j
 
-def PathP (σ : I → Sort u) (a : σ i₀) (b : σ i₁) :=
-Path (subst seg_path a) b
-
 def singl {α : Sort u} (a : α) :=
 Σ' (x : α), a ⇝ x
 
@@ -116,5 +116,8 @@ transport (<i> π (p # i) (<j> p # i ∧ j)) h
 def J {α : Sort u} {a : α} {π : Π (b : α), a ⇝ b → Type u}
   (h : π a (refl a)) {b : α} (p : a ⇝ b) : π b p :=
 trans (<i> π (p # i) (refl_contr p i)) h
+
+def PathP (σ : I → Sort u) (a : σ i₀) (b : σ i₁) :=
+Path (subst seg_path a) b
 
 end ground_zero.cubical.path

@@ -31,12 +31,6 @@ abbreviation LineP (σ : I → Sort u) := Π (i : I), σ i
 abbreviation Line (α : Sort u) := I → α
 def Line.refl {α : Sort u} (a : α) : Line α := λ _, a
 
-def Square {α : Sort u} (a b c d : α) :=
-Cube 1 (binary.node (binary.leaf a b) (binary.leaf c d))
-def Square.lam {α : Sort u} (f : I → I → α) :
-  Square (f i₀ i₀) (f i₁ i₀) (f i₀ i₁) (f i₁ i₁) :=
-Cube.lam (λ (x : interval_cube 1), product.elim f x)
-
 def from_equality {α : Sort u} {a b : α} (p : a = b :> α) : Path a b :=
 Path.lam (interval.rec a b p)
 
@@ -46,9 +40,6 @@ def to_equality {α : Sort u} {a b : α} (p : Path a b) : a = b :> α :=
 
 def compute {α : Sort u} {a b : α} (p : Path a b) : I → α :=
 interval.rec a b (to_equality p)
-
-def coe (π : I → Sort u) (x : π i₀) : Π i, π i :=
-interval.ind x (equiv.subst seg x) eq.rfl
 
 infix ` # `:40 := compute
 notation `<` binder `> ` r:(scoped P, Path.lam P) := r
@@ -70,14 +61,6 @@ notation `<` binder `> ` r:(scoped P, Path.lam P) := r
 -/
 infix ` ⇝ `:30 := Path
 
-def Square.and {α : Sort u} {a b : α}
-  (p : a ⇝ b) : Square a a a b :=
-Square.lam (λ i j, p # i ∧ j)
-
-def Square.const {α : Sort u} (a : α) :
-  Square a a a a :=
-Square.lam (λ i j, a)
-
 structure tetrad (α : Sort u) (β : Sort v) (γ : Sort r) (δ : Sort w) :=
 (one : α) (two : β) (three : γ) (four : δ)
 
@@ -89,12 +72,27 @@ structure tetrad (α : Sort u) (β : Sort v) (γ : Sort r) (δ : Sort w) :=
 --    V         V
 --    b₀ -----> b₁
 --         v
-def Square.extract {α : Sort u} {a b c d : α}
-  (s : Square a b c d) : tetrad (a ⇝ b) (b ⇝ c) (c ⇝ d) (a ⇝ d) :=
-begin
-  cases s with f, split,
-  exact <i> f ⟨i, i₀⟩, exact <i> f ⟨−i, i⟩,
-  exact <i> f ⟨i, i₁⟩, exact <i> f ⟨i, i⟩
-end
+def Square {α : Sort u} (m n : I → α)
+  (o : m i₀ ⇝ n i₀) (p : m i₁ ⇝ n i₁) :=
+Cube 1 (binary.node (binary.leaf (m i₀) (n i₀))
+                    (binary.leaf (m i₁) (n i₁)))
+
+def Square.lam {α : Sort u} (f : I → I → α) :
+  Square (f i₀) (f i₁) (<i> f i i₀) (<i> f i i₁) :=
+Cube.lam (λ (x : interval_cube 1), product.elim f x)
+
+def Square.const {α : Sort u} (a : α) :
+  Square (λ _, a) (λ _, a) (<i> a) (<i> a) :=
+Square.lam (λ i j, a)
+
+def Square.and {α : Sort u} {a b : α}
+  (p : a ⇝ b) : Square (λ _, a) (λ i, p # i) (<i> a) p :=
+Square.lam (λ i j, p # i ∧ j)
+
+/-
+def Square.compute {α : Sort u} {m n : I → α}
+  {o : m i₀ ⇝ n i₀} {p : m i₁ ⇝ n i₁}
+  (s : Square m n o p) : Π i, m i ⇝ n i
+-/
 
 end ground_zero.cubical.cubes

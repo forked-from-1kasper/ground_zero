@@ -23,6 +23,9 @@ namespace interval
   def i₁ : I := trunc.elem tt
   def seg : i₀ = i₁ :> I := trunc.uniq i₀ i₁
 
+  instance : has_zero I := ⟨i₀⟩
+  instance : has_one I := ⟨i₁⟩
+
   abbreviation zero := i₀
   abbreviation one := i₁
 
