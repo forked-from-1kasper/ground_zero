@@ -44,21 +44,6 @@ interval.rec a b (to_equality p)
 infix ` # `:40 := compute
 notation `<` binder `> ` r:(scoped P, Path.lam P) := r
 
-/-
-                     p
-          a -----------------> b
-          ^                    ^
-          |                    |
-          |                    |
-    <j> a |     conn_and p     | p
-          |                    |
-          |                    |
-          |                    |
-          a -----------------> a
-                   <i> a
-  vertices are written from left to right, from bottom to top:
-    Square a a a b
--/
 infix ` ⇝ `:30 := Path
 
 structure tetrad (α : Sort u) (β : Sort v) (γ : Sort r) (δ : Sort w) :=
@@ -76,23 +61,5 @@ def Square {α : Sort u} (m n : I → α)
   (o : m i₀ ⇝ n i₀) (p : m i₁ ⇝ n i₁) :=
 Cube 1 (binary.node (binary.leaf (m i₀) (n i₀))
                     (binary.leaf (m i₁) (n i₁)))
-
-def Square.lam {α : Sort u} (f : I → I → α) :
-  Square (f i₀) (f i₁) (<i> f i i₀) (<i> f i i₁) :=
-Cube.lam (λ (x : interval_cube 1), product.elim f x)
-
-def Square.const {α : Sort u} (a : α) :
-  Square (λ _, a) (λ _, a) (<i> a) (<i> a) :=
-Square.lam (λ i j, a)
-
-def Square.and {α : Sort u} {a b : α}
-  (p : a ⇝ b) : Square (λ _, a) (λ i, p # i) (<i> a) p :=
-Square.lam (λ i j, p # i ∧ j)
-
-/-
-def Square.compute {α : Sort u} {m n : I → α}
-  {o : m i₀ ⇝ n i₀} {p : m i₁ ⇝ n i₁}
-  (s : Square m n o p) : Π i, m i ⇝ n i
--/
 
 end ground_zero.cubical.cubes
