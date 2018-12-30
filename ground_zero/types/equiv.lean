@@ -231,8 +231,8 @@ namespace qinv
     existsi g, split,
     exact α, intro x,
 
-    have γ₁ := β (g (f x)), simp at γ₁,
-    have γ₂ := h # (α (f x)), simp at γ₂,
+    have γ₁ := β (g (f x)),
+    have γ₂ := h # (α (f x)),
     exact γ₁⁻¹ ⬝ γ₂ ⬝ β x
   end
 end qinv

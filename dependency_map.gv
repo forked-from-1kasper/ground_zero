@@ -16,8 +16,11 @@ digraph dependency_map {
   "types/product" -> "cubical/cubes"
   "cubical/cubes" -> "cubical/path"
   "cubical/path" -> "cubical/square"
-  "cubical/path" -> "cubical/V"
   "cubical/path" -> "cubical/example"
+
+  "cubical/V" [style=dashed]
+  "theorems/ua" -> "cubical/V"
+  "cubical/path" -> "cubical/V"
 
   "types/equiv" -> "types/heq"
 

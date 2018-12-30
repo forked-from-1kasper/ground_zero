@@ -46,8 +46,8 @@ namespace interval
   end
 
   def ind {π : I → Sort u} (b₀ : π i₀) (b₁ : π i₁)
-    (s : b₀ =[seg] b₁) : Π (x : I), π x := begin
-    intro x, refine quot.hrec_on x _ _,
+    (s : b₀ =[seg] b₁) (x : I) : π x := begin
+    refine quot.hrec_on x _ _,
     { intro b, cases b, exact b₀, exact b₁ },
     { intros, induction s,
       cases a; cases b,
