@@ -21,4 +21,9 @@ lemma eq_subst_heq {α : Sort u} {π : α → Sort v}
   x == ground_zero.types.equiv.subst p x :=
 begin induction p, reflexivity end
 
+def from_pathover {α : Sort u} {π : α → Sort v}
+  {a b : α} (p : a = b :> α) {u : π a} {v : π b}
+  (q : u =[p] v) : u == v :=
+begin refine ground_zero.types.eq.rec _ q, apply eq_subst_heq end
+
 end ground_zero.types.heq

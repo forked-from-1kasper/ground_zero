@@ -1,7 +1,9 @@
 import ground_zero.HITs.suspension ground_zero.theorems.ua
+import ground_zero.types.integers
 open ground_zero.types.equiv (subst transport)
 open ground_zero.types.eq (renaming refl -> idp)
 open ground_zero.structures (hset)
+open ground_zero.types
 
 /-
   Circle S¹ as Higher Inductive Type.
@@ -132,53 +134,8 @@ namespace circle
   def three := succ two
   def fourth := succ three
 
-  /-
-    +2 = pos 2
-    +1 = pos 1
-     0 = pos 0
-    −1 = neg 0
-    −2 = neg 1
-  -/
-  inductive int
-  | pos : ℕ → int
-  | neg : ℕ → int
-
-  instance : has_zero int := ⟨int.pos 0⟩
-
-  instance : has_repr int :=
-  ⟨λ x, match x with
-  | (int.pos n) := to_string n
-  | (int.neg n) := "−" ++ to_string (n + 1)
-  end⟩
-
-  def int.auxsucc : ℕ → int
-  | 0 := int.pos 0
-  | (n + 1) := int.neg n
-
-  def int.succ : int → int
-  | (int.neg u) := int.auxsucc u
-  | (int.pos v) := int.pos (v + 1)
-
-  def int.auxpred : ℕ → int
-  | 0 := int.neg 0
-  | (n + 1) := int.pos n
-
-  def int.pred : int → int
-  | (int.neg u) := int.neg (u + 1)
-  | (int.pos v) := int.auxpred v
-
-  def int.equiv : int ≃ int := begin
-    existsi int.succ, split; existsi int.pred,
-    repeat {
-      intro n, induction n,
-      repeat { trivial },
-      { induction n with n ih,
-        repeat { trivial } }
-    }
-  end
-
   def helix : S¹ → Type :=
-  rec int (ua int.equiv)
+  rec integers (ua integers.succ_equiv)
 
   def pos : ℕ → Ω¹(S¹)
   | 0 := types.eq.refl base
@@ -188,20 +145,20 @@ namespace circle
   | 0 := loop⁻¹
   | (n + 1) := neg n ⬝ loop⁻¹
 
-  def power : int → Ω¹(S¹)
-  | (int.pos n) := pos n
-  | (int.neg n) := neg n
+  def power : integers → Ω¹(S¹)
+  | (integers.pos n) := pos n
+  | (integers.neg n) := neg n
 
   def encode (x : S¹) (p : base = x) : helix x :=
-  types.equiv.transport helix p (int.pos 0)
+  types.equiv.transport helix p (integers.pos 0)
 
-  example : power (int.pos 2) = loop ⬝ loop :=
+  example : power (integers.pos 2) = loop ⬝ loop :=
   by reflexivity
 
-  abbreviation bicycle : helix base → int := id
+  abbreviation bicycle : helix base → integers := id
 
-  def winding (x : base = base) : int :=
-  bicycle (transport helix x $ int.pos 0)
+  def winding (x : base = base) : integers :=
+  bicycle (transport helix x $ integers.pos 0)
 
   def transport_characterization
     {α : Sort u} {β γ : α → Sort v} {a b : α}
@@ -215,8 +172,8 @@ namespace circle
     transport (types.eq a) q p = p ⬝ q :=
   begin induction p, induction q, trivial end
 
-  noncomputable def transport_there (x : int) :
-    transport helix loop x = int.succ x := begin
+  noncomputable def transport_there (x : integers) :
+    transport helix loop x = integers.succ x := begin
     transitivity,
     apply types.equiv.transport_comp id helix loop,
     transitivity, apply types.equiv.homotopy.eq,
@@ -224,8 +181,8 @@ namespace circle
     apply ua.comp_rule
   end
 
-  def transport_back (x : int) :
-    transport helix loop⁻¹ x = int.pred x :=
+  def transport_back (x : integers) :
+    transport helix loop⁻¹ x = integers.pred x :=
   sorry
 
   def decode : Π (x : S¹), helix x → base = x :=
@@ -253,8 +210,8 @@ namespace circle
         apply types.eq.inv_comp, apply types.eq.refl_right } }
   end)
 
-  noncomputable example : winding loop = int.pos 1 :=
-  transport_there (int.pos 0)
+  noncomputable example : winding loop = integers.pos 1 :=
+  transport_there (integers.pos 0)
 end circle
 
 namespace ncircle

@@ -5,6 +5,7 @@ digraph dependency_map {
   "HITs/ntrunc" -> algebra
 
   "HITs/circle" [style=dashed]
+  "types/integers" -> "HITs/circle"
   "HITs/suspension" -> "HITs/circle"
   "theorems/ua" -> "HITs/circle"
 
@@ -23,6 +24,7 @@ digraph dependency_map {
   "cubical/path" -> "cubical/V"
 
   "types/equiv" -> "types/heq"
+  "types/equiv" -> "types/integers"
 
   support -> "types/equiv"
   "theorems/functions" -> "types/equiv"
@@ -47,7 +49,7 @@ digraph dependency_map {
   "types/heq" -> "HITs/pushout"
 
   "HITs/pushout" -> "HITs/reals"
-  "HITs/int" -> "HITs/reals"
+  "types/integers" -> "HITs/reals"
 
   "types/unit" -> structures
   "types/coproduct" -> structures
