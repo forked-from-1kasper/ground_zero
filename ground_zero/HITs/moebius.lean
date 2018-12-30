@@ -32,10 +32,10 @@ namespace moebius
   def d : moebius := elem i₁ i₁
 
   def up : a ⇝ b :=
-  <i> elem (cubical.path.seg_path # i) i₀
+  <i> elem i i₀
 
   def down : d ⇝ c :=
-  <i> elem (cubical.path.seg_path # −i) i₁
+  <i> elem (−i) i₁
 
   def edges (x : I) : (elem x i₀) ⇝ (elem (−x) i₁) :=
   cubical.cubes.from_equality

@@ -68,6 +68,9 @@ kan p q q
 def interval_contr (i : I) : i₀ ⇝ i := coe (λ i, i₀ ⇝ i) rfl i
 def seg_path : i₀ ⇝ i₁ := interval_contr i₁
 
+-- or too direct way
+example : i₀ ⇝ i₁ := <i> i
+
 def conn_and {α : Sort u} {a b : α} (p : a ⇝ b) :
   LineP (λ i, a ⇝ p # i) :=
 λ i, <j> p # i ∧ j
