@@ -80,7 +80,8 @@ namespace interval
 
   def neg : I → I :=
   trunc.rec (trunc.elem ∘ bnot)
-  prefix `−`:20 := neg
+  prefix `−`:80 := neg
+  instance : has_neg I := ⟨neg⟩
 
   def bool_to_interval (f : bool → bool → bool) (a b : I) : I :=
   trunc.rec (λ a, trunc.rec (trunc.elem ∘ f a) b) a

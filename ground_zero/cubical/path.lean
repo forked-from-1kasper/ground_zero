@@ -44,11 +44,11 @@ def idtoeqv {α β : Sort u} (p : α ⇝ β) : α ≃ β :=
 trans (<i> α ≃ p # i) (equiv.id α)
 
 def test_eta {α : Sort u} {a b : α} (p : a ⇝ b) : p ⇝ p := rfl
-def face₀ {α : Sort u} {a b : α} (p : a ⇝ b) : α := p # i₀
-def face₁ {α : Sort u} {a b : α} (p : a ⇝ b) : α := p # i₁
+def face₀ {α : Sort u} {a b : α} (p : a ⇝ b) : α := p # 0
+def face₁ {α : Sort u} {a b : α} (p : a ⇝ b) : α := p # 1
 
-def comp_test₀ {α : Sort u} {a b : α} (p : a ⇝ b) : (p # i₀) ⇝ a := rfl
-def comp_test₁ {α : Sort u} {a b : α} (p : a ⇝ b) : (p # i₁) ⇝ b := rfl
+def comp_test₀ {α : Sort u} {a b : α} (p : a ⇝ b) : p # 0 ⇝ a := rfl
+def comp_test₁ {α : Sort u} {a b : α} (p : a ⇝ b) : p # 1 ⇝ b := rfl
 
 -- fail
 --def symm_test {α : Type u} {a b : α} (p : a ⇝ b) : (p⁻¹)⁻¹ ⇝ p := rfl

@@ -174,6 +174,13 @@ namespace equiv
     f a =[p] f b :=
   begin induction p, reflexivity end
 
+  def apd_sqr {α : Sort u} {β γ : α → Sort v} {a b : α}
+    {u : β a} {v : β b} {p : a = b :> α}
+    (f : Π {x : α} (u : β x), γ x) (q : u =[p] v) :
+    f u =[p] f v := begin
+    induction p, repeat { apply eq.map }, exact q
+  end
+
   def apd₂ {α : Sort u} {β : α → Sort v} {a b : α}
     {p q : a = b :> α} (f : Π (x : α), β x)
     (r : p = q :> a = b :> α) :
