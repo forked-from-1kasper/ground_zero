@@ -119,7 +119,7 @@ namespace circle
 
   namespace going
     def trivial : S¹ → S¹ :=
-    rec base (eq.refl base)
+    rec base (types.eq.refl base)
 
     def nontrivial : S¹ → S¹ :=
     rec base loop
@@ -259,8 +259,8 @@ namespace torus
   def inj₂ : S¹ → T² := function.swap types.product.intro circle.base
 
   -- poloidal and toroidal directions
-  def p : b = b :> T² := prod (eq.refl circle.base) circle.loop
-  def q : b = b :> T² := prod circle.loop (eq.refl circle.base)
+  def p : b = b :> T² := prod (idp circle.base) circle.loop
+  def q : b = b :> T² := prod circle.loop (idp circle.base)
 
   def Φ {π : Type u} {x x' y y' : π}
     (α : x = x') (β : y = y') :
