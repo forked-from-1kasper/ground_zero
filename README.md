@@ -53,11 +53,11 @@ funExt (A : U) (B : A -> U) (f g : (x : A) -> B x)
 We can freely transform cubical paths to classical and back:
 
 ```lean
-def from_equality {α : Sort u} {a b : α} (p : a = b :> α) : path a b :=
-path.lam (interval.rec a b p)
+def from_equality {α : Sort u} {a b : α} (p : a = b :> α) : Path a b :=
+Path.lam (interval.rec a b p)
 
-def to_equality {α : Sort u} {a b : α} (p : path a b) : a = b :> α :=
-@cube.rec α 0 (begin intros B p, cases B with a b, exact a = b :> α end)
+def to_equality {α : Sort u} {a b : α} (p : Path a b) : a = b :> α :=
+@Cube.rec α 0 (begin intros B p, cases B with a b, exact a = b :> α end)
   (λ f, f # seg) (binary.leaf a b) p
 ```
 
