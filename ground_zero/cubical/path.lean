@@ -84,16 +84,6 @@ def singl {α : Sort u} (a : α) :=
 
 def eta {α : Sort u} (a : α) : singl a := ⟨a, refl a⟩
 
--- dirty way to define J elimination rule
-def hrec {β : I → Sort u}
-  (b₀ : β i₀) (b₁ : β i₁) (s : b₀ == b₁)
-  (x : I) : β x :=
-@quot.hrec_on bool (λ _ _, true) β x
-  (λ i, bool.rec_on i b₀ b₁)
-  (λ a b _,
-    begin simp, induction a; induction b; simp,
-          apply s, symmetry, apply s end)
-
 def refl_contr {α : Sort u} {a b : α} (p : a ⇝ b) : LineP (λ i, a ⇝ p # i) :=
 interval.hrec _ (refl a) p (begin
   cases p with f, unfold refl,
