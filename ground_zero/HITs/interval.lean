@@ -38,12 +38,21 @@ namespace interval
 
   /- β i₀ and β i₁ are Prop’s,
      so s : b₀ = b₁ is trivial -/
-  def hrec {β : I → Prop} (b₀ : β i₀) (b₁ : β i₁) :
+  def prop_rec {β : I → Prop} (b₀ : β i₀) (b₁ : β i₁) :
     Π (x : I), β x := begin
     intros, refine trunc.ind _ _ x, intros,
     { induction a, apply b₀, apply b₁ },
     { intros, trivial }
   end
+
+  def hrec (β : I → Sort u)
+    (b₀ : β 0) (b₁ : β 1) (s : b₀ == b₁)
+    (x : I) : β x :=
+  @quot.hrec_on bool (λ _ _, true) β x
+    (λ i, bool.rec_on i b₀ b₁)
+    (λ a b _,
+      begin simp, induction a; induction b; simp,
+            apply s, symmetry, apply s end)
 
   def ind {π : I → Sort u} (b₀ : π i₀) (b₁ : π i₁)
     (s : b₀ =[seg] b₁) (x : I) : π x := begin

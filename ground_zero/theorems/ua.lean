@@ -16,6 +16,12 @@ axiom Jβrule {π : Π (α β : Sort u), α ≃ β → Sort v}
   {h : Π (α : Sort u), π α α (ideqv α)} {α : Sort u} :
   J h (ideqv α) = h α :> π α α (ideqv α)
 
+noncomputable abbreviation Jrule
+  (π : Π (α β : Sort u), α ≃ β → Sort v)
+  (h : Π (α : Sort u), π α α (ideqv α))
+  {α β : Sort u} (e : α ≃ β) : π α β e :=
+J h e
+
 noncomputable def ua {α β : Sort u} : α ≃ β → α = β :=
 J idp
 

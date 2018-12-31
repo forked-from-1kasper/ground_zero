@@ -95,10 +95,10 @@ def hrec {β : I → Sort u}
           apply s, symmetry, apply s end)
 
 def refl_contr {α : Sort u} {a b : α} (p : a ⇝ b) : LineP (λ i, a ⇝ p # i) :=
-hrec (refl a) p (begin
+interval.hrec _ (refl a) p (begin
   cases p with f, unfold refl,
   apply heq.map, funext,
-  refine interval.hrec _ _ i,
+  refine interval.prop_rec _ _ i,
   { reflexivity },
   { apply ground_zero.support.truncation,
     apply eq.map, exact seg }
