@@ -27,16 +27,23 @@ J idp
 
 namespace ua
 
-noncomputable theorem comp_rule {α β : Sort u} (e : α ≃ β) :
-  Π (x : α), x =[ua e] e.fst x := begin
-  refine J _ e, intros γ x, simp [ua], transitivity,
-  apply types.eq.map (λ p, types.equiv.transport theorems.functions.idfun p x),
-  exact Jβrule, reflexivity
-end
-
-noncomputable theorem refl_on_ua {α : Sort u} :
+noncomputable theorem refl_on_ua (α : Sort u) :
   ua (ideqv α) = idp α :=
 begin unfold ua, exact Jβrule end
+
+noncomputable theorem comp_rule {α β : Sort u} (e : α ≃ β) :
+  Π (x : α), x =[ua e] e.fst x := begin
+  refine J _ e, intros ψ x,
+  refine types.eq.rec _ (refl_on_ua ψ)⁻¹,
+  reflexivity
+end
+
+noncomputable theorem transport_rule {α β : Sort u} (e : α ≃ β) :
+  Π (x : α), types.equiv.subst (ua e) x = e.fst x := begin
+  refine J _ e, intros ψ x,
+  refine types.eq.rec _ (refl_on_ua ψ)⁻¹,
+  reflexivity
+end
 
 theorem idtoeqv_and_id {α : Sort u} :
   idtoeqv (idp α) = ideqv α :=
@@ -75,7 +82,7 @@ begin
   intro error,
   let p : bool = bool := ua neg_bool_equiv,
   let h := transport theorems.functions.idfun p tt,
-  let g : h = ff := comp_rule neg_bool_equiv tt,
+  let g : h = ff := transport_rule neg_bool_equiv tt,
   let oops : h = tt :=
     (λ p, transport theorems.functions.idfun p tt) #
     (@hset.intro _ error _ _ p (idp bool)),

@@ -26,13 +26,14 @@ namespace reals
     (u : R) : π u := begin
     refine quot.hrec_on u _ _,
     exact cz, intros x y p, cases p,
-    refine ground_zero.types.eq.rec _ (sz x),
+    refine ground_zero.types.eq.rec _
+      (equiv.subst_from_pathover (sz x)),
     apply ground_zero.types.heq.eq_subst_heq
   end
 
   def rec {π : Sort u} (cz : ℤ → π)
     (sz : Π z, cz z = cz (integers.succ z) :> π) : R → π :=
-  ind cz (λ x, ground_zero.types.equiv.pathover_of_eq (glue x) (sz x))
+  ind cz (λ x, dep_path.pathover_of_eq (glue x) (sz x))
 
   def positive : Π n, elem 0 = elem (integers.pos n) :> R
   | 0 := ground_zero.types.eq.refl (elem 0)

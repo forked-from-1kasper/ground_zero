@@ -74,7 +74,8 @@ namespace int
     exact mk₁, intros x y p,
     cases x with a b, cases y with c d,
     refine ground_zero.types.eq.rec _
-      (knife₁ (ground_zero.support.inclusion p)),
+      (ground_zero.types.equiv.subst_from_pathover
+        (knife₁ (ground_zero.support.inclusion p))),
     apply ground_zero.types.heq.eq_subst_heq
   end
 

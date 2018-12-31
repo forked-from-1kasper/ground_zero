@@ -31,14 +31,14 @@ namespace pushout
     intro h, refine quot.hrec_on h _ _,
     { intro x, induction x, exact inl₁ x, exact inr₁ x },
     { intros u v H, cases H with x, simp,
-      refine types.eq.rec _ (glue₁ x),
-      apply types.heq.eq_subst_heq }
+      apply types.heq.from_pathover (glue x),
+      exact glue₁ x }
   end
 
   def rec {δ : Type w} (inl₁ : α → δ) (inr₁ : β → δ)
     (glue₁ : Π (x : σ), inl₁ (f x) = inr₁ (g x) :> δ) :
     pushout f g → δ :=
-  ind inl₁ inr₁ (λ x, types.equiv.pathover_of_eq (glue x) (glue₁ x))
+  ind inl₁ inr₁ (λ x, types.dep_path.pathover_of_eq (glue x) (glue₁ x))
 end pushout
 
 end HITs

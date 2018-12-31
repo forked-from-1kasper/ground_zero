@@ -58,6 +58,9 @@ namespace eq
     trivial
   end
 
+  def mpr {α β : Sort u} (p : α = β) : β → α :=
+  begin induction p, intro x, exact x end
+
   def map {α : Sort u} {β : Sort v} {a b : α}
     (f : α → β) (p : a = b :> α) : f a = f b :> β :=
   begin induction p, reflexivity end

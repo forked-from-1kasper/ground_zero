@@ -38,10 +38,9 @@ namespace trunc
     (f : Π (a : α), π (elem a))
     (p : Π (a b : α), f a =[uniq (elem a) (elem b)] f b)
     (x : ∥α∥) : π x := begin
-    apply quot.hrec_on x f,
-    intros a b H,
-    refine types.eq.rec _ (p a b),
-    apply types.heq.eq_subst_heq
+    apply quot.hrec_on x f, intros a b H,
+    apply types.heq.from_pathover (uniq (elem a) (elem b)),
+    exact p a b
   end
 
   def extract {α : Type u} [prop α] : ∥α∥ → α :=

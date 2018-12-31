@@ -13,6 +13,7 @@ digraph dependency_map {
   "types/equiv" -> "HITs/infinitesimal"
 
   "types/equiv" -> "types/coproduct"
+  "types/eq" -> "types/dep_path"
 
   "types/product" -> "cubical/cubes"
   "cubical/cubes" -> "cubical/path"
@@ -26,6 +27,7 @@ digraph dependency_map {
   "types/equiv" -> "types/heq"
   "types/equiv" -> "types/integers"
 
+  "types/dep_path" -> "types/equiv"
   support -> "types/equiv"
   "theorems/functions" -> "types/equiv"
 

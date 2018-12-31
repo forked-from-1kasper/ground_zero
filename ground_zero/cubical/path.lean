@@ -6,7 +6,7 @@ namespace ground_zero.cubical.path
 universes u v
 
 def coe (π : I → Sort u) (x : π i₀) : Π i, π i :=
-interval.ind x (equiv.subst seg x) eq.rfl
+interval.ind x (equiv.subst seg x) (equiv.path_over_subst eq.rfl)
 
 @[refl] def refl {α : Sort u} (a : α) : a ⇝ a := <i> a
 @[refl] def rfl {α : Sort u} {a : α} : a ⇝ a := <i> a

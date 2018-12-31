@@ -91,14 +91,17 @@ namespace circle
 
   def ind {β : S¹ → Type u} (b : β base)
     (ℓ : b =[loop] b) : Π (x : S¹), β x :=
-  ind₂ b (types.equiv.subst seg₁ b) types.eq.rfl
+  ind₂ b (types.equiv.subst seg₁ b)
+    (types.equiv.path_over_subst types.eq.rfl)
     (begin
+      apply types.equiv.path_over_subst,
       have p := types.equiv.subst_comp seg₂ seg₁⁻¹ b,
       have q := (λ p, subst p (subst seg₂ b)) #
                 (types.eq.inv_comp seg₁),
+      have r := types.equiv.subst_from_pathover ℓ,
       transitivity, exact q⁻¹, transitivity,
       exact types.equiv.subst_comp seg₁⁻¹ seg₁ (subst seg₂ b),
-      symmetry, exact subst seg₁ # (ℓ⁻¹ ⬝ p)
+      symmetry, exact subst seg₁ # (r⁻¹ ⬝ p)
     end)
 
   instance pointed_circle : types.eq.dotted S¹ := ⟨base⟩
@@ -178,7 +181,7 @@ namespace circle
     apply types.equiv.transport_comp id helix loop,
     transitivity, apply types.equiv.homotopy.eq,
     apply types.eq.map subst, apply recβrule₂,
-    apply ua.comp_rule
+    apply ua.transport_rule
   end
 
   def transport_back (x : integers) :
@@ -187,6 +190,7 @@ namespace circle
 
   def decode : Π (x : S¹), helix x → base = x :=
   @ind (λ x, helix x → base = x) power (begin
+    apply types.equiv.path_over_subst,
     apply HITs.interval.funext, intro x,
     apply types.equiv.homotopy.eq, transitivity,
     exact transport_characterization power loop,
@@ -237,15 +241,6 @@ namespace sphere
 
   def rec {β : Type u} (b : β) (s : idp b = idp b) : S² → β :=
   suspension.rec b b (circle.rec (idp b) s)
-
-  def ind {π : S² → Type u} (b : π base)
-    (s : idp b =[λ p, b =[π, p] b, surf] idp b) : Π (x : S²), π x := begin
-    refine suspension.ind b (subst loop b) _,
-    intro x, refine circle.ind _ _ x,
-
-    reflexivity,
-    admit
-  end
 end sphere
 
 def torus := S¹ × S¹
@@ -270,17 +265,6 @@ namespace torus
 
   def t : p ⬝ q = q ⬝ p :> b = b :> T² :=
   Φ circle.loop circle.loop
-
-  def ind {π : T² → Type u} (b' : π b)
-    (p' : b' =[p] b') (q' : b' =[q] b')
-    (t' : p' ⬝' q' =[(λ r, subst r b' = b'), t] q' ⬝' p') :
-    Π (x : T²), π x := begin
-    intro x, cases x with poloidal toroidal,
-    refine circle.ind _ _ poloidal,
-    { refine circle.ind _ _ toroidal,
-      exact b', admit },
-    { admit }
-  end
 end torus
 
 end HITs

@@ -10,7 +10,7 @@ interval.rec α β (ground_zero.ua e) i
 def Vin (i : I) {α β : Sort u} (e : α ≃ β) (m : α) : V i e :=
 interval.hrec (λ i, V i e) m (e.fst m) (begin
   symmetry, transitivity, apply heq.inclusion,
-  exact (ground_zero.ua.comp_rule e m)⁻¹,
+  exact (ground_zero.ua.transport_rule e m)⁻¹,
   symmetry, apply heq.eq_subst_heq (ground_zero.ua e)
 end) i
 

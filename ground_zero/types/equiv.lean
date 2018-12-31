@@ -1,4 +1,4 @@
-import ground_zero.support ground_zero.theorems.functions
+import ground_zero.support ground_zero.theorems.functions ground_zero.types.dep_path
 
 namespace ground_zero.types
 
@@ -109,25 +109,19 @@ namespace equiv
     (p : a = b :> α) : π a → π b :=
   begin induction p, exact ground_zero.theorems.functions.idfun end
 
+  reserve infix ` ▸ `
+  infix [parsing_only] ` ▸ ` := subst
+
+  def apd {α : Sort u} {β : α → Sort v} {a b : α}
+    (f : Π (x : α), β x) (p : a = b :> α) :
+    subst p (f a) = f b :> β b :=
+  begin induction p, reflexivity end
+
   def subst_sqr {α : Sort u} {π : α → Sort v} {a b : α}
     {p q : a = b :> α} (r : p = q :> a = b :> α) (u : π a) :
     subst p u = subst q u :> π b :=
   begin induction r, reflexivity end
   notation `subst²` := subst_sqr
-
-  notation u ` =[` p `] ` v := subst p u = v :> _
-
-  def dep_trans {α : Sort u} {π : α → Sort v}
-    {a b c : α} {p : a = b :> α} {q : b = c :> α}
-    {u : π a} {v : π b} {w : π c}
-    (r : u =[p] v) (s : v =[q] w):
-    u =[p ⬝ q] w := begin
-    induction p, induction q,
-    induction r, induction s,
-    reflexivity
-  end
-
-  infix ` ⬝' `:40 := dep_trans
 
   lemma dep_path_map {α : Sort u}
     {π : α → Sort v} {δ : α → Sort w}
@@ -153,7 +147,7 @@ namespace equiv
     subst p u = subst q u :> π b := subst_sqr r u
   notation `transport²` := transport_sqr
 
-  notation u ` =[` P `,` p `] ` v := transport P p u = v :> _
+  --notation u ` =[` P `,` p `] ` v := transport P p u = v :> _
 
   lemma transport_comp {α : Sort u} {β : Sort v}
     (π : β → Sort w) {x y : α}
@@ -169,22 +163,16 @@ namespace equiv
     subst p (f x u) = f y (subst p u) :> δ y :=
   begin induction p, trivial end
 
-  def apd {α : Sort u} {β : α → Sort v} {a b : α}
-    (f : Π (x : α), β x) (p : a = b :> α) :
-    f a =[p] f b :=
-  begin induction p, reflexivity end
-
   def apd_sqr {α : Sort u} {β γ : α → Sort v} {a b : α}
     {u : β a} {v : β b} {p : a = b :> α}
     (f : Π {x : α} (u : β x), γ x) (q : u =[p] v) :
-    f u =[p] f v := begin
-    induction p, repeat { apply eq.map }, exact q
-  end
+    f u =[p] f v :=
+  begin induction q, reflexivity end
 
   def apd₂ {α : Sort u} {β : α → Sort v} {a b : α}
     {p q : a = b :> α} (f : Π (x : α), β x)
     (r : p = q :> a = b :> α) :
-    apd f p =[r] apd f q :=
+    dep_path.apd f p =[r] dep_path.apd f q :=
   begin induction r, reflexivity end
 
   def rewrite_comp {α : Sort u} {a b c : α}
@@ -195,14 +183,15 @@ namespace equiv
     exact eq.refl_left r, exact h ⬝ eq.refl_left q
   end
 
-  def pathover_of_eq {α : Sort u} {β : Sort v}
-    {a b : α} {a' b' : β}
-    (p : a = b :> α) (q : a' = b' :> β) : a' =[p] b' := begin
-    induction p, induction q, trivial
-  end
+  def path_over_subst {α : Sort u} {β : α → Sort v}
+    {a b : α} {p : a = b :> α} {u : β a} {v : β b}
+    (q : subst p u = v :> β b) : u =[p] v :=
+  begin induction q, induction p, reflexivity end
 
-  reserve infix ` ▸ `
-  infix [parsing_only] ` ▸ ` := subst
+  def subst_from_pathover {α : Sort u} {β : α → Sort v}
+    {a b : α} {p : a = b :> α} {u : β a} {v : β b}
+    (q : u =[p] v) : subst p u = v :> β b :=
+  begin induction q, reflexivity end
 end equiv
 
 def {u v} is_qinv {α : Sort u} {β : Sort v} (f : α → β) (g : β → α) :=

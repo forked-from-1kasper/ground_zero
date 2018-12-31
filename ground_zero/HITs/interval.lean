@@ -40,9 +40,8 @@ namespace interval
      so s : b₀ = b₁ is trivial -/
   def prop_rec {β : I → Prop} (b₀ : β i₀) (b₁ : β i₁) :
     Π (x : I), β x := begin
-    intros, refine trunc.ind _ _ x, intros,
-    { induction a, apply b₀, apply b₁ },
-    { intros, trivial }
+    intros, refine quot.ind _ x, intros,
+    induction a, apply b₀, apply b₁
   end
 
   def hrec (β : I → Sort u)
@@ -58,11 +57,12 @@ namespace interval
     (s : b₀ =[seg] b₁) (x : I) : π x := begin
     refine quot.hrec_on x _ _,
     { intro b, cases b, exact b₀, exact b₁ },
-    { intros, induction s,
+    { intros,
       cases a; cases b,
       { reflexivity },
-      { simp, apply types.heq.eq_subst_heq },
-      { simp, symmetry, apply types.heq.eq_subst_heq },
+      { simp, apply types.heq.from_pathover, exact s },
+      { simp, symmetry,
+        apply types.heq.from_pathover, exact s },
       { reflexivity } }
   end
 
