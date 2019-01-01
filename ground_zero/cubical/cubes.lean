@@ -38,10 +38,10 @@ def to_equality {α : Sort u} {a b : α} (p : Path a b) : a = b :> α :=
 @Cube.rec α 0 (begin intros B p, cases B with a b, exact a = b :> α end)
   (λ f, f # seg) (binary.leaf a b) p
 
-def compute {α : Sort u} {a b : α} (p : Path a b) : I → α :=
+def Path.compute {α : Sort u} {a b : α} (p : Path a b) : I → α :=
 interval.rec a b (to_equality p)
 
-infix ` # `:40 := compute
+infix ` # `:40 := Path.compute
 notation `<` binder `> ` r:(scoped P, Path.lam P) := r
 
 infix ` ⇝ `:30 := Path

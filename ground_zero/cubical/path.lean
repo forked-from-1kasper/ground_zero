@@ -112,9 +112,13 @@ transport (<i> π (p # i) (<j> p # i ∧ j)) h
 def J {α : Sort u} {a : α} {π : Π (b : α), a ⇝ b → Type u}
   (h : π a (refl a)) {b : α} (p : a ⇝ b) : π b p :=
 trans (<i> π (p # i) (refl_contr p i)) h
+
 end Path
 
-def {u} PathP (σ : I → Sort u) (a : σ i₀) (b : σ i₁) :=
-Path (Path.subst Path.seg_path a) b
+def {u} PathP (σ : I → Sort u) (a : σ 0) (b : σ 1) :=
+Path (equiv.subst interval.seg a) b
+
+def {u} PathP.lam (σ : I → Sort u) (f : Π i, σ i) : PathP σ (f 0) (f 1) :=
+Path.lam (interval.rec _ _ (equiv.apd f interval.seg))
 
 end ground_zero.cubical

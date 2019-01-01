@@ -73,6 +73,13 @@ theorem ff_neq_tt (h : ff = tt) : empty :=
   bool tt (λ b _, bool_to_universe b)
   types.unit.star ff h⁻¹
 
+def is_zero : ℕ → bool
+| 0 := tt
+| _ := ff
+
+example (h : 0 = 1) : empty :=
+ff_neq_tt (is_zero # h)⁻¹
+
 def neg_bool_equiv : bool ≃ bool := begin
   existsi bnot, split; existsi bnot; intro x; simp
 end

@@ -3,7 +3,7 @@ open ground_zero.cubical
 
 /-
   This example on Lean.
-  https://github.com/5HT/maxim.livejournal.com/blob/master/articles/2017/2017-10-31%20Доказательство%20коммутативности%20в%20кубике.txt
+  https://tonpa.guru/stream/2017/2017-10-31%20Доказательство%20коммутативности%20в%20кубике.txt
 -/
 
 namespace ground_zero.cubical.cubicaltt
