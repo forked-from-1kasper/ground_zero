@@ -1,4 +1,4 @@
-import ground_zero.cubical.path ground_zero.theorems.ua
+import ground_zero.cubical.Path ground_zero.theorems.ua
 open ground_zero.HITs ground_zero.types
 
 namespace ground_zero.cubical

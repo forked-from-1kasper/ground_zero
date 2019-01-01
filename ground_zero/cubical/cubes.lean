@@ -2,7 +2,7 @@ import ground_zero.types.product
 open ground_zero.HITs ground_zero.types
 open ground_zero.HITs.interval (i₀ i₁ seg)
 
-namespace ground_zero.cubical.cubes
+namespace ground_zero.cubical
 universes u v w r
 
 inductive binary (α : Sort u) : ℕ → Type u
@@ -62,4 +62,4 @@ def Square {α : Sort u} (m n : I → α)
 Cube 1 (binary.node (binary.leaf (m i₀) (n i₀))
                     (binary.leaf (m i₁) (n i₁)))
 
-end ground_zero.cubical.cubes
+end ground_zero.cubical

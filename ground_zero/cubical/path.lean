@@ -1,8 +1,10 @@
 import ground_zero.cubical.cubes
-open ground_zero.cubical.cubes ground_zero.types ground_zero.HITs
+open ground_zero.cubical ground_zero.types ground_zero.HITs
 open ground_zero.HITs.interval (i₀ i₁ seg)
 
-namespace ground_zero.cubical.path
+namespace ground_zero.cubical
+
+namespace Path
 universes u v
 
 def coe (π : I → Sort u) (x : π i₀) : Π i, π i :=
@@ -84,7 +86,8 @@ def singl {α : Sort u} (a : α) :=
 
 def eta {α : Sort u} (a : α) : singl a := ⟨a, refl a⟩
 
-def refl_contr {α : Sort u} {a b : α} (p : a ⇝ b) : LineP (λ i, a ⇝ p # i) :=
+def refl_contr {α : Sort u} {a b : α} (p : a ⇝ b) :
+  LineP (λ i, a ⇝ p # i) :=
 interval.hrec _ (refl a) p (begin
   cases p with f, unfold refl,
   apply heq.map, funext,
@@ -109,8 +112,9 @@ transport (<i> π (p # i) (<j> p # i ∧ j)) h
 def J {α : Sort u} {a : α} {π : Π (b : α), a ⇝ b → Type u}
   (h : π a (refl a)) {b : α} (p : a ⇝ b) : π b p :=
 trans (<i> π (p # i) (refl_contr p i)) h
+end Path
 
-def PathP (σ : I → Sort u) (a : σ i₀) (b : σ i₁) :=
-Path (subst seg_path a) b
+def {u} PathP (σ : I → Sort u) (a : σ i₀) (b : σ i₁) :=
+Path (Path.subst Path.seg_path a) b
 
-end ground_zero.cubical.path
+end ground_zero.cubical

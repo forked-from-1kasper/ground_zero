@@ -1,5 +1,5 @@
-import ground_zero.cubical.path
-open ground_zero
+import ground_zero.cubical
+open ground_zero.cubical
 
 /-
   This example on Lean.
@@ -21,11 +21,11 @@ def add_succ (a : ℕ) : Π (b : ℕ), add (nat.succ a) b ⇝ nat.succ (add a b)
 | (b + 1) := <i> nat.succ (add_succ b # i)
 
 def add_zero_inv : Π (a : ℕ), a ⇝ add a nat.zero :=
-cubical.path.refl
+Path.refl
 
 def add_comm (a : ℕ) : Π (b : ℕ), add a b ⇝ add b a
 | 0 := <i> (add_zero a) # −i
-| (b + 1) := cubical.path.kan
+| (b + 1) := Path.kan
             (<i> nat.succ (add_comm b # i))
             (<j> nat.succ (add a b))
             (<j> add_succ b a # −j)
@@ -37,7 +37,7 @@ def add_assoc (a b : ℕ) : Π (c : ℕ), add a (add b c) ⇝ add (add a b) c
 def add_comm₃ {a b c : ℕ} : add a (add b c) ⇝ add c (add b a) :=
 let r : add a (add b c) ⇝ add a (add c b) :=
 <i> add a (add_comm b c # i) in
-cubical.path.kan (add_comm a (add c b))
+Path.kan (add_comm a (add c b))
   (<j> r # −j) (<j> add_assoc c b a # −j)
 
 example (n m : ℕ) (h : n ⇝ m) : nat.succ n ⇝ nat.succ m :=

@@ -15,14 +15,15 @@ digraph dependency_map {
   "types/equiv" -> "types/coproduct"
   "types/eq" -> "types/dep_path"
 
+  "cubical/Path" -> "cubical/connection"
   "types/product" -> "cubical/cubes"
-  "cubical/cubes" -> "cubical/path"
-  "cubical/path" -> "cubical/square"
-  "cubical/path" -> "cubical/example"
+  "cubical/cubes" -> "cubical/Path"
+  "cubical/Path" -> "cubical/Square"
+  "cubical/Path" -> "cubical/example"
 
   "cubical/V" [style=dashed]
   "theorems/ua" -> "cubical/V"
-  "cubical/path" -> "cubical/V"
+  "cubical/Path" -> "cubical/V"
 
   "types/equiv" -> "types/heq"
   "types/equiv" -> "types/integers"
@@ -37,7 +38,7 @@ digraph dependency_map {
 
   "HITs/pushout" -> "HITs/join"
 
-  "cubical/path" -> "HITs/moebius"
+  "cubical/Path" -> "HITs/moebius"
 
   "HITs/trunc" -> "theorems/mere_eq_lemma"
 
