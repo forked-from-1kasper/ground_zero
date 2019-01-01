@@ -1,4 +1,4 @@
-import ground_zero.cubical.Path
+import ground_zero.cubical.path
 open ground_zero.cubical ground_zero.HITs
 
 namespace ground_zero.cubical.connection

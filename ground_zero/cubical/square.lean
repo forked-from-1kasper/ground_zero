@@ -1,4 +1,4 @@
-import ground_zero.cubical.Path
+import ground_zero.cubical.path
 open ground_zero.HITs (I) ground_zero.cubical
 open ground_zero.types
 

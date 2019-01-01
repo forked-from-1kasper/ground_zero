@@ -1,4 +1,4 @@
-import ground_zero.cubical.Path ground_zero.theorems.ua
+import ground_zero.cubical.path ground_zero.theorems.ua
 open ground_zero.HITs ground_zero.types
 
 namespace ground_zero.cubical
@@ -17,7 +17,7 @@ end) i
 -- why it isn’t need to be marked as noncomputable??
 def ua {α β : Sort u} (e : α ≃ β) : α ⇝ β := <i> V i e
 
-def iso_to_path {α β : Sort u} (f : α → β) (g : β → α)
+def iso {α β : Sort u} (f : α → β) (g : β → α)
   (F : f ∘ g ~ id) (G : g ∘ f ~ id) : α ⇝ β :=
 ua ⟨f, ground_zero.types.qinv.q2b f ⟨g, ⟨F, G⟩⟩⟩
 
