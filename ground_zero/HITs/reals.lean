@@ -7,7 +7,7 @@ open ground_zero.types
   * HoTT 8.1.5
 -/
 namespace ground_zero.HITs
-universe u
+universes u v w
 
 local notation ℤ := integers
 
@@ -51,8 +51,92 @@ namespace reals
   (center u)⁻¹ ⬝ center v
 end reals
 
+class has_mem (α : Sort u) (γ : Sort v) :=
+(mem : α → γ → Sort w)
+infix `∈` := has_mem.mem
+
+def quasiset (α : Sort u) := α → Sort v
+namespace quasiset
+  abbreviation mk {α : Sort u} (f : α → Sort v) : quasiset α := f
+
+  def membership {α : Sort u} (x : α) (s : quasiset α) := s x
+  instance {α : Sort u} : has_mem α (quasiset α) := ⟨membership⟩
+
+  notation `{` binder ` | ` r:(scoped P, mk P) `}` := r
+
+  inductive bottom : Sort u
+  def empty (α : Sort u) : quasiset α := { x | bottom }
+end quasiset
+
 namespace geometry
   notation `R²` := R × R
+
+  class is_euclidian (S : Sort u) :=
+  (B : S → S → S → Sort u)
+  (equ : S → S → Sort u)
+  (cong : S × S → S × S → Sort u)
+  -- Tarski axioms
+  (cong_refl (x y : S) : cong ⟨x, y⟩ ⟨y, x⟩)
+  (cong_trans (a b c : S × S) : cong a b → cong a c → cong b c)
+  (identity_of_congruence (x y z : S) : cong ⟨x, y⟩ ⟨z, z⟩ → equ x y)
+  (segment_construction (x y a b : S) : Σ' z,
+    B x y z × cong ⟨y, z⟩ ⟨a, b⟩)
+  (five_segment (x y z x' y' z' u u' : S) :
+    ¬(equ x y) →
+    B x y z → B x' y' z' →
+    cong ⟨x, y⟩ ⟨x', y'⟩ →
+    cong ⟨y, z⟩ ⟨y', z'⟩ →
+    cong ⟨x, u⟩ ⟨x', u'⟩ →
+    cong ⟨y, u⟩ ⟨y', u'⟩ →
+    cong ⟨z, u⟩ ⟨z', u'⟩)
+  (identity_of_betweenness (x y : S) : B x y x → equ x y)
+  (axiom_of_Pasch (x y z u v : S) :
+    B x y z → B y v z → Σ' a, B u a y × B v a x)
+  (lower_dimension (a b c : S) :
+    ¬(B a b c) × ¬(B b c a) × ¬(B c a b))
+  (upper_dimension (x y z u v : S) :
+    cong ⟨x, u⟩ ⟨x, v⟩ →
+    cong ⟨y, u⟩ ⟨y, v⟩ →
+    cong ⟨z, u⟩ ⟨z, v⟩ →
+    ¬(equ u v) →
+    B x y z × B y z x × B z x y)
+  (axiom_of_Euclid (x y z u v : S) :
+    B x u v → B y u z → ¬(equ x y) →
+    Σ' a b, B x y a × B x z b × B a v b)
+  (axiom_schema_of_Continuity (φ ψ : S → Sort u) :
+    (Σ' a, ∀ x y, φ x → ψ y → B a x y) →
+    (Σ' b, ∀ x y, φ x → ψ y → B x b y))
+  open is_euclidian
+
+  notation a `≅` b := is_euclidian.cong a b
+
+  section
+    variables {S : Sort u} [is_euclidian S]
+
+    instance in_segment : has_mem S (S × S) :=
+    ⟨λ x a, B a.pr₁ x a.pr₂⟩
+
+    def line (x y : S) :=
+    { z | B y x z + B x y z + B x z y }
+
+    def circle (radius : S × S) :=
+    { z | ⟨radius.pr₁, z⟩ ≅ radius }
+
+    def disk (radius : S × S) : quasiset S :=
+    { z | Σ' (a : S × S), equ a.pr₁ radius.pr₁ × (a ≅ radius) × z ∈ a }
+
+    def triangle (a b c : S) :=
+    { z | B a z c + B a z b + B b z c }
+
+    def ray (a b : S) :=
+    { c | B a c b + B a b c }
+
+    def angle (a b c : S) : quasiset S :=
+    { z | (z ∈ ray b a) + (z ∈ ray b c) }
+
+    def parallel (a b : quasiset S) :=
+    ¬(Σ' (z : S), z ∈ a × z ∈ b)
+  end
 end geometry
 
 end ground_zero.HITs
