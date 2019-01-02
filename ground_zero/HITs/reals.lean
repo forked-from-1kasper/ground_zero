@@ -53,7 +53,7 @@ end reals
 
 class has_mem (α : Sort u) (γ : Sort v) :=
 (mem : α → γ → Sort w)
-infix `∈` := has_mem.mem
+infix ` ∈ ` := has_mem.mem
 
 def quasiset (α : Sort u) := α → Sort v
 namespace quasiset
@@ -108,7 +108,7 @@ namespace geometry
     (Σ' b, ∀ x y, φ x → ψ y → B x b y))
   open is_euclidian
 
-  notation a `≅` b := is_euclidian.cong a b
+  notation a ` ≅ ` b := is_euclidian.cong a b
 
   section
     variables {S : Sort u} [is_euclidian S]
@@ -136,6 +136,30 @@ namespace geometry
 
     def parallel (a b : quasiset S) :=
     ¬(Σ' (z : S), z ∈ a × z ∈ b)
+
+    def segment.is_sum (r₁ r₂ r : S × S) :=
+    Σ' z, (⟨r.pr₁, z⟩ ≅ r₁) × (⟨r.pr₂, z⟩ ≅ r₂)
+
+    def sigma_unique (p : S → Sort v) :=
+    Σ' x, p x × (Π y, p y → equ y x)
+
+    notation `Σ!` binders `, ` r:(scoped P, sigma_unique P) := r
+
+    def tang (A₁ A₂ : quasiset S) :=
+    Σ! (z : S), z ∈ A₁ × z ∈ A₂
+
+    def circle.tang (r₁ r₂ : S × S) :=
+    tang (circle r₁) (circle r₂)
+
+    theorem sum_of_radiuses_tang_circles (r₁ r₂ : S × S)
+      (h : circle.tang r₁ r₂) :
+      segment.is_sum r₁ r₂ ⟨r₁.pr₁, r₂.pr₁⟩ := begin
+      cases h with z cond,
+      cases cond with cond trash, clear trash,
+      cases cond with belongs₁ belongs₂,
+      existsi z, split,
+      exact belongs₁, exact belongs₂
+    end
   end
 end geometry
 
