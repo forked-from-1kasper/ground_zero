@@ -7,8 +7,22 @@ namespace ground_zero.cubical
 namespace Path
 universes u v
 
-def coe (π : I → Sort u) (x : π i₀) : Π i, π i :=
-interval.ind x (equiv.subst seg x) (equiv.path_over_subst eq.rfl)
+def coe.forward (π : I → Sort u) (i : I) (x : π i₀) : π i :=
+interval.ind x (equiv.subst seg x) (equiv.path_over_subst eq.rfl) i
+
+def coe.back (π : I → Sort u) (i : I) (x : π i₁) : π i :=
+interval.ind (equiv.subst seg⁻¹ x) x (begin
+  apply equiv.path_over_subst, transitivity,
+  { symmetry, apply equiv.subst_comp }, transitivity,
+  { apply eq.map (λ p, equiv.subst p x), apply eq.inv_comp },
+  reflexivity
+end) i
+
+def coe (i k : I) (π : I → Sort u) : π i → π k :=
+coe.forward (λ i, π i → π k) i (coe.forward π k)
+
+def coe_inv (i k : I) (π : I → Sort u) : π i → π k :=
+coe.back (λ i, π i → π k) i (coe.back π k)
 
 @[refl] def refl {α : Sort u} (a : α) : a ⇝ a := <i> a
 @[refl] def rfl {α : Sort u} {a : α} : a ⇝ a := <i> a
@@ -33,14 +47,21 @@ def ap {α : Sort u} {β : α → Sort v} {a b : α}
 
 def subst {α : Sort u} {π : α → Sort v} {a b : α}
   (p : a ⇝ b) (x : π a) : π b :=
-coe (λ i, π (p # i)) x i₁
+coe 0 1 (λ i, π (p # i)) x
 
 abbreviation transport {α : Sort u} (π : α → Sort v) {a b : α}
   (p : a ⇝ b) : π a → π b := subst p
 
-def trans {α β : Sort u} : (α ⇝ β) → (α → β) :=
-transport id
+def trans {α β : Sort u} (p : α ⇝ β) : α → β :=
+coe 0 1 (λ i, p # i)
 abbreviation coerce {α β : Sort u} : (α ⇝ β) → (α → β) := trans
+
+def trans_neg {α β : Sort u} (p : α ⇝ β) : β → α :=
+coe 1 0 (λ i, p # i)
+
+def transK {α β : Sort u} (p : α ⇝ β) (x : α) :
+  x ⇝ trans_neg p (trans p x) :=
+<i> coe i 0 (λ i, p # i) (coe 0 i (λ i, p # i) x)
 
 def idtoeqv {α β : Sort u} (p : α ⇝ β) : α ≃ β :=
 trans (<i> α ≃ p # i) (equiv.id α)
@@ -67,7 +88,7 @@ left⁻¹ ⬝ bottom ⬝ right
 def kan_op {α : Sort u} {a b : α} (p : a ⇝ a) (q : a ⇝ b) : b ⇝ b :=
 kan p q q
 
-def interval_contr (i : I) : i₀ ⇝ i := coe (λ i, i₀ ⇝ i) rfl i
+def interval_contr (i : I) : i₀ ⇝ i := coe 0 i (λ i, i₀ ⇝ i) rfl
 def seg_path : i₀ ⇝ i₁ := interval_contr i₁
 
 -- or too direct way

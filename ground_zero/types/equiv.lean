@@ -198,7 +198,7 @@ def {u v} is_qinv {α : Sort u} {β : Sort v} (f : α → β) (g : β → α) :=
 (f ∘ g ~ id) × (g ∘ f ~ id)
 
 class {u v} has_qinv {α : Sort u} {β : Sort v} (f : α → β) :=
-(inv : β → α) (really_qinv : is_qinv f inv)
+(inv : β → α) (lawful : is_qinv f inv)
 postfix ⁻¹ := has_qinv.inv
 
 def {u v} qinv {α : Sort u} {β : Sort v} (f : α → β) :=

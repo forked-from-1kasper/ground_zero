@@ -34,6 +34,11 @@ namespace dep_path
     u =[p ⬝ q] w :=
   begin induction r, induction s, reflexivity end
   infix ` ⬝' `:40 := dep_trans
+
+  def dep_homotopy {α : Sort u} {β γ : α → Sort v}
+    {a b : α} (p : a = b :> α)
+    (f : Π x, β a → γ x) (g : Π x, β b → γ x) :=
+  Π (x : β a) (y : β b) (q : x =[p] y) (z : α), f z x =[p] g z y
 end dep_path
 
 end ground_zero.types

@@ -16,8 +16,10 @@ end) i
 
 -- why it isn’t need to be marked as noncomputable??
 def ua {α β : Sort u} (e : α ≃ β) : α ⇝ β := <i> V i e
-def uabeta {α β : Sort u} (e : α ≃ β) (m : α) : PathP (λ i, V i e) m (e.fst m) :=
-PathP.lam (λ i, V i e) (λ i, Vin i e m)
+
+def uabeta {α β : Sort u} (e : α ≃ β) (m : α) :
+  Path.coe_inv 0 1 (λ i, V i e) m ⇝ (e.fst m) :=
+<i> Path.coe_inv i 1 (λ i, V i e) (Vin i e m)
 
 def iso {α β : Sort u} (f : α → β) (g : β → α)
   (F : f ∘ g ~ id) (G : g ∘ f ~ id) : α ⇝ β :=
