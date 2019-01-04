@@ -27,12 +27,12 @@ inductive eq {α : Sort u} (a : α) : α → Sort u
 But if we define paths as `I → α`, then we can use a nice syntax for paths as in [cubicaltt](https://github.com/mortberg/cubicaltt) or [Arend](https://github.com/JetBrains/arend):
 
 ```lean
-@[refl] def refl {α : Type u} (a : α) : a ⇝ a := <i> a
+@[refl] def refl {α : Sort u} (a : α) : a ⇝ a := <i> a
 
-@[symm] def symm {α : Type u} {a b : α} (p : a ⇝ b) : b ⇝ a :=
+@[symm] def symm {α : Sort u} {a b : α} (p : a ⇝ b) : b ⇝ a :=
 <i> p # −i
 
-def funext {α : Type u} {β : α → Type v} {f g : Π (x : α), β x}
+def funext {α : Sort u} {β : α → Sort v} {f g : Π (x : α), β x}
   (p : Π (x : α), f x ⇝ g x) : f ⇝ g :=
 <i> λ x, (p x) # i
 ```
@@ -75,7 +75,8 @@ def transK {α β : Sort u} (p : α ⇝ β) (x : α) :
 ```
 
 In yacctt:
-```
+
+```yacctt
 trans (A B : U) (p : Path U A B) (a : A) : B = coe 0->1 p a
 transNeg (A B : U) (p : Path U A B) (b : B) : A = coe 1->0 p b
 
