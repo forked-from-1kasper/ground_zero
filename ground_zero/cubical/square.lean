@@ -1,6 +1,11 @@
 import ground_zero.cubical.path
 open ground_zero.HITs (I) ground_zero.cubical ground_zero.types
 
+/-
+  * Constant square.
+  * Connections (∧, ∨) in squares.
+-/
+
 namespace ground_zero.cubical.Square
 universe u
 

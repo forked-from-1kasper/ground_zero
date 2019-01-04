@@ -2,6 +2,12 @@ import ground_zero.types.product
 open ground_zero.HITs ground_zero.types
 open ground_zero.HITs.interval (i₀ i₁ seg)
 
+/-
+  * n-cube.
+  * Path (1-cube).
+  * Square (2-cube).
+-/
+
 namespace ground_zero.cubical
 universes u v w r
 
@@ -9,6 +15,7 @@ inductive binary (α : Sort u) : ℕ → Type u
 | leaf {} : α → α → binary 0
 | node {n : ℕ} : binary n → binary n → binary (n + 1)
 
+-- cube n represents (n + 1)-cube.
 def cube : ℕ → Type
 | 0 := I
 | (n + 1) := cube n × I
@@ -52,14 +59,17 @@ infix ` ⇝ `:30 := Path
 structure tetrad (α : Sort u) (β : Sort v) (γ : Sort r) (δ : Sort w) :=
 (one : α) (two : β) (three : γ) (four : δ)
 
---         u
---    a₀ -----> a₁
---    |         |
--- r­₀ |         | r₁
---    |         |
---    V         V
---    b₀ -----> b₁
---         v
+/-
+https://github.com/RedPRL/redtt/blob/master/library/prelude/path.red#L13
+           u
+      a₀ -----> a₁
+      |         |
+   r­₀ |         | r₁
+      |         |
+      V         V
+      b₀ -----> b₁
+           v
+-/
 def Square {α : Sort u} (m n : I → α)
   (o : m 0 ⇝ n 0) (p : m 1 ⇝ n 1) :=
 Cube 1 (binary.node (binary.leaf (m 0) (n 0))

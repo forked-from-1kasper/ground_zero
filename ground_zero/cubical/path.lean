@@ -2,6 +2,14 @@ import ground_zero.cubical.cubes
 open ground_zero.cubical ground_zero.types ground_zero.HITs
 open ground_zero.HITs.interval (i₀ i₁ seg)
 
+/-
+  * Coercions.
+  * Basic path lemmas: refl, symm, cong, funext...
+  * Connections.
+  * Singleton contractibility, J elimination rule.
+  * PathP.
+-/
+
 namespace ground_zero.cubical
 
 namespace Path
@@ -32,6 +40,9 @@ coe.back (λ i, π i → π k) i (coe.back π k)
 postfix `⁻¹` := symm
 
 abbreviation inv {α : Sort u} {a b : α} (p : a ⇝ b) := p⁻¹
+
+example {α : Sort u} {a b : α} (p : a ⇝ b) : b ⇝ a :=
+coe 1 0 (λ i, b ⇝ p # i) rfl
 
 def funext {α : Sort u} {β : α → Sort v} {f g : Π (x : α), β x}
   (p : Π (x : α), f x ⇝ g x) : f ⇝ g :=
