@@ -88,15 +88,11 @@ namespace equiv
 
     existsi (f₂ ∘ f₁), split,
     { existsi (g₁ ∘ g₂),
-      intro x, simp,
-      have p := α₂ (f₁ x), simp at p,
-      rw [ground_zero.support.truncation p],
-      have q := α₁ x, simp at q, exact q },
+      intro x, simp, transitivity,
+      exact g₁ # (α₂ (f₁ x)), exact α₁ x },
     { existsi (h₁ ∘ h₂),
-      intro x, simp,
-      have p := β₁ (h₂ x), simp at p,
-      rw [ground_zero.support.truncation p],
-      have q := β₂ x, simp at q, exact q }
+      intro x, simp, transitivity,
+      exact f₂ # (β₁ (h₂ x)), exact β₂ x }
   end
 
   def idtoeqv {α β : Sort u} (p : α = β :> _) : α ≃ β :=

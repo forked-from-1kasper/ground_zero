@@ -1,13 +1,12 @@
 import ground_zero.cubical.path
-open ground_zero.HITs (I) ground_zero.cubical
-open ground_zero.types
+open ground_zero.HITs (I) ground_zero.cubical ground_zero.types
 
 namespace ground_zero.cubical.Square
 universe u
 
 def lam {α : Sort u} (f : I → I → α) :
   Square (f 0) (f 1) (<i> f i 0) (<i> f i 1) :=
-Cube.lam (λ (x : interval_cube 1), product.elim f x)
+Cube.lambda 1 (product.elim f)
 
 def const {α : Sort u} (a : α) :
   Square (λ _, a) (λ _, a) (<i> a) (<i> a) :=
