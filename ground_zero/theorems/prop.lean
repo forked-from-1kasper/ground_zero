@@ -8,11 +8,11 @@ namespace theorems.prop
 
 universes u v w
 
-lemma product_prop {α : Sort u} {β : Sort v} [prop α] [prop β] : prop (α × β) := begin
-  apply structures.prop.mk, intros,
+lemma product_prop {α : Sort u} {β : Sort v}
+  (h : prop α) (g : prop β) : prop (α × β) := begin
+  intros a b,
   cases a with x y, cases b with u v,
-  have p := structures.prop.intro x u,
-  have q := structures.prop.intro y v,
+  have p := h x u, have q := g y v,
   induction p, induction q, reflexivity
 end
 
@@ -24,38 +24,28 @@ lemma transport_composition {α : Sort u} {a x₁ x₂ : α}
 end
 
 theorem prop_is_set {α : Sort u} (r : prop α) : hset α := begin
-  destruct r, intros f H,
-  apply structures.hset.mk, intros, have g := f a,
+  intros x y p q, have g := r x,
   transitivity, symmetry, apply equiv.rewrite_comp,
-  exact (equiv.apd g p)⁻¹ ⬝ transport_composition p (g a),
+  exact (equiv.apd g p)⁻¹ ⬝ transport_composition p (g x),
   induction q, apply types.eq.inv_comp
 end
 
 lemma prop_is_prop {α : Sort u} : prop (prop α) := begin
-  apply structures.prop.mk,
   intros f g,
-  have h := prop_is_set f, cases h,
-  cases f, cases g,
-  have p := λ a b, h (f a b) (g a b),
-  apply eq.map structures.prop.mk,
+  have p := λ a b, (prop_is_set f) (f a b) (g a b),
   apply HITs.interval.dfunext, intro a,
   apply HITs.interval.dfunext, intro b,
   exact p a b
 end
 
 lemma prop_equiv {π : Type u} (h : prop π) : π ≃ ∥π∥ := begin
-  existsi HITs.trunc.elem, split,
-  repeat {
-    existsi HITs.trunc.extract, intro x,
-    simp [HITs.trunc.extract],
-    simp [HITs.trunc.rec], simp [HITs.trunc.elem],
-    intros, try { apply HITs.trunc.uniq },
-    assumption
-  }
+  existsi HITs.trunc.elem,
+  split; existsi (HITs.trunc.extract h); intro x,
+  { reflexivity },
+  { apply HITs.trunc.uniq }
 end
 
 lemma prop_from_equiv {π : Type u} (e : π ≃ ∥π∥) : prop π := begin
-  apply structures.prop.mk,
   cases e with f H, cases H with linv rinv,
   cases linv with g α, cases rinv with h β,
   intros a b,
@@ -67,7 +57,7 @@ end
 theorem prop_exercise (π : Type u) : (prop π) ≃ (π ≃ ∥π∥) :=
 begin
   existsi @prop_equiv π, split; existsi prop_from_equiv,
-  { intro x, apply prop_is_prop.intro },
+  { intro x, apply prop_is_prop },
   { intro x, simp,
     cases x with f H,
     cases H with linv rinv,

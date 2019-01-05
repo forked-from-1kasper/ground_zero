@@ -1,6 +1,6 @@
-[![Build Status](https://travis-ci.org/groupoid/lean.svg?branch=master)](https://travis-ci.org/groupoid/lean)
-
 # Ground Zero
+
+[![Build Status](https://travis-ci.org/groupoid/lean.svg?branch=master)](https://travis-ci.org/groupoid/lean)
 
 ## HITs
 

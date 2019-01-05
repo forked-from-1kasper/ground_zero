@@ -68,10 +68,21 @@ def bool_to_universe : bool → Type
 | tt := types.unit
 | ff := empty
 
+
 theorem ff_neq_tt (h : ff = tt) : empty :=
 @ground_zero.types.eq.rec
   bool tt (λ b _, bool_to_universe b)
   types.unit.star ff h⁻¹
+
+-- perfect proof
+inductive so : bool → Type
+| intro : so tt
+
+namespace so
+  def absurd {α : Sort u} (x : so false) : α := by cases x
+  theorem ff_neq_tt (h : ff = tt) : empty :=
+  so.absurd (transport so h⁻¹ intro)
+end so
 
 def is_zero : ℕ → bool
 | 0 := tt
@@ -95,7 +106,7 @@ begin
   let g : h = ff := transport_rule neg_bool_equiv tt,
   let oops : h = tt :=
     (λ p, transport theorems.functions.idfun p tt) #
-    (@hset.intro _ error _ _ p (idp bool)),
+      (error p (idp bool)),
   let uh_oh : ff = tt := g⁻¹ ⬝ oops,
   apply ff_neq_tt, exact uh_oh
 end

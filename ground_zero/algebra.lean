@@ -11,7 +11,8 @@ class magma (α : Type u) :=
 class pointed_magma (α : Type u) extends magma α :=
 (e : α)
 
-class monoid (α : Type u) extends hset α :=
+class monoid (α : Type u) :=
+(truncation : hset α)
 (mul : α → α → α) (e : α)
 (left_unit : Π (x : α), mul x e = x :> α)
 (right_unit : Π (x : α), mul e x = x :> α)

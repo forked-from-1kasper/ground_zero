@@ -6,13 +6,13 @@ namespace ground_zero
 namespace structures
 universes u v
 
-class prop (α : Sort u) :=
-(intro : Π (a b : α), a = b :> α)
+def prop (α : Sort u) :=
+Π (a b : α), a = b :> α
 
-class hset (α : Sort u) :=
-(intro {a b : α} (p q : a = b :> α) : p = q :> _)
+def hset (α : Sort u) :=
+Π {a b : α} (p q : a = b :> α), p = q :> a = b :> α
 
-class contr (α : Sort u) :=
+structure contr (α : Sort u) :=
 (point : α) (intro : Π (a : α), point = a :> α)
 
 def LEM := Π (α : Type u), prop α → (α + ¬α)
@@ -48,17 +48,17 @@ def n_type (n : homotopy_level) :=
 Σ' (α : Sort u), is_n_type α n
 notation n `-Type` := n_type n
 
-instance contr_is_prop (α : Sort u) [contr α] : prop α :=
-⟨λ a b, (contr.intro a)⁻¹ ⬝ (contr.intro b)⟩
+def contr_is_prop {α : Sort u} (h : contr α) : prop α :=
+λ a b, (h.intro a)⁻¹ ⬝ (h.intro b)
 
-instance empty_is_prop : prop empty :=
-⟨begin intros a, induction a end⟩
+def empty_is_prop : prop empty :=
+begin intros x, induction x end
 
-instance unit_is_prop : prop types.unit :=
-⟨begin intros, induction a, induction b, trivial end⟩
+def unit_is_prop : prop types.unit :=
+begin intros x y, induction x, induction y, trivial end
 
-instance prop_is_prop {α : Prop} : prop α :=
-⟨begin intros, trivial end⟩
+def prop_is_prop {α : Prop} : prop α :=
+begin intros x y, trivial end
 
 inductive truncation (α : Sort u) : Prop
 | elem : α → truncation
@@ -70,11 +70,17 @@ def K (α : Sort u) :=
 
 theorem K_iff_set (α : Sort u) : K α ↔ hset α := begin
   split,
-  { intro h, split,
-    intros, induction q, apply h },
+  { intro h, intros x y p q,
+    induction q, apply h },
   { intro h, unfold K,
-    intros, apply h.intro }
+    intros, apply h }
 end
+
+def lem_prop {α : Sort u} (h : α → prop α) : prop α :=
+λ a, h a a
+
+def is_contr_fiber {α : Sort u} {β : Sort v} (f : α → β) :=
+Π (y : β), contr (types.fib f y)
 
 end structures
 
@@ -97,7 +103,7 @@ def singl.eq {α : Sort u} {a : α} (t : singl a) :
   { point := t.point, intro := t.intro } = t :> singl a :=
 begin induction t, simp end
 
-instance signl_contr {α : Sort u} (a : α) : structures.contr (singl a) :=
+def signl_contr {α : Sort u} (a : α) : structures.contr (singl a) :=
 { point := trivial_loop a,
   intro := λ t, path_from_trivial_loop t.intro ⬝ singl.eq t }
 

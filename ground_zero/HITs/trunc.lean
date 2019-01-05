@@ -17,10 +17,10 @@ namespace trunc
   quot.mk const_rel
   --notation `|` a `|` := elem a
 
-  def rec {α : Sort u} {β : Sort v} [prop β]
+  def rec {α : Sort u} {β : Sort v} (h : prop β)
     (f : α → β) : trunc α → β :=
   @quot.lift α const_rel β f
-  (λ a b _, support.truncation $ prop.intro (f a) (f b))
+  (λ a b _, support.truncation $ h (f a) (f b))
 
   @[recursor] def hind {α : Sort u} {π : ∥α∥ → Prop}
     (f : Π (a : α), π (trunc.elem a)) : Π (x : ∥α∥), π x :=
@@ -32,7 +32,7 @@ namespace trunc
     apply (@quot.sound α const_rel a b true.intro),
     repeat { trivial }
   end
-  instance {α : Type u} : prop ∥α∥ := ⟨trunc.uniq⟩
+  def trunc_prop {α : Type u} : prop ∥α∥ := trunc.uniq
 
   @[recursor] def ind {α : Sort u} {π : ∥α∥ → Sort v}
     (f : Π (a : α), π (elem a))
@@ -43,11 +43,11 @@ namespace trunc
     exact p a b
   end
 
-  def extract {α : Type u} [prop α] : ∥α∥ → α :=
-  trunc.rec id
+  def extract {α : Type u} (h : prop α) : ∥α∥ → α :=
+  trunc.rec h id
 
   def lift {α β : Type u} (f : α → β) : ∥α∥ → ∥β∥ :=
-  trunc.rec (elem ∘ f)
+  trunc.rec trunc_prop (elem ∘ f)
 
   theorem equiv_iff_trunc {α β : Type u}
     (f : α → β) (g : β → α) : ∥α∥ ≃ ∥β∥ := begin
@@ -60,12 +60,12 @@ namespace trunc
     ∥α∥ ≃ ∥α × α∥ := begin
     apply equiv_iff_trunc,
     exact double,
-    exact (begin intro x, cases x with u v, exact u end)
+    intro x, cases x with u v, exact u
   end
 
   def uninhabited_implies_trunc_uninhabited {α : Sort u}
     (p : α → empty) : ∥α∥ → empty :=
-  rec p
+  rec empty_is_prop p
 end trunc
 end HITs
 

@@ -141,7 +141,7 @@ def J {α : Type u} {a : α} {π : Π (b : α), a ⇝ b → Type u}
 transport (<i> π (p # i) (<j> p # i ∧ j)) h
 -/
 
-def J {α : Sort u} {a : α} {π : Π (b : α), a ⇝ b → Type u}
+def J {α : Sort u} {a : α} (π : Π (b : α), a ⇝ b → Sort v)
   (h : π a (refl a)) {b : α} (p : a ⇝ b) : π b p :=
 trans (<i> π (p # i) (refl_contr p i)) h
 

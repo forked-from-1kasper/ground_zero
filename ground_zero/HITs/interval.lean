@@ -38,7 +38,8 @@ namespace interval
     (s : b₀ = b₁ :> β) : I → β :=
   let f (b : bool) : singl b₀ :=
     bool.rec (singl.trivial_loop b₀) ⟨b₁, s⟩ b in
-  singl.point ∘ trunc.rec f
+  singl.point ∘ trunc.rec (structures.contr_is_prop $
+    singl.signl_contr b₀) f
 
   /- β i₀ and β i₁ are Prop’s,
      so s : b₀ = b₁ is trivial -/
@@ -87,23 +88,26 @@ namespace interval
     {f g : Π (x : α), β x} (p : f = g :> _) : f ~ g :=
   begin induction p, apply types.equiv.homotopy.id end
 
-  instance : prop I := ⟨trunc.uniq⟩
-  instance trunc_functions {α : Type u} : prop (∥α∥ → ∥α∥) :=
-  ⟨begin intros, apply funext, intro x, apply trunc.uniq end⟩
+  def interval_prop : prop I := trunc.uniq
+  def trunc_functions {α : Type u} : prop (∥α∥ → ∥α∥) :=
+  begin intros x y, apply funext, intro x, apply trunc.uniq end
 
   def neg : I → I :=
-  trunc.rec (trunc.elem ∘ bnot)
+  trunc.rec interval_prop (trunc.elem ∘ bnot)
   prefix `−`:80 := neg
   instance : has_neg I := ⟨neg⟩
 
   def bool_to_interval (f : bool → bool → bool) (a b : I) : I :=
-  trunc.rec (λ a, trunc.rec (trunc.elem ∘ f a) b) a
+  trunc.rec interval_prop (λ a,
+    trunc.rec interval_prop (trunc.elem ∘ f a) b) a
 
   def min (a b : I) : I :=
-  trunc.rec (begin intro x, cases x, exact i₀, exact a end) b
+  trunc.rec interval_prop (begin
+    intro x, cases x, exact i₀, exact a end) b
 
   def max (a b : I) : I :=
-  trunc.rec (begin intro x, cases x, exact a, exact i₁ end) b
+  trunc.rec interval_prop (begin
+    intro x, cases x, exact a, exact i₁ end) b
 
   notation r `∧`:70 s := min r s
   notation r `∨`:70 s := max r s

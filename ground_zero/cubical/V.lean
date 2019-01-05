@@ -27,6 +27,14 @@ def uabeta {α β : Sort u} (e : α ≃ β) (m : α) :
   Path.coe_inv 0 1 (λ i, V i e) m ⇝ (e.fst m) :=
 <i> Path.coe_inv i 1 (λ i, V i e) (Vproj i e m)
 
+def univalence.formation (α β : Sort u) :=
+α ≃ β → α ⇝ β
+
+def univalence.intro {α β : Sort u} : univalence.formation α β := ua
+
+def univalence.elim {α β : Sort u} (p : α ⇝ β) : α ≃ β :=
+Path.coe 0 1 (λ i, α ≃ p # i) (equiv.id α)
+
 def iso {α β : Sort u} (f : α → β) (g : β → α)
   (F : f ∘ g ~ id) (G : g ∘ f ~ id) : α ⇝ β :=
 ua ⟨f, ground_zero.types.qinv.q2b f ⟨g, ⟨F, G⟩⟩⟩
