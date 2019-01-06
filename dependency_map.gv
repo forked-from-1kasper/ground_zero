@@ -52,6 +52,8 @@ digraph dependency_map {
 
   "types/heq" -> "HITs/pushout"
 
+  "HITs/int" -> "HITs/rat"
+
   "HITs/pushout" -> "HITs/reals"
   "types/integers" -> "HITs/reals"
 

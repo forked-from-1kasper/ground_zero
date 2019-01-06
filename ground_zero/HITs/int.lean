@@ -56,6 +56,8 @@ namespace int
   def elem (a b : ℕ) : ℤ := quot.mk rel ⟨a, b⟩
 
   def pos (n : ℕ) := mk ⟨n, 0⟩
+  instance : has_coe ℕ ℤ := ⟨pos⟩
+
   def neg (n : ℕ) := mk ⟨0, n⟩
 
   instance : has_zero int := ⟨mk ⟨0, 0⟩⟩
@@ -90,14 +92,23 @@ namespace int
 
   def simplify : ℕ × ℕ → ℕ × ℕ
   | ⟨0, 0⟩ := ⟨0, 0⟩
-  | ⟨n, 0⟩ := ⟨n, 0⟩
-  | ⟨0, n⟩ := ⟨0, n⟩
-  | ⟨n + 1, m + 1⟩ := if n > m
-    then simplify ⟨n + 1, m⟩
-    else simplify ⟨n, m + 1⟩
+  | ⟨n + 1, 0⟩ := ⟨n + 1, 0⟩
+  | ⟨0, n + 1⟩ := ⟨0, n + 1⟩
+  | ⟨n + 1, m + 1⟩ := if n > m then ⟨n - m, 0⟩ else ⟨0, m - n⟩
 
-  /-
-  theorem simplify_correct (x : ℕ × ℕ) : mk x = mk (simplify x) := begin
+  lemma ite.left {c : Prop} [decidable c] {α : Sort u} {x y : α}
+    (h : not c) : ite c x y = y := begin
+    unfold ite, tactic.unfreeze_local_instances,
+    cases _inst_1 with u v, trivial, contradiction
+  end
+
+  lemma ite.right {c : Prop} [decidable c] {α : Sort u} {x y : α}
+    (h : c) : ite c x y = x := begin
+    unfold ite, tactic.unfreeze_local_instances,
+    cases _inst_1 with u v, contradiction, trivial
+  end
+
+  /- theorem simplify_correct (x : ℕ × ℕ) : mk x = mk (simplify x) := begin
     apply quot.sound, cases x with u v,
     induction u with u ih₁,
     { induction v with v ih,
@@ -105,14 +116,13 @@ namespace int
     { induction v with v ih₂,
       { simp [simplify, rel] },
       { simp [simplify],
-        refine @decidable.rec_on (u > v)
-               (λ h, rel ⟨nat.succ u, nat.succ v⟩
-                    (ite (u > v) (simplify ⟨u + 1, v⟩)
-                                 (simplify ⟨u, v + 1⟩)))
-               (nat.decidable_le (v + 1) u) _ _,
-        -- ???
-        admit, admit
-         } }
+        have H := nat.decidable_le (v + 1) u, induction H;
+        unfold gt; unfold has_lt.lt; unfold nat.lt;
+        unfold has_le.le at H,
+        { rw [ite.left H], unfold rel,
+          admit },
+        { rw [ite.right H], unfold rel,
+          admit } } }
   end
 
   def blade {π : ℤ → Sort u}
@@ -120,9 +130,11 @@ namespace int
     (zero₁ : π 0)
     (neg₁ : Π (n : ℕ), π (elem 0 n)) :
     Π x, π x := begin
-    refine ind _ _, admit, admit
-  end
-  -/
+    fapply ind,
+    { intro x, cases x with u v, rw [simplify_correct],
+      admit },
+    admit
+  end -/
 
   instance : has_neg int :=
   ⟨quot.lift
