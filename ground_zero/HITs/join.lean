@@ -1,8 +1,9 @@
 import ground_zero.HITs.pushout
 open ground_zero.types.product (pr₁ pr₂)
 
+hott theory
+
 namespace ground_zero.HITs
-local infix ` = ` := ground_zero.types.eq
 
 universes u v w
 def join (α : Type u) (β : Type v) :=

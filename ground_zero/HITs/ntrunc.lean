@@ -8,10 +8,10 @@ import ground_zero.HITs.circle
 open ground_zero.structures
 open ground_zero.HITs.ncircle (S)
 
+hott theory
+
 namespace ground_zero
 namespace HITs
-
-local infix ` = ` := types.eq
 
 inductive {u} ntrunc.core (α : Sort u) : ℕ → Sort (u + 1)
 | elem {n : ℕ} : α → ntrunc.core n

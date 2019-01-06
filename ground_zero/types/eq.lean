@@ -1,4 +1,4 @@
-import ground_zero.proto
+import ground_zero.proto ground_zero.meta.hott_theory
 
 namespace ground_zero.types
 

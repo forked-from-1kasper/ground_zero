@@ -13,6 +13,8 @@ open ground_zero.types
   * HoTT 8.1
 -/
 
+hott theory
+
 namespace ground_zero
 namespace HITs
 
@@ -20,8 +22,6 @@ universes u v
 
 notation [parsing_only] `S⁻¹` := empty
 notation [parsing_only] `S⁰` := bool
-
-local infix ` = ` := types.eq
 
 theorem up_dim : ∑S⁻¹ ≃ S⁰ :=
 let f : ∑S⁻¹ → S⁰ :=

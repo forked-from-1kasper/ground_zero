@@ -8,7 +8,7 @@ open ground_zero.types.equiv (biinv)
   * HoTT 7.7 Modalities
 -/
 
-local infix ` = ` := ground_zero.types.eq
+hott theory
 
 namespace ground_zero.HITs.infinitesimal
 universes u v
