@@ -22,7 +22,7 @@ namespace coproduct
 
   theorem symm : α + β ≃ β + α := begin
     existsi inv, split; existsi inv;
-    { intro x; induction x; trivial }
+    { intro x, induction x; trivial }
   end
 end coproduct
 

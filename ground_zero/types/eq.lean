@@ -1,4 +1,5 @@
 import ground_zero.proto ground_zero.meta.hott_theory
+import hott.init.meta.support
 
 namespace ground_zero.types
 
@@ -11,7 +12,7 @@ inductive eq {α : Sort u} (a : α) : α → Sort u
 | refl : eq a
 attribute [refl] eq.refl
 
-local infix ` = ` := eq
+hott theory
 notation a ` = ` b ` :> ` α := @eq α a b
 
 /- fails!
@@ -51,6 +52,10 @@ namespace eq
     p ⬝ eq.refl b = p :> a = b :> α :=
   begin induction p, trivial end
 
+  def refl_twice {α : Sort u} {a b : α} (p : a = b :> α) :
+    rfl ⬝ p ⬝ rfl = p :> a = b :> α :=
+  begin induction p, trivial end
+
   def assoc {α : Sort u} {a b c d : α}
     (p : a = b :> α) (q : b = c :> α) (r : c = d :> α) :
     p ⬝ (q ⬝ r) = (p ⬝ q) ⬝ r := begin
@@ -83,7 +88,7 @@ namespace eq
 
   def iterated_loop_space : pointed → ℕ → pointed
   | X 0 := X
-  | X (n+1) := iterated_loop_space (loop_space X) n
+  | X (n + 1) := iterated_loop_space (loop_space X) n
 
   def loop_pointed_space (α : Sort u) [h : dotted α] :=
   iterated_loop_space ⟨α, dotted.point α⟩
@@ -124,10 +129,34 @@ namespace whiskering
   (p ⬝ₗ κ) ⬝ (ν ⬝ᵣ s)
   infix ` ⋆′ `:65 := horizontal_comp₂
 
-  lemma horizontal_comps_uniq : ν ⋆ κ = ν ⋆′ κ := begin
+  lemma comp_uniq : ν ⋆ κ = ν ⋆′ κ := begin
     induction p, induction r, induction ν, induction κ,
     reflexivity
   end
+
+  lemma loop₁ {α : Sort u} {a : α}
+    {ν κ : eq.refl a = eq.refl a} :
+    ν ⬝ κ = ν ⋆ κ := begin
+    symmetry, unfold horizontal_comp₁,
+    unfold right_whs, unfold left_whs,
+    transitivity,
+    { apply eq.map, apply eq.refl_twice },
+    apply eq.map (λ p, p ⬝ κ), apply eq.refl_twice
+  end
+
+  lemma loop₂ {α : Sort u} {a : α}
+    {ν κ : eq.refl a = eq.refl a} :
+    ν ⋆′ κ = κ ⬝ ν := begin
+    unfold horizontal_comp₂,
+    unfold right_whs, unfold left_whs,
+    transitivity,
+    { apply eq.map, apply eq.refl_twice },
+    apply eq.map (λ p, p ⬝ ν), apply eq.refl_twice
+  end
+
+  theorem «Eckmann–Hilton argument» {α : Sort u} {a : α}
+    (ν κ : eq.refl a = eq.refl a) : ν ⬝ κ = κ ⬝ ν :=
+  loop₁ ⬝ comp_uniq ⬝ loop₂
 end whiskering
 
 end ground_zero.types
