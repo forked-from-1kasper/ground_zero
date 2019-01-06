@@ -12,6 +12,8 @@ digraph dependency_map {
 
   "types/heq" -> "HITs/colimit"
 
+  "types/heq" -> "HITs/generalized"
+
   "HITs/infinitesimal" [style=dashed]
   "types/equiv" -> "HITs/infinitesimal"
 

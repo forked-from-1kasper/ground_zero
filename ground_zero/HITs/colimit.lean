@@ -35,7 +35,7 @@ namespace colimit
     { intros, cases a with n a, cases b with m b,
       simp, cases p,
       fapply ground_zero.types.heq.from_pathover,
-      exact glue b, exact glue₁ b }
+      apply glue, apply glue₁ }
   end
 end colimit
 
