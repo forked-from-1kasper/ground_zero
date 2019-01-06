@@ -10,6 +10,8 @@ digraph dependency_map {
   "HITs/suspension" -> "HITs/circle"
   "theorems/ua" -> "HITs/circle"
 
+  "types/heq" -> "HITs/colimit"
+
   "HITs/infinitesimal" [style=dashed]
   "types/equiv" -> "HITs/infinitesimal"
 

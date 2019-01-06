@@ -3,6 +3,7 @@ import ground_zero.types.eq
 namespace ground_zero.support
   universe u
 
+  -- this is unsafe
   def inclusion {α : Sort u} {a b : α} (p : eq a b) : a = b :> α :=
   begin induction p, reflexivity end
 

@@ -30,6 +30,10 @@ theorem prop_is_set {α : Sort u} (r : prop α) : hset α := begin
   induction q, apply types.eq.inv_comp
 end
 
+lemma uniq_does_not_add_new_paths {α : Sort u} (a b : ∥α∥) (p : a = b :> ∥α∥) :
+  HITs.trunc.uniq a b = p :> a = b :> ∥α∥ :=
+prop_is_set HITs.trunc.uniq (HITs.trunc.uniq a b) p
+
 lemma prop_is_prop {α : Sort u} : prop (prop α) := begin
   intros f g,
   have p := λ a b, (prop_is_set f) (f a b) (g a b),
