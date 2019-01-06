@@ -1,5 +1,4 @@
 import ground_zero.proto ground_zero.meta.hott_theory
-import hott.init.meta.support
 
 namespace ground_zero.types
 
