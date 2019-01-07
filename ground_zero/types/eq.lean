@@ -55,6 +55,15 @@ namespace eq
     rfl ⬝ p ⬝ rfl = p :> a = b :> α :=
   begin induction p, trivial end
 
+  def explode_inv {α : Sort u} {a b c : α}
+    (p : a = b :> α) (q : b = c :> α) :
+    (p ⬝ q)⁻¹ = q⁻¹ ⬝ p⁻¹ :> c = a :> α :=
+  begin induction p, induction q, trivial end
+
+  def inv_inv {α : Sort u} {a b : α}
+    (p : a = b :> α) : (p⁻¹)⁻¹ = p :> a = b :> α :=
+  begin induction p, trivial end
+
   def assoc {α : Sort u} {a b c d : α}
     (p : a = b :> α) (q : b = c :> α) (r : c = d :> α) :
     p ⬝ (q ⬝ r) = (p ⬝ q) ⬝ r := begin

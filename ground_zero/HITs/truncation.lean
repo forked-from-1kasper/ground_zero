@@ -1,7 +1,7 @@
 import ground_zero.HITs.colimit ground_zero.HITs.generalized
 import ground_zero.structures
-open ground_zero.types.equiv (subst path_over_subst)
-open ground_zero.structures (prop contr lem_contr lem_prop)
+open ground_zero.types.equiv (subst path_over_subst apd)
+open ground_zero.structures (prop contr lem_contr)
 
 namespace ground_zero.HITs
 hott theory
@@ -9,7 +9,7 @@ hott theory
 universes u v
 
 /-
-  Propositionally truncation is colimit of a following sequence:
+  Propositional truncation is colimit of a following sequence:
     α → {α} → {{α}} → ...
 
   * https://github.com/fpvandoorn/leansnippets/blob/master/truncation.hlean
@@ -49,6 +49,26 @@ namespace truncation
     transitivity, { symmetry, apply colimit.glue },
     apply ground_zero.types.eq.map, apply generalized.glue
   end
+
+  /-
+  def uniq {α : Sort u} : prop ∥α∥ := begin
+    apply lem_contr, fapply ind,
+    { intro x, existsi elem x, fapply ind; intro y,
+      { apply weak_uniq },
+      { refine ind _ _ y; clear y; intro y,
+        { apply ground_zero.structures.contr_impl_prop,
+          existsi weak_uniq x y, intro p,
+          unfold weak_uniq, unfold elem at p,
+          apply ground_zero.types.equiv.rewrite_comp,
+          transitivity, apply ground_zero.types.eq.explode_inv,
+          transitivity, apply ground_zero.types.eq.map,
+          apply ground_zero.types.eq.inv_inv,
+          apply ground_zero.types.equiv.rewrite_comp,
+          admit },
+        { apply ground_zero.structures.prop_is_prop } } },
+    { intro x, apply ground_zero.structures.contr_is_prop }
+  end
+  -/
 end truncation
 
 end ground_zero.HITs

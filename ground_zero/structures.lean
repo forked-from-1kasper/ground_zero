@@ -57,16 +57,36 @@ begin intros x, induction x end
 def unit_is_prop : prop types.unit :=
 begin intros x y, induction x, induction y, trivial end
 
-def prop_is_prop {α : Prop} : prop α :=
+def prop_impl_prop {α : Prop} : prop α :=
 begin intros x y, trivial end
 
 section
   open types.equiv types.eq
-  theorem prop_is_set {α : Sort u} (r : prop α) : hset α := begin
+  def prop_is_set {α : Sort u} (r : prop α) : hset α := begin
     intros x y p q, have g := r x,
     transitivity, symmetry, apply rewrite_comp,
     exact (apd g p)⁻¹ ⬝ transport_composition p (g x),
     induction q, apply inv_comp
+  end
+
+  -- unsafe postulate, but it computes
+  def function_extensionality {α : Sort u} {β : α → Sort v}
+    {f g : Π x, β x} (h : f ~ g) : f = g :> Π x, β x :=
+  support.inclusion $ funext (λ x, support.truncation (h x))
+
+  def contr_is_prop {α : Sort u} : prop (contr α) := begin
+    intros x y, cases x with x u, cases y with y v,
+    have p := u y, induction p, apply types.eq.map,
+    apply function_extensionality, intro a,
+    apply prop_is_set (contr_impl_prop ⟨x, u⟩)
+  end
+
+  def prop_is_prop {α : Sort u} : prop (prop α) := begin
+    intros f g,
+    have p := λ a b, (prop_is_set f) (f a b) (g a b),
+    apply function_extensionality, intro a,
+    apply function_extensionality, intro b,
+    exact p a b
   end
 end
 

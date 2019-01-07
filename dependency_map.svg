@@ -90,7 +90,7 @@
 <polygon fill="black" stroke="black" points="56.6334,-189.243 60.5303,-179.391 51.34,-184.662 56.6334,-189.243"/>
 </g>
 <!-- HITs/reals -->
-<g id="node35" class="node"><title>HITs/reals</title>
+<g id="node36" class="node"><title>HITs/reals</title>
 <ellipse fill="none" stroke="black" cx="77.2776" cy="-450" rx="48.9926" ry="18"/>
 <text text-anchor="middle" x="77.2776" y="-446.3" font-family="Times New Roman,serif" font-size="14.00">HITs/reals</text>
 </g>
@@ -185,7 +185,7 @@
 <polygon fill="black" stroke="black" points="351.567,-537.054 340.977,-536.731 349.054,-543.587 351.567,-537.054"/>
 </g>
 <!-- HITs/truncation -->
-<g id="node38" class="node"><title>HITs/truncation</title>
+<g id="node39" class="node"><title>HITs/truncation</title>
 <ellipse fill="none" stroke="black" cx="604.278" cy="-450" rx="68.4888" ry="18"/>
 <text text-anchor="middle" x="604.278" y="-446.3" font-family="Times New Roman,serif" font-size="14.00">HITs/truncation</text>
 </g>
@@ -235,7 +235,7 @@
 <polygon fill="black" stroke="black" points="601.662,-621.245 606.119,-611.633 596.641,-616.367 601.662,-621.245"/>
 </g>
 <!-- types/unit -->
-<g id="node36" class="node"><title>types/unit</title>
+<g id="node37" class="node"><title>types/unit</title>
 <ellipse fill="none" stroke="black" cx="377.278" cy="-594" rx="46.2923" ry="18"/>
 <text text-anchor="middle" x="377.278" y="-590.3" font-family="Times New Roman,serif" font-size="14.00">types/unit</text>
 </g>
@@ -245,7 +245,7 @@
 <polygon fill="black" stroke="black" points="419.081,-607.769 408.494,-607.346 416.506,-614.278 419.081,-607.769"/>
 </g>
 <!-- types/lost -->
-<g id="node40" class="node"><title>types/lost</title>
+<g id="node41" class="node"><title>types/lost</title>
 <ellipse fill="none" stroke="black" cx="925.278" cy="-594" rx="46.2923" ry="18"/>
 <text text-anchor="middle" x="925.278" y="-590.3" font-family="Times New Roman,serif" font-size="14.00">types/lost</text>
 </g>
@@ -255,7 +255,7 @@
 <polygon fill="black" stroke="black" points="882.506,-612.456 891.146,-606.324 880.567,-605.73 882.506,-612.456"/>
 </g>
 <!-- structures -->
-<g id="node37" class="node"><title>structures</title>
+<g id="node38" class="node"><title>structures</title>
 <ellipse fill="none" stroke="black" cx="469.278" cy="-522" rx="46.2923" ry="18"/>
 <text text-anchor="middle" x="469.278" y="-518.3" font-family="Times New Roman,serif" font-size="14.00">structures</text>
 </g>
@@ -265,7 +265,7 @@
 <polygon fill="black" stroke="black" points="508.727,-537.2 498.177,-536.222 505.815,-543.565 508.727,-537.2"/>
 </g>
 <!-- types/nat -->
-<g id="node39" class="node"><title>types/nat</title>
+<g id="node40" class="node"><title>types/nat</title>
 <ellipse fill="none" stroke="black" cx="970.278" cy="-522" rx="43.5923" ry="18"/>
 <text text-anchor="middle" x="970.278" y="-518.3" font-family="Times New Roman,serif" font-size="14.00">types/nat</text>
 </g>
@@ -370,7 +370,7 @@
 <polygon fill="black" stroke="black" points="592.624,-682.663 582.127,-681.229 589.439,-688.896 592.624,-682.663"/>
 </g>
 <!-- HITs/rat -->
-<g id="node34" class="node"><title>HITs/rat</title>
+<g id="node35" class="node"><title>HITs/rat</title>
 <ellipse fill="none" stroke="black" cx="868.278" cy="-450" rx="41.6928" ry="18"/>
 <text text-anchor="middle" x="868.278" y="-446.3" font-family="Times New Roman,serif" font-size="14.00">HITs/rat</text>
 </g>
@@ -405,7 +405,7 @@
 <polygon fill="black" stroke="black" points="268.753,-324.859 258.409,-322.568 265.066,-330.809 268.753,-324.859"/>
 </g>
 <!-- theorems/prop -->
-<g id="node33" class="node"><title>theorems/prop</title>
+<g id="node34" class="node"><title>theorems/prop</title>
 <ellipse fill="none" stroke="black" cx="376.278" cy="-306" rx="63.8893" ry="18"/>
 <text text-anchor="middle" x="376.278" y="-302.3" font-family="Times New Roman,serif" font-size="14.00">theorems/prop</text>
 </g>
@@ -434,6 +434,11 @@
 <path fill="none" stroke="black" d="M264.252,-508.405C224.574,-496.223 164.549,-477.794 123.271,-465.121"/>
 <polygon fill="black" stroke="black" points="124.052,-461.699 113.465,-462.11 121.998,-468.391 124.052,-461.699"/>
 </g>
+<!-- theorems/topology -->
+<g id="node33" class="node"><title>theorems/topology</title>
+<ellipse fill="none" stroke="black" cx="722.278" cy="-882" rx="79.0865" ry="18"/>
+<text text-anchor="middle" x="722.278" y="-878.3" font-family="Times New Roman,serif" font-size="14.00">theorems/topology</text>
+</g>
 <!-- types/unit&#45;&gt;HITs/suspension -->
 <g id="edge40" class="edge"><title>types/unit&#45;&gt;HITs/suspension</title>
 <path fill="none" stroke="black" d="M333.256,-588.155C301.074,-582.236 258.906,-569.104 234.278,-540 219.873,-522.978 216.209,-497.52 215.806,-478.186"/>
@@ -455,9 +460,9 @@
 <polygon fill="black" stroke="black" points="567.583,-473.969 574.849,-466.259 564.361,-467.755 567.583,-473.969"/>
 </g>
 <!-- types/sigma -->
-<g id="node41" class="node"><title>types/sigma</title>
-<ellipse fill="none" stroke="black" cx="697.278" cy="-882" rx="53.8905" ry="18"/>
-<text text-anchor="middle" x="697.278" y="-878.3" font-family="Times New Roman,serif" font-size="14.00">types/sigma</text>
+<g id="node42" class="node"><title>types/sigma</title>
+<ellipse fill="none" stroke="black" cx="873.278" cy="-882" rx="53.8905" ry="18"/>
+<text text-anchor="middle" x="873.278" y="-878.3" font-family="Times New Roman,serif" font-size="14.00">types/sigma</text>
 </g>
 </g>
 </svg>
