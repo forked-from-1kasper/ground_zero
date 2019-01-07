@@ -18,7 +18,7 @@ namespace generalized
   ground_zero.support.inclusion $ quot.sound
     (generalized.rel.mk a b)
 
-  @[recursor] def generalized.ind
+  def ind
     {α : Sort u} {π : {α} → Sort v}
     (incl₁ : Π (a : α), π (incl a))
     (glue₁ : Π (a b : α), incl₁ a =[glue a b] incl₁ b) :
@@ -30,9 +30,12 @@ namespace generalized
       apply glue, apply glue₁ }
   end
 
-  def repeat {α : Sort u} : ℕ → Sort u
+  def repeat (α : Sort u) : ℕ → Sort u
   | 0 := α
   | (n + 1) := {repeat n}
+
+  def dep (α : Sort u) (n : ℕ) : repeat α n → repeat α (n + 1) :=
+  incl
 end generalized
 
 end ground_zero.HITs

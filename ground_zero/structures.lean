@@ -48,7 +48,7 @@ def n_type (n : homotopy_level) :=
 Σ' (α : Sort u), is_n_type α n
 notation n `-Type` := n_type n
 
-def contr_is_prop {α : Sort u} (h : contr α) : prop α :=
+def contr_impl_prop {α : Sort u} (h : contr α) : prop α :=
 λ a b, (h.intro a)⁻¹ ⬝ (h.intro b)
 
 def empty_is_prop : prop empty :=
@@ -59,6 +59,16 @@ begin intros x y, induction x, induction y, trivial end
 
 def prop_is_prop {α : Prop} : prop α :=
 begin intros x y, trivial end
+
+section
+  open types.equiv types.eq
+  theorem prop_is_set {α : Sort u} (r : prop α) : hset α := begin
+    intros x y p q, have g := r x,
+    transitivity, symmetry, apply rewrite_comp,
+    exact (apd g p)⁻¹ ⬝ transport_composition p (g x),
+    induction q, apply inv_comp
+  end
+end
 
 inductive truncation (α : Sort u) : Prop
 | elem : α → truncation
@@ -78,6 +88,9 @@ end
 
 def lem_prop {α : Sort u} (h : α → prop α) : prop α :=
 λ a, h a a
+
+def lem_contr {α : Sort u} (h : α → contr α) : prop α :=
+λ a, contr_impl_prop (h a) a
 
 def is_contr_fiber {α : Sort u} {β : Sort v} (f : α → β) :=
 Π (y : β), contr (types.fib f y)

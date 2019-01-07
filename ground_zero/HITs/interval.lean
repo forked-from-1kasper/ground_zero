@@ -23,7 +23,6 @@ namespace interval
   def i₁ : I := trunc.elem tt
   def seg : i₀ = i₁ :> I := trunc.uniq i₀ i₁
 
-
   instance : has_zero I := ⟨i₀⟩
   instance : has_one I := ⟨i₁⟩
 
@@ -38,7 +37,7 @@ namespace interval
     (s : b₀ = b₁ :> β) : I → β :=
   let f (b : bool) : singl b₀ :=
     bool.rec (singl.trivial_loop b₀) ⟨b₁, s⟩ b in
-  singl.point ∘ trunc.rec (structures.contr_is_prop $
+  singl.point ∘ trunc.rec (structures.contr_impl_prop $
     singl.signl_contr b₀) f
 
   /- β i₀ and β i₁ are Prop’s,

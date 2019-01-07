@@ -1,6 +1,6 @@
 import ground_zero.HITs.interval
-open ground_zero.structures (prop hset)
-open ground_zero.types.equiv (transport)
+open ground_zero.structures (prop hset prop_is_set)
+open ground_zero.types.equiv (transport transport_composition)
 open ground_zero.types
 
 namespace ground_zero
@@ -14,20 +14,6 @@ lemma product_prop {α : Sort u} {β : Sort v}
   cases a with x y, cases b with u v,
   have p := h x u, have q := g y v,
   induction p, induction q, reflexivity
-end
-
-lemma transport_composition {α : Sort u} {a x₁ x₂ : α}
-  (p : x₁ = x₂ :> α) (q : a = x₁ :> α) :
-  transport (types.eq a) p q = q ⬝ p :> _ := begin
-  induction p, symmetry, transitivity,
-  apply eq.refl_right, trivial
-end
-
-theorem prop_is_set {α : Sort u} (r : prop α) : hset α := begin
-  intros x y p q, have g := r x,
-  transitivity, symmetry, apply equiv.rewrite_comp,
-  exact (equiv.apd g p)⁻¹ ⬝ transport_composition p (g x),
-  induction q, apply types.eq.inv_comp
 end
 
 lemma uniq_does_not_add_new_paths {α : Sort u} (a b : ∥α∥) (p : a = b :> ∥α∥) :

@@ -152,6 +152,13 @@ namespace equiv
     subst (f # p) u :> π (f y) :=
   begin induction p, trivial end
 
+  lemma transport_composition {α : Sort u} {a x₁ x₂ : α}
+    (p : x₁ = x₂ :> α) (q : a = x₁ :> α) :
+    transport (ground_zero.types.eq a) p q = q ⬝ p :> _ := begin
+    induction p, symmetry, transitivity,
+    apply eq.refl_right, trivial
+  end
+
   lemma transport_over_family {α : Sort u}
     {x y : α} {π δ : α → Sort v}
     (f : Π (x : α), π x → δ x)

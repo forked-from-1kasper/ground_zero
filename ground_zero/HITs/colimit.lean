@@ -23,6 +23,8 @@ namespace colimit
   def incl {n : ℕ} (x : α n) : colimit α f :=
   quot.mk (rel α f) (core.incl x)
 
+  abbreviation inclusion (n : ℕ) : α n → colimit α f := incl
+
   def glue {n : ℕ} (x : α n) : incl (f n x) = incl x :> colimit α f :=
   ground_zero.support.inclusion (quot.sound (colimit.rel.glue f n x))
 
