@@ -73,7 +73,7 @@ digraph dependency_map {
   "types/heq" -> "HITs/trunc"
 
   structures -> "HITs/truncation"
-  "HITs/colomit" -> "HITs/truncation"
+  "HITs/colimit" -> "HITs/truncation"
   "HITs/generalized" -> "HITs/truncation"
 
   "theorems/ua" [style=dashed]
