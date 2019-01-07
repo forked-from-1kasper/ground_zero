@@ -23,4 +23,9 @@ structure topology (α : Sort u) :=
 (inter_open : Π u, is_open u → Π v, is_open v → is_open (inter u v))
 (union_open : Π s, subset s is_open → is_open (union s))
 
+def discrete (α : Sort u) : topology α := begin
+  fapply topology.mk, exact full (α → Prop),
+  repeat { intros, trivial }
+end
+
 end ground_zero.theorems.topology
