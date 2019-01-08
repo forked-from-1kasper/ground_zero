@@ -90,10 +90,10 @@ section
   end
 end
 
-inductive truncation (α : Sort u) : Prop
-| elem : α → truncation
-def truncation.uniq {α : Sort u} (a b : truncation α) :
-  a = b :> truncation α := types.eq.rfl
+inductive squash (α : Sort u) : Prop
+| elem : α → squash
+def squash.uniq {α : Sort u} (a b : squash α) : a = b :> squash α :=
+types.eq.rfl
 
 def K (α : Sort u) :=
 Π (a : α) (p : a = a :> α), p = types.eq.refl a :> a = a :> α

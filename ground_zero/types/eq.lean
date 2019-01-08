@@ -1,7 +1,6 @@
 import ground_zero.proto ground_zero.meta.hott_theory
 
 namespace ground_zero.types
-
 universes u v
 
 theorem K {α : Sort u} {a b : α} (p q : a = b) : p = q :=
@@ -9,6 +8,7 @@ by trivial
 
 inductive eq {α : Sort u} (a : α) : α → Sort u
 | refl : eq a
+
 attribute [refl] eq.refl
 
 hott theory
@@ -78,6 +78,14 @@ namespace eq
     (f : α → β) (p : a = b :> α) : f a = f b :> β :=
   begin induction p, reflexivity end
   infix [parsing_only] ` # ` := map
+
+  section
+    variables {α : Sort u} {β : Sort v} {a b : α}
+              (f : α → β) (p : a = b :> α)
+
+    abbreviation cong := map f p
+    abbreviation ap := map f p
+  end
 
   def ap₂ {α : Sort u} {β : Sort v} {a b : α}
     {p q : a = b :> α} (f : α → β)

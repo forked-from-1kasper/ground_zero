@@ -195,6 +195,14 @@ namespace equiv
     {a b : α} {p : a = b :> α} {u : β a} {v : β b}
     (q : u =[p] v) : subst p u = v :> β b :=
   begin induction q, reflexivity end
+
+  def pathover_from_trans {α : Sort u} {a b c : α}
+    (p : b = c :> α) (q : a = b :> α) (r : a = c :> α) :
+    (q ⬝ p = r) → (q =[p] r) := begin
+    intro h, induction h,
+    apply path_over_subst,
+    apply transport_composition
+  end
 end equiv
 
 def {u v} is_qinv {α : Sort u} {β : Sort v} (f : α → β) (g : β → α) :=

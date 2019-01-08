@@ -1,6 +1,8 @@
 import ground_zero.HITs.colimit ground_zero.HITs.generalized
 import ground_zero.structures
-open ground_zero.types.equiv (subst path_over_subst apd)
+open ground_zero.support (renaming truncation -> hint)
+open ground_zero.types.equiv (subst path_over_subst apd pathover_from_trans)
+open ground_zero.types.eq (cong)
 open ground_zero.structures (prop contr lem_contr)
 
 namespace ground_zero.HITs
@@ -50,25 +52,54 @@ namespace truncation
     apply ground_zero.types.eq.map, apply generalized.glue
   end
 
-  /-
+  abbreviation incl {α : Sort u} (n : ℕ) :=
+  @colimit.incl (generalized.repeat α) (generalized.dep α) n
+
+  def exact_nth {α : Sort u} (a : α) : Π n, generalized.repeat α n
+  | 0 := a
+  | (n + 1) := generalized.dep α n (exact_nth n)
+
+  def nth_glue {α : Sort u} (a : α) : Π n,
+    incl n (exact_nth a n) = incl 0 a
+  | 0 := by reflexivity
+  | (n + 1) := colimit.glue (exact_nth a n) ⬝ nth_glue n
+
+  def incl_zero_eq_incl {α : Sort u} {n : ℕ} (x : α)
+    (y : generalized.repeat α n) : incl 0 x = incl n y :=
+  calc incl 0 x = incl n (exact_nth x n) : (nth_glue x n)⁻¹
+            ... = incl (n + 1) (generalized.dep α n _) : (colimit.glue _)⁻¹
+            ... = incl (n + 1) (generalized.dep α n y)
+                : incl (n + 1) # (generalized.glue _ y)
+            ... = incl n y : colimit.glue y
+
   def uniq {α : Sort u} : prop ∥α∥ := begin
     apply lem_contr, fapply ind,
-    { intro x, existsi elem x, fapply ind; intro y,
-      { apply weak_uniq },
-      { refine ind _ _ y; clear y; intro y,
-        { apply ground_zero.structures.contr_impl_prop,
-          existsi weak_uniq x y, intro p,
-          unfold weak_uniq, unfold elem at p,
-          apply ground_zero.types.equiv.rewrite_comp,
-          transitivity, apply ground_zero.types.eq.explode_inv,
-          transitivity, apply ground_zero.types.eq.map,
-          apply ground_zero.types.eq.inv_inv,
-          apply ground_zero.types.equiv.rewrite_comp,
-          admit },
-        { apply ground_zero.structures.prop_is_prop } } },
+    { intro x, existsi elem x, fapply colimit.ind; intros n y,
+      { apply incl_zero_eq_incl },
+      { simp, unfold incl_zero_eq_incl, unfold nth_glue,
+        admit } },
     { intro x, apply ground_zero.structures.contr_is_prop }
   end
-  -/
+
+  def lift {α β : Type u} (f : α → β) : ∥α∥ → ∥β∥ :=
+  rec uniq (elem ∘ f)
+
+  theorem equiv_iff_trunc {α β : Type u}
+    (f : α → β) (g : β → α) : ∥α∥ ≃ ∥β∥ := begin
+    existsi lift f, split; existsi lift g;
+    { intro x, apply uniq }
+  end
+
+  def double {α : Type u} (a : α) : α × α := ⟨a, a⟩
+  theorem product_identity {α : Type u} :
+    ∥α∥ ≃ ∥α × α∥ := begin
+    apply equiv_iff_trunc, exact double,
+    intro x, cases x with u v, exact u
+  end
+
+  def uninhabited_implies_trunc_uninhabited {α : Sort u}
+    (p : α → empty) : ∥α∥ → empty :=
+  rec ground_zero.structures.empty_is_prop p
 end truncation
 
 end ground_zero.HITs

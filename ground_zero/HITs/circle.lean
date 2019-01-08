@@ -236,12 +236,23 @@ namespace sphere
   (λ p, suspension.merid p ⬝ loop⁻¹) # circle.loop
 
   abbreviation base : S² := suspension.north
-  def surf : types.eq.refl base = types.eq.refl base :=
+  def surf : idp base = idp base :=
   (types.eq.comp_inv loop)⁻¹ ⬝ surf_trans ⬝ (types.eq.comp_inv loop)
 
   def rec {β : Type u} (b : β) (s : idp b = idp b) : S² → β :=
   suspension.rec b b (circle.rec (idp b) s)
 end sphere
+
+namespace glome
+  notation `S³` := ncircle.S 3
+
+  abbreviation base₁ : S³ := suspension.north
+  abbreviation base₂ : S³ := suspension.south
+
+  def loop : base₁ = base₂ := suspension.merid sphere.base
+
+  abbreviation base : S³ := suspension.north
+end glome
 
 def torus := S¹ × S¹
 notation `T²` := torus
