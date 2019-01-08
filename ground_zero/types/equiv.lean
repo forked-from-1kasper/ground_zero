@@ -198,7 +198,7 @@ namespace equiv
 
   def pathover_from_trans {α : Sort u} {a b c : α}
     (p : b = c :> α) (q : a = b :> α) (r : a = c :> α) :
-    (q ⬝ p = r) → (q =[p] r) := begin
+    (q ⬝ p = r :> a = c :> α) → (q =[p] r) := begin
     intro h, induction h,
     apply path_over_subst,
     apply transport_composition

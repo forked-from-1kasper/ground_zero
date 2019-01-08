@@ -52,32 +52,80 @@ namespace truncation
     apply ground_zero.types.eq.map, apply generalized.glue
   end
 
-  abbreviation incl {α : Sort u} (n : ℕ) :=
+  abbreviation incl {α : Sort u} {n : ℕ} :=
   @colimit.incl (generalized.repeat α) (generalized.dep α) n
+
+  abbreviation glue {α : Sort u} {n : ℕ} {x : generalized.repeat α n} :
+    incl (generalized.dep α n x) = incl x :=
+  colimit.glue x
 
   def exact_nth {α : Sort u} (a : α) : Π n, generalized.repeat α n
   | 0 := a
   | (n + 1) := generalized.dep α n (exact_nth n)
 
   def nth_glue {α : Sort u} (a : α) : Π n,
-    incl n (exact_nth a n) = incl 0 a
+    incl (exact_nth a n) = @incl α 0 a
   | 0 := by reflexivity
   | (n + 1) := colimit.glue (exact_nth a n) ⬝ nth_glue n
 
+  def incl_uniq {α : Sort u} {n : ℕ} (a b : generalized.repeat α n) :
+    incl a = incl b :=
+  calc incl a = incl (generalized.dep α n a) : glue⁻¹
+          ... = incl (generalized.dep α n b) : incl # (generalized.glue a b)
+          ... = incl b : glue
+
   def incl_zero_eq_incl {α : Sort u} {n : ℕ} (x : α)
-    (y : generalized.repeat α n) : incl 0 x = incl n y :=
-  calc incl 0 x = incl n (exact_nth x n) : (nth_glue x n)⁻¹
-            ... = incl (n + 1) (generalized.dep α n _) : (colimit.glue _)⁻¹
-            ... = incl (n + 1) (generalized.dep α n y)
-                : incl (n + 1) # (generalized.glue _ y)
-            ... = incl n y : colimit.glue y
+    (y : generalized.repeat α n) : @incl α 0 x = incl y :=
+  calc @incl α 0 x = incl (exact_nth x n) : (nth_glue x n)⁻¹
+               ... = incl y : incl_uniq (exact_nth x n) y
+
+  def weakly_constant_ap {α : Sort u} {β : Sort v} (f : α → β)
+    {a b : α} (p q : a = b) (H : Π (a b : α), f a = f b) : f # p = f # q :=
+  let L : Π {u v : α} {r : u = v}, (H a u)⁻¹ ⬝ H a v = f # r :=
+  begin intros, induction r, apply ground_zero.types.eq.inv_comp end in
+  L⁻¹ ⬝ L
+
+  def cong_close {α : Sort u} {n : ℕ} {a b : generalized.repeat α n} (p : a = b) :
+    glue⁻¹ ⬝ incl # (generalized.dep α n # p) ⬝ glue = incl # p := begin
+    induction p,
+    rw ←hint (ground_zero.types.eq.assoc _ _ _),
+    apply ground_zero.types.equiv.rewrite_comp, symmetry,
+    apply ground_zero.types.eq.refl_right
+  end
+
+  def cong_over_path {α : Sort u} {n : ℕ} {a b : generalized.repeat α n}
+    (p q : a = b) : incl # p = incl # q :=
+  weakly_constant_ap incl p q incl_uniq
+
+  def glue_close {α : Sort u} {n : ℕ} {a b : generalized.repeat α n} :
+    glue⁻¹ ⬝ incl # (generalized.glue (generalized.dep α n a)
+                                      (generalized.dep α n b)) ⬝ glue =
+    incl # (generalized.glue a b) := begin
+    symmetry, transitivity,
+    { symmetry, exact cong_close (generalized.glue a b) },
+    apply cong (λ p, p ⬝ glue), apply cong,
+    apply cong_over_path
+  end
+
+  def incl_uniq_close {α : Sort u} {n : ℕ} (a b : generalized.repeat α n) :
+    glue⁻¹ ⬝ incl_uniq (generalized.dep α n a) (generalized.dep α n b) ⬝ glue =
+    incl_uniq a b := begin
+    unfold incl_uniq, apply cong (λ p, p ⬝ glue), apply cong,
+    apply glue_close
+  end
 
   def uniq {α : Sort u} : prop ∥α∥ := begin
     apply lem_contr, fapply ind,
     { intro x, existsi elem x, fapply colimit.ind; intros n y,
       { apply incl_zero_eq_incl },
       { simp, unfold incl_zero_eq_incl, unfold nth_glue,
-        admit } },
+        apply pathover_from_trans,
+        symmetry, transitivity,
+        { symmetry, apply cong, apply incl_uniq_close },
+        rw hint (ground_zero.types.eq.explode_inv _ _),
+        repeat { rw ←hint (ground_zero.types.eq.assoc _ _ _) },
+        apply cong (λ p, (nth_glue x n)⁻¹ ⬝ p),
+        unfold incl_uniq, trivial } },
     { intro x, apply ground_zero.structures.contr_is_prop }
   end
 
