@@ -33,7 +33,7 @@ def coe_inv (i k : I) (π : I → Sort u) : π i → π k :=
 coe.back (λ i, π i → π k) i (coe.back π k)
 
 @[refl] def refl {α : Sort u} (a : α) : a ⇝ a := <i> a
-@[refl] def rfl {α : Sort u} {a : α} : a ⇝ a := <i> a
+def rfl {α : Sort u} {a : α} : a ⇝ a := <i> a
 
 @[symm] def symm {α : Sort u} {a b : α} (p : a ⇝ b) : b ⇝ a :=
 <i> p # −i

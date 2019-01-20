@@ -6,7 +6,7 @@ open ground_zero.HITs.trunc ground_zero.structures
   Proof of functional extensionality from it.
   * HoTT 6.3
 
-  It is defined as the propositional truncation of bool.
+  It is defined as the propositional trunc of bool.
   * HoTT, chapter 6, exercise 6.13
 -/
 
@@ -75,13 +75,15 @@ namespace interval
   rec (f x) (g x) (p x)
 
   def funext {α : Sort u} {β : Sort v} {f g : α → β}
-    (p : f ~ g) : f = g :> (α → β) :=
-  function.swap (homotopy p) # seg
+    (p : f ~ g) : f = g :> α → β :=
+  let lem := function.swap (homotopy p)
+  in lem # seg
 
   def dfunext {α : Sort u} {β : α → Sort v}
-    {f g : Π (x : α), β x}
-    (p : f ~ g) : f = g :> _ :=
-  (λ i x, rec (f x) (g x) (p x) i) # seg
+    {f g : Π x, β x}
+    (p : f ~ g) : f = g :> Π x, β x :=
+  let lem := λ i x, rec (f x) (g x) (p x) i
+  in lem # seg
 
   def homotopy_from_path {α : Sort u} {β : α → Sort v}
     {f g : Π (x : α), β x} (p : f = g :> _) : f ~ g :=

@@ -16,6 +16,7 @@ universes u v
 
   * https://github.com/fpvandoorn/leansnippets/blob/master/truncation.hlean
   * https://github.com/fpvandoorn/leansnippets/blob/master/cpp.hlean
+    (we use this proof here)
   * https://homotopytypetheory.org/2015/07/28/constructing-the-propositional-truncation-using-nonrecursive-hits/
   * https://homotopytypetheory.org/2016/01/08/colimits-in-hott/
 -/
@@ -36,7 +37,7 @@ namespace truncation
       { apply elemπ },
       { refine generalized.ind _ _ x,
         { clear x, intro x,
-          apply subst (colimit.glue x)⁻¹ (ih x), },
+          apply subst (colimit.glue x)⁻¹ (ih x) },
         { intros, apply path_over_subst,
           apply uniqπ } } },
     { intros, apply path_over_subst, apply uniqπ }

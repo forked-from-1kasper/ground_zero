@@ -30,7 +30,7 @@ end
 
 lemma prop_equiv {π : Type u} (h : prop π) : π ≃ ∥π∥ := begin
   existsi HITs.trunc.elem,
-  split; existsi (HITs.trunc.extract h); intro x,
+  split; existsi (HITs.trunc.rec h id); intro x,
   { reflexivity },
   { apply HITs.trunc.uniq }
 end

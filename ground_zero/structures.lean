@@ -139,7 +139,6 @@ begin induction t, simp end
 def signl_contr {α : Sort u} (a : α) : structures.contr (singl a) :=
 { point := trivial_loop a,
   intro := λ t, path_from_trivial_loop t.intro ⬝ singl.eq t }
-
 end singl
 
 end ground_zero
