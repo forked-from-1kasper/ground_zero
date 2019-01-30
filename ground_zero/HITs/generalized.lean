@@ -1,4 +1,5 @@
 import ground_zero.types.heq
+open ground_zero.types.dep_path (pathover_of_eq)
 
 namespace ground_zero.HITs
 universes u v
@@ -29,6 +30,11 @@ namespace generalized
       fapply ground_zero.types.heq.from_pathover,
       apply glue, apply glue₁ }
   end
+
+  def rec {α : Sort u} {π : Sort v}
+    (incl₁ : α → π) (glue₁ : Π (a b : α), incl₁ a = incl₁ b :> π) :
+    {α} → π :=
+  ind incl₁ (λ a b, pathover_of_eq (glue a b) (glue₁ a b))
 
   def repeat (α : Sort u) : ℕ → Sort u
   | 0 := α

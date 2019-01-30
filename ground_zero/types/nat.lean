@@ -1,11 +1,11 @@
-import ground_zero.types.coproduct
+import ground_zero.types.coproduct ground_zero.HITs.colimit
 open ground_zero.types
 
 namespace ground_zero.types.nat
 
 universes u v w
 
-def code : ℕ → ℕ + unit
+def encode : ℕ → ℕ + unit
 | nat.zero := coproduct.inr unit.star
 | (nat.succ n) := coproduct.inl n
 
@@ -14,13 +14,13 @@ def decode : ℕ + unit → ℕ
 | (coproduct.inl n) := nat.succ n
 
 theorem closed_nat : ℕ ≃ ℕ + unit := begin
-  existsi code, split; existsi decode,
+  existsi encode, split; existsi decode,
   { intro n, induction n with n ih,
-    { simp [decode, code] },
-    { simp at ih, simp, simp [code, decode] } },
+    { simp [decode, encode] },
+    { simp at ih, simp, simp [encode, decode] } },
   { intro n, simp, induction n,
-    { simp [decode, code] },
-    { induction n, simp [code, decode] } }
+    { simp [decode, encode] },
+    { induction n, simp [encode, decode] } }
 end
 
 theorem equiv_addition {α : Type u} {β : Type v} (γ : Type w)
@@ -59,17 +59,29 @@ example : ℕ ≃ ℕ + unit + unit := begin
   apply equiv_addition, exact closed_nat
 end
 
-def iterated_nat : ℕ → Type
-| 0 := ℕ
-| (nat.succ n) := coproduct (iterated_nat n) unit
+def drop (α : Type) : ℕ → Type
+| 0 := α
+| (nat.succ n) := coproduct (drop n) unit
 
-theorem nat_plus_unit (n : ℕ) : ℕ ≃ iterated_nat n := begin
+theorem nat_plus_unit (n : ℕ) : ℕ ≃ drop ℕ n := begin
   induction n with n ih,
   { reflexivity },
-  { simp [iterated_nat],
-    have H := equiv_addition unit ih,
-    symmetry, transitivity, exact equiv.symm H,
-    symmetry, exact closed_nat }
+  { transitivity,
+    exact closed_nat,
+    apply equiv_addition unit ih }
 end
+
+abbreviation lift_unit (n : ℕ) : drop unit n → drop unit (n + 1) :=
+coproduct.inl
+
+def lift_to_top (x : unit) : Π (n : ℕ), drop unit n
+| 0 := x
+| (n + 1) := coproduct.inl (lift_to_top n)
+
+def iterated := ground_zero.HITs.colimit (drop unit) lift_unit
+
+def iterated.encode : ℕ → iterated
+| 0 := ground_zero.HITs.colimit.inclusion 0 unit.star
+| (n + 1) := ground_zero.HITs.colimit.inclusion (n + 1) (coproduct.inr unit.star)
 
 end ground_zero.types.nat

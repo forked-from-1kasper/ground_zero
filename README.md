@@ -10,7 +10,7 @@ There are many basic—not defined in terms of another Higher Inductive Type
 
 Other HITs:
 
-* Interval `I` is defined as a propositionally truncated bool.
+* Interval `I` is defined as a generalized circle of bool `{𝟐}` (also it can be a propositionally truncated bool, but with generalized circle we can get a more simpler terms).
 * Suspension `∑α` is defined as the pushout of the span **1** ← α → **1**.
 * Circle `S¹` is the suspension of the `bool`.
 * Sphere `S²` is the suspension of the circle.

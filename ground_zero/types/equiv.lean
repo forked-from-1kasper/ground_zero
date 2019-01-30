@@ -200,8 +200,7 @@ namespace equiv
     (p : b = c :> α) (q : a = b :> α) (r : a = c :> α) :
     (q ⬝ p = r :> a = c :> α) → (q =[p] r) := begin
     intro h, induction h,
-    apply path_over_subst,
-    apply transport_composition
+    apply path_over_subst, apply transport_composition
   end
 end equiv
 

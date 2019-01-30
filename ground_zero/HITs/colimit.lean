@@ -1,4 +1,5 @@
 import ground_zero.types.heq
+open ground_zero.types.dep_path (pathover_of_eq)
 
 namespace ground_zero.HITs
 universes u v
@@ -39,6 +40,11 @@ namespace colimit
       fapply ground_zero.types.heq.from_pathover,
       apply glue, apply glue₁ }
   end
+
+  def rec {π : Sort v} (incl₁ : Π {n : ℕ} (x : α n), π)
+    (glue₁ : Π {n : ℕ} (x : α n), incl₁ (f n x) = incl₁ x :> π) :
+    colimit α f → π :=
+  ind @incl₁ (λ n x, pathover_of_eq (glue x) (glue₁ x))
 end colimit
 
 end ground_zero.HITs

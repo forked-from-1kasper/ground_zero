@@ -1,4 +1,4 @@
-import ground_zero.HITs.interval
+import ground_zero.HITs.interval ground_zero.HITs.truncation
 open ground_zero.structures (prop hset prop_is_set)
 open ground_zero.types.equiv (transport transport_composition)
 open ground_zero.types
@@ -17,8 +17,8 @@ lemma product_prop {α : Sort u} {β : Sort v}
 end
 
 lemma uniq_does_not_add_new_paths {α : Sort u} (a b : ∥α∥) (p : a = b :> ∥α∥) :
-  HITs.trunc.uniq a b = p :> a = b :> ∥α∥ :=
-prop_is_set HITs.trunc.uniq (HITs.trunc.uniq a b) p
+  HITs.truncation.uniq a b = p :> a = b :> ∥α∥ :=
+prop_is_set HITs.truncation.uniq (HITs.truncation.uniq a b) p
 
 lemma prop_is_prop {α : Sort u} : prop (prop α) := begin
   intros f g,
@@ -29,10 +29,10 @@ lemma prop_is_prop {α : Sort u} : prop (prop α) := begin
 end
 
 lemma prop_equiv {π : Type u} (h : prop π) : π ≃ ∥π∥ := begin
-  existsi HITs.trunc.elem,
-  split; existsi (HITs.trunc.rec h id); intro x,
+  existsi HITs.truncation.elem,
+  split; existsi (HITs.truncation.rec h id); intro x,
   { reflexivity },
-  { apply HITs.trunc.uniq }
+  { apply HITs.truncation.uniq }
 end
 
 lemma prop_from_equiv {π : Type u} (e : π ≃ ∥π∥) : prop π := begin
@@ -41,7 +41,7 @@ lemma prop_from_equiv {π : Type u} (e : π ≃ ∥π∥) : prop π := begin
   intros a b,
   transitivity, exact (α a)⁻¹,
   symmetry, transitivity, exact (α b)⁻¹,
-  apply eq.map g, exact HITs.trunc.uniq (f b) (f a)
+  apply eq.map g, exact HITs.truncation.uniq (f b) (f a)
 end
 
 theorem prop_exercise (π : Type u) : (prop π) ≃ (π ≃ ∥π∥) :=

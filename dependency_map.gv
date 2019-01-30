@@ -39,13 +39,14 @@ digraph dependency_map {
 
   "types/heq" -> "HITs/int"
 
-  "HITs/trunc" -> "HITs/interval"
+  "structures" -> "HITs/interval"
+  "HITs/generalized" -> "HITs/interval"
 
   "HITs/pushout" -> "HITs/join"
 
   "cubical/Path" -> "HITs/moebius"
 
-  "HITs/trunc" -> "theorems/mere_eq_lemma"
+  "HITs/truncation" -> "theorems/mere_eq_lemma"
 
   "theorems/topology"
 
@@ -55,6 +56,7 @@ digraph dependency_map {
   "HITs/interval" -> "types/product"
 
   "HITs/interval" -> "theorems/prop"
+  "HITs/truncation" -> "theorems/prop"
 
   "types/heq" -> "HITs/pushout"
 

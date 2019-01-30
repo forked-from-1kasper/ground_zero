@@ -29,6 +29,8 @@ namespace truncation
   def elem {α : Sort u} (x : α) : ∥α∥ :=
   colimit.inclusion 0 x
 
+  notation `|` a `|` := elem a
+
   def ind {α : Sort u} {π : ∥α∥ → Sort v}
     (elemπ : Π x, π (elem x))
     (uniqπ : Π x, prop (π x)) : Π x, π x := begin
@@ -150,5 +152,11 @@ namespace truncation
     (p : α → empty) : ∥α∥ → empty :=
   rec ground_zero.structures.empty_is_prop p
 end truncation
+
+def surj {α : Sort u} {β : Sort v} (f : α → β) :=
+Π (b : β), ∥ground_zero.types.fib f b∥
+
+def embedding {α : Sort u} {β : Sort v} (f : α → β) :=
+Π (x y : α), ground_zero.types.equiv.biinv (λ (p : x = y), f # p)
 
 end ground_zero.HITs
