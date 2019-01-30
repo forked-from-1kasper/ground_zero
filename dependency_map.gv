@@ -73,9 +73,6 @@ digraph dependency_map {
   "HITs/pushout" -> "HITs/suspension"
   "types/unit" -> "HITs/suspension"
 
-  structures -> "HITs/trunc"
-  "types/heq" -> "HITs/trunc"
-
   structures -> "HITs/truncation"
   "HITs/colimit" -> "HITs/truncation"
   "HITs/generalized" -> "HITs/truncation"
