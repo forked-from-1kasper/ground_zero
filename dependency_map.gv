@@ -65,6 +65,8 @@ digraph dependency_map {
   "HITs/pushout" -> "HITs/reals"
   "types/integers" -> "HITs/reals"
 
+  "HITs/truncation" -> "HITs/simplicial"
+
   "types/unit" -> structures
   "types/coproduct" -> structures
 
