@@ -1,5 +1,5 @@
 import ground_zero.HITs.interval ground_zero.HITs.truncation
-open ground_zero.structures (prop hset prop_is_set)
+open ground_zero.structures (prop contr hset prop_is_set)
 open ground_zero.types.equiv (transport transport_composition)
 open ground_zero.types
 
@@ -8,12 +8,26 @@ namespace theorems.prop
 
 universes u v w
 
-lemma product_prop {α : Sort u} {β : Sort v}
+def product_prop {α : Sort u} {β : Sort v}
   (h : prop α) (g : prop β) : prop (α × β) := begin
   intros a b,
   cases a with x y, cases b with u v,
   have p := h x u, have q := g y v,
   induction p, induction q, reflexivity
+end
+
+def prop_equiv_lemma {α : Sort u} {β : Sort v}
+  (F : prop α) (G : prop β) (f : α → β) (g : β → α) : α ≃ β :=
+begin
+  existsi f, split; existsi g,
+  { intro x, apply F }, { intro y, apply G }
+end
+
+def contr_equiv_unit {α : Sort u} (h : contr α) : α ≃ types.unit := begin
+  existsi (λ _, types.unit.star), split;
+  existsi (λ _, h.point),
+  { intro x, apply h.intro },
+  { intro x, cases x, reflexivity }
 end
 
 lemma uniq_does_not_add_new_paths {α : Sort u} (a b : ∥α∥) (p : a = b :> ∥α∥) :
