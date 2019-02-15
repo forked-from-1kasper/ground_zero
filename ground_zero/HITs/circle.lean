@@ -219,9 +219,15 @@ namespace circle
 end circle
 
 namespace ncircle
-  def S : ℕ → Sort _
+  def S : ℕ → Type
   | 0 := S⁰
   | (n + 1) := ∑(S n)
+
+  def lift : Π n, S n → S (n + 1)
+  | 0 ff := suspension.north
+  | 0 tt := suspension.south
+  | (n + 1) x := suspension.rec suspension.north suspension.south
+                               (λ _, suspension.merid x) x
 end ncircle
 
 namespace sphere

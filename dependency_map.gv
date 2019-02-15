@@ -40,7 +40,7 @@ digraph dependency_map {
   "types/heq" -> "HITs/int"
 
   "structures" -> "HITs/interval"
-  "HITs/generalized" -> "HITs/interval"
+  "types/heq" -> "HITs/interval"
 
   "HITs/pushout" -> "HITs/join"
 

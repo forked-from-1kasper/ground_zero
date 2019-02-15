@@ -1,5 +1,5 @@
-import ground_zero.HITs.generalized ground_zero.structures
-open ground_zero.HITs ground_zero.structures
+import ground_zero.structures ground_zero.types.heq
+open ground_zero.structures
 
 hott theory
 
@@ -8,7 +8,7 @@ hott theory
   Proof of functional extensionality from it.
   * HoTT 6.3
 
-  It is defined as the propositional trunc of bool.
+  It is primitive HIT.
   * HoTT, chapter 6, exercise 6.13
 -/
 
@@ -17,19 +17,21 @@ namespace HITs
 
 notation [parsing_only] `𝟐` := bool
 
-def I := {𝟐}
+inductive I.rel : bool → bool → Prop
+| mk (a b : bool) : I.rel a b
+
+def I : Type := quot I.rel
 abbreviation interval := I
 
 namespace interval
   universes u v
 
-  def i₀ : I := generalized.incl ff
-  def i₁ : I := generalized.incl tt
+  def discrete : bool → I := quot.mk rel
+  def i₀ : I := discrete ff
+  def i₁ : I := discrete tt
 
-  def seg : i₀ = i₁ := generalized.glue ff tt
-  def seg_inv : i₁ = i₀ := generalized.glue tt ff
-
-  def discrete : bool → I := generalized.incl
+  def seg : i₀ = i₁ := support.inclusion $ quot.sound (rel.mk ff tt)
+  def seg_inv : i₁ = i₀ := support.inclusion $ quot.sound (rel.mk tt ff)
 
   instance : has_zero I := ⟨i₀⟩
   instance : has_one I := ⟨i₁⟩
@@ -40,36 +42,29 @@ namespace interval
   abbreviation zero := i₀
   abbreviation one := i₁
 
-  @[inline, recursor 4]
-  def rec {β : Sort u} (b₀ : β) (b₁ : β)
-    (s : b₀ = b₁ :> β) : I → β :=
-  let f (b : bool) : singl b₀ :=
-    bool.rec (singl.trivial_loop b₀) ⟨b₁, s⟩ b in
-  singl.point ∘ generalized.rec f (begin intros, apply singl.singl_prop end)
-
-  def lift {β : Sort u} (f : bool → β) (H : prop β) : I → β :=
-  generalized.rec f (begin intros, apply H end)
-
   /- β i₀ and β i₁ are Prop’s,
      so s : b₀ = b₁ is trivial -/
   def prop_rec {β : I → Prop} (b₀ : β i₀) (b₁ : β i₁) :
     Π (x : I), β x := begin
-    intros, refine quot.ind _ x, intros,
-    induction a, apply b₀, apply b₁
+    intros, refine quot.ind _ x, intro b,
+    cases b, exact b₀, exact b₁
   end
 
   def hrec (β : I → Sort u)
     (b₀ : β 0) (b₁ : β 1) (s : b₀ == b₁)
-    (x : I) : β x :=
-  quot.hrec_on x
-    (λ i, bool.rec_on i b₀ b₁)
-    (λ a b _,
-      begin simp, induction a; induction b; simp,
-            apply s, symmetry, apply s end)
+    (x : I) : β x := begin
+    fapply quot.hrec_on x,
+    { intro b, cases b, exact b₀, exact b₁ },
+    { intros a b R, cases a; cases b,
+      { trivial },
+      { exact s },
+      { symmetry, exact s },
+      { trivial } }
+  end
 
   def ind {π : I → Sort u} (b₀ : π i₀) (b₁ : π i₁)
     (s : b₀ =[seg] b₁) (x : I) : π x := begin
-    refine quot.hrec_on x _ _,
+    fapply quot.hrec_on x,
     { intro b, cases b, exact b₀, exact b₁ },
     { intros,
       cases a; cases b,
@@ -79,6 +74,14 @@ namespace interval
         apply types.heq.from_pathover, exact s },
       { reflexivity } }
   end
+
+  @[inline, recursor 4]
+  def rec {β : Sort u} (b₀ : β) (b₁ : β)
+    (s : b₀ = b₁ :> β) : I → β :=
+  ind b₀ b₁ (types.dep_path.pathover_of_eq seg s)
+
+  def lift {β : Sort u} (f : bool → β) (H : prop β) : I → β :=
+  begin fapply rec, exact f ff, exact f tt, apply H end
 
   def interval_contr : contr I := begin
     existsi i₁,

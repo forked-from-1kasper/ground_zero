@@ -6,14 +6,26 @@
 
 [All of the HITs in the library](https://github.com/groupoid/lean/tree/master/ground_zero/HITs) constructed using [quotients](https://leanprover.github.io/theorem_proving_in_lean/axioms_and_computation.html#quotients). Quotients in Lean have good computational properties (`quot.ind` computes), so we can define HITs with them without any other changes in Lean’s kernel.
 
-There are many basic—not defined in terms of another Higher Inductive Type—HITs: truncations, pushout, homotopical reals.
+There are many basic—not defined in terms of another Higher Inductive Type—HITs:
 
-Other HITs:
+* Interval `I`.
+* Pushout.
+* Homotopical reals `R`.
+* (Sequential) colimit.
+* Generalized cicle `{α}`.
+* Integer `ℤ`.
+* Rational numbers `ℚ`.
+* Möbius band.
+* n-Simplex.
 
-* Interval `I` is defined as a generalized circle of bool `{𝟐}` (also it can be a propositionally truncated bool, but with generalized circle we can get a simpler terms).
+Other (defined in terms of another HITs) HITs:
+
+* Propositional truncation is colimit of a following sequence: `α → {α} → {{α}} → ...`.
 * Suspension `∑α` is defined as the pushout of the span `𝟏 ← α → 𝟏`.
 * Circle `S¹` is the suspension of the bool `𝟐`.
 * Sphere `S²` is the suspension of the circle `S¹`.
+* Join.
+* Filled n-simplex.
 
 ## Cubical Type Theory ([cubical/](https://github.com/groupoid/lean/blob/master/ground_zero/cubical/path.lean) directory)
 

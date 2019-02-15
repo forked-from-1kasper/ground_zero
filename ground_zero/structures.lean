@@ -14,6 +14,7 @@ def hset (α : Sort u) :=
 
 structure contr (α : Sort u) :=
 (point : α) (intro : Π (a : α), point = a :> α)
+--  or we can write `idfun ~ λ _, point`
 
 def LEM := Π (α : Type u), prop α → (α + ¬α)
 def law_of_double_negation :=
