@@ -68,7 +68,6 @@ def bool_to_universe : bool → Type
 | tt := types.unit
 | ff := empty
 
-
 theorem ff_neq_tt (h : ff = tt) : empty :=
 @ground_zero.types.eq.rec
   bool tt (λ b _, bool_to_universe b)
