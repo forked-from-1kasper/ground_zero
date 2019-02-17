@@ -61,14 +61,14 @@ structure tetrad (α : Sort u) (β : Sort v) (γ : Sort r) (δ : Sort w) :=
 
 /-
 https://github.com/RedPRL/redtt/blob/master/library/prelude/path.red#L13
-           u
-      a₀ -----> a₁
-      |         |
-   r­₀ |         | r₁
-      |         |
-      V         V
-      b₀ -----> b₁
-           v
+       <i> n i
+    n 0 -----> n 1
+     ^          ^
+     |          |
+   o |          | p
+     |          |
+    m 0 -----> m 1
+       <i> m i
 -/
 def Square {α : Sort u} (m n : I → α)
   (o : m 0 ⇝ n 0) (p : m 1 ⇝ n 1) :=
