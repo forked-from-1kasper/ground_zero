@@ -50,7 +50,7 @@ end
 
 prefix ⁻¹ := group.inv
 
-def homotopy_group (X : pointed) (n : ℕ) := ∥Ω[n], X∥₀
-notation `π[` n `]` `, ` X := homotopy_group X n
+--def homotopy_group (X : pointed) (n : ℕ) := ∥Ω[n], X∥₀
+--notation `π[` n `]` `, ` X := homotopy_group X n
 
 end ground_zero.algebra
