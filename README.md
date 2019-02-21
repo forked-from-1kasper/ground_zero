@@ -8,22 +8,24 @@
 
 There are many basic—not defined in terms of another Higher Inductive Type—HITs:
 
-* Interval `I`.
+* Interval I.
 * Pushout.
-* Homotopical reals `R`.
+* Homotopical reals R.
 * (Sequential) colimit.
-* Generalized cicle `{α}`.
-* Integer `ℤ`.
-* Rational numbers `ℚ`.
+* Generalized circle {α}.
+* Integers ℤ.
+* Rational numbers ℚ.
 * Möbius band.
 * n-Simplex.
 
 Other (defined in terms of another HITs) HITs:
 
-* Propositional truncation is colimit of a following sequence: `α → {α} → {{α}} → ...`.
-* Suspension `∑α` is defined as the pushout of the span `𝟏 ← α → 𝟏`.
-* Circle `S¹` is the suspension of the bool `𝟐`.
-* Sphere `S²` is the suspension of the circle `S¹`.
+* Propositional truncation is colimit of a following sequence:
+
+  α → {α} → {{α}} → ...
+* Suspension ∑α is defined as the pushout of the span 𝟏 ← α → 𝟏.
+* Circle S¹ is the suspension of the bool 𝟐.
+* Sphere S² is the suspension of the circle S¹.
 * Join.
 * Filled n-simplex.
 
@@ -46,7 +48,7 @@ But if we define paths as `I → α`, then we can use a nice syntax for paths 
 
 def funext {α : Sort u} {β : α → Sort v} {f g : Π (x : α), β x}
   (p : Π (x : α), f x ⇝ g x) : f ⇝ g :=
-<i> λ x, (p x) # i
+<i> λ x, p x # i
 ```
 
 The same in cubicaltt:

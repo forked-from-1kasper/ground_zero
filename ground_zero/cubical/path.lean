@@ -32,6 +32,8 @@ coe.forward (λ i, π i → π k) i (coe.forward π k)
 def coe_inv (i k : I) (π : I → Sort u) : π i → π k :=
 coe.back (λ i, π i → π k) i (coe.back π k)
 
+notation `coe⁻¹` := coe_inv
+
 @[refl] def refl {α : Sort u} (a : α) : a ⇝ a := <i> a
 def rfl {α : Sort u} {a : α} : a ⇝ a := <i> a
 
@@ -46,7 +48,7 @@ coe 1 0 (λ i, b ⇝ p # i) rfl
 
 def funext {α : Sort u} {β : α → Sort v} {f g : Π (x : α), β x}
   (p : Π (x : α), f x ⇝ g x) : f ⇝ g :=
-<i> λ x, (p x) # i
+<i> λ x, p x # i
 
 def cong {α : Sort u} {β : Sort v} {a b : α}
   (f : α → β) (p : a ⇝ b) : f a ⇝ f b :=
