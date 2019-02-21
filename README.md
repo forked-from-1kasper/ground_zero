@@ -21,6 +21,7 @@ There are many basic—not defined in terms of another Higher Inductive Type
 Other (defined in terms of another HITs) HITs:
 
 * Propositional truncation is colimit of a following sequence:
+  
   ![α → {α} → {{α}} → ...](pictures/prop_truncation_seq_colimit.svg)
 * Suspension ![∑α](pictures/susp.svg) is defined as the pushout of the span ![𝟏 ← α → 𝟏](pictures/susp_span.svg).
 * Circle ![S¹](pictures/s1.svg) is the suspension of the bool ![𝟐](pictures/bool.svg).
