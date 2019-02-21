@@ -8,24 +8,24 @@
 
 There are many basic—not defined in terms of another Higher Inductive Type—HITs:
 
-* Interval ![I](pictures/interval.png).
-* Pushout.
-* Homotopical reals ![R](pictures/reals.png).
+* Interval ![I](pictures/interval.svg).
+* Pushout ![pushout](pictures/pushout.svg).
+* Homotopical reals ![R](pictures/reals.svg).
 * (Sequential) colimit.
-* Generalized circle ![{α}](pictures/gen_circle.png).
-* Integers ℤ.
-* Rational numbers ℚ.
+* Generalized circle ![{α}](pictures/gen_circle.svg).
+* Integers ![ℤ](pictures/integer.svg).
+* Rational numbers ![ℚ](pictures/rat.svg).
 * Möbius band.
-* n-Simplex.
+* n-Simplex ![Δⁿ](pictures/n_simplex.svg).
 
 Other (defined in terms of another HITs) HITs:
 
 * Propositional truncation is colimit of a following sequence:
-  ![α → {α} → {{α}} → ...](pictures/prop_truncation_seq_colimit.png)
-* Suspension ![∑α](pictures/susp.png) is defined as the pushout of the span ![𝟏 ← α → 𝟏](pictures/susp_span.png).
-* Circle ![S¹](pictures/s1.png) is the suspension of the bool ![𝟐](pictures/bool.png).
-* Sphere ![S²](pictures/s2.png) is the suspension of the circle ![S¹](pictures/s1.png).
-* Join.
+  ![α → {α} → {{α}} → ...](pictures/prop_truncation_seq_colimit.svg)
+* Suspension ![∑α](pictures/susp.svg) is defined as the pushout of the span ![𝟏 ← α → 𝟏](pictures/susp_span.svg).
+* Circle ![S¹](pictures/s1.svg) is the suspension of the bool ![𝟐](pictures/bool.svg).
+* Sphere ![S²](pictures/s2.svg) is the suspension of the circle ![S¹](pictures/s1.svg).
+* Join ![join α β](pictures/join.svg).
 * Filled n-simplex.
 
 ## Cubical Type Theory ([cubical/](https://github.com/groupoid/lean/blob/master/ground_zero/cubical/path.lean) directory)
@@ -37,7 +37,7 @@ inductive eq {α : Sort u} (a : α) : α → Sort u
 | refl : eq a
 ```
 
-But if we define paths as ![I → α](pictures/path.png), then we can use a nice syntax for paths as in [cubicaltt](https://github.com/mortberg/cubicaltt) or [Arend](https://github.com/JetBrains/arend):
+But if we define paths as ![I → α](pictures/path.svg), then we can use a nice syntax for paths as in [cubicaltt](https://github.com/mortberg/cubicaltt) or [Arend](https://github.com/JetBrains/arend):
 
 ```lean
 @[refl] def refl {α : Sort u} (a : α) : a ⇝ a := <i> a
