@@ -111,4 +111,4 @@ begin cases p with f, apply eq.map, exact interval.seg end
 
 ## Dependency map
 
-![dependency map](dependency_map.svg "dependency map")
+![dependency map](pictures/dependency_map.svg "dependency map")
