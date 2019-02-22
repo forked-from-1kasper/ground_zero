@@ -19,6 +19,7 @@ universes u v
     (we use this proof here)
   * https://homotopytypetheory.org/2015/07/28/constructing-the-propositional-truncation-using-nonrecursive-hits/
   * https://homotopytypetheory.org/2016/01/08/colimits-in-hott/
+  * https://arxiv.org/pdf/1512.02274
 -/
 def truncation (α : Sort u) :=
 colimit (generalized.repeat α) (generalized.dep α)

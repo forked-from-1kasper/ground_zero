@@ -1,92 +1,85 @@
 digraph dependency_map {
   proto -> "types/eq"
   "meta/hott_theory" -> "types/eq"
-
-  algebra [style=dashed]
-  "HITs/ntrunc" -> algebra
-
-  "HITs/circle" [style=dashed]
-  "types/integers" -> "HITs/circle"
-  "HITs/suspension" -> "HITs/circle"
-  "theorems/ua" -> "HITs/circle"
-
-  "types/heq" -> "HITs/colimit"
-
-  "types/heq" -> "HITs/generalized"
-
-  "HITs/infinitesimal" [style=dashed]
-  "types/equiv" -> "HITs/infinitesimal"
-
-  "types/equiv" -> "types/coproduct"
-  "types/eq" -> "types/dep_path"
-
-  "cubical/Path" -> "cubical/connection"
-  "types/product" -> "cubical/cubes"
-  "cubical/cubes" -> "cubical/Path"
-  "cubical/Path" -> "cubical/Square"
-  "cubical/Path" -> "cubical/example"
-
-  "cubical/V" [style=dashed]
-  "theorems/ua" -> "cubical/V"
-  "cubical/Path" -> "cubical/V"
-
-  "types/equiv" -> "types/heq"
-  "types/equiv" -> "types/integers"
-
-  "types/dep_path" -> "types/equiv"
   support -> "types/equiv"
-  "theorems/functions" -> "types/equiv"
+  structures -> { "HITs/interval", "HITs/truncation" }
 
-  "types/heq" -> "HITs/int"
+  subgraph univalence {
+    node [style=dashed]
+    algebra
+    "HITs/circle"
+    "HITs/infinitesimal"
+    "HITs/ntrunc"
+    "theorems/ua"
+    "cubical/V"
+  }
 
-  "structures" -> "HITs/interval"
-  "types/heq" -> "HITs/interval"
+  subgraph types {
+    "types/coproduct" -> { "types/nat", structures }
+    "types/dep_path" -> "types/equiv"
+    "types/eq" -> { "types/dep_path", support }
+    "types/equiv" -> {
+      "types/heq",
+      "types/integers",
+      "HITs/infinitesimal",
+      "types/coproduct",
+      "types/lost",
+      "types/unit"
+    }
+    "types/heq" -> {
+      "HITs/colimit",
+      "HITs/generalized",
+      "HITs/int",
+      "HITs/pushout",
+      "HITs/interval"
+    }
+    "types/integers" ->  { "HITs/circle", "HITs/reals" }
+    "types/lost"
+    "types/nat"
+    "types/product" -> { "cubical/cubes", "theorems/ua" }
+    "types/sigma"
+    "types/unit" -> { structures, "HITs/suspension" }
+  }
 
-  "HITs/pushout" -> "HITs/join"
+  subgraph HITs {
+    "HITs/circle" -> "HITs/ntrunc"
+    "HITs/colimit" -> "HITs/truncation"
+    "HITs/generalized" -> "HITs/truncation"
+    "HITs/infinitesimal"
+    "HITs/int" -> "HITs/rat"
+    "HITs/interval" -> { "types/product", "theorems/prop" }
+    "HITs/join"
+    "HITs/ntrunc" -> algebra
+    "HITs/pushout" -> {
+      "HITs/join",
+      "HITs/reals"
+    }
+    "HITs/pushout" -> "HITs/suspension"
+    "HITs/rat"
+    "HITs/reals"
+    "HITs/simplicial"
+    "HITs/suspension" -> "HITs/circle"
+    "HITs/truncation" -> {
+      "theorems/mere_eq_lemma",
+      "theorems/prop",
+      "HITs/simplicial"
+    }
+  }
 
-  "cubical/Path" -> "HITs/moebius"
+  subgraph cubical {
+    "cubical/path" -> "HITs/moebius"
+    "cubical/path" -> "cubical/connection"
+    "cubical/cubes" -> "cubical/path"
+    "cubical/path" -> "cubical/square"
+    "cubical/path" -> "cubical/example"
+    "cubical/path" -> "cubical/V"
+  }
 
-  "HITs/truncation" -> "theorems/mere_eq_lemma"
-
-  "theorems/topology"
-
-  "HITs/ntrunc" [style=dashed]
-  "HITs/circle" -> "HITs/ntrunc"
-
-  "HITs/interval" -> "types/product"
-
-  "HITs/interval" -> "theorems/prop"
-  "HITs/truncation" -> "theorems/prop"
-
-  "types/heq" -> "HITs/pushout"
-
-  "HITs/int" -> "HITs/rat"
-
-  "HITs/pushout" -> "HITs/reals"
-  "types/integers" -> "HITs/reals"
-
-  "HITs/truncation" -> "HITs/simplicial"
-
-  "types/unit" -> structures
-  "types/coproduct" -> structures
-
-  "types/eq" -> support
-
-  "HITs/pushout" -> "HITs/suspension"
-  "types/unit" -> "HITs/suspension"
-
-  structures -> "HITs/truncation"
-  "HITs/colimit" -> "HITs/truncation"
-  "HITs/generalized" -> "HITs/truncation"
-
-  "theorems/ua" [style=dashed]
-  "types/product" -> "theorems/ua"
-
-  "types/equiv" -> "types/unit"
-
-  "types/coproduct" -> "types/nat"
-
-  "types/equiv" -> "types/lost"
-
-  "types/sigma"
+  subgraph theorems {
+    "theorems/functions" -> "types/equiv"
+    "theorems/mere_eq_lemma"
+    "theorems/prop"
+    "theorems/topology"
+    "theorems/ua" -> { "HITs/circle", "cubical/V" }
+  }
 }
