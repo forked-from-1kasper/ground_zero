@@ -4,6 +4,11 @@ open ground_zero.types.dep_path (pathover_of_eq)
 
 hott theory
 
+/-
+  Join.
+  * HoTT 6.8
+-/
+
 namespace ground_zero.HITs
 
 universes u v w

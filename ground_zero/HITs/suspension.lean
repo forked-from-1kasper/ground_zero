@@ -1,5 +1,10 @@
 import ground_zero.HITs.pushout ground_zero.types.unit
 
+/-
+  Suspension.
+  * HoTT 6.5
+-/
+
 namespace ground_zero
 namespace HITs
 

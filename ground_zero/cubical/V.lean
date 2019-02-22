@@ -5,6 +5,8 @@ open ground_zero.HITs ground_zero.types
   V, Vproj
   * https://arxiv.org/abs/1712.01800
     Part 6 ‘Rules’, page 66 ‘Univalence’
+  
+  ua, uabeta
 -/
 
 namespace ground_zero.cubical

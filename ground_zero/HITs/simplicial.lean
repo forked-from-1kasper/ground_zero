@@ -1,6 +1,11 @@
 import ground_zero.HITs.truncation
 open ground_zero.types
 
+/-
+  * Filled simplex.
+  * Simplex.
+-/
+
 namespace ground_zero.HITs
 
 def iterated_unit : ℕ → Type

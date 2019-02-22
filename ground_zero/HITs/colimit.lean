@@ -1,6 +1,11 @@
 import ground_zero.types.heq
 open ground_zero.types.dep_path (pathover_of_eq)
 
+/-
+  Sequential colimit.
+  * https://homotopytypetheory.org/2016/01/08/colimits-in-hott/
+-/
+
 namespace ground_zero.HITs
 universes u v
 

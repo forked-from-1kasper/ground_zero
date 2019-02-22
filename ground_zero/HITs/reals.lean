@@ -6,6 +6,7 @@ open ground_zero.types
   Homotopical reals R.
   * HoTT 8.1.5
 -/
+
 namespace ground_zero.HITs
 universes u v w
 

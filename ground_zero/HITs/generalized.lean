@@ -1,6 +1,11 @@
 import ground_zero.types.heq
 open ground_zero.types.dep_path (pathover_of_eq)
 
+/-
+  Generalized circle or one-step truncation.
+  * https://homotopytypetheory.org/2015/07/28/constructing-the-propositional-truncation-using-nonrecursive-hits/
+-/
+
 namespace ground_zero.HITs
 universes u v
 

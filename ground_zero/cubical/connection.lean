@@ -1,6 +1,10 @@
 import ground_zero.cubical.path
 open ground_zero.cubical ground_zero.HITs
 
+/-
+  Connections as lines.
+-/
+
 namespace ground_zero.cubical.connection
 universe u
 

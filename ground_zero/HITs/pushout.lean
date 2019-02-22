@@ -1,5 +1,10 @@
 import ground_zero.types.heq
 
+/-
+  Pushout.
+  * HoTT 6.8
+-/
+
 namespace ground_zero
 namespace HITs
 

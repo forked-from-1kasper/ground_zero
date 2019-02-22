@@ -4,6 +4,18 @@ open ground_zero.types.equiv (renaming id -> ideqv)
 open ground_zero.types.eq (renaming refl -> idp)
 open ground_zero.structures ground_zero.types.not
 
+/-
+  Univalence axiom formulated using equivalence J-rule.
+
+  ua, idtoeqv, comp_rule, prop_uniq
+  * HoTT 2.10
+
+  Full univalence: (α ≃ β) ≃ (α = β).
+
+  Proof that Type is not a set.
+  * HoTT 3.1, example 3.1.9
+-/
+
 namespace ground_zero
 
 local infix ` = ` := types.eq
