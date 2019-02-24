@@ -6,6 +6,7 @@ universe u
 inductive unit : Sort u
 | star : unit
 
+notation [parsing_only] `𝟏` := unit
 notation [parsing_only] `★` := unit.star
 
 namespace unit

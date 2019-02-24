@@ -6,4 +6,7 @@ structure iff (α : Sort u) (β : Sort v) :=
 
 infix ↔ := iff
 
+notation [parsing_only] `𝟎` := empty
+notation [parsing_only] `𝟐` := bool
+
 end ground_zero.proto

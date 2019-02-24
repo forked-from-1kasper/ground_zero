@@ -15,8 +15,6 @@ hott theory
 namespace ground_zero
 namespace HITs
 
-notation [parsing_only] `𝟐` := bool
-
 inductive I.rel : bool → bool → Prop
 | mk (a b : bool) : I.rel a b
 
