@@ -26,7 +26,7 @@ end) i
 def ua {α β : Sort u} (e : α ≃ β) : α ⇝ β := <i> V i e
 
 def uabeta {α β : Sort u} (e : α ≃ β) (m : α) :
-  coe⁻¹ 0 1 (λ i, V i e) m ⇝ (e.fst m) :=
+  coe⁻¹ 0 1 (λ i, V i e) m ⇝ e.fst m :=
 <i> coe⁻¹ i 1 (λ i, V i e) (Vproj i e m)
 
 def univalence.formation (α β : Sort u) :=
@@ -36,6 +36,10 @@ def univalence.intro {α β : Sort u} : univalence.formation α β := ua
 
 def univalence.elim {α β : Sort u} (p : α ⇝ β) : α ≃ β :=
 Path.coe 0 1 (λ i, α ≃ p # i) (equiv.id α)
+
+def univalence.beta {α β : Sort u} (e : α ≃ β) (m : α) :
+  trans⁻¹ (ua e) m ⇝ e.fst m :=
+<i> coe⁻¹ i 1 (λ i, ua e # i) (Vproj i e m)
 
 def iso {α β : Sort u} (f : α → β) (g : β → α)
   (F : f ∘ g ~ id) (G : g ∘ f ~ id) : α ⇝ β :=

@@ -8,19 +8,18 @@ namespace ground_zero.algebra
 
 universes u v
 class magma (α : Type u) :=
-(m : α → α → α)
+(mul : α → α → α)
 
 class pointed_magma (α : Type u) extends magma α :=
 (e : α)
 
-class monoid (α : Type u) :=
-(truncation : hset α)
-(mul : α → α → α) (e : α)
+class monoid (α : Type u) extends magma α :=
+(truncation : hset α) (e : α)
 (left_unit : Π (x : α), mul x e = x)
 (right_unit : Π (x : α), mul e x = x)
 (assoc : Π (x y z : α), mul x (mul y z) = mul (mul x y) z)
 
-infix ` · `:70 := monoid.mul
+infix ` · `:70 := magma.mul
 
 class group (α : Type u) extends monoid α :=
 (inv : α → α)
@@ -49,6 +48,17 @@ section
 end
 
 prefix ⁻¹ := group.inv
+
+def coeffspace (α : Type u) (β : Type v) :=
+β → α → α
+
+def is_eigenvalue {α : Type u} {β : Type v}
+  (mul : coeffspace α β) (A : α → α) (x : α) :=
+Σ y, A x = mul y x
+
+def spectrum {α : Type u} {β : Type v}
+  (mul : coeffspace α β) (A : α → α) :=
+Σ x, is_eigenvalue mul A x
 
 --def homotopy_group (X : pointed) (n : ℕ) := ∥Ω[n], X∥₀
 --notation `π[` n `]` `, ` X := homotopy_group X n

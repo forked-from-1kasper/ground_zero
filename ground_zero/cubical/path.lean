@@ -72,6 +72,11 @@ abbreviation coerce {α β : Sort u} : (α ⇝ β) → (α → β) := trans
 def trans_neg {α β : Sort u} (p : α ⇝ β) : β → α :=
 coe 1 0 (λ i, p # i)
 
+def trans_back {α β : Sort u} (p : α ⇝ β) : α → β :=
+coe⁻¹ 0 1 (λ i, p # i)
+
+notation `trans⁻¹` := trans_back
+
 def transK {α β : Sort u} (p : α ⇝ β) (x : α) :
   x ⇝ trans_neg p (trans p x) :=
 <i> coe i 0 (λ i, p # i) (coe 0 i (λ i, p # i) x)
