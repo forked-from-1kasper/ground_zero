@@ -63,6 +63,25 @@ begin intros x y, induction x, induction y, trivial end
 def prop_impl_prop {α : Prop} : prop α :=
 begin intros x y, trivial end
 
+def bool_to_universe : bool → Type
+| tt := types.unit
+| ff := empty
+
+theorem ff_neq_tt (h : ff = tt) : empty :=
+@ground_zero.types.eq.rec
+  bool tt (λ b _, bool_to_universe b)
+  types.unit.star ff h⁻¹
+
+theorem function_space : ¬(Π {α β : Type}, prop (α → β)) :=
+λ h, ff_neq_tt (types.equiv.homotopy.eq (h id bnot) ff)
+
+theorem auto_contr {α : Sort u} (x : α) (h : prop (α → α)) : prop α :=
+begin
+  apply contr_impl_prop, existsi x,
+  apply types.equiv.homotopy.eq,
+  apply h
+end
+
 section
   open types.equiv types.eq
   def prop_is_set {α : Sort u} (r : prop α) : hset α := begin

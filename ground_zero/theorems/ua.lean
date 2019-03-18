@@ -76,15 +76,6 @@ noncomputable theorem univalence (α β : Sort u) :
   { intro e, simp, apply prop_uniq }
 end
 
-def bool_to_universe : bool → Type
-| tt := types.unit
-| ff := empty
-
-theorem ff_neq_tt (h : ff = tt) : empty :=
-@ground_zero.types.eq.rec
-  bool tt (λ b _, bool_to_universe b)
-  types.unit.star ff h⁻¹
-
 -- perfect proof
 inductive so : bool → Type
 | intro : so tt
