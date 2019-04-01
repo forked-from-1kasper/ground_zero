@@ -37,6 +37,21 @@ theorem group_unit_is_unique {α : Type u} [group α] (e' : α)
   exact H (q⁻¹ ⬝ p)
 end
 
+theorem square_is_unique {α : Type u} [group α] (x : α)
+  (h : x · x = x) : x = e := begin
+  transitivity, { symmetry, apply monoid.right_unit },
+  transitivity, {
+    apply ground_zero.types.eq.map (· x),
+    symmetry, apply group.right_inv x
+  },
+  transitivity, { symmetry, apply monoid.assoc },
+  transitivity, { apply ground_zero.types.eq.map, exact h },
+  apply group.right_inv
+end
+
+theorem identity_inv {α : Type u} [group α] : e = group.inv e :> α :=
+(group.left_inv e)⁻¹ ⬝ monoid.right_unit (group.inv e)
+
 section
   variables {α : Type u} {β : Type v} [group α] [group β]
 
