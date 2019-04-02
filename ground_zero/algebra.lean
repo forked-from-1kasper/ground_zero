@@ -76,11 +76,17 @@ theorem reduce_left {α : Type u} [group α] (a b c : α)
 theorem identity_inv {α : Type u} [group α] : e = e⁻¹ :> α :=
 (group.right_inv e)⁻¹ ⬝ monoid.left_unit e⁻¹
 
+def commutes {α : Type u} [group α] (x y : α) :=
+x · y = y · x
+
 def Zentrum (α : Type u) [group α] :=
-Σ (z : α), Π g, z · g = g · z
+Σ (z : α), Π g, commutes z g
 
 def commutator {α : Type u} [group α] (g h : α) :=
 g⁻¹ · h⁻¹ · g · h
+
+def conjugate {α : Type u} [group α] (a x : α) :=
+x⁻¹ · a · x
 
 section
   variables {α : Type u} {β : Type v} [group α] [group β]
