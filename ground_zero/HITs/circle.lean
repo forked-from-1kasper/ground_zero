@@ -1,5 +1,5 @@
 import ground_zero.HITs.suspension ground_zero.theorems.ua
-import ground_zero.types.integers
+import ground_zero.types.integer
 open ground_zero.types.equiv (subst transport)
 open ground_zero.types.eq (renaming refl -> idp)
 open ground_zero.structures (hset)
@@ -138,7 +138,7 @@ namespace circle
   def fourth := succ three
 
   def helix : S¹ → Type :=
-  rec integers (ua integers.succ_equiv)
+  rec integer (ua integer.succ_equiv)
 
   def pos : ℕ → Ω¹(S¹)
   | 0 := types.eq.refl base
@@ -148,20 +148,20 @@ namespace circle
   | 0 := loop⁻¹
   | (n + 1) := neg n ⬝ loop⁻¹
 
-  def power : integers → Ω¹(S¹)
-  | (integers.pos n) := pos n
-  | (integers.neg n) := neg n
+  def power : integer → Ω¹(S¹)
+  | (integer.pos n) := pos n
+  | (integer.neg n) := neg n
 
   def encode (x : S¹) (p : base = x) : helix x :=
-  types.equiv.transport helix p (integers.pos 0)
+  types.equiv.transport helix p (integer.pos 0)
 
-  example : power (integers.pos 2) = loop ⬝ loop :=
+  example : power (integer.pos 2) = loop ⬝ loop :=
   by reflexivity
 
-  abbreviation bicycle : helix base → integers := id
+  abbreviation bicycle : helix base → integer := id
 
-  def winding (x : base = base) : integers :=
-  bicycle (transport helix x $ integers.pos 0)
+  def winding (x : base = base) : integer :=
+  bicycle (transport helix x $ integer.pos 0)
 
   def transport_characterization
     {α : Sort u} {β γ : α → Sort v} {a b : α}
@@ -175,8 +175,8 @@ namespace circle
     transport (types.eq a) q p = p ⬝ q :=
   begin induction p, induction q, trivial end
 
-  noncomputable def transport_there (x : integers) :
-    transport helix loop x = integers.succ x := begin
+  noncomputable def transport_there (x : integer) :
+    transport helix loop x = integer.succ x := begin
     transitivity,
     apply types.equiv.transport_comp id helix loop,
     transitivity, apply types.equiv.homotopy.eq,
@@ -184,8 +184,8 @@ namespace circle
     apply ua.transport_rule
   end
 
-  def transport_back (x : integers) :
-    transport helix loop⁻¹ x = integers.pred x :=
+  def transport_back (x : integer) :
+    transport helix loop⁻¹ x = integer.pred x :=
   sorry
 
   def decode : Π (x : S¹), helix x → base = x :=
@@ -214,8 +214,8 @@ namespace circle
         apply types.eq.inv_comp, apply types.eq.refl_right } }
   end)
 
-  noncomputable example : winding loop = integers.pos 1 :=
-  transport_there (integers.pos 0)
+  noncomputable example : winding loop = integer.pos 1 :=
+  transport_there (integer.pos 0)
 end circle
 
 namespace ncircle

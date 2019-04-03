@@ -1,5 +1,5 @@
 import ground_zero.HITs.pushout ground_zero.HITs.interval
-import ground_zero.types.integers
+import ground_zero.types.integer
 open ground_zero.types
 
 /-
@@ -10,20 +10,20 @@ open ground_zero.types
 namespace ground_zero.HITs
 universes u v w
 
-local notation ℤ := integers
+local notation ℤ := integer
 
 inductive reals.rel : ℤ → ℤ → Prop
-| glue (x : ℤ) : reals.rel x (integers.succ x)
+| glue (x : ℤ) : reals.rel x (integer.succ x)
 def reals := quot reals.rel
 notation `R` := reals
 
 namespace reals
   def elem : ℤ → R := quot.mk rel
-  def glue (z : ℤ) : elem z = elem (integers.succ z) :> R :=
+  def glue (z : ℤ) : elem z = elem (integer.succ z) :> R :=
   ground_zero.support.inclusion (quot.sound $ rel.glue z)
 
   def ind {π : R → Sort u} (cz : Π x, π (elem x))
-    (sz : Π z, cz z =[glue z] cz (integers.succ z))
+    (sz : Π z, cz z =[glue z] cz (integer.succ z))
     (u : R) : π u := begin
     refine quot.hrec_on u _ _,
     exact cz, intros x y p, cases p,
@@ -33,20 +33,20 @@ namespace reals
   end
 
   def rec {π : Sort u} (cz : ℤ → π)
-    (sz : Π z, cz z = cz (integers.succ z) :> π) : R → π :=
+    (sz : Π z, cz z = cz (integer.succ z) :> π) : R → π :=
   ind cz (λ x, dep_path.pathover_of_eq (glue x) (sz x))
 
-  def positive : Π n, elem 0 = elem (integers.pos n) :> R
+  def positive : Π n, elem 0 = elem (integer.pos n) :> R
   | 0 := ground_zero.types.eq.refl (elem 0)
-  | (n + 1) := positive n ⬝ glue (integers.pos n)
+  | (n + 1) := positive n ⬝ glue (integer.pos n)
 
-  def negative : Π n, elem 0 = elem (integers.neg n) :> R
-  | 0 := (glue (integers.neg 0))⁻¹
-  | (n + 1) := negative n ⬝ (glue $ integers.neg (n + 1))⁻¹
+  def negative : Π n, elem 0 = elem (integer.neg n) :> R
+  | 0 := (glue (integer.neg 0))⁻¹
+  | (n + 1) := negative n ⬝ (glue $ integer.neg (n + 1))⁻¹
 
   def center : Π z, elem 0 = elem z :> R
-  | (integers.pos n) := positive n
-  | (integers.neg n) := negative n
+  | (integer.pos n) := positive n
+  | (integer.neg n) := negative n
 
   def vect (u v : ℤ) : elem u = elem v :> R :=
   (center u)⁻¹ ⬝ center v

@@ -9,37 +9,37 @@ namespace ground_zero.types
   −1 = neg 0
   −2 = neg 1
 -/
-inductive integers
-| pos : ℕ → integers
-| neg : ℕ → integers
-namespace integers
+inductive integer
+| pos : ℕ → integer
+| neg : ℕ → integer
+namespace integer
 
-instance : has_zero integers := ⟨pos 0⟩
-instance : has_one integers := ⟨pos 1⟩
+instance : has_zero integer := ⟨pos 0⟩
+instance : has_one integer := ⟨pos 1⟩
 
-instance : has_repr integers :=
+instance : has_repr integer :=
 ⟨λ x, match x with
 | (pos n) := to_string n
 | (neg n) := "−" ++ to_string (n + 1)
 end⟩
 
-def auxsucc : ℕ → integers
+def auxsucc : ℕ → integer
 | 0 := pos 0
 | (n + 1) := neg n
 
-def succ : integers → integers
+def succ : integer → integer
 | (neg u) := auxsucc u
 | (pos v) := pos (v + 1)
 
-def auxpred : ℕ → integers
+def auxpred : ℕ → integer
 | 0 := neg 0
 | (n + 1) := pos n
 
-def pred : integers → integers
+def pred : integer → integer
 | (neg u) := neg (u + 1)
 | (pos v) := auxpred v
 
-def succ_equiv : integers ≃ integers := begin
+def succ_equiv : integer ≃ integer := begin
   existsi succ, split; existsi pred,
   repeat {
     intro n, induction n,
@@ -48,6 +48,6 @@ def succ_equiv : integers ≃ integers := begin
       repeat { trivial } }
   }
 end
-end integers
+end integer
 
 end ground_zero.types
