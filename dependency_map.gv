@@ -6,7 +6,6 @@ digraph dependency_map {
 
   subgraph univalence {
     node [style=dashed]
-    algebra
     "HITs/circle"
     "HITs/infinitesimal"
     "HITs/ntrunc"
@@ -33,7 +32,7 @@ digraph dependency_map {
       "HITs/pushout",
       "HITs/interval"
     }
-    "types/integer" ->  { "HITs/circle", "HITs/reals" }
+    "types/integer" ->  { "HITs/circle", "HITs/reals", algebra }
     "types/lost"
     "types/nat"
     "types/product" -> { "cubical/cubes", "theorems/ua" }

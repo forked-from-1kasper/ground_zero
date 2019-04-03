@@ -1,6 +1,7 @@
-import ground_zero.structures
+import ground_zero.structures ground_zero.types.integer
 open ground_zero.types.eq (pointed)
 open ground_zero.structures (hset)
+open ground_zero.types
 
 hott theory
 
@@ -30,6 +31,20 @@ def e {α : Type u} [group α] : α := monoid.e α
 instance {α : Type u} [monoid α] : has_one α := ⟨monoid.e α⟩
 instance {α : Type u} [group α] : has_inv α := ⟨group.inv⟩
 
+def group.natural_pow {α : Type u} [group α] (x : α) : ℕ → α
+| 0 := 1
+| (n + 1) := x · group.natural_pow n
+
+def group.pow {α : Type u} [group α] (x : α) : integer → α
+| (integer.pos n) := group.natural_pow x n
+| (integer.neg n) := group.natural_pow x⁻¹ (n + 1)
+
+section
+  variables {α : Type u} [group α]
+  instance nat_pow : has_pow α ℕ := ⟨group.natural_pow⟩
+  instance int_pow : has_pow α integer := ⟨group.pow⟩
+end
+
 theorem group_unit_is_unique {α : Type u} [group α] (e' : α)
   (right_unit' : Π x, x · e' = x)
   (left_unit' : Π x, e' · x = x)
@@ -39,42 +54,46 @@ theorem group_unit_is_unique {α : Type u} [group α] (e' : α)
   exact H (q⁻¹ ⬝ p)
 end
 
-theorem square_is_unique {α : Type u} [group α] (x : α)
-  (h : x · x = x) : x = 1 := calc
-    x = e · x : begin symmetry, apply monoid.left_unit end
-  ... = (x⁻¹ · x) · x :
-        begin
-          apply ground_zero.types.eq.map (· x),
-          symmetry, apply group.left_inv x
-        end
-  ... = x⁻¹ · (x · x) : begin symmetry, apply monoid.assoc end
-  ... = x⁻¹ · x : magma.mul x⁻¹ # h
-  ... = 1 : by apply group.left_inv
+section
+  variables {α : Type u} [group α]
 
-theorem inv_of_inv {α : Type u} [group α] (x : α) : (x⁻¹)⁻¹ = x := calc
-  (x⁻¹)⁻¹ = e · (x⁻¹)⁻¹ : begin symmetry, apply monoid.left_unit end
-      ... = (x · x⁻¹) · (x⁻¹)⁻¹ :
-            begin
-              apply ground_zero.types.eq.map (· x⁻¹⁻¹),
-              symmetry,
-              apply group.right_inv x
-            end
-      ... = x · (x⁻¹ · x⁻¹⁻¹) : begin symmetry, apply monoid.assoc end
-      ... = x · e : magma.mul x # (group.right_inv x⁻¹)
-      ... = x : monoid.right_unit x
+  theorem square_is_unique (x : α)
+    (h : x · x = x) : x = 1 := calc
+      x = e · x : begin symmetry, apply monoid.left_unit end
+    ... = (x⁻¹ · x) · x :
+          begin
+            apply ground_zero.types.eq.map (· x),
+            symmetry, apply group.left_inv x
+          end
+    ... = x⁻¹ · (x · x) : begin symmetry, apply monoid.assoc end
+    ... = x⁻¹ · x : magma.mul x⁻¹ # h
+    ... = 1 : by apply group.left_inv
+  
+  theorem inv_of_inv (x : α) : (x⁻¹)⁻¹ = x := calc
+    (x⁻¹)⁻¹ = e · (x⁻¹)⁻¹ : begin symmetry, apply monoid.left_unit end
+        ... = (x · x⁻¹) · (x⁻¹)⁻¹ :
+              begin
+                apply ground_zero.types.eq.map (· x⁻¹⁻¹),
+                symmetry,
+                apply group.right_inv x
+              end
+        ... = x · (x⁻¹ · x⁻¹⁻¹) : begin symmetry, apply monoid.assoc end
+        ... = x · e : magma.mul x # (group.right_inv x⁻¹)
+        ... = x : monoid.right_unit x
+  
+  theorem reduce_left (a b c : α)
+    (h : c · a = c · b) : a = b := calc
+      a = e · a         : (monoid.left_unit a)⁻¹
+    ... = (c⁻¹ · c) · a : (· a) # (group.left_inv c)⁻¹
+    ... = c⁻¹ · (c · a) : begin symmetry, apply monoid.assoc end
+    ... = c⁻¹ · (c · b) : magma.mul c⁻¹ # h
+    ... = (c⁻¹ · c) · b : by apply monoid.assoc
+    ... = e · b         : (· b) # (group.left_inv c)
+    ... = b             : monoid.left_unit b
 
-theorem reduce_left {α : Type u} [group α] (a b c : α)
-  (h : c · a = c · b) : a = b := calc
-    a = e · a         : (monoid.left_unit a)⁻¹
-  ... = (c⁻¹ · c) · a : (· a) # (group.left_inv c)⁻¹
-  ... = c⁻¹ · (c · a) : begin symmetry, apply monoid.assoc end
-  ... = c⁻¹ · (c · b) : magma.mul c⁻¹ # h
-  ... = (c⁻¹ · c) · b : by apply monoid.assoc
-  ... = e · b         : (· b) # (group.left_inv c)
-  ... = b             : monoid.left_unit b
-
-theorem identity_inv {α : Type u} [group α] : e = e⁻¹ :> α :=
-(group.right_inv e)⁻¹ ⬝ monoid.left_unit e⁻¹
+  theorem identity_inv : e = e⁻¹ :> α :=
+  (group.right_inv e)⁻¹ ⬝ monoid.left_unit e⁻¹
+end
 
 def commutes {α : Type u} [group α] (x y : α) :=
 x · y = y · x

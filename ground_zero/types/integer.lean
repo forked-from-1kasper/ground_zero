@@ -23,6 +23,14 @@ instance : has_repr integer :=
 | (neg n) := "−" ++ to_string (n + 1)
 end⟩
 
+def negate : integer → integer
+| (pos $ n + 1) := neg n
+| (pos 0)       := pos 0
+| (neg n)       := pos (n + 1)
+
+instance : has_neg integer := ⟨negate⟩
+instance : has_coe ℕ integer := ⟨integer.pos⟩
+
 def auxsucc : ℕ → integer
 | 0 := pos 0
 | (n + 1) := neg n
