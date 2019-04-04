@@ -11,7 +11,7 @@ universes u v
 class magma (α : Type u) :=
 (mul : α → α → α)
 
-infix ` · `:70 := magma.mul
+infixr ` · `:70 := magma.mul
 
 class pointed_magma (α : Type u) extends magma α :=
 (e : α)
@@ -111,15 +111,18 @@ def conjugate {α : Type u} [group α] (a x : α) :=
 x⁻¹ · a · x
 
 section
-  variables {α : Type u} {β : Type v} [group α] [group β] (φ : α → β)
+  variables {α : Type u} {β : Type v} [group α] [group β]
 
-  def is_homo :=
+  def is_homo (φ : α → β) :=
   Π a b, φ (a · b) = φ a · φ b
 
-  def ker (H : is_homo φ) (g : α) := φ g = 1
-  def Ker (H : is_homo φ) := Σ g, ker φ H g
+  def homo (α : Type u) (β : Type v) [group α] [group β] :=
+  Σ (φ : α → β), is_homo φ
 
-  def Im (H : is_homo φ) := Σ g f, φ g = f
+  def ker (φ : homo α β) (g : α) := φ.fst g = 1
+  def Ker (φ : homo α β) := Σ g, ker φ g
+
+  def Im (φ : homo α β) := Σ g f, φ.fst g = f
 end
 
 structure is_subgroup {α : Type u} [group α] (φ : α → Type v) :=
@@ -134,24 +137,24 @@ lemma mul_uniq {α : Type u} {a b c d : α} [magma α] (h : a = b) (g : c = d) :
   a · c = b · d :=
 begin induction h, induction g, reflexivity end
 
-theorem homo_ker_is_subgroup {α : Type u} {β : Type v} [group α] [group β]
-  (φ : α → β) (H : is_homo φ) : is_subgroup (ker φ H) :=
+theorem ker_is_subgroup {α : Type u} {β : Type v} [group α] [group β]
+  (φ : homo α β) : is_subgroup (ker φ) :=
 { unit := begin
     unfold ker, apply square_is_unique,
     symmetry, transitivity, { apply eq.map, apply identity_sqr },
-    apply H
+    apply φ.snd
   end,
   mul := begin
     intros a b h g,
     unfold ker at h, unfold ker at g, unfold ker,
-    transitivity, apply H, symmetry,
+    transitivity, apply φ.snd, symmetry,
     transitivity, apply identity_sqr,
     apply mul_uniq, exact h⁻¹, exact g⁻¹
   end,
   inv := begin
     intros x h,
     unfold ker at h, unfold ker,
-    apply square_is_unique, symmetry, calc
+    apply square_is_unique, symmetry, cases φ with φ H, calc
       φ x⁻¹ = φ (x⁻¹ · 1) : φ # (monoid.right_unit x⁻¹)⁻¹
         ... = φ (x⁻¹ · (x⁻¹ · x)) :
               begin
@@ -163,6 +166,24 @@ theorem homo_ker_is_subgroup {α : Type u} {β : Type v} [group α] [group β]
         ... = φ x⁻¹ · (φ x⁻¹ · 1) : begin repeat { apply eq.map }, exact h end
         ... = φ x⁻¹ · φ x⁻¹ : begin apply eq.map, apply monoid.right_unit end
   end }
+
+theorem ker_is_normal_subgroup {α : Type u} {β : Type v} [group α] [group β]
+  (φ : homo α β) : is_normal_subgroup (ker φ) (ker_is_subgroup φ) := begin
+  intros n g h, cases φ with φ H,
+  unfold ker at h, unfold ker, unfold conjugate, calc
+    φ (g⁻¹ · n · g) = φ g⁻¹ · φ (n · g) : by apply H
+                ... = φ g⁻¹ · φ n · φ g : begin apply eq.map, apply H end
+                ... = φ g⁻¹ · 1 · φ g :
+                      begin
+                        apply eq.map (λ x, φ g⁻¹ · x · φ g),
+                        exact h
+                      end
+                ... = φ g⁻¹ · φ g :
+                      begin apply eq.map, apply monoid.left_unit end
+                ... = φ (g⁻¹ · g) : begin symmetry, apply H end
+                ... = φ 1 : φ # (group.left_inv g)
+                ... = 1 : (ker_is_subgroup ⟨φ, H⟩).unit
+end
 
 def coeffspace (α : Type u) (β : Type v) :=
 β → α → α
