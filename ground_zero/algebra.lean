@@ -14,10 +14,10 @@ class magma (α : Type u) :=
 infixr ` · `:70 := magma.mul
 
 class pointed_magma (α : Type u) extends magma α :=
-(e : α)
+(e {} : α)
+open pointed_magma
 
-class monoid (α : Type u) extends magma α :=
-(truncation : hset α) (e : α)
+class monoid (α : Type u) extends pointed_magma α :=
 (right_unit : Π (x : α), x · e = x)
 (left_unit : Π (x : α), e · x = x)
 (assoc : Π (x y z : α), x · (y · z) = (x · y) · z)
@@ -27,8 +27,7 @@ class group (α : Type u) extends monoid α :=
 (right_inv : Π (x : α), x · inv x = e)
 (left_inv : Π (x : α), inv x · x = e)
 
-def e {α : Type u} [group α] : α := monoid.e α
-instance {α : Type u} [monoid α] : has_one α := ⟨monoid.e α⟩
+instance {α : Type u} [pointed_magma α] : has_one α := ⟨e⟩
 instance {α : Type u} [group α] : has_inv α := ⟨group.inv⟩
 
 def group.natural_pow {α : Type u} [group α] (x : α) : ℕ → α
@@ -95,7 +94,7 @@ section
   (group.right_inv e)⁻¹ ⬝ monoid.left_unit e⁻¹
 
   theorem identity_sqr : 1 = 1 · 1 :> α :=
-  (monoid.left_unit 1)⁻¹
+  begin symmetry, apply monoid.left_unit end
 end
 
 def commutes {α : Type u} [group α] (x y : α) :=
@@ -119,10 +118,17 @@ section
   def homo (α : Type u) (β : Type v) [group α] [group β] :=
   Σ (φ : α → β), is_homo φ
 
-  def ker (φ : homo α β) (g : α) := φ.fst g = 1
-  def Ker (φ : homo α β) := Σ g, ker φ g
+  def iso (α : Type u) (β : Type v) [group α] [group β] :=
+  Σ (φ : α → β), is_homo φ × equiv.biinv φ
 
-  def Im (φ : homo α β) := Σ g f, φ.fst g = f
+  infix ` ≅ `:25 := iso
+
+  variable (φ : homo α β)
+  def ker (g : α) := φ.fst g = 1
+  def Ker := Σ g, ker φ g
+
+  def im (g : β) := Σ f, φ.fst f = g
+  def Im := Σ g, im φ g
 end
 
 structure is_subgroup {α : Type u} [group α] (φ : α → Type v) :=
@@ -137,13 +143,36 @@ lemma mul_uniq {α : Type u} {a b c d : α} [magma α] (h : a = b) (g : c = d) :
   a · c = b · d :=
 begin induction h, induction g, reflexivity end
 
+theorem homo_saves_unit {α : Type u} {β : Type v} [group α] [group β]
+  (φ : homo α β) : φ.fst 1 = 1 := begin
+  cases φ with φ H, apply square_is_unique, calc
+    φ 1 · φ 1 = φ (1 · 1) : (H 1 1)⁻¹
+          ... = φ 1 : φ # identity_sqr⁻¹
+end
+
+theorem homo_respects_inv {α : Type u} {β : Type v} [group α] [group β]
+  (φ : homo α β) (x : α) : φ.fst x⁻¹ = (φ.fst x)⁻¹ := begin
+  cases φ with φ H, calc
+    φ x⁻¹ = φ x⁻¹ · e : begin symmetry, apply monoid.right_unit end
+      ... = φ x⁻¹ · (φ x · (φ x)⁻¹) :
+            begin
+              apply eq.map, symmetry,
+              apply group.right_inv
+            end
+      ... = (φ x⁻¹ · φ x) · (φ x)⁻¹ : by apply monoid.assoc
+      ... = φ (x⁻¹ · x) · (φ x)⁻¹ : (· (φ x)⁻¹) # (H x⁻¹ x)⁻¹
+      ... = φ 1 · (φ x)⁻¹ :
+            begin
+              apply eq.map (λ y, φ y · (φ x)⁻¹),
+              apply group.left_inv
+            end
+      ... = 1 · (φ x)⁻¹ : (· (φ x)⁻¹) # (homo_saves_unit ⟨φ, H⟩)
+      ... = (φ x)⁻¹ : by apply monoid.left_unit
+end
+
 theorem ker_is_subgroup {α : Type u} {β : Type v} [group α] [group β]
   (φ : homo α β) : is_subgroup (ker φ) :=
-{ unit := begin
-    unfold ker, apply square_is_unique,
-    symmetry, transitivity, { apply eq.map, apply identity_sqr },
-    apply φ.snd
-  end,
+{ unit := begin unfold ker, apply homo_saves_unit end,
   mul := begin
     intros a b h g,
     unfold ker at h, unfold ker at g, unfold ker,
@@ -153,18 +182,10 @@ theorem ker_is_subgroup {α : Type u} {β : Type v} [group α] [group β]
   end,
   inv := begin
     intros x h,
-    unfold ker at h, unfold ker,
-    apply square_is_unique, symmetry, cases φ with φ H, calc
-      φ x⁻¹ = φ (x⁻¹ · 1) : φ # (monoid.right_unit x⁻¹)⁻¹
-        ... = φ (x⁻¹ · (x⁻¹ · x)) :
-              begin
-                apply eq.map (φ ∘ magma.mul x⁻¹), symmetry,
-                apply group.left_inv
-              end
-        ... = φ x⁻¹ · φ (x⁻¹ · x) : by apply H
-        ... = φ x⁻¹ · (φ x⁻¹ · φ x) : begin apply eq.map, apply H end
-        ... = φ x⁻¹ · (φ x⁻¹ · 1) : begin repeat { apply eq.map }, exact h end
-        ... = φ x⁻¹ · φ x⁻¹ : begin apply eq.map, apply monoid.right_unit end
+    unfold ker at h, unfold ker, cases φ with φ H, calc
+      φ x⁻¹ = (φ x)⁻¹ : homo_respects_inv ⟨φ, H⟩ x
+        ... = 1⁻¹     : group.inv # h
+        ... = 1       : identity_inv⁻¹
   end }
 
 theorem ker_is_normal_subgroup {α : Type u} {β : Type v} [group α] [group β]
@@ -184,6 +205,35 @@ theorem ker_is_normal_subgroup {α : Type u} {β : Type v} [group α] [group β]
                 ... = φ 1 : φ # (group.left_inv g)
                 ... = 1 : (ker_is_subgroup ⟨φ, H⟩).unit
 end
+
+theorem im_is_subgroup {α : Type u} {β : Type v} [group α] [group β]
+  (φ : homo α β) : is_subgroup (im φ) :=
+{ unit := ⟨1, (ker_is_subgroup φ).unit⟩,
+  mul := begin
+    intros a b g h, unfold im at g, unfold im at h, unfold im,
+    cases g with x g, cases h with y h,
+    existsi (x · y), transitivity, apply φ.snd,
+    induction g, induction h, reflexivity
+  end,
+  inv := begin
+    intros x h, unfold im at h, unfold im,
+    cases h with y h, existsi y⁻¹,
+    transitivity, apply homo_respects_inv,
+    apply eq.map, exact h
+  end }
+
+instance : magma bool := ⟨bxor⟩
+instance : pointed_magma bool := ⟨ff⟩
+
+instance : monoid bool :=
+{ right_unit := begin intro x, cases x; reflexivity end,
+  left_unit := begin intro x, cases x; reflexivity end,
+  assoc := begin intros x y z, cases x; cases y; cases z; reflexivity end }
+
+instance : group bool :=
+{ inv := id,
+  left_inv := begin intro x, cases x; reflexivity end,
+  right_inv := begin intro x, cases x; reflexivity end }
 
 def coeffspace (α : Type u) (β : Type v) :=
 β → α → α
