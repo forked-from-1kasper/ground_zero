@@ -1,4 +1,4 @@
-import ground_zero.structures ground_zero.types.integer
+import ground_zero.structures ground_zero.types.integer  ground_zero.types.swale
 open ground_zero.types.eq (pointed)
 open ground_zero.structures (hset)
 open ground_zero.types
@@ -124,10 +124,10 @@ section
   infix ` ≅ `:25 := iso
 
   variable (φ : homo α β)
-  def ker (g : α) := φ.fst g = 1
+  def ker : swale α := λ g, φ.fst g = 1
   def Ker := Σ g, ker φ g
 
-  def im (g : β) := Σ f, φ.fst f = g
+  def im : swale β := λ g, Σ f, φ.fst f = g
   def Im := Σ g, im φ g
 end
 
@@ -142,11 +142,15 @@ def is_normal_subgroup {α : Type u} [group α] (φ : α → Type v) (h : is_sub
 section
   variables {α : Type u} {φ : α → Type v} [group α]
 
-  def left_coset (g : α) (h : is_subgroup φ) (x : α) :=
-  Σ h, g · h = x
+  def left_coset (g : α) (h : is_subgroup φ) : swale α :=
+  λ x, Σ h, g · h = x
 
-  def right_coset (h : is_subgroup φ) (g : α) (x : α) :=
-  Σ h, h · g = x
+  def right_coset (h : is_subgroup φ) (g : α) : swale α :=
+  λ x, Σ h, h · g = x
+
+  def factor_group (α : Type u) {φ : α → Type v} [group α]
+    (h : is_subgroup φ) : swale (swale α) :=
+  λ x, Σ g, left_coset g h = x
 end
 
 lemma mul_uniq {α : Type u} {a b c d : α} [magma α] (h : a = b) (g : c = d) :

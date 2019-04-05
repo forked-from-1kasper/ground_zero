@@ -97,6 +97,8 @@ namespace geometry
   section
     variables {S : Sort u} [is_euclidian S]
 
+    notation `{` binder ` | ` r:(scoped P, swale.mk P) `}` := r
+
     instance in_segment : has_mem S (S × S) :=
     ⟨λ x a, B a.pr₁ x a.pr₂⟩
 
