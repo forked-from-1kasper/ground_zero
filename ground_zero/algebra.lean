@@ -139,6 +139,16 @@ structure is_subgroup {α : Type u} [group α] (φ : α → Type v) :=
 def is_normal_subgroup {α : Type u} [group α] (φ : α → Type v) (h : is_subgroup φ) :=
 Π n g, φ n → φ (conjugate n g)
 
+section
+  variables {α : Type u} {φ : α → Type v} [group α]
+
+  def left_coset (g : α) (h : is_subgroup φ) (x : α) :=
+  Σ h, g · h = x
+
+  def right_coset (h : is_subgroup φ) (g : α) (x : α) :=
+  Σ h, h · g = x
+end
+
 lemma mul_uniq {α : Type u} {a b c d : α} [magma α] (h : a = b) (g : c = d) :
   a · c = b · d :=
 begin induction h, induction g, reflexivity end

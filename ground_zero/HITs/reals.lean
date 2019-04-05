@@ -1,5 +1,5 @@
 import ground_zero.HITs.pushout ground_zero.HITs.interval
-import ground_zero.types.integer
+import ground_zero.types.integer ground_zero.types.swale
 open ground_zero.types
 
 /-
@@ -51,23 +51,6 @@ namespace reals
   def vect (u v : ℤ) : elem u = elem v :> R :=
   (center u)⁻¹ ⬝ center v
 end reals
-
-class has_mem (α : Sort u) (γ : Sort v) :=
-(mem : α → γ → Sort w)
-infix ` ∈ ` := has_mem.mem
-
-def quasiset (α : Sort u) := α → Sort v
-namespace quasiset
-  abbreviation mk {α : Sort u} (f : α → Sort v) : quasiset α := f
-
-  def membership {α : Sort u} (x : α) (s : quasiset α) := s x
-  instance {α : Sort u} : has_mem α (quasiset α) := ⟨membership⟩
-
-  notation `{` binder ` | ` r:(scoped P, mk P) `}` := r
-
-  inductive bottom : Sort u
-  def empty (α : Sort u) : quasiset α := { x | bottom }
-end quasiset
 
 namespace geometry
   notation `R²` := R × R
@@ -123,7 +106,7 @@ namespace geometry
     def circle (radius : S × S) :=
     { z | ⟨radius.pr₁, z⟩ ≅ radius }
 
-    def disk (radius : S × S) : quasiset S :=
+    def disk (radius : S × S) : swale S :=
     { z | Σ' (a : S × S), equ a.pr₁ radius.pr₁ × (a ≅ radius) × z ∈ a }
 
     def triangle (a b c : S) :=
@@ -132,10 +115,10 @@ namespace geometry
     def ray (a b : S) :=
     { c | B a c b + B a b c }
 
-    def angle (a b c : S) : quasiset S :=
+    def angle (a b c : S) : swale S :=
     { z | (z ∈ ray b a) + (z ∈ ray b c) }
 
-    def parallel (a b : quasiset S) :=
+    def parallel (a b : swale S) :=
     ¬(Σ' (z : S), z ∈ a × z ∈ b)
 
     def segment.is_sum (r₁ r₂ r : S × S) :=
@@ -146,7 +129,7 @@ namespace geometry
 
     notation `Σ!` binders `, ` r:(scoped P, sigma_unique P) := r
 
-    def tang (A₁ A₂ : quasiset S) :=
+    def tang (A₁ A₂ : swale S) :=
     Σ! (z : S), z ∈ A₁ × z ∈ A₂
 
     def circle.tang (r₁ r₂ : S × S) :=
