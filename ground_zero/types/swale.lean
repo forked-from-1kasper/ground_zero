@@ -15,6 +15,8 @@ namespace swale
 
   inductive bottom : Sort u
   def empty (α : Sort u) : swale α := λ _, bottom
+
+  def subtype {α : Type u} (s : swale α) := Σ x, s x
 end swale
 
 end ground_zero.types

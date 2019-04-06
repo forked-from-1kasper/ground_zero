@@ -151,6 +151,28 @@ section
   def factor_group (α : Type u) (φ : α → Type v)
     [group α] [is_normal_subgroup φ] : swale (swale α) :=
   λ x, Σ g, left_coset g φ = x
+
+  def factor (α : Type u) (φ : α → Type v)
+    [group α] [is_normal_subgroup φ] :=
+  swale.subtype (factor_group α φ)
+
+  infix `/` := factor
+
+  def factor.mul {α : Type u} {φ : α → Type v}
+    [group α] [is_normal_subgroup φ] (x y : α/φ) : α/φ := begin
+    cases x with x h, cases h with a h,
+    cases y with y g, cases g with b g,
+    existsi left_coset (a · b) φ,
+    existsi (a · b), trivial
+  end
+
+  instance factor_has_binop {α : Type u} {φ : α → Type v}
+    [group α] [is_normal_subgroup φ] : magma (α/φ) :=
+  ⟨factor.mul⟩
+
+  instance factor_has_unit {α : Type u} {φ : α → Type v}
+    [group α] [is_normal_subgroup φ] : pointed_magma (α/φ) :=
+  ⟨⟨left_coset 1 φ, ⟨1, by trivial⟩⟩⟩
 end
 
 def mul_uniq {α : Type u} {a b c d : α} [magma α] (h : a = b) (g : c = d) :
