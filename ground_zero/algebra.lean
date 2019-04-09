@@ -95,6 +95,13 @@ section
 
   def identity_sqr : 1 = 1 · 1 :> α :=
   begin symmetry, apply monoid.left_unit end
+
+  theorem inv_uniq (a b : α) (h : a · b = 1) : a⁻¹ = b := calc
+    a⁻¹ = a⁻¹ · 1 : (monoid.right_unit a⁻¹)⁻¹
+    ... = a⁻¹ · (a · b) : magma.mul a⁻¹ # h⁻¹
+    ... = (a⁻¹ · a) · b : by apply monoid.assoc
+    ... = 1 · b : (· b) # (group.left_inv a)
+    ... = b : by apply monoid.left_unit
 end
 
 def commutes {α : Type u} [group α] (x y : α) :=
