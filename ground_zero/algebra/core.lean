@@ -22,6 +22,9 @@ class monoid (α : Type u) extends pointed_magma α :=
 (left_unit : Π (x : α), e · x = x)
 (assoc : Π (x y z : α), x · (y · z) = (x · y) · z)
 
+class abelian (α : Type u) [magma α] :=
+(comm : Π (x y : α), x · y = y · x)
+
 class group (α : Type u) extends monoid α :=
 (inv : α → α)
 (right_inv : Π (x : α), x · inv x = e)
@@ -56,16 +59,5 @@ instance : group bool :=
 { inv := id,
   left_inv := begin intro x, cases x; reflexivity end,
   right_inv := begin intro x, cases x; reflexivity end }
-
-def coeffspace (α : Type u) (β : Type v) :=
-β → α → α
-
-def is_eigenvalue {α : Type u} {β : Type v}
-  (mul : coeffspace α β) (A : α → α) (x : α) :=
-Σ y, A x = mul y x
-
-def spectrum {α : Type u} {β : Type v}
-  (mul : coeffspace α β) (A : α → α) :=
-Σ x, is_eigenvalue mul A x
 
 end ground_zero.algebra
