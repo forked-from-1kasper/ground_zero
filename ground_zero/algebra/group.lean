@@ -1,97 +1,60 @@
-import ground_zero.structures ground_zero.types.integer  ground_zero.types.swale
-open ground_zero.types.eq (pointed)
-open ground_zero.structures (hset)
-open ground_zero.types
+import ground_zero.algebra.core ground_zero.types.swale
+open ground_zero ground_zero.types
+open ground_zero.algebra (renaming group -> grp)
 
 hott theory
 
-namespace ground_zero.algebra
+namespace ground_zero.algebra.group
 
 universes u v
-class magma (α : Type u) :=
-(mul : α → α → α)
-
-infixr ` · `:70 := magma.mul
-
-class pointed_magma (α : Type u) extends magma α :=
-(e {} : α)
-open pointed_magma
-
-class monoid (α : Type u) extends pointed_magma α :=
-(right_unit : Π (x : α), x · e = x)
-(left_unit : Π (x : α), e · x = x)
-(assoc : Π (x y z : α), x · (y · z) = (x · y) · z)
-
-class group (α : Type u) extends monoid α :=
-(inv : α → α)
-(right_inv : Π (x : α), x · inv x = e)
-(left_inv : Π (x : α), inv x · x = e)
-
-instance {α : Type u} [pointed_magma α] : has_one α := ⟨e⟩
-instance {α : Type u} [group α] : has_inv α := ⟨group.inv⟩
-
-def group.natural_pow {α : Type u} [group α] (x : α) : ℕ → α
-| 0 := 1
-| (n + 1) := x · group.natural_pow n
-
-def group.pow {α : Type u} [group α] (x : α) : integer → α
-| (integer.pos n) := group.natural_pow x n
-| (integer.neg n) := group.natural_pow x⁻¹ (n + 1)
-
-section
-  variables {α : Type u} [group α]
-  instance nat_pow : has_pow α ℕ := ⟨group.natural_pow⟩
-  instance int_pow : has_pow α integer := ⟨group.pow⟩
-end
-
-theorem group_unit_is_unique {α : Type u} [group α] (e' : α)
+theorem group_unit_is_unique {α : Type u} [grp α] (e' : α)
   (right_unit' : Π x, x · e' = x)
   (left_unit' : Π x, e' · x = x)
-  (H : e = e' → empty) : empty := begin
+  (H : 1 = e' → empty) : empty := begin
   have p := monoid.right_unit e',
-  have q := left_unit' e,
+  have q := left_unit' 1,
   exact H (q⁻¹ ⬝ p)
 end
 
 section
-  variables {α : Type u} [group α]
+  variables {α : Type u} [grp α]
 
   def square_is_unique (x : α)
     (h : x · x = x) : x = 1 := calc
-      x = e · x : begin symmetry, apply monoid.left_unit end
+      x = 1 · x : begin symmetry, apply monoid.left_unit end
     ... = (x⁻¹ · x) · x :
           begin
             apply ground_zero.types.eq.map (· x),
-            symmetry, apply group.left_inv x
+            symmetry, apply algebra.group.left_inv x
           end
     ... = x⁻¹ · (x · x) : begin symmetry, apply monoid.assoc end
     ... = x⁻¹ · x : magma.mul x⁻¹ # h
-    ... = 1 : by apply group.left_inv
+    ... = 1 : by apply algebra.group.left_inv
   
   theorem inv_of_inv (x : α) : (x⁻¹)⁻¹ = x := calc
-    (x⁻¹)⁻¹ = e · (x⁻¹)⁻¹ : begin symmetry, apply monoid.left_unit end
+    (x⁻¹)⁻¹ = 1 · (x⁻¹)⁻¹ : begin symmetry, apply monoid.left_unit end
         ... = (x · x⁻¹) · (x⁻¹)⁻¹ :
               begin
                 apply ground_zero.types.eq.map (· x⁻¹⁻¹),
                 symmetry,
-                apply group.right_inv x
+                apply algebra.group.right_inv x
               end
         ... = x · (x⁻¹ · x⁻¹⁻¹) : begin symmetry, apply monoid.assoc end
-        ... = x · e : magma.mul x # (group.right_inv x⁻¹)
+        ... = x · 1 : magma.mul x # (algebra.group.right_inv x⁻¹)
         ... = x : monoid.right_unit x
   
   theorem reduce_left (a b c : α)
     (h : c · a = c · b) : a = b := calc
-      a = e · a         : (monoid.left_unit a)⁻¹
-    ... = (c⁻¹ · c) · a : (· a) # (group.left_inv c)⁻¹
+      a = 1 · a         : (monoid.left_unit a)⁻¹
+    ... = (c⁻¹ · c) · a : (· a) # (algebra.group.left_inv c)⁻¹
     ... = c⁻¹ · (c · a) : begin symmetry, apply monoid.assoc end
     ... = c⁻¹ · (c · b) : magma.mul c⁻¹ # h
     ... = (c⁻¹ · c) · b : by apply monoid.assoc
-    ... = e · b         : (· b) # (group.left_inv c)
+    ... = 1 · b         : (· b) # (algebra.group.left_inv c)
     ... = b             : monoid.left_unit b
 
   def identity_inv : 1 = 1⁻¹ :> α :=
-  (group.right_inv e)⁻¹ ⬝ monoid.left_unit e⁻¹
+  (algebra.group.right_inv 1)⁻¹ ⬝ monoid.left_unit 1⁻¹
 
   def identity_sqr : 1 = 1 · 1 :> α :=
   begin symmetry, apply monoid.left_unit end
@@ -100,32 +63,32 @@ section
     a⁻¹ = a⁻¹ · 1 : (monoid.right_unit a⁻¹)⁻¹
     ... = a⁻¹ · (a · b) : magma.mul a⁻¹ # h⁻¹
     ... = (a⁻¹ · a) · b : by apply monoid.assoc
-    ... = 1 · b : (· b) # (group.left_inv a)
+    ... = 1 · b : (· b) # (algebra.group.left_inv a)
     ... = b : by apply monoid.left_unit
 end
 
-def commutes {α : Type u} [group α] (x y : α) :=
+def commutes {α : Type u} [grp α] (x y : α) :=
 x · y = y · x
 
-def Zentrum (α : Type u) [group α] :=
+def Zentrum (α : Type u) [grp α] :=
 Σ (z : α), Π g, commutes z g
 
-def commutator {α : Type u} [group α] (g h : α) :=
+def commutator {α : Type u} [grp α] (g h : α) :=
 g⁻¹ · h⁻¹ · g · h
 
-def conjugate {α : Type u} [group α] (a x : α) :=
+def conjugate {α : Type u} [grp α] (a x : α) :=
 x⁻¹ · a · x
 
 section
-  variables {α : Type u} {β : Type v} [group α] [group β]
+  variables {α : Type u} {β : Type v} [grp α] [grp β]
 
   def is_homo (φ : α → β) :=
   Π a b, φ (a · b) = φ a · φ b
 
-  def homo (α : Type u) (β : Type v) [group α] [group β] :=
+  def homo (α : Type u) (β : Type v) [grp α] [grp β] :=
   Σ (φ : α → β), is_homo φ
 
-  def iso (α : Type u) (β : Type v) [group α] [group β] :=
+  def iso (α : Type u) (β : Type v) [grp α] [grp β] :=
   Σ (φ : α → β), is_homo φ × equiv.biinv φ
 
   infix ` ≅ `:25 := iso
@@ -138,16 +101,16 @@ section
   def Im := Σ g, im φ g
 end
 
-class is_subgroup {α : Type u} [group α] (φ : α → Type v) :=
+class is_subgroup {α : Type u} [grp α] (φ : α → Type v) :=
 (unit : φ 1)
 (mul : Π a b, φ a → φ b → φ (a · b))
 (inv : Π a, φ a → φ a⁻¹)
 
-class is_normal_subgroup {α : Type u} [group α] (φ : α → Type v) extends is_subgroup φ :=
+class is_normal_subgroup {α : Type u} [grp α] (φ : α → Type v) extends is_subgroup φ :=
 (conj : Π n g, φ n → φ (conjugate n g))
 
 section
-  variables {α : Type u} [group α]
+  variables {α : Type u} [grp α]
 
   def left_coset (g : α) (φ : α → Type v) [is_subgroup φ] : swale α :=
   λ x, Σ h, g · h = x
@@ -156,17 +119,17 @@ section
   λ x, Σ h, h · g = x
 
   def factor_group (α : Type u) (φ : α → Type v)
-    [group α] [is_normal_subgroup φ] : swale (swale α) :=
+    [grp α] [is_normal_subgroup φ] : swale (swale α) :=
   λ x, Σ g, left_coset g φ = x
 
   def factor (α : Type u) (φ : α → Type v)
-    [group α] [is_normal_subgroup φ] :=
+    [grp α] [is_normal_subgroup φ] :=
   swale.subtype (factor_group α φ)
 
   infix `/` := factor
 
   def factor.mul {α : Type u} {φ : α → Type v}
-    [group α] [is_normal_subgroup φ] (x y : α/φ) : α/φ := begin
+    [grp α] [is_normal_subgroup φ] (x y : α/φ) : α/φ := begin
     cases x with x h, cases h with a h,
     cases y with y g, cases g with b g,
     existsi left_coset (a · b) φ,
@@ -174,11 +137,11 @@ section
   end
 
   instance factor_has_binop {α : Type u} {φ : α → Type v}
-    [group α] [is_normal_subgroup φ] : magma (α/φ) :=
+    [grp α] [is_normal_subgroup φ] : magma (α/φ) :=
   ⟨factor.mul⟩
 
   instance factor_has_unit {α : Type u} {φ : α → Type v}
-    [group α] [is_normal_subgroup φ] : pointed_magma (α/φ) :=
+    [grp α] [is_normal_subgroup φ] : pointed_magma (α/φ) :=
   ⟨⟨left_coset 1 φ, ⟨1, by trivial⟩⟩⟩
 end
 
@@ -186,34 +149,34 @@ def mul_uniq {α : Type u} {a b c d : α} [magma α] (h : a = b) (g : c = d) :
   a · c = b · d :=
 begin induction h, induction g, reflexivity end
 
-def homo_saves_unit {α : Type u} {β : Type v} [group α] [group β]
+def homo_saves_unit {α : Type u} {β : Type v} [grp α] [grp β]
   (φ : homo α β) : φ.fst 1 = 1 := begin
   cases φ with φ H, apply square_is_unique, calc
     φ 1 · φ 1 = φ (1 · 1) : (H 1 1)⁻¹
           ... = φ 1 : φ # identity_sqr⁻¹
 end
 
-def homo_respects_inv {α : Type u} {β : Type v} [group α] [group β]
+def homo_respects_inv {α : Type u} {β : Type v} [grp α] [grp β]
   (φ : homo α β) (x : α) : φ.fst x⁻¹ = (φ.fst x)⁻¹ := begin
   cases φ with φ H, calc
-    φ x⁻¹ = φ x⁻¹ · e : begin symmetry, apply monoid.right_unit end
+    φ x⁻¹ = φ x⁻¹ · 1 : begin symmetry, apply monoid.right_unit end
       ... = φ x⁻¹ · (φ x · (φ x)⁻¹) :
             begin
               apply eq.map, symmetry,
-              apply group.right_inv
+              apply algebra.group.right_inv
             end
       ... = (φ x⁻¹ · φ x) · (φ x)⁻¹ : by apply monoid.assoc
       ... = φ (x⁻¹ · x) · (φ x)⁻¹ : (· (φ x)⁻¹) # (H x⁻¹ x)⁻¹
       ... = φ 1 · (φ x)⁻¹ :
             begin
               apply eq.map (λ y, φ y · (φ x)⁻¹),
-              apply group.left_inv
+              apply algebra.group.left_inv
             end
       ... = 1 · (φ x)⁻¹ : (· (φ x)⁻¹) # (homo_saves_unit ⟨φ, H⟩)
       ... = (φ x)⁻¹ : by apply monoid.left_unit
 end
 
-instance ker_is_subgroup {α : Type u} {β : Type v} [group α] [group β]
+instance ker_is_subgroup {α : Type u} {β : Type v} [grp α] [grp β]
   (φ : homo α β) : is_subgroup (ker φ) :=
 { unit := begin unfold ker, apply homo_saves_unit end,
   mul := begin
@@ -227,11 +190,11 @@ instance ker_is_subgroup {α : Type u} {β : Type v} [group α] [group β]
     intros x h,
     unfold ker at h, unfold ker, cases φ with φ H, calc
       φ x⁻¹ = (φ x)⁻¹ : homo_respects_inv ⟨φ, H⟩ x
-        ... = 1⁻¹     : group.inv # h
+        ... = 1⁻¹     : algebra.group.inv # h
         ... = 1       : identity_inv⁻¹
   end }
 
-instance ker_is_normal_subgroup {α : Type u} {β : Type v} [group α] [group β]
+instance ker_is_normal_subgroup {α : Type u} {β : Type v} [grp α] [grp β]
   (φ : homo α β) : is_normal_subgroup (ker φ) := begin
   apply is_normal_subgroup.mk, intros n g h, cases φ with φ H,
   unfold ker at h, unfold ker, unfold conjugate, calc
@@ -245,11 +208,11 @@ instance ker_is_normal_subgroup {α : Type u} {β : Type v} [group α] [group β
                 ... = φ g⁻¹ · φ g :
                       begin apply eq.map, apply monoid.left_unit end
                 ... = φ (g⁻¹ · g) : begin symmetry, apply H end
-                ... = φ 1 : φ # (group.left_inv g)
+                ... = φ 1 : φ # (algebra.group.left_inv g)
                 ... = 1 : homo_saves_unit ⟨φ, H⟩
 end
 
-instance im_is_subgroup {α : Type u} {β : Type v} [group α] [group β]
+instance im_is_subgroup {α : Type u} {β : Type v} [grp α] [grp β]
   (φ : homo α β) : is_subgroup (im φ) :=
 { unit := ⟨1, homo_saves_unit φ⟩,
   mul := begin
@@ -265,28 +228,4 @@ instance im_is_subgroup {α : Type u} {β : Type v} [group α] [group β]
     apply eq.map, exact h
   end }
 
-instance : magma bool := ⟨bxor⟩
-instance : pointed_magma bool := ⟨ff⟩
-
-instance : monoid bool :=
-{ right_unit := begin intro x, cases x; reflexivity end,
-  left_unit := begin intro x, cases x; reflexivity end,
-  assoc := begin intros x y z, cases x; cases y; cases z; reflexivity end }
-
-instance : group bool :=
-{ inv := id,
-  left_inv := begin intro x, cases x; reflexivity end,
-  right_inv := begin intro x, cases x; reflexivity end }
-
-def coeffspace (α : Type u) (β : Type v) :=
-β → α → α
-
-def is_eigenvalue {α : Type u} {β : Type v}
-  (mul : coeffspace α β) (A : α → α) (x : α) :=
-Σ y, A x = mul y x
-
-def spectrum {α : Type u} {β : Type v}
-  (mul : coeffspace α β) (A : α → α) :=
-Σ x, is_eigenvalue mul A x
-
-end ground_zero.algebra
+end ground_zero.algebra.group
