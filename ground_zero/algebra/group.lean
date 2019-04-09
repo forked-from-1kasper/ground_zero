@@ -228,11 +228,9 @@ instance im_is_subgroup {α : Type u} {β : Type v} [grp α] [grp β]
     apply eq.map, exact h
   end }
 
-class vector (α : Type u) (β : Type v) [pointed_magma β] extends algebra.monoid α, abelian α :=
-(opp : β) (ap : β → α → α)
-(inv : Π x, x · ap opp x = 1)
+class vector (α : Type u) (β : Type v) [pointed_magma β] extends algebra.group α, abelian α :=
+(ap : β → α → α) (unit : Π x, ap 1 x = x)
 (ap_assoc : Π a b x, ap a (ap b x) = ap (a · b) x)
-(unit : Π x, ap 1 x = x)
 (distrib_scalar : Π a b x, ap (a · b) x = ap a x · ap b x)
 (distrib_vecotr : Π a x y, ap a (x · y) = ap a x · ap a y)
 
