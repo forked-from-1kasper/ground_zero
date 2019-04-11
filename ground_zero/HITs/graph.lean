@@ -1,4 +1,4 @@
-import ground_zero.HITs.truncation
+import ground_zero.types.heq
 open ground_zero.types
 
 hott theory
