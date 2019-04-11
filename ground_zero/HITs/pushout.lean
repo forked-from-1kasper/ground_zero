@@ -1,4 +1,4 @@
-import ground_zero.types.heq
+import ground_zero.HITs.graph
 
 /-
   Pushout.
@@ -12,32 +12,30 @@ universes u v w k
 
 section
   parameters {α : Type u} {β : Type v} {σ : Type k} (f : σ → α) (g : σ → β)
-  inductive pushout_rel : (α ⊕ β) → (α ⊕ β) → Prop
+  inductive pushout_rel : (α ⊕ β) → (α ⊕ β) → Type k
   | mk {} : Π (x : σ), pushout_rel (sum.inl (f x)) (sum.inr (g x))
-  def pushout := quot pushout_rel
+  def pushout := graph pushout_rel
 end
 
 namespace pushout
   -- https://github.com/leanprover/lean2/blob/master/hott/hit/pushout.hlean
   variables {α : Type u} {β : Type v} {σ : Type k} {f : σ → α} {g : σ → β}
   def inl (x : α) : pushout f g :=
-  quot.mk (pushout_rel f g) (sum.inl x)
+  graph.elem (sum.inl x)
 
   def inr (x : β) : pushout f g :=
-  quot.mk (pushout_rel f g) (sum.inr x)
+  graph.elem (sum.inr x)
 
   def glue (x : σ) : inl (f x) = inr (g x) :> pushout f g :=
-  support.inclusion (quot.sound $ pushout_rel.mk x)
+  graph.line (pushout_rel.mk x)
 
   def ind {δ : pushout f g → Type w}
     (inl₁ : Π (x : α), δ (inl x)) (inr₁ : Π (x : β), δ (inr x))
     (glue₁ : Π (x : σ), inl₁ (f x) =[glue x] inr₁ (g x)) :
     Π (x : pushout f g), δ x := begin
-    intro h, refine quot.hrec_on h _ _,
-    { intro x, induction x, exact inl₁ x, exact inr₁ x },
-    { intros u v H, cases H with x, simp,
-      apply types.heq.from_pathover (glue x),
-      exact glue₁ x }
+    fapply graph.ind,
+    { intro x, induction x, apply inl₁, apply inr₁ },
+    { intros u v H, cases H with x, apply glue₁ }
   end
 
   def rec {δ : Type w} (inl₁ : α → δ) (inr₁ : β → δ)

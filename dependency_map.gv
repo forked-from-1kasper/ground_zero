@@ -34,7 +34,6 @@ digraph dependency_map {
       "HITs/colimit",
       "HITs/generalized",
       "HITs/int",
-      "HITs/pushout",
       "HITs/interval",
       "HITs/graph"
     }
@@ -51,7 +50,10 @@ digraph dependency_map {
     "HITs/circle" -> "HITs/ntrunc"
     "HITs/colimit" -> "HITs/truncation"
     "HITs/generalized" -> "HITs/truncation"
-    "HITs/graph" -> "theorems/graphs"
+    "HITs/graph" -> {
+      "HITs/pushout",
+      "theorems/graphs"
+    }
     "HITs/infinitesimal"
     "HITs/int" -> "HITs/rat"
     "HITs/interval" -> { "types/product", "theorems/prop" }
