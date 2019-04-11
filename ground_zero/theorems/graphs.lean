@@ -1,4 +1,4 @@
-import ground_zero.HITs.graph ground_zero.HITs.truncation
+import ground_zero.HITs.truncation
 open ground_zero.types.eq (renaming rfl -> idp) ground_zero.HITs
 
 hott theory
