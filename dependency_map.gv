@@ -31,8 +31,6 @@ digraph dependency_map {
       "types/unit"
     }
     "types/heq" -> {
-      "HITs/colimit",
-      "HITs/generalized",
       "HITs/int",
       "HITs/interval",
       "HITs/graph"
@@ -51,7 +49,10 @@ digraph dependency_map {
     "HITs/colimit" -> "HITs/truncation"
     "HITs/generalized" -> "HITs/truncation"
     "HITs/graph" -> {
+      "HITs/colimit",
+      "HITs/generalized",
       "HITs/pushout",
+      "HITs/moebius",
       "theorems/graphs"
     }
     "HITs/infinitesimal"

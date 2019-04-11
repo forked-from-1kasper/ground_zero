@@ -1,4 +1,4 @@
-import ground_zero.types.heq
+import ground_zero.HITs.graph
 open ground_zero.types.dep_path (pathover_of_eq)
 
 /-
@@ -10,31 +10,26 @@ open ground_zero.types.dep_path (pathover_of_eq)
 namespace ground_zero.HITs
 universes u v
 
-inductive generalized.rel {α : Sort u} : α → α → Prop
-| mk : Π (a b : α), generalized.rel a b
+inductive generalized.rel (α : Sort u) : α → α → Sort u
+| mk {} : Π (a b : α), generalized.rel a b
 
-def generalized (α : Sort u) := @quot α generalized.rel
+def generalized (α : Sort u) := graph (generalized.rel α)
 notation `{` α `}` := generalized α
 
 namespace generalized
-  def incl {α : Sort u} (a : α) : {α} :=
-  quot.mk rel a
+  def incl {α : Sort u} : α → {α} := graph.elem
 
   def glue {α : Sort u} (a b : α) :
     incl a = incl b :> {α} :=
-  ground_zero.support.inclusion $ quot.sound
-    (generalized.rel.mk a b)
+  graph.line (generalized.rel.mk a b)
 
   def ind
     {α : Sort u} {π : {α} → Sort v}
     (incl₁ : Π (a : α), π (incl a))
     (glue₁ : Π (a b : α), incl₁ a =[glue a b] incl₁ b) :
     Π (x : generalized α), π x := begin
-    intro x, fapply quot.hrec_on x, clear x,
-    { exact incl₁ },
-    { intros, clear p,
-      fapply ground_zero.types.heq.from_pathover,
-      apply glue, apply glue₁ }
+    fapply graph.ind, exact incl₁,
+    { intros u v H, cases H, apply glue₁ }
   end
 
   def rec {α : Sort u} {π : Sort v}

@@ -1,4 +1,4 @@
-import ground_zero.cubical
+import ground_zero.cubical ground_zero.HITs.graph
 
 /-
   The Möbius band as quotient of square I × I.
@@ -16,13 +16,13 @@ import ground_zero.cubical
 namespace ground_zero.HITs
 open ground_zero.cubical
 
-inductive moebius.rel : I × I → I × I → Prop
+inductive moebius.rel : I × I → I × I → Type
 | glue (x : I) : moebius.rel ⟨x, 0⟩ ⟨−x, 1⟩
 
-def moebius := quot moebius.rel
+def moebius := graph moebius.rel
 
 namespace moebius
-  def elem (x y : I) : moebius := quot.mk rel ⟨x, y⟩
+  def elem (x y : I) : moebius := graph.elem ⟨x, y⟩
 
   def a := elem 0 0
   def b := elem 1 0
@@ -33,7 +33,7 @@ namespace moebius
   def down : d ⇝ c := <i> elem (−i) 1
 
   def glue (x : I) : elem x 0 = elem (−x) 1 :> moebius :=
-  ground_zero.support.inclusion (quot.sound $ rel.glue x)
+  graph.line (rel.glue x)
 end moebius
 
 end ground_zero.HITs

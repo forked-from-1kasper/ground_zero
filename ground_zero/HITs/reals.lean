@@ -12,24 +12,21 @@ universes u v w
 
 local notation ℤ := integer
 
-inductive reals.rel : ℤ → ℤ → Prop
+inductive reals.rel : ℤ → ℤ → Type
 | glue (x : ℤ) : reals.rel x (integer.succ x)
-def reals := quot reals.rel
+def reals := graph reals.rel
 notation `R` := reals
 
 namespace reals
-  def elem : ℤ → R := quot.mk rel
+  def elem : ℤ → R := graph.elem
   def glue (z : ℤ) : elem z = elem (integer.succ z) :> R :=
-  ground_zero.support.inclusion (quot.sound $ rel.glue z)
+  graph.line (rel.glue z)
 
   def ind {π : R → Sort u} (cz : Π x, π (elem x))
     (sz : Π z, cz z =[glue z] cz (integer.succ z))
     (u : R) : π u := begin
-    refine quot.hrec_on u _ _,
-    exact cz, intros x y p, cases p,
-    refine ground_zero.types.eq.rec _
-      (equiv.subst_from_pathover (sz x)),
-    apply ground_zero.types.heq.eq_subst_heq
+    fapply graph.ind, exact cz,
+    { intros u v H, cases H, apply sz }
   end
 
   def rec {π : Sort u} (cz : ℤ → π)

@@ -22,10 +22,10 @@ inductive simplex.core : ℕ → Type
 | base {n : ℕ} : simplex.core (n + 1)
 | lift {n : ℕ} : simplex.core n → simplex.core (n + 1)
 
-inductive simplex.rel : Π n, simplex.core n → simplex.core n → Prop
+inductive simplex.rel : Π n, simplex.core n → simplex.core n → Type
 | mk {n : ℕ} (x : simplex.core n) :
   simplex.rel (n + 1) simplex.core.base (simplex.core.lift x)
 
-def simplex (n : ℕ) := quot (simplex.rel n)
+def simplex (n : ℕ) := graph (simplex.rel n)
 
 end ground_zero.HITs
