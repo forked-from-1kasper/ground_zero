@@ -36,7 +36,7 @@ digraph dependency_map {
       "HITs/pushout",
       "HITs/interval"
     }
-    "types/integer" ->  { "HITs/circle", "HITs/reals", "algebra/core" }
+    "types/integer" -> { "HITs/circle", "HITs/reals", "algebra/core" }
     "types/lost"
     "types/nat"
     "types/product" -> { "cubical/cubes", "theorems/ua" }
@@ -65,7 +65,8 @@ digraph dependency_map {
     "HITs/truncation" -> {
       "theorems/mere_eq_lemma",
       "theorems/prop",
-      "HITs/simplicial"
+      "HITs/simplicial",
+      "HITs/graph"
     }
   }
 

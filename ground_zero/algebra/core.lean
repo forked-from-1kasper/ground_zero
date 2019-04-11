@@ -47,17 +47,34 @@ section
   instance int_pow : has_pow α integer := ⟨group.pow⟩
 end
 
-instance : magma bool := ⟨bxor⟩
-instance : pointed_magma bool := ⟨ff⟩
+namespace bool
+  instance : magma bool := ⟨bxor⟩
+  instance : pointed_magma bool := ⟨ff⟩
 
-instance : monoid bool :=
-{ right_unit := begin intro x, cases x; reflexivity end,
-  left_unit := begin intro x, cases x; reflexivity end,
-  assoc := begin intros x y z, cases x; cases y; cases z; reflexivity end }
+  instance : monoid bool :=
+  { right_unit := begin intro x, cases x; reflexivity end,
+    left_unit := begin intro x, cases x; reflexivity end,
+    assoc := begin intros x y z, cases x; cases y; cases z; reflexivity end }
 
-instance : group bool :=
-{ inv := id,
-  left_inv := begin intro x, cases x; reflexivity end,
-  right_inv := begin intro x, cases x; reflexivity end }
+  instance : group bool :=
+  { inv := id,
+    left_inv := begin intro x, cases x; reflexivity end,
+    right_inv := begin intro x, cases x; reflexivity end }
+end bool
+
+namespace unit
+  instance : magma 𝟏 := ⟨λ x y, x⟩
+  instance : pointed_magma 𝟏 := ⟨★⟩
+
+  instance : monoid 𝟏 :=
+  { right_unit := begin intro x, cases x; reflexivity end,
+    left_unit := begin intro x, cases x; reflexivity end,
+    assoc := begin intros x y z, cases x; cases y; cases z; reflexivity end }
+
+  instance : group 𝟏 :=
+  { inv := id,
+    left_inv := begin intro x, cases x; reflexivity end,
+    right_inv := begin intro x, cases x; reflexivity end }
+end unit
 
 end ground_zero.algebra
