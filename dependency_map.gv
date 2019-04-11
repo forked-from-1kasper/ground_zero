@@ -70,6 +70,7 @@ digraph dependency_map {
     "HITs/truncation" -> {
       "theorems/mere_eq_lemma",
       "theorems/prop",
+      "theorems/graphs",
       "HITs/simplicial"
     }
   }
