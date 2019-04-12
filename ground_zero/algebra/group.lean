@@ -95,10 +95,10 @@ section
 
   variable (φ : homo α β)
   def ker : swale α := λ g, φ.fst g = 1
-  def Ker := Σ g, ker φ g
+  def Ker := swale.subtype (ker φ)
 
   def im : swale β := λ g, Σ f, φ.fst f = g
-  def Im := Σ g, im φ g
+  def Im := swale.subtype (im φ)
 end
 
 class is_subgroup {α : Type u} [grp α] (φ : α → Type v) :=

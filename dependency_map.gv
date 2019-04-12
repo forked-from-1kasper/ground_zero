@@ -52,7 +52,8 @@ digraph dependency_map {
       "HITs/colimit",
       "HITs/generalized",
       "HITs/pushout",
-      "HITs/moebius"
+      "HITs/moebius",
+      "types/precategory"
     }
     "HITs/infinitesimal"
     "HITs/int" -> "HITs/rat"

@@ -59,12 +59,12 @@ inductive Koenigsberg
 
 namespace Koenigsberg
   def edges : Koenigsberg → Koenigsberg → Type
-  | Kneiphof Lomse    := ground_zero.types.unit
-  | Altstadt Lomse    := ground_zero.types.unit
-  | Lomse    Vorstadt := ground_zero.types.unit
-  | Altstadt Kneiphof := bool
-  | Altstadt Vorstadt := bool
-  | _        _        := empty
+  | Kneiphof Lomse    := 𝟏
+  | Altstadt Lomse    := 𝟏
+  | Lomse    Vorstadt := 𝟏
+  | Altstadt Kneiphof := 𝟐
+  | Altstadt Vorstadt := 𝟐
+  | _        _        := 𝟎
 end Koenigsberg
 
 end ground_zero.theorems.graphs
