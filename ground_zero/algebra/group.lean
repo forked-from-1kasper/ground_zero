@@ -136,43 +136,68 @@ section
     existsi (a · b), trivial
   end
 
-  instance factor_has_binop {α : Type u} {φ : α → Type v}
+  instance factor.has_binop {α : Type u} {φ : α → Type v}
     [grp α] [is_normal_subgroup φ] : magma (α/φ) :=
   ⟨factor.mul⟩
 
-  instance factor_has_unit {α : Type u} {φ : α → Type v}
+  instance factor.has_unit {α : Type u} {φ : α → Type v}
     [grp α] [is_normal_subgroup φ] : pointed_magma (α/φ) :=
   ⟨⟨left_coset 1 φ, ⟨1, by trivial⟩⟩⟩
 
-  def incl {α : Type u} {φ : α → Type v}
+  def factor.incl {α : Type u} {φ : α → Type v}
     [grp α] [is_normal_subgroup φ] (x : α) : α/φ :=
   ⟨left_coset x φ, ⟨x, types.eq.refl (left_coset x φ)⟩⟩
 
-  def left_unit {α : Type u} {φ : α → Type v}
+  def factor.left_unit {α : Type u} {φ : α → Type v}
     [grp α] [is_normal_subgroup φ] (x : α/φ) : x · 1 = x := begin
     cases x with x h, cases h with a h, induction h,
-    apply eq.map incl, apply monoid.right_unit
+    apply eq.map factor.incl, apply monoid.right_unit
   end
 
-  def right_unit {α : Type u} {φ : α → Type v}
+  def factor.right_unit {α : Type u} {φ : α → Type v}
     [grp α] [is_normal_subgroup φ] (x : α/φ) : 1 · x = x := begin
     cases x with x h, cases h with a h, induction h,
-    apply eq.map incl, apply monoid.left_unit
+    apply eq.map factor.incl, apply monoid.left_unit
   end
 
-  def assoc {α : Type u} {φ : α → Type v}
+  def factor.assoc {α : Type u} {φ : α → Type v}
     [grp α] [is_normal_subgroup φ] (x y z : α/φ) :
     x · (y · z) = (x · y) · z := begin
     cases x with x h, cases h with a h,
     cases y with y g, cases g with b g,
     cases z with z f, cases f with c f,
     induction h, induction g, induction f,
-    apply eq.map incl, apply monoid.assoc
+    apply eq.map factor.incl, apply monoid.assoc
   end
 
-  instance factor_is_monoid {α : Type u} {φ : α → Type v}
+  instance factor.is_monoid {α : Type u} {φ : α → Type v}
     [grp α] [is_normal_subgroup φ] : algebra.monoid (α/φ) :=
-  ⟨left_unit, right_unit, assoc⟩
+  ⟨factor.left_unit, factor.right_unit, factor.assoc⟩
+
+  def factor.inv {α : Type u} {φ : α → Type v}
+    [grp α] [is_normal_subgroup φ] (x : α/φ) : α/φ := begin
+    cases x with x h, cases h with a h, apply factor.incl a⁻¹
+  end
+
+  def factor.right_inv {α : Type u} {φ : α → Type v}
+    [grp α] [is_normal_subgroup φ] (x : α/φ) :
+    x · factor.inv x = 1 := begin
+    cases x with x h, cases h with a h,
+    induction h, apply eq.map factor.incl,
+    apply group.right_inv
+  end
+
+  def factor.left_inv {α : Type u} {φ : α → Type v}
+    [grp α] [is_normal_subgroup φ] (x : α/φ) :
+    factor.inv x · x = 1 := begin
+    cases x with x h, cases h with a h,
+    induction h, apply eq.map factor.incl,
+    apply group.left_inv
+  end
+
+  instance factor.is_group {α : Type u} {φ : α → Type v}
+    [grp α] [is_normal_subgroup φ] : grp (α/φ) :=
+  ⟨factor.inv, factor.right_inv, factor.left_inv⟩
 end
 
 def mul_uniq {α : Type u} {a b c d : α} [magma α] (h : a = b) (g : c = d) :
