@@ -62,7 +62,7 @@ theorem idtoeqv_and_id {α : Sort u} :
 begin simp [idtoeqv] end
 
 noncomputable theorem prop_uniq {α β : Sort u} (p : α = β) :
-  (ua (idtoeqv p)) = p := begin
+  ua (idtoeqv p) = p := begin
   unfold ua, induction p, exact Jβrule
 end
 

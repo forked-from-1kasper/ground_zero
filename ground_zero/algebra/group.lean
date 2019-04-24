@@ -143,6 +143,36 @@ section
   instance factor_has_unit {α : Type u} {φ : α → Type v}
     [grp α] [is_normal_subgroup φ] : pointed_magma (α/φ) :=
   ⟨⟨left_coset 1 φ, ⟨1, by trivial⟩⟩⟩
+
+  def incl {α : Type u} {φ : α → Type v}
+    [grp α] [is_normal_subgroup φ] (x : α) : α/φ :=
+  ⟨left_coset x φ, ⟨x, types.eq.refl (left_coset x φ)⟩⟩
+
+  def left_unit {α : Type u} {φ : α → Type v}
+    [grp α] [is_normal_subgroup φ] (x : α/φ) : x · 1 = x := begin
+    cases x with x h, cases h with a h, induction h,
+    apply eq.map incl, apply monoid.right_unit
+  end
+
+  def right_unit {α : Type u} {φ : α → Type v}
+    [grp α] [is_normal_subgroup φ] (x : α/φ) : 1 · x = x := begin
+    cases x with x h, cases h with a h, induction h,
+    apply eq.map incl, apply monoid.left_unit
+  end
+
+  def assoc {α : Type u} {φ : α → Type v}
+    [grp α] [is_normal_subgroup φ] (x y z : α/φ) :
+    x · (y · z) = (x · y) · z := begin
+    cases x with x h, cases h with a h,
+    cases y with y g, cases g with b g,
+    cases z with z f, cases f with c f,
+    induction h, induction g, induction f,
+    apply eq.map incl, apply monoid.assoc
+  end
+
+  instance factor_is_monoid {α : Type u} {φ : α → Type v}
+    [grp α] [is_normal_subgroup φ] : algebra.monoid (α/φ) :=
+  ⟨left_unit, right_unit, assoc⟩
 end
 
 def mul_uniq {α : Type u} {a b c d : α} [magma α] (h : a = b) (g : c = d) :

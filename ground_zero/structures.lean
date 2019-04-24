@@ -18,9 +18,9 @@ structure contr (α : Sort u) :=
 (point : α) (intro : Π (a : α), point = a :> α)
 --  or we can write `idfun ~ λ _, point`
 
-def LEM := Π (α : Type u), prop α → (α + ¬α)
+def LEM := Π (α : Sort u), prop α → (α + ¬α)
 def law_of_double_negation :=
-Π (α : Type u), prop α → (¬¬α → α)
+Π (α : Sort u), prop α → (¬¬α → α)
 
 def LEM_inf := Π (α : Type u), α + ¬α
 notation `LEM∞` := LEM_inf
@@ -64,8 +64,8 @@ def prop_impl_prop {α : Prop} : prop α :=
 begin intros x y, trivial end
 
 def bool_to_universe : bool → Type
-| tt := types.unit
-| ff := empty
+| tt := 𝟏
+| ff := 𝟎
 
 theorem ff_neq_tt (h : ff = tt) : empty :=
 @ground_zero.types.eq.rec
