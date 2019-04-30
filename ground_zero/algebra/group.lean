@@ -106,6 +106,26 @@ class is_subgroup {α : Type u} [grp α] (φ : α → Type v) :=
 (mul : Π a b, φ a → φ b → φ (a · b))
 (inv : Π a, φ a → φ a⁻¹)
 
+def subgroup.mul {α : Type u} [grp α] (φ : α → Type v)
+  [is_subgroup φ] (x y : swale.subtype φ) : swale.subtype φ := begin
+  cases x with x h, cases y with y g, existsi (x · y),
+  apply is_subgroup.mul; assumption
+end
+
+def subgroup.inv {α : Type u} [grp α] (φ : α → Type v)
+  [is_subgroup φ] (x : swale.subtype φ) : swale.subtype φ := begin
+  cases x with x h, existsi x⁻¹,
+  apply is_subgroup.inv; assumption
+end
+
+instance subgroup.magma {α : Type u} [grp α] (φ : α → Type v)
+  [is_subgroup φ] : magma (swale.subtype φ) :=
+⟨subgroup.mul φ⟩
+
+instance subgroup.pointed_magma {α : Type u} [grp α] (φ : α → Type v)
+  [is_subgroup φ] : pointed_magma (swale.subtype φ) :=
+⟨⟨1, is_subgroup.unit φ⟩⟩
+
 class is_normal_subgroup {α : Type u} [grp α] (φ : α → Type v) extends is_subgroup φ :=
 (conj : Π n g, φ n → φ (conjugate n g))
 
