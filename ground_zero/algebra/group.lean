@@ -1,5 +1,5 @@
 import ground_zero.algebra.core ground_zero.types.swale
-open ground_zero ground_zero.types
+open ground_zero ground_zero.types ground_zero.algebra.pointed_magma
 open ground_zero.algebra (renaming group -> grp)
 
 hott theory
@@ -109,6 +109,12 @@ theorem conjugate_distrib {α : Type u} [grp α]
             ... = y⁻¹ · (x⁻¹ · g · x) · y :
                   begin apply eq.map, apply monoid.assoc end
             ... = (g ^ x) ^ y : by reflexivity
+
+theorem conjugate_id {α : Type u} [grp α] (g : α) : g ^ (e : α) = g := calc
+   g ^ (e : α) = e⁻¹ · g · e : by reflexivity
+           ... = e⁻¹ · g : (magma.mul e⁻¹) # (monoid.right_unit g)
+           ... = e · g : (· g) # identity_inv⁻¹
+           ... = g : by apply monoid.left_unit
 
 section
   variables {α : Type u} {β : Type v} [grp α] [grp β]
