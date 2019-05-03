@@ -59,12 +59,25 @@ section
   def identity_sqr : 1 = 1 · 1 :> α :=
   begin symmetry, apply monoid.left_unit end
 
-  theorem inv_uniq (a b : α) (h : a · b = 1) : a⁻¹ = b := calc
+  theorem inv_uniq {a b : α} (h : a · b = 1) : a⁻¹ = b := calc
     a⁻¹ = a⁻¹ · 1 : (monoid.right_unit a⁻¹)⁻¹
     ... = a⁻¹ · (a · b) : magma.mul a⁻¹ # h⁻¹
     ... = (a⁻¹ · a) · b : by apply monoid.assoc
     ... = 1 · b : (· b) # (algebra.group.left_inv a)
     ... = b : by apply monoid.left_unit
+
+  theorem inv_explode (x y : α) : (x · y)⁻¹ = y⁻¹ · x⁻¹ := begin
+    apply inv_uniq, calc
+      (x · y) · y⁻¹ · x⁻¹ = ((x · y) · y⁻¹) · x⁻¹ : by apply monoid.assoc
+                      ... = (x · 1) · x⁻¹ :
+                            begin
+                              apply eq.map (· x⁻¹), transitivity,
+                              { symmetry, apply monoid.assoc },
+                              { apply eq.map, apply group.right_inv }
+                            end
+                      ... = x · x⁻¹ : (· x⁻¹) # (monoid.right_unit x)
+                      ... = 1 : by apply group.right_inv
+  end
 end
 
 def commutes {α : Type u} [grp α] (x y : α) :=
@@ -78,6 +91,24 @@ g⁻¹ · h⁻¹ · g · h
 
 def conjugate {α : Type u} [grp α] (a x : α) :=
 x⁻¹ · a · x
+
+instance {α : Type u} [grp α] : has_pow α α := ⟨conjugate⟩
+
+theorem conjugate_distrib {α : Type u} [grp α]
+  (g x y : α) : g ^ (x · y) = (g ^ x) ^ y := calc
+    g ^ (x · y) = (x · y)⁻¹ · g · (x · y) : by reflexivity
+            ... = (y⁻¹ · x⁻¹) · g · (x · y) :
+                    (· g · (x · y)) # (inv_explode x y)
+            ... = y⁻¹ · x⁻¹ · g · (x · y) :
+                  begin symmetry, apply monoid.assoc end
+            ... = y⁻¹ · x⁻¹ · ((g · x) · y) :
+                  begin
+                    apply eq.map (λ h, y⁻¹ · x⁻¹ · h),
+                    apply monoid.assoc
+                  end
+            ... = y⁻¹ · (x⁻¹ · g · x) · y :
+                  begin apply eq.map, apply monoid.assoc end
+            ... = (g ^ x) ^ y : by reflexivity
 
 section
   variables {α : Type u} {β : Type v} [grp α] [grp β]
@@ -127,7 +158,7 @@ instance subgroup.pointed_magma {α : Type u} [grp α] (φ : α → Type v)
 ⟨⟨1, is_subgroup.unit φ⟩⟩
 
 class is_normal_subgroup {α : Type u} [grp α] (φ : α → Type v) extends is_subgroup φ :=
-(conj : Π n g, φ n → φ (conjugate n g))
+(conj : Π (n g : α), φ n → φ (n ^ g))
 
 section
   variables {α : Type u} [grp α]
@@ -272,7 +303,7 @@ instance ker_is_subgroup {α : Type u} {β : Type v} [grp α] [grp β]
 instance ker_is_normal_subgroup {α : Type u} {β : Type v} [grp α] [grp β]
   (φ : homo α β) : is_normal_subgroup (ker φ) := begin
   apply is_normal_subgroup.mk, intros n g h, cases φ with φ H,
-  unfold ker at h, unfold ker, unfold conjugate, calc
+  unfold ker at h, unfold ker, unfold has_pow.pow, unfold conjugate, calc
     φ (g⁻¹ · n · g) = φ g⁻¹ · φ (n · g) : by apply H
                 ... = φ g⁻¹ · φ n · φ g : begin apply eq.map, apply H end
                 ... = φ g⁻¹ · 1 · φ g :
