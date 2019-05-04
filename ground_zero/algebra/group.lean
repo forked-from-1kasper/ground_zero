@@ -42,6 +42,9 @@ section
         ... = x · (x⁻¹ · x⁻¹⁻¹) : begin symmetry, apply monoid.assoc end
         ... = x · 1 : magma.mul x # (algebra.group.right_inv x⁻¹)
         ... = x : monoid.right_unit x
+
+  theorem inv_inj (a b : α) (h : a⁻¹ = b⁻¹) : a = b :=
+  (inv_of_inv a)⁻¹ ⬝ (inv # h) ⬝ (inv_of_inv b)
   
   theorem reduce_left (a b c : α)
     (h : c · a = c · b) : a = b := calc
@@ -125,12 +128,14 @@ section
   def homo (α : Type u) (β : Type v) [grp α] [grp β] :=
   Σ (φ : α → β), is_homo φ
 
+  infix ` ⤳ `:20 := homo
+
   def iso (α : Type u) (β : Type v) [grp α] [grp β] :=
   Σ (φ : α → β), is_homo φ × equiv.biinv φ
 
   infix ` ≅ `:25 := iso
 
-  variable (φ : homo α β)
+  variable (φ : α ⤳ β)
   def ker : swale α := λ g, φ.fst g = 1
   def Ker := swale.subtype (ker φ)
 
@@ -262,14 +267,14 @@ def mul_uniq {α : Type u} {a b c d : α} [magma α] (h : a = b) (g : c = d) :
 begin induction h, induction g, reflexivity end
 
 def homo_saves_unit {α : Type u} {β : Type v} [grp α] [grp β]
-  (φ : homo α β) : φ.fst 1 = 1 := begin
+  (φ : α ⤳ β) : φ.fst 1 = 1 := begin
   cases φ with φ H, apply square_is_unique, calc
     φ 1 · φ 1 = φ (1 · 1) : (H 1 1)⁻¹
           ... = φ 1 : φ # identity_sqr⁻¹
 end
 
 def homo_respects_inv {α : Type u} {β : Type v} [grp α] [grp β]
-  (φ : homo α β) (x : α) : φ.fst x⁻¹ = (φ.fst x)⁻¹ := begin
+  (φ : α ⤳ β) (x : α) : φ.fst x⁻¹ = (φ.fst x)⁻¹ := begin
   cases φ with φ H, calc
     φ x⁻¹ = φ x⁻¹ · 1 : begin symmetry, apply monoid.right_unit end
       ... = φ x⁻¹ · (φ x · (φ x)⁻¹) :
@@ -288,8 +293,23 @@ def homo_respects_inv {α : Type u} {β : Type v} [grp α] [grp β]
       ... = (φ x)⁻¹ : by apply monoid.left_unit
 end
 
+def right_div {α : Type u} [grp α] (x y : α) := x · y⁻¹
+def left_div {α : Type u} [grp α] (x y : α) := x⁻¹ · y
+
+instance {α : Type u} [grp α] : has_div α := ⟨right_div⟩
+instance {α : Type u} [grp α] : has_sdiff α := ⟨left_div⟩
+
+lemma homo_respects_div {α : Type u} {β : Type v} [grp α] [grp β]
+  (φ : α ⤳ β) (x y : α) : φ.fst (x / y) = φ.fst x / φ.fst y := begin
+  cases φ with φ H, calc
+    φ (x / y) = φ x · φ y⁻¹ : by apply H
+          ... = φ x · (φ y)⁻¹ :
+                begin apply eq.map, apply homo_respects_inv ⟨φ, H⟩ end
+          ... = φ x / φ y : by reflexivity
+end
+
 instance ker_is_subgroup {α : Type u} {β : Type v} [grp α] [grp β]
-  (φ : homo α β) : is_subgroup (ker φ) :=
+  (φ : α ⤳ β) : is_subgroup (ker φ) :=
 { unit := begin unfold ker, apply homo_saves_unit end,
   mul := begin
     intros a b h g,
@@ -307,7 +327,7 @@ instance ker_is_subgroup {α : Type u} {β : Type v} [grp α] [grp β]
   end }
 
 instance ker_is_normal_subgroup {α : Type u} {β : Type v} [grp α] [grp β]
-  (φ : homo α β) : is_normal_subgroup (ker φ) := begin
+  (φ : α ⤳ β) : is_normal_subgroup (ker φ) := begin
   apply is_normal_subgroup.mk, intros n g h, cases φ with φ H,
   unfold ker at h, unfold ker, unfold has_pow.pow, unfold conjugate, calc
     φ (g⁻¹ · n · g) = φ g⁻¹ · φ (n · g) : by apply H
@@ -325,7 +345,7 @@ instance ker_is_normal_subgroup {α : Type u} {β : Type v} [grp α] [grp β]
 end
 
 instance im_is_subgroup {α : Type u} {β : Type v} [grp α] [grp β]
-  (φ : homo α β) : is_subgroup (im φ) :=
+  (φ : α ⤳ β) : is_subgroup (im φ) :=
 { unit := ⟨1, homo_saves_unit φ⟩,
   mul := begin
     intros a b g h, unfold im at g, unfold im at h, unfold im,
