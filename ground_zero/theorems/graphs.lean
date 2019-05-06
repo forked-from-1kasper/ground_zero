@@ -6,17 +6,14 @@ hott theory
 namespace ground_zero.theorems.graphs
 universe u
 
-def is_connected (α : Sort u) := Σ' (x : α), Π y, ∥x = y∥
-def is_loop {α : Sort u} {a : α} (p : a = a) := ¬(p = idp)
-
 def is_acyclic {α : Sort u} (edges : α → α → Sort u) :=
 ground_zero.structures.K (graph edges)
 
 def is_tree {α : Sort u} (edges : α → α → Sort u) :=
-is_connected (graph edges) × is_acyclic edges
+ground_zero.HITs.is_connected (graph edges) × is_acyclic edges
 
 def is_complete {α : Sort u} (edges : α → α → Sort u) :=
-is_connected (graph edges)
+Π x y, edges x y
 
 namespace iso_example
   inductive ABC

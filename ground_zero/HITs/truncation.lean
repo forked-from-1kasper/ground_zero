@@ -160,4 +160,7 @@ def surj {α : Sort u} {β : Sort v} (f : α → β) :=
 def embedding {α : Sort u} {β : Sort v} (f : α → β) :=
 Π (x y : α), ground_zero.types.equiv.biinv (λ (p : x = y), f # p)
 
+def is_connected (α : Sort u) :=
+Σ' (x : α), Π y, ∥x = y∥
+
 end ground_zero.HITs

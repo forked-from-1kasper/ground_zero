@@ -8,6 +8,8 @@ namespace ground_zero
 namespace structures
 universes u v
 
+def is_loop {α : Sort u} {a : α} (p : a = a) := ¬(p = types.eq.refl a)
+
 def prop (α : Sort u) :=
 Π (a b : α), a = b :> α
 
