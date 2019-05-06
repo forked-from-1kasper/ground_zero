@@ -16,7 +16,7 @@ def is_tree {α : Sort u} (edges : α → α → Sort u) :=
 is_connected (graph edges) × is_acyclic edges
 
 def is_complete {α : Sort u} (edges : α → α → Sort u) :=
-ground_zero.structures.prop (graph edges)
+is_connected (graph edges)
 
 namespace iso_example
   inductive ABC
