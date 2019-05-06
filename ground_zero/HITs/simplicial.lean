@@ -28,4 +28,14 @@ inductive simplex.rel : Π n, simplex.core n → simplex.core n → Type
 
 def simplex (n : ℕ) := graph (simplex.rel n)
 
+def simplex.base {n : ℕ} : simplex (n + 1) :=
+graph.elem (@simplex.core.base n)
+
+def simplex.lift {n : ℕ} : simplex n → simplex (n + 1) :=
+graph.rec (graph.elem ∘ simplex.core.lift) (begin
+  intros x y H, cases H with n x,
+  transitivity, { symmetry, apply graph.line, apply simplex.rel.mk },
+  apply graph.line, apply simplex.rel.mk
+end)
+
 end ground_zero.HITs
