@@ -67,6 +67,12 @@ namespace equiv
     has_coe (α ≃ β) (α → β) :=
   ⟨begin intro e, cases e with f H, exact f end⟩
 
+  def forward {α : Sort u} {β : Sort v} (e : α ≃ β) : α → β := e.fst
+  def backward {α : Sort u} {β : Sort v} (e : α ≃ β) : β → α := begin
+    cases e with f e, cases e with linv rinv,
+    cases linv with g G, exact g
+  end
+
   @[refl] def id (α : Sort u) : α ≃ α := begin
     existsi id, split,
     repeat {
@@ -105,6 +111,19 @@ namespace equiv
     (p : a = b :> α) : π a → π b :=
   begin induction p, exact ground_zero.theorems.functions.idfun end
 
+  def subst_inv {α : Sort u} {π : α → Sort v} {a b : α}
+    (p : a = b :> α) : π b → π a :=
+  begin induction p, exact ground_zero.theorems.functions.idfun end
+
+  theorem subst_over_path_comp {α : Sort u} {π : α → Sort v} {a b c : α}
+    (p : a = b :> α) (q : b = c :> α) (x : π a) :
+    subst (p ⬝ q) x = subst q (subst p x) :> π c :=
+  begin induction p, reflexivity end
+
+  theorem subst_over_inv_path {α : Sort u} {π : α → Sort v} {a b : α}
+    (p : a = b :> α) (x : π b) : subst p⁻¹ x = subst_inv p x :> π a :=
+  begin induction p, reflexivity end
+
   reserve infix ` ▸ `
   infix [parsing_only] ` ▸ ` := subst
 
@@ -137,6 +156,10 @@ namespace equiv
   abbreviation transport {α : Sort u}
     (π : α → Sort v) {a b : α}
     (p : a = b :> α) : π a → π b := subst p
+  
+  abbreviation transport_inv {α : Sort u}
+    (π : α → Sort v) {a b : α}
+    (p : a = b :> α) : π b → π a := subst_inv p
 
   abbreviation transport_sqr {α : Sort u} (π : α → Sort v) {a b : α}
     {p q : a = b :> α} (r : p = q :> a = b :> α) (u : π a) :
@@ -145,7 +168,7 @@ namespace equiv
 
   --notation u ` =[` P `,` p `] ` v := transport P p u = v :> _
 
-  lemma transport_comp {α : Sort u} {β : Sort v}
+  def transport_comp {α : Sort u} {β : Sort v}
     (π : β → Sort w) {x y : α}
     (f : α → β) (p : x = y :> α) (u : π (f x)) :
     @subst _ (π ∘ f) _ _ p u =

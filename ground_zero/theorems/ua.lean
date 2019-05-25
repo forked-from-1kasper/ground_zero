@@ -57,6 +57,13 @@ noncomputable theorem transport_rule {α β : Sort u} (e : α ≃ β) :
   reflexivity
 end
 
+noncomputable theorem transport_inv_rule {α β : Sort u} (e : α ≃ β) :
+  Π (x : β), types.equiv.subst_inv (ua e) x = e.backward x := begin
+  refine J _ e, intros ψ x,
+  refine types.eq.rec _ (refl_on_ua ψ)⁻¹,
+  reflexivity
+end
+
 theorem idtoeqv_and_id {α : Sort u} :
   idtoeqv (idp α) = ideqv α :=
 begin simp [idtoeqv] end
@@ -90,11 +97,11 @@ def is_zero : ℕ → bool
 | 0 := tt
 | _ := ff
 
-example (h : 0 = 1) : empty :=
+example (h : 0 = 1) : 𝟎 :=
 ff_neq_tt (is_zero # h)⁻¹
 
-theorem succ_neq_zero (n : ℕ) (h : nat.succ n = 0) : empty :=
-ff_neq_tt (is_zero # h)
+theorem succ_neq_zero (n : ℕ) : ¬(nat.succ n = 0) :=
+λ h, ff_neq_tt (is_zero # h)
 
 def neg_bool_equiv : bool ≃ bool := begin
   existsi bnot, split; existsi bnot; intro x; simp

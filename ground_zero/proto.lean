@@ -1,6 +1,7 @@
 namespace ground_zero.proto
 universes u v
 
+inductive empty : Sort u
 structure iff (α : Sort u) (β : Sort v) :=
 (left : α → β) (right : β → α)
 

@@ -1,5 +1,5 @@
 import ground_zero.HITs.suspension ground_zero.theorems.ua
-import ground_zero.types.integer
+import ground_zero.types.integer ground_zero.types.nat
 open ground_zero.types.equiv (subst transport)
 open ground_zero.types.eq (renaming refl -> idp)
 open ground_zero.structures (hset)
@@ -106,6 +106,7 @@ namespace circle
 
   instance pointed_circle : types.eq.dotted S¹ := ⟨base⟩
 
+  /-
   theorem natural_equivalence {α : Sort u} :
     (S¹ → α) ≃ (Σ' (x : α), x = x) := begin
     let f : (S¹ → α) → (Σ' (x : α), x = x) :=
@@ -119,6 +120,7 @@ namespace circle
     { intro v, induction v with p q,
       admit }
   end
+  -/
 
   namespace going
     def trivial : S¹ → S¹ :=
@@ -177,18 +179,30 @@ namespace circle
 
   noncomputable def transport_there (x : integer) :
     transport helix loop x = integer.succ x := begin
-    transitivity,
-    apply types.equiv.transport_comp id helix loop,
-    transitivity, apply types.equiv.homotopy.eq,
-    apply types.eq.map subst, apply recβrule₂,
+    transitivity, apply types.equiv.transport_comp id helix loop,
+    transitivity, {
+      apply types.equiv.homotopy.eq,
+      apply types.eq.map subst,
+      apply recβrule₂
+    },
     apply ua.transport_rule
   end
 
-  def transport_back (x : integer) :
-    transport helix loop⁻¹ x = integer.pred x :=
-  sorry
+  noncomputable def transport_back (x : integer) :
+    transport helix loop⁻¹ x = integer.pred x := begin
+    transitivity, { apply types.equiv.transport_comp id helix loop⁻¹ },
+    transitivity, {
+      apply types.equiv.homotopy.eq,
+      apply types.eq.map subst,
+      transitivity, apply types.eq.map_inv,
+      apply types.eq.map, apply recβrule₂
+    },
+    transitivity, apply types.equiv.subst_over_inv_path,
+    transitivity, apply ua.transport_inv_rule,
+    reflexivity
+  end
 
-  def decode : Π (x : S¹), helix x → base = x :=
+  noncomputable def decode : Π (x : S¹), helix x → base = x :=
   @ind (λ x, helix x → base = x) power (begin
     apply types.equiv.path_over_subst,
     apply HITs.interval.funext, intro x,
@@ -214,8 +228,77 @@ namespace circle
         apply types.eq.inv_comp, apply types.eq.refl_right } }
   end)
 
+  noncomputable def decode_encode (x : S¹) (p : base = x) :
+    decode x (encode x p) = p :=
+  begin induction p, reflexivity end
+
+  noncomputable def nat_is_set : ground_zero.structures.hset ℕ
+  |    0       0    p q :=
+    transport structures.prop (ua $ nat.recognize 0 0)⁻¹
+              structures.unit_is_prop p q
+  | (m + 1)    0    p q := by cases p
+  |    0    (n + 1) p q := by cases p
+  | (m + 1) (n + 1) p q := begin
+    refine transport structures.prop
+           (ua $ nat.recognize (m + 1) (n + 1))⁻¹ _ p q,
+    apply transport structures.prop (ua $ nat.recognize m n),
+    apply nat_is_set
+  end
+
+  noncomputable def coproduct_set {α β : Type}
+    (f : hset α) (g : hset β) : hset (α + β)
+  | (coproduct.inl x) (coproduct.inl y) :=
+    transport structures.prop (ua $ @coproduct.inl.inj' α β x y)⁻¹ f
+  | (coproduct.inl x) (coproduct.inr y) :=
+    transport structures.prop (ua $ @types.coproduct.inl.inl_inr α β x y)⁻¹
+              structures.empty_is_prop
+  | (coproduct.inr x) (coproduct.inl y) :=
+    transport structures.prop (ua $ @types.coproduct.inr.inr_inl α β x y)⁻¹
+              structures.empty_is_prop
+  | (coproduct.inr x) (coproduct.inr y) :=
+    transport structures.prop (ua $ @coproduct.inr.inj' α β x y)⁻¹ g
+
+  noncomputable def integer_is_set : ground_zero.structures.hset integer :=
+  begin apply coproduct_set; apply nat_is_set end
+
+  noncomputable def encode_decode (x : S¹) (c : helix x) :
+    encode x (decode x c) = c :=
+  @ind (λ x, Π (c : helix x), encode x (decode x c) = c)
+    (begin
+      clear c, clear x,
+      intro c, induction c,
+      { induction c with c ih,
+        { reflexivity },
+        { transitivity, apply equiv.subst_over_path_comp,
+          transitivity, apply transport_there,
+          transitivity, apply eq.map, apply ih,
+          reflexivity } },
+      { induction c with c ih,
+        { apply transport_back },
+        { transitivity, apply equiv.subst_over_path_comp,
+          transitivity, apply transport_back,
+          transitivity, apply eq.map, apply ih,
+          reflexivity } }
+    end)
+    (begin apply types.equiv.path_over_subst,
+      apply interval.dfunext,
+      intro x, apply integer_is_set end) x c
+
+  noncomputable def family (x : S¹) : (base = x) ≃ helix x := begin
+    existsi encode x, split; existsi decode x,
+    apply decode_encode x, apply encode_decode x
+  end
+
+  local notation ℤ := integer
+
+  noncomputable def fundamental_group : (Ω¹(S¹)) = ℤ :=
+  ua (family base)
+
   noncomputable example : winding loop = integer.pos 1 :=
   transport_there (integer.pos 0)
+
+  noncomputable example : winding loop⁻¹ = integer.neg 0 :=
+  transport_back (integer.pos 0)
 end circle
 
 namespace ncircle

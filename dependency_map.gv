@@ -2,7 +2,12 @@ digraph dependency_map {
   proto -> "types/eq"
   "meta/hott_theory" -> "types/eq"
   support -> "types/equiv"
-  structures -> { "HITs/interval", "HITs/truncation", "algebra/core" }
+  structures -> {
+    "HITs/interval",
+    "HITs/truncation",
+    "algebra/core",
+    "types/nat"
+  }
 
   subgraph univalence {
     node [style=dashed]
@@ -19,12 +24,11 @@ digraph dependency_map {
   }
 
   subgraph types {
-    "types/coproduct" -> { "types/nat", structures }
+    "types/coproduct" -> { "types/integer", structures }
     "types/dep_path" -> "types/equiv"
     "types/eq" -> { "types/dep_path", support }
     "types/equiv" -> {
       "types/heq",
-      "types/integer",
       "HITs/infinitesimal",
       "types/coproduct",
       "types/lost",
@@ -37,11 +41,11 @@ digraph dependency_map {
     }
     "types/integer" -> { "HITs/circle", "HITs/reals", "algebra/core" }
     "types/lost"
-    "types/nat"
+    "types/nat" -> { "HITs/circle" }
     "types/product" -> { "cubical/cubes", "theorems/ua" }
     "types/sigma"
     "types/swale" -> { "HITs/reals", "algebra/group" }
-    "types/unit" -> { structures, "HITs/suspension" }
+    "types/unit" -> { structures, "HITs/suspension", "types/nat" }
   }
 
   subgraph HITs {

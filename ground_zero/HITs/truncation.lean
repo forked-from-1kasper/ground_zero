@@ -149,9 +149,8 @@ namespace truncation
     intro x, cases x with u v, exact u
   end
 
-  def uninhabited_implies_trunc_uninhabited {α : Sort u}
-    (p : α → empty) : ∥α∥ → empty :=
-  rec ground_zero.structures.empty_is_prop p
+  def uninhabited_implies_trunc_uninhabited {α : Sort u} : ¬α → ¬∥α∥ :=
+  rec ground_zero.structures.empty_is_prop
 end truncation
 
 def surj {α : Sort u} {β : Sort v} (f : α → β) :=

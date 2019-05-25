@@ -56,10 +56,10 @@ notation n `-Type` := n_type n
 def contr_impl_prop {α : Sort u} (h : contr α) : prop α :=
 λ a b, (h.intro a)⁻¹ ⬝ (h.intro b)
 
-def empty_is_prop : prop empty :=
+def empty_is_prop : prop 𝟎 :=
 begin intros x, induction x end
 
-def unit_is_prop : prop types.unit :=
+def unit_is_prop : prop 𝟏 :=
 begin intros x y, induction x, induction y, trivial end
 
 def prop_impl_prop {α : Prop} : prop α :=
@@ -69,12 +69,10 @@ def bool_to_universe : bool → Type
 | tt := 𝟏
 | ff := 𝟎
 
-theorem ff_neq_tt (h : ff = tt) : empty :=
-@ground_zero.types.eq.rec
-  bool tt (λ b _, bool_to_universe b)
-  types.unit.star ff h⁻¹
+theorem ff_neq_tt (h : ff = tt) : (𝟎 : Type) :=
+ground_zero.types.equiv.transport bool_to_universe h⁻¹ ★
 
-theorem function_space : ¬(Π {α β : Type}, prop (α → β)) :=
+theorem function_space : (Π {α β : Type}, prop (α → β)) → (𝟎 : Type) :=
 λ h, ff_neq_tt (types.equiv.homotopy.eq (h id bnot) ff)
 
 theorem auto_contr {α : Sort u} (x : α) (h : prop (α → α)) : prop α :=
@@ -92,6 +90,11 @@ section
     exact (apd g p)⁻¹ ⬝ transport_composition p (g x),
     induction q, apply inv_comp
   end
+
+  def empty_is_set : hset 𝟎 :=
+  begin apply prop_is_set, apply empty_is_prop end
+  def unit_is_set : hset 𝟏 :=
+  begin apply prop_is_set, apply unit_is_prop end
 
   -- unsafe postulate, but it computes
   def function_extensionality {α : Sort u} {β : α → Sort v}

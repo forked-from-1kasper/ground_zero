@@ -79,6 +79,10 @@ namespace eq
   begin induction p, reflexivity end
   infix [parsing_only] ` # ` := map
 
+  theorem map_inv {α : Sort u} {β : Sort v} {a b : α}
+    (f : α → β) (p : a = b :> α) : (f # p⁻¹) = (f # p)⁻¹ :=
+  begin induction p, reflexivity end
+
   section
     variables {α : Sort u} {β : Sort v} {a b : α}
               (f : α → β) (p : a = b :> α)
@@ -112,11 +116,11 @@ namespace eq
   notation `Ω` `[` n `]` `, ` X := (iterated_loop_space X n).space
   notation `Θ` `[` n `]` `, ` X := (iterated_loop_space X n).point
 
-  notation `Ω¹` X := (loop_pointed_space X 1).space
+  notation `Ω¹`:25 X := (loop_pointed_space X 1).space
 end eq
 
 namespace not
-  notation `¬` a := a → empty
+  notation `¬` a := a → (𝟎 : Type)
   notation a ` ≠ ` b := ¬(a = b :> _)
 end not
 

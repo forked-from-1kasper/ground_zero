@@ -1,4 +1,4 @@
-import ground_zero.types.equiv
+import ground_zero.types.coproduct
 
 namespace ground_zero.types
 
@@ -9,9 +9,9 @@ namespace ground_zero.types
   −1 = neg 0
   −2 = neg 1
 -/
-inductive integer
-| pos : ℕ → integer
-| neg : ℕ → integer
+def integer := ℕ + ℕ
+@[pattern] def integer.pos : ℕ → integer := coproduct.inl
+@[pattern] def integer.neg : ℕ → integer := coproduct.inr
 namespace integer
 
 instance : has_zero integer := ⟨pos 0⟩
