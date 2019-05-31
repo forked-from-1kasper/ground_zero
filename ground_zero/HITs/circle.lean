@@ -347,5 +347,35 @@ namespace torus
   Φ circle.loop circle.loop
 end torus
 
+inductive torus'.rel : I × I → I × I → Type
+| top (x : I) : torus'.rel ⟨0, x⟩ ⟨1, x⟩
+| bottom (x : I) : torus'.rel ⟨x, 0⟩ ⟨x, 1⟩
+
+def torus' : Type := graph torus'.rel
+
+namespace torus'
+  open interval
+
+  def a : torus' := graph.elem ⟨1, 0⟩
+  def b : torus' := graph.elem ⟨0, 0⟩
+  def c : torus' := graph.elem ⟨0, 1⟩
+  def d : torus' := graph.elem ⟨1, 1⟩
+
+  def top (x : I) : graph.elem ⟨0, x⟩ = graph.elem ⟨1, x⟩ :> torus' :=
+  graph.line (rel.top x)
+
+  def bottom (x : I) : graph.elem ⟨x, 0⟩ = graph.elem ⟨x, 1⟩ :> torus' :=
+  graph.line (rel.bottom x)
+
+  def p : b = b :> torus' :=
+  graph.elem # (product.prod rfl seg) ⬝
+  graph.elem # (product.prod seg rfl) ⬝
+  graph.elem # (product.prod rfl seg⁻¹) ⬝
+  graph.elem # (product.prod seg⁻¹ rfl)
+
+  def q : b = b :> torus' :=
+  bottom 0 ⬝ top 1 ⬝ (bottom 1)⁻¹ ⬝ (top 0)⁻¹
+end torus'
+
 end HITs
 end ground_zero
