@@ -16,6 +16,8 @@ def prop (α : Sort u) :=
 def hset (α : Sort u) :=
 Π {a b : α} (p q : a = b :> α), p = q :> a = b :> α
 
+def dec (α : Sort u) := α + ¬α
+
 structure contr (α : Sort u) :=
 (point : α) (intro : Π (a : α), point = a :> α)
 --  or we can write `idfun ~ λ _, point`

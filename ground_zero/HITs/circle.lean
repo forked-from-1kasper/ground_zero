@@ -32,14 +32,14 @@ let g : S⁰ → ∑S⁻¹ :=
 | tt := suspension.south
 end in begin
   existsi f, split; existsi g,
-  { intro x, simp,
+  { intro x,
     refine @suspension.ind _
       (λ x, g (f x) = x)
       (by reflexivity)
       (by reflexivity)
       _ x,
     intro u, induction u },
-  { intro x, simp, induction x,
+  { intro x, induction x,
     repeat { trivial } }
 end
 
@@ -81,13 +81,9 @@ namespace circle
     f # p⁻¹ = (f # p)⁻¹ :=
   begin induction p, reflexivity end
 
-  def recβrule₂ {β : Type u} (b : β) (ℓ : b = b) :
-    (rec b ℓ # loop) = ℓ := begin
-    transitivity,
-    apply map_functoriality (rec b ℓ),
-    transitivity, apply types.eq.map, apply map_symm,
-    admit
-  end
+  -- WIP
+  axiom recβrule₂ {β : Type u} (b : β) (ℓ : b = b) :
+    (rec b ℓ # loop) = ℓ
 
   def ind {β : S¹ → Type u} (b : β base)
     (ℓ : b =[loop] b) : Π (x : S¹), β x :=
@@ -105,22 +101,6 @@ namespace circle
     end)
 
   instance pointed_circle : types.eq.dotted S¹ := ⟨base⟩
-
-  /-
-  theorem natural_equivalence {α : Sort u} :
-    (S¹ → α) ≃ (Σ' (x : α), x = x) := begin
-    let f : (S¹ → α) → (Σ' (x : α), x = x) :=
-    λ g, ⟨g base, g # loop⟩,
-    let g : (Σ' (x : α), x = x) → (S¹ → α) :=
-    λ p x, p.fst,
-    existsi f, split; existsi g,
-    { intro v, apply HITs.interval.funext,
-      intro x, simp,
-      admit },
-    { intro v, induction v with p q,
-      admit }
-  end
-  -/
 
   namespace going
     def trivial : S¹ → S¹ :=
