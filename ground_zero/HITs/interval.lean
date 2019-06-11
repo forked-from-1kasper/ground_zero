@@ -136,10 +136,14 @@ namespace interval
   inductive leg {α : Sort u} : α → Type u
   | lam (f : I → α) : leg (f 0)
 
+  inductive post {α : Sort u} : α → Type u
+  | lam (f : I → α) : post (f 1)
+
   def lifting_property {α : Sort u} {β : Sort v} (p : α → β) :=
   Π {x : α}, leg (p x) → leg x
 
-  def fibration {α : Sort u} (β : α → Sort v) (x : Σ' x, β x) : α := x.fst
+  def fibration (α : Sort u) (β : Sort v) :=
+  Σ' (p : α → β), lifting_property p
 
   lemma lifting {α : Sort u} {β : α → Sort v} (f : I → α)
     (u : β (f 0)) : @leg (psigma β) ⟨f 0, u⟩ :=
@@ -148,8 +152,9 @@ namespace interval
       (types.equiv.path_over_subst types.eq.rfl) i⟩)
 
   theorem type_family {α : Sort u} (β : α → Sort v) :
-    lifting_property (fibration β) := begin
-    intros x f, cases x with x u, cases f with f u, apply lifting
+    fibration (Σ' x, β x) α := begin
+    existsi psigma.fst, intros x f,
+    cases x with x u, cases f with f u, apply lifting
   end
 end interval
 
