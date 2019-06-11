@@ -32,7 +32,8 @@ digraph dependency_map {
       "HITs/infinitesimal",
       "types/coproduct",
       "types/lost",
-      "types/unit"
+      "types/unit",
+      "types/sigma"
     }
     "types/heq" -> {
       "HITs/int",
