@@ -132,6 +132,33 @@ namespace interval
 
   notation r `∧`:70 s := min r s
   notation r `∨`:70 s := max r s
+
+  def lifting_property {α : Sort u} {β : Sort v} (p : α → β) :=
+  Π (x : α) (f : I → β), p x = f 0 → Σ' (g : I → α), x = g 0
+
+  def fibration {α : Sort u} (β : α → Sort v) (x : Σ' x, β x) : α := x.fst
+
+  def lifting {α : Sort u} {β : α → Sort v} {x : α} (u : β x)
+    (f : I → α) (h : x = f 0) : I → (Σ' x, β x) :=
+  let b₀ := types.equiv.subst h u in
+  let b₁ := types.equiv.transport (β ∘ f) seg b₀ in
+  λ i, ⟨f i, @interval.ind (β ∘ f) b₀ b₁ (types.equiv.path_over_subst types.eq.rfl) i⟩
+
+  lemma prod {α : Sort u} {β : α → Sort v} {u v : psigma β}
+    (h : u.fst = v.fst) (g : types.equiv.subst h u.snd = v.snd) : u = v := begin
+    cases u with x u, cases v with y v,
+    fapply types.equiv.transport (λ (v : β y), ⟨x, u⟩ = ⟨y, v⟩ :> psigma β),
+    exact g,
+    apply @types.eq.rec α x (λ (y : α) (h : x = y),
+      ⟨x, u⟩ = ⟨y, types.equiv.subst h u⟩ :> psigma β),
+    trivial
+  end
+
+  theorem type_family {α : Sort u} (β : α → Sort v) :
+    lifting_property (fibration β) := begin
+    intros x f h, cases x with x u, existsi lifting u f h,
+    fapply prod, exact h, trivial
+  end
 end interval
 
 end HITs

@@ -18,7 +18,7 @@ hott theory
 namespace ground_zero
 namespace HITs
 
-universes u v
+universes u v w
 
 notation [parsing_only] `S⁻¹` := empty
 notation [parsing_only] `S⁰` := bool

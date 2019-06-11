@@ -20,9 +20,26 @@ structure precategory (α : Sort u) :=
 namespace precategory
   def cat_graph {α : Sort u} (𝒞 : precategory α) := graph (hom 𝒞)
 
+  def Mor {α : Sort u} (𝒞 : precategory α) := Σ' (x y : α), hom 𝒞 x y
+
+  instance {α : Sort u} (𝒞 : precategory α) {x y : α} : has_coe (hom 𝒞 x y) (Mor 𝒞) :=
+  ⟨λ f, ⟨x, y, f⟩⟩
+
   def compose {α : Sort u} {𝒞 : precategory α} {a b c : α}
     (g : hom 𝒞 b c) (f : hom 𝒞 a b) : hom 𝒞 a c := 𝒞.comp g f
   local infix ∘ := compose
+
+  def two_out_of_three {α : Sort u} (𝒞 : precategory α) {a b c : α}
+    (g : hom 𝒞 b c) (f : hom 𝒞 a b) (K : Mor 𝒞 → Sort v) :=
+  (K f → K g → K (g ∘ f)) ×
+  (K (g ∘ f) → K g → K f) ×
+  (K f → K (g ∘ f) → K g)
+
+  def has_inv {α : Sort u} (𝒞 : precategory α) {x y : α} (f : hom 𝒞 x y) :=
+  Σ' (g : hom 𝒞 y x), (f ∘ g = id 𝒞) × (g ∘ f = id 𝒞)
+
+  def iso {α : Sort u} (𝒞 : precategory α) (x y : α) :=
+  Σ' (f : hom 𝒞 x y), has_inv 𝒞 f
 
   def op {α : Sort u} (𝒞 : precategory α) : precategory α :=
   { hom := λ a b, hom 𝒞 b a,
