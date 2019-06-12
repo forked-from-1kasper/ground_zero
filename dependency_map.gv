@@ -44,7 +44,7 @@ digraph dependency_map {
     "types/lost"
     "types/nat" -> { "HITs/circle" }
     "types/product" -> { "cubical/cubes", "theorems/ua" }
-    "types/sigma"
+    "types/sigma" -> { "theorems/fibration" }
     "types/swale" -> { "HITs/reals", "algebra/group" }
     "types/unit" -> { structures, "HITs/suspension", "types/nat" }
   }
@@ -62,7 +62,11 @@ digraph dependency_map {
     }
     "HITs/infinitesimal"
     "HITs/int" -> "HITs/rat"
-    "HITs/interval" -> { "types/product", "theorems/prop" }
+    "HITs/interval" -> {
+      "types/product",
+      "theorems/prop",
+      "theorems/fibration"
+    }
     "HITs/join"
     "HITs/moebius"
     "HITs/ntrunc"
@@ -99,6 +103,7 @@ digraph dependency_map {
   }
 
   subgraph theorems {
+    "theorems/fibration"
     "theorems/functions" -> "types/equiv"
     "theorems/graphs"
     "theorems/mere_eq_lemma"

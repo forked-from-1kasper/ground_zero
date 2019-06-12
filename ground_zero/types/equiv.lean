@@ -225,6 +225,11 @@ namespace equiv
     intro h, induction h,
     apply path_over_subst, apply transport_composition
   end
+
+  def transport_forward_and_back {α : Sort u} {β : α → Sort v}
+    {x y : α} (p : x = y :> α) (u : β x) :
+    subst p⁻¹ (subst p u) = u :=
+  begin induction p, trivial end
 end equiv
 
 def {u v} is_qinv {α : Sort u} {β : Sort v} (f : α → β) (g : β → α) :=

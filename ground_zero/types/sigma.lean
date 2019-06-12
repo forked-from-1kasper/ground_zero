@@ -18,7 +18,7 @@ namespace sigma
     Π (x : psigma β), π x
   | ⟨a, b⟩ := g a b
 
-  lemma prod {α : Sort u} {β : α → Sort v} {u v : psigma β}
+  def prod {α : Sort u} {β : α → Sort v} {u v : psigma β}
     (h : u.fst = v.fst) (g : equiv.subst h u.snd = v.snd) : u = v := begin
     cases u with x u, cases v with y v,
     fapply equiv.transport (λ (v : β y), ⟨x, u⟩ = ⟨y, v⟩ :> psigma β),
@@ -27,6 +27,10 @@ namespace sigma
       ⟨x, u⟩ = ⟨y, equiv.subst h u⟩ :> psigma β),
     trivial
   end
+
+  def prod_refl {α : Sort u} {β : α → Sort v} (u : psigma β) :
+    prod eq.rfl eq.rfl = eq.refl u :=
+  begin cases u with x u, trivial end
 end sigma
 
 end ground_zero.types
