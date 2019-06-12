@@ -2,6 +2,8 @@ import ground_zero.support ground_zero.theorems.functions ground_zero.types.dep_
 
 namespace ground_zero.types
 
+hott theory
+
 structure {u v} product (α : Sort u) (β : Sort v) :=
 intro :: (pr₁ : α) (pr₂ : β)
 attribute [pp_using_anonymous_constructor] product

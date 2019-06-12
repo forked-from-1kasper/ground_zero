@@ -50,7 +50,7 @@ digraph dependency_map {
   }
 
   subgraph HITs {
-    "HITs/circle" -> "HITs/ntrunc"
+    "HITs/circle" -> { "HITs/ntrunc", "theorems/hopf" }
     "HITs/colimit" -> "HITs/truncation"
     "HITs/generalized" -> "HITs/truncation"
     "HITs/graph" -> {
@@ -103,9 +103,10 @@ digraph dependency_map {
   }
 
   subgraph theorems {
-    "theorems/fibration"
-    "theorems/functions" -> "types/equiv"
+    "theorems/fibration" -> { "theorems/hopf" }
+    "theorems/functions" -> { "types/equiv" }
     "theorems/graphs"
+    "theorems/hopf"
     "theorems/mere_eq_lemma"
     "theorems/prop"
     "theorems/topology"

@@ -20,13 +20,13 @@ namespace ground_zero.theorems.fibration
 
   notation α ` ↠ ` β := fibration α β
 
-  lemma lifting {α : Sort u} {β : α → Sort v} (f : I → α)
+  def lifting {α : Sort u} {β : α → Sort v} (f : I → α)
     (u : β (f 0)) : @leg (psigma β) ⟨f 0, u⟩ :=
   @leg.lam (psigma β) (λ i, ⟨f i,
     @interval.ind (β ∘ f) u (types.equiv.subst seg u)
       (types.equiv.path_over_subst types.eq.rfl) i⟩)
 
-  theorem type_family {α : Sort u} (β : α → Sort v) :
+  def type_family {α : Sort u} (β : α → Sort v) :
     (Σ' x, β x) ↠ α := begin
     existsi psigma.fst, intros x f,
     cases x with x u, cases f with f u, apply lifting
