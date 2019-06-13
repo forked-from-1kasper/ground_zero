@@ -22,13 +22,13 @@ class monoid (α : Type u) extends pointed_magma α :=
 (left_unit : Π (x : α), e · x = x)
 (assoc : Π (x y z : α), x · (y · z) = (x · y) · z)
 
-class abelian (α : Type u) [magma α] :=
-(comm : Π (x y : α), x · y = y · x)
-
 class group (α : Type u) extends monoid α :=
 (inv : α → α)
 (right_inv : Π (x : α), x · inv x = e)
 (left_inv : Π (x : α), inv x · x = e)
+
+class abelian (α : Type u) extends magma α :=
+(comm : Π (x y : α), x · y = y · x)
 
 instance {α : Type u} [pointed_magma α] : has_one α := ⟨e⟩
 instance {α : Type u} [group α] : has_inv α := ⟨group.inv⟩
@@ -75,6 +75,9 @@ namespace unit
   { inv := id,
     left_inv := begin intro x, cases x; reflexivity end,
     right_inv := begin intro x, cases x; reflexivity end }
+
+  instance : abelian 𝟏 :=
+  { comm := begin intros x y, cases x, cases y, reflexivity end }
 end unit
 
 end ground_zero.algebra

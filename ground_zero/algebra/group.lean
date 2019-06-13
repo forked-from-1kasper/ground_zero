@@ -6,7 +6,7 @@ hott theory
 
 namespace ground_zero.algebra.group
 
-universes u v
+universes u v w
 theorem group_unit_is_unique {α : Type u} [grp α] (e' : α)
   (right_unit' : Π x, x · e' = x)
   (left_unit' : Π x, e' · x = x)
@@ -129,6 +129,19 @@ section
   Σ (φ : α → β), is_homo φ
 
   infix ` ⤳ `:20 := homo
+
+  def homo.comp {α : Type u} {β : Type v} {φ : Type w} [grp α] [grp β] [grp φ]
+    (f : β ⤳ φ) (g : α ⤳ β) : α ⤳ φ :=
+  ⟨f.fst ∘ g.fst, begin
+    intros a b, cases f with f F, cases g with g G, calc
+      (f ∘ g) (a · b) = f (g a · g b) : f # (G a b)
+                  ... = (f ∘ g) a · (f ∘ g) b : by apply F
+  end⟩
+
+  def zero : α ⤳ β :=
+  ⟨λ _, 1, λ _ _, (monoid.left_unit (e : β))⁻¹⟩
+
+  instance : has_zero (α ⤳ β) := ⟨zero⟩
 
   def iso (α : Type u) (β : Type v) [grp α] [grp β] :=
   Σ (φ : α → β), is_homo φ × equiv.biinv φ
@@ -360,7 +373,8 @@ instance im_is_subgroup {α : Type u} {β : Type v} [grp α] [grp β]
     apply eq.map, exact h
   end }
 
-class vector (α : Type u) (β : Type v) [pointed_magma β] extends algebra.group α, abelian α :=
+class vector (α : Type u) (β : Type v) [pointed_magma β] extends algebra.group α :=
+(comm : Π (x y : α), x · y = y · x)
 (ap : β → α → α) (unit : Π x, ap 1 x = x)
 (ap_assoc : Π a b x, ap a (ap b x) = ap (a · b) x)
 (distrib_scalar : Π a b x, ap (a · b) x = ap a x · ap b x)

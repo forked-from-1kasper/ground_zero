@@ -16,11 +16,13 @@ digraph dependency_map {
     "HITs/ntrunc"
     "theorems/ua"
     "cubical/V"
+    "theorems/hopf"
   }
 
   subgraph algebra {
     "algebra/core" -> "algebra/group"
-    "algebra/group"
+    "algebra/group" -> "algebra/homology"
+    "algebra/homology"
   }
 
   subgraph types {
