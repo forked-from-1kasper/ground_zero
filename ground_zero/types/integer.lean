@@ -56,6 +56,29 @@ def succ_equiv : integer ≃ integer := begin
       repeat { trivial } }
   }
 end
+
+def auxsub : nat → nat → integer
+| m       0       := pos m
+| 0       (n + 1) := neg n
+| (m + 1) (n + 1) := auxsub m n
+
+def add : integer → integer → integer
+| (neg x) (neg y) := neg (x + y)
+| (neg x) (pos y) := auxsub y (x + 1)
+| (pos x) (neg y) := auxsub x (y + 1)
+| (pos x) (pos y) := pos (x + y)
+instance : has_add integer := ⟨add⟩
+
+def sub (x y : integer) := x + (-y)
+instance : has_sub integer := ⟨sub⟩
+
+def mul : integer → integer → integer
+| (neg x) (neg y) := pos (x * y)
+| (neg x) (pos y) := neg (x * y)
+| (pos x) (neg y) := neg (x * y)
+| (pos x) (pos y) := pos (x * y)
+instance : has_mul integer := ⟨mul⟩
+
 end integer
 
 end ground_zero.types

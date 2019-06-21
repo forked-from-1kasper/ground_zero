@@ -378,7 +378,7 @@ class vector (α : Type u) (β : Type v) [pointed_magma β] extends algebra.grou
 (ap : β → α → α) (unit : Π x, ap 1 x = x)
 (ap_assoc : Π a b x, ap a (ap b x) = ap (a · b) x)
 (distrib_scalar : Π a b x, ap (a · b) x = ap a x · ap b x)
-(distrib_vecotr : Π a x y, ap a (x · y) = ap a x · ap a y)
+(distrib_vector : Π a x y, ap a (x · y) = ap a x · ap a y)
 
 def is_eigenvalue {α : Type u} {β : Type v} [pointed_magma β] [vector α β] (A : α → α) (x : α) :=
 Σ (y : β), A x = vector.ap y x

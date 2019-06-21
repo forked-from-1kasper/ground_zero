@@ -10,6 +10,8 @@ open ground_zero.types
 namespace ground_zero.HITs
 universes u v w
 
+hott theory
+
 local notation ℤ := integer
 
 inductive reals.rel : ℤ → ℤ → Type
@@ -47,7 +49,76 @@ namespace reals
 
   def vect (u v : ℤ) : elem u = elem v :> R :=
   (center u)⁻¹ ⬝ center v
+
+  def contr : ground_zero.structures.contr R :=
+  { point := elem 0,
+    intro := @ind (λ x, elem 0 = x :> R) center (begin
+      intro z, apply equiv.path_over_subst,
+      transitivity, apply equiv.transport_composition,
+      induction z,
+      { trivial },
+      { induction z with z ih,
+        { apply eq.inv_comp },
+        { transitivity, symmetry, apply eq.assoc,
+          transitivity, apply eq.map, apply eq.inv_comp,
+          transitivity, apply eq.refl_right,
+          reflexivity } }
+    end) }
+
+  def dist : Π (u v : R), u = v :> R :=
+  ground_zero.structures.contr_impl_prop contr
+
+  def lift (f : ℤ → ℤ) : R → R :=
+  rec (elem ∘ f) (begin intros, apply dist end)
+
+  def operator (f : ℤ → ℤ → ℤ) : R → R → R :=
+  rec (λ x, rec (elem ∘ f x) (begin intros, apply dist end)) (begin
+    intros, apply interval.funext, intro x, apply dist
+  end)
+
+  instance : has_neg R := ⟨lift integer.negate⟩
+
+  instance : has_add R := ⟨operator integer.add⟩
+  instance : has_sub R := ⟨operator integer.sub⟩
+  instance : has_mul R := ⟨operator integer.mul⟩
+
+  instance : has_coe integer R := ⟨elem⟩
+
+  instance : has_zero R := ⟨elem 0⟩
+  instance : has_one R := ⟨elem 1⟩
 end reals
+
+def complex := R × R
+notation `C` := complex
+
+namespace complex
+  def inj (x : R) : C := ⟨x, 0⟩
+
+  def add : C → C → C
+  | ⟨a, b⟩ ⟨c, d⟩ := ⟨a + c, b + d⟩
+  instance : has_add C := ⟨add⟩
+
+  def mul : C → C → C
+  | ⟨a, b⟩ ⟨c, d⟩ := ⟨a * c - b * d, a * d + b * c⟩
+  instance : has_mul C := ⟨mul⟩
+
+  def neg : C → C
+  | ⟨a, b⟩ := ⟨-a, -b⟩
+  instance : has_neg C := ⟨neg⟩
+
+  instance : has_coe R C := ⟨inj⟩
+  instance : has_zero C := ⟨inj 0⟩
+  instance : has_one C := ⟨inj 1⟩
+
+  def i : C := ⟨0, 1⟩
+  example : i * i = -1 := by trivial
+
+  def conj : C → C
+  | ⟨a, b⟩ := ⟨a, -b⟩
+
+  abbreviation Re : C → R := product.pr₁
+  abbreviation Im : C → R := product.pr₂
+end complex
 
 namespace geometry
   notation `R²` := R × R

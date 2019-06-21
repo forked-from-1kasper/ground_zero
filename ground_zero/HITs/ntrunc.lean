@@ -1,4 +1,4 @@
-import ground_zero.HITs.circle
+import ground_zero.HITs.circle ground_zero.HITs.truncation
 
 /-
   n-truncation constructed using “hub and spokes”
