@@ -138,6 +138,8 @@ section
                   ... = (f ∘ g) a · (f ∘ g) b : by apply F
   end⟩
 
+  infix ` ⋅ `:60 := homo.comp
+
   def zero : α ⤳ β :=
   ⟨λ _, 1, λ _ _, (monoid.left_unit (e : β))⁻¹⟩
 
