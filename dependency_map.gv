@@ -38,7 +38,6 @@ digraph dependency_map {
       "types/sigma"
     }
     "types/heq" -> {
-      "HITs/int",
       "HITs/interval",
       "HITs/graph"
     }
@@ -58,6 +57,7 @@ digraph dependency_map {
     "HITs/graph" -> {
       "HITs/colimit",
       "HITs/generalized",
+      "HITs/int",
       "HITs/pushout",
       "HITs/moebius",
       "types/precategory"
