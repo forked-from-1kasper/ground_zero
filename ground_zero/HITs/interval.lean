@@ -104,15 +104,18 @@ namespace interval
   let lem := function.swap (homotopy p)
   in lem # seg
 
+  def dhomotopy {α : Sort u} {β : α → Sort v} {f g : Π x, β x}
+    (p : f ~ g) (x : α) : I → β x :=
+  rec (f x) (g x) (p x)
+
   def dfunext {α : Sort u} {β : α → Sort v}
-    {f g : Π x, β x}
-    (p : f ~ g) : f = g :> Π x, β x :=
-  let lem := λ i x, rec (f x) (g x) (p x) i
+    {f g : Π x, β x} (p : f ~ g) : f = g :=
+  let lem := function.swap (dhomotopy p)
   in lem # seg
 
-  def homotopy_from_path {α : Sort u} {β : α → Sort v}
-    {f g : Π (x : α), β x} (p : f = g) : f ~ g :=
-  begin induction p, apply types.equiv.homotopy.id end
+  def happly {α : Sort u} {β : α → Sort v}
+    {f g : Π x, β x} (p : f = g) : f ~ g :=
+  types.equiv.transport (λ g, f ~ g) p (types.equiv.homotopy.id f)
 
   def neg : I → I :=
   lift (discrete ∘ bnot) interval_prop

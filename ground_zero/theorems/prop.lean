@@ -1,4 +1,4 @@
-import ground_zero.HITs.interval ground_zero.HITs.truncation
+import ground_zero.HITs.interval ground_zero.HITs.truncation ground_zero.types.sigma
 open ground_zero.structures (prop contr hset prop_is_set)
 open ground_zero.types.equiv (transport transport_composition)
 open ground_zero.types
@@ -42,14 +42,14 @@ lemma prop_is_prop {α : Sort u} : prop (prop α) := begin
   exact p a b
 end
 
-lemma prop_equiv {π : Type u} (h : prop π) : π ≃ ∥π∥ := begin
+def prop_equiv {π : Type u} (h : prop π) : π ≃ ∥π∥ := begin
   existsi HITs.truncation.elem,
   split; existsi (HITs.truncation.rec h id); intro x,
   { reflexivity },
   { apply HITs.truncation.uniq }
 end
 
-lemma prop_from_equiv {π : Type u} (e : π ≃ ∥π∥) : prop π := begin
+def prop_from_equiv {π : Type u} (e : π ≃ ∥π∥) : prop π := begin
   cases e with f H, cases H with linv rinv,
   cases linv with g α, cases rinv with h β,
   intros a b,
@@ -57,6 +57,26 @@ lemma prop_from_equiv {π : Type u} (e : π ≃ ∥π∥) : prop π := begin
   symmetry, transitivity, exact (α b)⁻¹,
   apply eq.map g, exact HITs.truncation.uniq (f b) (f a)
 end
+
+def biinv_prop {α : Sort u} {β : Sort v} (f : α → β) : prop (types.equiv.biinv f) := begin
+  intros m n, cases m with linv₁ rinv₁, cases n with linv₂ rinv₂,
+  cases rinv₁ with g G, cases rinv₂ with h H,
+  cases linv₁ with g' G', cases linv₂ with h' H',
+  { apply types.product.eq,
+    { fapply types.sigma.prod,
+      { apply HITs.interval.funext, intro x,
+        transitivity, symmetry, apply H',
+        transitivity, apply types.eq.map h',
+        fapply types.qinv.rinv_inv f g g' G G',
+        trivial },
+      { admit } },
+    { fapply types.sigma.prod,
+      { apply HITs.interval.funext, intro x,
+        transitivity, symmetry, apply types.eq.map, apply H,
+        transitivity, fapply types.qinv.linv_inv f g g' G G',
+        trivial },
+      { admit } } },
+end 
 
 theorem prop_exercise (π : Type u) : (prop π) ≃ (π ≃ ∥π∥) :=
 begin
@@ -67,7 +87,9 @@ begin
     cases H with linv rinv,
     cases linv with f α,
     cases rinv with g β,
-    admit }
+    fapply sigma.prod,
+    { apply HITs.interval.funext, intro x, apply HITs.truncation.uniq },
+    { apply biinv_prop } }
 end
 
 lemma comp_qinv₁ {α : Sort u} {β : Sort v} {γ : Sort w}
@@ -88,6 +110,15 @@ lemma comp_qinv₂ {α : Sort u} {β : Sort v} {γ : Sort w}
     intro x, apply eq.map h, exact H.pr₂ x },
   { intro h, apply HITs.interval.funext,
     intro x, apply eq.map h, exact H.pr₁ x }
+end
+
+def lem_contr_inv {α : Sort u} (h : prop α) (x : α) : contr α := ⟨x, h x⟩
+
+def lem_contr_equiv {α : Sort u} : (prop α) ≃ (α → contr α) := begin
+  apply prop_equiv_lemma,
+  { apply structures.prop_is_prop },
+  { apply structures.function_to_contr },
+  apply lem_contr_inv, apply structures.lem_contr
 end
 
 end theorems.prop

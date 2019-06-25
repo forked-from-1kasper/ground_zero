@@ -117,6 +117,10 @@ section
     apply function_extensionality, intro b,
     exact p a b
   end
+
+  def function_to_contr {α : Sort u} : prop (α → contr α) := begin
+    intros f g, apply function_extensionality, intro x, apply contr_is_prop
+  end
 end
 
 inductive squash (α : Sort u) : Prop

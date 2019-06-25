@@ -188,6 +188,12 @@ namespace equiv
     apply eq.refl_right, trivial
   end
 
+  def transport_characterization
+    {α : Sort u} {β γ : α → Sort v} {a b : α}
+    (f : β a → γ a) (p : a = b) :
+    subst p f = transport γ p ∘ f ∘ transport β p⁻¹ :=
+  begin induction p, reflexivity end
+
   lemma transport_over_family {α : Sort u}
     {x y : α} {π δ : α → Sort v}
     (f : Π (x : α), π x → δ x)
@@ -262,18 +268,27 @@ namespace qinv
     exact β, exact α
   end
 
-  def b2q {α : Sort u} {β : Sort v} (f : α → β) (b : equiv.biinv f) :
-    qinv f := begin
+  def linv_inv {α : Sort u} {β : Sort v}
+    (f : α → β) (g : β → α) (h : β → α)
+    (G : f ∘ g ~ id) (H : h ∘ f ~ id) : g ∘ f ~ id :=
+  let F₁ := λ x, H (g (f x)) in
+  let F₂ := λ x, h # (G (f x)) in
+  λ x, (F₁ x)⁻¹ ⬝ F₂ x ⬝ H x
+
+  def rinv_inv {α : Sort u} {β : Sort v}
+    (f : α → β) (g : β → α) (h : β → α)
+    (G : f ∘ g ~ id) (H : h ∘ f ~ id) : f ∘ h ~ id :=
+  let F₁ := λ x, (f ∘ h) # (G x) in
+  let F₂ := λ x, f # (H (g x)) in
+  λ x, (F₁ x)⁻¹ ⬝ F₂ x ⬝ G x
+
+  def b2q {α : Sort u} {β : Sort v} (f : α → β)
+    (b : equiv.biinv f) : qinv f := begin
     cases b with linv rinv,
     cases rinv with g α,
     cases linv with h β,
 
-    existsi g, split,
-    exact α, intro x,
-
-    have γ₁ := β (g (f x)),
-    have γ₂ := h # (α (f x)),
-    exact γ₁⁻¹ ⬝ γ₂ ⬝ β x
+    existsi g, split, exact α, apply linv_inv; assumption
   end
 end qinv
 

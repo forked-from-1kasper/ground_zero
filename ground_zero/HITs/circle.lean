@@ -145,18 +145,6 @@ namespace circle
   def winding (x : base = base) : integer :=
   bicycle (transport helix x $ integer.pos 0)
 
-  def transport_characterization
-    {α : Sort u} {β γ : α → Sort v} {a b : α}
-    (f : β a → γ a) (p : a = b) :
-    subst p f = transport γ p ∘ f ∘ transport β p⁻¹ :=
-  begin induction p, reflexivity end
-
-  def transport_to_comp
-    {α : Sort u} {a b c : α}
-    (p : a = b) (q : b = c) :
-    transport (types.eq a) q p = p ⬝ q :=
-  begin induction p, induction q, trivial end
-
   noncomputable def transport_there (x : integer) :
     transport helix loop x = integer.succ x := begin
     transitivity, apply types.equiv.transport_comp id helix loop,
@@ -187,10 +175,10 @@ namespace circle
     apply types.equiv.path_over_subst,
     apply HITs.interval.funext, intro x,
     apply types.equiv.homotopy.eq, transitivity,
-    exact transport_characterization power loop,
+    exact types.equiv.transport_characterization power loop,
     apply HITs.interval.funext, intro n,
     simp, transitivity,
-    apply transport_to_comp, transitivity,
+    apply types.equiv.transport_composition, transitivity,
     apply types.eq.map (λ p, power p ⬝ loop),
     apply transport_back, induction n,
     -- :-(
