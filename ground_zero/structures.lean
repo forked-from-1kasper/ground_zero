@@ -22,11 +22,11 @@ structure contr (α : Sort u) :=
 (point : α) (intro : Π (a : α), point = a :> α)
 --  or we can write `idfun ~ λ _, point`
 
-def LEM := Π (α : Sort u), prop α → (α + ¬α)
+def {w} LEM := Π (α : Sort w), prop α → (α + ¬α)
 def law_of_double_negation :=
 Π (α : Sort u), prop α → (¬¬α → α)
 
-def LEM_inf := Π (α : Type u), α + ¬α
+def LEM_inf := Π (α : Sort u), α + ¬α
 notation `LEM∞` := LEM_inf
 
 inductive homotopy_level
@@ -71,10 +71,10 @@ def bool_to_universe : bool → Type
 | tt := 𝟏
 | ff := 𝟎
 
-theorem ff_neq_tt (h : ff = tt) : (𝟎 : Type) :=
-ground_zero.types.equiv.transport bool_to_universe h⁻¹ ★
+theorem ff_neq_tt : ¬(ff = tt) :=
+λ h, ground_zero.types.equiv.transport bool_to_universe h⁻¹ ★
 
-theorem function_space : (Π {α β : Type}, prop (α → β)) → (𝟎 : Type) :=
+theorem function_space : ¬(Π {α β : Type}, prop (α → β)) :=
 λ h, ff_neq_tt (types.equiv.homotopy.eq (h id bnot) ff)
 
 theorem auto_contr {α : Sort u} (x : α) (h : prop (α → α)) : prop α :=

@@ -242,6 +242,11 @@ namespace equiv
     {x y : α} (p : x = y :> α) (u : β x) :
     subst p⁻¹ (subst p u) = u :=
   begin induction p, trivial end
+
+  def transport_back_and_forward {α : Sort u} {β : α → Sort v}
+    {x y : α} (p : x = y :> α) (u : β y) :
+    subst p (subst p⁻¹ u) = u :=
+  begin induction p, trivial end
 end equiv
 
 def {u v} is_qinv {α : Sort u} {β : Sort v} (f : α → β) (g : β → α) :=

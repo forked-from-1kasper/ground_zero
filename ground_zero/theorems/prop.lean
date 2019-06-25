@@ -121,5 +121,26 @@ def lem_contr_equiv {α : Sort u} : (prop α) ≃ (α → contr α) := begin
   apply lem_contr_inv, apply structures.lem_contr
 end
 
+def contr_to_type {α : Sort u} {β : α → Sort v}
+  (h : contr α) : (Σ' x, β x) → β h.point
+| ⟨x, u⟩ := types.equiv.subst (h.intro x)⁻¹ u
+
+def type_to_contr {α : Sort u} {β : α → Sort v}
+  (h : contr α) : β h.point → (Σ' x, β x) :=
+λ u, ⟨h.point, u⟩
+
+-- HoTT 3.20
+def contr_family {α : Sort u} {β : α → Sort v} (h : contr α) :
+  (Σ' x, β x) ≃ β h.point := begin
+  existsi contr_to_type h, split;
+  existsi @type_to_contr α β h; intro x,
+  { cases x with x u, fapply types.sigma.prod,
+    { apply h.intro },
+    { apply types.equiv.transport_back_and_forward } },
+  { transitivity, apply eq.map (λ p, types.equiv.subst p x),
+    apply prop_is_set (structures.contr_impl_prop h) _ eq.rfl,
+    trivial }
+end
+
 end theorems.prop
 end ground_zero
