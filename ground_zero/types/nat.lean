@@ -1,4 +1,4 @@
-import ground_zero.structures ground_zero.types.unit ground_zero.HITs.colimit
+import ground_zero.structures ground_zero.HITs.colimit
 open ground_zero.types
 
 namespace ground_zero.types.nat

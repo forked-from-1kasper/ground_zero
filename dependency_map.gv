@@ -37,7 +37,7 @@ digraph dependency_map {
     "types/product" -> { "cubical/cubes", "theorems/ua" }
     "types/sigma" -> { "theorems/fibration", "theorems/prop" }
     "types/swale" -> { "HITs/reals", "algebra/group" }
-    "types/unit" -> { structures, "HITs/suspension", "types/nat" }
+    "types/unit" -> { structures, "HITs/suspension" }
   }
 
   subgraph HITs {
