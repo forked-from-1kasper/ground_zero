@@ -1,5 +1,5 @@
-import ground_zero.HITs.suspension ground_zero.theorems.ua
-import ground_zero.types.integer ground_zero.types.nat
+import ground_zero.HITs.suspension
+import ground_zero.types.integer ground_zero.theorems.nat
 open ground_zero.types.equiv (subst transport)
 open ground_zero.types.eq (renaming refl -> idp)
 open ground_zero.structures (hset)
@@ -200,19 +200,6 @@ namespace circle
     decode x (encode x p) = p :=
   begin induction p, reflexivity end
 
-  noncomputable def nat_is_set : ground_zero.structures.hset ℕ
-  |    0       0    p q :=
-    transport structures.prop (ua $ nat.recognize 0 0)⁻¹
-              structures.unit_is_prop p q
-  | (m + 1)    0    p q := by cases p
-  |    0    (n + 1) p q := by cases p
-  | (m + 1) (n + 1) p q := begin
-    refine transport structures.prop
-           (ua $ nat.recognize (m + 1) (n + 1))⁻¹ _ p q,
-    apply transport structures.prop (ua $ nat.recognize m n),
-    apply nat_is_set
-  end
-
   noncomputable def coproduct_set {α β : Type}
     (f : hset α) (g : hset β) : hset (α + β)
   | (coproduct.inl x) (coproduct.inl y) :=
@@ -227,7 +214,7 @@ namespace circle
     transport structures.prop (ua $ @coproduct.inr.inj' α β x y)⁻¹ g
 
   noncomputable def integer_is_set : ground_zero.structures.hset integer :=
-  begin apply coproduct_set; apply nat_is_set end
+  begin apply coproduct_set; apply theorems.nat.nat_is_set end
 
   noncomputable def encode_decode (x : S¹) (c : helix x) :
     encode x (decode x c) = c :=

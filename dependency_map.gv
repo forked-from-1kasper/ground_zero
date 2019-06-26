@@ -43,7 +43,7 @@ digraph dependency_map {
     }
     "types/integer" -> { "HITs/circle", "HITs/reals", "algebra/core" }
     "types/lost"
-    "types/nat" -> { "HITs/circle" }
+    "types/nat" -> { "theorems/nat" }
     "types/product" -> { "cubical/cubes", "theorems/ua" }
     "types/sigma" -> { "theorems/fibration", "theorems/prop" }
     "types/swale" -> { "HITs/reals", "algebra/group" }
@@ -110,8 +110,9 @@ digraph dependency_map {
     "theorems/graphs"
     "theorems/hopf"
     "theorems/mere_eq_lemma"
+    "theorems/nat" -> { "HITs/circle" }
     "theorems/prop"
     "theorems/topology"
-    "theorems/ua" -> { "HITs/circle", "cubical/V" }
+    "theorems/ua" -> { "theorems/nat", "cubical/V" }
   }
 }
