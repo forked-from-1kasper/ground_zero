@@ -87,8 +87,7 @@ digraph dependency_map {
       "cubical/square",
       "cubical/example",
       "cubical/V",
-      "cubical/connection",
-      "HITs/moebius"
+      "cubical/connection"
     }
     "cubical/square"
     "cubical/V" -> "HITs/moebius"

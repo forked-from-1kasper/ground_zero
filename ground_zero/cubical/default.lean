@@ -1,1 +1,1 @@
-import ground_zero.cubical.path ground_zero.cubical.V
+import ground_zero.cubical.V
