@@ -39,4 +39,9 @@ end moebius
 def M : S¹ → Type := circle.rec I (to_equality twist)
 def moebius' := Σ b, M b
 
+def cylinder := S¹ × I
+
+def C : S¹ → Type := circle.rec I ground_zero.types.eq.rfl
+def cylinder' := Σ b, C b
+
 end ground_zero.HITs
