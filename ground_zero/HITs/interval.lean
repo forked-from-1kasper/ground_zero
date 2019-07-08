@@ -81,13 +81,19 @@ namespace interval
   def lift {β : Sort u} (f : bool → β) (H : prop β) : I → β :=
   begin fapply rec, exact f ff, exact f tt, apply H end
 
-  def interval_contr : contr I := begin
-    existsi i₁,
-    fapply ind,
-    { exact seg⁻¹ }, { reflexivity },
-    { apply types.equiv.pathover_from_trans,
-      apply types.eq.inv_comp }
-  end
+  def contr_left : Π i, i₀ = i :=
+  interval.ind types.eq.rfl seg (begin
+    apply types.equiv.pathover_from_trans,
+    apply types.eq.refl_left
+  end)
+
+  def contr_right : Π i, i₁ = i :=
+  interval.ind seg⁻¹ types.eq.rfl (begin
+    apply types.equiv.pathover_from_trans,
+    apply types.eq.inv_comp
+  end)
+
+  def interval_contr : contr I := ⟨i₁, contr_right⟩
 
   def interval_prop : prop I :=
   contr_impl_prop interval_contr
@@ -116,11 +122,6 @@ namespace interval
   def happly {α : Sort u} {β : α → Sort v}
     {f g : Π x, β x} (p : f = g) : f ~ g :=
   types.equiv.transport (λ g, f ~ g) p (types.equiv.homotopy.id f)
-
-  def neg : I → I :=
-  lift (discrete ∘ bnot) interval_prop
-  prefix `−`:80 := neg
-  instance : has_neg I := ⟨neg⟩
 
   def bool_to_interval (f : bool → bool → bool) (a b : I) : I :=
   lift (λ a, lift (discrete ∘ f a) interval_prop b) interval_prop a

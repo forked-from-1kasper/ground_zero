@@ -1,6 +1,6 @@
 import ground_zero.cubical.cubes
 open ground_zero.cubical ground_zero.types ground_zero.HITs
-open ground_zero.HITs.interval (i₀ i₁ seg)
+open ground_zero.HITs.interval (i₀ i₁)
 
 /-
   * Coercions.
@@ -16,10 +16,10 @@ namespace Path
 universes u v
 
 def coe.forward (π : I → Sort u) (i : I) (x : π i₀) : π i :=
-interval.ind x (equiv.subst seg x) (equiv.path_over_subst eq.rfl) i
+interval.ind x (equiv.subst interval.seg x) (equiv.path_over_subst eq.rfl) i
 
 def coe.back (π : I → Sort u) (i : I) (x : π i₁) : π i :=
-interval.ind (equiv.subst seg⁻¹ x) x (begin
+interval.ind (equiv.subst interval.seg⁻¹ x) x (begin
   apply equiv.path_over_subst, transitivity,
   { symmetry, apply equiv.subst_comp }, transitivity,
   { apply eq.map (λ p, equiv.subst p x), apply eq.inv_comp },
@@ -38,16 +38,29 @@ notation `coe⁻¹` := coe_inv
 def rfl {α : Sort u} {a : α} : a ⇝ a := <i> a
 
 @[symm] def symm {α : Sort u} {a b : α} (p : a ⇝ b) : b ⇝ a :=
-<i> p # −i
+coe 1 0 (λ i, b ⇝ p # i) rfl
 postfix `⁻¹` := symm
+
+def seg : i₀ ⇝ i₁ := <i> i
+
+def neg (x : I) : I := seg⁻¹ # x
+prefix `−`:30 := neg
 
 abbreviation inv {α : Sort u} {a b : α} (p : a ⇝ b) := p⁻¹
 
 example {α : Sort u} {a b : α} (p : a ⇝ b) : b ⇝ a :=
-coe 1 0 (λ i, b ⇝ p # i) rfl
+<i> p # −i
+
+def homotopy {α : Sort u} {π : α → Sort v} (f g : Π (x : α), π x) :=
+Π (x : α), f x ⇝ g x
+infix ` ~' `:50 := homotopy
+
+def homotopy_equality {α : Sort u} {π : α → Sort v} {f g : Π (x : α), π x}
+  (p : f ~' g) : f ~ g :=
+λ x, to_equality (p x)
 
 def funext {α : Sort u} {β : α → Sort v} {f g : Π (x : α), β x}
-  (p : Π (x : α), f x ⇝ g x) : f ⇝ g :=
+  (p : f ~' g) : f ⇝ g :=
 <i> λ x, p x # i
 
 def cong {α : Sort u} {β : Sort v} {a b : α}
@@ -106,8 +119,10 @@ left⁻¹ ⬝ bottom ⬝ right
 def kan_op {α : Sort u} {a b : α} (p : a ⇝ a) (q : a ⇝ b) : b ⇝ b :=
 kan p q q
 
-def interval_contr (i : I) : i₀ ⇝ i := coe 0 i (λ i, i₀ ⇝ i) rfl
-def seg_path : i₀ ⇝ i₁ := interval_contr i₁
+def interval_contr_left (i : I) : i₀ ⇝ i := coe 0 i (λ i, i₀ ⇝ i) rfl
+def interval_contr_right (i : I) : i₁ ⇝ i := coe 1 i (λ i, i₁ ⇝ i) rfl
+
+def seg_path : i₀ ⇝ i₁ := interval_contr_left i₁
 
 -- or too direct way
 example : i₀ ⇝ i₁ := <i> i
@@ -115,6 +130,9 @@ example : i₀ ⇝ i₁ := <i> i
 def conn_and {α : Sort u} {a b : α} (p : a ⇝ b) :
   LineP (λ i, a ⇝ p # i) :=
 λ i, <j> p # i ∧ j
+
+def neg_neg (x : I) : neg (neg x) ⇝ x :=
+(conn_and seg⁻¹ $ neg x)⁻¹ ⬝ interval_contr_right x
 
 def conn_or {α : Sort u} {a b : α} (p : a ⇝ b) :
   LineP (λ i, p # i ⇝ b) :=
@@ -133,7 +151,7 @@ interval.hrec _ (refl a) p (begin
   refine interval.prop_rec _ _ i,
   { reflexivity },
   { apply ground_zero.support.truncation,
-    apply eq.map, exact seg }
+    apply eq.map, exact interval.seg }
 end)
 
 /-

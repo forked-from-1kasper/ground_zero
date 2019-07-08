@@ -42,7 +42,11 @@ def univalence.beta {α β : Sort u} (e : α ≃ β) (m : α) :
 <i> coe⁻¹ i 1 (λ i, ua e # i) (Vproj i e m)
 
 def iso {α β : Sort u} (f : α → β) (g : β → α)
-  (F : f ∘ g ~ id) (G : g ∘ f ~ id) : α ⇝ β :=
-ua ⟨f, ground_zero.types.qinv.q2b f ⟨g, ⟨F, G⟩⟩⟩
+  (F : f ∘ g ~' id) (G : g ∘ f ~' id) : α ⇝ β :=
+ua ⟨f, ground_zero.types.qinv.q2b f
+  ⟨g, ⟨Path.homotopy_equality F, Path.homotopy_equality G⟩⟩⟩
+
+def twist : I ⇝ I :=
+iso Path.neg Path.neg Path.neg_neg Path.neg_neg
 
 end ground_zero.cubical

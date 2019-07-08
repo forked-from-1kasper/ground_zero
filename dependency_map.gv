@@ -41,7 +41,7 @@ digraph dependency_map {
   }
 
   subgraph HITs {
-    "HITs/circle" -> { "HITs/ntrunc", "theorems/hopf" }
+    "HITs/circle" -> { "HITs/ntrunc", "theorems/hopf", "HITs/moebius" }
     "HITs/colimit" -> "HITs/truncation"
     "HITs/generalized" -> "HITs/truncation"
     "HITs/graph" -> {
@@ -91,7 +91,7 @@ digraph dependency_map {
       "HITs/moebius"
     }
     "cubical/square"
-    "cubical/V"
+    "cubical/V" -> "HITs/moebius"
   }
 
   subgraph theorems {

@@ -1,4 +1,4 @@
-import ground_zero.cubical ground_zero.HITs.graph
+import ground_zero.cubical ground_zero.HITs.graph ground_zero.HITs.circle
 
 /-
   The Möbius band as quotient of square I × I.
@@ -35,5 +35,8 @@ namespace moebius
   def glue (x : I) : elem x 0 = elem (−x) 1 :> moebius :=
   graph.line (rel.glue x)
 end moebius
+
+def M : S¹ → Type := circle.rec I (to_equality twist)
+def moebius' := Σ b, M b
 
 end ground_zero.HITs
