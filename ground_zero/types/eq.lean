@@ -122,6 +122,9 @@ end eq
 namespace not
   notation `¬` a := a → (𝟎 : Type)
   notation a ` ≠ ` b := ¬(a = b :> _)
+
+  def absurd {α : Sort u} {β : Sort v} (h : α) (g : ¬α) : β :=
+  ground_zero.proto.empty.cases_on (λ _, β) (g h)
 end not
 
 namespace whiskering

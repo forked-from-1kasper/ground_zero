@@ -86,13 +86,8 @@ namespace nat
     symmetry, apply distrib_left
   end
 
-  def dec : ℕ → ℕ
-  | 0 := 0
-  | 1 := 0
-  | (n + 1) := n
-
   def one_neq_n_plus_two (n : ℕ) : ¬(1 = n + 2) :=
-  λ h, ua.succ_neq_zero (dec # h)⁻¹
+  λ h, ua.succ_neq_zero (nat.pred # h)⁻¹
 
   mutual inductive even, odd
   with even : ℕ → Type
@@ -128,8 +123,30 @@ namespace nat
     | coproduct.inr h := coproduct.inl (even.succ h)
   end
 
-  def is_even (n : ℕ) := Σ m, n = m * 2
-  def is_odd (n : ℕ) := Σ m, n = m * 2 + 1
+  def not_even_impls_odd {n : ℕ} (h : ¬even n) : odd n :=
+  match parity n with
+  | coproduct.inl g := not.absurd g h
+  | coproduct.inr g := g
+  end
+
+  def not_odd_impls_even {n : ℕ} (h : ¬odd n) : even n :=
+  match parity n with
+  | coproduct.inl g := g
+  | coproduct.inr g := not.absurd g h
+  end
+
+  def is_even (n : ℕ) := Σ' m, n = m * 2
+  def is_odd (n : ℕ) := Σ' m, n = m * 2 + 1
+
+  def succ_inj {n m : ℕ} : nat.succ n = nat.succ m → n = m :=
+  nat.decode ∘ nat.encode
+
+  mutual def even_is_prop, odd_is_prop
+  with even_is_prop : Π n, structures.prop (even n)
+  | 0 even.zero even.zero := eq.rfl
+  | (n + 1) (even.succ h) (even.succ g) := even.succ # (odd_is_prop n h g)
+  with odd_is_prop : Π n, structures.prop (odd n)
+  | (n + 1) (odd.succ h) (odd.succ g) := odd.succ # (even_is_prop n h g)
 
   mutual def even_to_sigma, odd_to_sigma
   with even_to_sigma : Π {n : ℕ}, even n → is_even n
@@ -144,6 +161,70 @@ namespace nat
   with odd_to_sigma : Π {n : ℕ}, odd n → is_odd n
   | (nat.succ n) (odd.succ h) := match even_to_sigma h with
     | ⟨m, h⟩ := ⟨m, nat.succ # h⟩
+  end
+
+  mutual def even_plus_even_is_even, odd_plus_odd_is_even
+  with even_plus_even_is_even : Π {n m : ℕ}, even n → even m → even (n + m)
+  | 0 0 even.zero even.zero := even.zero
+  | 0 _ even.zero g := equiv.subst (zero_plus_i _)⁻¹ g
+  | _ 0 h even.zero := h
+  | (n + 1) (m + 1) (even.succ h) (even.succ g) :=
+    even.succ (equiv.subst (succ_i_plus_j n m)⁻¹ $ odd.succ $
+                odd_plus_odd_is_even h g)
+  with odd_plus_odd_is_even : Π {n m : ℕ}, odd n → odd m → even (n + m)
+  | (n + 1) (m + 1) (odd.succ h) (odd.succ g) :=
+    even.succ (equiv.subst (succ_i_plus_j n m)⁻¹ $ odd.succ $
+                even_plus_even_is_even h g)
+
+  def i_plus_one_plus_j {i j : ℕ} : i + 1 + j = (i + j) + 1 := calc
+    i + 1 + j = i + (1 + j) : by apply assoc
+          ... = i + (j + 1) : nat.add i # (comm 1 j)
+          ... = (i + j) + 1 : by trivial
+
+  mutual def even_plus_two, odd_plus_two
+  with even_plus_two : Π {n : ℕ}, even n → even (n + 2)
+  | 0 even.zero := even.succ (odd.succ even.zero)
+  | (n + 1) (even.succ h) :=
+    equiv.subst i_plus_one_plus_j⁻¹ (even.succ $ odd_plus_two h)
+  with odd_plus_two : Π {n : ℕ}, odd n → odd (n + 2)
+  | (n + 1) (odd.succ h) :=
+    equiv.subst i_plus_one_plus_j⁻¹ (odd.succ $ even_plus_two h)
+
+  def assoc_tetra {i j k l : ℕ} : i + (j + k) + l = (i + j) + (k + l) := calc
+    (i + (j + k)) + l = i + ((j + k) + l) : by apply assoc
+                  ... = i + (j + (k + l)) : begin apply eq.map, apply assoc end
+                  ... = (i + j) + (k + l) : begin symmetry, apply assoc end
+
+  mutual def even_plus_odd_is_odd, odd_plus_even_is_odd
+  with even_plus_odd_is_odd : Π {n m : ℕ}, even n → odd m → odd (n + m)
+  | 0 m even.zero h := equiv.subst (zero_plus_i m)⁻¹ h
+  | (n + 1) (m + 1) (even.succ h) (odd.succ g) := begin
+    apply equiv.subst (types.eq.symm $ i_plus_one_plus_j ⬝ assoc_tetra),
+    apply odd_plus_two, apply odd_plus_even_is_odd h g
+  end
+  with odd_plus_even_is_odd : Π {n m : ℕ}, odd n → even m → odd (n + m)
+  | n 0 h even.zero := h
+  | (n + 1) (m + 1) (odd.succ h) (even.succ g) := begin
+    apply equiv.subst (types.eq.symm $ i_plus_one_plus_j ⬝ assoc_tetra),
+    apply odd_plus_two, apply even_plus_odd_is_odd h g
+  end
+
+  def n_plus_n (n : ℕ) : n * 2 = n + n :=
+  begin apply eq.map (+ n), apply zero_plus_i end
+
+  def sigma_to_even : Π {n : ℕ}, is_even n → even n
+  | 0 _ := even.zero
+  | (n + 1) ⟨m, h⟩ := equiv.subst (h ⬝ n_plus_n m)⁻¹
+    (match parity m with
+      | coproduct.inl g := even_plus_even_is_even g g
+      | coproduct.inr g := odd_plus_odd_is_even g g
+    end)
+
+  def sigma_to_odd : Π {n : ℕ}, is_odd n → odd n
+  | 0 ⟨m, h⟩ := not.absurd h⁻¹ ua.succ_neq_zero
+  | (n + 1) ⟨m, h⟩ := begin
+    apply odd.succ, apply sigma_to_even,
+    existsi m, apply succ_inj, assumption
   end
 
   def odd_even {σ : ℕ → Sort u}
