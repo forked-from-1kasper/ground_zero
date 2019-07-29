@@ -148,6 +148,13 @@ def lem_contr {α : Sort u} (h : α → contr α) : prop α :=
 def is_contr_fiber {α : Sort u} {β : Sort v} (f : α → β) :=
 Π (y : β), contr (types.fib f y)
 
+def prop_equiv_lemma {α : Sort u} {β : Sort v}
+  (F : prop α) (G : prop β) (f : α → β) (g : β → α) : α ≃ β :=
+begin
+  existsi f, split; existsi g,
+  { intro x, apply F }, { intro y, apply G }
+end
+
 end structures
 
 -- http://www.cs.bham.ac.uk/~mhe/truncation-and-extensionality/tiny-library.html

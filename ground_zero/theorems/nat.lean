@@ -1,4 +1,4 @@
-import ground_zero.theorems.ua ground_zero.types.nat
+import ground_zero.theorems.ua ground_zero.types.nat ground_zero.types.sigma
 open ground_zero.types
 
 namespace ground_zero
@@ -141,6 +141,32 @@ namespace nat
   def succ_inj {n m : ℕ} : nat.succ n = nat.succ m → n = m :=
   nat.decode ∘ nat.encode
 
+  def mul_div_right (n : ℕ) {m : ℕ} (H : m > 0) : m * n / m = n :=
+  begin induction n; simp [*] end
+
+  def mul_div_left (m : ℕ) {n : ℕ} (H : n > 0) : m * n / n = m := begin
+    transitivity, apply eq.map (/ n), apply mul_comm,
+    apply mul_div_right, assumption
+  end
+
+  def mul_succ_n_inj {i j n : ℕ} (h : i * (n + 1) = j * (n + 1)) : i = j :=
+  let h : i * (n + 1) / (n + 1) = j * (n + 1) / (n + 1) := (/ nat.succ n) # h in
+  (mul_div_left i $ nat.zero_lt_succ n)⁻¹ ⬝ h ⬝ mul_div_left j (nat.zero_lt_succ n)
+
+  noncomputable def is_even_is_prop (n : ℕ) : structures.prop (is_even n) := begin
+    intros x y, cases x with i h, cases y with j g,
+    fapply types.sigma.prod,
+    { apply mul_succ_n_inj, exact h⁻¹ ⬝ g },
+    { apply nat_is_set }
+  end
+
+  noncomputable def is_odd_is_prop (n : ℕ) : structures.prop (is_odd n) := begin
+    intros x y, cases x with i h,cases y with j g,
+    fapply types.sigma.prod,
+    { apply mul_succ_n_inj, apply succ_inj, exact h⁻¹ ⬝ g },
+    { apply nat_is_set }
+  end
+
   mutual def even_is_prop, odd_is_prop
   with even_is_prop : Π n, structures.prop (even n)
   | 0 even.zero even.zero := eq.rfl
@@ -226,6 +252,14 @@ namespace nat
     apply odd.succ, apply sigma_to_even,
     existsi m, apply succ_inj, assumption
   end
+
+  noncomputable def is_even_equiv {n : ℕ} : is_even n ≃ even n :=
+  structures.prop_equiv_lemma (is_even_is_prop n) (even_is_prop n)
+    sigma_to_even even_to_sigma
+
+  noncomputable def is_odd_equiv {n : ℕ} : is_odd n ≃ odd n :=
+  structures.prop_equiv_lemma (is_odd_is_prop n) (odd_is_prop n)
+    sigma_to_odd odd_to_sigma
 
   def odd_even {σ : ℕ → Sort u}
     (h : Π n, σ (n * 2)) (g : Π n, σ (n * 2 + 1)) (n : ℕ) : σ n :=

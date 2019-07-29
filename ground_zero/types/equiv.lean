@@ -110,8 +110,11 @@ namespace equiv
   def idtoeqv {α β : Sort u} (p : α = β :> _) : α ≃ β :=
   begin induction p, apply id end
 
-  def transportconst {α β : Sort u} : (α = β :> _) → (α → β) :=
-  psigma.fst ∘ idtoeqv
+  def transportconst {α β : Sort u} : α = β → α → β :=
+  forward ∘ idtoeqv
+
+  def transportconst_inv {α β : Sort u} : α = β → β → α :=
+  backward ∘ idtoeqv
 
   def subst {α : Sort u} {π : α → Sort v} {a b : α}
     (p : a = b :> α) : π a → π b :=

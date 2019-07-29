@@ -16,13 +16,6 @@ def product_prop {α : Sort u} {β : Sort v}
   induction p, induction q, reflexivity
 end
 
-def prop_equiv_lemma {α : Sort u} {β : Sort v}
-  (F : prop α) (G : prop β) (f : α → β) (g : β → α) : α ≃ β :=
-begin
-  existsi f, split; existsi g,
-  { intro x, apply F }, { intro y, apply G }
-end
-
 def contr_equiv_unit {α : Sort u} (h : contr α) : α ≃ types.unit := begin
   existsi (λ _, types.unit.star), split;
   existsi (λ _, h.point),
@@ -115,7 +108,7 @@ end
 def lem_contr_inv {α : Sort u} (h : prop α) (x : α) : contr α := ⟨x, h x⟩
 
 def lem_contr_equiv {α : Sort u} : (prop α) ≃ (α → contr α) := begin
-  apply prop_equiv_lemma,
+  apply structures.prop_equiv_lemma,
   { apply structures.prop_is_prop },
   { apply structures.function_to_contr },
   apply lem_contr_inv, apply structures.lem_contr
