@@ -71,7 +71,7 @@ def bool_to_universe : bool → Type
 | tt := 𝟏
 | ff := 𝟎
 
-theorem ff_neq_tt : ¬(ff = tt) :=
+def ff_neq_tt : ¬(ff = tt) :=
 λ h, ground_zero.types.equiv.transport bool_to_universe h⁻¹ ★
 
 theorem function_space : ¬(Π {α β : Type}, prop (α → β)) :=

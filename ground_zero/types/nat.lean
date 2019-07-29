@@ -3,6 +3,8 @@ open ground_zero.types
 
 namespace ground_zero.types.nat
 
+hott theory
+
 universes u v w
 
 def glue : ℕ → ℕ + 𝟏
@@ -94,10 +96,10 @@ def r : Π n, code n n
 | 0 := ★
 | (n + 1) := r n
 
-def encode {m n : ℕ} (p : m = n :> ℕ) : code m n :=
+def encode {m n : ℕ} (p : m = n) : code m n :=
 equiv.subst p (r m)
 
-def decode : Π {m n : ℕ}, code m n → (m = n :> ℕ)
+def decode : Π {m n : ℕ}, code m n → m = n
 |    0       0    p := by reflexivity
 | (m + 1)    0    p := by cases p
 |    0    (n + 1) p := by cases p
@@ -105,7 +107,7 @@ def decode : Π {m n : ℕ}, code m n → (m = n :> ℕ)
   apply eq.map nat.succ, apply decode, exact p
 end
 
-def decode_encode {m n : ℕ} (p : m = n :> ℕ) : decode (encode p) = p :> _ :=
+def decode_encode {m n : ℕ} (p : m = n) : decode (encode p) = p :=
 begin
   induction p, induction m with m ih,
   { reflexivity },
@@ -113,7 +115,7 @@ begin
     transitivity, apply eq.map, apply ih, reflexivity }
 end
 
-def encode_decode : Π {m n : ℕ} (p : code m n), encode (decode p) = p :> _
+def encode_decode : Π {m n : ℕ} (p : code m n), encode (decode p) = p
 |    0       0    p := begin cases p, reflexivity end
 | (m + 1)    0    p := by cases p
 |    0    (n + 1) p := by cases p
@@ -124,7 +126,7 @@ def encode_decode : Π {m n : ℕ} (p : code m n), encode (decode p) = p :> _
   apply encode_decode
 end
 
-def recognize (m n : ℕ) : (m = n :> ℕ) ≃ code m n := begin
+def recognize (m n : ℕ) : m = n ≃ code m n := begin
   existsi encode, split; existsi decode,
   apply decode_encode, apply encode_decode
 end

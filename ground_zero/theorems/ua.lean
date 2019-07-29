@@ -100,7 +100,7 @@ def is_zero : ℕ → bool
 example (h : 0 = 1) : 𝟎 :=
 ff_neq_tt (is_zero # h)⁻¹
 
-theorem succ_neq_zero (n : ℕ) : ¬(nat.succ n = 0) :=
+def succ_neq_zero {n : ℕ} : ¬(nat.succ n = 0) :=
 λ h, ff_neq_tt (is_zero # h)
 
 def neg_bool_equiv : bool ≃ bool := begin
