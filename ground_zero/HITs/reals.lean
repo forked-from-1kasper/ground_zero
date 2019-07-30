@@ -189,7 +189,7 @@ namespace geometry
     { z | (z ∈ ray b a) + (z ∈ ray b c) }
 
     def parallel (a b : swale S) :=
-    ¬(Σ' (z : S), z ∈ a × z ∈ b)
+    ¬Σ' (z : S), z ∈ a × z ∈ b
 
     def segment.is_sum (r₁ r₂ r : S × S) :=
     Σ' z, (⟨r.pr₁, z⟩ ≅ r₁) × (⟨r.pr₂, z⟩ ≅ r₂)

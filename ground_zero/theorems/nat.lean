@@ -275,5 +275,50 @@ namespace nat
   end
 end nat
 
+namespace unit_list
+  universe u
+
+  def zero' : list 𝟏 := []
+  def succ' : list 𝟏 → list 𝟏 :=
+  list.cons ★
+
+  def ind' {E : list 𝟏 → Sort u}
+    (e₀ : E zero') (eₛ : Π (n : list 𝟏), E n → E (succ' n)) :
+    Π (n : list 𝟏), E n
+  | [] := e₀
+  | (★ :: tail) := eₛ tail (ind' tail)
+
+  def encode : ℕ → list 𝟏
+  | 0 := zero'
+  | (n + 1) := succ' (encode n)
+
+  def decode : list 𝟏 → ℕ
+  | [] := nat.zero
+  | (_ :: tail) := nat.succ (decode tail)
+
+  theorem nat_isomorphic : ℕ ≃ list 𝟏 := begin
+    existsi encode, split; existsi decode,
+    { intro n, induction n with n ih,
+      { trivial },
+      { simp, simp at ih, simp [encode],
+        symmetry, transitivity,
+        exact nat.succ # ih⁻¹,
+        simp [succ'], simp [decode] } },
+    { intro l, induction l with head tail ih,
+      { trivial },
+      { simp, simp at ih, simp [decode],
+        symmetry, transitivity,
+        exact list.cons head # ih⁻¹,
+        simp [encode], simp [succ'],
+        induction head, reflexivity } }
+  end
+
+  noncomputable def nat_equality : ℕ = list 𝟏 :=
+  ua nat_isomorphic
+
+  noncomputable instance : add_semigroup (list 𝟏) :=
+  types.equiv.transport add_semigroup nat_equality nat.add_semigroup
+end unit_list
+
 end theorems
 end ground_zero

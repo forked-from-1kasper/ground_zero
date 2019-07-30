@@ -18,7 +18,8 @@ open ground_zero.structures ground_zero.types.not
 
 namespace ground_zero
 
-local infix ` = ` := types.eq
+hott theory
+
 universes u v
 
 axiom J {π : Π (α β : Sort u), α ≃ β → Sort v}
