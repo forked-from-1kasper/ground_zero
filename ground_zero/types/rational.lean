@@ -5,6 +5,8 @@ namespace types
 
 structure rational :=
 (val : integer)
+
+local notation ℤ := integer
 notation `ℚ` := rational
 
 namespace rational
@@ -37,13 +39,13 @@ if h : n > 2 then
   else fusc (n / 2) + fusc (nat.succ $ n / 2)
 else zero n
 
-def numerator (x : rational) : integer :=
+def numerator (x : rational) : ℤ :=
 integer.signum x.val $ fusc (integer.abs x.val)
 
 def denominator (x : rational) : ℕ :=
 fusc (integer.abs x.val + 1)
 
-def rat (x : rational) : integer × ℕ :=
+def rat (x : rational) : ℤ × ℕ :=
 ⟨numerator x, denominator x⟩
 
 instance : has_repr rational :=
@@ -76,7 +78,7 @@ private def generate_bool_list : bool → list ℕ → list bool
 private def pos (num den : ℕ) : ℕ :=
 bitvec.bits_to_nat (generate_bool_list tt $ cont_frac_odd_rev ⟨num, den⟩)
 
-def intro (num : integer) (den : ℕ) : rational :=
+def intro (num : ℤ) (den : ℕ) : rational :=
 ⟨integer.signum num (pos (integer.abs num) den)⟩
 
 def add (n m : rational) : rational :=
@@ -111,6 +113,12 @@ instance : has_le rational := ⟨le⟩
 
 def lt (n m : rational) : Prop := n + 1 ≤ m
 instance : has_lt rational := ⟨lt⟩
+
+theorem rational_equiv_integer : ℚ ≃ ℤ := begin
+  existsi rational.val, split; existsi rational.mk,
+  { intro x, cases x, trivial },
+  { intro x, trivial }
+end
 
 end rational
 
