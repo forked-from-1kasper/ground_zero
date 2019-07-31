@@ -22,6 +22,16 @@ instance : has_repr integer :=
 | (pos n) := to_string n
 | (neg n) := "−" ++ to_string (n + 1)
 end⟩
+instance : has_to_string integer := ⟨repr⟩
+
+def abs : integer → ℕ
+| (pos n) := n
+| (neg n) := n + 1
+
+def plus : ℕ → integer := integer.pos
+def minus : ℕ → integer
+| 0 := pos 0
+| (n + 1) := neg n
 
 def negate : integer → integer
 | (pos $ n + 1) := neg n
@@ -30,6 +40,15 @@ def negate : integer → integer
 
 instance : has_neg integer := ⟨negate⟩
 instance : has_coe ℕ integer := ⟨integer.pos⟩
+
+def sgn : integer → integer
+| (pos $ n + 1) := 1
+| (pos 0) := 0
+| (neg n) := -1
+
+def signum : integer → (nat → integer)
+| (pos _) := plus
+| (neg _) := minus
 
 def auxsucc : ℕ → integer
 | 0 := pos 0
@@ -73,10 +92,10 @@ def sub (x y : integer) := x + (-y)
 instance : has_sub integer := ⟨sub⟩
 
 def mul : integer → integer → integer
-| (neg x) (neg y) := pos (x * y)
-| (neg x) (pos y) := neg (x * y)
-| (pos x) (neg y) := neg (x * y)
-| (pos x) (pos y) := pos (x * y)
+| (neg x) (neg y) := plus  ((x + 1) * (y + 1))
+| (neg x) (pos y) := minus ((x + 1) * y)
+| (pos x) (neg y) := minus (x * (y + 1))
+| (pos x) (pos y) := plus  (x * y)
 instance : has_mul integer := ⟨mul⟩
 
 end integer

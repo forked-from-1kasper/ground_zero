@@ -31,7 +31,12 @@ digraph dependency_map {
       "HITs/interval",
       "HITs/graph"
     }
-    "types/integer" -> { "HITs/circle", "HITs/reals", "algebra/core" }
+    "types/integer" -> {
+      "HITs/circle",
+      "HITs/reals",
+      "algebra/core",
+      "types/rational"
+    }
     "types/lost"
     "types/nat" -> { "theorems/nat" }
     "types/product" -> { "cubical/cubes", "theorems/ua" }

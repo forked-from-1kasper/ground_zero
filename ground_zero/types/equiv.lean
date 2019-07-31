@@ -11,6 +11,12 @@ attribute [pp_using_anonymous_constructor] product
 reserve infix ` × `
 infix ` × ` := product
 
+section
+  universes u v
+  instance (α : Type u) (β : Type v) [has_repr α] [has_repr β] : has_repr (α × β) :=
+  ⟨λ x, sformat! "⟨{repr x.pr₁}, {repr x.pr₂}⟩"⟩
+end
+
 def {u v} product.eq {α : Sort u} {β : Sort v} {a c : α} {b d : β}
   (p : a = c) (q : b = d) : ⟨a, b⟩ = ⟨c, d⟩ :> α × β :=
 begin induction p, induction q, reflexivity end
