@@ -17,6 +17,7 @@ digraph dependency_map {
 
   subgraph types {
     "types/coproduct" -> { "types/integer", structures }
+    "types/dedekind"
     "types/dep_path" -> "types/equiv"
     "types/eq" -> { "types/dep_path", support }
     "types/equiv" -> {
@@ -40,6 +41,7 @@ digraph dependency_map {
     "types/lost"
     "types/nat" -> { "theorems/nat" }
     "types/product" -> { "cubical/cubes", "theorems/ua" }
+    "types/rational" -> "types/dedekind",
     "types/sigma" -> { "theorems/fibration", "theorems/prop", "theorems/nat" }
     "types/swale" -> { "HITs/reals", "algebra/group" }
     "types/unit" -> { structures, "HITs/suspension" }

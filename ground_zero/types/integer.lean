@@ -98,6 +98,13 @@ def mul : integer → integer → integer
 | (pos x) (pos y) := plus  (x * y)
 instance : has_mul integer := ⟨mul⟩
 
+def le : integer → integer → Prop
+| (neg x) (neg y) := y ≤ x
+| (neg x) (pos y) := true
+| (pos x) (neg y) := false
+| (pos x) (pos y) := x ≤ y
+instance : has_le integer := ⟨le⟩
+
 end integer
 
 end ground_zero.types

@@ -1,11 +1,11 @@
 import ground_zero.types.integer data.bitvec
 
 namespace ground_zero
-
 namespace types
 
 structure rational :=
 (val : integer)
+notation `ℚ` := rational
 
 namespace rational
 
@@ -101,6 +101,16 @@ instance : has_inv rational := ⟨inv⟩
 
 def div (n m : rational) : rational := n * m⁻¹
 instance : has_div rational := ⟨div⟩
+
+instance : has_zero rational := ⟨intro 0 1⟩
+instance : has_one rational := ⟨intro 1 1⟩
+
+def le (n m : rational) : Prop :=
+n.numerator * m.denominator ≤ m.numerator * n.denominator
+instance : has_le rational := ⟨le⟩
+
+def lt (n m : rational) : Prop := n + 1 ≤ m
+instance : has_lt rational := ⟨lt⟩
 
 end rational
 

@@ -13,6 +13,9 @@ def is_loop {α : Sort u} {a : α} (p : a = a) := ¬(p = types.eq.refl a)
 def prop (α : Sort u) :=
 Π (a b : α), a = b :> α
 
+def propset : Type u := Σ' (α : Sort u), prop α
+notation `Ω` := propset
+
 def hset (α : Sort u) :=
 Π {a b : α} (p q : a = b :> α), p = q :> a = b :> α
 
