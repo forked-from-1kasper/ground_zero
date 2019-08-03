@@ -66,10 +66,8 @@ namespace eq
 
   def assoc {α : Sort u} {a b c d : α}
     (p : a = b :> α) (q : b = c :> α) (r : c = d :> α) :
-    p ⬝ (q ⬝ r) = (p ⬝ q) ⬝ r := begin
-    induction p, induction q, induction r,
-    trivial
-  end
+    p ⬝ (q ⬝ r) = (p ⬝ q) ⬝ r :=
+  begin induction p, trivial end
 
   def mpr {α β : Sort u} (p : α = β) : β → α :=
   begin induction p, intro x, exact x end
