@@ -3,7 +3,7 @@ import ground_zero.proto ground_zero.meta.hott_theory
 namespace ground_zero.types
 universes u v
 
-theorem K {α : Sort u} {a b : α} (p q : a = b) : p = q :=
+theorem UIP {α : Sort u} {a b : α} (p q : a = b) : p = q :=
 by trivial
 
 inductive eq {α : Sort u} (a : α) : α → Sort u
@@ -15,7 +15,7 @@ hott theory
 notation a ` = ` b ` :> ` α := @eq α a b
 
 /- fails!
-theorem K₁ {α : Sort u} {a b : α} (p q : a = b :> α) :
+theorem UIP₁ {α : Sort u} {a b : α} (p q : a = b :> α) :
   p = q :> (a = b :> α) :=
 by trivial
 -/
