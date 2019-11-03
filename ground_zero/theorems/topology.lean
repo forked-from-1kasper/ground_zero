@@ -1,3 +1,9 @@
+meta def enumeration : tactic unit :=
+tactic.repeat
+  (tactic.mk_const `or.inl >>= tactic.apply >>
+   tactic.interactive.trivial <|>
+   tactic.mk_const `or.inr >>= tactic.apply >> pure ())
+
 namespace ground_zero.theorems.topology
 universe u
 
@@ -26,9 +32,21 @@ theorem union.empty {α : Type u} (a : set α) : a ∪ ∅ = a := begin
 end
 
 theorem inter.empty {α : Type u} (a : set α) : a ∩ ∅ = ∅ := begin
-  funext x, apply propext, split,
-  { intro h, cases h with a b, cases b },
-  { intro h, cases h }
+  funext x, apply propext, split; intro h,
+  { cases h with a b, cases b },
+  { cases h }
+end
+
+theorem union.univ {α : Type u} (a : set α) : a ∪ set.univ = set.univ := begin
+  funext x, apply propext, split; intro h,
+  { cases h; trivial },
+  { apply or.inr, assumption }
+end
+
+theorem inter.univ {α : Type u} (a : set α) : a ∩ set.univ = a := begin
+  funext x, apply propext, split; intro h,
+  { cases h with n m, exact n },
+  { split, exact h, trivial }
 end
 
 theorem union.id {α : Type u} (a : set α) : a ∪ a = a := begin
@@ -51,17 +69,26 @@ def trivial (α : Type u) : topology α := begin
   { apply or.inl, trivial },
   { apply or.inr, trivial },
   { intros u v a b,
-    induction a; induction b; rw [a, b],
+    induction a; rw [a, inter.comm],
     { rw [inter.empty], apply or.inl, trivial },
-    { rw [inter.comm, inter.empty], apply or.inl, trivial },
-    { rw [inter.empty], apply or.inl, trivial },
-    { rw [inter.id], apply or.inr, trivial } },
+    { rw [inter.univ], exact b } },
   { intros u v a b,
-    induction a; induction b; rw [a, b],
-    { rw [union.id], apply or.inl, trivial },
-    { rw [union.comm, union.empty], apply or.inr, trivial },
-    { rw [union.empty], apply or.inr, trivial },
-    { rw [union.id], apply or.inr, trivial } }
+    induction a; rw [a, union.comm],
+    { rw [union.empty], exact b },
+    { rw [union.univ], apply or.inr, trivial } }
 end
+
+inductive X
+| a | b | c | d
+
+namespace X
+  def τ : set (set X) :=
+  { { a },
+    { c },
+    { a, c },
+    { a, b, c },
+    { a, d, c },
+    ∅, set.univ }
+end X
 
 end ground_zero.theorems.topology
