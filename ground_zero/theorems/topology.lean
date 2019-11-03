@@ -1,8 +1,37 @@
-meta def enumeration : tactic unit :=
-tactic.repeat
-  (tactic.mk_const `or.inl >>= tactic.apply >>
-   tactic.interactive.trivial <|>
-   tactic.mk_const `or.inr >>= tactic.apply >> pure ())
+open interactive (loc.ns)
+open interactive.types (texpr location)
+open interactive (parse)
+open lean.parser (ident)
+open tactic.interactive («have»)
+open tactic (get_local infer_type)
+
+meta def tactic.interactive.enumeration : tactic unit :=
+`[ repeat { { apply or.inl, trivial } <|> apply or.inr } ]
+
+meta def tactic.interactive.sinduction (q : parse texpr) : tactic unit := do
+  tactic.repeat (do
+    -- ???
+    tactic.i_to_expr q >>= tactic.induction,
+    tactic.i_to_expr q >>= tactic.rewrite_target,
+    tactic.i_to_expr q >>= tactic.clear,
+    tactic.swap),
+  tactic.i_to_expr q >>= tactic.induction,
+  pure ()
+
+meta def calcset : tactic unit := `[
+  { funext x, induction x; apply propext; split; intro h;
+     try { { left, trivial <|> { enumeration, done } } <|>
+           { right, trivial <|> { enumeration, done } } <|>
+           { split; assumption } <|>
+           { enumeration, done } },
+     repeat { cases h, try
+       { { repeat { cases h_left }, done } <|>
+         { repeat { cases h_right }, done } } },
+     repeat { split; { trivial <|> enumeration } } }
+]
+
+meta def findset : tactic unit :=
+`[ repeat { { apply or.inl, calcset, done } <|> apply or.inr } ]
 
 namespace ground_zero.theorems.topology
 universe u
@@ -89,6 +118,11 @@ namespace X
     { a, b, c },
     { a, d, c },
     ∅, set.univ }
+
+  example : topology X := begin
+    fapply topology.mk, exact τ, enumeration,
+    repeat { intros x y u v, sinduction u; sinduction v; findset }
+  end
 end X
 
 end ground_zero.theorems.topology
