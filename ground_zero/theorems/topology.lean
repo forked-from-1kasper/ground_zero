@@ -1,14 +1,8 @@
-open interactive (loc.ns)
-open interactive.types (texpr location)
-open interactive (parse)
-open lean.parser (ident)
-open tactic.interactive («have»)
-open tactic (get_local infer_type)
-
 meta def tactic.interactive.enumeration : tactic unit :=
 `[ repeat { { apply or.inl, trivial } <|> apply or.inr } ]
 
-meta def tactic.interactive.sinduction (q : parse texpr) : tactic unit := do
+meta def tactic.interactive.sinduction
+  (q : interactive.parse interactive.types.texpr) : tactic unit := do
   tactic.repeat (do
     -- ???
     tactic.i_to_expr q >>= tactic.induction,
