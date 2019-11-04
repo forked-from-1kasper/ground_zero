@@ -85,20 +85,20 @@ theorem inter.id {α : Type u} (a : set α) : a ∩ a = a := begin
 end
 
 def trivial.open (α : Type u) : set (set α) :=
-λ h, h = ∅ ∨ h = set.univ
+{ ∅, set.univ }
 
 def trivial (α : Type u) : topology α := begin
   fapply topology.mk, exact trivial.open α,
+  { apply or.inr, apply or.inl, trivial },
   { apply or.inl, trivial },
-  { apply or.inr, trivial },
   { intros u v a b,
-    induction a; rw [a, inter.comm],
-    { rw [inter.empty], apply or.inl, trivial },
-    { rw [inter.univ], exact b } },
+    sinduction a; rw [inter.comm],
+    { rw [inter.empty], enumeration },
+    { rw [inter.univ], assumption } },
   { intros u v a b,
-    induction a; rw [a, union.comm],
-    { rw [union.empty], exact b },
-    { rw [union.univ], apply or.inr, trivial } }
+    sinduction a; rw [union.comm],
+    { rw [union.empty], assumption },
+    { rw [union.univ], enumeration } }
 end
 
 inductive X
