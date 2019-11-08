@@ -262,16 +262,12 @@ namespace nat
     sigma_to_odd odd_to_sigma
 
   def odd_even {σ : ℕ → Sort u}
-    (h : Π n, σ (n * 2)) (g : Π n, σ (n * 2 + 1)) (n : ℕ) : σ n :=
-  match parity n with
-  | coproduct.inl x :=
-    match even_to_sigma x with
-    | ⟨m, p⟩ := equiv.subst p⁻¹ (h m)
-    end
-  | coproduct.inr y :=
-    match odd_to_sigma y with
-    | ⟨m, p⟩ := equiv.subst p⁻¹ (g m)
-    end
+    (h : Π n, σ (n * 2)) (g : Π n, σ (n * 2 + 1)) (n : ℕ) : σ n := begin
+    cases parity n with x y,
+    { cases even_to_sigma x with m p,
+      exact equiv.subst p⁻¹ (h m) },
+    { cases odd_to_sigma y with m p,
+      exact equiv.subst p⁻¹ (g m) }
   end
 end nat
 

@@ -375,6 +375,12 @@ instance im_is_subgroup {α : Type u} {β : Type v} [grp α] [grp β]
     apply eq.map, exact h
   end }
 
+def tower {α : Type u} [grp α] (a : α) :=
+Σ (b : α) (n : integer), b = a^n
+
+def cyclic {α : Type u} [grp α] (a : α) :=
+grp (tower a)
+
 class vector (α : Type u) (β : Type v) [pointed_magma β] extends algebra.group α :=
 (comm : Π (x y : α), x · y = y · x)
 (ap : β → α → α) (unit : Π x, ap 1 x = x)
