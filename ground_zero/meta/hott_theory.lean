@@ -7,6 +7,8 @@ rb_map.keys $ e.fold (rb_map.mk name unit) (λ e _ buff, match e with
 | _ := buff
 end)
 
+abbreviation {u} Eq {α : Sort u} (a b : α) := a = b
+
 def test {α : Type} {a b : α} (p q : a = b) : p = q :=
 begin symmetry, cases p, cases q, reflexivity end
 
@@ -17,6 +19,7 @@ with_input command_like cmd >> pure ()
 
 @[user_command] meta def hott (meta_info : decl_meta_info)
   (_ : parse $ tk "hott theory") : lean.parser unit :=
+  exec_cmd "local infix ` ⇋ `:50 := Eq" >>
   exec_cmd "local infix ` = ` := ground_zero.types.eq"
 
 end ground_zero.meta.hott_theory

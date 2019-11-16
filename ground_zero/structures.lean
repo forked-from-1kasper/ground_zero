@@ -131,6 +131,14 @@ inductive squash (α : Sort u) : Prop
 def squash.uniq {α : Sort u} (a b : squash α) : a = b :> squash α :=
 types.eq.rfl
 
+def squash.prop {α : Sort u} {β : Prop}
+  (f : α → β) : squash α → β :=
+begin intro h, cases h, apply f h end
+
+def squash.lift {α : Sort u} {β : Sort v}
+  (f : α → β) : squash α → squash β :=
+squash.prop (squash.elem ∘ f)
+
 def K (α : Sort u) :=
 Π (a : α) (p : a = a :> α), p = types.eq.refl a :> a = a :> α
 
