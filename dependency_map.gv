@@ -5,14 +5,7 @@ digraph dependency_map {
   structures -> {
     "HITs/interval",
     "HITs/truncation",
-    "algebra/core",
     "types/nat"
-  }
-
-  subgraph algebra {
-    "algebra/core" -> "algebra/group"
-    "algebra/group" -> "algebra/homology"
-    "algebra/homology"
   }
 
   subgraph types {
@@ -35,7 +28,6 @@ digraph dependency_map {
     "types/integer" -> {
       "HITs/circle",
       "HITs/reals",
-      "algebra/core",
       "types/rational"
     }
     "types/lost"
@@ -43,7 +35,7 @@ digraph dependency_map {
     "types/product" -> { "cubical/cubes", "theorems/ua" }
     "types/rational" -> { "types/dedekind" }
     "types/sigma" -> { "theorems/fibration", "theorems/prop", "theorems/nat" }
-    "types/swale" -> { "HITs/reals", "algebra/group" }
+    "types/swale" -> { "HITs/reals" }
     "types/unit" -> { structures, "HITs/suspension" }
   }
 
@@ -109,7 +101,6 @@ digraph dependency_map {
     "theorems/mere_eq_lemma"
     "theorems/nat" -> { "HITs/circle" }
     "theorems/prop"
-    "theorems/topology"
     "theorems/ua" -> { "theorems/nat", "cubical/V" }
   }
 }
