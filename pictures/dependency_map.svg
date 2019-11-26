@@ -584,10 +584,5 @@
 <path fill="none" stroke="black" d="M673.482,-649.291C652.911,-638.78 625.734,-624.894 604.015,-613.797"/>
 <polygon fill="black" stroke="black" points="605.574,-610.663 595.076,-609.229 602.389,-616.896 605.574,-610.663"/>
 </g>
-<!-- theorems/geometry -->
-<g id="node50" class="node"><title>theorems/geometry</title>
-<ellipse fill="none" stroke="black" cx="736.227" cy="-810" rx="79.8859" ry="18"/>
-<text text-anchor="middle" x="736.227" y="-806.3" font-family="Times New Roman,serif" font-size="14.00">theorems/geometry</text>
-</g>
 </g>
 </svg>

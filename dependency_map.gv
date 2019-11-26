@@ -95,7 +95,6 @@ digraph dependency_map {
   subgraph theorems {
     "theorems/fibration" -> { "theorems/hopf" }
     "theorems/functions" -> { "types/equiv" }
-    "theorems/geometry"
     "theorems/graphs"
     "theorems/hopf"
     "theorems/mere_eq_lemma"
