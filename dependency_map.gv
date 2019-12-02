@@ -35,7 +35,6 @@ digraph dependency_map {
     "types/product" -> { "cubical/cubes", "theorems/ua" }
     "types/rational" -> { "types/dedekind" }
     "types/sigma" -> { "theorems/fibration", "theorems/prop", "theorems/nat" }
-    "types/swale" -> { "HITs/reals" }
     "types/unit" -> { structures, "HITs/suspension" }
   }
 

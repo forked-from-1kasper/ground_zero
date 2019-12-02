@@ -1,5 +1,5 @@
 import ground_zero.HITs.pushout ground_zero.HITs.interval
-import ground_zero.types.integer ground_zero.types.swale
+import ground_zero.types.integer
 open ground_zero.types
 
 /-
