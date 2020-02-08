@@ -39,7 +39,7 @@ digraph dependency_map {
   }
 
   subgraph HITs {
-    "HITs/circle" -> { "HITs/ntrunc", "theorems/hopf", "HITs/moebius" }
+    "HITs/circle" -> { "theorems/hopf", "HITs/moebius" }
     "HITs/colimit" -> "HITs/truncation"
     "HITs/generalized" -> "HITs/truncation"
     "HITs/graph" -> {
@@ -51,7 +51,6 @@ digraph dependency_map {
       "types/precategory"
     }
     "HITs/infinitesimal"
-    "HITs/int" -> "HITs/rat"
     "HITs/interval" -> {
       "types/product",
       "theorems/prop",
@@ -59,13 +58,11 @@ digraph dependency_map {
     }
     "HITs/join"
     "HITs/moebius"
-    "HITs/ntrunc"
     "HITs/pushout" -> {
       "HITs/join",
       "HITs/reals",
       "HITs/suspension"
     }
-    "HITs/rat"
     "HITs/reals"
     "HITs/simplicial"
     "HITs/suspension" -> "HITs/circle"
