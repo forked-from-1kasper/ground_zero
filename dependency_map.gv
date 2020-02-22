@@ -69,7 +69,6 @@ digraph dependency_map {
     "HITs/truncation" -> {
       "theorems/mere_eq_lemma",
       "theorems/prop",
-      "theorems/graphs",
       "HITs/simplicial"
     }
   }
@@ -91,7 +90,6 @@ digraph dependency_map {
   subgraph theorems {
     "theorems/fibration" -> { "theorems/hopf" }
     "theorems/functions" -> { "types/equiv" }
-    "theorems/graphs"
     "theorems/hopf"
     "theorems/mere_eq_lemma"
     "theorems/nat" -> { "HITs/circle" }
