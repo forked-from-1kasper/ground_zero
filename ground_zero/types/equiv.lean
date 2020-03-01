@@ -58,7 +58,7 @@ namespace equiv
   def biinv {α : Sort u} {β : Sort v} (f : α → β) :=
   linv f × rinv f
 
-  def homotopy_sqaure {α : Sort u} {β : Sort v}
+  def homotopy_square {α : Sort u} {β : Sort v}
     {f g : α → β} (H : f ~ g) {x y : α}
     (p : x = y :> α) :
     H x ⬝ (g # p) = (f # p) ⬝ H y :> f x = g y :> β := begin
@@ -255,6 +255,27 @@ namespace equiv
   def transport_back_and_forward {α : Sort u} {β : α → Sort v}
     {x y : α} (p : x = y :> α) (u : β y) :
     subst p (subst p⁻¹ u) = u :=
+  begin induction p, trivial end
+
+  def transport_inv_comp_comp {α : Sort u} {a b : α} (p : a = b) (q : a = a) :
+    equiv.transport (λ x, x = x) p q = p⁻¹ ⬝ q ⬝ p := begin
+    induction p, symmetry, transitivity,
+    apply eq.refl_left (q ⬝ eq.rfl), transitivity,
+    apply eq.refl_right, trivial
+  end
+
+  def transport_over_involution {α : Sort u} {a b : α}
+    (f : α → α) (p : a = b) (q : f a = a) :
+    equiv.transport (λ x, f x = x) p q = (f # p⁻¹) ⬝ q ⬝ p := begin
+    induction p, symmetry,
+    transitivity, apply eq.refl_left (q ⬝ eq.refl a),
+    transitivity, apply eq.refl_right,
+    trivial
+  end
+
+  def map_over_comp {α β γ : Sort u} {a b : α}
+    (f : α → β) (g : β → γ) (p : a = b) :
+    @eq.map α γ a b (g ∘ f) p = g # (f # p) :> g (f a) = g (f b) :> γ :=
   begin induction p, trivial end
 end equiv
 

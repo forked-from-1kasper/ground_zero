@@ -1,5 +1,6 @@
-import ground_zero.HITs.pushout ground_zero.HITs.interval
-import ground_zero.types.integer
+import ground_zero.HITs.circle ground_zero.HITs.interval
+open ground_zero.types.eq (renaming refl -> idp)
+open ground_zero.HITs.circle
 open ground_zero.types
 
 /-
@@ -72,9 +73,8 @@ namespace reals
   rec (elem ∘ f) (begin intros, apply dist end)
 
   def operator (f : ℤ → ℤ → ℤ) : R → R → R :=
-  rec (λ x, rec (elem ∘ f x) (begin intros, apply dist end)) (begin
-    intros, apply interval.funext, intro x, apply dist
-  end)
+  rec (λ x, rec (elem ∘ f x) (begin intros, apply dist end))
+    (begin intros, apply interval.funext, intro x, apply dist end)
 
   instance : has_neg R := ⟨lift integer.negate⟩
 
@@ -86,6 +86,50 @@ namespace reals
 
   instance : has_zero R := ⟨elem 0⟩
   instance : has_one R := ⟨elem 1⟩
+
+  def cis : R → S¹ := rec (λ _, circle.base) (λ _, circle.loop)
+
+  def turn : Π (x : S¹), x = x :=
+  circle.ind circle.loop (begin
+    apply equiv.path_over_subst,
+    transitivity, apply equiv.transport_inv_comp_comp,
+    transitivity, apply eq.map (⬝ loop),
+    apply eq.inv_comp, apply eq.refl_left
+  end)
+
+  def μ : S¹ → S¹ → S¹ :=
+  circle.rec id (interval.funext turn)
+
+  def inv : S¹ → S¹ :=
+  circle.rec base loop⁻¹
+
+  noncomputable def inv_inv (x : S¹) : inv (inv x) = x :=
+  let invₚ := @eq.map S¹ S¹ base base (inv ∘ inv) in
+  begin
+    fapply circle.ind _ _ x; clear x,
+    { reflexivity },
+    { apply equiv.path_over_subst, calc
+        equiv.transport (λ x, inv (inv x) = x) loop eq.rfl =
+                               invₚ loop⁻¹ ⬝ eq.rfl ⬝ loop :
+      by apply equiv.transport_over_involution
+        ... = invₚ loop⁻¹ ⬝ (eq.rfl ⬝ loop) :
+      begin symmetry, apply eq.assoc end
+        ... = inv # (inv # loop⁻¹) ⬝ loop :
+      begin apply eq.map (⬝ loop), apply equiv.map_over_comp end
+        ... = inv # (inv # loop)⁻¹ ⬝ loop :
+      begin apply eq.map (⬝ loop),
+            apply eq.map, apply eq.map_inv end
+        ... = inv # loop⁻¹⁻¹ ⬝ loop :
+      begin apply eq.map (⬝ loop),
+            apply eq.map, apply eq.map,
+            apply circle.recβrule₂ end
+        ... = inv # loop ⬝ loop :
+      begin apply eq.map (⬝ loop),
+            apply eq.map, apply eq.inv_inv end
+        ... = loop⁻¹ ⬝ loop :
+      begin apply eq.map (⬝ loop), apply circle.recβrule₂ end
+        ... = eq.rfl : by apply eq.inv_comp }
+  end
 end reals
 
 def complex := R × R

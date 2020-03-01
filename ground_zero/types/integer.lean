@@ -10,8 +10,8 @@ namespace ground_zero.types
   −2 = neg 1
 -/
 def integer := ℕ + ℕ
-@[pattern] def integer.pos : ℕ → integer := coproduct.inl
-@[pattern] def integer.neg : ℕ → integer := coproduct.inr
+@[pattern] abbreviation integer.pos : ℕ → integer := coproduct.inl
+@[pattern] abbreviation integer.neg : ℕ → integer := coproduct.inr
 namespace integer
 
 instance : has_zero integer := ⟨pos 0⟩

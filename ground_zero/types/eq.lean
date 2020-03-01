@@ -77,7 +77,7 @@ namespace eq
   begin induction p, reflexivity end
   infix [parsing_only] ` # ` := map
 
-  theorem map_inv {α : Sort u} {β : Sort v} {a b : α}
+  def map_inv {α : Sort u} {β : Sort v} {a b : α}
     (f : α → β) (p : a = b :> α) : (f # p⁻¹) = (f # p)⁻¹ :=
   begin induction p, reflexivity end
 
