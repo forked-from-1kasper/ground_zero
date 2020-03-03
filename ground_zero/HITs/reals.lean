@@ -110,7 +110,7 @@ namespace reals
     { reflexivity },
     { apply equiv.path_over_subst, calc
         equiv.transport (λ x, inv (inv x) = x) loop eq.rfl =
-                               invₚ loop⁻¹ ⬝ eq.rfl ⬝ loop :
+                              invₚ loop⁻¹ ⬝ eq.rfl ⬝ loop :
       by apply equiv.transport_over_involution
         ... = invₚ loop⁻¹ ⬝ (eq.rfl ⬝ loop) :
       begin symmetry, apply eq.assoc end

@@ -8,6 +8,8 @@ import ground_zero.HITs.pushout ground_zero.types.unit
 namespace ground_zero
 namespace HITs
 
+hott theory
+
 abbreviation unit₀ : Type := types.unit
 abbreviation star₀ : unit₀ := types.unit.star
 
@@ -37,6 +39,17 @@ namespace suspension
   def rec {α : Type u} {β : Type v} (n s : β)
     (m : α → n = s :> β) : ∑α → β :=
   pushout.rec (λ _, n) (λ _, s) m
+
+  noncomputable def indβrule {α : Type u} {β : ∑α → Type v}
+    (n : β north) (s : β south)
+    (m : Π (x : α), n =[merid x] s) (x : α) :
+    types.dep_path.apd (ind n s m) (merid x) = m x :=
+  by apply pushout.indβrule
+
+  noncomputable def recβrule {α : Type u} {β : Type v} (n s : β)
+    (m : α → n = s :> β) (x : α) :
+    (rec n s m) # (merid x) = m x :=
+  by apply pushout.recβrule
 end suspension
 
 end HITs

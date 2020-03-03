@@ -269,14 +269,35 @@ namespace equiv
     equiv.transport (λ x, f x = x) p q = (f # p⁻¹) ⬝ q ⬝ p := begin
     induction p, symmetry,
     transitivity, apply eq.refl_left (q ⬝ eq.refl a),
-    transitivity, apply eq.refl_right,
-    trivial
+    apply eq.refl_right
   end
 
   def map_over_comp {α β γ : Sort u} {a b : α}
     (f : α → β) (g : β → γ) (p : a = b) :
     @eq.map α γ a b (g ∘ f) p = g # (f # p) :> g (f a) = g (f b) :> γ :=
   begin induction p, trivial end
+
+  def apd_over_constant_family {α : Sort u} {β : Sort v} {a b : α}
+    (f : α → β) (p : a = b :> α) :
+    dep_path.apd f p = dep_path.pathover_of_eq p (f # p) :=
+  begin induction p, trivial end
+
+  def refl_pathover {α : Sort u} {β : Sort v} {a : α} {x y : β}
+    (p : x =[eq.refl a] y) : x = y :=
+  by apply subst_from_pathover p
+
+  def pathover_inv {α : Sort u} {β : Sort v} (a : α) {x y : β} (p : x = y) :
+    refl_pathover (dep_path.pathover_of_eq (eq.refl a) p) = p :=
+  begin induction p, reflexivity end
+
+  def pathover_of_eq_inj {α : Sort u} {β : Sort v} {a b : α} {a' b' : β}
+    (r : a = b :> α) (p q : a' = b' :> β) :
+    dep_path.pathover_of_eq r p = dep_path.pathover_of_eq r q → p = q := begin
+    intro H, induction r, induction p,
+    transitivity, symmetry, apply pathover_inv a,
+    symmetry, transitivity, symmetry, apply pathover_inv a,
+    symmetry, apply refl_pathover # H
+  end
 end equiv
 
 def {u v} is_qinv {α : Sort u} {β : Sort v} (f : α → β) (g : β → α) :=

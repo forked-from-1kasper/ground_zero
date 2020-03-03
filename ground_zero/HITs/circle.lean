@@ -66,10 +66,10 @@ namespace circle
   def loop : base = base := seg₂ ⬝ seg₁⁻¹
 
   def rec {β : Type u} (b : β) (ℓ : b = b) : S¹ → β :=
-  suspension.rec b b (λ _, ℓ)
+  suspension.rec b b (λ b, bool.cases_on b rfl ℓ)
 
   def recβrule₁ {β : Type u} (b : β) (ℓ : b = b) :
-    rec b ℓ base = b := types.eq.rfl
+    rec b ℓ base = b := rfl
 
   def map_functoriality {α : Type u} {β : Type v}
     {a b c : α} (f : α → β) {p : a = b} {q : b = c} :
@@ -81,9 +81,16 @@ namespace circle
     f # p⁻¹ = (f # p)⁻¹ :=
   begin induction p, reflexivity end
 
-  -- WIP
-  axiom recβrule₂ {β : Type u} (b : β) (ℓ : b = b) :
-    (rec b ℓ # loop) = ℓ
+  noncomputable def recβrule₂ {β : Type u} (b : β) (ℓ : b = b) :
+    (rec b ℓ # loop) = ℓ := begin
+    transitivity, apply map_functoriality,
+    transitivity, apply eq.map,
+    transitivity, apply eq.map_inv,
+    apply eq.map, apply suspension.recβrule,
+    transitivity, apply eq.map (⬝ rfl),
+    apply suspension.recβrule,
+    apply eq.refl_right
+  end
 
   def ind {β : S¹ → Type u} (b : β base)
     (ℓ : b =[loop] b) : Π (x : S¹), β x :=
