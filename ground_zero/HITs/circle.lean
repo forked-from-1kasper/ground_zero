@@ -80,8 +80,7 @@ namespace circle
     f # p⁻¹ = (f # p)⁻¹ :=
   begin induction p, reflexivity end
 
-  noncomputable def recβrule₂ {β : Type u} (b : β) (ℓ : b = b) :
-    rec b ℓ # loop = ℓ := calc
+  noncomputable def recβrule₂ {β : Type u} (b : β) (ℓ : b = b) := calc
     rec b ℓ # loop = rec b ℓ # seg₂ ⬝ rec b ℓ # seg₁⁻¹ : by apply map_functoriality
                ... = rec b ℓ # seg₂ ⬝ (rec b ℓ # seg₁)⁻¹ :
                      begin apply eq.map, apply eq.map_inv end
@@ -121,21 +120,21 @@ namespace circle
   def succ (l : Ω¹(S¹)) : Ω¹(S¹) := l ⬝ loop
   def pred (l : Ω¹(S¹)) : Ω¹(S¹) := l ⬝ loop⁻¹
 
-  def zero := idp base
-  def one := succ zero
-  def two := succ one
-  def three := succ two
+  def zero   := idp base
+  def one    := succ zero
+  def two    := succ one
+  def three  := succ two
   def fourth := succ three
 
   def helix : S¹ → Type :=
   rec integer (ua integer.succ_equiv)
 
   def pos : ℕ → Ω¹(S¹)
-  | 0 := types.eq.refl base
+  |    0    := idp base
   | (n + 1) := pos n ⬝ loop
 
   def neg : ℕ → Ω¹(S¹)
-  | 0 := loop⁻¹
+  |    0    := loop⁻¹
   | (n + 1) := neg n ⬝ loop⁻¹
 
   def power : integer → Ω¹(S¹)
@@ -143,40 +142,39 @@ namespace circle
   | (integer.neg n) := neg n
 
   def encode (x : S¹) (p : base = x) : helix x :=
-  types.equiv.transport helix p (integer.pos 0)
+  transport helix p (integer.pos 0)
 
   example : power (integer.pos 2) = loop ⬝ loop :=
   by reflexivity
 
-  abbreviation bicycle : helix base → integer := id
-
   def winding (x : base = base) : integer :=
-  bicycle (transport helix x $ integer.pos 0)
+  @transport S¹ helix base base x (integer.pos 0)
 
-  noncomputable def transport_there (x : integer) :
-    transport helix loop x = integer.succ x := begin
-    transitivity, apply types.equiv.transport_comp id helix loop,
-    transitivity, {
-      apply types.equiv.homotopy.eq,
-      apply types.eq.map subst,
-      apply recβrule₂
-    },
-    apply ua.transport_rule
-  end
+  noncomputable def transport_there (x : integer) := calc
+    transport helix loop x = @transport Type id (helix base) (helix base)
+                               (@eq.map S¹ Type base base helix loop) x :
+                             by apply types.equiv.transport_comp id
+                       ... = @transport Type id (helix base) (helix base)
+                               (ua integer.succ_equiv) x :
+                             begin apply types.equiv.homotopy.eq,
+                                   apply eq.map, apply recβrule₂ end
+                       ... = integer.succ x : by apply ua.transport_rule
 
-  noncomputable def transport_back (x : integer) :
-    transport helix loop⁻¹ x = integer.pred x := begin
-    transitivity, { apply types.equiv.transport_comp id helix loop⁻¹ },
-    transitivity, {
-      apply types.equiv.homotopy.eq,
-      apply types.eq.map subst,
-      transitivity, apply types.eq.map_inv,
-      apply types.eq.map, apply recβrule₂
-    },
-    transitivity, apply types.equiv.subst_over_inv_path,
-    transitivity, apply ua.transport_inv_rule,
-    reflexivity
-  end
+  noncomputable def transport_back (x : integer) := calc
+    transport helix loop⁻¹ x = @transport Type id (helix base) (helix base)
+                                 (@eq.map S¹ Type base base helix loop⁻¹) x :
+                               by apply types.equiv.transport_comp id
+                         ... = @transport Type id (helix base) (helix base)
+                                 (ua integer.succ_equiv)⁻¹ x :
+                               begin apply types.equiv.homotopy.eq, apply eq.map,
+                                     transitivity, apply eq.map_inv,
+                                     apply eq.map, apply recβrule₂ end
+                         ... = @equiv.subst_inv Type id (helix base) (helix base)
+                                 (ua integer.succ_equiv) x :
+                               by apply types.equiv.subst_over_inv_path
+                         ... = integer.succ_equiv.backward x :
+                               by apply ua.transport_inv_rule
+                         ... = integer.pred x : by reflexivity
 
   noncomputable def decode : Π (x : S¹), helix x → base = x :=
   @ind (λ x, helix x → base = x) power (begin
@@ -226,7 +224,7 @@ namespace circle
 
   noncomputable def encode_decode (x : S¹) (c : helix x) :
     encode x (decode x c) = c :=
-  @ind (λ x, Π (c : helix x), encode x (decode x c) = c)
+  @ind (λ x, Π c, encode x (decode x c) = c)
     (begin
       clear c, clear x,
       intro c, induction c,
@@ -243,9 +241,11 @@ namespace circle
           transitivity, apply eq.map, apply ih,
           reflexivity } }
     end)
-    (begin apply types.equiv.path_over_subst,
+    (begin
+      apply types.equiv.path_over_subst,
       apply interval.dfunext,
-      intro x, apply integer_is_set end) x c
+      intro x, apply integer_is_set
+    end) x c
 
   noncomputable def family (x : S¹) : (base = x) ≃ helix x := begin
     existsi encode x, split; existsi decode x,
@@ -351,9 +351,9 @@ namespace torus'
   graph.line (rel.bottom x)
 
   def p : b = b :> torus' :=
-  graph.elem # (product.prod rfl seg) ⬝
-  graph.elem # (product.prod seg rfl) ⬝
-  graph.elem # (product.prod rfl seg⁻¹) ⬝
+  graph.elem # (product.prod rfl   seg) ⬝
+  graph.elem # (product.prod seg   rfl) ⬝
+  graph.elem # (product.prod rfl   seg⁻¹) ⬝
   graph.elem # (product.prod seg⁻¹ rfl)
 
   def q : b = b :> torus' :=
