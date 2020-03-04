@@ -35,9 +35,8 @@ end in begin
   { intro x,
     refine @suspension.ind _
       (λ x, g (f x) = x)
-      (by reflexivity)
-      (by reflexivity)
-      _ x,
+      _ _ _ x,
+    refl, refl,
     intro u, induction u },
   { intro x, induction x,
     repeat { trivial } }
@@ -82,15 +81,17 @@ namespace circle
   begin induction p, reflexivity end
 
   noncomputable def recβrule₂ {β : Type u} (b : β) (ℓ : b = b) :
-    (rec b ℓ # loop) = ℓ := begin
-    transitivity, apply map_functoriality,
-    transitivity, apply eq.map,
-    transitivity, apply eq.map_inv,
-    apply eq.map, apply suspension.recβrule,
-    transitivity, apply eq.map (⬝ rfl),
-    apply suspension.recβrule,
-    apply eq.refl_right
-  end
+    rec b ℓ # loop = ℓ := calc
+    rec b ℓ # loop = rec b ℓ # seg₂ ⬝ rec b ℓ # seg₁⁻¹ : by apply map_functoriality
+               ... = rec b ℓ # seg₂ ⬝ (rec b ℓ # seg₁)⁻¹ :
+                     begin apply eq.map, apply eq.map_inv end
+               ... = ℓ ⬝ (rec b ℓ # seg₁)⁻¹ :
+                     begin apply eq.map (⬝ (rec b ℓ # seg₁)⁻¹),
+                           apply suspension.recβrule end
+               ... = ℓ ⬝ eq.rfl⁻¹ :
+                     begin apply eq.map, apply eq.map types.eq.symm,
+                           apply suspension.recβrule end
+               ... = ℓ : by apply eq.refl_right
 
   def ind {β : S¹ → Type u} (b : β base)
     (ℓ : b =[loop] b) : Π (x : S¹), β x :=
@@ -269,10 +270,10 @@ namespace ncircle
   | (n + 1) := ∑(S n)
 
   def lift : Π n, S n → S (n + 1)
-  | 0 ff := suspension.north
-  | 0 tt := suspension.south
-  | (n + 1) x := suspension.rec suspension.north suspension.south
-                               (λ _, suspension.merid x) x
+  |    0    ff := suspension.north
+  |    0    tt := suspension.south
+  | (n + 1) x  := suspension.rec suspension.north suspension.south
+                                 (λ _, suspension.merid x) x
 end ncircle
 
 namespace sphere

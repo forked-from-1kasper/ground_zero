@@ -35,6 +35,11 @@ namespace dep_path
   begin induction r, induction s, reflexivity end
   infix ` ⬝' `:40 := dep_trans
 
+  def apd_functoriality {α : Sort u} {β : α → Sort v} {a b c : α}
+    (f : Π x, β x) (p : a = b :> α) (q : b = c :> α) :
+    @apd α β a c f (p ⬝ q) = dep_trans (apd f p) (apd f q) :=
+  begin induction p, induction q, reflexivity end
+
   def dep_homotopy {α : Sort u} {β γ : α → Sort v}
     {a b : α} (p : a = b :> α)
     (f : Π x, β a → γ x) (g : Π x, β b → γ x) :=
