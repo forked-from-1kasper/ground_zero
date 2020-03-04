@@ -80,6 +80,9 @@ namespace circle
     f # p⁻¹ = (f # p)⁻¹ :=
   begin induction p, reflexivity end
 
+  def idmap {α : Type u} {a b : α} (p : a = b) : p = id # p :=
+  begin induction p, trivial end
+
   noncomputable def recβrule₂ {β : Type u} (b : β) (ℓ : b = b) := calc
     rec b ℓ # loop = rec b ℓ # seg₂ ⬝ rec b ℓ # seg₁⁻¹ : by apply map_functoriality
                ... = rec b ℓ # seg₂ ⬝ (rec b ℓ # seg₁)⁻¹ :
@@ -109,13 +112,41 @@ namespace circle
 
   instance pointed_circle : types.eq.dotted S¹ := ⟨base⟩
 
-  namespace going
-    def trivial : S¹ → S¹ :=
-    rec base (types.eq.refl base)
+  noncomputable def loop_eq_refl_impls_uip {α : Type u}
+    (H : loop = idp base) : structures.K α := begin
+    intros a p, transitivity,
+    symmetry, apply circle.recβrule₂ a p,
+    change _ = (rec a p) # (idp base),
+    apply eq.map, assumption
+  end
 
-    def nontrivial : S¹ → S¹ :=
-    rec base loop
-  end going
+  noncomputable def loop_neq_refl : ¬(loop = idp base) := begin
+    intro h, apply ua.universe_not_a_set,
+    intros α β p q, apply (structures.K_iff_set Type).left,
+    apply loop_eq_refl_impls_uip, assumption
+  end
+
+  namespace map
+    def trivial    : S¹ → S¹ := rec base (idp base)
+    def nontrivial : S¹ → S¹ := rec base loop
+
+    noncomputable def trivial_not_hmtpy : ¬(trivial = id) := begin
+      intro p, apply loop_neq_refl,
+      transitivity, apply idmap,
+      apply transport (λ f, f # loop = idp (f base)) p,
+      apply circle.recβrule₂
+    end
+
+    noncomputable def nontrivial_hmtpy : nontrivial ~ id := begin
+      intro x, apply ind _ _ x,
+      refl, apply equiv.path_over_subst,
+      transitivity, apply equiv.transport_over_involution,
+      transitivity, apply eq.map (λ p, p ⬝ idp base ⬝ loop),
+      transitivity, apply eq.map_inv, apply eq.map, apply recβrule₂,
+      transitivity, apply eq.map (⬝ loop), apply eq.refl_right,
+      apply types.eq.inv_comp
+    end
+  end map
 
   def succ (l : Ω¹(S¹)) : Ω¹(S¹) := l ⬝ loop
   def pred (l : Ω¹(S¹)) : Ω¹(S¹) := l ⬝ loop⁻¹
