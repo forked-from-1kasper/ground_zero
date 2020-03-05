@@ -137,6 +137,15 @@ namespace circle
       apply circle.recβrule₂
     end
 
+    noncomputable def trivial_hmtpy : trivial ~ (λ _, base) := begin
+      intro x, apply ind _ _ x,
+      refl, apply equiv.path_over_subst,
+      transitivity, apply equiv.transport_over_contr_map,
+      transitivity, apply eq.map (⬝ idp base), apply eq.map_inv,
+      transitivity, apply eq.map (⬝ idp base), apply eq.map,
+      apply recβrule₂, trivial
+    end
+
     noncomputable def nontrivial_hmtpy : nontrivial ~ id := begin
       intro x, apply ind _ _ x,
       refl, apply equiv.path_over_subst,

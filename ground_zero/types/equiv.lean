@@ -264,6 +264,11 @@ namespace equiv
     apply eq.refl_right, trivial
   end
 
+  def transport_over_contr_map {α : Sort u} {a b c : α}
+    (f : α → α) (p : a = b) (q : f a = c) :
+    equiv.transport (λ x, f x = c) p q = f # p⁻¹ ⬝ q :=
+  begin induction p, trivial end
+
   def transport_over_involution {α : Sort u} {a b : α}
     (f : α → α) (p : a = b) (q : f a = a) :
     equiv.transport (λ x, f x = x) p q = (f # p⁻¹) ⬝ q ⬝ p := begin
