@@ -155,6 +155,10 @@ namespace circle
       transitivity, apply eq.map (⬝ loop), apply eq.refl_right,
       apply types.eq.inv_comp
     end
+
+    noncomputable def nontrivial_not_hmtpy : ¬(nontrivial = (λ _, base)) :=
+    λ p, trivial_not_hmtpy (interval.funext trivial_hmtpy ⬝ p⁻¹ ⬝
+                            interval.funext nontrivial_hmtpy)
   end map
 
   def succ (l : Ω¹(S¹)) : Ω¹(S¹) := l ⬝ loop
