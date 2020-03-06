@@ -8,7 +8,7 @@ This library provides computable HITs, variation of Cubical Type Theory using th
 
 [All of the HITs in the library](https://github.com/groupoid/lean/tree/master/ground_zero/HITs) constructed using [quotients](https://leanprover.github.io/theorem_proving_in_lean/axioms_and_computation.html#quotients). Quotients in Lean have good computational properties (`quot.ind` computes), so we can define HITs with them without any other changes in Lean’s kernel.
 
-There are many basic—not defined in terms of another Higher Inductive Type—HITs:
+There are:
 
 * Interval ![I](pictures/interval.svg).
 * Pushout ![pushout](pictures/pushout.svg).
@@ -19,9 +19,6 @@ There are many basic—not defined in terms of another Higher Inductive Type
 * Rational numbers ![ℚ](pictures/rat.svg).
 * Möbius band.
 * n-Simplex ![Δⁿ](pictures/n_simplex.svg).
-
-Other (defined in terms of another HITs) HITs:
-
 * Propositional truncation is colimit of a following sequence:
   
   ![α → {α} → {{α}} → ...](pictures/prop_truncation_seq_colimit.svg)
