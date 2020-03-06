@@ -1,4 +1,4 @@
-import ground_zero.HITs.graph
+import ground_zero.theorems.nat
 
 /-
   Integers ℤ as a quotient of ℕ × ℕ.
@@ -73,8 +73,12 @@ namespace int
   ⟨rec (λ x, mk ⟨x.pr₂, x.pr₁⟩)
     (begin intros a b c d H, apply knife, symmetry, assumption end)⟩
 
-  theorem k_equiv (a b k : ℕ) : mk ⟨a, b⟩ = mk ⟨a + k, b + k⟩ :=
-  begin apply knife, simp [*] end
+  theorem k_equiv (a b k : ℕ) : mk ⟨a, b⟩ = mk ⟨a + k, b + k⟩ := begin
+    apply knife, transitivity,
+    { symmetry, apply ground_zero.theorems.nat.assoc },
+    symmetry, transitivity, { symmetry, apply ground_zero.theorems.nat.assoc },
+    apply ground_zero.types.eq.map (+ k), apply ground_zero.theorems.nat.comm
+  end
 end int
 
 end ground_zero.HITs

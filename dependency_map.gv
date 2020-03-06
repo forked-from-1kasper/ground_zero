@@ -44,7 +44,6 @@ digraph dependency_map {
     "HITs/graph" -> {
       "HITs/colimit",
       "HITs/generalized",
-      "HITs/int",
       "HITs/pushout",
       "HITs/moebius",
       "types/precategory"
@@ -91,7 +90,7 @@ digraph dependency_map {
     "theorems/functions" -> { "types/equiv" }
     "theorems/hopf"
     "theorems/mere_eq_lemma"
-    "theorems/nat" -> { "HITs/circle" }
+    "theorems/nat" -> { "HITs/circle", "HITs/int" }
     "theorems/prop"
     "theorems/ua" -> { "theorems/nat", "cubical/V" }
   }
