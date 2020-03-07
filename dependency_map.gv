@@ -49,7 +49,6 @@ digraph dependency_map {
     }
     "HITs/infinitesimal"
     "HITs/interval" -> {
-      "HITs/moebius",
       "HITs/reals",
       "types/product",
       "theorems/prop",

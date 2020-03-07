@@ -1,4 +1,4 @@
-import ground_zero.HITs.interval ground_zero.HITs.circle
+import ground_zero.HITs.circle
 
 /-
   The Möbius band as quotient of square I × I.
