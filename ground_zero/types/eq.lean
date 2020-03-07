@@ -20,6 +20,8 @@ theorem UIP₁ {α : Sort u} {a b : α} (p q : a = b :> α) :
 by trivial
 -/
 
+abbreviation idp {α : Sort u} (a : α) : a = a :> α := eq.refl a
+
 namespace eq
   @[inline] def rfl {α : Sort u} {a : α} : a = a :> α :=
   eq.refl a

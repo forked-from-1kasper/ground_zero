@@ -45,11 +45,11 @@ digraph dependency_map {
       "HITs/colimit",
       "HITs/generalized",
       "HITs/pushout",
-      "HITs/moebius",
       "types/precategory"
     }
     "HITs/infinitesimal"
     "HITs/interval" -> {
+      "HITs/moebius",
       "HITs/reals",
       "types/product",
       "theorems/prop",
@@ -82,7 +82,7 @@ digraph dependency_map {
       "cubical/connection"
     }
     "cubical/square"
-    "cubical/V" -> "HITs/moebius"
+    "cubical/V"
   }
 
   subgraph theorems {

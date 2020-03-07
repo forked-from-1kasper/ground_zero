@@ -1,7 +1,7 @@
 import ground_zero.types.product
 open ground_zero.types.equiv (idtoeqv homotopy)
 open ground_zero.types.equiv (renaming id -> ideqv)
-open ground_zero.types.eq (renaming refl -> idp)
+open ground_zero.types
 open ground_zero.structures ground_zero.types.not
 
 /-

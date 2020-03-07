@@ -1,5 +1,5 @@
 import ground_zero.structures ground_zero.types.heq
-open ground_zero.structures
+open ground_zero.structures ground_zero.types
 
 hott theory
 
@@ -126,6 +126,18 @@ namespace interval
   def bool_to_interval (f : bool → bool → bool) (a b : I) : I :=
   lift (λ a, lift (discrete ∘ f a) interval_prop b) interval_prop a
 
+  axiom indβrule {π : I → Sort u} (b₀ : π i₀) (b₁ : π i₁)
+    (s : b₀ =[seg] b₁) : types.dep_path.apd (ind b₀ b₁ s) seg = s
+
+  noncomputable def recβrule {π : Sort u} (b₀ b₁ : π)
+    (s : b₀ = b₁) : rec b₀ b₁ s # seg = s := begin
+    apply equiv.pathover_of_eq_inj seg, transitivity,
+    symmetry, apply equiv.apd_over_constant_family,
+    transitivity, apply indβrule, reflexivity
+  end
+
+  def neg : I → I := interval.rec i₁ i₀ seg⁻¹
+
   def min (a b : I) : I :=
   lift (begin intro x, cases x, exact i₀, exact a end)
         interval_prop b
@@ -136,6 +148,58 @@ namespace interval
 
   notation r `∧`:70 s := min r s
   notation r `∨`:70 s := max r s
+
+  def elim {α : Sort u} {a b : α} (p : a = b) : I → α := rec a b p
+  def lam  {α : Sort u} (f : I → α) : f 0 = f 1 := eq.map f seg
+
+  def conn_and {α : Sort u} {a b : α} (p : a = b) : Π i, a = elim p i :=
+  λ i, lam (λ j, elim p (i ∧ j))
+
+  def cong {α : Sort u} {β : Sort v} {a b : α}
+    (f : α → β) (p : a = b) : f a = f b :=
+  lam (λ i, f (elim p i))
+
+  noncomputable def cong_refl {α : Sort u} {β : Sort v} {a : α}
+    (f : α → β) : cong f (idp a) = idp (f a) := begin
+    transitivity, apply types.equiv.map_over_comp,
+    transitivity, apply eq.map, apply recβrule, trivial
+  end
+
+  noncomputable def map_eq_cong {α : Sort u} {β : Sort v} {a b : α}
+    (f : α → β) (p : a = b) : f # p = cong f p :=
+  begin induction p, symmetry, apply cong_refl end
+
+  noncomputable def neg_neg : Π x, neg (neg x) = x :=
+  interval.ind eq.rfl eq.rfl (equiv.path_over_subst (calc
+    equiv.transport (λ x, neg (neg x) = x) seg (idp i₀) =
+    (@eq.map I I i₁ i₀ (neg ∘ neg) seg⁻¹) ⬝ idp i₀ ⬝ seg :
+      by apply equiv.transport_over_involution
+    ... = neg # (neg # seg⁻¹) ⬝ idp i₀ ⬝ seg :
+      begin apply eq.map (λ p, p ⬝ idp i₀ ⬝ seg),
+            apply equiv.map_over_comp end
+    ... = neg # (neg # seg)⁻¹ ⬝ idp i₀ ⬝ seg :
+      begin apply eq.map (λ p, p ⬝ idp i₀ ⬝ seg),
+            apply eq.map, apply eq.map_inv end
+    ... = neg # seg⁻¹⁻¹ ⬝ idp i₀ ⬝ seg :
+      begin apply eq.map (λ p, p ⬝ idp i₀ ⬝ seg),
+            apply eq.map, apply eq.map ground_zero.types.eq.symm,
+            apply interval.recβrule end
+    ... = neg # seg ⬝ idp i₀ ⬝ seg :
+      begin apply eq.map (λ (p : i₀ = i₁), neg # p ⬝ idp i₀ ⬝ seg),
+            apply eq.inv_inv end
+    ... = seg⁻¹ ⬝ idp i₀ ⬝ seg :
+      begin apply eq.map (λ p, p ⬝ idp i₀ ⬝ seg),
+            apply interval.recβrule end
+    ... = seg⁻¹ ⬝ seg :
+      begin apply eq.map (λ p, p ⬝ seg),
+            apply eq.refl_right end
+    ... = idp i₁ : by apply eq.inv_comp))
+
+  def neg_neg' (x : I) : neg (neg x) = x :=
+  (conn_and seg⁻¹ (neg x))⁻¹ ⬝ interval_prop 1 x
+
+  noncomputable def twist : I ≃ I :=
+  ⟨neg, ⟨⟨neg, neg_neg⟩, ⟨neg, neg_neg⟩⟩⟩
 end interval
 
 end HITs

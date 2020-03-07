@@ -1,7 +1,7 @@
 import ground_zero.HITs.suspension
 import ground_zero.types.integer ground_zero.theorems.nat
 open ground_zero.types.equiv (subst transport)
-open ground_zero.types.eq (renaming refl -> idp)
+open ground_zero.types.eq
 open ground_zero.structures (hset)
 open ground_zero.types
 
