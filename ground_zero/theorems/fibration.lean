@@ -44,10 +44,7 @@ namespace ground_zero.theorems.fibration
     types.fib (@psigma.fst α β) x ≃ β x := begin
     existsi (forward x), split; existsi (@backward α β x),
     { intro u, cases u with u h, cases u with y u,
-      induction h, fapply types.sigma.prod,
-      { fapply types.sigma.prod; trivial },
-      { have p := types.sigma.prod_refl ⟨y, u⟩,
-        induction p, trivial } },
+      induction h, fapply types.sigma.prod; trivial },
     { intro u, trivial }
   end
 end ground_zero.theorems.fibration
