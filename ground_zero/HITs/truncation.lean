@@ -1,6 +1,5 @@
 import ground_zero.HITs.colimit ground_zero.HITs.generalized
 import ground_zero.structures
-open ground_zero.support (renaming truncation -> hint)
 open ground_zero.types.equiv (subst path_over_subst apd pathover_from_trans)
 open ground_zero.types.eq (cong)
 open ground_zero.structures (prop contr lem_contr)
@@ -91,8 +90,8 @@ namespace truncation
 
   def cong_close {α : Sort u} {n : ℕ} {a b : generalized.repeat α n} (p : a = b) :
     glue⁻¹ ⬝ incl # (generalized.dep α n # p) ⬝ glue = incl # p := begin
-    induction p,
-    rw ←hint (ground_zero.types.eq.assoc _ _ _),
+    induction p, transitivity,
+    { symmetry, apply ground_zero.types.eq.assoc },
     apply ground_zero.types.equiv.rewrite_comp, symmetry,
     apply ground_zero.types.eq.refl_right
   end
@@ -126,10 +125,13 @@ namespace truncation
         apply pathover_from_trans,
         symmetry, transitivity,
         { symmetry, apply cong, apply incl_uniq_close },
-        rw hint (ground_zero.types.eq.explode_inv _ _),
-        repeat { rw ←hint (ground_zero.types.eq.assoc _ _ _) },
+        symmetry, transitivity, apply cong
+          (λ p, p ⬝ incl_uniq (exact_nth x (n + 1)) (generalized.dep α n y) ⬝
+                    colimit.glue y),
+        apply ground_zero.types.eq.explode_inv,
+        repeat { transitivity, symmetry, apply ground_zero.types.eq.assoc },
         apply cong (λ p, (nth_glue x n)⁻¹ ⬝ p),
-        unfold incl_uniq, trivial } },
+        unfold incl_uniq, apply ground_zero.types.eq.assoc } },
     { intro x, apply ground_zero.structures.contr_is_prop }
   end
 
