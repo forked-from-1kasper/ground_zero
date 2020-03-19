@@ -44,7 +44,7 @@ namespace graph
   axiom indβrule {α : Type u} {R : α → α → Type w} {β : graph R → Type v}
     (f : Π x, β (elem x)) (h : Π x y (H : R x y), f x =[line H] f y)
     {x y : α} (g : R x y) :
-    dep_path.apd (ind f h) (line g) = h x y g
+    equiv.apd (ind f h) (line g) = h x y g
 end graph
 
 end ground_zero.HITs

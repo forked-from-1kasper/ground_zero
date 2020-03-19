@@ -11,48 +11,38 @@
 <polygon fill="white" stroke="none" points="-4,4 -4,-832 1475.89,-832 1475.89,4 -4,4"/>
 <!-- proto -->
 <g id="node1" class="node"><title>proto</title>
-<ellipse fill="none" stroke="black" cx="902.746" cy="-810" rx="30.5947" ry="18"/>
-<text text-anchor="middle" x="902.746" y="-806.3" font-family="Times New Roman,serif" font-size="14.00">proto</text>
+<ellipse fill="none" stroke="black" cx="896.746" cy="-810" rx="30.5947" ry="18"/>
+<text text-anchor="middle" x="896.746" y="-806.3" font-family="Times New Roman,serif" font-size="14.00">proto</text>
 </g>
 <!-- types/eq -->
 <g id="node2" class="node"><title>types/eq</title>
-<ellipse fill="none" stroke="black" cx="962.746" cy="-738" rx="41.6928" ry="18"/>
-<text text-anchor="middle" x="962.746" y="-734.3" font-family="Times New Roman,serif" font-size="14.00">types/eq</text>
+<ellipse fill="none" stroke="black" cx="956.746" cy="-738" rx="41.6928" ry="18"/>
+<text text-anchor="middle" x="956.746" y="-734.3" font-family="Times New Roman,serif" font-size="14.00">types/eq</text>
 </g>
 <!-- proto&#45;&gt;types/eq -->
 <g id="edge1" class="edge"><title>proto&#45;&gt;types/eq</title>
-<path fill="none" stroke="black" d="M916.062,-793.465C923.689,-784.566 933.427,-773.205 942.033,-763.164"/>
-<polygon fill="black" stroke="black" points="944.78,-765.338 948.631,-755.467 939.466,-760.782 944.78,-765.338"/>
+<path fill="none" stroke="black" d="M910.062,-793.465C917.689,-784.566 927.427,-773.205 936.033,-763.164"/>
+<polygon fill="black" stroke="black" points="938.78,-765.338 942.631,-755.467 933.466,-760.782 938.78,-765.338"/>
 </g>
 <!-- support -->
 <g id="node4" class="node"><title>support</title>
-<ellipse fill="none" stroke="black" cx="1024.75" cy="-666" rx="38.9931" ry="18"/>
-<text text-anchor="middle" x="1024.75" y="-662.3" font-family="Times New Roman,serif" font-size="14.00">support</text>
+<ellipse fill="none" stroke="black" cx="956.746" cy="-666" rx="38.9931" ry="18"/>
+<text text-anchor="middle" x="956.746" y="-662.3" font-family="Times New Roman,serif" font-size="14.00">support</text>
 </g>
 <!-- types/eq&#45;&gt;support -->
-<g id="edge10" class="edge"><title>types/eq&#45;&gt;support</title>
-<path fill="none" stroke="black" d="M977.126,-720.765C985.029,-711.841 994.979,-700.608 1003.74,-690.719"/>
-<polygon fill="black" stroke="black" points="1006.43,-692.954 1010.44,-683.147 1001.19,-688.313 1006.43,-692.954"/>
-</g>
-<!-- types/dep_path -->
-<g id="node13" class="node"><title>types/dep_path</title>
-<ellipse fill="none" stroke="black" cx="900.746" cy="-666" rx="66.8882" ry="18"/>
-<text text-anchor="middle" x="900.746" y="-662.3" font-family="Times New Roman,serif" font-size="14.00">types/dep_path</text>
-</g>
-<!-- types/eq&#45;&gt;types/dep_path -->
-<g id="edge11" class="edge"><title>types/eq&#45;&gt;types/dep_path</title>
-<path fill="none" stroke="black" d="M948.366,-720.765C940.575,-711.969 930.796,-700.928 922.13,-691.144"/>
-<polygon fill="black" stroke="black" points="924.729,-688.799 915.478,-683.633 919.488,-693.44 924.729,-688.799"/>
+<g id="edge9" class="edge"><title>types/eq&#45;&gt;support</title>
+<path fill="none" stroke="black" d="M956.746,-719.697C956.746,-711.983 956.746,-702.712 956.746,-694.112"/>
+<polygon fill="black" stroke="black" points="960.246,-694.104 956.746,-684.104 953.246,-694.104 960.246,-694.104"/>
 </g>
 <!-- meta/hott_theory -->
 <g id="node3" class="node"><title>meta/hott_theory</title>
-<ellipse fill="none" stroke="black" cx="1023.75" cy="-810" rx="72.2875" ry="18"/>
-<text text-anchor="middle" x="1023.75" y="-806.3" font-family="Times New Roman,serif" font-size="14.00">meta/hott_theory</text>
+<ellipse fill="none" stroke="black" cx="1017.75" cy="-810" rx="72.2875" ry="18"/>
+<text text-anchor="middle" x="1017.75" y="-806.3" font-family="Times New Roman,serif" font-size="14.00">meta/hott_theory</text>
 </g>
 <!-- meta/hott_theory&#45;&gt;types/eq -->
 <g id="edge2" class="edge"><title>meta/hott_theory&#45;&gt;types/eq</title>
-<path fill="none" stroke="black" d="M1008.98,-792.055C1001.38,-783.33 991.977,-772.544 983.643,-762.981"/>
-<polygon fill="black" stroke="black" points="986.165,-760.547 976.956,-755.307 980.887,-765.146 986.165,-760.547"/>
+<path fill="none" stroke="black" d="M1002.98,-792.055C995.376,-783.33 985.977,-772.544 977.643,-762.981"/>
+<polygon fill="black" stroke="black" points="980.165,-760.547 970.956,-755.307 974.887,-765.146 980.165,-760.547"/>
 </g>
 <!-- types/equiv -->
 <g id="node5" class="node"><title>types/equiv</title>
@@ -61,8 +51,8 @@
 </g>
 <!-- support&#45;&gt;types/equiv -->
 <g id="edge3" class="edge"><title>support&#45;&gt;types/equiv</title>
-<path fill="none" stroke="black" d="M1024.75,-647.697C1024.75,-639.983 1024.75,-630.712 1024.75,-622.112"/>
-<polygon fill="black" stroke="black" points="1028.25,-622.104 1024.75,-612.104 1021.25,-622.104 1028.25,-622.104"/>
+<path fill="none" stroke="black" d="M972.176,-649.116C980.919,-640.116 992.026,-628.682 1001.78,-618.646"/>
+<polygon fill="black" stroke="black" points="1004.45,-620.919 1008.9,-611.307 999.426,-616.041 1004.45,-620.919"/>
 </g>
 <!-- types/coproduct -->
 <g id="node10" class="node"><title>types/coproduct</title>
@@ -70,57 +60,57 @@
 <text text-anchor="middle" x="387.746" y="-518.3" font-family="Times New Roman,serif" font-size="14.00">types/coproduct</text>
 </g>
 <!-- types/equiv&#45;&gt;types/coproduct -->
-<g id="edge12" class="edge"><title>types/equiv&#45;&gt;types/coproduct</title>
+<g id="edge10" class="edge"><title>types/equiv&#45;&gt;types/coproduct</title>
 <path fill="none" stroke="black" d="M973.818,-590.112C875.538,-584.107 653.057,-568.41 467.746,-540 461.483,-539.04 454.972,-537.898 448.491,-536.667"/>
 <polygon fill="black" stroke="black" points="448.858,-533.172 438.37,-534.672 447.504,-540.039 448.858,-533.172"/>
 </g>
 <!-- types/heq -->
-<g id="node14" class="node"><title>types/heq</title>
+<g id="node13" class="node"><title>types/heq</title>
 <ellipse fill="none" stroke="black" cx="865.746" cy="-522" rx="46.2923" ry="18"/>
 <text text-anchor="middle" x="865.746" y="-518.3" font-family="Times New Roman,serif" font-size="14.00">types/heq</text>
 </g>
 <!-- types/equiv&#45;&gt;types/heq -->
-<g id="edge13" class="edge"><title>types/equiv&#45;&gt;types/heq</title>
+<g id="edge11" class="edge"><title>types/equiv&#45;&gt;types/heq</title>
 <path fill="none" stroke="black" d="M993.711,-579.337C968.165,-568.09 931.822,-552.09 904.39,-540.013"/>
 <polygon fill="black" stroke="black" points="905.654,-536.745 895.091,-535.919 902.833,-543.152 905.654,-536.745"/>
 </g>
 <!-- HITs/infinitesimal -->
-<g id="node15" class="node"><title>HITs/infinitesimal</title>
+<g id="node14" class="node"><title>HITs/infinitesimal</title>
 <ellipse fill="none" stroke="black" cx="1286.75" cy="-522" rx="74.9875" ry="18"/>
 <text text-anchor="middle" x="1286.75" y="-518.3" font-family="Times New Roman,serif" font-size="14.00">HITs/infinitesimal</text>
 </g>
 <!-- types/equiv&#45;&gt;HITs/infinitesimal -->
-<g id="edge14" class="edge"><title>types/equiv&#45;&gt;HITs/infinitesimal</title>
+<g id="edge12" class="edge"><title>types/equiv&#45;&gt;HITs/infinitesimal</title>
 <path fill="none" stroke="black" d="M1064.54,-582.369C1108.29,-570.679 1178.98,-551.791 1228.87,-538.464"/>
 <polygon fill="black" stroke="black" points="1229.79,-541.839 1238.55,-535.876 1227.99,-535.076 1229.79,-541.839"/>
 </g>
 <!-- types/lost -->
-<g id="node16" class="node"><title>types/lost</title>
+<g id="node15" class="node"><title>types/lost</title>
 <ellipse fill="none" stroke="black" cx="1425.75" cy="-522" rx="46.2923" ry="18"/>
 <text text-anchor="middle" x="1425.75" y="-518.3" font-family="Times New Roman,serif" font-size="14.00">types/lost</text>
 </g>
 <!-- types/equiv&#45;&gt;types/lost -->
-<g id="edge15" class="edge"><title>types/equiv&#45;&gt;types/lost</title>
+<g id="edge13" class="edge"><title>types/equiv&#45;&gt;types/lost</title>
 <path fill="none" stroke="black" d="M1073.6,-587.824C1141,-580.159 1266.06,-564.057 1370.75,-540 1374.42,-539.156 1378.2,-538.191 1381.99,-537.16"/>
 <polygon fill="black" stroke="black" points="1383.28,-540.432 1391.93,-534.312 1381.35,-533.703 1383.28,-540.432"/>
 </g>
 <!-- types/unit -->
-<g id="node17" class="node"><title>types/unit</title>
+<g id="node16" class="node"><title>types/unit</title>
 <ellipse fill="none" stroke="black" cx="522.746" cy="-522" rx="46.2923" ry="18"/>
 <text text-anchor="middle" x="522.746" y="-518.3" font-family="Times New Roman,serif" font-size="14.00">types/unit</text>
 </g>
 <!-- types/equiv&#45;&gt;types/unit -->
-<g id="edge16" class="edge"><title>types/equiv&#45;&gt;types/unit</title>
+<g id="edge14" class="edge"><title>types/equiv&#45;&gt;types/unit</title>
 <path fill="none" stroke="black" d="M977.519,-586.415C883.58,-573.315 673.889,-544.076 575.555,-530.364"/>
 <polygon fill="black" stroke="black" points="575.931,-526.882 565.543,-528.968 574.964,-533.815 575.931,-526.882"/>
 </g>
 <!-- types/sigma -->
-<g id="node18" class="node"><title>types/sigma</title>
+<g id="node17" class="node"><title>types/sigma</title>
 <ellipse fill="none" stroke="black" cx="980.746" cy="-306" rx="53.8905" ry="18"/>
 <text text-anchor="middle" x="980.746" y="-302.3" font-family="Times New Roman,serif" font-size="14.00">types/sigma</text>
 </g>
 <!-- types/equiv&#45;&gt;types/sigma -->
-<g id="edge17" class="edge"><title>types/equiv&#45;&gt;types/sigma</title>
+<g id="edge15" class="edge"><title>types/equiv&#45;&gt;types/sigma</title>
 <path fill="none" stroke="black" d="M1046.89,-577.586C1099.36,-539.206 1222.64,-436.921 1164.75,-360 1149.49,-339.728 1087.01,-324.788 1039.05,-316.029"/>
 <polygon fill="black" stroke="black" points="1039.51,-312.557 1029.05,-314.254 1038.29,-319.449 1039.51,-312.557"/>
 </g>
@@ -160,57 +150,57 @@
 <polygon fill="black" stroke="black" points="260.056,-246.576 249.462,-246.405 257.637,-253.145 260.056,-246.576"/>
 </g>
 <!-- types/product -->
-<g id="node23" class="node"><title>types/product</title>
+<g id="node22" class="node"><title>types/product</title>
 <ellipse fill="none" stroke="black" cx="456.746" cy="-306" rx="61.99" ry="18"/>
 <text text-anchor="middle" x="456.746" y="-302.3" font-family="Times New Roman,serif" font-size="14.00">types/product</text>
 </g>
 <!-- HITs/interval&#45;&gt;types/product -->
-<g id="edge40" class="edge"><title>HITs/interval&#45;&gt;types/product</title>
+<g id="edge38" class="edge"><title>HITs/interval&#45;&gt;types/product</title>
 <path fill="none" stroke="black" d="M455.24,-359.697C455.46,-351.983 455.725,-342.712 455.971,-334.112"/>
 <polygon fill="black" stroke="black" points="459.47,-334.2 456.257,-324.104 452.473,-334 459.47,-334.2"/>
 </g>
 <!-- theorems/fibration -->
-<g id="node26" class="node"><title>theorems/fibration</title>
+<g id="node25" class="node"><title>theorems/fibration</title>
 <ellipse fill="none" stroke="black" cx="621.746" cy="-234" rx="76.8869" ry="18"/>
 <text text-anchor="middle" x="621.746" y="-230.3" font-family="Times New Roman,serif" font-size="14.00">theorems/fibration</text>
 </g>
 <!-- HITs/interval&#45;&gt;theorems/fibration -->
-<g id="edge41" class="edge"><title>HITs/interval&#45;&gt;theorems/fibration</title>
+<g id="edge39" class="edge"><title>HITs/interval&#45;&gt;theorems/fibration</title>
 <path fill="none" stroke="black" d="M478.01,-361.268C492.643,-351.093 511.721,-337.308 527.746,-324 552.707,-303.271 579.411,-277.616 597.953,-259.184"/>
 <polygon fill="black" stroke="black" points="600.777,-261.309 605.371,-251.762 595.826,-256.361 600.777,-261.309"/>
 </g>
 <!-- theorems/prop -->
-<g id="node27" class="node"><title>theorems/prop</title>
+<g id="node26" class="node"><title>theorems/prop</title>
 <ellipse fill="none" stroke="black" cx="779.746" cy="-234" rx="63.8893" ry="18"/>
 <text text-anchor="middle" x="779.746" y="-230.3" font-family="Times New Roman,serif" font-size="14.00">theorems/prop</text>
 </g>
 <!-- HITs/interval&#45;&gt;theorems/prop -->
-<g id="edge42" class="edge"><title>HITs/interval&#45;&gt;theorems/prop</title>
+<g id="edge40" class="edge"><title>HITs/interval&#45;&gt;theorems/prop</title>
 <path fill="none" stroke="black" d="M488.216,-363.018C509.923,-353.331 538.402,-339.437 561.746,-324 582.253,-310.439 582.177,-299.799 603.746,-288 624.524,-276.634 680.379,-260.629 723.647,-249.187"/>
 <polygon fill="black" stroke="black" points="724.722,-252.524 733.507,-246.601 722.946,-245.753 724.722,-252.524"/>
 </g>
 <!-- HITs/truncation&#45;&gt;theorems/prop -->
-<g id="edge46" class="edge"><title>HITs/truncation&#45;&gt;theorems/prop</title>
+<g id="edge44" class="edge"><title>HITs/truncation&#45;&gt;theorems/prop</title>
 <path fill="none" stroke="black" d="M787.274,-287.697C786.172,-279.983 784.847,-270.712 783.619,-262.112"/>
 <polygon fill="black" stroke="black" points="787.068,-261.509 782.189,-252.104 780.139,-262.499 787.068,-261.509"/>
 </g>
 <!-- HITs/simplicial -->
-<g id="node37" class="node"><title>HITs/simplicial</title>
+<g id="node36" class="node"><title>HITs/simplicial</title>
 <ellipse fill="none" stroke="black" cx="926.746" cy="-234" rx="65.7887" ry="18"/>
 <text text-anchor="middle" x="926.746" y="-230.3" font-family="Times New Roman,serif" font-size="14.00">HITs/simplicial</text>
 </g>
 <!-- HITs/truncation&#45;&gt;HITs/simplicial -->
-<g id="edge47" class="edge"><title>HITs/truncation&#45;&gt;HITs/simplicial</title>
+<g id="edge45" class="edge"><title>HITs/truncation&#45;&gt;HITs/simplicial</title>
 <path fill="none" stroke="black" d="M819.811,-289.638C839.936,-279.356 866.604,-265.729 888.274,-254.657"/>
 <polygon fill="black" stroke="black" points="889.909,-257.752 897.222,-250.085 886.724,-251.519 889.909,-257.752"/>
 </g>
 <!-- theorems/nat -->
-<g id="node22" class="node"><title>theorems/nat</title>
+<g id="node21" class="node"><title>theorems/nat</title>
 <ellipse fill="none" stroke="black" cx="224.746" cy="-162" rx="57.3905" ry="18"/>
 <text text-anchor="middle" x="224.746" y="-158.3" font-family="Times New Roman,serif" font-size="14.00">theorems/nat</text>
 </g>
 <!-- types/nat&#45;&gt;theorems/nat -->
-<g id="edge22" class="edge"><title>types/nat&#45;&gt;theorems/nat</title>
+<g id="edge20" class="edge"><title>types/nat&#45;&gt;theorems/nat</title>
 <path fill="none" stroke="black" d="M219.476,-215.697C220.247,-207.983 221.174,-198.712 222.034,-190.112"/>
 <polygon fill="black" stroke="black" points="225.523,-190.403 223.035,-180.104 218.557,-189.706 225.523,-190.403"/>
 </g>
@@ -230,22 +220,22 @@
 <polygon fill="black" stroke="black" points="163.154,-460.839 152.602,-461.791 161.445,-467.627 163.154,-460.839"/>
 </g>
 <!-- HITs/circle -->
-<g id="node20" class="node"><title>HITs/circle</title>
+<g id="node19" class="node"><title>HITs/circle</title>
 <ellipse fill="none" stroke="black" cx="113.746" cy="-90" rx="51.9908" ry="18"/>
 <text text-anchor="middle" x="113.746" y="-86.3" font-family="Times New Roman,serif" font-size="14.00">HITs/circle</text>
 </g>
 <!-- types/integer&#45;&gt;HITs/circle -->
-<g id="edge20" class="edge"><title>types/integer&#45;&gt;HITs/circle</title>
+<g id="edge18" class="edge"><title>types/integer&#45;&gt;HITs/circle</title>
 <path fill="none" stroke="black" d="M83.1446,-433.95C68.9781,-424.686 52.3397,-411.603 41.7457,-396 18.5972,-361.907 15.7457,-348.209 15.7457,-307 15.7457,-307 15.7457,-307 15.7457,-233 15.7457,-183.717 56.2259,-139.127 85.1531,-113.555"/>
 <polygon fill="black" stroke="black" points="87.6494,-116.025 92.9624,-106.859 83.0928,-110.711 87.6494,-116.025"/>
 </g>
 <!-- types/rational -->
-<g id="node21" class="node"><title>types/rational</title>
+<g id="node20" class="node"><title>types/rational</title>
 <ellipse fill="none" stroke="black" cx="109.746" cy="-378" rx="59.2899" ry="18"/>
 <text text-anchor="middle" x="109.746" y="-374.3" font-family="Times New Roman,serif" font-size="14.00">types/rational</text>
 </g>
 <!-- types/integer&#45;&gt;types/rational -->
-<g id="edge21" class="edge"><title>types/integer&#45;&gt;types/rational</title>
+<g id="edge19" class="edge"><title>types/integer&#45;&gt;types/rational</title>
 <path fill="none" stroke="black" d="M109.746,-431.697C109.746,-423.983 109.746,-414.712 109.746,-406.112"/>
 <polygon fill="black" stroke="black" points="113.246,-406.104 109.746,-396.104 106.246,-406.104 113.246,-406.104"/>
 </g>
@@ -254,270 +244,265 @@
 <ellipse fill="none" stroke="black" cx="109.746" cy="-306" rx="65.7887" ry="18"/>
 <text text-anchor="middle" x="109.746" y="-302.3" font-family="Times New Roman,serif" font-size="14.00">types/dedekind</text>
 </g>
-<!-- types/dep_path&#45;&gt;types/equiv -->
-<g id="edge9" class="edge"><title>types/dep_path&#45;&gt;types/equiv</title>
-<path fill="none" stroke="black" d="M928.265,-649.465C946.374,-639.242 970.238,-625.771 989.701,-614.783"/>
-<polygon fill="black" stroke="black" points="991.589,-617.737 998.576,-609.773 988.147,-611.641 991.589,-617.737"/>
-</g>
 <!-- types/heq&#45;&gt;HITs/interval -->
-<g id="edge18" class="edge"><title>types/heq&#45;&gt;HITs/interval</title>
+<g id="edge16" class="edge"><title>types/heq&#45;&gt;HITs/interval</title>
 <path fill="none" stroke="black" d="M832.46,-509.5C759.481,-484.286 585.242,-424.086 501.392,-395.116"/>
 <polygon fill="black" stroke="black" points="502.464,-391.784 491.869,-391.826 500.178,-398.4 502.464,-391.784"/>
 </g>
 <!-- HITs/graph -->
-<g id="node19" class="node"><title>HITs/graph</title>
+<g id="node18" class="node"><title>HITs/graph</title>
 <ellipse fill="none" stroke="black" cx="865.746" cy="-450" rx="52.7911" ry="18"/>
 <text text-anchor="middle" x="865.746" y="-446.3" font-family="Times New Roman,serif" font-size="14.00">HITs/graph</text>
 </g>
 <!-- types/heq&#45;&gt;HITs/graph -->
-<g id="edge19" class="edge"><title>types/heq&#45;&gt;HITs/graph</title>
+<g id="edge17" class="edge"><title>types/heq&#45;&gt;HITs/graph</title>
 <path fill="none" stroke="black" d="M865.746,-503.697C865.746,-495.983 865.746,-486.712 865.746,-478.112"/>
 <polygon fill="black" stroke="black" points="869.246,-478.104 865.746,-468.104 862.246,-478.104 869.246,-478.104"/>
 </g>
 <!-- types/unit&#45;&gt;structures -->
-<g id="edge29" class="edge"><title>types/unit&#45;&gt;structures</title>
+<g id="edge27" class="edge"><title>types/unit&#45;&gt;structures</title>
 <path fill="none" stroke="black" d="M506.974,-504.765C498.22,-495.753 487.177,-484.385 477.502,-474.426"/>
 <polygon fill="black" stroke="black" points="479.91,-471.881 470.432,-467.147 474.889,-476.759 479.91,-471.881"/>
 </g>
 <!-- HITs/suspension -->
-<g id="node28" class="node"><title>HITs/suspension</title>
+<g id="node27" class="node"><title>HITs/suspension</title>
 <ellipse fill="none" stroke="black" cx="265.746" cy="-306" rx="72.5877" ry="18"/>
 <text text-anchor="middle" x="265.746" y="-302.3" font-family="Times New Roman,serif" font-size="14.00">HITs/suspension</text>
 </g>
 <!-- types/unit&#45;&gt;HITs/suspension -->
-<g id="edge30" class="edge"><title>types/unit&#45;&gt;HITs/suspension</title>
+<g id="edge28" class="edge"><title>types/unit&#45;&gt;HITs/suspension</title>
 <path fill="none" stroke="black" d="M487.03,-510.589C461.146,-501.91 426.195,-487.765 399.746,-468 348.403,-429.632 304.241,-367.781 281.708,-332.968"/>
 <polygon fill="black" stroke="black" points="284.522,-330.871 276.196,-324.319 278.619,-334.633 284.522,-330.871"/>
 </g>
 <!-- types/sigma&#45;&gt;theorems/nat -->
-<g id="edge26" class="edge"><title>types/sigma&#45;&gt;theorems/nat</title>
+<g id="edge24" class="edge"><title>types/sigma&#45;&gt;theorems/nat</title>
 <path fill="none" stroke="black" d="M992.526,-288.27C1004.91,-268.451 1020.24,-235.653 1001.75,-216 956.427,-167.852 473.673,-185.059 407.746,-180 368.076,-176.956 323.635,-172.844 288.483,-169.427"/>
 <polygon fill="black" stroke="black" points="288.651,-165.927 278.357,-168.437 287.969,-172.894 288.651,-165.927"/>
 </g>
 <!-- types/sigma&#45;&gt;theorems/fibration -->
-<g id="edge27" class="edge"><title>types/sigma&#45;&gt;theorems/fibration</title>
+<g id="edge25" class="edge"><title>types/sigma&#45;&gt;theorems/fibration</title>
 <path fill="none" stroke="black" d="M935.156,-296.273C880.765,-285.84 787.088,-267.804 706.746,-252 700.641,-250.799 694.291,-249.543 687.934,-248.28"/>
 <polygon fill="black" stroke="black" points="688.465,-244.817 677.974,-246.298 687.098,-251.682 688.465,-244.817"/>
 </g>
 <!-- types/sigma&#45;&gt;theorems/prop -->
-<g id="edge28" class="edge"><title>types/sigma&#45;&gt;theorems/prop</title>
+<g id="edge26" class="edge"><title>types/sigma&#45;&gt;theorems/prop</title>
 <path fill="none" stroke="black" d="M944.811,-292.485C912.298,-281.163 864.151,-264.395 828.236,-251.887"/>
 <polygon fill="black" stroke="black" points="829.049,-248.464 818.454,-248.481 826.747,-255.075 829.049,-248.464"/>
 </g>
 <!-- HITs/colimit -->
-<g id="node32" class="node"><title>HITs/colimit</title>
+<g id="node31" class="node"><title>HITs/colimit</title>
 <ellipse fill="none" stroke="black" cx="1098.75" cy="-378" rx="56.59" ry="18"/>
 <text text-anchor="middle" x="1098.75" y="-374.3" font-family="Times New Roman,serif" font-size="14.00">HITs/colimit</text>
 </g>
 <!-- HITs/graph&#45;&gt;HITs/colimit -->
-<g id="edge36" class="edge"><title>HITs/graph&#45;&gt;HITs/colimit</title>
+<g id="edge34" class="edge"><title>HITs/graph&#45;&gt;HITs/colimit</title>
 <path fill="none" stroke="black" d="M903.96,-437.519C943.605,-425.609 1005.76,-406.935 1049.17,-393.895"/>
 <polygon fill="black" stroke="black" points="1050.38,-397.185 1058.95,-390.956 1048.37,-390.481 1050.38,-397.185"/>
 </g>
 <!-- HITs/generalized -->
-<g id="node33" class="node"><title>HITs/generalized</title>
+<g id="node32" class="node"><title>HITs/generalized</title>
 <ellipse fill="none" stroke="black" cx="782.746" cy="-378" rx="72.2875" ry="18"/>
 <text text-anchor="middle" x="782.746" y="-374.3" font-family="Times New Roman,serif" font-size="14.00">HITs/generalized</text>
 </g>
 <!-- HITs/graph&#45;&gt;HITs/generalized -->
-<g id="edge37" class="edge"><title>HITs/graph&#45;&gt;HITs/generalized</title>
+<g id="edge35" class="edge"><title>HITs/graph&#45;&gt;HITs/generalized</title>
 <path fill="none" stroke="black" d="M846.912,-433.116C836.108,-424.005 822.349,-412.4 810.344,-402.276"/>
 <polygon fill="black" stroke="black" points="812.272,-399.323 802.371,-395.552 807.759,-404.674 812.272,-399.323"/>
 </g>
 <!-- HITs/pushout -->
-<g id="node34" class="node"><title>HITs/pushout</title>
+<g id="node33" class="node"><title>HITs/pushout</title>
 <ellipse fill="none" stroke="black" cx="592.746" cy="-378" rx="61.99" ry="18"/>
 <text text-anchor="middle" x="592.746" y="-374.3" font-family="Times New Roman,serif" font-size="14.00">HITs/pushout</text>
 </g>
 <!-- HITs/graph&#45;&gt;HITs/pushout -->
-<g id="edge38" class="edge"><title>HITs/graph&#45;&gt;HITs/pushout</title>
+<g id="edge36" class="edge"><title>HITs/graph&#45;&gt;HITs/pushout</title>
 <path fill="none" stroke="black" d="M824.875,-438.52C777.643,-426.41 699.712,-406.427 647.327,-392.995"/>
 <polygon fill="black" stroke="black" points="648.088,-389.577 637.532,-390.484 646.35,-396.358 648.088,-389.577"/>
 </g>
 <!-- types/precategory -->
-<g id="node35" class="node"><title>types/precategory</title>
+<g id="node34" class="node"><title>types/precategory</title>
 <ellipse fill="none" stroke="black" cx="948.746" cy="-378" rx="75.2868" ry="18"/>
 <text text-anchor="middle" x="948.746" y="-374.3" font-family="Times New Roman,serif" font-size="14.00">types/precategory</text>
 </g>
 <!-- HITs/graph&#45;&gt;types/precategory -->
-<g id="edge39" class="edge"><title>HITs/graph&#45;&gt;types/precategory</title>
+<g id="edge37" class="edge"><title>HITs/graph&#45;&gt;types/precategory</title>
 <path fill="none" stroke="black" d="M884.58,-433.116C895.383,-424.005 909.143,-412.4 921.147,-402.276"/>
 <polygon fill="black" stroke="black" points="923.732,-404.674 929.12,-395.552 919.219,-399.323 923.732,-404.674"/>
 </g>
 <!-- theorems/hopf -->
-<g id="node29" class="node"><title>theorems/hopf</title>
+<g id="node28" class="node"><title>theorems/hopf</title>
 <ellipse fill="none" stroke="black" cx="600.746" cy="-18" rx="63.8893" ry="18"/>
 <text text-anchor="middle" x="600.746" y="-14.3" font-family="Times New Roman,serif" font-size="14.00">theorems/hopf</text>
 </g>
 <!-- HITs/circle&#45;&gt;theorems/hopf -->
-<g id="edge31" class="edge"><title>HITs/circle&#45;&gt;theorems/hopf</title>
+<g id="edge29" class="edge"><title>HITs/circle&#45;&gt;theorems/hopf</title>
 <path fill="none" stroke="black" d="M151.607,-77.5129C159.22,-75.4685 167.2,-73.5122 174.746,-72 298.51,-47.197 444.971,-32.0148 529.926,-24.5796"/>
 <polygon fill="black" stroke="black" points="530.314,-28.0592 539.975,-23.7111 529.711,-21.0851 530.314,-28.0592"/>
 </g>
 <!-- HITs/moebius -->
-<g id="node30" class="node"><title>HITs/moebius</title>
+<g id="node29" class="node"><title>HITs/moebius</title>
 <ellipse fill="none" stroke="black" cx="178.746" cy="-18" rx="63.0888" ry="18"/>
 <text text-anchor="middle" x="178.746" y="-14.3" font-family="Times New Roman,serif" font-size="14.00">HITs/moebius</text>
 </g>
 <!-- HITs/circle&#45;&gt;HITs/moebius -->
-<g id="edge32" class="edge"><title>HITs/circle&#45;&gt;HITs/moebius</title>
+<g id="edge30" class="edge"><title>HITs/circle&#45;&gt;HITs/moebius</title>
 <path fill="none" stroke="black" d="M128.821,-72.7646C136.989,-63.9689 147.241,-52.9283 156.326,-43.144"/>
 <polygon fill="black" stroke="black" points="159.061,-45.3429 163.3,-35.6334 153.931,-40.5798 159.061,-45.3429"/>
 </g>
 <!-- HITs/reals -->
-<g id="node31" class="node"><title>HITs/reals</title>
+<g id="node30" class="node"><title>HITs/reals</title>
 <ellipse fill="none" stroke="black" cx="48.7457" cy="-18" rx="48.9926" ry="18"/>
 <text text-anchor="middle" x="48.7457" y="-14.3" font-family="Times New Roman,serif" font-size="14.00">HITs/reals</text>
 </g>
 <!-- HITs/circle&#45;&gt;HITs/reals -->
-<g id="edge33" class="edge"><title>HITs/circle&#45;&gt;HITs/reals</title>
+<g id="edge31" class="edge"><title>HITs/circle&#45;&gt;HITs/reals</title>
 <path fill="none" stroke="black" d="M98.67,-72.7646C90.3841,-63.8414 79.9529,-52.6078 70.7708,-42.7194"/>
 <polygon fill="black" stroke="black" points="73.1089,-40.0937 63.7396,-35.1473 67.9794,-44.8569 73.1089,-40.0937"/>
 </g>
 <!-- types/rational&#45;&gt;types/dedekind -->
-<g id="edge25" class="edge"><title>types/rational&#45;&gt;types/dedekind</title>
+<g id="edge23" class="edge"><title>types/rational&#45;&gt;types/dedekind</title>
 <path fill="none" stroke="black" d="M109.746,-359.697C109.746,-351.983 109.746,-342.712 109.746,-334.112"/>
 <polygon fill="black" stroke="black" points="113.246,-334.104 109.746,-324.104 106.246,-334.104 113.246,-334.104"/>
 </g>
 <!-- theorems/nat&#45;&gt;HITs/circle -->
-<g id="edge55" class="edge"><title>theorems/nat&#45;&gt;HITs/circle</title>
+<g id="edge53" class="edge"><title>theorems/nat&#45;&gt;HITs/circle</title>
 <path fill="none" stroke="black" d="M200.386,-145.638C184.518,-135.631 163.627,-122.457 146.335,-111.552"/>
 <polygon fill="black" stroke="black" points="147.992,-108.459 137.667,-106.085 144.258,-114.38 147.992,-108.459"/>
 </g>
 <!-- HITs/int -->
-<g id="node44" class="node"><title>HITs/int</title>
+<g id="node43" class="node"><title>HITs/int</title>
 <ellipse fill="none" stroke="black" cx="224.746" cy="-90" rx="40.8928" ry="18"/>
 <text text-anchor="middle" x="224.746" y="-86.3" font-family="Times New Roman,serif" font-size="14.00">HITs/int</text>
 </g>
 <!-- theorems/nat&#45;&gt;HITs/int -->
-<g id="edge56" class="edge"><title>theorems/nat&#45;&gt;HITs/int</title>
+<g id="edge54" class="edge"><title>theorems/nat&#45;&gt;HITs/int</title>
 <path fill="none" stroke="black" d="M224.746,-143.697C224.746,-135.983 224.746,-126.712 224.746,-118.112"/>
 <polygon fill="black" stroke="black" points="228.246,-118.104 224.746,-108.104 221.246,-118.104 228.246,-118.104"/>
 </g>
 <!-- cubical/cubes -->
-<g id="node24" class="node"><title>cubical/cubes</title>
+<g id="node23" class="node"><title>cubical/cubes</title>
 <ellipse fill="none" stroke="black" cx="466.746" cy="-234" rx="60.3893" ry="18"/>
 <text text-anchor="middle" x="466.746" y="-230.3" font-family="Times New Roman,serif" font-size="14.00">cubical/cubes</text>
 </g>
 <!-- types/product&#45;&gt;cubical/cubes -->
-<g id="edge23" class="edge"><title>types/product&#45;&gt;cubical/cubes</title>
+<g id="edge21" class="edge"><title>types/product&#45;&gt;cubical/cubes</title>
 <path fill="none" stroke="black" d="M459.218,-287.697C460.32,-279.983 461.644,-270.712 462.872,-262.112"/>
 <polygon fill="black" stroke="black" points="466.353,-262.499 464.302,-252.104 459.423,-261.509 466.353,-262.499"/>
 </g>
 <!-- theorems/ua -->
-<g id="node25" class="node"><title>theorems/ua</title>
+<g id="node24" class="node"><title>theorems/ua</title>
 <ellipse fill="none" stroke="black" cx="333.746" cy="-234" rx="54.6905" ry="18"/>
 <text text-anchor="middle" x="333.746" y="-230.3" font-family="Times New Roman,serif" font-size="14.00">theorems/ua</text>
 </g>
 <!-- types/product&#45;&gt;theorems/ua -->
-<g id="edge24" class="edge"><title>types/product&#45;&gt;theorems/ua</title>
+<g id="edge22" class="edge"><title>types/product&#45;&gt;theorems/ua</title>
 <path fill="none" stroke="black" d="M429.753,-289.638C411.805,-279.424 388.059,-265.91 368.674,-254.878"/>
 <polygon fill="black" stroke="black" points="370.254,-251.75 359.832,-249.846 366.792,-257.834 370.254,-251.75"/>
 </g>
 <!-- cubical/path -->
-<g id="node39" class="node"><title>cubical/path</title>
+<g id="node38" class="node"><title>cubical/path</title>
 <ellipse fill="none" stroke="black" cx="471.746" cy="-162" rx="54.6905" ry="18"/>
 <text text-anchor="middle" x="471.746" y="-158.3" font-family="Times New Roman,serif" font-size="14.00">cubical/path</text>
 </g>
 <!-- cubical/cubes&#45;&gt;cubical/path -->
-<g id="edge48" class="edge"><title>cubical/cubes&#45;&gt;cubical/path</title>
+<g id="edge46" class="edge"><title>cubical/cubes&#45;&gt;cubical/path</title>
 <path fill="none" stroke="black" d="M467.982,-215.697C468.533,-207.983 469.195,-198.712 469.809,-190.112"/>
 <polygon fill="black" stroke="black" points="473.302,-190.328 470.524,-180.104 466.32,-189.83 473.302,-190.328"/>
 </g>
 <!-- theorems/ua&#45;&gt;theorems/nat -->
-<g id="edge57" class="edge"><title>theorems/ua&#45;&gt;theorems/nat</title>
+<g id="edge55" class="edge"><title>theorems/ua&#45;&gt;theorems/nat</title>
 <path fill="none" stroke="black" d="M309.825,-217.638C294.456,-207.768 274.289,-194.817 257.448,-184.001"/>
 <polygon fill="black" stroke="black" points="259.293,-181.027 248.987,-178.568 255.51,-186.917 259.293,-181.027"/>
 </g>
 <!-- cubical/V -->
-<g id="node42" class="node"><title>cubical/V</title>
+<g id="node41" class="node"><title>cubical/V</title>
 <ellipse fill="none" stroke="black" cx="328.746" cy="-90" rx="45.4919" ry="18"/>
 <text text-anchor="middle" x="328.746" y="-86.3" font-family="Times New Roman,serif" font-size="14.00">cubical/V</text>
 </g>
 <!-- theorems/ua&#45;&gt;cubical/V -->
-<g id="edge58" class="edge"><title>theorems/ua&#45;&gt;cubical/V</title>
+<g id="edge56" class="edge"><title>theorems/ua&#45;&gt;cubical/V</title>
 <path fill="none" stroke="black" d="M333.143,-215.871C332.29,-191.67 330.725,-147.211 329.71,-118.393"/>
 <polygon fill="black" stroke="black" points="333.201,-118.06 329.351,-108.189 326.205,-118.306 333.201,-118.06"/>
 </g>
 <!-- theorems/fibration&#45;&gt;theorems/hopf -->
-<g id="edge53" class="edge"><title>theorems/fibration&#45;&gt;theorems/hopf</title>
+<g id="edge51" class="edge"><title>theorems/fibration&#45;&gt;theorems/hopf</title>
 <path fill="none" stroke="black" d="M674.025,-220.789C760.806,-198.13 919.437,-145.143 859.746,-72 836.491,-43.5045 740.837,-29.9153 672.552,-23.7369"/>
 <polygon fill="black" stroke="black" points="672.532,-20.2219 662.266,-22.8429 671.926,-27.1957 672.532,-20.2219"/>
 </g>
 <!-- HITs/suspension&#45;&gt;HITs/circle -->
-<g id="edge45" class="edge"><title>HITs/suspension&#45;&gt;HITs/circle</title>
+<g id="edge43" class="edge"><title>HITs/suspension&#45;&gt;HITs/circle</title>
 <path fill="none" stroke="black" d="M223.181,-291.338C202.956,-282.896 179.939,-270.142 164.746,-252 132.132,-213.055 120.303,-153.085 116.064,-118.384"/>
 <polygon fill="black" stroke="black" points="119.502,-117.625 114.938,-108.064 112.543,-118.385 119.502,-117.625"/>
 </g>
 <!-- HITs/colimit&#45;&gt;HITs/truncation -->
-<g id="edge34" class="edge"><title>HITs/colimit&#45;&gt;HITs/truncation</title>
+<g id="edge32" class="edge"><title>HITs/colimit&#45;&gt;HITs/truncation</title>
 <path fill="none" stroke="black" d="M1056.55,-365.882C1048.65,-363.872 1040.46,-361.834 1032.75,-360 971.437,-345.424 901.054,-330.241 851.869,-319.882"/>
 <polygon fill="black" stroke="black" points="852.522,-316.443 842.016,-317.811 851.082,-323.293 852.522,-316.443"/>
 </g>
 <!-- HITs/generalized&#45;&gt;HITs/truncation -->
-<g id="edge35" class="edge"><title>HITs/generalized&#45;&gt;HITs/truncation</title>
+<g id="edge33" class="edge"><title>HITs/generalized&#45;&gt;HITs/truncation</title>
 <path fill="none" stroke="black" d="M784.476,-359.697C785.247,-351.983 786.174,-342.712 787.034,-334.112"/>
 <polygon fill="black" stroke="black" points="790.523,-334.403 788.035,-324.104 783.557,-333.706 790.523,-334.403"/>
 </g>
 <!-- HITs/pushout&#45;&gt;HITs/suspension -->
-<g id="edge43" class="edge"><title>HITs/pushout&#45;&gt;HITs/suspension</title>
+<g id="edge41" class="edge"><title>HITs/pushout&#45;&gt;HITs/suspension</title>
 <path fill="none" stroke="black" d="M546.962,-365.818C538.584,-363.835 529.91,-361.822 521.746,-360 456.961,-345.541 382.647,-330.305 330.835,-319.899"/>
 <polygon fill="black" stroke="black" points="331.275,-316.417 320.782,-317.884 329.899,-323.281 331.275,-316.417"/>
 </g>
 <!-- HITs/join -->
-<g id="node36" class="node"><title>HITs/join</title>
+<g id="node35" class="node"><title>HITs/join</title>
 <ellipse fill="none" stroke="black" cx="657.746" cy="-306" rx="45.4919" ry="18"/>
 <text text-anchor="middle" x="657.746" y="-302.3" font-family="Times New Roman,serif" font-size="14.00">HITs/join</text>
 </g>
 <!-- HITs/pushout&#45;&gt;HITs/join -->
-<g id="edge44" class="edge"><title>HITs/pushout&#45;&gt;HITs/join</title>
+<g id="edge42" class="edge"><title>HITs/pushout&#45;&gt;HITs/join</title>
 <path fill="none" stroke="black" d="M608.15,-360.411C616.326,-351.606 626.519,-340.628 635.535,-330.919"/>
 <polygon fill="black" stroke="black" points="638.212,-333.179 642.452,-323.47 633.083,-328.416 638.212,-333.179"/>
 </g>
 <!-- cubical/connection -->
-<g id="node38" class="node"><title>cubical/connection</title>
+<g id="node37" class="node"><title>cubical/connection</title>
 <ellipse fill="none" stroke="black" cx="471.746" cy="-90" rx="79.0865" ry="18"/>
 <text text-anchor="middle" x="471.746" y="-86.3" font-family="Times New Roman,serif" font-size="14.00">cubical/connection</text>
 </g>
 <!-- cubical/path&#45;&gt;cubical/connection -->
-<g id="edge49" class="edge"><title>cubical/path&#45;&gt;cubical/connection</title>
+<g id="edge47" class="edge"><title>cubical/path&#45;&gt;cubical/connection</title>
 <path fill="none" stroke="black" d="M471.746,-143.697C471.746,-135.983 471.746,-126.712 471.746,-118.112"/>
 <polygon fill="black" stroke="black" points="475.246,-118.104 471.746,-108.104 468.246,-118.104 475.246,-118.104"/>
 </g>
 <!-- cubical/example -->
-<g id="node40" class="node"><title>cubical/example</title>
+<g id="node39" class="node"><title>cubical/example</title>
 <ellipse fill="none" stroke="black" cx="637.746" cy="-90" rx="68.7879" ry="18"/>
 <text text-anchor="middle" x="637.746" y="-86.3" font-family="Times New Roman,serif" font-size="14.00">cubical/example</text>
 </g>
 <!-- cubical/path&#45;&gt;cubical/example -->
-<g id="edge50" class="edge"><title>cubical/path&#45;&gt;cubical/example</title>
+<g id="edge48" class="edge"><title>cubical/path&#45;&gt;cubical/example</title>
 <path fill="none" stroke="black" d="M504.146,-147.337C529.747,-136.542 565.733,-121.367 593.908,-109.486"/>
 <polygon fill="black" stroke="black" points="595.283,-112.704 603.138,-105.594 592.563,-106.254 595.283,-112.704"/>
 </g>
 <!-- cubical/square -->
-<g id="node41" class="node"><title>cubical/square</title>
+<g id="node40" class="node"><title>cubical/square</title>
 <ellipse fill="none" stroke="black" cx="787.746" cy="-90" rx="63.0888" ry="18"/>
 <text text-anchor="middle" x="787.746" y="-86.3" font-family="Times New Roman,serif" font-size="14.00">cubical/square</text>
 </g>
 <!-- cubical/path&#45;&gt;cubical/square -->
-<g id="edge51" class="edge"><title>cubical/path&#45;&gt;cubical/square</title>
+<g id="edge49" class="edge"><title>cubical/path&#45;&gt;cubical/square</title>
 <path fill="none" stroke="black" d="M516.323,-151.569C565.283,-141.151 646.2,-123.762 715.746,-108 720.707,-106.876 725.857,-105.692 731.018,-104.495"/>
 <polygon fill="black" stroke="black" points="731.967,-107.867 740.91,-102.187 730.377,-101.05 731.967,-107.867"/>
 </g>
 <!-- cubical/path&#45;&gt;cubical/V -->
-<g id="edge52" class="edge"><title>cubical/path&#45;&gt;cubical/V</title>
+<g id="edge50" class="edge"><title>cubical/path&#45;&gt;cubical/V</title>
 <path fill="none" stroke="black" d="M442.462,-146.666C420.244,-135.79 389.553,-120.766 365.655,-109.067"/>
 <polygon fill="black" stroke="black" points="367.053,-105.855 356.532,-104.602 363.975,-112.142 367.053,-105.855"/>
 </g>
 <!-- theorems/functions -->
-<g id="node43" class="node"><title>theorems/functions</title>
-<ellipse fill="none" stroke="black" cx="1161.75" cy="-666" rx="79.8859" ry="18"/>
-<text text-anchor="middle" x="1161.75" y="-662.3" font-family="Times New Roman,serif" font-size="14.00">theorems/functions</text>
+<g id="node42" class="node"><title>theorems/functions</title>
+<ellipse fill="none" stroke="black" cx="1093.75" cy="-666" rx="79.8859" ry="18"/>
+<text text-anchor="middle" x="1093.75" y="-662.3" font-family="Times New Roman,serif" font-size="14.00">theorems/functions</text>
 </g>
 <!-- theorems/functions&#45;&gt;types/equiv -->
-<g id="edge54" class="edge"><title>theorems/functions&#45;&gt;types/equiv</title>
-<path fill="none" stroke="black" d="M1131,-649.291C1110.43,-638.78 1083.25,-624.894 1061.53,-613.797"/>
-<polygon fill="black" stroke="black" points="1063.09,-610.663 1052.59,-609.229 1059.91,-616.896 1063.09,-610.663"/>
+<g id="edge52" class="edge"><title>theorems/functions&#45;&gt;types/equiv</title>
+<path fill="none" stroke="black" d="M1077.04,-648.055C1068.36,-639.243 1057.6,-628.328 1048.1,-618.694"/>
+<polygon fill="black" stroke="black" points="1050.33,-615.972 1040.82,-611.307 1045.35,-620.886 1050.33,-615.972"/>
 </g>
 </g>
 </svg>

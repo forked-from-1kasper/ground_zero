@@ -58,8 +58,8 @@ end
 
 noncomputable def C.const : Π x, C x = I := begin
   intro x, fapply circle.ind _ _ x,
-  refl, apply equiv.path_over_subst,
-  transitivity, apply equiv.transport_over_contr_map,
+  refl, apply ground_zero.types.eq.trans,
+  apply equiv.transport_over_contr_map,
   transitivity, apply eq.map (⬝ idp I),
   transitivity, apply eq.map_inv, apply eq.map,
   apply circle.recβrule₂, trivial

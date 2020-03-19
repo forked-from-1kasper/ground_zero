@@ -34,7 +34,7 @@ namespace reals
 
   def rec {π : Type u} (cz : ℤ → π)
     (sz : Π z, cz z = cz (integer.succ z) :> π) : R → π :=
-  ind cz (λ x, dep_path.pathover_of_eq (glue x) (sz x))
+  ind cz (λ x, equiv.pathover_of_eq (glue x) (sz x))
 
   def positive : Π n, elem 0 = elem (integer.pos n) :> R
   | 0 := ground_zero.types.eq.refl (elem 0)
@@ -54,8 +54,8 @@ namespace reals
   def contr : ground_zero.structures.contr R :=
   { point := elem 0,
     intro := @ind (λ x, elem 0 = x :> R) center (begin
-      intro z, apply equiv.path_over_subst,
-      transitivity, apply equiv.transport_composition,
+      intro z, apply ground_zero.types.eq.trans,
+      apply equiv.transport_composition,
       induction z,
       { trivial },
       { induction z with z ih,

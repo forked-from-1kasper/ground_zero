@@ -1,5 +1,5 @@
 import ground_zero.HITs.graph
-open ground_zero.types.dep_path
+open ground_zero.types.equiv
 
 hott theory
 

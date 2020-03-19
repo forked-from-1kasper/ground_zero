@@ -76,7 +76,7 @@ namespace interval
   @[inline]
   def rec {β : Type u} (b₀ : β) (b₁ : β)
     (s : b₀ = b₁ :> β) : I → β :=
-  ind b₀ b₁ (types.dep_path.pathover_of_eq seg s)
+  ind b₀ b₁ (types.equiv.pathover_of_eq seg s)
 
   def lift {β : Type u} (f : bool → β) (H : prop β) : I → β :=
   begin fapply rec, exact f ff, exact f tt, apply H end
@@ -132,7 +132,7 @@ namespace interval
   lift (λ a, lift (discrete ∘ f a) interval_prop b) interval_prop a
 
   axiom indβrule {π : I → Type u} (b₀ : π i₀) (b₁ : π i₁)
-    (s : b₀ =[seg] b₁) : types.dep_path.apd (ind b₀ b₁ s) seg = s
+    (s : b₀ =[seg] b₁) : types.equiv.apd (ind b₀ b₁ s) seg = s
 
   noncomputable def recβrule {π : Type u} (b₀ b₁ : π)
     (s : b₀ = b₁) : rec b₀ b₁ s # seg = s := begin
@@ -176,7 +176,7 @@ namespace interval
   begin induction p, symmetry, apply cong_refl end
 
   noncomputable def neg_neg : Π x, neg (neg x) = x :=
-  interval.ind eq.rfl eq.rfl (equiv.path_over_subst (calc
+  interval.ind eq.rfl eq.rfl (calc
     equiv.transport (λ x, neg (neg x) = x) seg (idp i₀) =
     (@eq.map I I i₁ i₀ (neg ∘ neg) seg⁻¹) ⬝ idp i₀ ⬝ seg :
       by apply equiv.transport_over_involution
@@ -199,7 +199,7 @@ namespace interval
     ... = seg⁻¹ ⬝ seg :
       begin apply eq.map (λ p, p ⬝ seg),
             apply eq.refl_right end
-    ... = idp i₁ : by apply eq.inv_comp))
+    ... = idp i₁ : by apply eq.inv_comp)
 
   def neg_neg' (x : I) : neg (neg x) = x :=
   (conn_and seg⁻¹ (neg x))⁻¹ ⬝ contr_right x

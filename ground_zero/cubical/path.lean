@@ -16,11 +16,11 @@ namespace Path
 universes u v
 
 def coe.forward (π : I → Type u) (i : I) (x : π i₀) : π i :=
-interval.ind x (equiv.subst interval.seg x) (equiv.path_over_subst eq.rfl) i
+interval.ind x (equiv.subst interval.seg x) eq.rfl i
 
 def coe.back (π : I → Type u) (i : I) (x : π i₁) : π i :=
 interval.ind (equiv.subst interval.seg⁻¹ x) x (begin
-  apply equiv.path_over_subst, transitivity,
+  apply ground_zero.types.eq.trans,
   { symmetry, apply equiv.subst_comp }, transitivity,
   { apply eq.map (λ p, equiv.subst p x), apply eq.inv_comp },
   reflexivity

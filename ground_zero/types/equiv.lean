@@ -1,4 +1,4 @@
-import ground_zero.support ground_zero.theorems.functions ground_zero.types.dep_path
+import ground_zero.support ground_zero.theorems.functions
 
 section
   universes u v
@@ -119,6 +119,56 @@ namespace equiv
     (p : a = b :> α) : π a → π b :=
   begin induction p, exact ground_zero.theorems.functions.idfun end
 
+  -- subst with explicit π
+  abbreviation transport {α : Type u}
+    (π : α → Type v) {a b : α}
+    (p : a = b :> α) : π a → π b := subst p
+
+  def dep_path {α : Type u} (π : α → Type v) {a b : α} (p : a = b :> α)
+    (u : π a) (v : π b) :=
+  equiv.subst p u = v :> π b
+
+  notation u ` =[` P `,` p `] ` v := dep_path P p u v
+  notation u ` =[` p `] ` v := dep_path _ p u v
+
+  @[refl] def dep_path.refl {α : Type u} (π : α → Type v) {a : α}
+    (u : π a) : u =[eq.refl a] u :=
+  ground_zero.types.eq.refl u
+
+  def pathover_of_eq {α : Type u} {β : Type v}
+    {a b : α} {a' b' : β}
+    (p : a = b :> α) (q : a' = b' :> β) : a' =[p] b' :=
+  begin induction p, induction q, reflexivity end
+
+  def transport_forward_and_back {α : Type u} {β : α → Type v}
+    {x y : α} (p : x = y :> α) (u : β x) :
+    subst p⁻¹ (subst p u) = u :=
+  begin induction p, trivial end
+
+  def transport_back_and_forward {α : Type u} {β : α → Type v}
+    {x y : α} (p : x = y :> α) (u : β y) :
+    subst p (subst p⁻¹ u) = u :=
+  begin induction p, trivial end
+
+  @[symm] def dep_path.symm {α : Type u} {β : α → Type v} {a b : α}
+    (p : a = b :> α) {u : β a} {v : β b}
+    (q : u =[p] v) : v =[p⁻¹] u :=
+  begin induction q, apply transport_forward_and_back end
+
+  def subst_comp {α : Type u}
+    {π : α → Type v} {a b c : α}
+    (p : a = b :> α) (q : b = c :> α) (x : π a) :
+    subst (p ⬝ q) x = subst q (subst p x) :> π c :=
+  begin induction p, induction q, trivial end
+
+  @[trans] def dep_trans {α : Type u} {π : α → Type v}
+    {a b c : α} {p : a = b :> α} {q : b = c :> α}
+    {u : π a} {v : π b} {w : π c}
+    (r : u =[p] v) (s : v =[q] w):
+    u =[p ⬝ q] w :=
+  begin induction r, induction s, apply subst_comp end
+  infix ` ⬝' `:40 := dep_trans
+
   def subst_inv {α : Type u} {π : α → Type v} {a b : α}
     (p : a = b :> α) : π b → π a :=
   begin induction p, exact ground_zero.theorems.functions.idfun end
@@ -140,6 +190,11 @@ namespace equiv
     subst p (f a) = f b :> β b :=
   begin induction p, reflexivity end
 
+  def apd_functoriality {α : Type u} {β : α → Type v} {a b c : α}
+    (f : Π x, β x) (p : a = b :> α) (q : b = c :> α) :
+    @apd α β a c f (p ⬝ q) = dep_trans (apd f p) (apd f q) :=
+  begin induction p, induction q, reflexivity end
+
   def subst_sqr {α : Type u} {π : α → Type v} {a b : α}
     {p q : a = b :> α} (r : p = q :> a = b :> α) (u : π a) :
     subst p u = subst q u :> π b :=
@@ -152,19 +207,8 @@ namespace equiv
     {p : a = b :> α} {u : π a} {v : π b} (q : u =[p] v)
     (g : Π {x : α}, π x → δ x) :
     g u =[p] g v :=
-  begin induction q, induction p, trivial end
+  begin induction q, induction p, reflexivity end
 
-  def subst_comp {α : Type u}
-    {π : α → Type v} {a b c : α}
-    (p : a = b :> α) (q : b = c :> α) (x : π a) :
-    subst (p ⬝ q) x = subst q (subst p x) :> π c :=
-  begin induction p, induction q, trivial end
-
-  -- subst with explicit π
-  abbreviation transport {α : Type u}
-    (π : α → Type v) {a b : α}
-    (p : a = b :> α) : π a → π b := subst p
-  
   abbreviation transport_inv {α : Type u}
     (π : α → Type v) {a b : α}
     (p : a = b :> α) : π b → π a := subst_inv p
@@ -207,12 +251,12 @@ namespace equiv
     {u : β a} {v : β b} {p : a = b :> α}
     (f : Π {x : α} (u : β x), γ x) (q : u =[p] v) :
     f u =[p] f v :=
-  begin induction q, reflexivity end
+  begin induction p, induction q, reflexivity end
 
   def apd₂ {α : Type u} {β : α → Type v} {a b : α}
     {p q : a = b :> α} (f : Π (x : α), β x)
     (r : p = q :> a = b :> α) :
-    dep_path.apd f p =[r] dep_path.apd f q :=
+    apd f p =[r] apd f q :=
   begin induction r, reflexivity end
 
   def rewrite_comp {α : Type u} {a b c : α}
@@ -223,11 +267,6 @@ namespace equiv
     exact eq.refl_left r, exact h ⬝ eq.refl_left q
   end
 
-  def path_over_subst {α : Type u} {β : α → Type v}
-    {a b : α} {p : a = b :> α} {u : β a} {v : β b}
-    (q : subst p u = v :> β b) : u =[p] v :=
-  begin induction q, induction p, reflexivity end
-
   def subst_from_pathover {α : Type u} {β : α → Type v}
     {a b : α} {p : a = b :> α} {u : β a} {v : β b}
     (q : u =[p] v) : subst p u = v :> β b :=
@@ -235,20 +274,8 @@ namespace equiv
 
   def pathover_from_trans {α : Type u} {a b c : α}
     (p : b = c :> α) (q : a = b :> α) (r : a = c :> α) :
-    (q ⬝ p = r :> a = c :> α) → (q =[p] r) := begin
-    intro h, induction h,
-    apply path_over_subst, apply transport_composition
-  end
-
-  def transport_forward_and_back {α : Type u} {β : α → Type v}
-    {x y : α} (p : x = y :> α) (u : β x) :
-    subst p⁻¹ (subst p u) = u :=
-  begin induction p, trivial end
-
-  def transport_back_and_forward {α : Type u} {β : α → Type v}
-    {x y : α} (p : x = y :> α) (u : β y) :
-    subst p (subst p⁻¹ u) = u :=
-  begin induction p, trivial end
+    (q ⬝ p = r :> a = c :> α) → (q =[p] r) :=
+  begin intro h, induction h, apply transport_composition end
 
   def transport_inv_comp_comp {α : Type u} {a b : α} (p : a = b) (q : a = a) :
     equiv.transport (λ x, x = x) p q = p⁻¹ ⬝ q ⬝ p := begin
@@ -285,7 +312,7 @@ namespace equiv
 
   def apd_over_constant_family {α : Type u} {β : Type v} {a b : α}
     (f : α → β) (p : a = b :> α) :
-    dep_path.apd f p = dep_path.pathover_of_eq p (f # p) :=
+    apd f p = pathover_of_eq p (f # p) :=
   begin induction p, trivial end
 
   def refl_pathover {α : Type u} {β : Type v} {a : α} {x y : β}
@@ -293,12 +320,12 @@ namespace equiv
   by apply subst_from_pathover p
 
   def pathover_inv {α : Type u} {β : Type v} (a : α) {x y : β} (p : x = y) :
-    refl_pathover (dep_path.pathover_of_eq (eq.refl a) p) = p :=
+    refl_pathover (pathover_of_eq (eq.refl a) p) = p :=
   begin induction p, reflexivity end
 
   def pathover_of_eq_inj {α : Type u} {β : Type v} {a b : α} {a' b' : β}
     (r : a = b :> α) (p q : a' = b' :> β) :
-    dep_path.pathover_of_eq r p = dep_path.pathover_of_eq r q → p = q := begin
+    pathover_of_eq r p = pathover_of_eq r q → p = q := begin
     intro H, induction r, induction p,
     transitivity, symmetry, apply pathover_inv a,
     symmetry, transitivity, symmetry, apply pathover_inv a,

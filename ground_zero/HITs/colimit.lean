@@ -1,5 +1,5 @@
 import ground_zero.HITs.graph
-open ground_zero.types.dep_path (pathover_of_eq)
+open ground_zero.types.equiv (pathover_of_eq)
 
 /-
   Sequential colimit.

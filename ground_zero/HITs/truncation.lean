@@ -1,6 +1,6 @@
 import ground_zero.HITs.colimit ground_zero.HITs.generalized
 import ground_zero.structures
-open ground_zero.types.equiv (subst path_over_subst apd pathover_from_trans)
+open ground_zero.types.equiv (subst apd pathover_from_trans)
 open ground_zero.types.eq (cong inv)
 open ground_zero.structures (prop contr lem_contr)
 
@@ -40,9 +40,8 @@ namespace truncation
       { refine generalized.ind _ _ x,
         { clear x, intro x, apply subst,
           symmetry, apply colimit.glue, apply ih },
-        { intros, apply path_over_subst,
-          apply uniqπ } } },
-    { intros, apply path_over_subst, apply uniqπ }
+        { intros, apply uniqπ } } },
+    { intros, apply uniqπ }
   end
 
   def rec {α : Type u} {β : Type v} (h : prop β)

@@ -43,7 +43,7 @@ namespace suspension
   noncomputable def indβrule {α : Type u} {β : ∑α → Type v}
     (n : β north) (s : β south)
     (m : Π (x : α), n =[merid x] s) (x : α) :
-    types.dep_path.apd (ind n s m) (merid x) = m x :=
+    types.equiv.apd (ind n s m) (merid x) = m x :=
   by apply pushout.indβrule
 
   noncomputable def recβrule {α : Type u} {β : Type v} (n s : β)

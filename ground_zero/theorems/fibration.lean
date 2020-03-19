@@ -24,7 +24,7 @@ namespace ground_zero.theorems.fibration
     (u : β (f 0)) : @leg (sigma β) ⟨f 0, u⟩ :=
   @leg.lam (sigma β) (λ i, ⟨f i,
     @interval.ind (β ∘ f) u (types.equiv.subst seg u)
-      (types.equiv.path_over_subst types.eq.rfl) i⟩)
+      types.eq.rfl i⟩)
 
   def type_family {α : Type u} (β : α → Type v) :
     (Σ x, β x) ↠ α := begin

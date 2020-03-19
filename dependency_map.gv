@@ -11,8 +11,7 @@ digraph dependency_map {
   subgraph types {
     "types/coproduct" -> { "types/integer", structures }
     "types/dedekind"
-    "types/dep_path" -> "types/equiv"
-    "types/eq" -> { "types/dep_path", support }
+    "types/eq" -> { support }
     "types/equiv" -> {
       "types/heq",
       "HITs/infinitesimal",

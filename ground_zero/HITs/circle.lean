@@ -101,14 +101,13 @@ namespace circle
   def ind {β : S¹ → Type u} (b : β base)
     (ℓ : b =[loop] b) : Π (x : S¹), β x :=
   ind₂ b (types.equiv.subst seg₁ b)
-    (types.equiv.path_over_subst types.eq.rfl)
+    types.eq.rfl
     (begin
-      apply types.equiv.path_over_subst,
       have p := types.equiv.subst_comp seg₂ seg₁⁻¹ b,
       have q := (λ p, subst p (subst seg₂ b)) #
                 (types.eq.inv_comp seg₁),
       have r := types.equiv.subst_from_pathover ℓ,
-      transitivity, exact q⁻¹, transitivity,
+      apply types.eq.trans, exact q⁻¹, transitivity,
       exact types.equiv.subst_comp seg₁⁻¹ seg₁ (subst seg₂ b),
       symmetry, exact subst seg₁ # (r⁻¹ ⬝ p)
     end)
@@ -142,8 +141,7 @@ namespace circle
 
     noncomputable def trivial_hmtpy : trivial ~ (λ _, base) := begin
       intro x, apply ind _ _ x,
-      refl, apply equiv.path_over_subst,
-      transitivity, apply equiv.transport_over_contr_map,
+      refl, apply types.eq.trans, apply equiv.transport_over_contr_map,
       transitivity, apply eq.map (⬝ idp base), apply eq.map_inv,
       transitivity, apply eq.map (⬝ idp base), apply eq.map,
       apply recβrule₂, trivial
@@ -151,8 +149,7 @@ namespace circle
 
     noncomputable def nontrivial_hmtpy : nontrivial ~ id := begin
       intro x, apply ind _ _ x,
-      refl, apply equiv.path_over_subst,
-      transitivity, apply equiv.transport_over_involution,
+      refl, apply types.eq.trans, apply equiv.transport_over_involution,
       transitivity, apply eq.map (λ p, p ⬝ idp base ⬝ loop),
       transitivity, apply eq.map_inv, apply eq.map, apply recβrule₂,
       transitivity, apply eq.map (⬝ loop), apply eq.refl_right,
@@ -225,7 +222,6 @@ namespace circle
 
   noncomputable def decode : Π (x : S¹), helix x → base = x :=
   @ind (λ x, helix x → base = x) power (begin
-    apply types.equiv.path_over_subst,
     apply HITs.interval.funext, intro x,
     apply types.equiv.homotopy.eq, transitivity,
     exact types.equiv.transport_characterization power loop,
@@ -289,7 +285,6 @@ namespace circle
           reflexivity } }
     end)
     (begin
-      apply types.equiv.path_over_subst,
       apply interval.dfunext,
       intro x, apply integer_is_set
     end) x c
@@ -312,8 +307,7 @@ namespace circle
 
   def turn : Π (x : S¹), x = x :=
   circle.ind circle.loop (begin
-    apply equiv.path_over_subst,
-    transitivity, apply equiv.transport_inv_comp_comp,
+    apply types.eq.trans, apply equiv.transport_inv_comp_comp,
     transitivity, apply eq.map (⬝ loop),
     apply eq.inv_comp, apply eq.refl_left
   end)
@@ -329,7 +323,7 @@ namespace circle
   begin
     fapply circle.ind _ _ x; clear x,
     { reflexivity },
-    { apply equiv.path_over_subst, calc
+    { calc
         equiv.transport (λ x, inv (inv x) = x) loop eq.rfl =
                               invₚ loop⁻¹ ⬝ eq.rfl ⬝ loop :
       by apply equiv.transport_over_involution
