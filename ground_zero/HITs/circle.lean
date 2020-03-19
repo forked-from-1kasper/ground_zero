@@ -106,10 +106,9 @@ namespace circle
       have p := types.equiv.subst_comp seg₂ seg₁⁻¹ b,
       have q := (λ p, subst p (subst seg₂ b)) #
                 (types.eq.inv_comp seg₁),
-      have r := types.equiv.subst_from_pathover ℓ,
       apply types.eq.trans, exact q⁻¹, transitivity,
       exact types.equiv.subst_comp seg₁⁻¹ seg₁ (subst seg₂ b),
-      symmetry, exact subst seg₁ # (r⁻¹ ⬝ p)
+      symmetry, exact subst seg₁ # (ℓ⁻¹ ⬝ p)
     end)
 
   instance pointed_circle : types.eq.dotted S¹ := ⟨base⟩

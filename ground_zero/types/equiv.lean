@@ -267,11 +267,6 @@ namespace equiv
     exact eq.refl_left r, exact h ⬝ eq.refl_left q
   end
 
-  def subst_from_pathover {α : Type u} {β : α → Type v}
-    {a b : α} {p : a = b :> α} {u : β a} {v : β b}
-    (q : u =[p] v) : subst p u = v :> β b :=
-  begin induction q, reflexivity end
-
   def pathover_from_trans {α : Type u} {a b c : α}
     (p : b = c :> α) (q : a = b :> α) (r : a = c :> α) :
     (q ⬝ p = r :> a = c :> α) → (q =[p] r) :=
@@ -316,8 +311,7 @@ namespace equiv
   begin induction p, trivial end
 
   def refl_pathover {α : Type u} {β : Type v} {a : α} {x y : β}
-    (p : x =[eq.refl a] y) : x = y :=
-  by apply subst_from_pathover p
+    (p : x =[eq.refl a] y) : x = y := p
 
   def pathover_inv {α : Type u} {β : Type v} (a : α) {x y : β} (p : x = y) :
     refl_pathover (pathover_of_eq (eq.refl a) p) = p :=
