@@ -20,11 +20,11 @@ hott theory
 universes u v
 
 inductive moebius.rel : I × I → I × I → Type
-| glue (x : I) : moebius.rel ⟨x, 0⟩ ⟨neg x, 1⟩
+| glue (x : I) : moebius.rel (x, 0) (neg x, 1)
 def moebius := graph moebius.rel
 
 namespace moebius
-  def elem (x y : I) : moebius := graph.elem ⟨x, y⟩
+  def elem (x y : I) : moebius := graph.elem (x, y)
 
   def a := elem 0 0
   def b := elem 1 0

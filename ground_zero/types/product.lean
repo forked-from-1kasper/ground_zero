@@ -2,58 +2,57 @@ import ground_zero.HITs.interval
 
 namespace ground_zero.types
 
-universes u v t
+universes u v w
 
 namespace product
-  variables {α : Sort u} {β : Sort v}
+  variables {α : Type u} {β : Type v}
 
-  def elim {γ : Sort t} (g : α → β → γ) (x : α × β) : γ :=
+  def elim {γ : Type w} (g : α → β → γ) (x : α × β) : γ :=
   g x.pr₁ x.pr₂
 
-  def uniq : Π (x : α × β), (intro x.pr₁ x.pr₂) = x :> (α × β)
-  | (intro a b) := eq.refl (intro a b)
+  def uniq : Π (x : α × β), (x.pr₁, x.pr₂) = x :> (α × β)
+  | (a, b) := eq.refl (a, b)
 
   def construction (a b : α) (c d : β)
     (p : a = b :> α) (q : c = d :> β) :
-    ⟨a, c⟩ = ⟨b, d⟩ :> α × β :=
+    (a, c) = (b, d) :> α × β :=
   begin induction p, induction q, reflexivity end
 
   abbreviation prod {α : Type u} {β : Type v} {a b : α} {c d : β}
     (p : a = b :> α) (q : c = d :> β) :
-    ⟨a, c⟩ = ⟨b, d⟩ :> α × β :=
+    (a, c) = (b, d) :> α × β :=
   construction a b c d p q
 
-  def ind {π : α × β → Type t} (g : Π (x : α) (y : β), π (intro x y)) :
+  def ind {π : α × β → Type w} (g : Π x y, π (x, y)) :
     Π (x : α × β), π x
-  | (intro a b) := g a b
+  | (a, b) := g a b
 
-  def univ {ν : Type t} : (ν → α × β) ≃ (ν → α) × (ν → β) := begin
+  def univ {ν : Type w} : (ν → α × β) ≃ (ν → α) × (ν → β) := begin
     let e₁ : (ν → α × β) → (ν → α) × (ν → β) :=
-    λ f, intro (pr₁ ∘ f) (pr₂ ∘ f),
+    λ f, (prod.pr₁ ∘ f, prod.pr₂ ∘ f),
     let e₂ : (ν → α) × (ν → β) → (ν → α × β) :=
-    λ f x, intro (f.pr₁ x) (f.pr₂ x),
+    λ f x, (f.pr₁ x, f.pr₂ x),
     existsi e₁, split; existsi e₂,
-    { simp [equiv.homotopy], intro f, apply ground_zero.HITs.interval.funext,
-      simp [e₁, e₂], intro x, simp, apply product.uniq },
-    { simp [equiv.homotopy], intro x,
-      cases x with f g, simp }
+    { intro f, apply ground_zero.HITs.interval.funext,
+      intro x, simp, apply product.uniq },
+    { intro x, cases x with f g, trivial }
   end
 
-  def bimap {γ δ : Sort v} (f : α → γ) (g : β → δ) :
+  def bimap {γ δ : Type v} (f : α → γ) (g : β → δ) :
     α × β → γ × δ
-  | (intro a b) := intro (f a) (g b)
+  | (a, b) := (f a, g b)
 
   def swap : α × β → β × α
-  | (intro a b) := intro b a
+  | (a, b) := (b, a)
 
   theorem comm : α × β ≃ β × α := begin
-    existsi swap, split; existsi swap,
-    repeat { intro x, induction x with a b, simp [swap] }
+    existsi swap, split; existsi swap;
+    { intro x, induction x, trivial }
   end
 
   instance {α : Type u} {β : Type v}
     [has_one α] [has_one β] : has_one (α × β) :=
-  ⟨intro 1 1⟩
+  ⟨(1, 1)⟩
 end product
 
 end ground_zero.types

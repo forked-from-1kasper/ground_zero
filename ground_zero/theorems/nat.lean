@@ -135,8 +135,8 @@ namespace nat
   | coproduct.inr g := not.absurd g h
   end
 
-  def is_even (n : ℕ) := Σ' m, n = m * 2
-  def is_odd (n : ℕ) := Σ' m, n = m * 2 + 1
+  def is_even (n : ℕ) := Σ m, n = m * 2
+  def is_odd (n : ℕ) := Σ m, n = m * 2 + 1
 
   def succ_inj {n m : ℕ} : nat.succ n = nat.succ m → n = m :=
   nat.decode ∘ nat.encode
@@ -161,7 +161,7 @@ namespace nat
   end
 
   noncomputable def is_odd_is_prop (n : ℕ) : structures.prop (is_odd n) := begin
-    intros x y, cases x with i h,cases y with j g,
+    intros x y, cases x with i h, cases y with j g,
     fapply types.sigma.prod,
     { apply mul_succ_n_inj, apply succ_inj, exact h⁻¹ ⬝ g },
     { apply nat_is_set }
@@ -261,7 +261,7 @@ namespace nat
   structures.prop_equiv_lemma (is_odd_is_prop n) (odd_is_prop n)
     sigma_to_odd odd_to_sigma
 
-  def odd_even {σ : ℕ → Sort u}
+  def odd_even {σ : ℕ → Type u}
     (h : Π n, σ (n * 2)) (g : Π n, σ (n * 2 + 1)) (n : ℕ) : σ n := begin
     cases parity n with x y,
     { cases even_to_sigma x with m p,
@@ -278,7 +278,7 @@ namespace unit_list
   def succ' : list 𝟏 → list 𝟏 :=
   list.cons ★
 
-  def ind' {E : list 𝟏 → Sort u}
+  def ind' {E : list 𝟏 → Type u}
     (e₀ : E zero') (eₛ : Π (n : list 𝟏), E n → E (succ' n)) :
     Π (n : list 𝟏), E n
   | [] := e₀

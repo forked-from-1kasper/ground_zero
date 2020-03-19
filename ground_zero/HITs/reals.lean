@@ -1,5 +1,5 @@
-import ground_zero.HITs.circle ground_zero.HITs.interval
-open ground_zero.types.eq (renaming refl -> idp)
+import ground_zero.HITs.circle
+open ground_zero.types.eq
 open ground_zero.HITs.circle
 open ground_zero.types
 
@@ -25,14 +25,14 @@ namespace reals
   def glue (z : ℤ) : elem z = elem (integer.succ z) :> R :=
   graph.line (rel.glue z)
 
-  def ind {π : R → Sort u} (cz : Π x, π (elem x))
+  def ind {π : R → Type u} (cz : Π x, π (elem x))
     (sz : Π z, cz z =[glue z] cz (integer.succ z))
     (u : R) : π u := begin
     fapply graph.ind, exact cz,
     { intros u v H, cases H, apply sz }
   end
 
-  def rec {π : Sort u} (cz : ℤ → π)
+  def rec {π : Type u} (cz : ℤ → π)
     (sz : Π z, cz z = cz (integer.succ z) :> π) : R → π :=
   ind cz (λ x, dep_path.pathover_of_eq (glue x) (sz x))
 
@@ -88,48 +88,6 @@ namespace reals
   instance : has_one R := ⟨elem 1⟩
 
   def cis : R → S¹ := rec (λ _, base) (λ _, loop)
-
-  def turn : Π (x : S¹), x = x :=
-  circle.ind circle.loop (begin
-    apply equiv.path_over_subst,
-    transitivity, apply equiv.transport_inv_comp_comp,
-    transitivity, apply eq.map (⬝ loop),
-    apply eq.inv_comp, apply eq.refl_left
-  end)
-
-  def μ : S¹ → S¹ → S¹ :=
-  circle.rec id (interval.funext turn)
-
-  def inv : S¹ → S¹ :=
-  circle.rec base loop⁻¹
-
-  noncomputable def inv_inv (x : S¹) : inv (inv x) = x :=
-  let invₚ := @eq.map S¹ S¹ base base (inv ∘ inv) in
-  begin
-    fapply circle.ind _ _ x; clear x,
-    { reflexivity },
-    { apply equiv.path_over_subst, calc
-        equiv.transport (λ x, inv (inv x) = x) loop eq.rfl =
-                              invₚ loop⁻¹ ⬝ eq.rfl ⬝ loop :
-      by apply equiv.transport_over_involution
-        ... = invₚ loop⁻¹ ⬝ (eq.rfl ⬝ loop) :
-      begin symmetry, apply eq.assoc end
-        ... = inv # (inv # loop⁻¹) ⬝ loop :
-      begin apply eq.map (⬝ loop), apply equiv.map_over_comp end
-        ... = inv # (inv # loop)⁻¹ ⬝ loop :
-      begin apply eq.map (⬝ loop),
-            apply eq.map, apply eq.map_inv end
-        ... = inv # loop⁻¹⁻¹ ⬝ loop :
-      begin apply eq.map (⬝ loop),
-            apply eq.map, apply eq.map,
-            apply circle.recβrule₂ end
-        ... = inv # loop ⬝ loop :
-      begin apply eq.map (⬝ loop),
-            apply eq.map, apply eq.inv_inv end
-        ... = loop⁻¹ ⬝ loop :
-      begin apply eq.map (⬝ loop), apply circle.recβrule₂ end
-        ... = eq.rfl : by apply eq.inv_comp }
-  end
 end reals
 
 def complex := R × R
@@ -160,8 +118,8 @@ namespace complex
   def conj : C → C
   | ⟨a, b⟩ := ⟨a, -b⟩
 
-  abbreviation Re : C → R := product.pr₁
-  abbreviation Im : C → R := product.pr₂
+  abbreviation Re : C → R := prod.pr₁
+  abbreviation Im : C → R := prod.pr₂
 end complex
 
 end ground_zero.HITs

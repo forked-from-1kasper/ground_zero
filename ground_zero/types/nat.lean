@@ -25,7 +25,7 @@ theorem closed_nat : ℕ ≃ ℕ + 𝟏 := begin
     { induction n, simp [glue, peel_off] } }
 end
 
-theorem equiv_addition {α : Sort u} {β : Sort v} (γ : Sort w)
+theorem equiv_addition {α : Type u} {β : Type v} (γ : Type w)
   (e : α ≃ β) : α + γ ≃ β + γ := begin
   induction e with f H,
   have q := qinv.b2q f H,

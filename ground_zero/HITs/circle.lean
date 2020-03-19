@@ -64,6 +64,9 @@ namespace circle
   def base : S¹ := base₁
   def loop : base = base := seg₂ ⬝ seg₁⁻¹
 
+  def halfway : base = base :=
+  interval.lam (λ i, interval.elim loop (i ∧ (interval.neg i)))
+
   def rec {β : Type u} (b : β) (ℓ : b = b) : S¹ → β :=
   suspension.rec b b (λ b, bool.cases_on b rfl ℓ)
 
@@ -306,6 +309,48 @@ namespace circle
 
   noncomputable example : winding loop⁻¹ = integer.neg 0 :=
   transport_back (integer.pos 0)
+
+  def turn : Π (x : S¹), x = x :=
+  circle.ind circle.loop (begin
+    apply equiv.path_over_subst,
+    transitivity, apply equiv.transport_inv_comp_comp,
+    transitivity, apply eq.map (⬝ loop),
+    apply eq.inv_comp, apply eq.refl_left
+  end)
+
+  def μ : S¹ → S¹ → S¹ :=
+  circle.rec id (interval.funext turn)
+
+  def inv : S¹ → S¹ :=
+  circle.rec base loop⁻¹
+
+  noncomputable def inv_inv (x : S¹) : inv (inv x) = x :=
+  let invₚ := @eq.map S¹ S¹ base base (inv ∘ inv) in
+  begin
+    fapply circle.ind _ _ x; clear x,
+    { reflexivity },
+    { apply equiv.path_over_subst, calc
+        equiv.transport (λ x, inv (inv x) = x) loop eq.rfl =
+                              invₚ loop⁻¹ ⬝ eq.rfl ⬝ loop :
+      by apply equiv.transport_over_involution
+        ... = invₚ loop⁻¹ ⬝ (eq.rfl ⬝ loop) :
+      begin symmetry, apply eq.assoc end
+        ... = inv # (inv # loop⁻¹) ⬝ loop :
+      begin apply eq.map (⬝ loop), apply equiv.map_over_comp end
+        ... = inv # (inv # loop)⁻¹ ⬝ loop :
+      begin apply eq.map (⬝ loop),
+            apply eq.map, apply eq.map_inv end
+        ... = inv # loop⁻¹⁻¹ ⬝ loop :
+      begin apply eq.map (⬝ loop),
+            apply eq.map, apply eq.map,
+            apply circle.recβrule₂ end
+        ... = inv # loop ⬝ loop :
+      begin apply eq.map (⬝ loop),
+            apply eq.map, apply eq.inv_inv end
+        ... = loop⁻¹ ⬝ loop :
+      begin apply eq.map (⬝ loop), apply circle.recβrule₂ end
+        ... = eq.rfl : by apply eq.inv_comp }
+  end
 end circle
 
 namespace ncircle
@@ -357,8 +402,8 @@ namespace torus
   open types.product
   def b : T² := ⟨circle.base, circle.base⟩
 
-  def inj₁ : S¹ → T² := types.product.intro circle.base
-  def inj₂ : S¹ → T² := function.swap types.product.intro circle.base
+  def inj₁ : S¹ → T² := prod.mk circle.base
+  def inj₂ : S¹ → T² := function.swap prod.mk circle.base
 
   -- poloidal and toroidal directions
   def p : b = b :> T² := prod (idp circle.base) circle.loop

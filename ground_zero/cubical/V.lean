@@ -12,10 +12,10 @@ open ground_zero.HITs ground_zero.types
 namespace ground_zero.cubical
 universes u v
 
-def V (i : I) {α β : Sort u} (e : α ≃ β) : Sort u :=
+def V (i : I) {α β : Type u} (e : α ≃ β) : Type u :=
 interval.rec α β (ground_zero.ua e) i
 
-def Vproj (i : I) {α β : Sort u} (e : α ≃ β) (m : α) : V i e :=
+def Vproj (i : I) {α β : Type u} (e : α ≃ β) (m : α) : V i e :=
 interval.hrec (λ i, V i e) m (e.fst m) (begin
   symmetry, transitivity, apply heq.inclusion,
   exact (ground_zero.ua.transport_rule e m)⁻¹,
@@ -23,25 +23,25 @@ interval.hrec (λ i, V i e) m (e.fst m) (begin
 end) i
 
 -- why it isn’t need to be marked as noncomputable??
-def ua {α β : Sort u} (e : α ≃ β) : α ⇝ β := <i> V i e
+def ua {α β : Type u} (e : α ≃ β) : α ⇝ β := <i> V i e
 
-def uabeta {α β : Sort u} (e : α ≃ β) (m : α) :
+def uabeta {α β : Type u} (e : α ≃ β) (m : α) :
   coe⁻¹ 0 1 (λ i, V i e) m ⇝ e.fst m :=
 <i> coe⁻¹ i 1 (λ i, V i e) (Vproj i e m)
 
-def univalence.formation (α β : Sort u) :=
+def univalence.formation (α β : Type u) :=
 α ≃ β → α ⇝ β
 
-def univalence.intro {α β : Sort u} : univalence.formation α β := ua
+def univalence.intro {α β : Type u} : univalence.formation α β := ua
 
-def univalence.elim {α β : Sort u} (p : α ⇝ β) : α ≃ β :=
+def univalence.elim {α β : Type u} (p : α ⇝ β) : α ≃ β :=
 Path.coe 0 1 (λ i, α ≃ p # i) (equiv.id α)
 
-def univalence.beta {α β : Sort u} (e : α ≃ β) (m : α) :
+def univalence.beta {α β : Type u} (e : α ≃ β) (m : α) :
   trans⁻¹ (ua e) m ⇝ e.fst m :=
 <i> coe⁻¹ i 1 (λ i, ua e # i) (Vproj i e m)
 
-def iso {α β : Sort u} (f : α → β) (g : β → α)
+def iso {α β : Type u} (f : α → β) (g : β → α)
   (F : f ∘ g ~' id) (G : g ∘ f ~' id) : α ⇝ β :=
 ua ⟨f, ground_zero.types.qinv.q2b f
   ⟨g, ⟨Path.homotopy_equality F, Path.homotopy_equality G⟩⟩⟩

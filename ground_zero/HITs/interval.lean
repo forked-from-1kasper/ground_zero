@@ -22,7 +22,7 @@ def I : Type := quot I.rel
 abbreviation interval := I
 
 namespace interval
-  universes u v
+  universes u v w
 
   def discrete : bool → I := quot.mk rel
   def i₀ : I := discrete ff
@@ -48,7 +48,7 @@ namespace interval
     cases b, exact b₀, exact b₁
   end
 
-  def hrec (β : I → Sort u)
+  def hrec (β : I → Type u)
     (b₀ : β 0) (b₁ : β 1) (s : b₀ == b₁)
     (x : I) : β x := begin
     fapply quot.hrec_on x,
@@ -60,7 +60,7 @@ namespace interval
       { trivial } }
   end
 
-  def ind {π : I → Sort u} (b₀ : π i₀) (b₁ : π i₁)
+  def ind {π : I → Type u} (b₀ : π i₀) (b₁ : π i₁)
     (s : b₀ =[seg] b₁) (x : I) : π x := begin
     fapply quot.hrec_on x,
     { intro b, cases b, exact b₀, exact b₁ },
@@ -73,12 +73,12 @@ namespace interval
       { reflexivity } }
   end
 
-  @[inline, recursor 4]
-  def rec {β : Sort u} (b₀ : β) (b₁ : β)
+  @[inline]
+  def rec {β : Type u} (b₀ : β) (b₁ : β)
     (s : b₀ = b₁ :> β) : I → β :=
   ind b₀ b₁ (types.dep_path.pathover_of_eq seg s)
 
-  def lift {β : Sort u} (f : bool → β) (H : prop β) : I → β :=
+  def lift {β : Type u} (f : bool → β) (H : prop β) : I → β :=
   begin fapply rec, exact f ff, exact f tt, apply H end
 
   def contr_left : Π i, i₀ = i :=
@@ -101,35 +101,40 @@ namespace interval
   def seg_inv_comp : seg ⬝ seg⁻¹ = types.eq.rfl :=
   by apply prop_is_set interval_prop
 
-  def homotopy {α : Sort u} {β : Sort v} {f g : α → β}
+  def homotopy {α : Type u} {β : Type v} {f g : α → β}
     (p : f ~ g) (x : α) : I → β :=
   rec (f x) (g x) (p x)
 
-  def funext {α : Sort u} {β : Sort v} {f g : α → β}
+  def funext {α : Type u} {β : Type v} {f g : α → β}
     (p : f ~ g) : f = g :> α → β :=
-  let lem := function.swap (homotopy p)
-  in lem # seg
+  @eq.map I (α → β) 0 1 (function.swap (homotopy p)) seg
 
-  def dhomotopy {α : Sort u} {β : α → Sort v} {f g : Π x, β x}
+  def dhomotopy {α : Type u} {β : α → Type v} {f g : Π x, β x}
     (p : f ~ g) (x : α) : I → β x :=
   rec (f x) (g x) (p x)
 
-  def dfunext {α : Sort u} {β : α → Sort v}
+  def dfunext {α : Type u} {β : α → Type v}
     {f g : Π x, β x} (p : f ~ g) : f = g :=
-  let lem := function.swap (dhomotopy p)
-  in lem # seg
+  @eq.map I (Π x, β x) 0 1 (function.swap (dhomotopy p)) seg
 
-  def happly {α : Sort u} {β : α → Sort v}
+  def happly {α : Type u} {β : α → Type v}
     {f g : Π x, β x} (p : f = g) : f ~ g :=
-  types.equiv.transport (λ g, f ~ g) p (types.equiv.homotopy.id f)
+  equiv.transport (λ g, f ~ g) p (types.equiv.homotopy.id f)
+
+  def transport_over_hmtpy {α : Type u} {β : Type v} {γ : Type w}
+    (f : α → β) (g₁ g₂ : β → γ) (h : α → γ)
+    (p : g₁ = g₂) (H : g₁ ∘ f ~ h) (x : α) :
+    equiv.transport (λ (g : β → γ), g ∘ f ~ h) p H x =
+    @equiv.transport (β → γ) (λ (g : β → γ), g (f x) = h x) g₁ g₂ p (H x) :=
+  begin apply HITs.interval.happly, apply equiv.transport_over_pi end
 
   def bool_to_interval (f : bool → bool → bool) (a b : I) : I :=
   lift (λ a, lift (discrete ∘ f a) interval_prop b) interval_prop a
 
-  axiom indβrule {π : I → Sort u} (b₀ : π i₀) (b₁ : π i₁)
+  axiom indβrule {π : I → Type u} (b₀ : π i₀) (b₁ : π i₁)
     (s : b₀ =[seg] b₁) : types.dep_path.apd (ind b₀ b₁ s) seg = s
 
-  noncomputable def recβrule {π : Sort u} (b₀ b₁ : π)
+  noncomputable def recβrule {π : Type u} (b₀ b₁ : π)
     (s : b₀ = b₁) : rec b₀ b₁ s # seg = s := begin
     apply equiv.pathover_of_eq_inj seg, transitivity,
     symmetry, apply equiv.apd_over_constant_family,
@@ -137,6 +142,7 @@ namespace interval
   end
 
   def neg : I → I := interval.rec i₁ i₀ seg⁻¹
+  instance : has_neg I := ⟨neg⟩
 
   def min (a b : I) : I :=
   lift (begin intro x, cases x, exact i₀, exact a end)
@@ -149,23 +155,23 @@ namespace interval
   notation r `∧`:70 s := min r s
   notation r `∨`:70 s := max r s
 
-  def elim {α : Sort u} {a b : α} (p : a = b) : I → α := rec a b p
-  def lam  {α : Sort u} (f : I → α) : f 0 = f 1 := eq.map f seg
+  def elim {α : Type u} {a b : α} (p : a = b) : I → α := rec a b p
+  def lam  {α : Type u} (f : I → α) : f 0 = f 1 := eq.map f seg
 
-  def conn_and {α : Sort u} {a b : α} (p : a = b) : Π i, a = elim p i :=
+  def conn_and {α : Type u} {a b : α} (p : a = b) : Π i, a = elim p i :=
   λ i, lam (λ j, elim p (i ∧ j))
 
-  def cong {α : Sort u} {β : Sort v} {a b : α}
+  def cong {α : Type u} {β : Type v} {a b : α}
     (f : α → β) (p : a = b) : f a = f b :=
   lam (λ i, f (elim p i))
 
-  noncomputable def cong_refl {α : Sort u} {β : Sort v} {a : α}
+  noncomputable def cong_refl {α : Type u} {β : Type v} {a : α}
     (f : α → β) : cong f (idp a) = idp (f a) := begin
     transitivity, apply types.equiv.map_over_comp,
     transitivity, apply eq.map, apply recβrule, trivial
   end
 
-  noncomputable def map_eq_cong {α : Sort u} {β : Sort v} {a b : α}
+  noncomputable def map_eq_cong {α : Type u} {β : Type v} {a b : α}
     (f : α → β) (p : a = b) : f # p = cong f p :=
   begin induction p, symmetry, apply cong_refl end
 
@@ -196,7 +202,7 @@ namespace interval
     ... = idp i₁ : by apply eq.inv_comp))
 
   def neg_neg' (x : I) : neg (neg x) = x :=
-  (conn_and seg⁻¹ (neg x))⁻¹ ⬝ interval_prop 1 x
+  (conn_and seg⁻¹ (neg x))⁻¹ ⬝ contr_right x
 
   noncomputable def twist : I ≃ I :=
   ⟨neg, ⟨⟨neg, neg_neg⟩, ⟨neg, neg_neg⟩⟩⟩

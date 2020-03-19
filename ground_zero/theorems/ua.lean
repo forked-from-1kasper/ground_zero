@@ -22,59 +22,59 @@ hott theory
 
 universes u v
 
-axiom J {π : Π (α β : Sort u), α ≃ β → Sort v}
-  (h : Π (α : Sort u), π α α (ideqv α))
-  {α β : Sort u} (e : α ≃ β) : π α β e
-axiom Jβrule {π : Π (α β : Sort u), α ≃ β → Sort v}
-  {h : Π (α : Sort u), π α α (ideqv α)} {α : Sort u} :
+axiom J {π : Π (α β : Type u), α ≃ β → Type v}
+  (h : Π (α : Type u), π α α (ideqv α))
+  {α β : Type u} (e : α ≃ β) : π α β e
+axiom Jβrule {π : Π (α β : Type u), α ≃ β → Type v}
+  {h : Π (α : Type u), π α α (ideqv α)} {α : Type u} :
   J h (ideqv α) = h α :> π α α (ideqv α)
 
 noncomputable abbreviation Jrule
-  (π : Π (α β : Sort u), α ≃ β → Sort v)
-  (h : Π (α : Sort u), π α α (ideqv α))
-  {α β : Sort u} (e : α ≃ β) : π α β e :=
+  (π : Π (α β : Type u), α ≃ β → Type v)
+  (h : Π (α : Type u), π α α (ideqv α))
+  {α β : Type u} (e : α ≃ β) : π α β e :=
 J h e
 
-noncomputable def ua {α β : Sort u} : α ≃ β → α = β :=
+noncomputable def ua {α β : Type u} : α ≃ β → α = β :=
 J idp
 
 namespace ua
 
-noncomputable theorem refl_on_ua (α : Sort u) :
+noncomputable theorem refl_on_ua (α : Type u) :
   ua (ideqv α) = idp α :=
 begin unfold ua, exact Jβrule end
 
-noncomputable theorem comp_rule {α β : Sort u} (e : α ≃ β) :
+noncomputable theorem comp_rule {α β : Type u} (e : α ≃ β) :
   Π (x : α), x =[ua e] e.fst x := begin
   refine J _ e, intros ψ x,
   refine types.eq.rec _ (refl_on_ua ψ)⁻¹,
   reflexivity
 end
 
-noncomputable theorem transport_rule {α β : Sort u} (e : α ≃ β) :
+noncomputable theorem transport_rule {α β : Type u} (e : α ≃ β) :
   Π (x : α), types.equiv.subst (ua e) x = e.fst x := begin
   refine J _ e, intros ψ x,
   refine types.eq.rec _ (refl_on_ua ψ)⁻¹,
   reflexivity
 end
 
-noncomputable theorem transport_inv_rule {α β : Sort u} (e : α ≃ β) :
+noncomputable theorem transport_inv_rule {α β : Type u} (e : α ≃ β) :
   Π (x : β), types.equiv.subst_inv (ua e) x = e.backward x := begin
   refine J _ e, intros ψ x,
   refine types.eq.rec _ (refl_on_ua ψ)⁻¹,
   reflexivity
 end
 
-theorem idtoeqv_and_id {α : Sort u} :
+theorem idtoeqv_and_id {α : Type u} :
   idtoeqv (idp α) = ideqv α :=
 begin simp [idtoeqv] end
 
-noncomputable theorem prop_uniq {α β : Sort u} (p : α = β) :
+noncomputable theorem prop_uniq {α β : Type u} (p : α = β) :
   ua (idtoeqv p) = p := begin
   unfold ua, induction p, exact Jβrule
 end
 
-noncomputable theorem univalence (α β : Sort u) :
+noncomputable theorem univalence (α β : Type u) :
   (α ≃ β) ≃ (α = β) := begin
   existsi ua, split; existsi idtoeqv,
   { intro e, simp,
@@ -89,7 +89,7 @@ inductive so : bool → Type
 | intro : so tt
 
 namespace so
-  def absurd {α : Sort u} (x : so false) : α := by cases x
+  def absurd {α : Type u} (x : so false) : α := by cases x
   theorem ff_neq_tt (h : ff = tt) : empty :=
   so.absurd (transport so h⁻¹ intro)
 end so
@@ -122,13 +122,13 @@ begin
 end
 
 -- exercise 2.17 (i) in HoTT book
-noncomputable theorem product_equiv₁ {α α' β β' : Sort u}
+noncomputable theorem product_equiv₁ {α α' β β' : Type u}
   (e₁ : α ≃ α') (e₂ : β ≃ β') : (α × β) ≃ (α' × β') := begin
   have p := ua e₁, have q := ua e₂,
   induction p, induction q, reflexivity
 end
 
-noncomputable theorem product_equiv₂ {α α' β β' : Sort u}
+noncomputable theorem product_equiv₂ {α α' β β' : Type u}
   (e₁ : α ≃ α') (e₂ : β ≃ β') : (α × β) ≃ (α' × β') :=
 begin
   refine J _ e₁, intro A,
@@ -138,7 +138,7 @@ end
 
 section
   open ground_zero.types.product
-  theorem product_equiv₃ {α α' β β' : Sort u}
+  theorem product_equiv₃ {α α' β β' : Type u}
     (e₁ : α ≃ α') (e₂ : β ≃ β') : (α × β) ≃ (α' × β') := begin
     cases e₁ with f H, cases H with linv rinv,
     cases linv with g α₁, cases rinv with h β₁,
@@ -158,7 +158,7 @@ section
   end
 end
 
-theorem family_on_bool {π : bool → Sort u} :
+theorem family_on_bool {π : bool → Type u} :
   (π ff × π tt) ≃ Π (b : bool), π b := begin
   let construct : (π ff × π tt) → Π (b : bool), π b := begin
     intros x b, cases x with p q,

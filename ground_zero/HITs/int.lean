@@ -38,32 +38,32 @@ namespace int
   universes u v
 
   def mk : ℕ × ℕ → ℤ := graph.elem
-  def elem (a b : ℕ) : ℤ := graph.elem ⟨a, b⟩
+  def elem (a b : ℕ) : ℤ := graph.elem (a, b)
 
-  def pos (n : ℕ) := mk ⟨n, 0⟩
+  def pos (n : ℕ) := mk (n, 0)
   instance : has_coe ℕ ℤ := ⟨pos⟩
 
-  def neg (n : ℕ) := mk ⟨0, n⟩
+  def neg (n : ℕ) := mk (0, n)
 
-  instance : has_zero int := ⟨mk ⟨0, 0⟩⟩
-  instance : has_one int := ⟨mk ⟨1, 0⟩⟩
+  instance : has_zero int := ⟨mk (0, 0)⟩
+  instance : has_one int  := ⟨mk (1, 0)⟩
 
   def knife {a b c d : ℕ} (H : a + d = b + c :> ℕ) :
-    mk ⟨a, b⟩ = mk ⟨c, d⟩ :> ℤ :=
+    mk (a, b) = mk (c, d) :> ℤ :=
   graph.line H
 
-  def ind {π : ℤ → Sort u}
+  def ind {π : ℤ → Type u}
     (mk₁ : Π (x : ℕ × ℕ), π (mk x))
     (knife₁ : Π {a b c d : ℕ} (H : a + d = b + c),
-      mk₁ ⟨a, b⟩ =[knife H] mk₁ ⟨c, d⟩) (x : ℤ) : π x := begin
+      mk₁ (a, b) =[knife H] mk₁ (c, d)) (x : ℤ) : π x := begin
     fapply graph.ind, exact mk₁,
     { intros x y H, cases x with a b, cases y with c d, apply knife₁ }
   end
 
-  def rec {π : Sort u}
+  def rec {π : Type u}
     (mk₁ : ℕ × ℕ → π)
     (knife₁ : Π {a b c d : ℕ} (H : a + d = b + c),
-      mk₁ ⟨a, b⟩ = mk₁ ⟨c, d⟩) : ℤ → π := begin
+      mk₁ (a, b) = mk₁ (c, d)) : ℤ → π := begin
     fapply graph.rec, exact mk₁,
     { intros x y H, cases x with a b, cases y with c d,
       apply knife₁, assumption }
@@ -73,7 +73,7 @@ namespace int
   ⟨rec (λ x, mk ⟨x.pr₂, x.pr₁⟩)
     (begin intros a b c d H, apply knife, symmetry, assumption end)⟩
 
-  theorem k_equiv (a b k : ℕ) : mk ⟨a, b⟩ = mk ⟨a + k, b + k⟩ := begin
+  theorem k_equiv (a b k : ℕ) : mk (a, b) = mk (a + k, b + k) := begin
     apply knife, transitivity,
     { symmetry, apply ground_zero.theorems.nat.assoc },
     symmetry, transitivity, { symmetry, apply ground_zero.theorems.nat.assoc },

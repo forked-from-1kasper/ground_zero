@@ -1,5 +1,4 @@
 import ground_zero.HITs.suspension
-open ground_zero.types.product (pr₁ pr₂)
 open ground_zero.types.dep_path (pathover_of_eq)
 
 hott theory
@@ -13,7 +12,7 @@ namespace ground_zero.HITs
 
 universes u v w
 def join (α : Type u) (β : Type v) :=
-@pushout α β (α × β) pr₁ pr₂
+@pushout α β (α × β) prod.pr₁ prod.pr₂
 
 namespace join
   variables {α : Type u} {β : Type v}
@@ -22,7 +21,7 @@ namespace join
   def inr : β → join α β := pushout.inr
 
   def push (a : α) (b : β) : inl a = inr b :=
-  pushout.glue (ground_zero.types.product.intro a b)
+  pushout.glue (a, b)
 
   def ind {π : join α β → Type w}
     (inl₁ : Π (x : α), π (inl x))
@@ -51,7 +50,6 @@ namespace join
         exact suspension.merid y,
         reflexivity
       end)
-
 end join
 
 end ground_zero.HITs

@@ -1,7 +1,7 @@
 import ground_zero.HITs.colimit ground_zero.HITs.generalized
 import ground_zero.structures
 open ground_zero.types.equiv (subst path_over_subst apd pathover_from_trans)
-open ground_zero.types.eq (cong)
+open ground_zero.types.eq (cong inv)
 open ground_zero.structures (prop contr lem_contr)
 
 namespace ground_zero.HITs
@@ -20,89 +20,89 @@ universes u v
   * https://homotopytypetheory.org/2016/01/08/colimits-in-hott/
   * https://arxiv.org/pdf/1512.02274
 -/
-def truncation (α : Sort u) :=
+def truncation (α : Type u) :=
 colimit (generalized.repeat α) (generalized.dep α)
 
 notation `∥` α `∥` := truncation α
 
 namespace truncation
-  def elem {α : Sort u} (x : α) : ∥α∥ :=
+  def elem {α : Type u} (x : α) : ∥α∥ :=
   colimit.inclusion 0 x
 
   notation `|` a `|` := elem a
 
-  def ind {α : Sort u} {π : ∥α∥ → Sort v}
+  def ind {α : Type u} {π : ∥α∥ → Type v}
     (elemπ : Π x, π (elem x))
     (uniqπ : Π x, prop (π x)) : Π x, π x := begin
     fapply colimit.ind,
     { intros, induction n with n ih,
       { apply elemπ },
       { refine generalized.ind _ _ x,
-        { clear x, intro x,
-          apply subst (colimit.glue x)⁻¹ (ih x) },
+        { clear x, intro x, apply subst,
+          symmetry, apply colimit.glue, apply ih },
         { intros, apply path_over_subst,
           apply uniqπ } } },
     { intros, apply path_over_subst, apply uniqπ }
   end
 
-  def rec {α : Sort u} {β : Sort v} (h : prop β)
+  def rec {α : Type u} {β : Type v} (h : prop β)
     (f : α → β) : ∥α∥ → β :=
   ind f (λ _, h)
 
-  def weak_uniq {α : Sort u} (x y : α) : elem x = elem y :> ∥α∥ := begin
+  def weak_uniq {α : Type u} (x y : α) : elem x = elem y :> ∥α∥ := begin
     transitivity, { symmetry, apply colimit.glue }, symmetry,
     transitivity, { symmetry, apply colimit.glue },
     apply ground_zero.types.eq.map, apply generalized.glue
   end
 
-  abbreviation incl {α : Sort u} {n : ℕ} :=
+  abbreviation incl {α : Type u} {n : ℕ} :=
   @colimit.incl (generalized.repeat α) (generalized.dep α) n
 
-  abbreviation glue {α : Sort u} {n : ℕ} {x : generalized.repeat α n} :
+  abbreviation glue {α : Type u} {n : ℕ} {x : generalized.repeat α n} :
     incl (generalized.dep α n x) = incl x :=
   colimit.glue x
 
-  def exact_nth {α : Sort u} (a : α) : Π n, generalized.repeat α n
+  def exact_nth {α : Type u} (a : α) : Π n, generalized.repeat α n
   | 0 := a
   | (n + 1) := generalized.dep α n (exact_nth n)
 
-  def nth_glue {α : Sort u} (a : α) : Π n,
+  def nth_glue {α : Type u} (a : α) : Π n,
     incl (exact_nth a n) = @incl α 0 a
   | 0 := by reflexivity
   | (n + 1) := colimit.glue (exact_nth a n) ⬝ nth_glue n
 
-  def incl_uniq {α : Sort u} {n : ℕ} (a b : generalized.repeat α n) :
+  def incl_uniq {α : Type u} {n : ℕ} (a b : generalized.repeat α n) :
     incl a = incl b :=
   calc incl a = incl (generalized.dep α n a) : glue⁻¹
           ... = incl (generalized.dep α n b) : incl # (generalized.glue a b)
           ... = incl b : glue
 
-  def incl_zero_eq_incl {α : Sort u} {n : ℕ} (x : α)
+  def incl_zero_eq_incl {α : Type u} {n : ℕ} (x : α)
     (y : generalized.repeat α n) : @incl α 0 x = incl y :=
   calc @incl α 0 x = incl (exact_nth x n) : (nth_glue x n)⁻¹
                ... = incl y : incl_uniq (exact_nth x n) y
 
-  def weakly_constant_ap {α : Sort u} {β : Sort v} (f : α → β)
+  def weakly_constant_ap {α : Type u} {β : Type v} (f : α → β)
     {a b : α} (p q : a = b) (H : Π (a b : α), f a = f b) : f # p = f # q :=
   let L : Π {u v : α} {r : u = v}, (H a u)⁻¹ ⬝ H a v = f # r :=
   begin intros, induction r, apply ground_zero.types.eq.inv_comp end in
   L⁻¹ ⬝ L
 
-  def cong_close {α : Sort u} {n : ℕ} {a b : generalized.repeat α n} (p : a = b) :
-    glue⁻¹ ⬝ incl # (generalized.dep α n # p) ⬝ glue = incl # p := begin
+  def cong_close {α : Type u} {n : ℕ} {a b : generalized.repeat α n} (p : a = b) :
+    inv glue ⬝ incl # (generalized.dep α n # p) ⬝ glue = incl # p := begin
     induction p, transitivity,
     { symmetry, apply ground_zero.types.eq.assoc },
     apply ground_zero.types.equiv.rewrite_comp, symmetry,
     apply ground_zero.types.eq.refl_right
   end
 
-  def cong_over_path {α : Sort u} {n : ℕ} {a b : generalized.repeat α n}
+  def cong_over_path {α : Type u} {n : ℕ} {a b : generalized.repeat α n}
     (p q : a = b) : incl # p = incl # q :=
   weakly_constant_ap incl p q incl_uniq
 
-  def glue_close {α : Sort u} {n : ℕ} {a b : generalized.repeat α n} :
-    glue⁻¹ ⬝ incl # (generalized.glue (generalized.dep α n a)
-                                      (generalized.dep α n b)) ⬝ glue =
+  def glue_close {α : Type u} {n : ℕ} {a b : generalized.repeat α n} :
+    inv glue ⬝ incl # (generalized.glue (generalized.dep α n a)
+                                        (generalized.dep α n b)) ⬝ glue =
     incl # (generalized.glue a b) := begin
     symmetry, transitivity,
     { symmetry, exact cong_close (generalized.glue a b) },
@@ -110,14 +110,14 @@ namespace truncation
     apply cong_over_path
   end
 
-  def incl_uniq_close {α : Sort u} {n : ℕ} (a b : generalized.repeat α n) :
-    glue⁻¹ ⬝ incl_uniq (generalized.dep α n a) (generalized.dep α n b) ⬝ glue =
+  def incl_uniq_close {α : Type u} {n : ℕ} (a b : generalized.repeat α n) :
+    inv glue ⬝ incl_uniq (generalized.dep α n a) (generalized.dep α n b) ⬝ glue =
     incl_uniq a b := begin
     unfold incl_uniq, apply cong (λ p, p ⬝ glue), apply cong,
     apply glue_close
   end
 
-  def uniq {α : Sort u} : prop ∥α∥ := begin
+  def uniq {α : Type u} : prop ∥α∥ := begin
     apply lem_contr, fapply ind,
     { intro x, existsi elem x, fapply colimit.ind; intros n y,
       { apply incl_zero_eq_incl },
@@ -151,17 +151,17 @@ namespace truncation
     intro x, cases x with u v, exact u
   end
 
-  def uninhabited_implies_trunc_uninhabited {α : Sort u} : ¬α → ¬∥α∥ :=
+  def uninhabited_implies_trunc_uninhabited {α : Type u} : ¬α → ¬∥α∥ :=
   rec ground_zero.structures.empty_is_prop
 end truncation
 
-def surj {α : Sort u} {β : Sort v} (f : α → β) :=
+def surj {α : Type u} {β : Type v} (f : α → β) :=
 Π (b : β), ∥ground_zero.types.fib f b∥
 
-def embedding {α : Sort u} {β : Sort v} (f : α → β) :=
+def embedding {α : Type u} {β : Type v} (f : α → β) :=
 Π (x y : α), ground_zero.types.equiv.biinv (λ (p : x = y), f # p)
 
-def is_connected (α : Sort u) :=
-Σ' (x : α), Π y, ∥x = y∥
+def is_connected (α : Type u) :=
+Σ (x : α), Π y, ∥x = y∥
 
 end ground_zero.HITs

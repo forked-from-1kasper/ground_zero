@@ -20,7 +20,7 @@ structure precategory (α : Type u) :=
 namespace precategory
   def cat_graph {α : Type u} (𝒞 : precategory α) := graph (hom 𝒞)
 
-  def Mor {α : Type u} (𝒞 : precategory α) := Σ' (x y : α), hom 𝒞 x y
+  def Mor {α : Type u} (𝒞 : precategory α) := Σ (x y : α), hom 𝒞 x y
 
   instance {α : Type u} (𝒞 : precategory α) {x y : α} : has_coe (hom 𝒞 x y) (Mor 𝒞) :=
   ⟨λ f, ⟨x, y, f⟩⟩
@@ -36,10 +36,10 @@ namespace precategory
   (K f → K (g ∘ f) → K g)
 
   def has_inv {α : Type u} (𝒞 : precategory α) {x y : α} (f : hom 𝒞 x y) :=
-  Σ' (g : hom 𝒞 y x), (f ∘ g = id 𝒞) × (g ∘ f = id 𝒞)
+  Σ (g : hom 𝒞 y x), (f ∘ g = id 𝒞) × (g ∘ f = id 𝒞)
 
   def iso {α : Type u} (𝒞 : precategory α) (x y : α) :=
-  Σ' (f : hom 𝒞 x y), has_inv 𝒞 f
+  Σ (f : hom 𝒞 x y), has_inv 𝒞 f
 
   def op {α : Type u} (𝒞 : precategory α) : precategory α :=
   { hom := λ a b, hom 𝒞 b a,

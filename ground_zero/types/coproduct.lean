@@ -4,15 +4,16 @@ namespace ground_zero.types
 
 universes u v f
 
-inductive coproduct (α : Sort u) (β : Sort v)
-| inl {} : α → coproduct
-| inr {} : β → coproduct
+abbreviation coproduct (α : Type u) (β : Type v) := sum α β
 infix ` + ` := coproduct
 
 namespace coproduct
-  variables {α : Sort u} {β : Sort v}
+  variables {α : Type u} {β : Type v}
 
-  def elim {γ : Sort f} (g₀ : α → γ) (g₁ : β → γ) : α + β → γ
+  @[pattern] abbreviation inl : α → α + β := sum.inl
+  @[pattern] abbreviation inr : β → α + β := sum.inr
+
+  def elim {γ : Type f} (g₀ : α → γ) (g₁ : β → γ) : α + β → γ
   | (inl a) := g₀ a
   | (inr b) := g₁ b
 
@@ -26,7 +27,7 @@ namespace coproduct
   end
 
   namespace inl
-    def code (a₀ : α) : α + β → Sort u
+    def code (a₀ : α) : α + β → Type u
     | (inl a) := a₀ = a :> α
     | (inr b) := 𝟎
 
@@ -62,7 +63,7 @@ namespace coproduct
   end inl
 
   namespace inr
-    def code (b₀ : β) : α + β → Sort v
+    def code (b₀ : β) : α + β → Type v
     | (inl a) := 𝟎
     | (inr b) := b₀ = b :> β
 
@@ -78,14 +79,14 @@ namespace coproduct
     begin induction p, trivial end
 
     def encode_decode {b₀ : β} {x : α + β} (c : code b₀ x) :
-      encode (decode c) = c :> _ := begin
+      encode (decode c) = c :> code b₀ x := begin
       induction x,
       { cases c },
       { transitivity, symmetry, apply equiv.transport_comp,
         apply equiv.transport_composition }
     end
 
-    def recognize (b₀ : β) (x : α + β) : (inr b₀ = x :> _) ≃ code b₀ x := begin
+    def recognize (b₀ : β) (x : α + β) : (inr b₀ = x :> α + β) ≃ code b₀ x := begin
       existsi encode, split; existsi decode,
       apply decode_encode, apply encode_decode
     end

@@ -14,7 +14,7 @@ universes u v w
 
 def iterated_unit : ℕ → Type
 | 0 := empty
-| (n + 1) := coproduct ground_zero.types.unit.{1} (iterated_unit n)
+| (n + 1) := coproduct ground_zero.types.unit.{0} (iterated_unit n)
 
 def filled_simplex (n : ℕ) := ∥iterated_unit n∥
 

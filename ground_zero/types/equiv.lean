@@ -1,64 +1,57 @@
 import ground_zero.support ground_zero.theorems.functions ground_zero.types.dep_path
 
+section
+  universes u v
+  variables {α : Type u} {β : Type v}
+
+  abbreviation product := α × β
+  def prod.eq {a c : α} {b d : β}
+    (p : a = c :> α) (q : b = d :> β) : (a, b) = (c, d) :> α × β :=
+  begin induction p, induction q, reflexivity end
+
+  abbreviation prod.intro : α → β → α × β := prod.mk
+  abbreviation prod.pr₁ : α × β → α := prod.fst
+  abbreviation prod.pr₂ : α × β → β := prod.snd
+end
+
 namespace ground_zero.types
 
 hott theory
 
-structure {u v} product (α : Sort u) (β : Sort v) :=
-intro :: (pr₁ : α) (pr₂ : β)
-attribute [pp_using_anonymous_constructor] product
-
-reserve infix ` × `
-infix ` × ` := product
-
-section
-  universes u v
-  instance (α : Type u) (β : Type v) [has_repr α] [has_repr β] : has_repr (α × β) :=
-  ⟨λ x, sformat! "⟨{repr x.pr₁}, {repr x.pr₂}⟩"⟩
-end
-
-def {u v} product.eq {α : Sort u} {β : Sort v} {a c : α} {b d : β}
-  (p : a = c) (q : b = d) : ⟨a, b⟩ = ⟨c, d⟩ :> α × β :=
-begin induction p, induction q, reflexivity end
-
 namespace equiv
   universes u v
 
-  def homotopy {α : Sort u} {π : α → Sort v}
+  def homotopy {α : Type u} {π : α → Type v}
     (f g : Π (x : α), π x) :=
   Π (x : α), f x = g x :> π x
   infix ` ~ ` := homotopy
 
-  @[refl] def homotopy.id {α : Sort u} {π : α → Sort v}
+  @[refl] def homotopy.id {α : Type u} {π : α → Type v}
     (f : Π (x : α), π x) : f ~ f :=
   begin simp [homotopy], intro x, reflexivity end
 
-  def homotopy.eq {α : Sort u} {π : α → Sort v}
+  def homotopy.eq {α : Type u} {π : α → Type v}
     {f g : Π (x : α), π x} (h : f = g :> Π (x : α), π x) : f ~ g :=
   begin induction h, reflexivity end
 
-  @[symm] def homotopy.symm {α : Sort u} {π : α → Sort v}
-    (f g : Π (x : α), π x) (h : f ~ g) : g ~ f := begin
-    simp [homotopy] at *, intros,
-    apply eq.symm, apply h
-  end
+  @[symm] def homotopy.symm {α : Type u} {π : α → Type v}
+    (f g : Π (x : α), π x) (h : f ~ g) : g ~ f :=
+  λ x, (h x)⁻¹
 
-  @[trans] def homotopy.trans {α : Sort u} {π : α → Sort v}
-    (f g h : Π (x : α), π x) (r₁ : f ~ g) (r₂ : g ~ h) : f ~ h := begin
-    simp [homotopy] at *, intros, transitivity,
-    apply r₁, apply r₂
-  end
+  @[trans] def homotopy.trans {α : Type u} {π : α → Type v}
+    {f g h : Π (x : α), π x} (p : f ~ g) (q : g ~ h) : f ~ h :=
+  λ x, p x ⬝ q x
 
-  def linv {α : Sort u} {β : Sort v} (f : α → β) :=
-  Σ' (g : β → α), g ∘ f ~ id
+  def linv {α : Type u} {β : Type v} (f : α → β) :=
+  Σ (g : β → α), g ∘ f ~ id
 
-  def rinv {α : Sort u} {β : Sort v} (f : α → β) :=
-  Σ' (g : β → α), f ∘ g ~ id
+  def rinv {α : Type u} {β : Type v} (f : α → β) :=
+  Σ (g : β → α), f ∘ g ~ id
 
-  def biinv {α : Sort u} {β : Sort v} (f : α → β) :=
+  def biinv {α : Type u} {β : Type v} (f : α → β) :=
   linv f × rinv f
 
-  def homotopy_square {α : Sort u} {β : Sort v}
+  def homotopy_square {α : Type u} {β : Type v}
     {f g : α → β} (H : f ~ g) {x y : α}
     (p : x = y :> α) :
     H x ⬝ (g # p) = (f # p) ⬝ H y :> f x = g y :> β := begin
@@ -68,31 +61,31 @@ namespace equiv
   end
 end equiv
 
-def {u v} equiv (α : Sort u) (β : Sort v) :=
-Σ' (f : α → β), equiv.biinv f
+def {u v} equiv (α : Type u) (β : Type v) :=
+Σ (f : α → β), equiv.biinv f
 infix ` ≃ `:25 := equiv
 
 namespace equiv
   universes u v w
 
-  instance forward_coe {α : Sort u} {β : Sort v} :
+  instance forward_coe {α : Type u} {β : Type v} :
     has_coe (α ≃ β) (α → β) :=
   ⟨begin intro e, cases e with f H, exact f end⟩
 
-  def forward {α : Sort u} {β : Sort v} (e : α ≃ β) : α → β := e.fst
-  def backward {α : Sort u} {β : Sort v} (e : α ≃ β) : β → α := begin
+  def forward {α : Type u} {β : Type v} (e : α ≃ β) : α → β := e.fst
+  def backward {α : Type u} {β : Type v} (e : α ≃ β) : β → α := begin
     cases e with f e, cases e with linv rinv,
     cases linv with g G, exact g
   end
 
-  @[refl] def id (α : Sort u) : α ≃ α := begin
+  @[refl] def id (α : Type u) : α ≃ α := begin
     existsi id, split,
     repeat {
       existsi id, intro, reflexivity
     }
   end
 
-  @[trans] def trans {α : Sort u} {β : Sort v} {γ : Sort w}
+  @[trans] def trans {α : Type u} {β : Type v} {γ : Type w}
     (e₁ : α ≃ β) (e₂ : β ≃ γ) : α ≃ γ := begin
     cases e₁ with f₁ H₁,
     cases H₁ with linv₁ rinv₁,
@@ -113,84 +106,84 @@ namespace equiv
       exact f₂ # (β₁ (h₂ x)), exact β₂ x }
   end
 
-  def idtoeqv {α β : Sort u} (p : α = β :> _) : α ≃ β :=
+  def idtoeqv {α β : Type u} (p : α = β :> _) : α ≃ β :=
   begin induction p, apply id end
 
-  def transportconst {α β : Sort u} : α = β → α → β :=
+  def transportconst {α β : Type u} : α = β → α → β :=
   forward ∘ idtoeqv
 
-  def transportconst_inv {α β : Sort u} : α = β → β → α :=
+  def transportconst_inv {α β : Type u} : α = β → β → α :=
   backward ∘ idtoeqv
 
-  def subst {α : Sort u} {π : α → Sort v} {a b : α}
+  def subst {α : Type u} {π : α → Type v} {a b : α}
     (p : a = b :> α) : π a → π b :=
   begin induction p, exact ground_zero.theorems.functions.idfun end
 
-  def subst_inv {α : Sort u} {π : α → Sort v} {a b : α}
+  def subst_inv {α : Type u} {π : α → Type v} {a b : α}
     (p : a = b :> α) : π b → π a :=
   begin induction p, exact ground_zero.theorems.functions.idfun end
 
-  theorem subst_over_path_comp {α : Sort u} {π : α → Sort v} {a b c : α}
+  theorem subst_over_path_comp {α : Type u} {π : α → Type v} {a b c : α}
     (p : a = b :> α) (q : b = c :> α) (x : π a) :
     subst (p ⬝ q) x = subst q (subst p x) :> π c :=
   begin induction p, reflexivity end
 
-  theorem subst_over_inv_path {α : Sort u} {π : α → Sort v} {a b : α}
+  theorem subst_over_inv_path {α : Type u} {π : α → Type v} {a b : α}
     (p : a = b :> α) (x : π b) : subst p⁻¹ x = subst_inv p x :> π a :=
   begin induction p, reflexivity end
 
   reserve infix ` ▸ `
   infix [parsing_only] ` ▸ ` := subst
 
-  def apd {α : Sort u} {β : α → Sort v} {a b : α}
+  def apd {α : Type u} {β : α → Type v} {a b : α}
     (f : Π (x : α), β x) (p : a = b :> α) :
     subst p (f a) = f b :> β b :=
   begin induction p, reflexivity end
 
-  def subst_sqr {α : Sort u} {π : α → Sort v} {a b : α}
+  def subst_sqr {α : Type u} {π : α → Type v} {a b : α}
     {p q : a = b :> α} (r : p = q :> a = b :> α) (u : π a) :
     subst p u = subst q u :> π b :=
   begin induction r, reflexivity end
   notation `subst²` := subst_sqr
 
-  lemma dep_path_map {α : Sort u}
-    {π : α → Sort v} {δ : α → Sort w}
+  lemma dep_path_map {α : Type u}
+    {π : α → Type v} {δ : α → Type w}
     {a b : α}
     {p : a = b :> α} {u : π a} {v : π b} (q : u =[p] v)
     (g : Π {x : α}, π x → δ x) :
     g u =[p] g v :=
   begin induction q, induction p, trivial end
 
-  def subst_comp {α : Sort u}
-    {π : α → Sort v} {a b c : α}
+  def subst_comp {α : Type u}
+    {π : α → Type v} {a b c : α}
     (p : a = b :> α) (q : b = c :> α) (x : π a) :
     subst (p ⬝ q) x = subst q (subst p x) :> π c :=
   begin induction p, induction q, trivial end
 
   -- subst with explicit π
-  abbreviation transport {α : Sort u}
-    (π : α → Sort v) {a b : α}
+  abbreviation transport {α : Type u}
+    (π : α → Type v) {a b : α}
     (p : a = b :> α) : π a → π b := subst p
   
-  abbreviation transport_inv {α : Sort u}
-    (π : α → Sort v) {a b : α}
+  abbreviation transport_inv {α : Type u}
+    (π : α → Type v) {a b : α}
     (p : a = b :> α) : π b → π a := subst_inv p
 
-  abbreviation transport_sqr {α : Sort u} (π : α → Sort v) {a b : α}
+  abbreviation transport_sqr {α : Type u} (π : α → Type v) {a b : α}
     {p q : a = b :> α} (r : p = q :> a = b :> α) (u : π a) :
     subst p u = subst q u :> π b := subst_sqr r u
   notation `transport²` := transport_sqr
 
   --notation u ` =[` P `,` p `] ` v := transport P p u = v :> _
 
-  def transport_comp {α : Sort u} {β : Sort v}
-    (π : β → Sort w) {x y : α}
+  def transport_comp {α : Type u} {β : Type v}
+    (π : β → Type w) {x y : α}
     (f : α → β) (p : x = y :> α) (u : π (f x)) :
     @subst _ (π ∘ f) _ _ p u =
     subst (f # p) u :> π (f y) :=
   begin induction p, trivial end
 
-  def transport_composition {α : Sort u} {a x₁ x₂ : α}
+  def transport_composition {α : Type u} {a x₁ x₂ : α}
     (p : x₁ = x₂ :> α) (q : a = x₁ :> α) :
     transport (ground_zero.types.eq a) p q = q ⬝ p :> _ := begin
     induction p, symmetry, transitivity,
@@ -198,31 +191,31 @@ namespace equiv
   end
 
   def transport_characterization
-    {α : Sort u} {β γ : α → Sort v} {a b : α}
+    {α : Type u} {β γ : α → Type v} {a b : α}
     (f : β a → γ a) (p : a = b) :
     subst p f = transport γ p ∘ f ∘ transport β p⁻¹ :=
   begin induction p, reflexivity end
 
-  lemma transport_over_family {α : Sort u}
-    {x y : α} {π δ : α → Sort v}
+  lemma transport_over_family {α : Type u}
+    {x y : α} {π δ : α → Type v}
     (f : Π (x : α), π x → δ x)
     (p : x = y :> α) (u : π x) :
     subst p (f x u) = f y (subst p u) :> δ y :=
   begin induction p, trivial end
 
-  def apd_sqr {α : Sort u} {β γ : α → Sort v} {a b : α}
+  def apd_sqr {α : Type u} {β γ : α → Type v} {a b : α}
     {u : β a} {v : β b} {p : a = b :> α}
     (f : Π {x : α} (u : β x), γ x) (q : u =[p] v) :
     f u =[p] f v :=
   begin induction q, reflexivity end
 
-  def apd₂ {α : Sort u} {β : α → Sort v} {a b : α}
+  def apd₂ {α : Type u} {β : α → Type v} {a b : α}
     {p q : a = b :> α} (f : Π (x : α), β x)
     (r : p = q :> a = b :> α) :
     dep_path.apd f p =[r] dep_path.apd f q :=
   begin induction r, reflexivity end
 
-  def rewrite_comp {α : Sort u} {a b c : α}
+  def rewrite_comp {α : Type u} {a b c : α}
     {p : a = b :> α} {q : b = c :> α} {r : a = c :> α}
     (h : r = p ⬝ q :> a = c :> α) :
     p⁻¹ ⬝ r = q :> b = c :> α := begin
@@ -230,46 +223,46 @@ namespace equiv
     exact eq.refl_left r, exact h ⬝ eq.refl_left q
   end
 
-  def path_over_subst {α : Sort u} {β : α → Sort v}
+  def path_over_subst {α : Type u} {β : α → Type v}
     {a b : α} {p : a = b :> α} {u : β a} {v : β b}
     (q : subst p u = v :> β b) : u =[p] v :=
   begin induction q, induction p, reflexivity end
 
-  def subst_from_pathover {α : Sort u} {β : α → Sort v}
+  def subst_from_pathover {α : Type u} {β : α → Type v}
     {a b : α} {p : a = b :> α} {u : β a} {v : β b}
     (q : u =[p] v) : subst p u = v :> β b :=
   begin induction q, reflexivity end
 
-  def pathover_from_trans {α : Sort u} {a b c : α}
+  def pathover_from_trans {α : Type u} {a b c : α}
     (p : b = c :> α) (q : a = b :> α) (r : a = c :> α) :
     (q ⬝ p = r :> a = c :> α) → (q =[p] r) := begin
     intro h, induction h,
     apply path_over_subst, apply transport_composition
   end
 
-  def transport_forward_and_back {α : Sort u} {β : α → Sort v}
+  def transport_forward_and_back {α : Type u} {β : α → Type v}
     {x y : α} (p : x = y :> α) (u : β x) :
     subst p⁻¹ (subst p u) = u :=
   begin induction p, trivial end
 
-  def transport_back_and_forward {α : Sort u} {β : α → Sort v}
+  def transport_back_and_forward {α : Type u} {β : α → Type v}
     {x y : α} (p : x = y :> α) (u : β y) :
     subst p (subst p⁻¹ u) = u :=
   begin induction p, trivial end
 
-  def transport_inv_comp_comp {α : Sort u} {a b : α} (p : a = b) (q : a = a) :
+  def transport_inv_comp_comp {α : Type u} {a b : α} (p : a = b) (q : a = a) :
     equiv.transport (λ x, x = x) p q = p⁻¹ ⬝ q ⬝ p := begin
     induction p, symmetry, transitivity,
     apply eq.refl_left (q ⬝ eq.rfl), transitivity,
     apply eq.refl_right, trivial
   end
 
-  def transport_over_contr_map {α : Sort u} {β : Sort v} {a b : α} {c : β}
+  def transport_over_contr_map {α : Type u} {β : Type v} {a b : α} {c : β}
     (f : α → β) (p : a = b) (q : f a = c) :
     equiv.transport (λ x, f x = c) p q = f # p⁻¹ ⬝ q :=
   begin induction p, trivial end
 
-  def transport_over_involution {α : Sort u} {a b : α}
+  def transport_over_involution {α : Type u} {a b : α}
     (f : α → α) (p : a = b) (q : f a = a) :
     equiv.transport (λ x, f x = x) p q = (f # p⁻¹) ⬝ q ⬝ p := begin
     induction p, symmetry,
@@ -277,25 +270,33 @@ namespace equiv
     apply eq.refl_right
   end
 
-  def map_over_comp {α : Sort u} {β : Sort v} {γ : Sort w} {a b : α}
+  def transport_over_hmtpy {α : Type u} {β : Type v} {a b : α}
+    (f g : α → β) (p : a = b) (q : f a = g a) :
+    equiv.transport (λ x, f x = g x) p q = (f # p⁻¹) ⬝ q ⬝ g # p := begin
+    induction p, symmetry,
+    transitivity, apply eq.refl_left,
+    apply eq.refl_right
+  end
+
+  def map_over_comp {α : Type u} {β : Type v} {γ : Type w} {a b : α}
     (f : α → β) (g : β → γ) (p : a = b) :
     @eq.map α γ a b (g ∘ f) p = g # (f # p) :> g (f a) = g (f b) :> γ :=
   begin induction p, trivial end
 
-  def apd_over_constant_family {α : Sort u} {β : Sort v} {a b : α}
+  def apd_over_constant_family {α : Type u} {β : Type v} {a b : α}
     (f : α → β) (p : a = b :> α) :
     dep_path.apd f p = dep_path.pathover_of_eq p (f # p) :=
   begin induction p, trivial end
 
-  def refl_pathover {α : Sort u} {β : Sort v} {a : α} {x y : β}
+  def refl_pathover {α : Type u} {β : Type v} {a : α} {x y : β}
     (p : x =[eq.refl a] y) : x = y :=
   by apply subst_from_pathover p
 
-  def pathover_inv {α : Sort u} {β : Sort v} (a : α) {x y : β} (p : x = y) :
+  def pathover_inv {α : Type u} {β : Type v} (a : α) {x y : β} (p : x = y) :
     refl_pathover (dep_path.pathover_of_eq (eq.refl a) p) = p :=
   begin induction p, reflexivity end
 
-  def pathover_of_eq_inj {α : Sort u} {β : Sort v} {a b : α} {a' b' : β}
+  def pathover_of_eq_inj {α : Type u} {β : Type v} {a b : α} {a' b' : β}
     (r : a = b :> α) (p q : a' = b' :> β) :
     dep_path.pathover_of_eq r p = dep_path.pathover_of_eq r q → p = q := begin
     intro H, induction r, induction p,
@@ -303,25 +304,37 @@ namespace equiv
     symmetry, transitivity, symmetry, apply pathover_inv a,
     symmetry, apply refl_pathover # H
   end
+
+  def transport_over_pi {α : Type u} {a b : α} {β : Type v}
+    (π : α → β → Type w) (p : a = b) (u : Π (y : β), π a y) :
+    equiv.transport (λ x, Π y, π x y) p u =
+    (λ y, @equiv.transport α (λ x, π x y) a b p (u y)) :=
+  begin induction p, trivial end
+
+  def transport_over_function {α : Type u} {β : Type v}
+    {a : α} {b : β} (f g : α → β) (p : f = g) (q : f a = b) :
+    equiv.transport (λ (f' : α → β), f' a = b) p q =
+    @eq.map (α → β) β g f (λ (f' : α → β), f' a) p⁻¹ ⬝ q :=
+  begin induction p, trivial end
 end equiv
 
-def {u v} is_qinv {α : Sort u} {β : Sort v} (f : α → β) (g : β → α) :=
+def {u v} is_qinv {α : Type u} {β : Type v} (f : α → β) (g : β → α) :=
 (f ∘ g ~ id) × (g ∘ f ~ id)
 
-class {u v} has_qinv {α : Sort u} {β : Sort v} (f : α → β) :=
+class {u v} has_qinv {α : Type u} {β : Type v} (f : α → β) :=
 (inv : β → α) (lawful : is_qinv f inv)
 postfix ⁻¹ := has_qinv.inv
 
-def {u v} qinv {α : Sort u} {β : Sort v} (f : α → β) :=
-Σ' (g : β → α), is_qinv f g
+def {u v} qinv {α : Type u} {β : Type v} (f : α → β) :=
+Σ (g : β → α), is_qinv f g
 
 namespace qinv
   universes u v w
 
-  def equiv (α : Sort u) (β : Sort v) :=
-  Σ' (f : α → β), qinv f
+  def equiv (α : Type u) (β : Type v) :=
+  Σ (f : α → β), qinv f
 
-  def q2b {α : Sort u} {β : Sort v} (f : α → β) (q : qinv f) :
+  def q2b {α : Type u} {β : Type v} (f : α → β) (q : qinv f) :
     equiv.biinv f := begin
     cases q with g H,
     cases H with α β,
@@ -329,21 +342,21 @@ namespace qinv
     exact β, exact α
   end
 
-  def linv_inv {α : Sort u} {β : Sort v}
+  def linv_inv {α : Type u} {β : Type v}
     (f : α → β) (g : β → α) (h : β → α)
     (G : f ∘ g ~ id) (H : h ∘ f ~ id) : g ∘ f ~ id :=
   let F₁ := λ x, H (g (f x)) in
   let F₂ := λ x, h # (G (f x)) in
   λ x, (F₁ x)⁻¹ ⬝ F₂ x ⬝ H x
 
-  def rinv_inv {α : Sort u} {β : Sort v}
+  def rinv_inv {α : Type u} {β : Type v}
     (f : α → β) (g : β → α) (h : β → α)
     (G : f ∘ g ~ id) (H : h ∘ f ~ id) : f ∘ h ~ id :=
   let F₁ := λ x, (f ∘ h) # (G x) in
   let F₂ := λ x, f # (H (g x)) in
   λ x, (F₁ x)⁻¹ ⬝ F₂ x ⬝ G x
 
-  def b2q {α : Sort u} {β : Sort v} (f : α → β)
+  def b2q {α : Type u} {β : Type v} (f : α → β)
     (b : equiv.biinv f) : qinv f := begin
     cases b with linv rinv,
     cases rinv with g α,
@@ -356,7 +369,7 @@ end qinv
 namespace equiv
   universes u v
 
-  @[symm] def symm {α : Sort u} {β : Sort v}
+  @[symm] def symm {α : Type u} {β : Type v}
     (e : α ≃ β) : β ≃ α := begin
     cases e with f H, have q := qinv.b2q f H,
     cases q with g qinv, cases qinv with α β,
@@ -366,11 +379,11 @@ namespace equiv
 end equiv
 
 -- half adjoint equivalence
-def {u v} ishae {α : Sort u} {β : Sort v} (f : α → β) :=
-Σ' (g : β → α) (η : g ∘ f ~ id) (ϵ : f ∘ g ~ id) (x : α),
+def {u v} ishae {α : Type u} {β : Type v} (f : α → β) :=
+Σ (g : β → α) (η : g ∘ f ~ id) (ϵ : f ∘ g ~ id) (x : α),
   f # (η x) = ϵ (f x) :> f (g (f x)) = f x :> β
 
-def {u v} fib {α : Sort u} {β : Sort v} (f : α → β) (y : β) :=
-Σ' (x : α), f x = y :> β
+def {u v} fib {α : Type u} {β : Type v} (f : α → β) (y : β) :=
+Σ (x : α), f x = y :> β
 
 end ground_zero.types

@@ -10,21 +10,21 @@ open ground_zero.types.dep_path (pathover_of_eq)
 namespace ground_zero.HITs
 universes u v
 
-inductive generalized.rel (α : Sort u) : α → α → Sort u
+inductive generalized.rel (α : Type u) : α → α → Type u
 | mk {} : Π (a b : α), generalized.rel a b
 
-def generalized (α : Sort u) := graph (generalized.rel α)
+def generalized (α : Type u) := graph (generalized.rel α)
 notation `{` α `}` := generalized α
 
 namespace generalized
-  def incl {α : Sort u} : α → {α} := graph.elem
+  def incl {α : Type u} : α → {α} := graph.elem
 
-  def glue {α : Sort u} (a b : α) :
+  def glue {α : Type u} (a b : α) :
     incl a = incl b :> {α} :=
   graph.line (generalized.rel.mk a b)
 
   def ind
-    {α : Sort u} {π : {α} → Sort v}
+    {α : Type u} {π : {α} → Type v}
     (incl₁ : Π (a : α), π (incl a))
     (glue₁ : Π (a b : α), incl₁ a =[glue a b] incl₁ b) :
     Π (x : generalized α), π x := begin
@@ -32,16 +32,16 @@ namespace generalized
     { intros u v H, cases H, apply glue₁ }
   end
 
-  def rec {α : Sort u} {π : Sort v}
+  def rec {α : Type u} {π : Type v}
     (incl₁ : α → π) (glue₁ : Π (a b : α), incl₁ a = incl₁ b :> π) :
     {α} → π :=
   ind incl₁ (λ a b, pathover_of_eq (glue a b) (glue₁ a b))
 
-  def repeat (α : Sort u) : ℕ → Sort u
+  def repeat (α : Type u) : ℕ → Type u
   | 0 := α
   | (n + 1) := {repeat n}
 
-  def dep (α : Sort u) (n : ℕ) : repeat α n → repeat α (n + 1) :=
+  def dep (α : Type u) (n : ℕ) : repeat α n → repeat α (n + 1) :=
   incl
 end generalized
 

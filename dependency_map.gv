@@ -64,7 +64,6 @@ digraph dependency_map {
     "HITs/simplicial"
     "HITs/suspension" -> "HITs/circle"
     "HITs/truncation" -> {
-      "theorems/mere_eq_lemma",
       "theorems/prop",
       "HITs/simplicial"
     }
@@ -88,7 +87,6 @@ digraph dependency_map {
     "theorems/fibration" -> { "theorems/hopf" }
     "theorems/functions" -> { "types/equiv" }
     "theorems/hopf"
-    "theorems/mere_eq_lemma"
     "theorems/nat" -> { "HITs/circle", "HITs/int" }
     "theorems/prop"
     "theorems/ua" -> { "theorems/nat", "cubical/V" }

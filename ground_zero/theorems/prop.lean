@@ -1,14 +1,17 @@
 import ground_zero.HITs.interval ground_zero.HITs.truncation ground_zero.types.sigma
+open ground_zero.HITs.interval
 open ground_zero.structures (prop contr hset prop_is_set)
-open ground_zero.types.equiv (transport transport_composition)
+open ground_zero.types.equiv
 open ground_zero.types
 
 namespace ground_zero
 namespace theorems.prop
 
+hott theory
+
 universes u v w
 
-def product_prop {α : Sort u} {β : Sort v}
+def product_prop {α : Type u} {β : Type v}
   (h : prop α) (g : prop β) : prop (α × β) := begin
   intros a b,
   cases a with x y, cases b with u v,
@@ -16,18 +19,18 @@ def product_prop {α : Sort u} {β : Sort v}
   induction p, induction q, reflexivity
 end
 
-def contr_equiv_unit {α : Sort u} (h : contr α) : α ≃ types.unit := begin
+def contr_equiv_unit {α : Type u} (h : contr α) : α ≃ types.unit := begin
   existsi (λ _, types.unit.star), split;
   existsi (λ _, h.point),
   { intro x, apply h.intro },
   { intro x, cases x, reflexivity }
 end
 
-lemma uniq_does_not_add_new_paths {α : Sort u} (a b : ∥α∥) (p : a = b :> ∥α∥) :
+lemma uniq_does_not_add_new_paths {α : Type u} (a b : ∥α∥) (p : a = b :> ∥α∥) :
   HITs.truncation.uniq a b = p :> a = b :> ∥α∥ :=
 prop_is_set HITs.truncation.uniq (HITs.truncation.uniq a b) p
 
-lemma prop_is_prop {α : Sort u} : prop (prop α) := begin
+lemma prop_is_prop {α : Type u} : prop (prop α) := begin
   intros f g,
   have p := λ a b, (prop_is_set f) (f a b) (g a b),
   apply HITs.interval.dfunext, intro a,
@@ -51,26 +54,26 @@ def prop_from_equiv {π : Type u} (e : π ≃ ∥π∥) : prop π := begin
   apply eq.map g, exact HITs.truncation.uniq (f b) (f a)
 end
 
-def biinv_prop {α : Sort u} {β : Sort v} (f : α → β) : prop (types.equiv.biinv f) := begin
+def biinv_prop {α : Type u} {β : Type v} (f : α → β) : prop (types.equiv.biinv f) := begin
   intros m n, cases m with linv₁ rinv₁, cases n with linv₂ rinv₂,
   cases rinv₁ with g G, cases rinv₂ with h H,
   cases linv₁ with g' G', cases linv₂ with h' H',
-  { apply types.product.eq,
+  { apply prod.eq,
     { fapply types.sigma.prod,
       { apply HITs.interval.funext, intro x,
         transitivity, symmetry, apply H',
-        transitivity, apply types.eq.map h',
-        fapply types.qinv.rinv_inv f g g' G G',
-        trivial },
+        apply types.eq.map h',
+        apply types.qinv.rinv_inv f g g' G G' },
       { apply HITs.interval.dfunext, intro x,
+        transitivity, apply HITs.interval.transport_over_hmtpy,
+        transitivity, apply equiv.transport_over_function,
         admit } },
     { fapply types.sigma.prod,
       { apply HITs.interval.funext, intro x,
         transitivity, symmetry, apply types.eq.map, apply H,
-        transitivity, fapply types.qinv.linv_inv f g g' G G',
-        trivial },
-      { admit } } },
-end 
+        apply types.qinv.linv_inv f g g' G G' },
+      { apply HITs.interval.dfunext, intro x, admit } } },
+end
 
 theorem prop_exercise (π : Type u) : (prop π) ≃ (π ≃ ∥π∥) :=
 begin
@@ -86,46 +89,42 @@ begin
     { apply biinv_prop } }
 end
 
-lemma comp_qinv₁ {α : Sort u} {β : Sort v} {γ : Sort w}
+lemma comp_qinv₁ {α : Type u} {β : Type v} {γ : Type w}
   (f : α → β) (g : β → α) (H : is_qinv f g) :
-  qinv (λ (h : γ → α), f ∘ h) := begin
-  existsi (λ h, g ∘ h), split,
-  { intro h, apply HITs.interval.funext,
-    intro x, exact H.pr₁ (h x) },
-  { intro h, apply HITs.interval.funext,
-    intro x, exact H.pr₂ (h x) }
+  @qinv (γ → α) (γ → β) (λ (h : γ → α), f ∘ h) := begin
+  existsi (λ h, g ∘ h), split;
+  intro h; apply HITs.interval.funext; intro x,
+  apply H.pr₁, apply H.pr₂
 end
 
-lemma comp_qinv₂ {α : Sort u} {β : Sort v} {γ : Sort w}
+lemma comp_qinv₂ {α : Type u} {β : Type v} {γ : Type w}
   (f : α → β) (g : β → α) (H : is_qinv f g) :
-  qinv (λ (h : β → γ), h ∘ f) := begin
-  existsi (λ h, h ∘ g), split,
-  { intro h, apply HITs.interval.funext,
-    intro x, apply eq.map h, exact H.pr₂ x },
-  { intro h, apply HITs.interval.funext,
-    intro x, apply eq.map h, exact H.pr₁ x }
+  @qinv (β → γ) (α → γ) (λ (h : β → γ), h ∘ f) := begin
+  existsi (λ h, h ∘ g), split;
+  intro h; apply HITs.interval.funext; intro x; apply eq.map h,
+  apply H.pr₂, apply H.pr₁
 end
 
-def lem_contr_inv {α : Sort u} (h : prop α) (x : α) : contr α := ⟨x, h x⟩
+def lem_contr_inv {α : Type u} (h : prop α) (x : α) : contr α := ⟨x, h x⟩
 
-def lem_contr_equiv {α : Sort u} : (prop α) ≃ (α → contr α) := begin
+def lem_contr_equiv {α : Type u} : (prop α) ≃ (α → contr α) := begin
   apply structures.prop_equiv_lemma,
   { apply structures.prop_is_prop },
   { apply structures.function_to_contr },
   apply lem_contr_inv, apply structures.lem_contr
 end
 
-def contr_to_type {α : Sort u} {β : α → Sort v}
-  (h : contr α) : (Σ' x, β x) → β h.point
+def contr_to_type {α : Type u} {β : α → Type v}
+  (h : contr α) : (Σ x, β x) → β h.point
 | ⟨x, u⟩ := types.equiv.subst (h.intro x)⁻¹ u
 
-def type_to_contr {α : Sort u} {β : α → Sort v}
-  (h : contr α) : β h.point → (Σ' x, β x) :=
+def type_to_contr {α : Type u} {β : α → Type v}
+  (h : contr α) : β h.point → (Σ x, β x) :=
 λ u, ⟨h.point, u⟩
 
 -- HoTT 3.20
-def contr_family {α : Sort u} {β : α → Sort v} (h : contr α) :
-  (Σ' x, β x) ≃ β h.point := begin
+def contr_family {α : Type u} {β : α → Type v} (h : contr α) :
+  (Σ x, β x) ≃ β h.point := begin
   existsi contr_to_type h, split;
   existsi @type_to_contr α β h; intro x,
   { cases x with x u, fapply types.sigma.prod,
