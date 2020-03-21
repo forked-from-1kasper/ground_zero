@@ -29,23 +29,21 @@ constant im.ind.βrule {α : Type u} {β : im α → Type v}
   (f : Π (x : α), β (im.unit x)) :
   Π (x : α), im.ind h f (im.unit x) = f x
 
-noncomputable def im.rec {α : Type u} {β : Type v} (h : is_coreduced β)
-  (f : α → β) : im α → β :=
+@[hott] noncomputable def im.rec {α : Type u} {β : Type v}
+  (h : is_coreduced β) (f : α → β) : im α → β :=
 im.ind (λ _, h) f
 
-noncomputable def im.rec.βrule {α : Type u} {β : Type v}
+@[hott] noncomputable def im.rec.βrule {α : Type u} {β : Type v}
   (h : is_coreduced β) (f : α → β) :
   Π (x : α), im.rec h f (im.unit x) = f x :=
 im.ind.βrule (λ _, h) f
 
-noncomputable def im.app {α : Type u} {β : Type v}
+@[hott] noncomputable def im.app {α : Type u} {β : Type v}
   (f : α → β) : im α → im β :=
 im.rec (im.coreduced β) (im.unit ∘ f)
 
-noncomputable def im.naturality {α : Type u} {β : Type v} (f : α → β) :
-  Π (x : α), im.unit (f x) = im.app f (im.unit x) := begin
-  intro x, unfold im.app, symmetry,
-  transitivity, apply im.rec.βrule, trivial
-end
+@[hott] noncomputable def im.naturality {α : Type u} {β : Type v} (f : α → β) :
+  Π (x : α), im.unit (f x) = im.app f (im.unit x) :=
+begin intro x, symmetry, transitivity, apply im.rec.βrule, trivial end
 
 end ground_zero.HITs.infinitesimal

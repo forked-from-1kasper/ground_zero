@@ -24,11 +24,11 @@ namespace suspension
   def north {α : Type u} : suspension α := pushout.inl types.unit.star
   def south {α : Type u} : suspension α := pushout.inr types.unit.star
 
-  def merid {α : Type u} (a : α) :
+  @[hott] def merid {α : Type u} (a : α) :
     north = south :> suspension α :=
   pushout.glue a
 
-  def ind {α : Type u} {β : ∑α → Type v}
+  @[hott] def ind {α : Type u} {β : ∑α → Type v}
     (n : β north) (s : β south)
     (m : Π (x : α), n =[merid x] s) : Π (x : ∑α), β x :=
   pushout.ind
@@ -36,17 +36,17 @@ namespace suspension
     (begin intro x, induction x, apply s end)
     (by assumption)
 
-  def rec {α : Type u} {β : Type v} (n s : β)
+  @[hott] def rec {α : Type u} {β : Type v} (n s : β)
     (m : α → n = s :> β) : ∑α → β :=
   pushout.rec (λ _, n) (λ _, s) m
 
-  noncomputable def indβrule {α : Type u} {β : ∑α → Type v}
+  @[hott] noncomputable def indβrule {α : Type u} {β : ∑α → Type v}
     (n : β north) (s : β south)
     (m : Π (x : α), n =[merid x] s) (x : α) :
     types.equiv.apd (ind n s m) (merid x) = m x :=
   by apply pushout.indβrule
 
-  noncomputable def recβrule {α : Type u} {β : Type v} (n s : β)
+  @[hott] noncomputable def recβrule {α : Type u} {β : Type v} (n s : β)
     (m : α → n = s :> β) (x : α) :
     (rec n s m) # (merid x) = m x :=
   by apply pushout.recβrule

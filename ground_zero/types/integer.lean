@@ -66,7 +66,7 @@ def pred : integer → integer
 | (neg u) := neg (u + 1)
 | (pos v) := auxpred v
 
-def succ_equiv : integer ≃ integer := begin
+@[hott] def succ_equiv : integer ≃ integer := begin
   existsi succ, split; existsi pred,
   repeat {
     intro n, induction n,
@@ -76,29 +76,29 @@ def succ_equiv : integer ≃ integer := begin
   }
 end
 
-def auxsub : nat → nat → integer
+@[hott] def auxsub : nat → nat → integer
 | m       0       := pos m
 | 0       (n + 1) := neg n
 | (m + 1) (n + 1) := auxsub m n
 
-def add : integer → integer → integer
+@[hott] def add : integer → integer → integer
 | (neg x) (neg y) := neg (x + y)
 | (neg x) (pos y) := auxsub y (x + 1)
 | (pos x) (neg y) := auxsub x (y + 1)
 | (pos x) (pos y) := pos (x + y)
 instance : has_add integer := ⟨add⟩
 
-def sub (x y : integer) := x + (-y)
+@[hott] def sub (x y : integer) := x + (-y)
 instance : has_sub integer := ⟨sub⟩
 
-def mul : integer → integer → integer
+@[hott] def mul : integer → integer → integer
 | (neg x) (neg y) := plus  ((x + 1) * (y + 1))
 | (neg x) (pos y) := minus ((x + 1) * y)
 | (pos x) (neg y) := minus (x * (y + 1))
 | (pos x) (pos y) := plus  (x * y)
 instance : has_mul integer := ⟨mul⟩
 
-def le : integer → integer → Prop
+@[hott] def le : integer → integer → Prop
 | (neg x) (neg y) := y ≤ x
 | (neg x) (pos y) := true
 | (pos x) (neg y) := false

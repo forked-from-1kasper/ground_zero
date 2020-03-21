@@ -27,14 +27,14 @@ namespace product
     Π (x : α × β), π x
   | (a, b) := g a b
 
-  def univ {ν : Type w} : (ν → α × β) ≃ (ν → α) × (ν → β) := begin
+  @[hott] def univ {ν : Type w} : (ν → α × β) ≃ (ν → α) × (ν → β) := begin
     let e₁ : (ν → α × β) → (ν → α) × (ν → β) :=
     λ f, (prod.pr₁ ∘ f, prod.pr₂ ∘ f),
     let e₂ : (ν → α) × (ν → β) → (ν → α × β) :=
     λ f x, (f.pr₁ x, f.pr₂ x),
     existsi e₁, split; existsi e₂,
     { intro f, apply ground_zero.HITs.interval.funext,
-      intro x, simp, apply product.uniq },
+      intro x, apply product.uniq },
     { intro x, cases x with f g, trivial }
   end
 

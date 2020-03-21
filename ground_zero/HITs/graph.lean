@@ -12,14 +12,14 @@ inductive graph.rel {α : Type u} (R : α → α → Type v) : α → α → Pro
 def graph {α : Type u} (R : α → α → Type v) := quot (graph.rel R)
 
 namespace graph
-  def elem {α : Type u} {R : α → α → Type w} : α → graph R :=
+  @[hott] def elem {α : Type u} {R : α → α → Type w} : α → graph R :=
   quot.mk (rel R)
 
-  def line {α : Type u} {R : α → α → Type w} {x y : α}
+  @[safe] def line {α : Type u} {R : α → α → Type w} {x y : α}
     (h : R x y) : @elem α R x = @elem α R y :=
   ground_zero.support.inclusion (quot.sound (rel.line h))
 
-  def rec {α : Type u} {β : Type v} {R : α → α → Type w}
+  @[safe] def rec {α : Type u} {β : Type v} {R : α → α → Type w}
     (f : α → β) (h : Π x y, R x y → f x = f y) : graph R → β := begin
     fapply quot.lift, exact f,
     { intros a b, intro H, cases H,
@@ -27,7 +27,7 @@ namespace graph
       fapply h, assumption }
   end
 
-  def ind {α : Type u} {R : α → α → Type w} {β : graph R → Type v}
+  @[safe] def ind {α : Type u} {R : α → α → Type w} {β : graph R → Type v}
     (f : Π x, β (elem x)) (h : Π x y (H : R x y), f x =[line H] f y) :
     Π x, β x := begin
     intro x, fapply quot.hrec_on x,

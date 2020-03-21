@@ -28,8 +28,8 @@ namespace interval
   def i₀ : I := discrete ff
   def i₁ : I := discrete tt
 
-  def seg : i₀ = i₁ := support.inclusion $ quot.sound (rel.mk ff tt)
-  def seg_inv : i₁ = i₀ := support.inclusion $ quot.sound (rel.mk tt ff)
+  @[safe] def seg     : i₀ = i₁ := support.inclusion $ quot.sound (rel.mk ff tt)
+  @[safe] def seg_inv : i₁ = i₀ := support.inclusion $ quot.sound (rel.mk tt ff)
 
   instance : has_zero I := ⟨i₀⟩
   instance : has_one I := ⟨i₁⟩
@@ -60,7 +60,7 @@ namespace interval
       { trivial } }
   end
 
-  def ind {π : I → Type u} (b₀ : π i₀) (b₁ : π i₁)
+  @[safe] def ind {π : I → Type u} (b₀ : π i₀) (b₁ : π i₁)
     (s : b₀ =[seg] b₁) (x : I) : π x := begin
     fapply quot.hrec_on x,
     { intro b, cases b, exact b₀, exact b₁ },
@@ -73,109 +73,110 @@ namespace interval
       { reflexivity } }
   end
 
-  @[inline]
+  @[hott, inline]
   def rec {β : Type u} (b₀ : β) (b₁ : β)
     (s : b₀ = b₁ :> β) : I → β :=
   ind b₀ b₁ (types.equiv.pathover_of_eq seg s)
 
-  def lift {β : Type u} (f : bool → β) (H : prop β) : I → β :=
+  @[hott] def lift {β : Type u} (f : bool → β) (H : prop β) : I → β :=
   begin fapply rec, exact f ff, exact f tt, apply H end
 
-  def contr_left : Π i, i₀ = i :=
+  @[hott] def contr_left : Π i, i₀ = i :=
   interval.ind types.eq.rfl seg (begin
     apply types.equiv.pathover_from_trans,
     apply types.eq.refl_left
   end)
 
-  def contr_right : Π i, i₁ = i :=
+  @[hott] def contr_right : Π i, i₁ = i :=
   interval.ind seg⁻¹ types.eq.rfl (begin
     apply types.equiv.pathover_from_trans,
     apply types.eq.inv_comp
   end)
 
-  def interval_contr : contr I := ⟨i₁, contr_right⟩
+  @[hott] def interval_contr : contr I := ⟨i₁, contr_right⟩
 
-  def interval_prop : prop I :=
+  @[hott] def interval_prop : prop I :=
   contr_impl_prop interval_contr
 
-  def seg_inv_comp : seg ⬝ seg⁻¹ = types.eq.rfl :=
+  @[hott] def seg_inv_comp : seg ⬝ seg⁻¹ = types.eq.rfl :=
   by apply prop_is_set interval_prop
 
-  def homotopy {α : Type u} {β : Type v} {f g : α → β}
+  @[hott] def homotopy {α : Type u} {β : Type v} {f g : α → β}
     (p : f ~ g) (x : α) : I → β :=
   rec (f x) (g x) (p x)
 
-  def funext {α : Type u} {β : Type v} {f g : α → β}
+  @[hott] def funext {α : Type u} {β : Type v} {f g : α → β}
     (p : f ~ g) : f = g :> α → β :=
   @eq.map I (α → β) 0 1 (function.swap (homotopy p)) seg
 
-  def dhomotopy {α : Type u} {β : α → Type v} {f g : Π x, β x}
+  @[hott] def dhomotopy {α : Type u} {β : α → Type v} {f g : Π x, β x}
     (p : f ~ g) (x : α) : I → β x :=
   rec (f x) (g x) (p x)
 
-  def dfunext {α : Type u} {β : α → Type v}
+  @[hott] def dfunext {α : Type u} {β : α → Type v}
     {f g : Π x, β x} (p : f ~ g) : f = g :=
   @eq.map I (Π x, β x) 0 1 (function.swap (dhomotopy p)) seg
 
-  def happly {α : Type u} {β : α → Type v}
+  @[hott] def happly {α : Type u} {β : α → Type v}
     {f g : Π x, β x} (p : f = g) : f ~ g :=
   equiv.transport (λ g, f ~ g) p (types.equiv.homotopy.id f)
 
-  def transport_over_hmtpy {α : Type u} {β : Type v} {γ : Type w}
+  @[hott] def transport_over_hmtpy {α : Type u} {β : Type v} {γ : Type w}
     (f : α → β) (g₁ g₂ : β → γ) (h : α → γ)
     (p : g₁ = g₂) (H : g₁ ∘ f ~ h) (x : α) :
     equiv.transport (λ (g : β → γ), g ∘ f ~ h) p H x =
     @equiv.transport (β → γ) (λ (g : β → γ), g (f x) = h x) g₁ g₂ p (H x) :=
   begin apply HITs.interval.happly, apply equiv.transport_over_pi end
 
-  def bool_to_interval (f : bool → bool → bool) (a b : I) : I :=
+  @[hott] def bool_to_interval (f : bool → bool → bool) (a b : I) : I :=
   lift (λ a, lift (discrete ∘ f a) interval_prop b) interval_prop a
 
   axiom indβrule {π : I → Type u} (b₀ : π i₀) (b₁ : π i₁)
     (s : b₀ =[seg] b₁) : types.equiv.apd (ind b₀ b₁ s) seg = s
 
-  noncomputable def recβrule {π : Type u} (b₀ b₁ : π)
+  @[hott] noncomputable def recβrule {π : Type u} (b₀ b₁ : π)
     (s : b₀ = b₁) : rec b₀ b₁ s # seg = s := begin
     apply equiv.pathover_of_eq_inj seg, transitivity,
     symmetry, apply equiv.apd_over_constant_family,
     transitivity, apply indβrule, reflexivity
   end
 
-  def neg : I → I := interval.rec i₁ i₀ seg⁻¹
+  @[hott] def neg : I → I := interval.rec i₁ i₀ seg⁻¹
   instance : has_neg I := ⟨neg⟩
 
-  def min (a b : I) : I :=
+  @[hott] def min (a b : I) : I :=
   lift (begin intro x, cases x, exact i₀, exact a end)
         interval_prop b
 
-  def max (a b : I) : I :=
+  @[hott] def max (a b : I) : I :=
   lift (begin intro x, cases x, exact a, exact i₁ end)
         interval_prop b
 
   notation r `∧`:70 s := min r s
   notation r `∨`:70 s := max r s
 
-  def elim {α : Type u} {a b : α} (p : a = b) : I → α := rec a b p
-  def lam  {α : Type u} (f : I → α) : f 0 = f 1 := eq.map f seg
+  @[hott] def elim {α : Type u} {a b : α} (p : a = b) : I → α := rec a b p
+  @[hott] def lam  {α : Type u} (f : I → α) : f 0 = f 1 := f # seg
 
-  def conn_and {α : Type u} {a b : α} (p : a = b) : Π i, a = elim p i :=
+  @[hott] def conn_and {α : Type u} {a b : α}
+    (p : a = b) : Π i, a = elim p i :=
   λ i, lam (λ j, elim p (i ∧ j))
 
-  def cong {α : Type u} {β : Type v} {a b : α}
+  @[hott] def cong {α : Type u} {β : Type v} {a b : α}
     (f : α → β) (p : a = b) : f a = f b :=
   lam (λ i, f (elim p i))
 
-  noncomputable def cong_refl {α : Type u} {β : Type v} {a : α}
-    (f : α → β) : cong f (idp a) = idp (f a) := begin
+  @[hott] noncomputable def cong_refl {α : Type u} {β : Type v}
+    {a : α} (f : α → β) : cong f (idp a) = idp (f a) := begin
     transitivity, apply types.equiv.map_over_comp,
     transitivity, apply eq.map, apply recβrule, trivial
   end
 
-  noncomputable def map_eq_cong {α : Type u} {β : Type v} {a b : α}
+  @[hott] noncomputable def map_eq_cong {α : Type u} {β : Type v} {a b : α}
     (f : α → β) (p : a = b) : f # p = cong f p :=
   begin induction p, symmetry, apply cong_refl end
 
-  noncomputable def neg_neg : Π x, neg (neg x) = x :=
+  @[hott] noncomputable def neg_neg : Π x, neg (neg x) = x :=
   interval.ind eq.rfl eq.rfl (calc
     equiv.transport (λ x, neg (neg x) = x) seg (idp i₀) =
     (@eq.map I I i₁ i₀ (neg ∘ neg) seg⁻¹) ⬝ idp i₀ ⬝ seg :
@@ -201,11 +202,46 @@ namespace interval
             apply eq.refl_right end
     ... = idp i₁ : by apply eq.inv_comp)
 
-  def neg_neg' (x : I) : neg (neg x) = x :=
+  @[hott] def neg_neg' (x : I) : neg (neg x) = x :=
   (conn_and seg⁻¹ (neg x))⁻¹ ⬝ contr_right x
 
-  noncomputable def twist : I ≃ I :=
+  @[hott] noncomputable def twist : I ≃ I :=
   ⟨neg, ⟨⟨neg, neg_neg⟩, ⟨neg, neg_neg⟩⟩⟩
+
+  @[hott] noncomputable def line_rec {α : Type u} (p : I → α) :
+    interval.rec (p 0) (p 1) (p # seg) = p :> I → α := begin
+    apply interval.funext, intro x, fapply interval.ind _ _ _ x,
+    { refl }, { refl },
+    { apply ground_zero.types.eq.trans,
+      apply equiv.transport_over_hmtpy,
+      transitivity, { apply eq.map ( ⬝ p # seg), apply eq.refl_right },
+      transitivity,
+      { apply eq.map (⬝ p # seg), transitivity,
+        { apply eq.map_inv },
+        { apply eq.map, apply interval.recβrule } },
+      transitivity, { apply eq.map, symmetry, apply eq.map_inv p },
+      transitivity, { symmetry, apply equiv.map_functoriality p },
+      transitivity, { apply eq.map, apply eq.inv_comp },
+      trivial }
+  end
+
+  @[hott] noncomputable def transport_over_seg {α : Type u} (π : α → Type v)
+    {a b : α} (p : a = b :> α) (u : π a) :
+    @equiv.transport I (λ (i : I), π (interval.elim p i))
+      0 1 interval.seg u = equiv.subst p u :> π b := begin
+    transitivity, apply equiv.transport_comp,
+    transitivity, apply eq.map (λ p, equiv.subst p u),
+    apply interval.recβrule, trivial
+  end
+
+  @[hott] noncomputable def transportconst_with_seg
+    {α β : Type u} (p : α = β) (x : α) :
+    @equiv.transport I (interval.elim p) 0 1 interval.seg x =
+      equiv.subst p x :> β := begin
+    transitivity, apply equiv.transport_to_transportconst,
+    transitivity, apply eq.map (λ p, equiv.transportconst p x),
+    apply interval.recβrule, induction p, trivial
+  end
 end interval
 
 end HITs

@@ -15,24 +15,19 @@ def peel_off : ℕ + 𝟏 → ℕ
 | (coproduct.inr _) := nat.zero
 | (coproduct.inl n) := nat.succ n
 
-theorem closed_nat : ℕ ≃ ℕ + 𝟏 := begin
+@[hott] theorem closed_nat : ℕ ≃ ℕ + 𝟏 := begin
   existsi glue, split; existsi peel_off,
-  { intro n, induction n with n ih,
-    { simp [peel_off, glue] },
-    { simp at ih, simp, simp [glue, peel_off] } },
-  { intro n, simp, induction n,
-    { simp [peel_off, glue] },
-    { induction n, simp [glue, peel_off] } }
+  { intro n, induction n with n ih; trivial },
+  { intro n, induction n,
+    { trivial },
+    { induction n, trivial } }
 end
 
-theorem equiv_addition {α : Type u} {β : Type v} (γ : Type w)
+@[hott] theorem equiv_addition {α : Type u} {β : Type v} (γ : Type w)
   (e : α ≃ β) : α + γ ≃ β + γ := begin
   induction e with f H,
   have q := qinv.b2q f H,
-  cases q with g inv, cases inv with α' β',
-
-  simp [equiv.homotopy, function.comp] at α',
-  simp [equiv.homotopy, function.comp] at β',
+  cases q with g inv, induction inv with α' β',
 
   let f : α + γ → β + γ := λ x, match x with
   | coproduct.inl a := coproduct.inl (f a)
@@ -45,18 +40,14 @@ theorem equiv_addition {α : Type u} {β : Type v} (γ : Type w)
 
   existsi f, split; existsi g,
   { intro x, induction x,
-    { simp [g, f],
-      rw [ground_zero.support.truncation (β' x)],
-      simp },
+    { apply eq.map sum.inl, apply β' },
     { trivial } },
   { intro x, induction x,
-    { simp [f, g],
-      rw [ground_zero.support.truncation (α' x)],
-      simp },
+    { apply eq.map sum.inl, apply α' },
     { trivial } }
 end
 
-example : ℕ ≃ ℕ + 𝟏 + 𝟏 := begin
+@[hott] example : ℕ ≃ ℕ + 𝟏 + 𝟏 := begin
   transitivity, exact closed_nat,
   apply equiv_addition, exact closed_nat
 end
@@ -65,7 +56,7 @@ def drop (α : Type) : ℕ → Type
 | 0 := α
 | (nat.succ n) := coproduct (drop n) (𝟏 : Type)
 
-theorem nat_plus_unit (n : ℕ) : ℕ ≃ drop ℕ n := begin
+@[hott] theorem nat_plus_unit (n : ℕ) : ℕ ≃ drop ℕ n := begin
   induction n with n ih,
   { reflexivity },
   { transitivity,
@@ -99,7 +90,7 @@ def r : Π n, code n n
 def encode {m n : ℕ} (p : m = n) : code m n :=
 equiv.subst p (r m)
 
-def decode : Π {m n : ℕ}, code m n → m = n
+@[hott] def decode : Π {m n : ℕ}, code m n → m = n
 |    0       0    p := by reflexivity
 | (m + 1)    0    p := by cases p
 |    0    (n + 1) p := by cases p
@@ -107,15 +98,15 @@ def decode : Π {m n : ℕ}, code m n → m = n
   apply eq.map nat.succ, apply decode, exact p
 end
 
-def decode_encode {m n : ℕ} (p : m = n) : decode (encode p) = p :=
+@[hott] def decode_encode {m n : ℕ} (p : m = n) : decode (encode p) = p :=
 begin
   induction p, induction m with m ih,
   { reflexivity },
-  { clear n, unfold encode, unfold decode, unfold r,
-    transitivity, apply eq.map, apply ih, reflexivity }
+  { transitivity, apply eq.map (eq.map nat.succ),
+    apply ih, reflexivity }
 end
 
-def encode_decode : Π {m n : ℕ} (p : code m n), encode (decode p) = p
+@[hott] def encode_decode : Π {m n : ℕ} (p : code m n), encode (decode p) = p
 |    0       0    p := begin cases p, reflexivity end
 | (m + 1)    0    p := by cases p
 |    0    (n + 1) p := by cases p
@@ -126,7 +117,7 @@ def encode_decode : Π {m n : ℕ} (p : code m n), encode (decode p) = p
   apply encode_decode
 end
 
-def recognize (m n : ℕ) : m = n ≃ code m n := begin
+@[hott] def recognize (m n : ℕ) : m = n ≃ code m n := begin
   existsi encode, split; existsi decode,
   apply decode_encode, apply encode_decode
 end

@@ -31,7 +31,7 @@ namespace truncation
 
   notation `|` a `|` := elem a
 
-  def ind {α : Type u} {π : ∥α∥ → Type v}
+  @[hott] def ind {α : Type u} {π : ∥α∥ → Type v}
     (elemπ : Π x, π (elem x))
     (uniqπ : Π x, prop (π x)) : Π x, π x := begin
     fapply colimit.ind,
@@ -44,11 +44,11 @@ namespace truncation
     { intros, apply uniqπ }
   end
 
-  def rec {α : Type u} {β : Type v} (h : prop β)
+  @[hott] def rec {α : Type u} {β : Type v} (h : prop β)
     (f : α → β) : ∥α∥ → β :=
   ind f (λ _, h)
 
-  def weak_uniq {α : Type u} (x y : α) : elem x = elem y :> ∥α∥ := begin
+  @[hott] def weak_uniq {α : Type u} (x y : α) : elem x = elem y :> ∥α∥ := begin
     transitivity, { symmetry, apply colimit.glue }, symmetry,
     transitivity, { symmetry, apply colimit.glue },
     apply ground_zero.types.eq.map, apply generalized.glue
@@ -61,33 +61,33 @@ namespace truncation
     incl (generalized.dep α n x) = incl x :=
   colimit.glue x
 
-  def exact_nth {α : Type u} (a : α) : Π n, generalized.repeat α n
+  @[hott] def exact_nth {α : Type u} (a : α) : Π n, generalized.repeat α n
   | 0 := a
   | (n + 1) := generalized.dep α n (exact_nth n)
 
-  def nth_glue {α : Type u} (a : α) : Π n,
+  @[hott] def nth_glue {α : Type u} (a : α) : Π n,
     incl (exact_nth a n) = @incl α 0 a
   | 0 := by reflexivity
   | (n + 1) := colimit.glue (exact_nth a n) ⬝ nth_glue n
 
-  def incl_uniq {α : Type u} {n : ℕ} (a b : generalized.repeat α n) :
+  @[hott] def incl_uniq {α : Type u} {n : ℕ} (a b : generalized.repeat α n) :
     incl a = incl b :=
   calc incl a = incl (generalized.dep α n a) : glue⁻¹
           ... = incl (generalized.dep α n b) : incl # (generalized.glue a b)
           ... = incl b : glue
 
-  def incl_zero_eq_incl {α : Type u} {n : ℕ} (x : α)
+  @[hott] def incl_zero_eq_incl {α : Type u} {n : ℕ} (x : α)
     (y : generalized.repeat α n) : @incl α 0 x = incl y :=
   calc @incl α 0 x = incl (exact_nth x n) : (nth_glue x n)⁻¹
                ... = incl y : incl_uniq (exact_nth x n) y
 
-  def weakly_constant_ap {α : Type u} {β : Type v} (f : α → β)
+  @[hott] def weakly_constant_ap {α : Type u} {β : Type v} (f : α → β)
     {a b : α} (p q : a = b) (H : Π (a b : α), f a = f b) : f # p = f # q :=
   let L : Π {u v : α} {r : u = v}, (H a u)⁻¹ ⬝ H a v = f # r :=
   begin intros, induction r, apply ground_zero.types.eq.inv_comp end in
   L⁻¹ ⬝ L
 
-  def cong_close {α : Type u} {n : ℕ} {a b : generalized.repeat α n} (p : a = b) :
+  @[hott] def cong_close {α : Type u} {n : ℕ} {a b : generalized.repeat α n} (p : a = b) :
     inv glue ⬝ incl # (generalized.dep α n # p) ⬝ glue = incl # p := begin
     induction p, transitivity,
     { symmetry, apply ground_zero.types.eq.assoc },
@@ -95,11 +95,11 @@ namespace truncation
     apply ground_zero.types.eq.refl_right
   end
 
-  def cong_over_path {α : Type u} {n : ℕ} {a b : generalized.repeat α n}
+  @[hott] def cong_over_path {α : Type u} {n : ℕ} {a b : generalized.repeat α n}
     (p q : a = b) : incl # p = incl # q :=
   weakly_constant_ap incl p q incl_uniq
 
-  def glue_close {α : Type u} {n : ℕ} {a b : generalized.repeat α n} :
+  @[hott] def glue_close {α : Type u} {n : ℕ} {a b : generalized.repeat α n} :
     inv glue ⬝ incl # (generalized.glue (generalized.dep α n a)
                                         (generalized.dep α n b)) ⬝ glue =
     incl # (generalized.glue a b) := begin
@@ -109,58 +109,58 @@ namespace truncation
     apply cong_over_path
   end
 
-  def incl_uniq_close {α : Type u} {n : ℕ} (a b : generalized.repeat α n) :
+  @[hott] def incl_uniq_close {α : Type u} {n : ℕ} (a b : generalized.repeat α n) :
     inv glue ⬝ incl_uniq (generalized.dep α n a) (generalized.dep α n b) ⬝ glue =
     incl_uniq a b := begin
-    unfold incl_uniq, apply cong (λ p, p ⬝ glue), apply cong,
+    apply cong (λ p, p ⬝ glue), apply cong,
     apply glue_close
   end
 
-  def uniq {α : Type u} : prop ∥α∥ := begin
+  @[hott] def uniq {α : Type u} : prop ∥α∥ := begin
     apply lem_contr, fapply ind,
     { intro x, existsi elem x, fapply colimit.ind; intros n y,
       { apply incl_zero_eq_incl },
-      { simp, unfold incl_zero_eq_incl, unfold nth_glue,
-        apply pathover_from_trans,
+      { apply pathover_from_trans,
         symmetry, transitivity,
-        { symmetry, apply cong, apply incl_uniq_close },
+        { symmetry, apply cong (λ p, (nth_glue x n)⁻¹ ⬝ p),
+          apply incl_uniq_close },
         symmetry, transitivity, apply cong
           (λ p, p ⬝ incl_uniq (exact_nth x (n + 1)) (generalized.dep α n y) ⬝
                     colimit.glue y),
         apply ground_zero.types.eq.explode_inv,
         repeat { transitivity, symmetry, apply ground_zero.types.eq.assoc },
         apply cong (λ p, (nth_glue x n)⁻¹ ⬝ p),
-        unfold incl_uniq, apply ground_zero.types.eq.assoc } },
+        apply ground_zero.types.eq.assoc } },
     { intro x, apply ground_zero.structures.contr_is_prop }
   end
 
-  def lift {α β : Type u} (f : α → β) : ∥α∥ → ∥β∥ :=
+  @[hott] def lift {α β : Type u} (f : α → β) : ∥α∥ → ∥β∥ :=
   rec uniq (elem ∘ f)
 
-  theorem equiv_iff_trunc {α β : Type u}
+  @[hott] theorem equiv_iff_trunc {α β : Type u}
     (f : α → β) (g : β → α) : ∥α∥ ≃ ∥β∥ := begin
     existsi lift f, split; existsi lift g;
     { intro x, apply uniq }
   end
 
   def double {α : Type u} (a : α) : α × α := ⟨a, a⟩
-  theorem product_identity {α : Type u} :
+  @[hott] theorem product_identity {α : Type u} :
     ∥α∥ ≃ ∥α × α∥ := begin
     apply equiv_iff_trunc, exact double,
     intro x, cases x with u v, exact u
   end
 
-  def uninhabited_implies_trunc_uninhabited {α : Type u} : ¬α → ¬∥α∥ :=
+  @[hott] def uninhabited_implies_trunc_uninhabited {α : Type u} : ¬α → ¬∥α∥ :=
   rec ground_zero.structures.empty_is_prop
 end truncation
 
-def surj {α : Type u} {β : Type v} (f : α → β) :=
+@[hott] def surj {α : Type u} {β : Type v} (f : α → β) :=
 Π (b : β), ∥ground_zero.types.fib f b∥
 
-def embedding {α : Type u} {β : Type v} (f : α → β) :=
+@[hott] def embedding {α : Type u} {β : Type v} (f : α → β) :=
 Π (x y : α), ground_zero.types.equiv.biinv (λ (p : x = y), f # p)
 
-def is_connected (α : Type u) :=
+@[hott] def is_connected (α : Type u) :=
 Σ (x : α), Π y, ∥x = y∥
 
 end ground_zero.HITs

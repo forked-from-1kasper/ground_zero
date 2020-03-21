@@ -9,13 +9,13 @@ hott theory
 namespace nat
   universe u
 
-  noncomputable def nat_is_set : ground_zero.structures.hset ℕ
+  @[hott] noncomputable def nat_is_set : ground_zero.structures.hset ℕ
   |    0       0    p q :=
     types.equiv.transport
       structures.prop (ua $ types.nat.recognize 0 0)⁻¹
       structures.unit_is_prop p q
-  | (m + 1)    0    p q := by cases p
-  |    0    (n + 1) p q := by cases p
+  | (m + 1)    0    p q := by cases ua.succ_neq_zero p
+  |    0    (n + 1) p q := by cases ua.succ_neq_zero p⁻¹
   | (m + 1) (n + 1) p q := begin
     refine types.equiv.transport structures.prop
            (ua $ types.nat.recognize (m + 1) (n + 1))⁻¹ _ p q,
@@ -23,43 +23,43 @@ namespace nat
     apply nat_is_set
   end
 
-  def zero_plus_i (i : ℕ) : 0 + i = i := begin
+  @[hott] def zero_plus_i (i : ℕ) : 0 + i = i := begin
     induction i with i ih,
     { trivial },
     { apply types.eq.map nat.succ, assumption }
   end
 
-  def succ_i_plus_j (i j : ℕ) : nat.succ i + j = nat.succ (i + j) := begin
+  @[hott] def succ_i_plus_j (i j : ℕ) : nat.succ i + j = nat.succ (i + j) := begin
     induction j with j ih,
     { trivial },
     { apply types.eq.map nat.succ, assumption }
   end
 
-  def comm (i j : ℕ) : i + j = j + i := begin
+  @[hott] def comm (i j : ℕ) : i + j = j + i := begin
     induction i with i ih,
     { apply zero_plus_i },
     { transitivity, apply succ_i_plus_j,
       apply types.eq.map, assumption }
   end
 
-  def assoc (i j k : ℕ) : (i + j) + k = i + (j + k) := begin
+  @[hott] def assoc (i j k : ℕ) : (i + j) + k = i + (j + k) := begin
     induction k with k ih,
     { trivial }, { apply eq.map nat.succ, exact ih }
   end
 
-  def zero_mul_n (i : ℕ) : 0 * i = 0 := begin
+  @[hott] def zero_mul_n (i : ℕ) : 0 * i = 0 := begin
     induction i with i ih,
     trivial, exact ih
   end
 
-  def distrib_left (i j n : ℕ) : n * (i + j) = n * i + n * j := begin
+  @[hott] def distrib_left (i j n : ℕ) : n * (i + j) = n * i + n * j := begin
     induction j with j ih,
     { trivial },
     { transitivity, apply eq.map (+ n), exact ih,
       transitivity, apply assoc, trivial }
   end
 
-  def mul_succ_i_j (i j : ℕ) : nat.succ i * j = i * j + j := begin
+  @[hott] def mul_succ_i_j (i j : ℕ) : nat.succ i * j = i * j + j := begin
     induction j with j ih,
     { trivial },
     { apply eq.map nat.succ,
@@ -69,7 +69,7 @@ namespace nat
       apply eq.map, apply comm }
   end
 
-  def mul_comm (i j : ℕ) : i * j = j * i := begin
+  @[hott] def mul_comm (i j : ℕ) : i * j = j * i := begin
     induction j with j ih,
     { symmetry, apply zero_mul_n },
     { transitivity, apply distrib_left j 1,
@@ -79,14 +79,14 @@ namespace nat
       symmetry, apply zero_plus_i }
   end
 
-  def distrib_right (i j n : ℕ) : (i + j) * n = i * n + j * n := begin
+  @[hott] def distrib_right (i j n : ℕ) : (i + j) * n = i * n + j * n := begin
     transitivity, apply mul_comm,
     symmetry, transitivity, apply eq.map, apply mul_comm,
     transitivity, apply eq.map (+ n * j), apply mul_comm,
     symmetry, apply distrib_left
   end
 
-  def one_neq_n_plus_two (n : ℕ) : ¬(1 = n + 2) :=
+  @[hott] def one_neq_n_plus_two (n : ℕ) : ¬(1 = n + 2) :=
   λ h, ua.succ_neq_zero (nat.pred # h)⁻¹
 
   mutual inductive even, odd
@@ -202,7 +202,7 @@ namespace nat
     even.succ (equiv.subst (succ_i_plus_j n m)⁻¹ $ odd.succ $
                 even_plus_even_is_even h g)
 
-  def i_plus_one_plus_j {i j : ℕ} : i + 1 + j = (i + j) + 1 := calc
+  @[hott] def i_plus_one_plus_j {i j : ℕ} : i + 1 + j = (i + j) + 1 := calc
     i + 1 + j = i + (1 + j) : by apply assoc
           ... = i + (j + 1) : nat.add i # (comm 1 j)
           ... = (i + j) + 1 : by trivial
@@ -292,24 +292,17 @@ namespace unit_list
   | [] := nat.zero
   | (_ :: tail) := nat.succ (decode tail)
 
-  theorem nat_isomorphic : ℕ ≃ list 𝟏 := begin
+  @[hott] theorem nat_isomorphic : ℕ ≃ list 𝟏 := begin
     existsi encode, split; existsi decode,
     { intro n, induction n with n ih,
       { trivial },
-      { simp, simp at ih, simp [encode],
-        symmetry, transitivity,
-        exact nat.succ # ih⁻¹,
-        simp [succ'], simp [decode] } },
+      { apply eq.map nat.succ, exact ih } },
     { intro l, induction l with head tail ih,
       { trivial },
-      { simp, simp at ih, simp [decode],
-        symmetry, transitivity,
-        exact list.cons head # ih⁻¹,
-        simp [encode], simp [succ'],
-        induction head, reflexivity } }
+      { induction head, apply eq.map succ', exact ih } }
   end
 
-  noncomputable def nat_equality : ℕ = list 𝟏 :=
+  @[hott] noncomputable def nat_equality : ℕ = list 𝟏 :=
   ua nat_isomorphic
 
   noncomputable instance : add_semigroup (list 𝟏) :=

@@ -34,7 +34,7 @@ namespace moebius
   def up   : a = b := interval.lam (λ i, elem i 0)
   def down : d = c := interval.lam (λ i, elem (neg i) 1)
 
-  def glue (x : I) : elem x 0 = elem (neg x) 1 :> moebius :=
+  @[hott] def glue (x : I) : elem x 0 = elem (neg x) 1 :> moebius :=
   graph.line (rel.glue x)
 end moebius
 
@@ -51,12 +51,13 @@ def sigma.spec {α : Type u} {β : Type v} : (Σ (a : α), β) → α × β
 def sigma.gen {α : Type u} {β : Type v} : α × β → Σ (a : α), β
 | ⟨x, y⟩ := ⟨x, y⟩
 
-def sigma.const (α : Type u) (β : Type v) : (Σ (a : α), β) ≃ α × β := begin
+@[hott] def sigma.const (α : Type u) (β : Type v) :
+  (Σ (a : α), β) ≃ α × β := begin
   existsi sigma.spec, split; existsi sigma.gen;
   { intro x, induction x, trivial }
 end
 
-noncomputable def C.const : Π x, C x = I := begin
+@[hott] noncomputable def C.const : Π x, C x = I := begin
   intro x, fapply circle.ind _ _ x,
   refl, apply ground_zero.types.eq.trans,
   apply equiv.transport_over_contr_map,
@@ -65,7 +66,7 @@ noncomputable def C.const : Π x, C x = I := begin
   apply circle.recβrule₂, trivial
 end
 
-noncomputable def cyl_eqv : cylinder' ≃ cylinder := begin
+@[hott] noncomputable def cyl_eqv : cylinder' ≃ cylinder := begin
   transitivity,
   { apply equiv.idtoeqv, apply eq.map,
     apply interval.funext, exact C.const },

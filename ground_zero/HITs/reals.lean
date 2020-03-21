@@ -22,36 +22,36 @@ notation `R` := reals
 
 namespace reals
   def elem : ℤ → R := graph.elem
-  def glue (z : ℤ) : elem z = elem (integer.succ z) :> R :=
+  @[hott] def glue (z : ℤ) : elem z = elem (integer.succ z) :> R :=
   graph.line (rel.glue z)
 
-  def ind {π : R → Type u} (cz : Π x, π (elem x))
+  @[hott] def ind {π : R → Type u} (cz : Π x, π (elem x))
     (sz : Π z, cz z =[glue z] cz (integer.succ z))
     (u : R) : π u := begin
     fapply graph.ind, exact cz,
-    { intros u v H, cases H, apply sz }
+    { intros u v H, induction H, apply sz }
   end
 
-  def rec {π : Type u} (cz : ℤ → π)
+  @[hott] def rec {π : Type u} (cz : ℤ → π)
     (sz : Π z, cz z = cz (integer.succ z) :> π) : R → π :=
   ind cz (λ x, equiv.pathover_of_eq (glue x) (sz x))
 
-  def positive : Π n, elem 0 = elem (integer.pos n) :> R
+  @[hott] def positive : Π n, elem 0 = elem (integer.pos n) :> R
   | 0 := ground_zero.types.eq.refl (elem 0)
   | (n + 1) := positive n ⬝ glue (integer.pos n)
 
-  def negative : Π n, elem 0 = elem (integer.neg n) :> R
+  @[hott] def negative : Π n, elem 0 = elem (integer.neg n) :> R
   | 0 := (glue (integer.neg 0))⁻¹
   | (n + 1) := negative n ⬝ (glue $ integer.neg (n + 1))⁻¹
 
-  def center : Π z, elem 0 = elem z :> R
+  @[hott] def center : Π z, elem 0 = elem z :> R
   | (integer.pos n) := positive n
   | (integer.neg n) := negative n
 
-  def vect (u v : ℤ) : elem u = elem v :> R :=
+  @[hott] def vect (u v : ℤ) : elem u = elem v :> R :=
   (center u)⁻¹ ⬝ center v
 
-  def contr : ground_zero.structures.contr R :=
+  @[hott] def contr : ground_zero.structures.contr R :=
   { point := elem 0,
     intro := @ind (λ x, elem 0 = x :> R) center (begin
       intro z, apply ground_zero.types.eq.trans,
@@ -66,13 +66,13 @@ namespace reals
           reflexivity } }
     end) }
 
-  def dist : Π (u v : R), u = v :> R :=
+  @[hott] def dist : Π (u v : R), u = v :> R :=
   ground_zero.structures.contr_impl_prop contr
 
-  def lift (f : ℤ → ℤ) : R → R :=
+  @[hott] def lift (f : ℤ → ℤ) : R → R :=
   rec (elem ∘ f) (begin intros, apply dist end)
 
-  def operator (f : ℤ → ℤ → ℤ) : R → R → R :=
+  @[hott] def operator (f : ℤ → ℤ → ℤ) : R → R → R :=
   rec (λ x, rec (elem ∘ f x) (begin intros, apply dist end))
     (begin intros, apply interval.funext, intro x, apply dist end)
 
@@ -87,7 +87,7 @@ namespace reals
   instance : has_zero R := ⟨elem 0⟩
   instance : has_one R := ⟨elem 1⟩
 
-  def cis : R → S¹ := rec (λ _, base) (λ _, loop)
+  @[hott] def cis : R → S¹ := rec (λ _, base) (λ _, loop)
 end reals
 
 def complex := R × R

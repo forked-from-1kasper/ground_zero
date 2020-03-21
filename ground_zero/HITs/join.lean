@@ -20,10 +20,10 @@ namespace join
   def inl : α → join α β := pushout.inl
   def inr : β → join α β := pushout.inr
 
-  def push (a : α) (b : β) : inl a = inr b :=
+  @[hott] def push (a : α) (b : β) : inl a = inr b :=
   pushout.glue (a, b)
 
-  def ind {π : join α β → Type w}
+  @[hott] def ind {π : join α β → Type w}
     (inl₁ : Π (x : α), π (inl x))
     (inr₁ : Π (x : β), π (inr x))
     (push₁ : Π (a : α) (b : β), inl₁ a =[push a b] inr₁ b) :
@@ -31,15 +31,15 @@ namespace join
   pushout.ind inl₁ inr₁
     (begin intro x, cases x with u v, exact push₁ u v end)
 
-  def rec {π : Type w} (inlπ : α → π) (inrπ : β → π)
+  @[hott] def rec {π : Type w} (inlπ : α → π) (inrπ : β → π)
     (pushπ : Π a b, inlπ a = inrπ b) : join α β → π :=
   ind inlπ inrπ (λ a b, pathover_of_eq (push a b) (pushπ a b))
 
-  def from_susp : ∑α → join bool α :=
+  @[hott] def from_susp : ∑α → join bool α :=
   suspension.rec (inl ff) (inl tt)
     (λ x, push ff x ⬝ (push tt x)⁻¹)
 
-  def to_susp : join bool α → ∑α :=
+  @[hott] def to_susp : join bool α → ∑α :=
   rec (begin intro x, cases x,
         exact suspension.north,
         exact suspension.south

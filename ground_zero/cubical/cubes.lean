@@ -11,45 +11,53 @@ open ground_zero.HITs.interval (i₀ i₁ seg)
 namespace ground_zero.cubical
 universes u v w r
 
-inductive binary (α : Type u) : ℕ → Type u
-| leaf {} : α → α → binary 0
-| node {n : ℕ} : binary n → binary n → binary (n + 1)
+def binary (α : Type u) : ℕ → Type u
+|    0    := α × α
+| (n + 1) := binary n × binary n
 
 -- cube n represents (n + 1)-cube.
-def cube : ℕ → Type
-| 0 := I
-| (n + 1) := cube n × I
+@[hott] def cube (α : Type u) : ℕ → Type u
+|    0    := I → α
+| (n + 1) := I → cube n
 
-def cube.tree {α : Type u} :
-  Π {n : ℕ}, (cube n → α) → binary α n
-| 0 f := binary.leaf (f i₀) (f i₁)
-| (n + 1) f := binary.node
-  (cube.tree (λ n, f ⟨n, 0⟩))
-  (cube.tree (λ n, f ⟨n, 1⟩))
+@[hott] def cube.tree {α : Type u} :
+  Π {n : ℕ}, cube α n → binary α n
+|    0    f := (f 0, f 1)
+| (n + 1) f := (cube.tree (f 0), cube.tree (f 1))
 
 inductive Cube {α : Type u} (n : ℕ) : binary α n → Type u
-| lam (f : cube n → α) : Cube (cube.tree f)
+| lam (f : cube α n) : Cube (cube.tree f)
 
 abbreviation Cube.lambda {α : Type u} (n : ℕ)
-  (f : cube n → α) : Cube n (cube.tree f) :=
+  (f : cube α n) : Cube n (cube.tree f) :=
 Cube.lam f
 
-def Path {α : Type u} (a b : α) := Cube 0 (binary.leaf a b)
+def Path {α : Type u} (a b : α) := Cube 0 (a, b)
 def Path.lam {α : Type u} (f : I → α) : Path (f 0) (f 1) :=
 Cube.lam f
+
+@[hott] def Path.rec {α : Type u} {C : Π (a b : α), Path a b → Sort v}
+  (h : Π (f : I → α), C (f 0) (f 1) (Path.lam f))
+  {a b : α} (p : Path a b) : C a b p :=
+@Cube.rec α 0 (begin intros x q, induction x with a b, exact C a b q end)
+  (by apply h) (a, b) p
 
 abbreviation LineP (σ : I → Type u) := Π (i : I), σ i
 abbreviation Line (α : Type u) := I → α
 def Line.refl {α : Type u} (a : α) : Line α := λ _, a
 
-def from_equality {α : Type u} {a b : α} (p : a = b :> α) : Path a b :=
+@[hott] def decode {α : Type u} {a b : α} (p : a = b :> α) : Path a b :=
 Path.lam (interval.rec a b p)
 
-def to_equality {α : Type u} {a b : α} (p : Path a b) : a = b :> α :=
-begin cases p with f, apply eq.map, exact interval.seg end
+@[hott] def encode {α : Type u} {a b : α} : Path a b → (a = b :> α) :=
+Path.rec (# seg)
 
-def Path.compute {α : Type u} {a b : α} (p : Path a b) : I → α :=
-interval.rec a b (to_equality p)
+@[hott] noncomputable def encode_decode {α : Type u} {a b : α} (p : a = b :> α) :
+  encode (decode p) = p :> a = b :> α :=
+by apply interval.recβrule
+
+@[hott] def Path.compute {α : Type u} {a b : α} (p : Path a b) : I → α :=
+interval.rec a b (encode p)
 
 infix ` # `:40 := Path.compute
 notation `<` binder `> ` r:(scoped P, Path.lam P) := r
@@ -70,9 +78,8 @@ https://github.com/RedPRL/redtt/blob/master/library/prelude/path.red#L13
     m 0 -----> m 1
        <i> m i
 -/
-def Square {α : Type u} (m n : I → α)
+@[hott] def Square {α : Type u} (m n : I → α)
   (o : m 0 ⇝ n 0) (p : m 1 ⇝ n 1) :=
-Cube 1 (binary.node (binary.leaf (m 0) (n 0))
-                    (binary.leaf (m 1) (n 1)))
+Cube 1 ((m 0, m 1), (n 0, n 1))
 
 end ground_zero.cubical

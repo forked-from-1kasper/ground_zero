@@ -18,17 +18,16 @@ namespace sigma
     Π (x : sigma β), π x
   | ⟨a, b⟩ := g a b
 
-  def prod {α : Type u} {β : α → Type v} {u v : sigma β}
+  @[hott] def prod {α : Type u} {β : α → Type v} {u v : sigma β}
     (h : u.fst = v.fst) (g : equiv.subst h u.snd = v.snd) : u = v := begin
     cases u with x u, cases v with y v,
-    fapply equiv.transport (λ (v : β y), ⟨x, u⟩ = ⟨y, v⟩ :> sigma β),
-    exact g,
+    fapply equiv.transport (λ (v : β y), ⟨x, u⟩ = ⟨y, v⟩ :> sigma β), exact g,
     apply @eq.rec α x (λ (y : α) (h : x = y),
       ⟨x, u⟩ = ⟨y, equiv.subst h u⟩ :> sigma β),
     trivial
   end
 
-  def prod_refl {α : Type u} {β : α → Type v} (u : sigma β) :
+  @[hott] def prod_refl {α : Type u} {β : α → Type v} (u : sigma β) :
     prod eq.rfl eq.rfl = eq.refl u :=
   begin cases u with x u, trivial end
 end sigma

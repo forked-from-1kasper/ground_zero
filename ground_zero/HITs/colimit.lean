@@ -31,19 +31,19 @@ namespace colimit
 
   abbreviation inclusion (n : ℕ) : α n → colimit α f := incl
 
-  def glue {n : ℕ} (x : α n) : incl (f n x) = incl x :> colimit α f :=
+  @[hott] def glue {n : ℕ} (x : α n) : incl (f n x) = incl x :> colimit α f :=
   graph.line (colimit.rel.glue f n x)
 
-  def ind {π : colimit α f → Type v}
+  @[hott] def ind {π : colimit α f → Type v}
     (incl₁ : Π {n : ℕ} (x : α n), π (incl x))
     (glue₁ : Π {n : ℕ} (x : α n), incl₁ (f n x) =[glue x] incl₁ x) :
     Π x, π x := begin
     fapply graph.ind,
-    { intro x, cases x with n x, apply incl₁ },
-    { intros u v H, cases H, apply glue₁ }
+    { intro x, induction x with n x, apply incl₁ },
+    { intros u v H, induction H, apply glue₁ }
   end
 
-  def rec {π : Type v} (incl₁ : Π {n : ℕ} (x : α n), π)
+  @[hott] def rec {π : Type v} (incl₁ : Π {n : ℕ} (x : α n), π)
     (glue₁ : Π {n : ℕ} (x : α n), incl₁ (f n x) = incl₁ x :> π) :
     colimit α f → π :=
   ind @incl₁ (λ n x, pathover_of_eq (glue x) (glue₁ x))
