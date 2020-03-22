@@ -39,7 +39,10 @@ Cube.lam f
 @[hott] def Path.rec {α : Type u} {C : Π (a b : α), Path a b → Sort v}
   (h : Π (f : I → α), C (f 0) (f 1) (Path.lam f))
   {a b : α} (p : Path a b) : C a b p :=
-@Cube.rec α 0 (begin intros x q, induction x with a b, exact C a b q end)
+@Cube.rec α 0
+  (λ x, match x with
+  | (a, b) := C a b
+  end)
   (by apply h) (a, b) p
 
 abbreviation LineP (σ : I → Type u) := Π (i : I), σ i
@@ -47,7 +50,7 @@ abbreviation Line (α : Type u) := I → α
 def Line.refl {α : Type u} (a : α) : Line α := λ _, a
 
 @[hott] def decode {α : Type u} {a b : α} (p : a = b :> α) : Path a b :=
-Path.lam (interval.rec a b p)
+Path.lam (interval.elim p)
 
 @[hott] def encode {α : Type u} {a b : α} : Path a b → (a = b :> α) :=
 Path.rec (# seg)
@@ -64,22 +67,29 @@ notation `<` binder `> ` r:(scoped P, Path.lam P) := r
 
 infix ` ⇝ `:30 := Path
 
-structure tetrad (α : Type u) (β : Type v) (γ : Type r) (δ : Type w) :=
-(one : α) (two : β) (three : γ) (four : δ)
-
 /-
-https://github.com/RedPRL/redtt/blob/master/library/prelude/path.red#L13
-       <i> n i
-    n 0 -----> n 1
-     ^          ^
-     |          |
-   o |          | p
-     |          |
-    m 0 -----> m 1
-       <i> m i
+     c ------> d
+     ^         ^
+     |         |
+     |         |
+     |         |
+     a ------> b
 -/
-@[hott] def Square {α : Type u} (m n : I → α)
-  (o : m 0 ⇝ n 0) (p : m 1 ⇝ n 1) :=
-Cube 1 ((m 0, m 1), (n 0, n 1))
+@[hott] def Square {α : Type u} (a b c d : α) :=
+Cube 1 ((a, b), (c, d))
+
+def Square.lam {α : Type u} (f : I → I → α) :
+  Square (f 0 0) (f 0 1) (f 1 0) (f 1 1) :=
+Cube.lam f
+
+@[hott] def Square.rec {α : Type u}
+  {C : Π (a b c d : α), Square a b c d → Type v}
+  (h : Π (f : I → I → α), C (f 0 0) (f 0 1) (f 1 0) (f 1 1) (Square.lam f))
+  {a b c d : α} (τ : Square a b c d) : C a b c d τ :=
+@Cube.rec α 1
+  (λ x, match x with
+  | ((a, b), (c, d)) := C a b c d
+  end)
+  (by apply h) ((a, b), (c, d)) τ
 
 end ground_zero.cubical

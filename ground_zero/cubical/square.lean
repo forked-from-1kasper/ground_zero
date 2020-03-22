@@ -9,12 +9,8 @@ open ground_zero.HITs (I) ground_zero.cubical ground_zero.types
 namespace ground_zero.cubical.Square
 universe u
 
-@[hott] def lam {α : Type u} (f : I → I → α) :
-  Square (f 0) (f 1) (<i> f i 0) (<i> f i 1) :=
-Cube.lambda 1 f
-
 @[hott] def const {α : Type u} (a : α) :
-  Square (λ _, a) (λ _, a) (<i> a) (<i> a) :=
+  Square a a a a :=
 lam (λ i j, a)
 
 /-
@@ -31,17 +27,11 @@ lam (λ i j, a)
                    <i> a
 -/
 @[hott] def and {α : Type u} {a b : α}
-  (p : a ⇝ b) : Square (λ _, a) (λ i, p # i) (<i> a) p :=
+  (p : a ⇝ b) : Square a a a b :=
 lam (λ i j, p # i ∧ j)
 
 @[hott] def or {α : Type u} {a b : α}
-  (p : a ⇝ b) : Square (λ i, p # i) (λ _, b) p (<i> b) :=
+  (p : a ⇝ b) : Square a b b b :=
 lam (λ i j, p # i ∨ j)
-
-/-
-def Square.compute {α : Type u} {m n : I → α}
-  {o : m 0 ⇝ n 0} {p : m 1 ⇝ n 1}
-  (s : Square m n o p) : Π i, m i ⇝ n i
--/
 
 end ground_zero.cubical.Square

@@ -101,11 +101,11 @@ transK (A B : U) (p : Path U A B) (a : A) :
 We can freely transform cubical paths to classical and back:
 
 ```lean
-def from_equality {α : Sort u} {a b : α} (p : a = b :> α) : Path a b :=
-Path.lam (interval.rec a b p)
+def decode {α : Type u} {a b : α} (p : a = b :> α) : Path a b :=
+Path.lam (interval.elim p)
 
-def to_equality {α : Sort u} {a b : α} (p : Path a b) : a = b :> α :=
-begin cases p with f, apply eq.map, exact interval.seg end
+def encode {α : Type u} {a b : α} : Path a b → (a = b :> α) :=
+Path.rec (# seg)
 ```
 
 ## Dependency map
