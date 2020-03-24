@@ -1,5 +1,6 @@
 import ground_zero.support ground_zero.theorems.functions
 open ground_zero.theorems.functions (idfun)
+open combinator (S)
 
 section
   universes u v
@@ -368,6 +369,46 @@ namespace equiv
     equiv.transport (λ (f' : α → β), f' a = b) p q =
     @eq.map (α → β) β g f (λ (f' : α → β), f' a) p⁻¹ ⬝ q :=
   begin induction p, trivial end
+
+  @[hott] def bimap {α : Type u} {β : Type v} {γ : Type w}
+    {a b : α} {a' b' : β} (f : α → β → γ)
+    (p : a = b) (q : a' = b') : f a a' = f b b' :=
+  begin induction p, induction q, reflexivity end
+
+  @[hott] def bimap_refl_left {α : Type u} {β : Type v} {γ : Type w}
+    {a : α} {a' b' : β} (f : α → β → γ) (p : a' = b') :
+    bimap f (idp a) p = f a # p :=
+  begin induction p, trivial end
+
+  @[hott] def bimap_refl_right {α : Type u} {β : Type v} {γ : Type w}
+    {a b : α} {a' : β} (f : α → β → γ) (p : a = b) :
+    bimap f p (idp a') = (λ x, f x a') # p :=
+  begin induction p, trivial end
+
+  @[hott] def bimap_characterization {α : Type u} {β : Type v} {γ : Type w}
+    {a b : α} {a' b' : β} (f : α → β → γ)
+    (p : a = b) (q : a' = b') :
+    bimap f p q = @eq.map α γ a b (λ x, f x a') p ⬝ f b # q :=
+  begin induction p, trivial end
+
+  @[hott] def bimap_inv {α : Type u} {β : Type v} {γ : Type w}
+    {a b : α} {a' b' : β} (f : α → β → γ)
+    (p : a = b) (q : a' = b') : (bimap f p q)⁻¹ = bimap f p⁻¹ q⁻¹ :=
+  begin induction p, induction q, trivial end
+
+  @[hott] def bimap_comp {α : Type u} {β : Type v} {γ : Type w}
+    {a b : α} {a' b' : β} (f : α → β → γ) (p : a = b) (q : a' = b') :
+    (λ x, f x a') # p = f a # q ⬝ bimap f p q⁻¹ := begin
+    induction p, symmetry,
+    transitivity, { apply eq.map, apply bimap_refl_left },
+    transitivity, { apply eq.map, apply eq.map_inv },
+    apply eq.comp_inv
+  end
+
+  @[hott] def map_over_S {α : Type u} {a b : α}
+    (f : α → α → α) (g : α → α) (p : a = b) :
+    (S f g # p) = @bimap α α α a b (g a) (g b) f p (g # p) :=
+  begin induction p, reflexivity end
 end equiv
 
 def {u v} is_qinv {α : Type u} {β : Type v} (f : α → β) (g : β → α) :=
