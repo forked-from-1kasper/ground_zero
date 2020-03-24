@@ -338,6 +338,78 @@ namespace circle
       begin apply eq.map (⬝ loop), apply circle.recβrule₂ end
         ... = eq.rfl : by apply eq.inv_comp }
   end
+
+  @[hott] def unit_left (x : S¹) : μ base x = x :=
+  by trivial
+
+  @[hott] def μ_right : μ base # loop = loop :=
+  by apply equiv.idmap
+
+  @[hott] def map_happly {α β γ : Type u} {a b : α} {c : β} (f : α → β → γ)
+    (p : a = b) : (λ x, f x c) # p = interval.happly (f # p) c :=
+  begin induction p, trivial end
+
+  @[hott] noncomputable def μ_left := calc
+    (λ x, μ x base) # loop = interval.happly (eq.map μ loop) base : by apply map_happly
+                       ... = interval.happly (interval.funext turn) base :
+                             begin apply eq.map (λ f, interval.happly f base),
+                                   apply circle.recβrule₂ end
+                       ... = loop :
+                             begin change _ = turn base,
+                                   apply interval.happly,
+                                   apply interval.happly_funext end
+
+  @[hott] noncomputable def unit_right (x : S¹) : μ x base = x := begin
+    fapply circle.ind _ _ x, refl,
+    apply types.eq.trans, apply equiv.transport_over_involution (λ x, μ x base),
+    transitivity, apply eq.map (λ p, p ⬝ idp base ⬝ loop),
+    transitivity, apply eq.map_inv, apply eq.map,
+    apply μ_left, transitivity, apply eq.map (λ p, p ⬝ loop),
+    apply eq.refl_right, apply eq.inv_comp
+  end
+
+  @[hott] noncomputable def unit_comm (x : S¹) : μ base x = μ x base :=
+  unit_left x ⬝ (unit_right x)⁻¹
+
+  @[hott] def S {α β γ : Type u} (f : α → β → γ) (g : α → β) := λ x, f x (g x)
+
+  @[hott] def bimap {α : Type u} {β : Type v} {γ : Type w}
+    {a b : α} {a' b' : β} (f : α → β → γ)
+    (p : a = b) (q : a' = b') : f a a' = f b b' :=
+  begin induction p, induction q, reflexivity end
+
+  @[hott] def bimap_refl {α β γ : Type u} {a : α} {a' b' : β}
+    (f : α → β → γ) (p : a' = b') :
+    bimap f (idp a) p = f a # p :=
+  begin induction p, trivial end
+
+  @[hott] def bimap_comp {α β γ : Type u} {a b : α} {a' b' : β}
+    (f : α → β → γ) (p : a = b) (q : a' = b') :
+    (λ x, f x a') # p = f a # q ⬝ bimap f p q⁻¹ := begin
+    induction p,
+    symmetry, transitivity, apply eq.map, apply bimap_refl,
+    transitivity, apply eq.map,
+    apply eq.map_inv, apply eq.comp_inv
+  end
+
+  @[hott] def map_over_subst {α : Type u} {a b : α}
+    (f : α → α → α) (g : α → α) (p : a = b) :
+    (S f g # p) = @bimap α α α a b (g a) (g b) f p (g # p) :=
+  begin induction p, reflexivity end
+
+  @[hott] noncomputable def mul_inv (x : S¹) : base = μ x (inv x) := begin
+    change _ = S μ inv x,
+    fapply circle.ind _ _ x; clear x,
+    { exact circle.loop },
+    { apply types.eq.trans, apply equiv.transport_comp,
+      transitivity, apply equiv.transport_composition,
+      transitivity, apply eq.map, apply map_over_subst,
+      transitivity, apply eq.map, apply eq.map, apply circle.recβrule₂,
+      transitivity, apply eq.map (⬝ bimap μ loop loop⁻¹),
+      symmetry, apply μ_right,
+      symmetry, transitivity, symmetry, apply μ_left,
+      apply bimap_comp }
+  end
 end circle
 
 namespace ncircle

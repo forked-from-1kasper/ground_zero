@@ -141,6 +141,18 @@ namespace interval
     transitivity, apply indβrule, reflexivity
   end
 
+  @[hott] noncomputable def happly_funext {α : Type u} {β : Type v}
+    {f g : α → β} (p : f ~ g) : happly (funext p) = p := begin
+    change equiv.transport (λ g, f ~ g) (funext p) (equiv.homotopy.id f) = _,
+    transitivity, apply equiv.transport_over_pi,
+    apply dfunext, intro x,
+    transitivity, apply types.equiv.transport_over_inv_contr_map,
+    transitivity, apply eq.refl_left,
+    transitivity, symmetry,
+    apply equiv.map_over_comp (function.swap (homotopy p)) (λ f, f x) seg,
+    apply interval.recβrule
+  end
+
   @[hott] def neg : I → I := interval.rec i₁ i₀ seg⁻¹
   instance : has_neg I := ⟨neg⟩
 

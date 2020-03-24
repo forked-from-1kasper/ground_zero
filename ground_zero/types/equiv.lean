@@ -1,4 +1,5 @@
 import ground_zero.support ground_zero.theorems.functions
+open ground_zero.theorems.functions (idfun)
 
 section
   universes u v
@@ -113,7 +114,7 @@ namespace equiv
 
   @[hott] def subst {α : Type u} {π : α → Type v} {a b : α}
     (p : a = b :> α) : π a → π b :=
-  begin induction p, exact ground_zero.theorems.functions.idfun end
+  begin induction p, exact idfun end
 
   -- subst with explicit π
   abbreviation transport {α : Type u}
@@ -261,10 +262,14 @@ namespace equiv
   begin induction r, reflexivity end
 
   @[hott] def rewrite_comp {α : Type u} {a b c : α}
-    {p : a = b :> α} {q : b = c :> α} {r : a = c :> α}
-    (h : r = p ⬝ q :> a = c :> α) :
-    p⁻¹ ⬝ r = q :> b = c :> α :=
-  begin induction p, exact eq.refl_left r ⬝ h ⬝ eq.refl_left q end
+    {p : a = b} {q : b = c} {r : a = c}
+    (h : r = p ⬝ q) : p⁻¹ ⬝ r = q :=
+  begin induction p, exact eq.refl_left r ⬝ h end
+
+  @[hott] def inv_rewrite_comp {α : Type u} {a b c : α}
+    {p : a = b} {q : b = c} {r : a = c}
+    (h : p⁻¹ ⬝ r = q) : r = p ⬝ q :=
+  begin induction p, exact eq.refl_left r ⬝ h end
 
   @[hott] def pathover_from_trans {α : Type u} {a b c : α}
     (p : b = c :> α) (q : a = b :> α) (r : a = c :> α) :
@@ -288,6 +293,11 @@ namespace equiv
     equiv.transport (λ x, f x = c) p q = f # p⁻¹ ⬝ q :=
   begin induction p, trivial end
 
+  @[hott] def transport_over_inv_contr_map {α : Type u} {β : Type v} {a b : α} {c : β}
+    (f : α → β) (p : a = b) (q : c = f a) :
+    equiv.transport (λ x, c = f x) p q = q ⬝ f # p :=
+  begin induction p, symmetry, apply eq.refl_right end
+
   @[hott] def transport_over_involution {α : Type u} {a b : α}
     (f : α → α) (p : a = b) (q : f a = a) :
     equiv.transport (λ x, f x = x) p q = (f # p⁻¹) ⬝ q ⬝ p := begin
@@ -302,6 +312,23 @@ namespace equiv
     induction p, symmetry,
     transitivity, apply eq.refl_left,
     apply eq.refl_right
+  end
+
+  @[hott] def idmap {α : Type u} {a b : α} (p : a = b) : idfun # p = p :=
+  begin induction p, trivial end
+
+  @[hott] def constmap {α : Type u} {β : Type v} {a b : α} {c : β}
+    (p : a = b) : (λ _, c) # p = eq.refl c :=
+  begin induction p, trivial end
+
+  @[hott] def transport_over_dhmtpy {α : Type u} {β : α → Type v} {a b : α}
+    (f g : Π x, β x) (p : a = b) (q : f a = g a) :
+    equiv.transport (λ x, f x = g x) p q = (apd f p)⁻¹ ⬝ subst p # q ⬝ apd g p := begin
+    induction p, symmetry,
+    transitivity, apply eq.map (⬝ apd g _), apply eq.refl_left,
+    transitivity, apply eq.map, apply idmap,
+    transitivity, apply eq.refl_right,
+    trivial
   end
 
   @[hott] def map_over_comp {α : Type u} {β : Type v} {γ : Type w} {a b : α}
