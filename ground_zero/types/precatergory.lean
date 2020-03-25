@@ -1,4 +1,4 @@
-import ground_zero.HITs.graph ground_zero.HITs.interval
+import ground_zero.HITs.graph ground_zero.structures
 open ground_zero.HITs ground_zero.types ground_zero.theorems.functions
 open ground_zero.HITs.interval ground_zero.types.equiv ground_zero.structures
 
@@ -63,8 +63,8 @@ namespace precategory
   { hom := (→),
     id := @idfun,
     comp := @function.comp,
-    id_left := λ a b f, funext (homotopy.id f),
-    id_right := λ a b f, funext (homotopy.id f),
+    id_left := λ a b f, ground_zero.theorems.funext (homotopy.id f),
+    id_right := λ a b f, ground_zero.theorems.funext (homotopy.id f),
     assoc := λ a b c d f g h, eq.rfl }
 
   def sigma_unique {α : Type u} (π : α → Type v) :=

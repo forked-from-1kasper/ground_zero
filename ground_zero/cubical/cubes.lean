@@ -1,4 +1,4 @@
-import ground_zero.types.product
+import ground_zero.HITs.interval
 open ground_zero.HITs ground_zero.types
 open ground_zero.HITs.interval (i₀ i₁ seg)
 

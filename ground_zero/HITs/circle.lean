@@ -1,4 +1,4 @@
-import ground_zero.HITs.suspension
+import ground_zero.HITs.suspension ground_zero.HITs.interval
 import ground_zero.types.integer ground_zero.theorems.nat
 open ground_zero.types.equiv (subst transport)
 open ground_zero.types.eq
@@ -151,8 +151,8 @@ namespace circle
     end
 
     @[hott] noncomputable def nontrivial_not_hmtpy : ¬(nontrivial = (λ _, base)) :=
-    λ p, trivial_not_hmtpy (interval.funext trivial_hmtpy ⬝ p⁻¹ ⬝
-                            interval.funext nontrivial_hmtpy)
+    λ p, trivial_not_hmtpy (theorems.funext trivial_hmtpy ⬝ p⁻¹ ⬝
+                            theorems.funext nontrivial_hmtpy)
   end map
 
   def succ (l : Ω¹(S¹)) : Ω¹(S¹) := l ⬝ loop
@@ -216,10 +216,10 @@ namespace circle
 
   @[hott] noncomputable def decode : Π (x : S¹), helix x → base = x :=
   @ind (λ x, helix x → base = x) power (begin
-    apply HITs.interval.funext, intro x,
+    apply theorems.funext, intro x,
     apply types.equiv.homotopy.eq, transitivity,
     exact types.equiv.transport_characterization power loop,
-    apply HITs.interval.funext, intro n, transitivity,
+    apply theorems.funext, intro n, transitivity,
     apply types.equiv.transport_composition, transitivity,
     apply types.eq.map (λ p, power p ⬝ loop),
     apply transport_back, induction n,
@@ -278,7 +278,7 @@ namespace circle
           reflexivity } }
     end)
     (begin
-      apply interval.dfunext,
+      apply theorems.dfunext,
       intro x, apply integer_is_set
     end) x c
 
@@ -306,7 +306,7 @@ namespace circle
   end)
 
   def μ : S¹ → S¹ → S¹ :=
-  circle.rec id (interval.funext turn)
+  circle.rec id (theorems.funext turn)
 
   def inv : S¹ → S¹ :=
   circle.rec base loop⁻¹
@@ -345,18 +345,15 @@ namespace circle
   @[hott] def μ_right : μ base # loop = loop :=
   by apply equiv.idmap
 
-  @[hott] def map_happly {α β γ : Type u} {a b : α} {c : β} (f : α → β → γ)
-    (p : a = b) : (λ x, f x c) # p = interval.happly (f # p) c :=
-  begin induction p, trivial end
-
   @[hott] noncomputable def μ_left := calc
-    (λ x, μ x base) # loop = interval.happly (eq.map μ loop) base : by apply map_happly
-                       ... = interval.happly (interval.funext turn) base :
-                             begin apply eq.map (λ f, interval.happly f base),
+    (λ x, μ x base) # loop = theorems.happly (eq.map μ loop) base :
+                             by apply theorems.map_happly
+                       ... = theorems.happly (theorems.funext turn) base :
+                             begin apply eq.map (λ f, theorems.happly f base),
                                    apply circle.recβrule₂ end
                        ... = loop :
                              begin change _ = turn base,
-                                   apply interval.happly,
+                                   apply theorems.happly,
                                    apply interval.happly_funext end
 
   @[hott] noncomputable def unit_right (x : S¹) : μ x base = x := begin

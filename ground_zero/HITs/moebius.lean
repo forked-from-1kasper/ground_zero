@@ -69,7 +69,7 @@ end
 @[hott] noncomputable def cyl_eqv : cylinder' ≃ cylinder := begin
   transitivity,
   { apply equiv.idtoeqv, apply eq.map,
-    apply interval.funext, exact C.const },
+    apply ground_zero.theorems.funext, exact C.const },
   { apply sigma.const }
 end
 

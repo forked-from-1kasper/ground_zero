@@ -1,4 +1,5 @@
 import ground_zero.types.unit ground_zero.types.coproduct
+import ground_zero.theorems.funext
 open ground_zero.types.unit
 
 hott theory
@@ -6,7 +7,7 @@ hott theory
 namespace ground_zero
 
 namespace structures
-universes u v
+universes u v w
 
 def is_loop {α : Type u} {a : α} (p : a = a) := ¬(p = types.eq.refl a)
 
@@ -25,7 +26,7 @@ structure contr (α : Type u) :=
 (point : α) (intro : Π (a : α), point = a :> α)
 --  or we can write `idfun ~ λ _, point`
 
-def {w} LEM := Π (α : Type w), prop α → (α + ¬α)
+def LEM := Π (α : Type w), prop α → (α + ¬α)
 def law_of_double_negation :=
 Π (α : Type u), prop α → (¬¬α → α)
 
@@ -98,28 +99,23 @@ section
   @[hott] def unit_is_set : hset 𝟏 :=
   begin apply prop_is_set, apply unit_is_prop end
 
-  -- unsafe postulate, but it computes
-  @[safe] def function_extensionality {α : Type u} {β : α → Type v}
-    {f g : Π x, β x} (h : f ~ g) : f = g :> Π x, β x :=
-  support.inclusion $ funext (λ x, support.truncation (h x))
-
   @[hott] def contr_is_prop {α : Type u} : prop (contr α) := begin
     intros x y, cases x with x u, cases y with y v,
     have p := u y, induction p, apply types.eq.map,
-    apply function_extensionality, intro a,
+    apply theorems.dfunext, intro a,
     apply prop_is_set (contr_impl_prop ⟨x, u⟩)
   end
 
   @[hott] def prop_is_prop {α : Type u} : prop (prop α) := begin
     intros f g,
     have p := λ a b, (prop_is_set f) (f a b) (g a b),
-    apply function_extensionality, intro a,
-    apply function_extensionality, intro b,
+    apply theorems.dfunext, intro a,
+    apply theorems.dfunext, intro b,
     exact p a b
   end
 
   @[hott] def function_to_contr {α : Type u} : prop (α → contr α) := begin
-    intros f g, apply function_extensionality, intro x, apply contr_is_prop
+    intros f g, apply theorems.funext, intro x, apply contr_is_prop
   end
 end
 

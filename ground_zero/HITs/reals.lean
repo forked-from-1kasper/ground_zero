@@ -74,7 +74,7 @@ namespace reals
 
   @[hott] def operator (f : ℤ → ℤ → ℤ) : R → R → R :=
   rec (λ x, rec (elem ∘ f x) (begin intros, apply dist end))
-    (begin intros, apply interval.funext, intro x, apply dist end)
+    (begin intros, apply ground_zero.theorems.funext, intro x, apply dist end)
 
   instance : has_neg R := ⟨lift integer.negate⟩
 

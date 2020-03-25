@@ -1,4 +1,4 @@
-import ground_zero.types.product
+import ground_zero.types.product ground_zero.structures
 open ground_zero.types.equiv (idtoeqv homotopy)
 open ground_zero.types.equiv (renaming id -> ideqv)
 open ground_zero.types
@@ -168,7 +168,7 @@ end
   end,
   existsi construct, split; existsi deconstruct,
   { intro x, cases x with p q, reflexivity },
-  { intro x, apply HITs.interval.dfunext,
+  { intro x, apply theorems.dfunext,
     intro b, induction b,
     repeat { reflexivity } }
 end
