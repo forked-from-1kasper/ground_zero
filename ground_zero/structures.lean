@@ -18,7 +18,11 @@ def propset := Σ (α : Type u), prop α
 notation `Ω` := propset
 
 def hset (α : Type u) :=
-Π {a b : α} (p q : a = b :> α), p = q :> a = b :> α
+Π {a b : α} (p q : a = b), p = q
+def Ens := Σ α, hset α
+
+def groupoid (α : Type u) :=
+Π {a b : α} {p q : a = b} (α β : p = q), α = β
 
 def dec (α : Type u) := α + ¬α
 
@@ -166,10 +170,10 @@ def K (α : Type u) :=
   { intros h a p, apply h }
 end
 
-def lem_prop {α : Type u} (h : α → prop α) : prop α :=
+@[hott] def lem_prop {α : Type u} (h : α → prop α) : prop α :=
 λ a, h a a
 
-def lem_contr {α : Type u} (h : α → contr α) : prop α :=
+@[hott] def lem_contr {α : Type u} (h : α → contr α) : prop α :=
 λ a, contr_impl_prop (h a) a
 
 def is_contr_fiber {α : Type u} {β : Type v} (f : α → β) :=
