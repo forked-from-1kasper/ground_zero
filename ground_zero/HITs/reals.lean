@@ -1,4 +1,5 @@
 import ground_zero.HITs.circle
+open ground_zero.theorems (funext)
 open ground_zero.types.eq
 open ground_zero.HITs.circle
 open ground_zero.types
@@ -12,7 +13,6 @@ namespace ground_zero.HITs
 universes u v w
 
 hott theory
-
 local notation ℤ := integer
 
 inductive reals.rel : ℤ → ℤ → Type
@@ -32,9 +32,23 @@ namespace reals
     { intros u v H, induction H, apply sz }
   end
 
+  @[hott] noncomputable def indβrule {π : R → Type u}
+    (cz : Π x, π (elem x))
+    (sz : Π z, cz z =[glue z] cz (integer.succ z))
+    (z : ℤ) : equiv.apd (ind cz sz) (glue z) = sz z :=
+  by apply graph.indβrule
+
   @[hott] def rec {π : Type u} (cz : ℤ → π)
     (sz : Π z, cz z = cz (integer.succ z) :> π) : R → π :=
   ind cz (λ x, equiv.pathover_of_eq (glue x) (sz x))
+
+  @[hott] noncomputable def recβrule {π : Type u} (cz : ℤ → π)
+    (sz : Π z, cz z = cz (integer.succ z) :> π) (z : ℤ) :
+    rec cz sz # (glue z) = sz z := begin
+    apply equiv.pathover_of_eq_inj (glue z), transitivity,
+    symmetry, apply equiv.apd_over_constant_family,
+    transitivity, apply indβrule, reflexivity
+  end
 
   @[hott] def positive : Π n, elem 0 = elem (integer.pos n) :> R
   | 0 := ground_zero.types.eq.refl (elem 0)
@@ -88,6 +102,54 @@ namespace reals
   instance : has_one R := ⟨elem 1⟩
 
   @[hott] def cis : R → S¹ := rec (λ _, base) (λ _, loop)
+
+  @[hott] noncomputable def helix_over_cis (x : R) : helix (cis x) = ℤ := begin
+    fapply ind _ _ x; clear x,
+    { intro x, exact (integer.shift x)⁻¹ },
+    { intro z, change _ = _,
+      let p := integer.shift z, calc
+            equiv.transport (λ x, helix (cis x) = ℤ) (glue z) (integer.shift z)⁻¹
+          = @eq.map R Type _ _ (helix ∘ cis) (glue z)⁻¹ ⬝ (integer.shift z)⁻¹ :
+        by apply equiv.transport_over_contr_map
+      ... = (eq.map (helix ∘ cis) (glue z))⁻¹ ⬝ (integer.shift z)⁻¹ :
+        begin apply eq.map (⬝ p⁻¹), apply eq.map_inv end
+      ... = (helix # (cis # (glue z)))⁻¹ ⬝ (integer.shift z)⁻¹ :
+        begin apply eq.map (λ q, inv q ⬝ p⁻¹),
+              apply equiv.map_over_comp end
+      ... = (helix # loop)⁻¹ ⬝ (integer.shift z)⁻¹ :
+        begin apply eq.map (λ q, inv q ⬝ p⁻¹),
+              apply eq.map, apply recβrule end
+      ... = integer.succ_path⁻¹ ⬝ (integer.shift z)⁻¹ :
+        begin apply eq.map (λ q, inv q ⬝ p⁻¹),
+              apply circle.recβrule₂ end
+      ... = (integer.shift z ⬝ integer.succ_path)⁻¹ :
+        begin symmetry, apply eq.explode_inv end
+      ... = (integer.shift (integer.succ z))⁻¹ :
+        begin apply eq.map, apply integer.shift_comp end }
+  end
+
+  /-
+            ≃
+       S¹ ←–––– R/τℤ
+       ↑          ↑
+   eⁱ⁻ |          |
+       |          |
+       R ════════ R
+  -/
+  noncomputable def Euler := calc
+    fib cis base ≃ (Σ (x : R), circle.base = cis x) :
+                   by apply sigma.hmtpy_inv_eqv
+             ... ≃ (Σ (x : R), helix (cis x)) :
+                   equiv.idtoeqv (sigma #
+                     (funext (λ x, ground_zero.ua (circle.family (cis x)))))
+             ... ≃ (Σ (x : R), ℤ) :
+                   equiv.idtoeqv (sigma # (funext helix_over_cis))
+             ... ≃ R × ℤ : by apply sigma.const
+             ... ≃ 𝟏 × ℤ :
+                   ground_zero.ua.product_equiv₃
+                     (ground_zero.structures.contr_equiv_unit contr)
+                     (equiv.id ℤ)
+             ... ≃ ℤ : ground_zero.structures.prod_unit_equiv ℤ
 end reals
 
 def complex := R × R

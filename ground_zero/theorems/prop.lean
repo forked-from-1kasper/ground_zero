@@ -19,18 +19,11 @@ universes u v w
   induction p, induction q, reflexivity
 end
 
-@[hott] def contr_equiv_unit {α : Type u} (h : contr α) : α ≃ types.unit := begin
-  existsi (λ _, types.unit.star), split;
-  existsi (λ _, h.point),
-  { intro x, apply h.intro },
-  { intro x, cases x, reflexivity }
-end
-
 @[hott] lemma uniq_does_not_add_new_paths {α : Type u} (a b : ∥α∥) (p : a = b :> ∥α∥) :
   HITs.truncation.uniq a b = p :> a = b :> ∥α∥ :=
 prop_is_set HITs.truncation.uniq (HITs.truncation.uniq a b) p
 
-@[hott] lemma prop_is_prop {α : Type u} : prop (prop α) := begin
+@[hott] def prop_is_prop {α : Type u} : prop (prop α) := begin
   intros f g,
   have p := λ a b, (prop_is_set f) (f a b) (g a b),
   apply theorems.dfunext, intro a,
@@ -155,6 +148,17 @@ end
     apply prop_is_set (structures.contr_impl_prop h) _ eq.rfl,
     trivial }
 end
+
+@[hott] def pi_prop {α : Type u} {β : α → Type v}
+  (h : Π x, prop (β x)) : prop (Π x, β x) :=
+λ f g, theorems.dfunext (λ x, h x (f x) (g x))
+
+@[hott] def impl_prop {α : Type u} {β : Type v}
+  (h : prop β) : prop (α → β) :=
+pi_prop (λ _, h)
+
+@[hott] def propset.eq (α β : Ω) (h : α.fst = β.fst) : α = β :=
+types.sigma.prod h (prop_is_prop _ _)
 
 end theorems.prop
 end ground_zero

@@ -46,17 +46,6 @@ def cylinder := S¹ × I
 def C : S¹ → Type := circle.rec I ground_zero.types.eq.rfl
 def cylinder' := Σ b, C b
 
-def sigma.spec {α : Type u} {β : Type v} : (Σ (a : α), β) → α × β
-| ⟨x, y⟩ := ⟨x, y⟩
-def sigma.gen {α : Type u} {β : Type v} : α × β → Σ (a : α), β
-| ⟨x, y⟩ := ⟨x, y⟩
-
-@[hott] def sigma.const (α : Type u) (β : Type v) :
-  (Σ (a : α), β) ≃ α × β := begin
-  existsi sigma.spec, split; existsi sigma.gen;
-  { intro x, induction x, trivial }
-end
-
 @[hott] noncomputable def C.const : Π x, C x = I := begin
   intro x, fapply circle.ind _ _ x,
   refl, apply ground_zero.types.eq.trans,

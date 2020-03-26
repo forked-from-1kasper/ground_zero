@@ -480,4 +480,32 @@ namespace torus'
 end torus'
 
 end HITs
+
+namespace types.integer
+  local notation ℤ := integer
+  noncomputable def succ_path := ground_zero.ua integer.succ_equiv
+
+  noncomputable def pos_shift (n : ℕ) :=
+  @nat.rec_on (λ _, ℤ = ℤ) n (idp ℤ) (λ n p, p ⬝ succ_path)
+
+  noncomputable def neg_shift (n : ℕ) :=
+  @nat.rec_on (λ _, ℤ = ℤ) n succ_path⁻¹
+    (λ n p, p ⬝ succ_path⁻¹)
+
+  noncomputable def shift : ℤ → ℤ = ℤ
+  | (integer.pos n) := pos_shift n
+  | (integer.neg n) := neg_shift n
+
+  @[hott] noncomputable def shift_comp (z : ℤ) :
+    shift z ⬝ succ_path = shift (integer.succ z) := begin
+    induction z,
+    { trivial },
+    { induction z with n ih,
+      { apply eq.inv_comp },
+      { transitivity, symmetry, apply eq.assoc,
+        transitivity, apply eq.map (λ p, neg_shift n ⬝ p),
+        apply eq.inv_comp, apply types.eq.refl_right } }
+  end
+end types.integer
+
 end ground_zero

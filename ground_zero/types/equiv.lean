@@ -104,7 +104,7 @@ namespace equiv
       apply eq.map f₂, apply β₁, exact β₂ x }
   end
 
-  @[hott] def idtoeqv {α β : Type u} (p : α = β :> _) : α ≃ β :=
+  @[hott] def idtoeqv {α β : Type u} (p : α = β :> Type u) : α ≃ β :=
   begin induction p, apply id end
 
   def transportconst {α β : Type u} : α = β → α → β :=

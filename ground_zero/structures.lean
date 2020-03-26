@@ -68,6 +68,21 @@ begin intros x, induction x end
 def unit_is_prop : prop 𝟏 :=
 begin intros x y, induction x, induction y, trivial end
 
+@[hott] def contr_equiv_unit {α : Type u} (h : contr α) : α ≃ 𝟏 := begin
+  existsi (λ _, ★), split;
+  existsi (λ _, h.point),
+  { intro x, apply h.intro },
+  { intro x, cases x, reflexivity }
+end
+
+@[hott] def prod_unit_equiv (α : Type u) : 𝟏 × α ≃ α := begin
+  existsi prod.snd, split;
+  existsi prod.mk ★,
+  { intro x, induction x with a b,
+    induction a, trivial },
+  { intro x, trivial }
+end
+
 def bool_to_universe : bool → Type
 | tt := 𝟏
 | ff := 𝟎

@@ -30,6 +30,31 @@ namespace sigma
   @[hott] def prod_refl {α : Type u} {β : α → Type v} (u : sigma β) :
     prod eq.rfl eq.rfl = eq.refl u :=
   begin cases u with x u, trivial end
+
+  @[hott] def spec {α : Type u} {β : Type v} : (Σ (a : α), β) → α × β
+  | ⟨x, y⟩ := ⟨x, y⟩
+  @[hott] def gen {α : Type u} {β : Type v} : α × β → Σ (a : α), β
+  | ⟨x, y⟩ := ⟨x, y⟩
+  
+  @[hott] def const (α : Type u) (β : Type v) :
+    (Σ (a : α), β) ≃ α × β := begin
+    existsi spec, split; existsi gen;
+    { intro x, induction x, trivial }
+  end
+
+  @[hott] def hmtpy_inv {α : Type v} {β : Type u} (f g : α → β) :
+    (Σ x, f x = g x) → (Σ x, g x = f x)
+  | ⟨x, h⟩ := ⟨x, h⁻¹⟩
+
+  @[hott] def hmtpy_inv_eqv {α : Type v} {β : Type u} (f g : α → β) :
+    (Σ x, f x = g x) ≃ (Σ x, g x = f x) := begin
+    existsi hmtpy_inv f g, split; existsi hmtpy_inv g f;
+    { intro x, induction x with x h,
+      fapply prod, refl,
+      transitivity, apply equiv.transport_over_hmtpy,
+      transitivity, apply eq.refl_right,
+      apply eq.inv_inv },
+  end
 end sigma
 
 end ground_zero.types
