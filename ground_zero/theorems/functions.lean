@@ -11,7 +11,7 @@ hott theory
 λ b, ∥fib f b∥
 
 @[hott] def surj {α : Type u} {β : Type v} (f : α → β) :=
-Π (b : β), fib_inh f b
+fiberwise (fib_inh f)
 
 @[hott] def Im {α : Type u} {β : Type v} (f : α → β) :=
 total (fib_inh f)

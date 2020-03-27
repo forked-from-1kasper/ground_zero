@@ -17,11 +17,11 @@ section
 end
 
 namespace ground_zero.types
+universes u v w
 
 hott theory
 
 namespace equiv
-  universes u v
 
   def homotopy {α : Type u} {π : α → Type v}
     (f g : Π (x : α), π x) :=
@@ -63,13 +63,11 @@ namespace equiv
   end
 end equiv
 
-def {u v} equiv (α : Type u) (β : Type v) :=
+def equiv (α : Type u) (β : Type v) :=
 Σ (f : α → β), equiv.biinv f
 infix ` ≃ `:25 := equiv
 
 namespace equiv
-  universes u v w
-
   instance forward_coe {α : Type u} {β : Type v} :
     has_coe (α ≃ β) (α → β) :=
   ⟨begin intro e, cases e with f H, exact f end⟩
@@ -411,19 +409,17 @@ namespace equiv
   begin induction p, reflexivity end
 end equiv
 
-def {u v} is_qinv {α : Type u} {β : Type v} (f : α → β) (g : β → α) :=
+def is_qinv {α : Type u} {β : Type v} (f : α → β) (g : β → α) :=
 (f ∘ g ~ id) × (g ∘ f ~ id)
 
-class {u v} has_qinv {α : Type u} {β : Type v} (f : α → β) :=
+class has_qinv {α : Type u} {β : Type v} (f : α → β) :=
 (inv : β → α) (lawful : is_qinv f inv)
 postfix ⁻¹ := has_qinv.inv
 
-def {u v} qinv {α : Type u} {β : Type v} (f : α → β) :=
+def qinv {α : Type u} {β : Type v} (f : α → β) :=
 Σ (g : β → α), is_qinv f g
 
 namespace qinv
-  universes u v w
-
   def equiv (α : Type u) (β : Type v) :=
   Σ (f : α → β), qinv f
 
@@ -460,8 +456,6 @@ namespace qinv
 end qinv
 
 namespace equiv
-  universes u v
-
   @[hott, symm] def symm {α : Type u} {β : Type v}
     (e : α ≃ β) : β ≃ α := begin
     cases e with f H, have q := qinv.b2q f H,
@@ -472,13 +466,14 @@ namespace equiv
 end equiv
 
 -- half adjoint equivalence
-def {u v} ishae {α : Type u} {β : Type v} (f : α → β) :=
+def ishae {α : Type u} {β : Type v} (f : α → β) :=
 Σ (g : β → α) (η : g ∘ f ~ id) (ϵ : f ∘ g ~ id) (x : α),
   f # (η x) = ϵ (f x) :> f (g (f x)) = f x :> β
 
-def {u v} fib {α : Type u} {β : Type v} (f : α → β) (y : β) :=
+def fib {α : Type u} {β : Type v} (f : α → β) (y : β) :=
 Σ (x : α), f x = y :> β
 
-def {u v} total {α : Type u} (β : α → Type v) := Σ x, β x
+def total {α : Type u} (β : α → Type v) := Σ x, β x
+def fiberwise {α : Type u} (β : α → Type v) := Π x, β x
 
 end ground_zero.types
