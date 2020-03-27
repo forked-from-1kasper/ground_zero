@@ -14,7 +14,7 @@ inductive generalized.rel (α : Type u) : α → α → Type u
 | mk {} : Π (a b : α), generalized.rel a b
 
 def generalized (α : Type u) := graph (generalized.rel α)
-notation `{` α `}` := generalized α
+local notation `{` α `}` := generalized α
 
 namespace generalized
   def incl {α : Type u} : α → {α} := graph.elem

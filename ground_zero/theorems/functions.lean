@@ -30,7 +30,7 @@ total (fib_inh f)
 end
 
 @[hott] def embedding {α : Type u} {β : Type v} (f : α → β) :=
-Π (x y : α), ground_zero.types.equiv.biinv (λ (p : x = y), f # p)
+Π (x y : α), @equiv.biinv (x = y) (f x = f y) (eq.map f)
 
 @[hott] def is_connected (α : Type u) :=
 Σ (x : α), Π y, ∥x = y∥
