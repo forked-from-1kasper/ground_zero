@@ -34,7 +34,10 @@ digraph dependency_map {
     "types/precategory" -> { "types/category" }
     "types/product" -> { "theorems/ua" }
     "types/rational" -> { "types/dedekind" }
-    "types/sigma" -> { "theorems/fibration", "theorems/prop", "theorems/nat" }
+    "types/sigma" -> {
+      "theorems/fibration", "theorems/prop",
+      "theorems/nat", "theorems/functions"
+    }
     "types/unit" -> { structures, "HITs/suspension" }
   }
 
@@ -64,7 +67,8 @@ digraph dependency_map {
     "HITs/suspension" -> { "HITs/circle", "HITs/join" }
     "HITs/truncation" -> {
       "theorems/prop",
-      "HITs/simplicial"
+      "HITs/simplicial",
+      "theorems/functions"
     }
   }
 
@@ -84,7 +88,7 @@ digraph dependency_map {
 
   subgraph theorems {
     "theorems/fibration" -> { "theorems/hopf" }
-    "theorems/functions" -> { "types/equiv" }
+    "theorems/functions"
     "theorems/funext" -> { structures, "types/product" }
     "theorems/hopf"
     "theorems/nat" -> { "HITs/circle", "HITs/int" }

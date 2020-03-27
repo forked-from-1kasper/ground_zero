@@ -111,10 +111,10 @@ begin existsi bnot, split; existsi bnot; intro x; induction x; trivial end
 begin
   intro error,
   let p : bool = bool := ua neg_bool_equiv,
-  let h := transport theorems.functions.idfun p tt,
+  let h := transport proto.idfun p tt,
   let g : h = ff := transport_rule neg_bool_equiv tt,
   let oops : h = tt :=
-    (λ p, transport theorems.functions.idfun p tt) #
+    (λ p, transport proto.idfun p tt) #
       (error p (idp bool)),
   let uh_oh : ff = tt := g⁻¹ ⬝ oops,
   apply ff_neq_tt, exact uh_oh

@@ -1,5 +1,5 @@
-import ground_zero.support ground_zero.theorems.functions
-open ground_zero.theorems.functions (idfun)
+import ground_zero.support
+open ground_zero.proto (idfun)
 open combinator (S)
 
 section
@@ -169,7 +169,7 @@ namespace equiv
 
   @[hott] def subst_inv {α : Type u} {π : α → Type v} {a b : α}
     (p : a = b :> α) : π b → π a :=
-  begin induction p, exact ground_zero.theorems.functions.idfun end
+  begin induction p, exact idfun end
 
   @[hott] def subst_over_path_comp {α : Type u} {π : α → Type v} {a b c : α}
     (p : a = b :> α) (q : b = c :> α) (x : π a) :
@@ -478,5 +478,7 @@ def {u v} ishae {α : Type u} {β : Type v} (f : α → β) :=
 
 def {u v} fib {α : Type u} {β : Type v} (f : α → β) (y : β) :=
 Σ (x : α), f x = y :> β
+
+def {u v} total {α : Type u} (β : α → Type v) := Σ x, β x
 
 end ground_zero.types

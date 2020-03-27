@@ -154,13 +154,4 @@ namespace truncation
   rec ground_zero.structures.empty_is_prop
 end truncation
 
-@[hott] def surj {α : Type u} {β : Type v} (f : α → β) :=
-Π (b : β), ∥ground_zero.types.fib f b∥
-
-@[hott] def embedding {α : Type u} {β : Type v} (f : α → β) :=
-Π (x y : α), ground_zero.types.equiv.biinv (λ (p : x = y), f # p)
-
-@[hott] def is_connected (α : Type u) :=
-Σ (x : α), Π y, ∥x = y∥
-
 end ground_zero.HITs
