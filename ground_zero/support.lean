@@ -1,6 +1,6 @@
 import ground_zero.types.eq
 
-attribute [nothott] quot.lift quot.ind quot.rec
+attribute [nothott] quot.lift quot.ind quot.rec classical.choice
 
 namespace ground_zero.support
   universe u

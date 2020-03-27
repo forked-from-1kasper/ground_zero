@@ -1,6 +1,6 @@
-import ground_zero.HITs.graph ground_zero.structures
-open ground_zero.HITs ground_zero.types ground_zero.theorems.functions
-open ground_zero.HITs.interval ground_zero.types.equiv ground_zero.structures
+import ground_zero.theorems.prop
+open ground_zero.theorems
+open ground_zero.structures
 
 hott theory
 
@@ -18,49 +18,54 @@ structure precategory (α : Type u) :=
 (assoc {a b c d : α} : Π (f : hom a b) (g : hom b c) (h : hom c d),
   h ∘ (g ∘ f) = (h ∘ g) ∘ f)
 
+attribute [refl] precategory.id
+attribute [trans] precategory.comp
+
 namespace precategory
-  def cat_graph {α : Type u} (𝒞 : precategory α) := graph (hom 𝒞)
-
-  def Mor {α : Type u} (𝒞 : precategory α) := Σ (x y : α), hom 𝒞 x y
-
-  instance {α : Type u} (𝒞 : precategory α) {x y : α} : has_coe (hom 𝒞 x y) (Mor 𝒞) :=
-  ⟨λ f, ⟨x, y, f⟩⟩
-
   def compose {α : Type u} {𝒞 : precategory α} {a b c : α}
     (g : hom 𝒞 b c) (f : hom 𝒞 a b) : hom 𝒞 a c := 𝒞.comp g f
   local infix ∘ := compose
 
-  def two_out_of_three {α : Type u} (𝒞 : precategory α) {a b c : α}
-    (g : hom 𝒞 b c) (f : hom 𝒞 a b) (K : Mor 𝒞 → Type v) :=
-  (K f → K g → K (g ∘ f)) ×
-  (K (g ∘ f) → K g → K f) ×
-  (K f → K (g ∘ f) → K g)
+  def has_inv {α : Type u} (𝒞 : precategory α) {a b : α} (f : hom 𝒞 a b) :=
+  Σ (g : hom 𝒞 b a), (f ∘ g = id 𝒞) × (g ∘ f = id 𝒞)
 
-  def has_inv {α : Type u} (𝒞 : precategory α) {x y : α} (f : hom 𝒞 x y) :=
-  Σ (g : hom 𝒞 y x), (f ∘ g = id 𝒞) × (g ∘ f = id 𝒞)
+  def iso {α : Type u} (𝒞 : precategory α) (a b : α) :=
+  Σ (f : hom 𝒞 a b), has_inv 𝒞 f
 
-  def iso {α : Type u} (𝒞 : precategory α) (x y : α) :=
-  Σ (f : hom 𝒞 x y), has_inv 𝒞 f
+  @[hott] def idtoiso {α : Type u} (𝒞 : precategory α)
+    {a b : α} (p : a = b) : hom 𝒞 a b :=
+  begin induction p, refl end
+
+  @[hott] def inv_prop {α : Type u} (𝒞 : precategory α) {a b : α}
+    (f : hom 𝒞 a b) : prop (has_inv 𝒞 f) := begin
+    intros p q, induction p with g' H, induction q with g G,
+    induction H with H₁ H₂, induction G with G₁ G₂,
+    fapply sigma.prod, calc
+        g' = id 𝒞 ∘ g' : by apply id_left
+       ... = (g ∘ f) ∘ g' : (∘ g') # G₂⁻¹
+       ... = g ∘ (f ∘ g') : begin symmetry, apply assoc end
+       ... = g ∘ id 𝒞 : (compose g) # H₁
+       ... = g : begin symmetry, apply id_right end,
+    apply prop.product_prop; apply set
+  end
 
   def op {α : Type u} (𝒞 : precategory α) : precategory α :=
-  { hom := λ a b, hom 𝒞 b a,
-    set := λ a b p q, set 𝒞,
-    id := 𝒞.id,
-    comp := λ a b c p q, 𝒞.comp q p,
-    id_left := λ a b p, 𝒞.id_right p,
-    id_right := λ a b p, 𝒞.id_left p,
-    assoc := λ a b c d f g h, (𝒞.assoc h g f)⁻¹ }
-
-  postfix `ᵒᵖ`:1025 := op
+  ⟨λ a b, hom 𝒞 b a,
+   λ a b p q, set 𝒞,
+   𝒞.id,
+   λ a b c p q, 𝒞.comp q p,
+   λ a b p, 𝒞.id_right p,
+   λ a b p, 𝒞.id_left p,
+   λ a b c d f g h, (𝒞.assoc h g f)⁻¹⟩
 
   def Path (α : Type u) (h : groupoid α) : precategory α :=
-  { hom := (=),
-    set := λ a b p q, h,
-    id := ground_zero.types.eq.refl,
-    comp := λ a b c p q, q ⬝ p,
-    id_left := λ a b p, (eq.refl_right p)⁻¹,
-    id_right := λ a b p, (eq.refl_left p)⁻¹,
-    assoc := λ a b c d f g h, (eq.assoc f g h)⁻¹ }
+  ⟨(=),
+   λ a b p q, h,
+   ground_zero.types.eq.refl,
+   λ a b c p q, q ⬝ p,
+   λ a b p, (eq.refl_right p)⁻¹,
+   λ a b p, (eq.refl_left p)⁻¹,
+   λ a b c d f g h, (eq.assoc f g h)⁻¹⟩
 
   def sigma_unique {α : Type u} (π : α → Type v) :=
   Σ x, (π x) × (Π y, π y → y = x)
@@ -72,7 +77,7 @@ namespace precategory
     Σ! (f : hom 𝒞 Y X), π₁ ∘ f = f₁ × π₂ ∘ f = f₂)
 
   def coproduct {α : Type u} (𝒞 : precategory α) (X₁ X₂ : α) :=
-  product 𝒞ᵒᵖ X₁ X₂
+  product (op 𝒞) X₁ X₂
 end precategory
 
 end ground_zero.types
