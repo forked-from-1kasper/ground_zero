@@ -13,16 +13,16 @@ hott theory
 @[hott] def surj {α : Type u} {β : Type v} (f : α → β) :=
 fiberwise (fib_inh f)
 
-@[hott] def E {α : Type u} {β : Type v} (f : α → β) :=
+@[hott] def ran {α : Type u} {β : Type v} (f : α → β) :=
 total (fib_inh f)
 
-@[hott] def E.incl {α : Type u} {β : Type v}
-  {f : α → β} (h : surj f) : β → E f :=
+@[hott] def ran.incl {α : Type u} {β : Type v}
+  {f : α → β} (h : surj f) : β → ran f :=
 λ x, ⟨x, h x⟩
 
-@[hott] def surj_impl_cod_eqv {α : Type u} {β : Type v}
-  (f : α → β) (h : surj f) : E f ≃ β := begin
-  existsi sigma.fst, split; existsi E.incl h,
+@[hott] def surj_impl_ran_eqv {α : Type u} {β : Type v}
+  (f : α → β) (h : surj f) : ran f ≃ β := begin
+  existsi sigma.fst, split; existsi ran.incl h,
   { intro x, induction x with x g,
     fapply sigma.prod, refl,
     apply truncation.uniq },
