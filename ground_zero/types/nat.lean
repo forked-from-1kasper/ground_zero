@@ -26,7 +26,7 @@ end
 @[hott] theorem equiv_addition {α : Type u} {β : Type v} (γ : Type w)
   (e : α ≃ β) : α + γ ≃ β + γ := begin
   induction e with f H,
-  have q := qinv.b2q f H,
+  have q := qinv.of_biinv f H,
   cases q with g inv, induction inv with α' β',
 
   let f : α + γ → β + γ := λ x, match x with

@@ -73,10 +73,20 @@ namespace equiv
   ⟨begin intro e, cases e with f H, exact f end⟩
 
   @[hott] def forward  {α : Type u} {β : Type v} (e : α ≃ β) : α → β := e.fst
-  @[hott] def backward {α : Type u} {β : Type v} (e : α ≃ β) : β → α := begin
-    cases e with f e, cases e with linv rinv,
-    cases linv with g G, exact g
-  end
+
+  @[hott] def left {α : Type u} {β : Type v} : α ≃ β → β → α
+  | ⟨_, (⟨g, _⟩, _)⟩ := g
+
+  @[hott] def right {α : Type u} {β : Type v} : α ≃ β → β → α
+  | ⟨_, (_, ⟨g, _⟩)⟩ := g
+
+  @[hott] def left_forward {α : Type u} {β : Type v} :
+    Π (e : α ≃ β), e.left ∘ e.forward ~ id
+  | ⟨_, (⟨_, G⟩, _)⟩ := G
+
+  @[hott] def forward_right {α : Type u} {β : Type v} :
+    Π (e : α ≃ β), e.forward ∘ e.right ~ id
+  | ⟨_, (_, ⟨_, G⟩)⟩ := G
 
   @[hott, refl] def id (α : Type u) : α ≃ α :=
   begin existsi id, split; { existsi id, intro, reflexivity } end
@@ -109,7 +119,7 @@ namespace equiv
   forward ∘ idtoeqv
 
   def transportconst_inv {α β : Type u} : α = β → β → α :=
-  backward ∘ idtoeqv
+  left ∘ idtoeqv
 
   @[hott] def subst {α : Type u} {π : α → Type v} {a b : α}
     (p : a = b :> α) : π a → π b :=
@@ -213,8 +223,6 @@ namespace equiv
     {p q : a = b :> α} (r : p = q :> a = b :> α) (u : π a) :
     subst p u = subst q u :> π b := subst_sqr r u
   notation `transport²` := transport_sqr
-
-  --notation u ` =[` P `,` p `] ` v := transport P p u = v :> _
 
   @[hott] def transport_comp {α : Type u} {β : Type v}
     (π : β → Type w) {x y : α}
@@ -420,10 +428,10 @@ def qinv {α : Type u} {β : Type v} (f : α → β) :=
 Σ (g : β → α), is_qinv f g
 
 namespace qinv
-  def equiv (α : Type u) (β : Type v) :=
+  def eqv (α : Type u) (β : Type v) :=
   Σ (f : α → β), qinv f
 
-  @[hott] def q2b {α : Type u} {β : Type v} (f : α → β) (q : qinv f) :
+  @[hott] def to_biinv {α : Type u} {β : Type v} (f : α → β) (q : qinv f) :
     equiv.biinv f := begin
     cases q with g H,
     cases H with α β,
@@ -445,24 +453,20 @@ namespace qinv
   let F₂ := λ x, f # (H (g x)) in
   λ x, (F₁ x)⁻¹ ⬝ F₂ x ⬝ G x
 
-  @[hott] def b2q {α : Type u} {β : Type v} (f : α → β)
-    (b : equiv.biinv f) : qinv f := begin
-    cases b with linv rinv,
-    cases rinv with g α,
-    cases linv with h β,
+  @[hott] def of_biinv {α : Type u} {β : Type v} (f : α → β) :
+    equiv.biinv f → qinv f
+  | (⟨h, H⟩, ⟨g, G⟩) := ⟨g, (G, linv_inv f g h G H)⟩
 
-    existsi g, split, exact α, apply linv_inv; assumption
-  end
+  @[hott] def inv {α : Type u} {β : Type v} : eqv α β → eqv β α
+  | ⟨f, ⟨g, (G, H)⟩⟩ := ⟨g, ⟨f, (H, G)⟩⟩
+
+  @[hott] def to_equiv {α : Type u} {β : Type v} : eqv α β → α ≃ β
+  | ⟨f, ⟨g, (G, H)⟩⟩ := ⟨f, (⟨g, H⟩, ⟨g, G⟩)⟩
 end qinv
 
 namespace equiv
-  @[hott, symm] def symm {α : Type u} {β : Type v}
-    (e : α ≃ β) : β ≃ α := begin
-    cases e with f H, have q := qinv.b2q f H,
-    cases q with g qinv, cases qinv with α β,
-    existsi g, split; existsi f,
-    exact α, exact β
-  end
+  @[hott, symm] def symm {α : Type u} {β : Type v} : α ≃ β → β ≃ α
+  | ⟨f, F⟩ := qinv.to_equiv (qinv.inv ⟨f, qinv.of_biinv f F⟩)
 end equiv
 
 -- half adjoint equivalence

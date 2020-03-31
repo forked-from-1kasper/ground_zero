@@ -42,7 +42,7 @@ Path.coe 0 1 (λ i, α ≃ p # i) (equiv.id α)
 
 @[hott] def iso {α β : Type u} (f : α → β) (g : β → α)
   (F : f ∘ g ~' id) (G : g ∘ f ~' id) : α ⇝ β :=
-ua ⟨f, ground_zero.types.qinv.q2b f
+ua ⟨f, ground_zero.types.qinv.to_biinv f
   ⟨g, ⟨Path.homotopy_equality F, Path.homotopy_equality G⟩⟩⟩
 
 @[hott] def twist : I ⇝ I :=

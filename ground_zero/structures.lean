@@ -245,18 +245,41 @@ begin
   { intro x, apply F }, { intro y, apply G }
 end
 
-@[hott] def minus_one_eqv_prop {α : Type u} : (is-−1-type α) ≃ prop α := begin
+@[hott] def minus_two_eqv_contr {α : Type u} : (is-(−2)-type α) ≃ contr α :=
+by refl
+
+@[hott] def minus_one_eqv_prop {α : Type u} : (is-(−1)-type α) ≃ prop α := begin
   apply prop_equiv_lemma, apply ntype_is_prop, apply prop_is_prop,
   { intros h a b, exact (h a b).point },
   { intros h a b, existsi h a b, apply prop_is_set h }
 end
 
-@[hott] def zero_eqv_set {α : Type u} : (is-0-type α) ≃ hset α := begin
-  apply prop_equiv_lemma, apply ntype_is_prop, apply set_is_prop,
-  { intros h a b p q, exact (h a b p q).point },
-  { intros h a b p q, existsi h p q,
-    apply set_impl_groupoid, assumption }
+@[hott] def equiv_funext {α : Type u} {η μ : α → Type v}
+  (h : Π x, η x ≃ μ x) : (Π x, η x) ≃ (Π x, μ x) := begin
+  existsi (λ (f : Π x, η x) (x : α), (h x).forward (f x)), split,
+  { existsi (λ (f : Π x, μ x) (x : α), (h x).left (f x)),
+    intro f, apply theorems.dfunext,
+    intro x, apply (h x).left_forward },
+  { existsi (λ (f : Π x, μ x) (x : α), (h x).right (f x)),
+    intro f, apply theorems.dfunext,
+    intro x, apply (h x).forward_right }
 end
+
+@[hott] def zero_eqv_set {α : Type u} : (is-0-type α) ≃ hset α := calc
+  (is-0-type α) ≃ (Π x y, is-(−1)-type (x = y)) : by reflexivity
+            ... ≃ (Π (x y : α), prop (x = y)) :
+                  begin apply equiv_funext, intro x,
+                        apply equiv_funext, intro y,
+                        apply minus_one_eqv_prop end
+            ... ≃ hset α : by reflexivity
+
+@[hott] def one_eqv_groupoid {α : Type u} : (is-1-type α) ≃ groupoid α := calc
+  (is-1-type α) ≃ (Π x y, is-0-type (x = y)) : by reflexivity
+            ... ≃ (Π (x y : α), hset (x = y)) :
+                   begin apply equiv_funext, intro x,
+                         apply equiv_funext, intro y,
+                         apply zero_eqv_set end
+            ... ≃ groupoid α : by reflexivity
 
 end structures
 

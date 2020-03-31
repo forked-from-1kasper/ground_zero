@@ -210,7 +210,7 @@ namespace circle
                          ... = @equiv.subst_inv Type id (helix base) (helix base)
                                  (ua integer.succ_equiv) x :
                                by apply types.equiv.subst_over_inv_path
-                         ... = integer.succ_equiv.backward x :
+                         ... = integer.succ_equiv.left x :
                                by apply ua.transport_inv_rule
                          ... = integer.pred x : by reflexivity
 

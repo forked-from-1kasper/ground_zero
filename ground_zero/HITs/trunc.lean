@@ -52,7 +52,7 @@ namespace trunc
   end
 
   @[hott] noncomputable def set_equiv {α : Type u} (H : hset α) : α ≃ ∥α∥₀ :=
-  begin apply nth_trunc, apply zero_eqv_set.backward, assumption end
+  begin apply nth_trunc, apply zero_eqv_set.left, assumption end
 end trunc
 
 end ground_zero.HITs

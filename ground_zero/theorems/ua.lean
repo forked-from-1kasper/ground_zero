@@ -59,7 +59,7 @@ end
 end
 
 @[hott] noncomputable theorem transport_inv_rule {α β : Type u} (e : α ≃ β) :
-  Π (x : β), types.equiv.subst_inv (ua e) x = e.backward x := begin
+  Π (x : β), types.equiv.subst_inv (ua e) x = e.left x := begin
   refine J _ e, intros ψ x,
   refine types.eq.rec _ (refl_on_ua ψ)⁻¹,
   reflexivity

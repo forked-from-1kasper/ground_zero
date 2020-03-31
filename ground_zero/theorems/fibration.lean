@@ -37,13 +37,13 @@ namespace ground_zero.theorems.fibration
     types.fib (@sigma.fst α β) x → β x
   | ⟨⟨y, u⟩, h⟩ := types.equiv.subst h u
 
-  @[hott] def backward {α : Type u} {β : α → Type v} (x : α) (u : β x) :
+  @[hott] def left {α : Type u} {β : α → Type v} (x : α) (u : β x) :
     types.fib (@sigma.fst α β) x :=
   ⟨⟨x, u⟩, by trivial⟩
 
   @[hott] theorem fiber_over {α : Type u} {β : α → Type v} (x : α) :
     types.fib (@sigma.fst α β) x ≃ β x := begin
-    existsi (forward x), split; existsi (@backward α β x),
+    existsi (forward x), split; existsi (@left α β x),
     { intro u, cases u with u h, cases u with y u,
       induction h, fapply types.sigma.prod; trivial },
     { intro u, trivial }
