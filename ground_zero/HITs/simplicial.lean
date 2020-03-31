@@ -1,4 +1,4 @@
-import ground_zero.HITs.truncation
+import ground_zero.HITs.merely
 open ground_zero.types
 open ground_zero.types.eq (renaming rfl -> idp)
 
