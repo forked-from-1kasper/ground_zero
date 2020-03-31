@@ -5,7 +5,8 @@ digraph dependency_map {
   structures -> {
     "theorems/ua",
     "HITs/interval",
-    "HITs/truncation",
+    "HITs/merely",
+    "HITs/trunc",
     "types/nat"
   }
 
@@ -43,8 +44,8 @@ digraph dependency_map {
 
   subgraph HITs {
     "HITs/circle" -> { "theorems/hopf", "HITs/moebius", "HITs/reals" }
-    "HITs/colimit" -> { "HITs/truncation", "types/nat" }
-    "HITs/generalized" -> "HITs/truncation"
+    "HITs/colimit" -> { "HITs/merely", "types/nat" }
+    "HITs/generalized" -> "HITs/merely"
     "HITs/graph" -> {
       "HITs/colimit",
       "HITs/generalized",
@@ -58,6 +59,11 @@ digraph dependency_map {
       "theorems/fibration"
     }
     "HITs/join"
+    "HITs/merely" -> {
+      "theorems/prop",
+      "HITs/simplicial",
+      "theorems/functions"
+    }
     "HITs/moebius"
     "HITs/pushout" -> {
       "HITs/suspension"
@@ -65,11 +71,7 @@ digraph dependency_map {
     "HITs/reals"
     "HITs/simplicial"
     "HITs/suspension" -> { "HITs/circle", "HITs/join" }
-    "HITs/truncation" -> {
-      "theorems/prop",
-      "HITs/simplicial",
-      "theorems/functions"
-    }
+    "HITs/trunc"
   }
 
   subgraph cubical {

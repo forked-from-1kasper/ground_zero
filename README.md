@@ -6,7 +6,7 @@ This library provides computable HITs, variation of Cubical Type Theory using th
 
 ## HITs
 
-[All of the HITs in the library](https://github.com/groupoid/lean/tree/master/ground_zero/HITs) constructed using [quotients](https://leanprover.github.io/theorem_proving_in_lean/axioms_and_computation.html#quotients). Quotients in Lean have good computational properties (`quot.ind` computes), so we can define HITs with them without any other changes in Lean’s kernel.
+[Most HITs in the library](https://github.com/groupoid/lean/tree/master/ground_zero/HITs) (except n-truncation) constructed using [quotients](https://leanprover.github.io/theorem_proving_in_lean/axioms_and_computation.html#quotients). Quotients in Lean have good computational properties (`quot.ind` computes), so we can define HITs with them without any other changes in Lean’s kernel.
 
 There are:
 
@@ -20,13 +20,11 @@ There are:
 * Möbius band.
 * n-Simplex ![Δⁿ](pictures/n_simplex.svg).
 * Propositional truncation is colimit of a following sequence:
-  
   ![α → {α} → {{α}} → ...](pictures/prop_truncation_seq_colimit.svg)
 * Suspension ![∑α](pictures/susp.svg) is defined as the pushout of the span ![𝟏 ← α → 𝟏](pictures/susp_span.svg).
 * Circle ![S¹](pictures/s1.svg) is the suspension of the bool ![𝟐](pictures/bool.svg).
 * Sphere ![S²](pictures/s2.svg) is the suspension of the circle ![S¹](pictures/s1.svg).
 * Join ![join α β](pictures/join.svg).
-* Filled n-simplex.
 
 ## Cubical Type Theory ([cubical/](https://github.com/groupoid/lean/blob/master/ground_zero/cubical/path.lean) directory)
 

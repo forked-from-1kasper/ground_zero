@@ -37,31 +37,73 @@ def law_of_double_negation :=
 def LEM_inf := Π (α : Type u), α + ¬α
 notation `LEM∞` := LEM_inf
 
-inductive homotopy_level
+inductive level
 | minus_two
-| succ : homotopy_level → homotopy_level
+| succ : level → level
 
-notation `−2` := homotopy_level.minus_two
-notation `−1` := homotopy_level.succ −2
+notation `ℕ₋₂` := level
+notation `−2` := level.minus_two
+notation `−1` := level.succ −2
 
-instance : has_zero homotopy_level := ⟨homotopy_level.succ −1⟩
+instance : has_zero level := ⟨level.succ −1⟩
+instance : has_one  level := ⟨level.succ 0⟩
 
-def level_to_n : homotopy_level → ℕ
-| homotopy_level.minus_two := 0
-| (homotopy_level.succ n) := level_to_n n + 1
+namespace level
+  inductive le : level → level → Type
+  | refl (a : level)   : le a a
+  | step (a b : level) : le a b → le a (succ b)
+  infix ` ≤ ` := le
 
-def n_to_level : ℕ → homotopy_level
-| 0 := homotopy_level.minus_two
-| (n + 1) := homotopy_level.succ (n_to_level n)
+  def le.minus_two (a : level) : −2 ≤ a := begin
+    induction a with a ih,
+    { apply le.refl },
+    { apply le.step, assumption }
+  end
 
-def is_n_type : Type u → homotopy_level → Type u
-| α homotopy_level.minus_two := contr α
-| α (homotopy_level.succ n) := Π (x y : α),
-  is_n_type (x = y :> α) n
+  def le.succ (a b : level) : a ≤ b → succ a ≤ succ b := begin
+    intro h, induction h with c a' b' h ih,
+    { apply le.refl },
+    { apply le.step, assumption }
+  end
 
-def n_type (n : homotopy_level) :=
-Σ (α : Type u), is_n_type α n
+  def add : level → level → level
+  | (succ (succ n)) −2 := n
+  | −1 −2 := −2
+  | −2 −2 := −2
+  | n 0 := n
+  | n (succ m) := succ (add n m)
+  instance : has_add level := ⟨level.add⟩
+
+  def of_nat : ℕ → ℕ₋₂
+  |    0    := 0
+  | (n + 1) := level.succ (of_nat n)
+end level
+
+def is_n_type : level → Type u → Type u
+| level.minus_two := contr
+| (level.succ n)  := λ α, Π (x y : α), is_n_type n (x = y)
+notation [parsing_only] `is-` n `-type ` α := is_n_type n α
+
+def n_type (n : level) :=
+Σ (α : Type u), is_n_type n α
 notation n `-Type` := n_type n
+
+@[hott] def level.cumulative (n : level) : Π {α : Type u},
+  (is-n-type α) → is-(level.succ n)-type α := begin
+  induction n with n ih; intros α h,
+  { induction h with a₀ p,
+    intros x y, existsi (p x)⁻¹ ⬝ p y,
+    intro q, induction q, apply types.eq.inv_comp },
+  { intros x y, apply ih, apply h }
+end
+
+@[hott] def level.strong_cumulative (n m : level) (h : n ≤ m) :
+  Π {α : Type u}, (is-n-type α) → (is-m-type α) := begin
+  induction h with c a' b' h ih,
+  { intros, assumption },
+  { intros α g, apply level.cumulative,
+    apply ih, assumption }
+end
 
 @[hott] def contr_impl_prop {α : Type u} (h : contr α) : prop α :=
 λ a b, (h.intro a)⁻¹ ⬝ (h.intro b)
@@ -113,6 +155,13 @@ section
     induction q, apply inv_comp
   end
 
+  @[hott] def set_impl_groupoid {α : Type u} (r : hset α) : groupoid α := begin
+    intros a b p q η μ, have g := r p,
+    transitivity, symmetry, apply rewrite_comp,
+    transitivity, symmetry, exact apd g η, apply transport_composition,
+    induction μ, apply inv_comp
+  end
+
   @[hott] def empty_is_set : hset 𝟎 :=
   begin apply prop_is_set, apply empty_is_prop end
   @[hott] def unit_is_set : hset 𝟏 :=
@@ -126,11 +175,21 @@ section
   end
 
   @[hott] def prop_is_prop {α : Type u} : prop (prop α) := begin
-    intros f g,
-    have p := λ a b, (prop_is_set f) (f a b) (g a b),
-    apply theorems.dfunext, intro a,
-    apply theorems.dfunext, intro b,
-    exact p a b
+    intros f g, repeat { apply theorems.dfunext, intro },
+    apply prop_is_set, assumption
+  end
+
+  @[hott] def set_is_prop {α : Type u} : prop (hset α) := begin
+    intros f g, repeat { apply theorems.dfunext, intro },
+    apply set_impl_groupoid, assumption
+  end
+
+  @[hott] def ntype_is_prop (n : level) : Π {α : Type u}, prop (is-n-type α) := begin
+    induction n with n ih,
+    { apply contr_is_prop },
+    { intros α p q, apply theorems.dfunext,
+      intro x, apply theorems.dfunext, intro y,
+      apply ih }
   end
 
   @[hott] def function_to_contr {α : Type u} : prop (α → contr α) := begin
@@ -184,6 +243,19 @@ def is_contr_fiber {α : Type u} {β : Type v} (f : α → β) :=
 begin
   existsi f, split; existsi g,
   { intro x, apply F }, { intro y, apply G }
+end
+
+@[hott] def minus_one_eqv_prop {α : Type u} : (is-−1-type α) ≃ prop α := begin
+  apply prop_equiv_lemma, apply ntype_is_prop, apply prop_is_prop,
+  { intros h a b, exact (h a b).point },
+  { intros h a b, existsi h a b, apply prop_is_set h }
+end
+
+@[hott] def zero_eqv_set {α : Type u} : (is-0-type α) ≃ hset α := begin
+  apply prop_equiv_lemma, apply ntype_is_prop, apply set_is_prop,
+  { intros h a b p q, exact (h a b p q).point },
+  { intros h a b p q, existsi h p q,
+    apply set_impl_groupoid, assumption }
 end
 
 end structures

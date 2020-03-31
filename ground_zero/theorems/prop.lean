@@ -1,4 +1,4 @@
-import ground_zero.HITs.interval ground_zero.HITs.truncation ground_zero.types.sigma
+import ground_zero.HITs.interval ground_zero.HITs.merely ground_zero.types.sigma
 open ground_zero.HITs.interval
 open ground_zero.structures (prop contr hset prop_is_set)
 open ground_zero.types.equiv
@@ -20,22 +20,14 @@ universes u v w
 end
 
 @[hott] lemma uniq_does_not_add_new_paths {α : Type u} (a b : ∥α∥) (p : a = b :> ∥α∥) :
-  HITs.truncation.uniq a b = p :> a = b :> ∥α∥ :=
-prop_is_set HITs.truncation.uniq (HITs.truncation.uniq a b) p
-
-@[hott] def prop_is_prop {α : Type u} : prop (prop α) := begin
-  intros f g,
-  have p := λ a b, (prop_is_set f) (f a b) (g a b),
-  apply theorems.dfunext, intro a,
-  apply theorems.dfunext, intro b,
-  exact p a b
-end
+  HITs.merely.uniq a b = p :> a = b :> ∥α∥ :=
+prop_is_set HITs.merely.uniq (HITs.merely.uniq a b) p
 
 @[hott] def prop_equiv {π : Type u} (h : prop π) : π ≃ ∥π∥ := begin
-  existsi HITs.truncation.elem,
-  split; existsi (HITs.truncation.rec h id); intro x,
+  existsi HITs.merely.elem,
+  split; existsi (HITs.merely.rec h id); intro x,
   { reflexivity },
-  { apply HITs.truncation.uniq }
+  { apply HITs.merely.uniq }
 end
 
 @[hott] def prop_from_equiv {π : Type u} (e : π ≃ ∥π∥) : prop π := begin
@@ -44,7 +36,7 @@ end
   intros a b,
   transitivity, exact (α a)⁻¹,
   symmetry, transitivity, exact (α b)⁻¹,
-  apply eq.map g, exact HITs.truncation.uniq (f b) (f a)
+  apply eq.map g, exact HITs.merely.uniq (f b) (f a)
 end
 
 @[hott] def map_to_happly {α : Type u} {β : Type v}
@@ -92,14 +84,14 @@ end
 @[hott] noncomputable theorem prop_exercise (π : Type u) : (prop π) ≃ (π ≃ ∥π∥) :=
 begin
   existsi @prop_equiv π, split; existsi prop_from_equiv,
-  { intro x, apply prop_is_prop },
+  { intro x, apply structures.prop_is_prop },
   { intro x,
     induction x with f H,
     induction H with linv rinv,
     induction linv with f α,
     induction rinv with g β,
     fapply sigma.prod,
-    { apply theorems.funext, intro x, apply HITs.truncation.uniq },
+    { apply theorems.funext, intro x, apply HITs.merely.uniq },
     { apply biinv_prop } }
 end
 
@@ -158,7 +150,7 @@ end
 pi_prop (λ _, h)
 
 @[hott] def propset.eq (α β : Ω) (h : α.fst = β.fst) : α = β :=
-types.sigma.prod h (prop_is_prop _ _)
+types.sigma.prod h (structures.prop_is_prop _ _)
 
 end theorems.prop
 end ground_zero
