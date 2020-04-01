@@ -5,10 +5,9 @@ open ground_zero.types.unit
 hott theory
 
 namespace ground_zero
-
-namespace structures
 universes u v w
 
+namespace structures
 def is_loop {α : Type u} {a : α} (p : a = a) := ¬(p = types.eq.refl a)
 
 def prop (α : Type u) :=
@@ -170,30 +169,30 @@ section
   @[hott] def contr_is_prop {α : Type u} : prop (contr α) := begin
     intros x y, cases x with x u, cases y with y v,
     have p := u y, induction p, apply types.eq.map,
-    apply theorems.dfunext, intro a,
+    apply HITs.interval.funext, intro a,
     apply prop_is_set (contr_impl_prop ⟨x, u⟩)
   end
 
   @[hott] def prop_is_prop {α : Type u} : prop (prop α) := begin
-    intros f g, repeat { apply theorems.dfunext, intro },
+    intros f g, repeat { apply HITs.interval.funext, intro },
     apply prop_is_set, assumption
   end
 
   @[hott] def set_is_prop {α : Type u} : prop (hset α) := begin
-    intros f g, repeat { apply theorems.dfunext, intro },
+    intros f g, repeat { apply HITs.interval.funext, intro },
     apply set_impl_groupoid, assumption
   end
 
   @[hott] def ntype_is_prop (n : level) : Π {α : Type u}, prop (is-n-type α) := begin
     induction n with n ih,
     { apply contr_is_prop },
-    { intros α p q, apply theorems.dfunext,
-      intro x, apply theorems.dfunext, intro y,
+    { intros α p q, apply HITs.interval.funext,
+      intro x, apply HITs.interval.funext, intro y,
       apply ih }
   end
 
   @[hott] def function_to_contr {α : Type u} : prop (α → contr α) := begin
-    intros f g, apply theorems.funext, intro x, apply contr_is_prop
+    intros f g, apply HITs.interval.funext, intro x, apply contr_is_prop
   end
 end
 
@@ -258,10 +257,10 @@ end
   (h : Π x, η x ≃ μ x) : (Π x, η x) ≃ (Π x, μ x) := begin
   existsi (λ (f : Π x, η x) (x : α), (h x).forward (f x)), split,
   { existsi (λ (f : Π x, μ x) (x : α), (h x).left (f x)),
-    intro f, apply theorems.dfunext,
+    intro f, apply HITs.interval.funext,
     intro x, apply (h x).left_forward },
   { existsi (λ (f : Π x, μ x) (x : α), (h x).right (f x)),
-    intro f, apply theorems.dfunext,
+    intro f, apply HITs.interval.funext,
     intro x, apply (h x).forward_right }
 end
 
@@ -293,30 +292,98 @@ end structures
 
 -- http://www.cs.bham.ac.uk/~mhe/truncation-and-extensionality/tiny-library.html
 -- http://www.cs.bham.ac.uk/~mhe/truncation-and-extensionality/hsetfunext.html
-structure {u} singl {α : Type u} (a : α) :=
-(point : α) (intro : a = point :> α)
+def singl {α : Type u} (a : α) :=
+Σ b, a = b
 
 namespace singl
-universe u
+  def trivial_loop {α : Type u} (a : α) : singl a :=
+  ⟨a, by reflexivity⟩
 
-def trivial_loop {α : Type u} (a : α) : singl a :=
-⟨a, by reflexivity⟩
+  @[hott] def path_from_trivial_loop {α : Type u} {a b : α}
+    (r : a = b) : (trivial_loop a) = ⟨b, r⟩ :> singl a :=
+  begin induction r, trivial end
 
-@[hott] def path_from_trivial_loop {α : Type u} {a b : α}
-  (r : a = b :> α) : (trivial_loop a) = ⟨b, r⟩ :> singl a :=
-begin induction r, trivial end
+  @[hott] def singl.eta {α : Type u} {a : α} (t : singl a) :
+    ⟨t.fst, t.snd⟩ = t :> singl a :=
+  begin induction t, trivial end
 
-@[hott] def singl.eq {α : Type u} {a : α} (t : singl a) :
-  { point := t.point, intro := t.intro } = t :> singl a :=
-begin induction t, trivial end
+  @[hott] def contr {α : Type u} (a : α) : structures.contr (singl a) :=
+  ⟨trivial_loop a, λ t, path_from_trivial_loop t.snd ⬝ singl.eta t⟩
 
-@[hott] def signl_contr {α : Type u} (a : α) : structures.contr (singl a) :=
-{ point := trivial_loop a,
-  intro := λ t, path_from_trivial_loop t.intro ⬝ singl.eq t }
-
-@[hott] def singl_prop {α : Type u} (a : α) : structures.prop (singl a) :=
-structures.contr_impl_prop (signl_contr a)
-
+  @[hott] def prop {α : Type u} (a : α) : structures.prop (singl a) :=
+  structures.contr_impl_prop (contr a)
 end singl
+
+namespace theorems
+  open ground_zero.structures ground_zero.types.equiv ground_zero.types
+
+  namespace funext
+    @[hott] def naive :=
+    Π {α : Type u} {β : α → Type v} {f g : Π x, β x}, f ~ g → f = g
+
+    @[hott] def weak :=
+    Π {α : Type u} {β : α → Type v}, (Π x, contr (β x)) → contr (Π x, β x)
+
+    @[hott] def full :=
+    Π {α : Type u} {β : α → Type v} {f g : Π x, β x}, biinv (@HITs.interval.happly α β f g)
+  end funext
+
+  @[hott] def naive {α : Type u} {β : α → Type v} {f g : Π x, β x} : f ~ g → f = g :=
+  HITs.interval.funext
+
+  @[hott] def weak {α : Type u} {β : α → Type v}
+    (H : Π x, contr (β x)) : contr (Π x, β x) := begin
+    existsi (λ x, (H x).point),
+    intro f, apply naive, intro x, apply (H x).intro
+  end
+
+  section
+    variables {α : Type u} {β : α → Type v}
+
+    @[hott] def is_contr_sigma_homotopy
+      (f : Π x, β x) : contr (Σ g, f ~ g) :=
+    let r (k : Π x, Σ y, f x = y) :=
+    @sigma.mk _ (λ g, f ~ g) (λ x, (k x).fst) (λ x, (k x).snd) in
+    let s (g : Π x, β x) (h : f ~ g) x :=
+    sigma.mk (g x) (h x) in begin
+      existsi sigma.mk f (homotopy.id f),
+      intro g, induction g with g H,
+      change r (λ x, sigma.mk (f x) (idp _)) = r (s g H),
+      apply eq.map r, apply contr_impl_prop,
+      apply weak, intro x, apply singl.contr
+    end
+
+    variables (f : Π x, β x) {π : Π g (h : f ~ g), Type w}
+              (r : π f (homotopy.id f))
+    @[hott] def homotopy_ind 
+      (g : Π x, β x) (h : f ~ g) : π g h :=
+    @transport (Σ g, f ~ g) (λ (p : Σ g, f ~ g), π p.fst p.snd)
+      ⟨f, homotopy.id f⟩ ⟨g, h⟩
+      (contr_impl_prop (is_contr_sigma_homotopy f) _ _) r
+
+    @[hott] def homotopy_ind_id :
+      homotopy_ind f r f (types.equiv.homotopy.id f) = r := begin
+      transitivity, apply eq.map
+        (λ p, @transport (Σ g, f ~ g) (λ p, π p.fst p.snd)
+           ⟨f, equiv.homotopy.id f⟩ ⟨f, equiv.homotopy.id f⟩ p r),
+      change _ = idp _,
+      apply prop_is_set, apply contr_impl_prop,
+      apply is_contr_sigma_homotopy,
+      trivial
+    end
+  end
+
+  @[hott] def funext {α : Type u} {β : α → Type v}
+    {f g : Π x, β x} : (f ~ g) → (f = g) :=
+  @homotopy_ind _ _ f (λ g x, f = g) (idp _) g
+
+  @[hott] def full {α : Type u} {β : α → Type v}
+    {f g : Π x, β x} : (f = g) ≃ (f ~ g) := begin
+    existsi HITs.interval.happly, split; existsi funext,
+    { intro x, induction x, apply homotopy_ind_id },
+    { apply homotopy_ind, change _ = HITs.interval.happly (idp _),
+      apply eq.map HITs.interval.happly, apply homotopy_ind_id }
+  end
+end theorems
 
 end ground_zero

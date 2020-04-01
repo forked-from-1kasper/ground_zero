@@ -114,7 +114,7 @@ namespace group
 
     @[hott] def prop_respects_mul (φ : α → β) : prop (respects_mul φ) := begin
       intros f g,
-      repeat { apply ground_zero.theorems.dfunext, intro },
+      repeat { apply ground_zero.theorems.funext, intro },
       apply magma.set
     end
 
@@ -304,7 +304,7 @@ namespace group
       repeat { apply funext, intro },
       fapply ground_zero.types.sigma.prod,
       { change ldiv φ _ _ = rdiv φ _ _,
-        repeat { apply ground_zero.theorems.happly },
+        repeat { apply ground_zero.HITs.interval.happly },
         apply cosets_eq },
       apply prop_is_prop
     end

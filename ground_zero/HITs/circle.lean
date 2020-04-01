@@ -1,5 +1,6 @@
 import ground_zero.HITs.suspension ground_zero.HITs.interval
 import ground_zero.types.integer ground_zero.theorems.nat
+open ground_zero.HITs.interval (happly)
 open ground_zero.types.equiv (subst transport)
 open ground_zero.types.eq
 open ground_zero.structures (hset)
@@ -278,7 +279,7 @@ namespace circle
           reflexivity } }
     end)
     (begin
-      apply theorems.dfunext,
+      apply theorems.funext,
       intro x, apply integer_is_set
     end) x c
 
@@ -346,15 +347,14 @@ namespace circle
   by apply equiv.idmap
 
   @[hott] noncomputable def μ_left := calc
-    (λ x, μ x base) # loop = theorems.happly (eq.map μ loop) base :
-                             by apply theorems.map_happly
-                       ... = theorems.happly (theorems.funext turn) base :
-                             begin apply eq.map (λ f, theorems.happly f base),
+    (λ x, μ x base) # loop = happly (eq.map μ loop) base :
+                             by apply interval.map_happly
+                       ... = happly (theorems.funext turn) base :
+                             begin apply eq.map (λ f, happly f base),
                                    apply circle.recβrule₂ end
                        ... = loop :
-                             begin change _ = turn base,
-                                   apply theorems.happly,
-                                   apply interval.happly_funext end
+                             begin change _ = turn base, apply happly,
+                                   apply theorems.full.forward_right end
 
   @[hott] noncomputable def unit_right (x : S¹) : μ x base = x := begin
     fapply circle.ind _ _ x, refl,
@@ -381,6 +381,14 @@ namespace circle
       symmetry, transitivity, symmetry, apply μ_left,
       apply equiv.bimap_comp }
   end
+
+  def pow' (x : S¹) : ℕ → S¹
+  | 0 := base
+  | (n + 1) := μ x (pow' n)
+
+  def pow (x : S¹) : ℤ → S¹
+  | (integer.pos n) := pow' x n
+  | (integer.neg n) := pow' (inv x) (n + 1)
 end circle
 
 namespace ncircle

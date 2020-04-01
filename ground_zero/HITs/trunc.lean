@@ -45,7 +45,7 @@ namespace trunc
   @[hott] noncomputable def nth_trunc (H : is-n-type α) : α ≃ trunc n α := begin
     existsi elem, split; existsi rec id H,
     { intro x, trivial },
-    { apply ground_zero.theorems.happly,
+    { apply ground_zero.HITs.interval.happly,
       apply elem_close, apply uniq,
       apply ground_zero.theorems.funext,
       intro x, trivial }

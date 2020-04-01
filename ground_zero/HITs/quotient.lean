@@ -1,6 +1,6 @@
 import ground_zero.HITs.trunc ground_zero.HITs.graph
 open ground_zero.structures (propset hset zero_eqv_set)
-open ground_zero.theorems (dfunext)
+open ground_zero.theorems (funext)
 
 namespace ground_zero.HITs
 universes u v w
@@ -30,10 +30,10 @@ begin induction p, induction q, trivial end
 @[hott] def eqv_prop {α : Type u} {rel : α → α → propset.{v}}
   (h g : equivalence rel) : h = g := begin
   apply ground_zero.structures.product_prop,
-  { intros f g, apply dfunext, intro x,
+  { intros f g, apply ground_zero.theorems.funext, intro x,
     apply (rel x x).snd },
   apply ground_zero.structures.product_prop;
-  { intros f g, repeat { apply dfunext, intro },
+  { intros f g, repeat { apply ground_zero.theorems.funext, intro },
     apply (rel _ _).snd }
 end
 

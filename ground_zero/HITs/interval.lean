@@ -1,15 +1,14 @@
 import ground_zero.structures
 open ground_zero.structures ground_zero.types
-open ground_zero.theorems (happly funext dfunext)
+open ground_zero.theorems (funext)
 
 hott theory
 
 namespace ground_zero
+universes u v w
+
 namespace HITs
-
 namespace interval
-  universes u v w
-
   @[safe] def seg_inv : i₁ = i₀ := support.inclusion $ quot.sound (I.rel.mk tt ff)
 
   /- β i₀ and β i₁ are Prop’s,
@@ -60,22 +59,10 @@ namespace interval
     (p : g₁ = g₂) (H : g₁ ∘ f ~ h) (x : α) :
     equiv.transport (λ (g : β → γ), g ∘ f ~ h) p H x =
     @equiv.transport (β → γ) (λ (g : β → γ), g (f x) = h x) g₁ g₂ p (H x) :=
-  begin apply theorems.happly, apply equiv.transport_over_pi end
+  begin apply happly, apply equiv.transport_over_pi end
 
   @[hott] def bool_to_interval (f : bool → bool → bool) (a b : I) : I :=
   lift (λ a, lift (discrete ∘ f a) interval_prop b) interval_prop a
-
-  @[hott] noncomputable def happly_funext {α : Type u} {β : Type v}
-    {f g : α → β} (p : f ~ g) : happly (funext p) = p := begin
-    change equiv.transport (λ g, f ~ g) (funext p) (equiv.homotopy.id f) = _,
-    transitivity, apply equiv.transport_over_pi,
-    apply dfunext, intro x,
-    transitivity, apply types.equiv.transport_over_inv_contr_map,
-    transitivity, apply eq.refl_left,
-    transitivity, symmetry,
-    apply equiv.map_over_comp (function.swap (theorems.homotopy p)) (λ f, f x) seg,
-    apply interval.recβrule
-  end
 
   @[hott] def neg : I → I := interval.rec i₁ i₀ seg⁻¹
   instance : has_neg I := ⟨neg⟩

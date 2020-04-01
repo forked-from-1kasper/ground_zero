@@ -33,10 +33,10 @@ end
 
 @[hott] def map_to_happly {α : Type u} {β : Type v}
   (c : α) (f g : α → β) (p : f = g) :
-  (λ (f : α → β), f c) # p = theorems.happly p c :=
+  (λ (f : α → β), f c) # p = happly p c :=
 begin induction p, trivial end
 
-@[hott] noncomputable def biinv_prop {α : Type u} {β : Type v}
+@[hott] def biinv_prop {α : Type u} {β : Type v}
   (f : α → β) : prop (types.equiv.biinv f) := begin
   intros m n, cases m with linv₁ rinv₁, cases n with linv₂ rinv₂,
   cases rinv₁ with g G, cases rinv₂ with h H,
@@ -47,14 +47,14 @@ begin induction p, trivial end
         transitivity, symmetry, apply H',
         apply types.eq.map h',
         apply types.qinv.rinv_inv f g g' G G' },
-      { apply theorems.dfunext, intro x,
+      { apply theorems.funext, intro x,
         transitivity, apply HITs.interval.transport_over_hmtpy,
         transitivity, apply equiv.transport_over_function,
         transitivity, apply eq.map (⬝ G' x),
         transitivity, apply eq.map_inv, apply eq.map,
         apply map_to_happly,
         transitivity, apply eq.map (⬝ G' x), apply eq.map,
-        apply theorems.happly, apply HITs.interval.happly_funext,
+        apply happly, apply ground_zero.theorems.full.forward_right,
         transitivity, apply eq.map (⬝ G' x),
         apply types.eq.explode_inv,
         transitivity, apply eq.map (⬝ G' x),
@@ -70,10 +70,10 @@ begin induction p, trivial end
       { apply theorems.funext, intro x,
         transitivity, symmetry, apply types.eq.map, apply H,
         apply types.qinv.linv_inv f g g' G G' },
-      { apply theorems.dfunext, intro x, admit } } },
+      { apply theorems.funext, intro x, admit } } },
 end
 
-@[hott] noncomputable theorem prop_exercise (π : Type u) : (prop π) ≃ (π ≃ ∥π∥) :=
+@[hott] theorem prop_exercise (π : Type u) : (prop π) ≃ (π ≃ ∥π∥) :=
 begin
   existsi @prop_equiv π, split; existsi prop_from_equiv,
   { intro x, apply structures.prop_is_prop },
@@ -135,7 +135,7 @@ end
 
 @[hott] def pi_prop {α : Type u} {β : α → Type v}
   (h : Π x, prop (β x)) : prop (Π x, β x) :=
-λ f g, theorems.dfunext (λ x, h x (f x) (g x))
+λ f g, theorems.funext (λ x, h x (f x) (g x))
 
 @[hott] def impl_prop {α : Type u} {β : Type v}
   (h : prop β) : prop (α → β) :=

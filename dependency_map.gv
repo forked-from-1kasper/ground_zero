@@ -7,6 +7,7 @@ digraph dependency_map {
     "HITs/interval",
     "HITs/merely",
     "HITs/trunc",
+    "types/product",
     "types/nat"
   }
 
@@ -93,7 +94,7 @@ digraph dependency_map {
   subgraph theorems {
     "theorems/fibration" -> { "theorems/hopf" }
     "theorems/functions" -> { "theorems/group" }
-    "theorems/funext" -> { structures, "types/product" }
+    "theorems/funext" -> { structures }
     "theorems/group"
     "theorems/hopf"
     "theorems/nat" -> { "HITs/circle", "HITs/int" }

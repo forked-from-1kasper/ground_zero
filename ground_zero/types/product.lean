@@ -1,4 +1,4 @@
-import ground_zero.theorems.funext
+import ground_zero.structures
 
 namespace ground_zero.types
 

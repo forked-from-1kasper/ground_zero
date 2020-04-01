@@ -172,7 +172,7 @@ end
   end,
   existsi construct, split; existsi deconstruct,
   { intro x, cases x with p q, reflexivity },
-  { intro x, apply theorems.dfunext,
+  { intro x, apply theorems.funext,
     intro b, induction b,
     repeat { reflexivity } }
 end
