@@ -50,7 +50,7 @@ namespace precategory
        ... = g ∘ (f ∘ g') : begin symmetry, apply assoc end
        ... = g ∘ id 𝒞 : (compose g) # H₁
        ... = g : begin symmetry, apply id_right end,
-    apply prop.product_prop; apply set
+    apply ground_zero.structures.product_prop; apply set
   end
 
   def op {α : Type u} (𝒞 : precategory α) : precategory α :=
