@@ -11,14 +11,6 @@ hott theory
 
 universes u v w
 
-@[hott] def product_prop {α : Type u} {β : Type v}
-  (h : prop α) (g : prop β) : prop (α × β) := begin
-  intros a b,
-  cases a with x y, cases b with u v,
-  have p := h x u, have q := g y v,
-  induction p, induction q, reflexivity
-end
-
 @[hott] lemma uniq_does_not_add_new_paths {α : Type u} (a b : ∥α∥) (p : a = b :> ∥α∥) :
   HITs.merely.uniq a b = p :> a = b :> ∥α∥ :=
 prop_is_set HITs.merely.uniq (HITs.merely.uniq a b) p

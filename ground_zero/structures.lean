@@ -82,7 +82,7 @@ end level
 def is_n_type : level → Type u → Type u
 | level.minus_two := contr
 | (level.succ n)  := λ α, Π (x y : α), is_n_type n (x = y)
-notation [parsing_only] `is-` n `-type ` α := is_n_type n α
+notation [parsing_only] `is-` n `-type ` := is_n_type n
 
 def n_type (n : level) :=
 Σ (α : Type u), is_n_type n α
@@ -280,6 +280,14 @@ end
                          apply equiv_funext, intro y,
                          apply zero_eqv_set end
             ... ≃ groupoid α : by reflexivity
+
+@[hott] def product_prop {α : Type u} {β : Type v}
+  (h : prop α) (g : prop β) : prop (α × β) := begin
+  intros a b,
+  cases a with x y, cases b with u v,
+  have p := h x u, have q := g y v,
+  induction p, induction q, reflexivity
+end
 
 end structures
 

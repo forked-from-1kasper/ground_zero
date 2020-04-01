@@ -49,7 +49,8 @@ digraph dependency_map {
     "HITs/graph" -> {
       "HITs/colimit",
       "HITs/generalized",
-      "HITs/pushout"
+      "HITs/pushout",
+      "HITs/quotient"
     }
     "HITs/infinitesimal"
     "HITs/interval" -> {
@@ -68,10 +69,11 @@ digraph dependency_map {
     "HITs/pushout" -> {
       "HITs/suspension"
     }
+    "HITs/quotient" -> { "theorems/group" }
     "HITs/reals"
     "HITs/simplicial"
     "HITs/suspension" -> { "HITs/circle", "HITs/join" }
-    "HITs/trunc"
+    "HITs/trunc" -> { "HITs/quotient" }
   }
 
   subgraph cubical {
@@ -90,11 +92,12 @@ digraph dependency_map {
 
   subgraph theorems {
     "theorems/fibration" -> { "theorems/hopf" }
-    "theorems/functions"
+    "theorems/functions" -> { "theorems/group" }
     "theorems/funext" -> { structures, "types/product" }
+    "theorems/group"
     "theorems/hopf"
     "theorems/nat" -> { "HITs/circle", "HITs/int" }
     "theorems/prop" -> { "types/precategory" }
-    "theorems/ua" -> { "theorems/nat", "cubical/V" }
+    "theorems/ua" -> { "theorems/group", "theorems/nat", "cubical/V" }
   }
 }

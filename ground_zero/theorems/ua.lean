@@ -84,6 +84,10 @@ begin induction p, exact Jβrule end
   { intro e, apply prop_uniq }
 end
 
+@[hott] noncomputable def propext {α β : Type u}
+  (F : prop α) (G : prop β) : (α ↔ β) → α = β :=
+λ h, ua (prop_equiv_lemma F G h.left h.right)
+
 -- perfect proof
 inductive so : bool → Type
 | intro : so tt
