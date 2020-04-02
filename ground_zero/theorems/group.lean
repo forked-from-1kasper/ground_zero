@@ -30,6 +30,10 @@ class group (α : Type u) extends monoid α, has_inv α :=
 class abelian (α : Type u) extends group α :=
 (mul_comm : Π (a b : α), a * b = b * a)
 
+@[hott] def mul_uniq {α : Type u} {a b c d : α} [has_mul α]
+  (h : a = b) (g : c = d) : a * c = b * d :=
+begin induction h, induction g, reflexivity end
+
 namespace group
   variables {α : Type u} [group α]
 
@@ -56,6 +60,9 @@ namespace group
   @[hott] def inv_inv (x : α) : x⁻¹⁻¹ = x :=
   inv_eq_of_mul_eq_one (group.mul_left_inv x)
 
+  @[hott] def eq_inv_of_mul_eq_one {x y : α} (h : x * y = 1) : x = y⁻¹ :=
+  (inv_inv x)⁻¹ ⬝ has_inv.inv # (inv_eq_of_mul_eq_one h)
+
   @[hott] def mul_right_inv (x : α) := calc
     x * x⁻¹ = x⁻¹⁻¹ * x⁻¹ : (* x⁻¹) # (inv_inv x)⁻¹
         ... = 1           : by apply group.mul_left_inv x⁻¹
@@ -76,6 +83,9 @@ namespace group
 
   @[hott] def unit_inv : (1 : α) = 1⁻¹ :=
   (mul_right_inv 1)⁻¹ ⬝ monoid.one_mul 1⁻¹
+
+  @[hott] def unit_sqr : (1 : α) = 1 * 1 :=
+  begin symmetry, apply monoid.one_mul end
 
   @[hott] def inv_explode (x y : α) : (x * y)⁻¹ = y⁻¹ * x⁻¹ :=
   inv_eq_of_mul_eq_one
@@ -134,13 +144,17 @@ namespace group
     instance : has_zero (α ⤳ β) := ⟨homo.zero⟩
 
     variable (φ : α ⤳ β)
-    def ker := λ g, φ.fst g = 1
-    def Ker := sigma (ker φ)
+    def ker.aux := λ g, φ.fst g = 1
+    def Ker := sigma (ker.aux φ)
 
-    @[hott] def ker_is_prop (x : α) : prop (ker φ x) :=
+    @[hott] def ker_is_prop (x : α) : prop (ker.aux φ x) :=
     begin intros f g, apply magma.set end
 
-    def im := functions.fib_inh (φ.fst)
+    def ker : set α := ⟨ker.aux φ, ker_is_prop φ⟩
+
+    def im.aux := functions.fib_inh (φ.fst)
+    def im : set β := ⟨im.aux φ, λ _, ground_zero.HITs.merely.uniq⟩
+
     def Im := functions.ran φ.fst
   end
 
@@ -356,7 +370,7 @@ namespace group
     @[hott] def factor.one : α/φ := factor.incl 1
     instance : has_one (α/φ) := ⟨factor.one⟩
 
-    noncomputable def factor.mul_one (x : α/φ) : x * 1 = x := begin
+    @[hott] noncomputable def factor.mul_one (x : α/φ) : x * 1 = x := begin
       fapply ground_zero.HITs.quotient.ind_prop _ _ x; clear x,
       { intro x, apply ground_zero.HITs.quotient.sound,
         apply transport (∈ φ), calc
@@ -368,7 +382,7 @@ namespace group
       { intros, apply ground_zero.HITs.quotient.set }
     end
 
-    noncomputable def factor.one_mul (x : α/φ) : 1 * x = x := begin
+    @[hott] noncomputable def factor.one_mul (x : α/φ) : 1 * x = x := begin
       fapply ground_zero.HITs.quotient.ind_prop _ _ x; clear x,
       { intro x, apply ground_zero.HITs.quotient.sound,
         apply transport (∈ φ), calc
@@ -380,7 +394,7 @@ namespace group
       { intros, apply ground_zero.HITs.quotient.set }
     end
 
-    noncomputable def factor.assoc (x y z : α/φ) : x * y * z = x * (y * z) := begin
+    @[hott] noncomputable def factor.assoc (x y z : α/φ) : x * y * z = x * (y * z) := begin
       fapply ground_zero.HITs.quotient.ind_prop _ _ x; clear x,
       { fapply ground_zero.HITs.quotient.ind_prop _ _ y; clear y,
         { fapply ground_zero.HITs.quotient.ind_prop _ _ z; clear z,
@@ -399,7 +413,7 @@ namespace group
       { intros, apply ground_zero.HITs.quotient.set }
     end
 
-    noncomputable def factor.inv (x : α/φ) : α/φ := begin
+    @[hott] noncomputable def factor.inv (x : α/φ) : α/φ := begin
       apply ground_zero.HITs.quotient.rec _ _ _ x; clear x,
       { intro x, exact factor.incl x⁻¹ },
       { intros u v H, apply ground_zero.HITs.quotient.sound,
@@ -409,7 +423,7 @@ namespace group
     end
     noncomputable instance : has_inv (α/φ) := ⟨factor.inv⟩
 
-    noncomputable def factor.left_inv (x : α/φ) : x⁻¹ * x = 1 := begin
+    @[hott] noncomputable def factor.left_inv (x : α/φ) : x⁻¹ * x = 1 := begin
       fapply ground_zero.HITs.quotient.ind_prop _ _ x; clear x,
       { intro x, apply ground_zero.HITs.quotient.sound,
         apply transport (∈ φ), calc
@@ -420,7 +434,7 @@ namespace group
       { intros, apply ground_zero.HITs.quotient.set }
     end
 
-    noncomputable instance factor.is_group : group (α/φ) :=
+    @[hott] noncomputable instance factor.is_group : group (α/φ) :=
     { set := λ _ _, ground_zero.HITs.quotient.set,
       mul := factor.mul,
       one := factor.one,
@@ -429,6 +443,80 @@ namespace group
       mul_one := factor.mul_one,
       inv := factor.inv,
       mul_left_inv := factor.left_inv }
+  end
+
+  section
+    variables {β : Type v} [group β] (φ : α ⤳ β)
+    @[hott] def homo_saves_unit : φ.fst 1 = 1 := begin
+      cases φ with φ H, apply unit_of_sqr, calc
+        φ 1 * φ 1 = φ (1 * 1) : (H 1 1)⁻¹
+              ... = φ 1       : φ # unit_sqr⁻¹
+    end
+
+    @[hott] def homo_respects_inv (x : α) : φ.fst x⁻¹ = (φ.fst x)⁻¹ := begin
+      cases φ with φ H, calc
+        φ x⁻¹ = φ x⁻¹ * 1               : (monoid.mul_one (φ x⁻¹))⁻¹
+          ... = φ x⁻¹ * (φ x * (φ x)⁻¹) : (λ y, φ x⁻¹ * y) # (group.mul_right_inv (φ x))⁻¹
+          ... = φ x⁻¹ * φ x * (φ x)⁻¹   : (semigroup.mul_assoc _ _ _)⁻¹
+          ... = φ (x⁻¹ * x) * (φ x)⁻¹   : (* (φ x)⁻¹) # (H x⁻¹ x)⁻¹
+          ... = φ 1 * (φ x)⁻¹           : (λ y, φ y * (φ x)⁻¹) # (group.mul_left_inv x)
+          ... = 1 * (φ x)⁻¹             : (* (φ x)⁻¹) # (homo_saves_unit ⟨φ, H⟩)
+          ... = (φ x)⁻¹                 : monoid.one_mul (φ x)⁻¹
+    end
+
+    @[hott] def homo_respects_div (x y : α) : φ.fst (x / y) = φ.fst x / φ.fst y := begin
+      cases φ with φ H, calc
+        φ (x / y) = φ x * φ y⁻¹   : H x y⁻¹
+              ... = φ x * (φ y)⁻¹ : (λ y, φ x * y) # (homo_respects_inv ⟨φ, H⟩ y)
+              ... = φ x / φ y     : by trivial
+    end
+
+    @[hott] instance ker_is_subgroup : is_subgroup (ker φ) :=
+    { unit := by apply homo_saves_unit,
+      mul := begin
+        intros a b h g, change _ = _,
+        transitivity, { apply φ.snd }, symmetry,
+        transitivity, { apply unit_sqr },
+        apply mul_uniq, exact h⁻¹, exact g⁻¹
+      end,
+      inv := begin
+        intros x h, change _ = _,
+        cases φ with φ H, calc
+          φ x⁻¹ = (φ x)⁻¹ : homo_respects_inv ⟨φ, H⟩ x
+            ... = 1⁻¹     : has_inv.inv # h
+            ... = 1       : unit_inv⁻¹
+      end }
+
+    instance ker_is_normal_subgroup : is_normal_subgroup (ker φ) := begin
+      apply is_normal_subgroup.mk, intros n g G, cases φ with φ H,
+      change _ = _ at G, have F := (H n g)⁻¹ ⬝ G, calc
+        φ (g * n) = φ g * φ n     : H g n
+              ... = φ g * (φ g)⁻¹ : (λ y, φ g * y) # (eq_inv_of_mul_eq_one F)
+              ... = 1 : by apply mul_right_inv
+    end
+
+    instance im_is_subgroup : is_subgroup (im φ) :=
+    { unit := ground_zero.HITs.merely.elem ⟨1, homo_saves_unit φ⟩,
+      mul := begin
+        intros a b G' H', fapply ground_zero.HITs.merely.rec _ _ G',
+        { apply ground_zero.HITs.merely.uniq },
+        { intro G,
+          { fapply ground_zero.HITs.merely.rec _ _ H',
+            { apply ground_zero.HITs.merely.uniq },
+            { intro H, induction G with x G,
+              induction H with y H,
+              apply ground_zero.HITs.merely.elem,
+              existsi (x * y), transitivity, apply φ.snd,
+              induction G, induction H, trivial } } }
+      end,
+      inv := begin
+        intros x H', fapply ground_zero.HITs.merely.rec _ _ H',
+        { apply ground_zero.HITs.merely.uniq },
+        { intro H, apply ground_zero.HITs.merely.elem,
+          induction H with y H, existsi y⁻¹,
+          transitivity, apply homo_respects_inv,
+          apply map, assumption }
+      end }
   end
 end group
 
