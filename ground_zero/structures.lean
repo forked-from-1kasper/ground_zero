@@ -332,6 +332,14 @@ end
   induction p, induction q, reflexivity
 end
 
+@[hott] def pi_prop {α : Type u} {β : α → Type v}
+  (h : Π x, prop (β x)) : prop (Π x, β x) :=
+λ f g, HITs.interval.funext (λ x, h x (f x) (g x))
+
+@[hott] def impl_prop {α : Type u} {β : Type v}
+  (h : prop β) : prop (α → β) :=
+pi_prop (λ _, h)
+
 end structures
 
 -- http://www.cs.bham.ac.uk/~mhe/truncation-and-extensionality/tiny-library.html
@@ -360,17 +368,6 @@ end singl
 
 namespace theorems
   open ground_zero.structures ground_zero.types.equiv ground_zero.types
-
-  namespace funext
-    @[hott] def naive :=
-    Π {α : Type u} {β : α → Type v} {f g : Π x, β x}, f ~ g → f = g
-
-    @[hott] def weak :=
-    Π {α : Type u} {β : α → Type v}, (Π x, contr (β x)) → contr (Π x, β x)
-
-    @[hott] def full :=
-    Π {α : Type u} {β : α → Type v} {f g : Π x, β x}, biinv (@HITs.interval.happly α β f g)
-  end funext
 
   @[hott] def naive {α : Type u} {β : α → Type v} {f g : Π x, β x} : f ~ g → f = g :=
   HITs.interval.funext

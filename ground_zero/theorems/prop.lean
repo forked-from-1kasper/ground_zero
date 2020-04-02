@@ -133,14 +133,6 @@ end
     trivial }
 end
 
-@[hott] def pi_prop {α : Type u} {β : α → Type v}
-  (h : Π x, prop (β x)) : prop (Π x, β x) :=
-λ f g, theorems.funext (λ x, h x (f x) (g x))
-
-@[hott] def impl_prop {α : Type u} {β : Type v}
-  (h : prop β) : prop (α → β) :=
-pi_prop (λ _, h)
-
 @[hott] def propset.eq (α β : Ω) (h : α.fst = β.fst) : α = β :=
 types.sigma.prod h (structures.prop_is_prop _ _)
 

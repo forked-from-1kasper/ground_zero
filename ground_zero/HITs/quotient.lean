@@ -1,5 +1,5 @@
 import ground_zero.HITs.trunc ground_zero.HITs.graph
-open ground_zero.structures (propset hset zero_eqv_set)
+open ground_zero.structures (propset prop hset zero_eqv_set)
 open ground_zero.theorems (funext)
 
 namespace ground_zero.HITs
@@ -53,7 +53,11 @@ trunc.elem ∘ graph.elem
   apply graph.line, assumption
 end
 
-@[hott] def quotient.ind {α : Type u} {s : setoid α} {π : quotient s → Type v}
+@[hott] noncomputable def quotient.set {α : Type u} {s : setoid α} : hset (quotient s) :=
+λ _ _, zero_eqv_set.forward (trunc.uniq 0)
+
+@[hott] def quotient.ind {α : Type u} {s : setoid α}
+  {π : quotient s → Type v}
   (elemπ : Π x, π (quotient.elem x))
   (lineπ : Π x y H, elemπ x =[quotient.sound H] elemπ y)
   (set   : Π x, hset (π x)) : Π x, π x := begin
@@ -65,6 +69,17 @@ end
   { intro x, apply zero_eqv_set.left, apply set }
 end
 
+@[hott] def quotient.ind_prop {α : Type u} {s : setoid α}
+  {π : quotient s → Type v}
+  (elemπ : Π x, π (quotient.elem x))
+  (propπ : Π x, prop (π x)) : Π x, π x := begin
+  fapply quotient.ind,
+  { exact elemπ },
+  { intros, change _ = _, apply propπ },
+  { intros, apply ground_zero.structures.prop_is_set,
+    apply propπ }
+end
+
 @[hott] def quotient.rec {α : Type u} {β : Type v} {s : setoid α}
   (elemπ : α → β)
   (lineπ : Π x y, s.apply x y → elemπ x = elemπ y)
@@ -72,5 +87,26 @@ end
 @quotient.ind α s (λ _, β) elemπ
   (λ x y H, ground_zero.types.equiv.pathover_of_eq (quotient.sound H) (lineπ x y H))
   (λ _ _ _, set)
+
+@[hott] def quotient.lift₂ {α : Type u} {β : Type v} {γ : Type w}
+  {s₁ : setoid α} {s₂ : setoid β} (f : α → β → γ) (h : hset γ)
+  (p : Π a₁ a₂ b₁ b₂, s₁.apply a₁ b₁ → s₂.apply a₂ b₂ → f a₁ a₂ = f b₁ b₂) :
+  quotient s₁ → quotient s₂ → γ := begin
+  intro x, fapply quotient.rec _ _ _ x; clear x,
+  { intros x y, fapply quotient.rec _ _ _ y; clear y,
+    { intro y, exact f x y },
+    { intros y₁ y₂ H, apply p, apply s₁.iseqv.fst,
+      exact H },
+    { assumption } },
+  { intros x y H, apply ground_zero.theorems.funext,
+    fapply quotient.ind,
+    { intro z, apply p, assumption, apply s₂.iseqv.fst },
+    { intros, apply h },
+    { intros, apply ground_zero.structures.prop_is_set,
+      apply h } },
+  { apply zero_eqv_set.forward,
+    apply ground_zero.structures.pi_respects_ntype 0,
+    intros, apply zero_eqv_set.left, intros a b p q, apply h }
+end
 
 end ground_zero.HITs

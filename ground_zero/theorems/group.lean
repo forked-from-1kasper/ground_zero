@@ -298,7 +298,7 @@ namespace group
   ground_zero.HITs.quotient (factor_setoid_right φ)
   infix `\` := factor_right
 
-  noncomputable def factor_symm (φ : set α)
+  @[hott] noncomputable def factor_symm (φ : set α)
     [is_normal_subgroup φ] : α/φ = α\φ := begin
       apply map ground_zero.HITs.quotient, apply ground_zero.HITs.setoid.eq,
       repeat { apply funext, intro },
@@ -311,6 +311,125 @@ namespace group
 
   def factor.incl {φ : set α} [is_normal_subgroup φ] : α → α/φ :=
   ground_zero.HITs.quotient.elem
+
+  section
+    variables {φ : set α} [is_normal_subgroup φ]
+
+    @[hott] noncomputable def factor.mul : α/φ → α/φ → α/φ := begin
+      fapply ground_zero.HITs.quotient.lift₂,
+      { intros a b, exact factor.incl (a * b) },
+      { apply ground_zero.HITs.quotient.set },
+      { intros a b c d H G,
+        apply ground_zero.HITs.quotient.sound,
+        change _ ∈ φ, apply transport (∈ φ),
+        calc b⁻¹ * (a⁻¹ * c * (d * b⁻¹)) * b
+           = b⁻¹ * (a⁻¹ * c * d * b⁻¹) * b :
+             (λ x, b⁻¹ * x * b) # (semigroup.mul_assoc (a⁻¹ * c) d b⁻¹)⁻¹
+       ... = b⁻¹ * (a⁻¹ * c * d * b⁻¹ * b) :
+             semigroup.mul_assoc b⁻¹ (a⁻¹ * c * d * b⁻¹) b
+       ... = b⁻¹ * (a⁻¹ * c * d * (b⁻¹ * b)) :
+             (λ x, b⁻¹ * x) # (semigroup.mul_assoc (a⁻¹ * c * d) b⁻¹ b)
+       ... = b⁻¹ * (a⁻¹ * c * d * 1) :
+             @map α α _ _ (λ x, b⁻¹ * (a⁻¹ * c * d * x)) (group.mul_left_inv b)
+       ... = b⁻¹ * (a⁻¹ * c * d) :
+             (λ x, b⁻¹ * x) # (monoid.mul_one (a⁻¹ * c * d))
+       ... = b⁻¹ * (a⁻¹ * (c * d)) :
+             (λ x, b⁻¹ * x) # (semigroup.mul_assoc a⁻¹ c d)
+       ... = (b⁻¹ * a⁻¹) * (c * d) :
+             (semigroup.mul_assoc b⁻¹ a⁻¹ (c * d))⁻¹
+       ... = (a * b) \ (c * d) :
+             (* (c * d)) # (inv_explode a b)⁻¹,
+        apply is_normal_subgroup.conj,
+        apply is_subgroup.mul,
+        { exact H },
+        { apply transport (∈ φ), calc
+            (b * d⁻¹)⁻¹ = d⁻¹⁻¹ * b⁻¹ : inv_explode b d⁻¹
+                    ... = d * b⁻¹ : (* b⁻¹) # (inv_inv d),
+          apply is_subgroup.inv,
+          apply (normal_subgroup_cosets φ).left,
+          exact G } }
+    end
+
+    noncomputable instance : has_mul (α/φ) :=
+    ⟨factor.mul⟩
+
+    @[hott] def factor.one : α/φ := factor.incl 1
+    instance : has_one (α/φ) := ⟨factor.one⟩
+
+    noncomputable def factor.mul_one (x : α/φ) : x * 1 = x := begin
+      fapply ground_zero.HITs.quotient.ind_prop _ _ x; clear x,
+      { intro x, apply ground_zero.HITs.quotient.sound,
+        apply transport (∈ φ), calc
+            1 = x⁻¹ * x             : (group.mul_left_inv x)⁻¹
+          ... = 1 * x⁻¹ * x         : (* x) # (monoid.one_mul x⁻¹)⁻¹
+          ... = (1 : α)⁻¹ * x⁻¹ * x : (λ y, y * x⁻¹ * x) # unit_inv
+          ... = (x * 1)⁻¹ * x       : (* x) # (inv_explode x 1)⁻¹,
+        apply is_subgroup.unit },
+      { intros, apply ground_zero.HITs.quotient.set }
+    end
+
+    noncomputable def factor.one_mul (x : α/φ) : 1 * x = x := begin
+      fapply ground_zero.HITs.quotient.ind_prop _ _ x; clear x,
+      { intro x, apply ground_zero.HITs.quotient.sound,
+        apply transport (∈ φ), calc
+            1 = x⁻¹ * x             : (group.mul_left_inv x)⁻¹
+          ... = x⁻¹ * 1 * x         : (* x) # (monoid.mul_one x⁻¹)⁻¹
+          ... = x⁻¹ * 1⁻¹ * x       : (λ y, x⁻¹ * y * x) # unit_inv
+          ... = (1 * x)⁻¹ * x       : (* x) # (inv_explode 1 x)⁻¹,
+        apply is_subgroup.unit },
+      { intros, apply ground_zero.HITs.quotient.set }
+    end
+
+    noncomputable def factor.assoc (x y z : α/φ) : x * y * z = x * (y * z) := begin
+      fapply ground_zero.HITs.quotient.ind_prop _ _ x; clear x,
+      { fapply ground_zero.HITs.quotient.ind_prop _ _ y; clear y,
+        { fapply ground_zero.HITs.quotient.ind_prop _ _ z; clear z,
+          { intros z y x, apply ground_zero.HITs.quotient.sound,
+            apply transport (∈ φ), calc
+                1 = (x * (y * z))⁻¹ * (x * (y * z)) :
+                    (group.mul_left_inv (x * (y * z)))⁻¹
+              ... = (x * y * z)⁻¹ * (x * (y * z)) :
+                    (λ p, has_inv.inv p * (x * (y * z))) #
+                      (semigroup.mul_assoc x y z)⁻¹,
+            apply is_subgroup.unit },
+          { repeat { intros, apply ground_zero.structures.pi_prop },
+            intros, apply ground_zero.HITs.quotient.set } },
+        { intros, apply ground_zero.structures.pi_prop,
+          intros, apply ground_zero.HITs.quotient.set } },
+      { intros, apply ground_zero.HITs.quotient.set }
+    end
+
+    noncomputable def factor.inv (x : α/φ) : α/φ := begin
+      apply ground_zero.HITs.quotient.rec _ _ _ x; clear x,
+      { intro x, exact factor.incl x⁻¹ },
+      { intros u v H, apply ground_zero.HITs.quotient.sound,
+        apply transport (∈ φ), { symmetry, apply map (* v⁻¹), apply inv_inv },
+        apply (normal_subgroup_cosets φ).left, exact H },
+      { apply ground_zero.HITs.quotient.set }
+    end
+    noncomputable instance : has_inv (α/φ) := ⟨factor.inv⟩
+
+    noncomputable def factor.left_inv (x : α/φ) : x⁻¹ * x = 1 := begin
+      fapply ground_zero.HITs.quotient.ind_prop _ _ x; clear x,
+      { intro x, apply ground_zero.HITs.quotient.sound,
+        apply transport (∈ φ), calc
+            1 = x⁻¹ * x⁻¹⁻¹     : (group.mul_right_inv x⁻¹)⁻¹
+          ... = x⁻¹ * x⁻¹⁻¹ * 1 : (monoid.mul_one _)⁻¹
+          ... = x⁻¹ * x \ 1     : @map α α _ _ (* 1) (inv_explode x⁻¹ x)⁻¹,
+        apply is_subgroup.unit },
+      { intros, apply ground_zero.HITs.quotient.set }
+    end
+
+    noncomputable instance factor.is_group : group (α/φ) :=
+    { set := λ _ _, ground_zero.HITs.quotient.set,
+      mul := factor.mul,
+      one := factor.one,
+      mul_assoc := factor.assoc,
+      one_mul := factor.one_mul,
+      mul_one := factor.mul_one,
+      inv := factor.inv,
+      mul_left_inv := factor.left_inv }
+  end
 end group
 
 end ground_zero.theorems
