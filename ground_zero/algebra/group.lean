@@ -4,7 +4,7 @@ open ground_zero.types.equiv (biinv transport)
 open ground_zero.types.eq (map)
 open ground_zero.structures
 
-namespace ground_zero.theorems
+namespace ground_zero.algebra
 universes u v w
 
 hott theory
@@ -14,6 +14,7 @@ def set.contains {α : Type u} (x : α) (s : set α) : Type v := s.fst x
 infix ∈ := set.contains
 
 def set.prop {α : Type u} (x : α) (s : set α) : prop (x ∈ s) := s.snd x
+def set.subtype {α : Type u} (s : set α) := Σ x, s.fst x
 
 class magma (α : Type u) extends has_mul α :=
 (set : hset α)
@@ -145,17 +146,15 @@ namespace group
 
     variable (φ : α ⤳ β)
     def ker.aux := λ g, φ.fst g = 1
-    def Ker := sigma (ker.aux φ)
-
     @[hott] def ker_is_prop (x : α) : prop (ker.aux φ x) :=
     begin intros f g, apply magma.set end
 
     def ker : set α := ⟨ker.aux φ, ker_is_prop φ⟩
+    def Ker := (ker φ).subtype
 
-    def im.aux := functions.fib_inh (φ.fst)
+    def im.aux := ground_zero.theorems.functions.fib_inh (φ.fst)
     def im : set β := ⟨im.aux φ, λ _, ground_zero.HITs.merely.uniq⟩
-
-    def Im := functions.ran φ.fst
+    def Im := (im φ).subtype
   end
 
   @[hott] def iso (α : Type u) (β : Type v) [group α] [group β] :=
@@ -315,7 +314,7 @@ namespace group
   @[hott] noncomputable def factor_symm (φ : set α)
     [is_normal_subgroup φ] : α/φ = α\φ := begin
       apply map ground_zero.HITs.quotient, apply ground_zero.HITs.setoid.eq,
-      repeat { apply funext, intro },
+      repeat { apply ground_zero.theorems.funext, intro },
       fapply ground_zero.types.sigma.prod,
       { change ldiv φ _ _ = rdiv φ _ _,
         repeat { apply ground_zero.HITs.interval.happly },
@@ -518,6 +517,25 @@ namespace group
           apply map, assumption }
       end }
   end
+
+  section
+    variables {φ : set α} [is_subgroup φ]
+
+    def subgroup.mul (x y : φ.subtype) : φ.subtype := begin
+      induction x with x H, induction y with y G,
+      existsi (x * y), apply is_subgroup.mul; assumption
+    end
+    instance subtype_mul : has_mul φ.subtype := ⟨subgroup.mul⟩
+
+    def subgroup.inv (x : φ.subtype) : φ.subtype := begin
+      induction x with x H, existsi x⁻¹,
+      apply is_subgroup.inv, assumption
+    end
+    instance subtype_inv : has_inv φ.subtype := ⟨subgroup.inv⟩
+
+    def subgroup.unit : φ.subtype := ⟨1, is_subgroup.unit φ⟩
+    instance subtype_unit : has_one φ.subtype := ⟨subgroup.unit⟩
+  end
 end group
 
-end ground_zero.theorems
+end ground_zero.algebra

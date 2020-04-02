@@ -11,6 +11,11 @@ digraph dependency_map {
     "types/nat"
   }
 
+  subgraph algebra {
+    "algebra/group" -> { "algebra/homology" }
+    "algebra/homology"
+  }
+
   subgraph types {
     "types/category"
     "types/coproduct" -> { "types/integer", structures }
@@ -70,7 +75,7 @@ digraph dependency_map {
     "HITs/pushout" -> {
       "HITs/suspension"
     }
-    "HITs/quotient" -> { "theorems/group" }
+    "HITs/quotient" -> { "algebra/group" }
     "HITs/reals"
     "HITs/simplicial"
     "HITs/suspension" -> { "HITs/circle", "HITs/join" }
@@ -93,12 +98,11 @@ digraph dependency_map {
 
   subgraph theorems {
     "theorems/fibration" -> { "theorems/hopf" }
-    "theorems/functions" -> { "theorems/group" }
+    "theorems/functions" -> { "algebra/group" }
     "theorems/funext" -> { structures }
-    "theorems/group"
     "theorems/hopf"
     "theorems/nat" -> { "HITs/circle", "HITs/int" }
     "theorems/prop" -> { "types/precategory" }
-    "theorems/ua" -> { "theorems/group", "theorems/nat", "cubical/V" }
+    "theorems/ua" -> { "algebra/group", "theorems/nat", "cubical/V" }
   }
 }
