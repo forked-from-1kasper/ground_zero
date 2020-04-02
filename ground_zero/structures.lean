@@ -1,6 +1,6 @@
 import ground_zero.types.unit ground_zero.types.coproduct
 import ground_zero.theorems.funext
-open ground_zero.types.unit
+open ground_zero.types.unit ground_zero.types.eq (map)
 
 hott theory
 
@@ -36,59 +36,59 @@ def law_of_double_negation :=
 def LEM_inf := Π (α : Type u), α + ¬α
 notation `LEM∞` := LEM_inf
 
-inductive level
+inductive hlevel
 | minus_two
-| succ : level → level
+| succ : hlevel → hlevel
 
-notation `ℕ₋₂` := level
-notation `−2` := level.minus_two
-notation `−1` := level.succ −2
+notation `ℕ₋₂` := hlevel
+notation `−2` := hlevel.minus_two
+notation `−1` := hlevel.succ −2
 
-instance : has_zero level := ⟨level.succ −1⟩
-instance : has_one  level := ⟨level.succ 0⟩
+instance : has_zero hlevel := ⟨hlevel.succ −1⟩
+instance : has_one  hlevel := ⟨hlevel.succ 0⟩
 
-namespace level
-  inductive le : level → level → Type
-  | refl (a : level)   : le a a
-  | step (a b : level) : le a b → le a (succ b)
+namespace hlevel
+  inductive le : hlevel → hlevel → Type
+  | refl (a : hlevel)   : le a a
+  | step (a b : hlevel) : le a b → le a (succ b)
   infix ` ≤ ` := le
 
-  def le.minus_two (a : level) : −2 ≤ a := begin
+  def le.minus_two (a : hlevel) : −2 ≤ a := begin
     induction a with a ih,
     { apply le.refl },
     { apply le.step, assumption }
   end
 
-  def le.succ (a b : level) : a ≤ b → succ a ≤ succ b := begin
+  def le.succ (a b : hlevel) : a ≤ b → succ a ≤ succ b := begin
     intro h, induction h with c a' b' h ih,
     { apply le.refl },
     { apply le.step, assumption }
   end
 
-  def add : level → level → level
+  def add : hlevel → hlevel → hlevel
   | (succ (succ n)) −2 := n
   | −1 −2 := −2
   | −2 −2 := −2
   | n 0 := n
   | n (succ m) := succ (add n m)
-  instance : has_add level := ⟨level.add⟩
+  instance : has_add hlevel := ⟨hlevel.add⟩
 
   def of_nat : ℕ → ℕ₋₂
   |    0    := 0
-  | (n + 1) := level.succ (of_nat n)
-end level
+  | (n + 1) := hlevel.succ (of_nat n)
+end hlevel
 
-def is_n_type : level → Type u → Type u
-| level.minus_two := contr
-| (level.succ n)  := λ α, Π (x y : α), is_n_type n (x = y)
+def is_n_type : hlevel → Type u → Type u
+| hlevel.minus_two := contr
+| (hlevel.succ n)  := λ α, Π (x y : α), is_n_type n (x = y)
 notation [parsing_only] `is-` n `-type ` := is_n_type n
 
-def n_type (n : level) :=
+def n_type (n : hlevel) :=
 Σ (α : Type u), is_n_type n α
 notation n `-Type` := n_type n
 
-@[hott] def level.cumulative (n : level) : Π {α : Type u},
-  (is-n-type α) → is-(level.succ n)-type α := begin
+@[hott] def hlevel.cumulative (n : hlevel) : Π {α : Type u},
+  (is-n-type α) → is-(hlevel.succ n)-type α := begin
   induction n with n ih; intros α h,
   { induction h with a₀ p,
     intros x y, existsi (p x)⁻¹ ⬝ p y,
@@ -96,11 +96,11 @@ notation n `-Type` := n_type n
   { intros x y, apply ih, apply h }
 end
 
-@[hott] def level.strong_cumulative (n m : level) (h : n ≤ m) :
+@[hott] def hlevel.strong_cumulative (n m : hlevel) (h : n ≤ m) :
   Π {α : Type u}, (is-n-type α) → (is-m-type α) := begin
   induction h with c a' b' h ih,
   { intros, assumption },
-  { intros α g, apply level.cumulative,
+  { intros α g, apply hlevel.cumulative,
     apply ih, assumption }
 end
 
@@ -183,7 +183,7 @@ section
     apply set_impl_groupoid, assumption
   end
 
-  @[hott] def ntype_is_prop (n : level) : Π {α : Type u}, prop (is-n-type α) := begin
+  @[hott] def ntype_is_prop (n : hlevel) : Π {α : Type u}, prop (is-n-type α) := begin
     induction n with n ih,
     { apply contr_is_prop },
     { intros α p q, apply HITs.interval.funext,
@@ -195,6 +195,50 @@ section
     intros f g, apply HITs.interval.funext, intro x, apply contr_is_prop
   end
 end
+
+@[hott] def retract (β : Type u) (α : Type v) :=
+Σ (r : α → β) (s : β → α), r ∘ s ~ id
+
+@[hott] def retract.section {β : Type u} {α : Type v} : retract β α → β → α
+| ⟨_, s, _⟩ := s
+
+@[hott] def contr_retract {α : Type u} {β : Type v} :
+  retract β α → contr α → contr β
+| ⟨r, s, ε⟩ ⟨a₀, p⟩ :=
+⟨r a₀, λ b, r # (p (s b)) ⬝ (ε b)⟩
+
+@[hott] def retract.path {α : Type u} {β : Type v} :
+  Π (H : retract β α) {a b : β},
+  retract (a = b) (H.section a = H.section b)
+| ⟨r, s, ε⟩ a b := ⟨λ q, (ε a)⁻¹ ⬝ (@map α β _ _ r q) ⬝ (ε b), map s,
+begin
+  intro p, transitivity, symmetry, apply types.eq.assoc,
+  symmetry, apply types.equiv.inv_rewrite_comp,
+  transitivity, calc
+    (ε a)⁻¹⁻¹ ⬝ p = ε a ⬝ p               : (⬝ p) # (types.eq.inv_inv (ε a))
+              ... = ε a ⬝ proto.idfun # p : (λ p, ε a ⬝ p) # (types.equiv.idmap p)⁻¹,
+  symmetry, transitivity,
+  { apply map (⬝ ε b),
+    apply (types.equiv.map_over_comp s r p)⁻¹ },
+  apply (types.equiv.homotopy_square ε p)⁻¹
+end⟩
+
+@[hott] def equiv_respects_rectraction {n : ℕ₋₂} :
+  Π {α : Type u} {β : Type v},
+    retract β α → is-n-type α → is-n-type β := begin
+  induction n with n ih,
+  { apply ground_zero.structures.contr_retract },
+  { intros α β G H, intros a b,
+    fapply ih, apply retract.path G,
+    apply H }
+end
+
+@[hott] def equiv_induces_retraction {α β : Type u} : α ≃ β → retract β α
+| ⟨f, (_, ⟨g, ε⟩)⟩ := ⟨f, g, ε⟩
+
+@[hott] def ntype_respects_equiv (n : ℕ₋₂) {α β : Type u} :
+  α ≃ β → is-n-type α → is-n-type β :=
+equiv_respects_rectraction ∘ equiv_induces_retraction
 
 inductive squash' (α : Type u) : Prop
 | elem : α → squash'
@@ -385,5 +429,17 @@ namespace theorems
       apply eq.map HITs.interval.happly, apply homotopy_ind_id }
   end
 end theorems
+
+@[hott] def structures.pi_respects_ntype (n : ℕ₋₂) :
+  Π {α : Type u} {β : α → Type v}
+    (H : Π x, is-n-type (β x)), is-n-type (Π x, β x) := begin
+  induction n with n ih,
+  { intros, existsi (λ x, (H x).point),
+    intro h, apply ground_zero.theorems.funext, intro x,
+    apply (H x).intro },
+  { intros, intros f g, apply structures.ntype_respects_equiv,
+    symmetry, apply ground_zero.theorems.full,
+    apply ih, intro x, apply H }
+end
 
 end ground_zero

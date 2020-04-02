@@ -39,7 +39,7 @@ namespace trunc
     (f g : trunc n α → β) (H : f ∘ elem = g ∘ elem) : f = g := begin
     apply ground_zero.theorems.funext, fapply ind; intro x,
     { exact (λ (f : α → β), f x) # H },
-    { apply level.cumulative, assumption }
+    { apply hlevel.cumulative, assumption }
   end
 
   @[hott] noncomputable def nth_trunc (H : is-n-type α) : α ≃ trunc n α := begin
