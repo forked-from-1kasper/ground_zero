@@ -3,7 +3,6 @@ digraph dependency_map {
   "meta/hott_theory" -> "types/eq"
   support -> "types/equiv"
   structures -> {
-    "theorems/ua",
     "HITs/interval",
     "HITs/merely",
     "HITs/trunc",
@@ -41,10 +40,7 @@ digraph dependency_map {
     "types/precategory" -> { "types/category" }
     "types/product" -> { "theorems/ua" }
     "types/rational" -> { "types/dedekind" }
-    "types/sigma" -> {
-      "theorems/fibration", "theorems/prop",
-      "theorems/nat", "theorems/functions"
-    }
+    "types/sigma" -> { structures }
     "types/unit" -> { structures, "HITs/suspension" }
   }
 

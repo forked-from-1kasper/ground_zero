@@ -1,4 +1,4 @@
-import ground_zero.HITs.interval ground_zero.types.sigma
+import ground_zero.HITs.interval
 open ground_zero ground_zero.HITs ground_zero.HITs.interval
 
 hott theory

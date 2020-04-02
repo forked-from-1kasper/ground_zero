@@ -1,4 +1,4 @@
-import ground_zero.theorems.ua ground_zero.types.nat ground_zero.types.sigma
+import ground_zero.theorems.ua ground_zero.types.nat
 open ground_zero.types
 
 namespace ground_zero

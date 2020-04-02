@@ -1,5 +1,4 @@
 import ground_zero.HITs.merely
-import ground_zero.types.sigma
 open ground_zero.types ground_zero.HITs
 
 namespace ground_zero.theorems.functions

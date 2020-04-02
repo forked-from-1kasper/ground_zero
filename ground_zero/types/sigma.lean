@@ -19,12 +19,11 @@ namespace sigma
   | ⟨a, b⟩ := g a b
 
   @[hott] def prod {α : Type u} {β : α → Type v} {u v : sigma β}
-    (h : u.fst = v.fst) (g : equiv.subst h u.snd = v.snd) : u = v := begin
+    (p : u.fst = v.fst) (q : equiv.subst p u.snd = v.snd) : u = v := begin
     cases u with x u, cases v with y v,
-    fapply equiv.transport (λ (v : β y), ⟨x, u⟩ = ⟨y, v⟩ :> sigma β), exact g,
-    apply @eq.rec α x (λ (y : α) (h : x = y),
-      ⟨x, u⟩ = ⟨y, equiv.subst h u⟩ :> sigma β),
-    trivial
+    change x = y at p, induction p,
+    change u = v at q, induction q,
+    reflexivity
   end
 
   @[hott] def prod_refl {α : Type u} {β : α → Type v} (u : sigma β) :
@@ -54,6 +53,27 @@ namespace sigma
       transitivity, apply equiv.transport_over_hmtpy,
       transitivity, apply eq.refl_right,
       apply eq.inv_inv },
+  end
+
+  @[hott] def sigma_eq_of_eq {α : Type u} {β : α → Type v} {a b : Σ x, β x}
+    (p : a = b) : (Σ (p : a.fst = b.fst), equiv.subst p a.snd = b.snd) :=
+  begin induction p, existsi (idp a.fst), reflexivity end
+
+  @[hott] def eq_of_sigma_eq {α : Type u} {β : α → Type v} {a b : Σ x, β x}
+    (p : Σ (p : a.fst = b.fst), equiv.subst p a.snd = b.snd) : (a = b) :=
+  sigma.prod p.fst p.snd
+
+  @[hott] def sigma_path {α : Type u} {β : α → Type v} {a b : Σ x, β x} :
+    (a = b) ≃ (Σ (p : a.fst = b.fst), equiv.subst p a.snd = b.snd) := begin
+    existsi sigma_eq_of_eq, split; existsi eq_of_sigma_eq,
+    { intro p, induction p, induction a, induction b, reflexivity },
+    { intro p,
+      induction a with a u,
+      induction b with b v,
+      induction p with p q,
+      change a = b at p, induction p,
+      change u = v at q, induction q,
+      reflexivity }
   end
 end sigma
 

@@ -16,6 +16,14 @@ infix ∈ := set.contains
 def set.prop {α : Type u} (x : α) (s : set α) : prop (x ∈ s) := s.snd x
 def set.subtype {α : Type u} (s : set α) := Σ x, s.fst x
 
+@[hott] def set.hset {α : Type u} (s : set α) : hset α → hset s.subtype := begin
+  intro H, apply zero_eqv_set.forward,
+  fapply ground_zero.structures.ntype_respects_sigma 0,
+  { apply zero_eqv_set.left, intros a b, apply H },
+  { intro x, apply zero_eqv_set.left,
+    apply prop_is_set, apply s.snd }
+end
+
 class magma (α : Type u) extends has_mul α :=
 (set : hset α)
 
@@ -521,20 +529,54 @@ namespace group
   section
     variables {φ : set α} [is_subgroup φ]
 
-    def subgroup.mul (x y : φ.subtype) : φ.subtype := begin
+    @[hott] def subgroup.mul (x y : φ.subtype) : φ.subtype := begin
       induction x with x H, induction y with y G,
       existsi (x * y), apply is_subgroup.mul; assumption
     end
     instance subtype_mul : has_mul φ.subtype := ⟨subgroup.mul⟩
 
-    def subgroup.inv (x : φ.subtype) : φ.subtype := begin
+    @[hott] def subgroup.inv (x : φ.subtype) : φ.subtype := begin
       induction x with x H, existsi x⁻¹,
       apply is_subgroup.inv, assumption
     end
     instance subtype_inv : has_inv φ.subtype := ⟨subgroup.inv⟩
 
-    def subgroup.unit : φ.subtype := ⟨1, is_subgroup.unit φ⟩
+    @[hott] def subgroup.unit : φ.subtype := ⟨1, is_subgroup.unit φ⟩
     instance subtype_unit : has_one φ.subtype := ⟨subgroup.unit⟩
+
+    @[hott] def subgroup.set : hset φ.subtype :=
+    begin apply set.hset, apply magma.set end
+
+    @[hott] def subgroup.mul_assoc (x y z : φ.subtype) : x * y * z = x * (y * z) := begin
+      induction x with x A, induction y with y B, induction z with z C,
+      fapply ground_zero.types.sigma.prod,
+      apply semigroup.mul_assoc, apply φ.snd
+    end
+
+    @[hott] def subgroup.one_mul (x : φ.subtype) : 1 * x = x := begin
+      induction x with x H,
+      fapply ground_zero.types.sigma.prod,
+      apply monoid.one_mul, apply φ.snd
+    end
+
+    @[hott] def subgroup.mul_one (x : φ.subtype) : x * 1 = x := begin
+      induction x with x H,
+      fapply ground_zero.types.sigma.prod,
+      apply monoid.mul_one, apply φ.snd
+    end
+
+    @[hott] def subgroup.mul_left_inv (x : φ.subtype) : x⁻¹ * x = 1 := begin
+      induction x with x H,
+      fapply ground_zero.types.sigma.prod,
+      apply group.mul_left_inv, apply φ.snd
+    end
+
+    @[hott] instance subgroup.is_group : group φ.subtype :=
+    { set := λ _ _, subgroup.set,
+      mul_assoc := subgroup.mul_assoc,
+      one_mul := subgroup.one_mul,
+      mul_one := subgroup.mul_one,
+      mul_left_inv := subgroup.mul_left_inv }
   end
 end group
 

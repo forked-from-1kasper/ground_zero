@@ -1,5 +1,5 @@
 import ground_zero.types.unit ground_zero.types.coproduct
-import ground_zero.theorems.funext
+import ground_zero.theorems.funext ground_zero.types.sigma
 open ground_zero.types.unit ground_zero.types.eq (map)
 
 hott theory
@@ -239,6 +239,22 @@ end
 @[hott] def ntype_respects_equiv (n : ℕ₋₂) {α β : Type u} :
   α ≃ β → is-n-type α → is-n-type β :=
 equiv_respects_rectraction ∘ equiv_induces_retraction
+
+@[hott] def ntype_respects_sigma (n : ℕ₋₂) :
+  Π {α : Type u} {β : α → Type v},
+    is-n-type α → (Π x, is-n-type (β x)) → is-n-type (Σ x, β x) := begin
+  induction n with n ih,
+  { intros α β A B, induction A with a₀ p,
+    existsi sigma.mk a₀ (B a₀).point,
+    intro x, induction x with a b,
+    fapply types.sigma.prod,
+    { apply p },
+    { apply contr_impl_prop, apply B } },
+  { intros α β A B, intros p q,
+    apply ntype_respects_equiv,
+    symmetry, apply types.sigma.sigma_path,
+    apply ih, apply A, { intro x, apply B } }
+end
 
 inductive squash' (α : Type u) : Prop
 | elem : α → squash'
