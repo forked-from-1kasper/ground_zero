@@ -142,7 +142,7 @@ namespace group
       (f : β ⤳ φ) (g : α ⤳ β) : α ⤳ φ := begin
       cases f with f F, cases g with g G,
       existsi f ∘ g, intros a b, calc
-        (f ∘ g) (a * b) = f (g a * g b) : f # (G a b)
+        (f ∘ g) (a * b) = f (g a * g b)         : f # (G a b)
                     ... = (f ∘ g) a * (f ∘ g) b : by apply F
     end
 
@@ -578,6 +578,10 @@ namespace group
       mul_one := subgroup.mul_one,
       mul_left_inv := subgroup.mul_left_inv }
   end
+
+  @[hott] def homo.surj {α : Type u} [group α]
+    (φ : set α) [is_subgroup φ] : φ.subtype ⤳ α :=
+  ⟨sigma.fst, λ ⟨a, _⟩ ⟨b, _⟩, ground_zero.types.eq.refl (a * b)⟩
 end group
 
 end ground_zero.algebra

@@ -8,29 +8,30 @@ hott theory
 
 structure chain_complex :=
 (K : ℕ → Type u)
-(is_group : Π n, abelian (K n))
+(is_abelian : Π n, abelian (K n))
 (δ : Π n, K (n + 1) ⤳ K n)
 (triv : Π n, δ n ⋅ δ (n + 1) = 0)
 
-def B (C : chain_complex) (n : ℕ) :=
-@ker (C.K (n + 1)) (C.is_group (n + 1)).to_group
-     (C.K n)       (C.is_group n).to_group (C.δ n)
+def chain_complex.is_group (C : chain_complex) :
+  Π n, algebra.group (C.K n) :=
+λ n, (C.is_abelian n).to_group
 
-def Z (C : chain_complex) (n : ℕ) :=
-@Im (C.K (n + 2)) (C.is_group (n + 2)).to_group
-    (C.K (n + 1)) (C.is_group (n + 1)).to_group
-    (C.δ (n + 1))
+instance chain_complex.groups (C : chain_complex) (n : ℕ) : algebra.group (C.K n) :=
+chain_complex.is_group C n
 
-instance (C : chain_complex) (n : ℕ) : algebra.group (Z C n) :=
-let inst₁ := (C.is_group (n + 1)).to_group in
-let inst₂ := (C.is_group (n + 2)).to_group in
-@subgroup.is_group (C.K (n + 1)) (C.is_group (n + 1)).to_group
-  (@im (C.K (n + 2)) inst₂
-       (C.K (n + 1)) inst₁
-       (C.δ (n + 1)))
-  (@ground_zero.algebra.group.im_is_subgroup
-       (C.K (n + 2)) inst₂
-       (C.K (n + 1)) inst₁
-       (C.δ (n + 1)))
+abbreviation ζ (C : chain_complex) (n : ℕ) :=
+im (C.δ (n + 1))
+
+abbreviation Z (C : chain_complex) (n : ℕ) :=
+(ζ C n).subtype
+
+instance Z_is_group (C : chain_complex) (n : ℕ) : algebra.group (Z C n) :=
+subgroup.is_group
+
+abbreviation B (C : chain_complex) (n : ℕ) :=
+ker (C.δ n ⋅ homo.surj (ζ C n))
+
+def H (C : chain_complex) (n : ℕ) :=
+(Z C n)/(B C n)
 
 end ground_zero.algebra.homology
