@@ -12,10 +12,6 @@ structure chain_complex :=
 (δ : Π n, K (n + 1) ⤳ K n)
 (triv : Π n, δ n ⋅ δ (n + 1) = 0)
 
-def chain_complex.is_group (C : chain_complex) :
-  Π n, algebra.group (C.K n) :=
-λ n, (C.is_abelian n).to_group
-
 instance chain_complex.abelian (C : chain_complex) (n : ℕ) : abelian (C.K n) :=
 C.is_abelian n
 
@@ -24,9 +20,6 @@ ker (C.δ n)
 
 abbreviation Z (C : chain_complex) (n : ℕ) :=
 (ζ C n).subtype
-
-instance Z_is_abelian (C : chain_complex) (n : ℕ) : abelian (Z C n) :=
-algebra.group.abelian_subgroup_is_abelian (ζ C n)
 
 abbreviation B (C : chain_complex) (n : ℕ) :=
 algebra.group.subgroup.inter (im (C.δ (n + 1))) (ζ C n)
