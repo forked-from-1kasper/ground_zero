@@ -391,13 +391,8 @@ namespace group
 
     @[hott] noncomputable def factor.one_mul (x : α/φ) : 1 * x = x := begin
       fapply ground_zero.HITs.quotient.ind_prop _ _ x; clear x,
-      { intro x, apply ground_zero.HITs.quotient.sound,
-        apply transport (∈ φ), calc
-            1 = x⁻¹ * x             : (group.mul_left_inv x)⁻¹
-          ... = x⁻¹ * 1 * x         : (* x) # (monoid.mul_one x⁻¹)⁻¹
-          ... = x⁻¹ * 1⁻¹ * x       : (λ y, x⁻¹ * y * x) # unit_inv
-          ... = (1 * x)⁻¹ * x       : (* x) # (inv_explode 1 x)⁻¹,
-        apply is_subgroup.unit },
+      { intro x, change ground_zero.HITs.quotient.elem _ = _,
+        apply map, apply monoid.one_mul },
       { intros, apply ground_zero.HITs.quotient.set }
     end
 
@@ -405,14 +400,8 @@ namespace group
       fapply ground_zero.HITs.quotient.ind_prop _ _ x; clear x,
       { fapply ground_zero.HITs.quotient.ind_prop _ _ y; clear y,
         { fapply ground_zero.HITs.quotient.ind_prop _ _ z; clear z,
-          { intros z y x, apply ground_zero.HITs.quotient.sound,
-            apply transport (∈ φ), calc
-                1 = (x * (y * z))⁻¹ * (x * (y * z)) :
-                    (group.mul_left_inv (x * (y * z)))⁻¹
-              ... = (x * y * z)⁻¹ * (x * (y * z)) :
-                    (λ p, has_inv.inv p * (x * (y * z))) #
-                      (semigroup.mul_assoc x y z)⁻¹,
-            apply is_subgroup.unit },
+          { intros z y x, change ground_zero.HITs.quotient.elem _ = _,
+            apply map, apply semigroup.mul_assoc },
           { repeat { intros, apply ground_zero.structures.pi_prop },
             intros, apply ground_zero.HITs.quotient.set } },
         { intros, apply ground_zero.structures.pi_prop,
@@ -432,12 +421,8 @@ namespace group
 
     @[hott] noncomputable def factor.left_inv (x : α/φ) : x⁻¹ * x = 1 := begin
       fapply ground_zero.HITs.quotient.ind_prop _ _ x; clear x,
-      { intro x, apply ground_zero.HITs.quotient.sound,
-        apply transport (∈ φ), calc
-            1 = x⁻¹ * x⁻¹⁻¹     : (group.mul_right_inv x⁻¹)⁻¹
-          ... = x⁻¹ * x⁻¹⁻¹ * 1 : (monoid.mul_one _)⁻¹
-          ... = x⁻¹ * x \ 1     : @map α α _ _ (* 1) (inv_explode x⁻¹ x)⁻¹,
-        apply is_subgroup.unit },
+      { intro x, change ground_zero.HITs.quotient.elem _ = _,
+        apply map, apply mul_left_inv },
       { intros, apply ground_zero.HITs.quotient.set }
     end
 
@@ -577,6 +562,35 @@ namespace group
       one_mul := subgroup.one_mul,
       mul_one := subgroup.mul_one,
       mul_left_inv := subgroup.mul_left_inv }
+  end
+
+  def subgroup.inter (φ : set α) (ψ : set α)
+    [is_subgroup φ] [is_subgroup ψ] : set ψ.subtype :=
+  ⟨λ x, x.fst ∈ φ, λ x, set.prop x.fst φ⟩
+
+  instance subgroup_subgroup (φ : set α) (ψ : set α)
+    [is_subgroup φ] [is_subgroup ψ] :
+    is_subgroup (subgroup.inter φ ψ) := begin
+    split, { change 1 ∈ φ, apply is_subgroup.unit },
+    { intros a b G H, induction a with a g,
+      induction b with b h, change _ ∈ φ,
+      apply is_subgroup.mul; assumption },
+    { intros a G, induction a with a g,
+      change _ ∈ φ, apply is_subgroup.inv,
+      assumption }
+  end
+
+  instance abelian_subgroup_is_normal {α : Type u} [abelian α]
+    (φ : set α) [is_subgroup φ] : is_normal_subgroup φ := begin
+    split, intros g h p, apply transport (∈ φ),
+    apply abelian.mul_comm, assumption
+  end
+
+  instance abelian_subgroup_is_abelian {α : Type u} [abelian α]
+    (φ : set α) [is_subgroup φ] : abelian φ.subtype := begin
+    split, intros a b, induction a with a g, induction b with b h,
+    fapply ground_zero.types.sigma.prod,
+    { apply abelian.mul_comm }, { apply φ.snd }
   end
 
   @[hott] def homo.surj {α : Type u} [group α]
