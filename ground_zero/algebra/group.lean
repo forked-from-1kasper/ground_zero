@@ -696,9 +696,28 @@ namespace group
   instance Z₂.group : group Z₂ :=
   begin split, intro a, induction a; trivial end
 
+  def D₃.inj : D₃ → D₃/A₃ := factor.incl
+
   def encode : Z₂ → D₃/A₃
-  | ff := factor.incl R₀
-  | tt := factor.incl S₀
+  | ff := D₃.inj R₀
+  | tt := D₃.inj S₀
+
+  def decode : D₃/A₃ → Z₂ := begin
+    fapply ground_zero.HITs.quotient.rec,
+    { exact D₃.elim ff ff ff tt tt tt },
+    { intros x y H; induction x; induction y; induction H; trivial },
+    { apply magma.set }
+  end
+
+  noncomputable def D₃.eqv : Z₂ ≃ D₃/A₃ := begin
+    existsi encode, split; existsi decode,
+    { intro x, induction x; trivial },
+    { fapply ground_zero.HITs.quotient.ind,
+      { intro x, induction x; apply ground_zero.HITs.quotient.sound; exact ★ },
+      { intros x y H, apply magma.set },
+      { intro x, apply ground_zero.structures.prop_is_set,
+        apply magma.set } }
+  end
 end group
 
 end ground_zero.algebra
