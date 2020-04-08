@@ -596,6 +596,109 @@ namespace group
   @[hott] def homo.surj {α : Type u} [group α]
     (φ : set α) [is_subgroup φ] : φ.subtype ⤳ α :=
   ⟨sigma.fst, λ ⟨a, _⟩ ⟨b, _⟩, ground_zero.types.eq.refl (a * b)⟩
+
+  inductive D₃
+  | R₀ | R₁ | R₂
+  | S₀ | S₁ | S₂
+  open D₃
+
+  def D₃.inv : D₃ → D₃
+  | R₀ := R₀ | R₁ := R₂ | R₂ := R₁
+  | S₀ := S₀ | S₁ := S₁ | S₂ := S₂
+
+  def D₃.mul : D₃ → D₃ → D₃
+  | R₀ R₀ := R₀ | R₀ R₁ := R₁ | R₀ R₂ := R₂
+  | R₀ S₀ := S₀ | R₀ S₁ := S₁ | R₀ S₂ := S₂
+  | R₁ R₀ := R₁ | R₁ R₁ := R₂ | R₁ R₂ := R₀
+  | R₁ S₀ := S₁ | R₁ S₁ := S₂ | R₁ S₂ := S₀
+  | R₂ R₀ := R₂ | R₂ R₁ := R₀ | R₂ R₂ := R₁
+  | R₂ S₀ := S₂ | R₂ S₁ := S₀ | R₂ S₂ := S₁
+  | S₀ R₀ := S₀ | S₀ R₁ := S₂ | S₀ R₂ := S₁
+  | S₀ S₀ := R₀ | S₀ S₁ := R₂ | S₀ S₂ := R₁
+  | S₁ R₀ := S₁ | S₁ R₁ := S₀ | S₁ R₂ := S₂
+  | S₁ S₀ := R₁ | S₁ S₁ := R₀ | S₁ S₂ := R₂
+  | S₂ R₀ := S₂ | S₂ R₁ := S₁ | S₂ R₂ := S₀
+  | S₂ S₀ := R₂ | S₂ S₁ := R₁ | S₂ S₂ := R₀
+
+  @[hott] instance D₃.has_one : has_one D₃ := ⟨R₀⟩
+  @[hott] instance D₃.has_inv : has_inv D₃ := ⟨D₃.inv⟩
+  @[hott] instance D₃.has_mul : has_mul D₃ := ⟨D₃.mul⟩
+
+  def D₃.elim {β : Type u} : β → β → β → β → β → β → D₃ → β :=
+  @D₃.rec (λ _, β)
+
+  instance D₃.is_magma : magma D₃ := begin
+    split, apply ground_zero.structures.Hedberg,
+    intros x y, induction x; induction y;
+    try { apply sum.inl, refl },
+    repeat { apply sum.inr, intro p, apply ff_neq_tt, symmetry },
+    repeat { apply (D₃.elim tt ff ff ff ff ff) # p },
+    repeat { apply (D₃.elim ff tt ff ff ff ff) # p },
+    repeat { apply (D₃.elim ff ff tt ff ff ff) # p },
+    repeat { apply (D₃.elim ff ff ff tt ff ff) # p },
+    repeat { apply (D₃.elim ff ff ff ff tt ff) # p },
+    repeat { apply (D₃.elim ff ff ff ff ff tt) # p }
+  end
+
+  instance D₃.semigroup : semigroup D₃ := begin
+    split, intros a b c,
+    induction a; induction b; induction c; trivial
+  end
+
+  instance D₃.monoid : monoid D₃ :=
+  begin split; intro a; induction a; trivial end
+
+  instance D₃.group : group D₃ :=
+  begin split, intro a, induction a; trivial end
+
+  def A₃ : set D₃ :=
+  ⟨D₃.elim 𝟏 𝟏 𝟏 𝟎 𝟎 𝟎, begin
+    intros x, induction x,
+    repeat { apply ground_zero.structures.unit_is_prop },
+    repeat { apply ground_zero.structures.empty_is_prop }
+  end⟩
+
+  instance : is_subgroup A₃ := begin
+    split, { apply ★ },
+    { intros a b p q, induction a; induction b;
+      induction p; induction q; apply ★ },
+    { intros a p, induction a; induction p; apply ★ }
+  end
+
+  instance : is_normal_subgroup A₃ := begin
+    split, intros g h p; induction g; induction h;
+    induction p; apply ★
+  end
+
+  def Z₂ := bool
+  def Z₂.mul := bxor
+  def Z₂.inv := @ground_zero.proto.idfun Z₂
+
+  @[hott] instance Z₂.has_one : has_one Z₂ := ⟨ff⟩
+  @[hott] instance Z₂.has_inv : has_inv Z₂ := ⟨Z₂.inv⟩
+  @[hott] instance Z₂.has_mul : has_mul Z₂ := ⟨Z₂.mul⟩
+
+  instance : magma Z₂ := begin
+    split, apply ground_zero.structures.Hedberg,
+    intros x y, induction x; induction y; try { apply sum.inl, refl },
+    repeat { apply sum.inr, intro p, apply ff_neq_tt },
+    exact p, exact p⁻¹
+  end
+
+  instance Z₂.semigroup : semigroup Z₂ := begin
+    split, intros a b c,
+    induction a; induction b; induction c; trivial
+  end
+
+  instance Z₂.monoid : monoid Z₂ :=
+  begin split; intro a; induction a; trivial end
+
+  instance Z₂.group : group Z₂ :=
+  begin split, intro a, induction a; trivial end
+
+  def encode : Z₂ → D₃/A₃
+  | ff := factor.incl R₀
+  | tt := factor.incl S₀
 end group
 
 end ground_zero.algebra

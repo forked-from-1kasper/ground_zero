@@ -340,6 +340,13 @@ end
                          apply zero_eqv_set end
             ... ≃ groupoid α : by reflexivity
 
+@[hott] def hset_respects_equiv {α β : Type u} :
+  α ≃ β → hset α → hset β := begin
+  intros e h, apply zero_eqv_set.forward,
+  apply ntype_respects_equiv 0 e,
+  apply zero_eqv_set.left, assumption
+end
+
 @[hott] def product_prop {α : Type u} {β : Type v}
   (h : prop α) (g : prop β) : prop (α × β) := begin
   intros a b,
@@ -355,6 +362,34 @@ end
 @[hott] def impl_prop {α : Type u} {β : Type v}
   (h : prop β) : prop (α → β) :=
 pi_prop (λ _, h)
+
+@[hott] def refl_mere_rel {α : Type u} (R : α → α → Type v) (h : Π x y, prop (R x y))
+  (ρ : Π x, R x x) (f : Π x y, R x y → x = y) : hset α := begin
+  intros a b p q, induction q, symmetry,
+  apply types.eq.trans_cancel_left (f a a (ρ a)),
+  transitivity, { apply types.eq.refl_right }, symmetry,
+  transitivity, { symmetry, apply types.equiv.transport_composition },
+  transitivity, { apply types.equiv.lifted_happly (R a),
+                  apply types.equiv.apd (f a) p },
+  apply types.eq.map, apply h
+end
+
+@[hott] def double_neg_eq {α : Type u} (h : Π (x y : α), ¬¬(x = y) → x = y) : hset α := begin
+  fapply refl_mere_rel,
+  { intros x y, exact ¬¬(x = y) },
+  { intros x y, apply impl_prop, apply empty_is_prop },
+  { intro x, intros f, apply f, reflexivity },
+  { exact h }
+end
+
+@[hott] def lem_to_double_neg {α : Type u} : dec α → (¬¬α → α)
+| (sum.inl x) := λ _, x
+| (sum.inr t) := λ g, proto.empty.rec (λ _, α) (g t)
+
+@[hott] def Hedberg {α : Type u} : (Π (x y : α), dec (x = y)) → hset α := begin
+  intro h, apply double_neg_eq,
+  intros x y, apply lem_to_double_neg, apply h x y
+end
 
 end structures
 

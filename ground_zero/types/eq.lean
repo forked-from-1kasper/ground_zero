@@ -85,6 +85,18 @@ namespace eq
     (f : α → β) (p : a = b :> α) : (f # p⁻¹) = (f # p)⁻¹ :=
   begin induction p, reflexivity end
 
+  @[hott] def trans_cancel_left {α : Type u} {a b c : α}
+    (r : a = b) (p q : b = c) : r ⬝ p = r ⬝ q → p = q :=
+  begin intro μ, induction r, exact μ end
+
+  @[hott] def trans_cancel_right {α : Type u} {a b c : α}
+    (r : b = c) (p q : a = b) : p ⬝ r = q ⬝ r → p = q := begin
+    intro μ, induction r,
+    transitivity, { symmetry, apply refl_right },
+    symmetry, transitivity, { symmetry, apply refl_right },
+    exact μ⁻¹
+  end
+
   section
     variables {α : Type u} {β : Type v} {a b : α}
               (f : α → β) (p : a = b :> α)

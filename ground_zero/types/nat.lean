@@ -1,5 +1,5 @@
 import ground_zero.structures ground_zero.HITs.colimit
-open ground_zero.types
+open ground_zero.types ground_zero.structures (hset)
 
 namespace ground_zero.types.nat
 
@@ -8,14 +8,14 @@ hott theory
 universes u v w
 
 def glue : ℕ → ℕ + 𝟏
-| nat.zero := coproduct.inr ★
-| (nat.succ n) := coproduct.inl n
+|    0    := coproduct.inr ★
+| (n + 1) := coproduct.inl n
 
 def peel_off : ℕ + 𝟏 → ℕ
 | (coproduct.inr _) := nat.zero
 | (coproduct.inl n) := nat.succ n
 
-@[hott] theorem closed_nat : ℕ ≃ ℕ + 𝟏 := begin
+@[hott] def closed_nat : ℕ ≃ ℕ + 𝟏 := begin
   existsi glue, split; existsi peel_off,
   { intro n, induction n with n ih; trivial },
   { intro n, induction n,
@@ -23,7 +23,7 @@ def peel_off : ℕ + 𝟏 → ℕ
     { induction n, trivial } }
 end
 
-@[hott] theorem equiv_addition {α : Type u} {β : Type v} (γ : Type w)
+@[hott] def equiv_addition {α : Type u} {β : Type v} (γ : Type w)
   (e : α ≃ β) : α + γ ≃ β + γ := begin
   induction e with f H,
   have q := qinv.of_biinv f H,
@@ -53,10 +53,10 @@ end
 end
 
 def drop (α : Type) : ℕ → Type
-| 0 := α
-| (nat.succ n) := coproduct (drop n) (𝟏 : Type)
+|    0    := α
+| (n + 1) := coproduct (drop n) 𝟏
 
-@[hott] theorem nat_plus_unit (n : ℕ) : ℕ ≃ drop ℕ n := begin
+@[hott] def nat_plus_unit (n : ℕ) : ℕ ≃ drop ℕ n := begin
   induction n with n ih,
   { reflexivity },
   { transitivity,

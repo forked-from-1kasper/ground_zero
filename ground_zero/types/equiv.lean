@@ -415,6 +415,12 @@ namespace equiv
     (f : α → α → α) (g : α → α) (p : a = b) :
     (S f g # p) = @bimap α α α a b (g a) (g b) f p (g # p) :=
   begin induction p, reflexivity end
+
+  @[hott] def lifted_happly {α : Type u} (μ : α → Type v) (η : α → Type w)
+    {a b : α} (p : a = b) (f : μ a → η a) (g : μ b → η b)
+    (q : transport (λ x, μ x → η x) p f = g) :
+    Π (x : μ a), transport η p (f x) = g (transport μ p x) :=
+  begin induction p, induction q, intro x, trivial end
 end equiv
 
 def is_qinv {α : Type u} {β : Type v} (f : α → β) (g : β → α) :=
