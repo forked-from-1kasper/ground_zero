@@ -709,8 +709,10 @@ namespace group
     { apply magma.set }
   end
 
-  noncomputable def D₃.eqv : Z₂ ≃ D₃/A₃ := begin
-    existsi encode, split; existsi decode,
+  noncomputable def D₃.iso : Z₂ ≅ D₃/A₃ := begin
+    existsi encode,
+    split, { intros x y, induction x; induction y; trivial },
+    split; existsi decode,
     { intro x, induction x; trivial },
     { fapply ground_zero.HITs.quotient.ind,
       { intro x, induction x; apply ground_zero.HITs.quotient.sound; exact ★ },
