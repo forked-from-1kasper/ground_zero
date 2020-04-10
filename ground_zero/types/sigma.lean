@@ -45,6 +45,23 @@ namespace sigma
     (Σ x, f x = g x) → (Σ x, g x = f x)
   | ⟨x, h⟩ := ⟨x, h⁻¹⟩
 
+  @[hott] def map {α : Type v} {η ε : α → Type u}
+    (f : Π x, η x → ε x) : (Σ x, η x) → (Σ x, ε x)
+  | ⟨x, p⟩ := ⟨x, f x p⟩
+
+  @[hott] def respects_equiv {α : Type v} {η ε : α → Type u}
+    (e : Π x, η x ≃ ε x) : (Σ x, η x) ≃ (Σ x, ε x) := begin
+    existsi map (λ x, (e x).forward), split,
+    { existsi map (λ x, (e x).left), intro x,
+      induction x with x p, fapply prod,
+      { trivial },
+      { transitivity, apply (e x).left_forward, trivial } },
+    { existsi map (λ x, (e x).right), intro x,
+      induction x with x p, fapply prod,
+      { trivial },
+      { transitivity, apply (e x).forward_right, trivial } }
+  end
+
   @[hott] def hmtpy_inv_eqv {α : Type v} {β : Type u} (f g : α → β) :
     (Σ x, f x = g x) ≃ (Σ x, g x = f x) := begin
     existsi hmtpy_inv f g, split; existsi hmtpy_inv g f;

@@ -54,8 +54,7 @@ namespace equiv
   linv f × rinv f
 
   @[hott] def homotopy_square {α : Type u} {β : Type v}
-    {f g : α → β} (H : f ~ g) {x y : α}
-    (p : x = y :> α) :
+    {f g : α → β} (H : f ~ g) {x y : α} (p : x = y :> α) :
     H x ⬝ (g # p) = (f # p) ⬝ H y :> f x = g y :> β := begin
     induction p, transitivity,
     apply eq.refl_right,
@@ -477,8 +476,8 @@ end equiv
 
 -- half adjoint equivalence
 def ishae {α : Type u} {β : Type v} (f : α → β) :=
-Σ (g : β → α) (η : g ∘ f ~ id) (ϵ : f ∘ g ~ id) (x : α),
-  f # (η x) = ϵ (f x) :> f (g (f x)) = f x :> β
+Σ (g : β → α) (η : g ∘ f ~ id) (ϵ : f ∘ g ~ id),
+  Π x, f # (η x) = ϵ (f x) :> f (g (f x)) = f x :> β
 
 def fib {α : Type u} {β : Type v} (f : α → β) (y : β) :=
 Σ (x : α), f x = y :> β

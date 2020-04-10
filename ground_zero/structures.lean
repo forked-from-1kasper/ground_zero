@@ -347,6 +347,10 @@ end
   apply zero_eqv_set.left, assumption
 end
 
+@[hott] def contr_respects_equiv {α β : Type u} :
+  α ≃ β → contr α → contr β :=
+by apply ntype_respects_equiv −2
+
 @[hott] def product_prop {α : Type u} {β : Type v}
   (h : prop α) (g : prop β) : prop (α × β) := begin
   intros a b,

@@ -1,4 +1,4 @@
-import ground_zero.structures
+import ground_zero.theorems.funext
 
 namespace ground_zero.types
 
@@ -33,7 +33,7 @@ namespace product
     let e₂ : (ν → α) × (ν → β) → (ν → α × β) :=
     λ f x, (f.pr₁ x, f.pr₂ x),
     existsi e₁, split; existsi e₂,
-    { intro f, apply ground_zero.theorems.funext,
+    { intro f, apply ground_zero.HITs.interval.funext,
       intro x, apply product.uniq },
     { intro x, cases x with f g, trivial }
   end
