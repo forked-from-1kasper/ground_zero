@@ -1,4 +1,4 @@
-import ground_zero.types.product
+import ground_zero.types.product ground_zero.structures
 open ground_zero.types.equiv (idtoeqv homotopy)
 open ground_zero.types.equiv (renaming id -> ideqv)
 open ground_zero.types
@@ -99,8 +99,8 @@ namespace so
 end so
 
 @[hott] def is_zero : ℕ → bool
-|      0       := tt
-| (nat.succ _) := ff
+|    0    := tt
+| (_ + 1) := ff
 
 @[hott] example (h : 0 = 1) : 𝟎 :=
 ff_neq_tt (is_zero # h)⁻¹
