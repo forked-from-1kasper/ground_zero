@@ -26,6 +26,15 @@ namespace sigma
     reflexivity
   end
 
+  @[hott] def map_fst_over_prod {α : Type u} {β : α → Type v}
+    {u v : sigma β} (p : u.fst = v.fst) (q : equiv.subst p u.snd = v.snd) :
+    sigma.fst # (prod p q) = p := begin
+    cases u with x u, cases v with y v,
+    change x = y at p, induction p,
+    change u = v at q, induction q,
+    reflexivity
+  end
+
   @[hott] def prod_refl {α : Type u} {β : α → Type v} (u : sigma β) :
     prod eq.rfl eq.rfl = eq.refl u :=
   begin cases u with x u, trivial end

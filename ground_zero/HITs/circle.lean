@@ -1,4 +1,4 @@
-import ground_zero.HITs.suspension ground_zero.HITs.interval
+import ground_zero.HITs.suspension ground_zero.theorems.prop
 import ground_zero.types.integer ground_zero.theorems.nat
 open ground_zero.HITs.interval (happly)
 open ground_zero.types.equiv (subst transport)
@@ -299,15 +299,27 @@ namespace circle
   @[hott] noncomputable example : winding loop⁻¹ = integer.neg 0 :=
   transport_back (integer.pos 0)
 
-  @[hott] def turn : Π (x : S¹), x = x :=
+  @[hott] def rot : Π (x : S¹), x = x :=
   circle.ind circle.loop (begin
     apply types.eq.trans, apply equiv.transport_inv_comp_comp,
     transitivity, apply eq.map (⬝ loop),
     apply eq.inv_comp, apply eq.refl_left
   end)
 
-  def μ : S¹ → S¹ → S¹ :=
-  circle.rec id (theorems.funext turn)
+  def μₑ : S¹ → S¹ ≃ S¹ :=
+  circle.rec (equiv.id S¹) (begin
+    fapply sigma.prod,
+    apply theorems.funext rot,
+    apply theorems.prop.biinv_prop
+  end)
+
+  def μ (x : S¹) : S¹ → S¹ := (μₑ x).forward
+
+  noncomputable def μ_loop : eq.map μ loop = theorems.funext rot := begin
+    transitivity, apply equiv.map_over_comp,
+    transitivity, apply eq.map, apply recβrule₂,
+    apply sigma.map_fst_over_prod
+  end
 
   def inv : S¹ → S¹ :=
   circle.rec base loop⁻¹
@@ -349,11 +361,11 @@ namespace circle
   @[hott] noncomputable def μ_left := calc
     (λ x, μ x base) # loop = happly (eq.map μ loop) base :
                              by apply interval.map_happly
-                       ... = happly (theorems.funext turn) base :
+                       ... = happly (theorems.funext rot) base :
                              begin apply eq.map (λ f, happly f base),
-                                   apply circle.recβrule₂ end
+                                   apply μ_loop end
                        ... = loop :
-                             begin change _ = turn base, apply happly,
+                             begin change _ = rot base, apply happly,
                                    apply theorems.full.forward_right end
 
   @[hott] noncomputable def unit_right (x : S¹) : μ x base = x := begin
@@ -383,7 +395,7 @@ namespace circle
   end
 
   def pow' (x : S¹) : ℕ → S¹
-  | 0 := base
+  |    0    := base
   | (n + 1) := μ x (pow' n)
 
   def pow (x : S¹) : ℤ → S¹

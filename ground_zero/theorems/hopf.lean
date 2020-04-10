@@ -15,4 +15,9 @@ namespace real
   abbreviation map : total → S¹ := sigma.fst
 end real
 
+namespace complex
+  -- complex (S¹ ↪ S³ ↠ S²)
+  def family : S² → Type := suspension.rec S¹ S¹ (ua ∘ circle.μₑ)
+end complex
+
 end ground_zero.theorems.hopf
