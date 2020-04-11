@@ -136,7 +136,7 @@ namespace reals
        |          |
        R ════════ R
   -/
-  noncomputable def Euler := calc
+  @[hott] noncomputable def Euler := calc
     fib cis base ≃ (Σ (x : R), circle.base = cis x) :
                    by apply sigma.hmtpy_inv_eqv
              ... ≃ (Σ (x : R), helix (cis x)) :
