@@ -26,8 +26,7 @@ namespace reals
   graph.line (rel.glue z)
 
   @[hott] def ind {π : R → Type u} (cz : Π x, π (elem x))
-    (sz : Π z, cz z =[glue z] cz (integer.succ z))
-    (u : R) : π u := begin
+    (sz : Π z, cz z =[glue z] cz (integer.succ z)) (u : R) : π u := begin
     fapply graph.ind, exact cz,
     { intros u v H, induction H, apply sz }
   end
@@ -144,7 +143,7 @@ namespace reals
                      (funext (λ x, ground_zero.ua (circle.family (cis x)))))
              ... ≃ (Σ (x : R), ℤ) :
                    equiv.idtoeqv (sigma # (funext helix_over_cis))
-             ... ≃ R × ℤ : by apply sigma.const
+             ... ≃ R × ℤ : sigma.const R ℤ
              ... ≃ 𝟏 × ℤ :
                    ground_zero.ua.product_equiv₃
                      (ground_zero.structures.contr_equiv_unit contr)
