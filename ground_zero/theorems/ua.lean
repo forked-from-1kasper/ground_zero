@@ -111,6 +111,19 @@ ff_neq_tt (is_zero # h)⁻¹
 @[hott] def neg_bool_equiv : bool ≃ bool :=
 begin existsi bnot, split; existsi bnot; intro x; induction x; trivial end
 
+@[hott] noncomputable def coproduct_set {α β : Type}
+  (f : hset α) (g : hset β) : hset (α + β)
+| (coproduct.inl x) (coproduct.inl y) :=
+  transport structures.prop (ua $ @coproduct.inl.inj' α β x y)⁻¹ f
+| (coproduct.inl x) (coproduct.inr y) :=
+  transport structures.prop (ua $ @types.coproduct.inl.inl_inr α β x y)⁻¹
+            structures.empty_is_prop
+| (coproduct.inr x) (coproduct.inl y) :=
+  transport structures.prop (ua $ @types.coproduct.inr.inr_inl α β x y)⁻¹
+            structures.empty_is_prop
+| (coproduct.inr x) (coproduct.inr y) :=
+  transport structures.prop (ua $ @coproduct.inr.inj' α β x y)⁻¹ g
+
 @[hott] noncomputable theorem universe_not_a_set : ¬(hset Type) :=
 begin
   intro error,

@@ -1,4 +1,5 @@
-import ground_zero.types.coproduct
+import ground_zero.theorems.nat
+open ground_zero.structures (hset)
 
 namespace ground_zero.types
 
@@ -104,6 +105,11 @@ instance : has_mul integer := ⟨mul⟩
 | (pos x) (neg y) := false
 | (pos x) (pos y) := x ≤ y
 instance : has_le integer := ⟨le⟩
+
+@[hott] noncomputable def set : hset integer := begin
+  apply ground_zero.ua.coproduct_set;
+  apply ground_zero.theorems.nat.nat_is_set
+end
 
 end integer
 

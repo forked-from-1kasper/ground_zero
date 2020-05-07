@@ -9,7 +9,7 @@ hott theory
 namespace nat
   universe u
 
-  @[hott] noncomputable def nat_is_set : ground_zero.structures.hset ℕ
+  @[hott] noncomputable def nat_is_set' : structures.hset ℕ
   |    0       0    p q :=
     types.equiv.transport
       structures.prop (ua $ types.nat.recognize 0 0)⁻¹
@@ -20,8 +20,24 @@ namespace nat
     refine types.equiv.transport structures.prop
            (ua $ types.nat.recognize (m + 1) (n + 1))⁻¹ _ p q,
     apply types.equiv.transport structures.prop (ua $ types.nat.recognize m n),
-    apply nat_is_set
+    apply nat_is_set'
   end
+
+  def succ_inj {n m : ℕ} : nat.succ n = nat.succ m → n = m :=
+  nat.decode ∘ nat.encode
+
+  @[hott] def nat_dec_eq : Π (n m : ℕ), structures.dec (n = m)
+  |    0       0    := sum.inl (types.eq.refl 0)
+  |    0    (m + 1) := sum.inr (λ p, ua.succ_neq_zero p⁻¹)
+  | (n + 1)    0    := sum.inr ua.succ_neq_zero
+  | (n + 1) (m + 1) :=
+    match nat_dec_eq n m with
+    | sum.inl p := sum.inl (nat.succ # p)
+    | sum.inr f := sum.inr (λ p, f (succ_inj p))
+    end
+  
+  @[hott] def nat_is_set : structures.hset ℕ :=
+  λ n m, structures.Hedberg nat_dec_eq
 
   @[hott] def zero_plus_i (i : ℕ) : 0 + i = i := begin
     induction i with i ih,
@@ -138,9 +154,6 @@ namespace nat
   def is_even (n : ℕ) := Σ m, n = m * 2
   def is_odd (n : ℕ) := Σ m, n = m * 2 + 1
 
-  def succ_inj {n m : ℕ} : nat.succ n = nat.succ m → n = m :=
-  nat.decode ∘ nat.encode
-
   def mul_div_right (n : ℕ) {m : ℕ} (H : m > 0) : m * n / m = n :=
   begin induction n; simp [*] end
 
@@ -153,14 +166,14 @@ namespace nat
   let h : i * (n + 1) / (n + 1) = j * (n + 1) / (n + 1) := (/ nat.succ n) # h in
   (mul_div_left i $ nat.zero_lt_succ n)⁻¹ ⬝ h ⬝ mul_div_left j (nat.zero_lt_succ n)
 
-  noncomputable def is_even_is_prop (n : ℕ) : structures.prop (is_even n) := begin
+  def is_even_is_prop (n : ℕ) : structures.prop (is_even n) := begin
     intros x y, cases x with i h, cases y with j g,
     fapply types.sigma.prod,
     { apply mul_succ_n_inj, exact h⁻¹ ⬝ g },
     { apply nat_is_set }
   end
 
-  noncomputable def is_odd_is_prop (n : ℕ) : structures.prop (is_odd n) := begin
+  def is_odd_is_prop (n : ℕ) : structures.prop (is_odd n) := begin
     intros x y, cases x with i h, cases y with j g,
     fapply types.sigma.prod,
     { apply mul_succ_n_inj, apply succ_inj, exact h⁻¹ ⬝ g },
@@ -253,11 +266,11 @@ namespace nat
     existsi m, apply succ_inj, assumption
   end
 
-  noncomputable def is_even_equiv {n : ℕ} : is_even n ≃ even n :=
+  def is_even_equiv {n : ℕ} : is_even n ≃ even n :=
   structures.prop_equiv_lemma (is_even_is_prop n) (even_is_prop n)
     sigma_to_even even_to_sigma
 
-  noncomputable def is_odd_equiv {n : ℕ} : is_odd n ≃ odd n :=
+  def is_odd_equiv {n : ℕ} : is_odd n ≃ odd n :=
   structures.prop_equiv_lemma (is_odd_is_prop n) (odd_is_prop n)
     sigma_to_odd odd_to_sigma
 

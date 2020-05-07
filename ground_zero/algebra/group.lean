@@ -698,21 +698,21 @@ namespace group
 
   def D₃.inj : D₃ → D₃/A₃ := factor.incl
 
-  def encode : Z₂ → D₃/A₃
+  def Z₂.encode : Z₂ → D₃/A₃
   | ff := D₃.inj R₀
   | tt := D₃.inj S₀
 
-  def decode : D₃/A₃ → Z₂ := begin
+  def Z₂.decode : D₃/A₃ → Z₂ := begin
     fapply ground_zero.HITs.quotient.rec,
     { exact D₃.elim ff ff ff tt tt tt },
     { intros x y H; induction x; induction y; induction H; trivial },
     { apply magma.set }
   end
 
-  noncomputable def D₃.iso : Z₂ ≅ D₃/A₃ := begin
-    existsi encode,
+  noncomputable def Z₂.iso : Z₂ ≅ D₃/A₃ := begin
+    existsi Z₂.encode,
     split, { intros x y, induction x; induction y; trivial },
-    split; existsi decode,
+    split; existsi Z₂.decode,
     { intro x, induction x; trivial },
     { fapply ground_zero.HITs.quotient.ind,
       { intro x, induction x; apply ground_zero.HITs.quotient.sound; exact ★ },

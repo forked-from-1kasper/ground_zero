@@ -1,5 +1,5 @@
 import ground_zero.HITs.suspension ground_zero.theorems.prop
-import ground_zero.types.integer ground_zero.theorems.nat
+import ground_zero.types.integer
 open ground_zero.HITs.interval (happly)
 open ground_zero.types.equiv (subst transport)
 open ground_zero.types.eq
@@ -55,8 +55,7 @@ namespace circle
   def seg₂ : base₁ = base₂ := suspension.merid tt
 
   @[hott] def ind₂ {β : S¹ → Type u} (b₁ : β base₁) (b₂ : β base₂)
-    (ℓ₁ : b₁ =[seg₁] b₂)
-    (ℓ₂ : b₁ =[seg₂] b₂) : Π (x : S¹), β x :=
+    (ℓ₁ : b₁ =[seg₁] b₂) (ℓ₂ : b₁ =[seg₂] b₂) : Π (x : S¹), β x :=
   suspension.ind b₁ b₂ (begin
     intro x, induction x,
     exact ℓ₁, exact ℓ₂
@@ -243,22 +242,6 @@ namespace circle
     decode x (encode x p) = p :=
   begin induction p, reflexivity end
 
-  @[hott] noncomputable def coproduct_set {α β : Type}
-    (f : hset α) (g : hset β) : hset (α + β)
-  | (coproduct.inl x) (coproduct.inl y) :=
-    transport structures.prop (ua $ @coproduct.inl.inj' α β x y)⁻¹ f
-  | (coproduct.inl x) (coproduct.inr y) :=
-    transport structures.prop (ua $ @types.coproduct.inl.inl_inr α β x y)⁻¹
-              structures.empty_is_prop
-  | (coproduct.inr x) (coproduct.inl y) :=
-    transport structures.prop (ua $ @types.coproduct.inr.inr_inl α β x y)⁻¹
-              structures.empty_is_prop
-  | (coproduct.inr x) (coproduct.inr y) :=
-    transport structures.prop (ua $ @coproduct.inr.inj' α β x y)⁻¹ g
-
-  @[hott] noncomputable def integer_is_set : ground_zero.structures.hset integer :=
-  begin apply coproduct_set; apply theorems.nat.nat_is_set end
-
   @[hott] noncomputable def encode_decode (x : S¹) (c : helix x) :
     encode x (decode x c) = c :=
   @ind (λ x, Π c, encode x (decode x c) = c)
@@ -280,7 +263,7 @@ namespace circle
     end)
     (begin
       apply theorems.funext,
-      intro x, apply integer_is_set
+      intro x, apply types.integer.set
     end) x c
 
   @[hott] noncomputable def family (x : S¹) : (base = x) ≃ helix x := begin
