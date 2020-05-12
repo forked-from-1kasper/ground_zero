@@ -13,4 +13,6 @@ infix ↔ := iff
 notation [parsing_only] `𝟎` := empty
 notation [parsing_only] `𝟐` := bool
 
+def empty.elim {α : Sort u} : empty → α.
+
 end ground_zero.proto
