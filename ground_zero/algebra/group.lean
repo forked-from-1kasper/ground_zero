@@ -479,7 +479,7 @@ namespace group
             ... = 1       : unit_inv⁻¹
       end }
 
-    instance ker_is_normal_subgroup : is_normal_subgroup (ker φ) := begin
+    @[hott] instance ker_is_normal_subgroup : is_normal_subgroup (ker φ) := begin
       apply is_normal_subgroup.mk, intros n g G, cases φ with φ H,
       change _ = _ at G, have F := (H n g)⁻¹ ⬝ G, calc
         φ (g * n) = φ g * φ n     : H g n
@@ -487,7 +487,7 @@ namespace group
               ... = 1 : by apply mul_right_inv
     end
 
-    instance im_is_subgroup : is_subgroup (im φ) :=
+    @[hott] instance im_is_subgroup : is_subgroup (im φ) :=
     { unit := ground_zero.HITs.merely.elem ⟨1, homo_saves_unit φ⟩,
       mul := begin
         intros a b G' H', fapply ground_zero.HITs.merely.rec _ _ G',
@@ -564,11 +564,11 @@ namespace group
       mul_left_inv := subgroup.mul_left_inv }
   end
 
-  def subgroup.inter (φ : set α) (ψ : set α)
+  @[hott] def subgroup.inter (φ : set α) (ψ : set α)
     [is_subgroup φ] [is_subgroup ψ] : set ψ.subtype :=
   ⟨λ x, x.fst ∈ φ, λ x, set.prop x.fst φ⟩
 
-  instance subgroup_subgroup (φ : set α) (ψ : set α)
+  @[hott] instance subgroup_subgroup (φ : set α) (ψ : set α)
     [is_subgroup φ] [is_subgroup ψ] :
     is_subgroup (subgroup.inter φ ψ) := begin
     split, { change 1 ∈ φ, apply is_subgroup.unit },
@@ -580,13 +580,13 @@ namespace group
       assumption }
   end
 
-  instance abelian_subgroup_is_normal {α : Type u} [abelian α]
+  @[hott] instance abelian_subgroup_is_normal {α : Type u} [abelian α]
     (φ : set α) [is_subgroup φ] : is_normal_subgroup φ := begin
     split, intros g h p, apply transport (∈ φ),
     apply abelian.mul_comm, assumption
   end
 
-  instance abelian_subgroup_is_abelian {α : Type u} [abelian α]
+  @[hott] instance abelian_subgroup_is_abelian {α : Type u} [abelian α]
     (φ : set α) [is_subgroup φ] : abelian φ.subtype := begin
     split, intros a b, induction a with a g, induction b with b h,
     fapply ground_zero.types.sigma.prod,
@@ -602,11 +602,11 @@ namespace group
   | S₀ | S₁ | S₂
   open D₃
 
-  def D₃.inv : D₃ → D₃
+  @[hott] def D₃.inv : D₃ → D₃
   | R₀ := R₀ | R₁ := R₂ | R₂ := R₁
   | S₀ := S₀ | S₁ := S₁ | S₂ := S₂
 
-  def D₃.mul : D₃ → D₃ → D₃
+  @[hott] def D₃.mul : D₃ → D₃ → D₃
   | R₀ R₀ := R₀ | R₀ R₁ := R₁ | R₀ R₂ := R₂
   | R₀ S₀ := S₀ | R₀ S₁ := S₁ | R₀ S₂ := S₂
   | R₁ R₀ := R₁ | R₁ R₁ := R₂ | R₁ R₂ := R₀
@@ -627,7 +627,7 @@ namespace group
   def D₃.elim {β : Type u} : β → β → β → β → β → β → D₃ → β :=
   @D₃.rec (λ _, β)
 
-  instance D₃.is_magma : magma D₃ := begin
+  @[hott] instance D₃.is_magma : magma D₃ := begin
     split, apply ground_zero.structures.Hedberg,
     intros x y, induction x; induction y;
     try { apply sum.inl, refl },
@@ -640,32 +640,32 @@ namespace group
     repeat { apply (D₃.elim ff ff ff ff ff tt) # p }
   end
 
-  instance D₃.semigroup : semigroup D₃ := begin
+  @[hott] instance D₃.semigroup : semigroup D₃ := begin
     split, intros a b c,
     induction a; induction b; induction c; trivial
   end
 
-  instance D₃.monoid : monoid D₃ :=
+  @[hott] instance D₃.monoid : monoid D₃ :=
   begin split; intro a; induction a; trivial end
 
-  instance D₃.group : group D₃ :=
+  @[hott] instance D₃.group : group D₃ :=
   begin split, intro a, induction a; trivial end
 
-  def A₃ : set D₃ :=
+  @[hott] def A₃ : set D₃ :=
   ⟨D₃.elim 𝟏 𝟏 𝟏 𝟎 𝟎 𝟎, begin
     intros x, induction x,
     repeat { apply ground_zero.structures.unit_is_prop },
     repeat { apply ground_zero.structures.empty_is_prop }
   end⟩
 
-  instance : is_subgroup A₃ := begin
+  @[hott] instance : is_subgroup A₃ := begin
     split, { apply ★ },
     { intros a b p q, induction a; induction b;
       induction p; induction q; apply ★ },
     { intros a p, induction a; induction p; apply ★ }
   end
 
-  instance : is_normal_subgroup A₃ := begin
+  @[hott] instance : is_normal_subgroup A₃ := begin
     split, intros g h p; induction g; induction h;
     induction p; apply ★
   end
@@ -678,40 +678,40 @@ namespace group
   @[hott] instance Z₂.has_inv : has_inv Z₂ := ⟨Z₂.inv⟩
   @[hott] instance Z₂.has_mul : has_mul Z₂ := ⟨Z₂.mul⟩
 
-  instance : magma Z₂ := begin
+  @[hott] instance : magma Z₂ := begin
     split, apply ground_zero.structures.Hedberg,
     intros x y, induction x; induction y; try { apply sum.inl, refl },
     repeat { apply sum.inr, intro p, apply ff_neq_tt },
     exact p, exact p⁻¹
   end
 
-  instance Z₂.semigroup : semigroup Z₂ := begin
+  @[hott] instance Z₂.semigroup : semigroup Z₂ := begin
     split, intros a b c,
     induction a; induction b; induction c; trivial
   end
 
-  instance Z₂.monoid : monoid Z₂ :=
+  @[hott] instance Z₂.monoid : monoid Z₂ :=
   begin split; intro a; induction a; trivial end
 
-  instance Z₂.group : group Z₂ :=
+  @[hott] instance Z₂.group : group Z₂ :=
   begin split, intro a, induction a; trivial end
 
   def D₃.inj : D₃ → D₃/A₃ := factor.incl
 
-  def Z₂.encode : Z₂ → D₃/A₃
+  @[hott] def Z₂.encode : Z₂ → D₃/A₃
   | ff := D₃.inj R₀
   | tt := D₃.inj S₀
 
-  def Z₂.decode : D₃/A₃ → Z₂ := begin
+  @[hott] def Z₂.decode : D₃/A₃ → Z₂ := begin
     fapply ground_zero.HITs.quotient.rec,
     { exact D₃.elim ff ff ff tt tt tt },
     { intros x y H; induction x; induction y; induction H; trivial },
     { apply magma.set }
   end
 
-  noncomputable def Z₂.iso : Z₂ ≅ D₃/A₃ := begin
-    existsi Z₂.encode,
-    split, { intros x y, induction x; induction y; trivial },
+  @[hott] noncomputable def Z₂.iso : Z₂ ≅ D₃/A₃ := begin
+    existsi Z₂.encode, split,
+    { intros x y, induction x; induction y; trivial },
     split; existsi Z₂.decode,
     { intro x, induction x; trivial },
     { fapply ground_zero.HITs.quotient.ind,
@@ -719,6 +719,53 @@ namespace group
       { intros x y H, apply magma.set },
       { intro x, apply ground_zero.structures.prop_is_set,
         apply magma.set } }
+  end
+
+  @[hott] def triv : set α :=
+  ⟨λ x, 1 = x, begin intro x, apply magma.set end⟩
+
+  @[hott] instance triv.subgroup : @is_subgroup α _ triv := begin
+    split,
+    { change _ = _, reflexivity },
+    { intros a b p q,
+      change _ = _ at p, change _ = _ at q,
+      induction p, induction q,
+      change _ = _, symmetry,
+      apply monoid.mul_one },
+    { intros a p, change _ = _ at p,
+      induction p, change _ = _,
+      apply unit_inv }
+  end
+
+  @[hott] instance triv.normal_subgroup : @is_normal_subgroup α _ triv := begin
+    split, intros g h p, change _ = _ at p,
+    change _ = _, apply @mul_cancel_left α _ _ _ g,
+    transitivity, apply monoid.mul_one,
+    transitivity, { symmetry, apply monoid.one_mul },
+    symmetry, transitivity, { symmetry, apply semigroup.mul_assoc },
+    symmetry, apply ground_zero.types.eq.map (* g),
+    assumption
+  end
+
+  @[hott] def triv.encode : α → α/triv := factor.incl
+  @[hott] def triv.decode : α/triv → α := begin
+    fapply ground_zero.HITs.quotient.rec,
+    exact id,
+    { intros x y H, change _ = _ at H,
+      change _ = _ * _ at H,
+      apply inv_inj, apply eq_inv_of_mul_eq_one,
+      exact H⁻¹ },
+    apply magma.set
+  end
+
+  @[hott] noncomputable def triv.factor : α ≅ α/triv := begin
+    existsi triv.encode, split,
+    { intros x y, reflexivity },
+    split; existsi triv.decode,
+    { intro x, reflexivity },
+    { fapply ground_zero.HITs.quotient.ind_prop; intro x,
+      { reflexivity },
+      { apply magma.set } }
   end
 end group
 
