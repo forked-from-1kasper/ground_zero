@@ -1,4 +1,4 @@
-import ground_zero.types.product ground_zero.structures
+import ground_zero.structures
 open ground_zero.types.equiv (idtoeqv homotopy)
 open ground_zero.types.equiv (renaming id -> ideqv)
 open ground_zero.types

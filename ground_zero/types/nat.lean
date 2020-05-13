@@ -1,5 +1,6 @@
 import ground_zero.structures ground_zero.HITs.colimit
 open ground_zero.types ground_zero.structures (hset)
+open ground_zero (pt)
 
 namespace ground_zero.types.nat
 
@@ -52,29 +53,25 @@ end
   apply equiv_addition, exact closed_nat
 end
 
-def drop (α : Type) : ℕ → Type
-|    0    := α
-| (n + 1) := coproduct (drop n) 𝟏
-
-@[hott] def nat_plus_unit (n : ℕ) : ℕ ≃ drop ℕ n := begin
+@[hott] def nat_plus_unit (n : ℕ) : ℕ ≃ pt ℕ n := begin
   induction n with n ih,
   { reflexivity },
   { transitivity,
-    exact closed_nat,
+    exact closed_nat, change _ ≃ _ + _,
     apply equiv_addition 𝟏 ih }
 end
 
-abbreviation lift_unit (n : ℕ) : drop 𝟏 n → drop 𝟏 (n + 1) :=
+abbreviation lift_unit (n : ℕ) : pt 𝟏 n → pt 𝟏 (n + 1) :=
 coproduct.inl
 
-def lift_to_top (x : 𝟏) : Π (n : ℕ), drop 𝟏 n
-| 0 := x
+def lift_to_top (x : 𝟏) : Π (n : ℕ), pt 𝟏 n
+|   0     := x
 | (n + 1) := coproduct.inl (lift_to_top n)
 
-def iterated := ground_zero.HITs.colimit (drop 𝟏) lift_unit
+def iterated := ground_zero.HITs.colimit (pt 𝟏) lift_unit
 
 def iterated.encode : ℕ → iterated
-| 0 := ground_zero.HITs.colimit.inclusion 0 ★
+|    0    := ground_zero.HITs.colimit.inclusion 0 ★
 | (n + 1) := ground_zero.HITs.colimit.inclusion (n + 1) (coproduct.inr ★)
 
 def code : ℕ → ℕ → Type
@@ -84,7 +81,7 @@ def code : ℕ → ℕ → Type
 | (m + 1) (n + 1) := code m n
 
 def r : Π n, code n n
-| 0 := ★
+|    0    := ★
 | (n + 1) := r n
 
 def encode {m n : ℕ} (p : m = n) : code m n :=

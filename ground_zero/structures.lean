@@ -1,6 +1,7 @@
 import ground_zero.types.unit ground_zero.types.coproduct
-import ground_zero.theorems.funext ground_zero.types.sigma
+import ground_zero.types.product ground_zero.types.sigma
 open ground_zero.types.unit ground_zero.types.eq (map)
+open ground_zero.types (coproduct)
 
 hott theory
 
@@ -492,6 +493,33 @@ end theorems
   { intros, intros f g, apply structures.ntype_respects_equiv,
     symmetry, apply ground_zero.theorems.full,
     apply ih, intro x, apply H }
+end
+
+def iter (α β : Type) : ℕ → Type
+|    0    := β
+| (n + 1) := coproduct (iter n) α
+def pt := iter 𝟏
+
+def vect (α : Type u) : ℕ → Type u
+|    0    := α
+| (n + 1) := α × vect n
+
+def vect.constant {α : Type u} (a : α) : Π n, vect α n
+|    0    := a
+| (n + 1) := (a, vect.constant n)
+
+def vect.map {α : Type u} {β : Type v} (f : α → β) :
+  Π {n : ℕ}, vect α n → vect β n 
+|    0    := f
+| (n + 1) := λ v, (f v.1, vect.map v.2)
+
+@[hott] def vect.const_map {α : Type u} {β : Type v} (a : α) (f : α → β) :
+  Π {n : ℕ}, vect.map f (vect.constant a n) = vect.constant (f a) n := begin
+  intro n, induction n with n ih,
+  { reflexivity },
+  { fapply ground_zero.types.product.prod,
+    { reflexivity },
+    { apply ih } }
 end
 
 end ground_zero

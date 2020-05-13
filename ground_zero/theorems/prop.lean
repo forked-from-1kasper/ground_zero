@@ -1,5 +1,4 @@
 import ground_zero.HITs.interval ground_zero.HITs.merely
-import ground_zero.types.product
 open ground_zero.HITs.interval
 open ground_zero.structures (prop contr hset prop_is_set)
 open ground_zero.types.equiv
