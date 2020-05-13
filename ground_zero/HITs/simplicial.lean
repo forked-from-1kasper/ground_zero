@@ -3,11 +3,6 @@ open ground_zero.types.eq (renaming rfl -> idp)
 open ground_zero.structures (prop)
 open ground_zero.types
 
-/-
-  * Filled simplex.
-  * Simplex.
--/
-
 hott theory
 
 namespace ground_zero.HITs
@@ -46,7 +41,7 @@ def network.proplem {α : Type u} (H : prop α) : α ≃ network α := begin
   apply graph.elem, apply network.decode H
 end
 
-def simplex (n : ℕ) := network (fin n)
-def simplex.elem {n : ℕ} : fin n → simplex n := graph.elem
+def hull (n : ℕ) := network (fin n)
+def hull.elem {n : ℕ} : fin n → hull n := graph.elem
 
 end ground_zero.HITs
