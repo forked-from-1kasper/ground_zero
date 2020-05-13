@@ -501,25 +501,25 @@ def iter (α β : Type) : ℕ → Type
 def pt := iter 𝟏
 
 def vect (α : Type u) : ℕ → Type u
-|    0    := α
-| (n + 1) := α × vect n
+|    0    := 𝟏
+| (n + 1) := vect n × α
 
 def vect.constant {α : Type u} (a : α) : Π n, vect α n
-|    0    := a
-| (n + 1) := (a, vect.constant n)
+|    0    := ★
+| (n + 1) := (vect.constant n, a)
 
 def vect.map {α : Type u} {β : Type v} (f : α → β) :
   Π {n : ℕ}, vect α n → vect β n 
-|    0    := f
-| (n + 1) := λ v, (f v.1, vect.map v.2)
+|    0    := λ _, ★
+| (n + 1) := λ v, (vect.map v.1, f v.2)
 
 @[hott] def vect.const_map {α : Type u} {β : Type v} (a : α) (f : α → β) :
   Π {n : ℕ}, vect.map f (vect.constant a n) = vect.constant (f a) n := begin
   intro n, induction n with n ih,
   { reflexivity },
   { fapply ground_zero.types.product.prod,
-    { reflexivity },
-    { apply ih } }
+    { apply ih },
+    { reflexivity } }
 end
 
 end ground_zero

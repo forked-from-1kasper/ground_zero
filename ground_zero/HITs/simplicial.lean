@@ -52,4 +52,13 @@ inductive tetrahedron (n : ℕ) (α : Type u) : vect α n → Type u
   apply tetrahedron.refl
 end
 
+def tetrahedron.singl {α : Type u} : Π x, tetrahedron 1 α x
+| (★, a) := tetrahedron.refl a
+
+def tetrahedron.one {α : Type u} (x : vect α 1) :
+  tetrahedron 1 α x ≃ 𝟏 := begin
+  existsi (λ _, ★), split; existsi (λ _, tetrahedron.singl x);
+  intro x; induction x; trivial
+end
+
 end ground_zero.HITs
