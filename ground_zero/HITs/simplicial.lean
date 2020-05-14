@@ -1,7 +1,7 @@
 import ground_zero.HITs.merely
+open ground_zero (iter vect vect.map vect.constant)
 open ground_zero.types.eq (renaming rfl -> idp)
 open ground_zero.structures (prop)
-open ground_zero (iter vect vect.map vect.constant)
 open ground_zero.types
 
 hott theory
@@ -42,23 +42,60 @@ end
 def hull (n : ℕ) := network (fin n)
 def hull.elem {n : ℕ} : fin n → hull n := graph.elem
 
-inductive tetrahedron (n : ℕ) (α : Type u) : vect α n → Type u
-| refl {} (a : α) : tetrahedron (vect.constant a n)
+abbreviation simplex (α : Type u) := list α
+def face {α : Type u} (xs : simplex α) (i : ℕ) : simplex α :=
+list.take i xs ++ list.drop (i + 1) xs
 
-@[hott] def tetrahedron.map {n : ℕ} {α : Type u} {β : Type v} (f : α → β)
-  (x : vect α n) (p : tetrahedron n α x) : tetrahedron n β (vect.map f x) := begin
-  induction p, apply ground_zero.types.equiv.transport,
-  { symmetry, apply ground_zero.vect.const_map },
-  apply tetrahedron.refl
-end
+def enum.aux {α : Type u} : ℕ → list α → list ℕ
+| _    []     := []
+| n (x :: xs) := n :: enum.aux (n + 1) xs
+def enum {α : Type u} := @enum.aux α 0
 
-def tetrahedron.singl {α : Type u} : Π x, tetrahedron 1 α x
-| (★, a) := tetrahedron.refl a
+def faces {α : Type u} (xs : simplex α) : list (simplex α) :=
+list.map (face xs) (enum xs)
 
-def tetrahedron.one {α : Type u} (x : vect α 1) :
-  tetrahedron 1 α x ≃ 𝟏 := begin
-  existsi (λ _, ★), split; existsi (λ _, tetrahedron.singl x);
-  intro x; induction x; trivial
-end
+inductive simplex.nonempty {α : Type u} : simplex α → Type u
+| intro (x : α) (xs : simplex α) : simplex.nonempty (x :: xs)
+open simplex (nonempty)
+
+def simplex.head {α : Type u} : Π (v : simplex α), nonempty v → α
+| (x :: xs) _ := x
+
+def simplex.tail {α : Type u} : Π (v : simplex α), nonempty v → simplex α
+| (x :: xs) _ := xs
+
+def faces.nonempty {α : Type u} : Π (v : simplex α), nonempty v → nonempty (faces v) :=
+begin intros v H, induction H with y ys, apply simplex.nonempty.intro end
+
+axiom glue {α : Type u} : simplex α → Type u
+axiom glue.refl {α : Type u} (a : α) : Π n, glue (list.repeat a n)
+
+def glue.open {α : Type u} (v : simplex α) (H : nonempty v) :=
+list.foldl (λ μ face, glue face × μ) 𝟏
+           (simplex.tail (faces v) (faces.nonempty v H))
+
+def glue.lid {α : Type u} (v : simplex α) (H : nonempty v) :=
+glue (simplex.head (faces v) (faces.nonempty v H))
+
+axiom glue.comp {α : Type u} {v : simplex α} (H : nonempty v) :
+  glue.open v H → glue.lid v H
+
+axiom glue.eqv {α : Type u} (v : simplex α) (H : nonempty v) :
+  glue v ≃ (Σ top bot, top = glue.comp H bot)
+
+axiom glue.zero {α : Type u}           : 𝟎       ≃ @glue α []
+axiom glue.unit {α : Type u} {a : α}   : 𝟏       ≃  glue   [a]
+axiom glue.path {α : Type u} {a b : α} : (a = b) ≃  glue   [a, b]
+
+axiom glue.compβ {α : Type u} {a b c : α} (p : a = b) (q : a = c) :
+  @glue.comp α [a, b, c] (by apply simplex.nonempty.intro)
+    (glue.path.forward p, glue.path.forward q, ★) =
+      glue.path.forward (p⁻¹ ⬝ q)
+
+abbreviation complex (α : Type u) := list (simplex α)
+
+axiom K {α : Type u} : complex α → Type u
+axiom K.elem {α : Type u} {v : complex α} : α → K v
+axiom K.glue {α : Type u} {v : complex α} : Π x, x ∈ v → glue x
 
 end ground_zero.HITs
