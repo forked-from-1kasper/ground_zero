@@ -133,12 +133,15 @@ namespace eq
   notation `Ω¹`:25 X := (loop_pointed_space X 1).space
 end eq
 
+def not (α : Type u) : Type u := α → (𝟎 : Type)
 namespace not
-  notation `¬` a := a → (𝟎 : Type)
+  notation `¬` α     := not α
   notation a ` ≠ ` b := ¬(a = b :> _)
 
   def absurd {α : Type u} {β : Type v} (h : α) (g : ¬α) : β :=
   ground_zero.proto.empty.cases_on (λ _, β) (g h)
+
+  def univ : (𝟎 : Type u) → (𝟎 : Type v).
 end not
 
 namespace whiskering

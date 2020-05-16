@@ -3,6 +3,7 @@ import ground_zero.HITs.quotient
 open ground_zero.types.equiv (biinv transport)
 open ground_zero.types.eq (map)
 open ground_zero.structures
+open ground_zero.types
 
 namespace ground_zero.algebra
 universes u v w
@@ -121,6 +122,12 @@ namespace group
   instance : has_sdiff α := ⟨left_div⟩
 
   section
+    variables {μ : Type u} {η : Type v} (φ : μ → η)
+    def im.aux := ground_zero.theorems.functions.fib_inh φ
+    def im : set η := ⟨im.aux φ, λ _, ground_zero.HITs.merely.uniq⟩
+  end
+
+  section
     variables {β : Type v} [group β]
 
     def respects_mul (φ : α → β) :=
@@ -158,11 +165,9 @@ namespace group
     begin intros f g, apply magma.set end
 
     def ker : set α := ⟨ker.aux φ, ker_is_prop φ⟩
-    def Ker := (ker φ).subtype
 
-    def im.aux := ground_zero.theorems.functions.fib_inh (φ.fst)
-    def im : set β := ⟨im.aux φ, λ _, ground_zero.HITs.merely.uniq⟩
-    def Im := (im φ).subtype
+    def Ker := (ker φ).subtype
+    def Im  := (im φ.fst).subtype
   end
 
   @[hott] def iso (α : Type u) (β : Type v) [group α] [group β] :=
@@ -487,7 +492,7 @@ namespace group
               ... = 1 : by apply mul_right_inv
     end
 
-    @[hott] instance im_is_subgroup : is_subgroup (im φ) :=
+    @[hott] instance im_is_subgroup : is_subgroup (im φ.fst) :=
     { unit := ground_zero.HITs.merely.elem ⟨1, homo_saves_unit φ⟩,
       mul := begin
         intros a b G' H', fapply ground_zero.HITs.merely.rec _ _ G',

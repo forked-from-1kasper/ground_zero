@@ -1,7 +1,7 @@
 import ground_zero.types.unit ground_zero.types.coproduct
 import ground_zero.types.product ground_zero.types.sigma
 open ground_zero.types.unit ground_zero.types.eq (map)
-open ground_zero.types (coproduct)
+open ground_zero.types (coproduct idp)
 
 hott theory
 
@@ -9,7 +9,7 @@ namespace ground_zero
 universes u v w
 
 namespace structures
-def is_loop {α : Type u} {a : α} (p : a = a) := ¬(p = types.eq.refl a)
+def is_loop {α : Type u} {a : α} (p : a = a) := ¬(p = idp a)
 
 def prop (α : Type u) :=
 Π (a b : α), a = b :> α
