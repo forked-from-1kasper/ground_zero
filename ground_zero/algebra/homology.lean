@@ -22,7 +22,7 @@ abbreviation Z (C : chain_complex) (n : ℕ) :=
 (ζ C n).subtype
 
 abbreviation B (C : chain_complex) (n : ℕ) :=
-algebra.group.subgroup.inter (im (C.δ (n + 1))) (ζ C n)
+algebra.group.subgroup.inter (im (C.δ (n + 1)).fst) (ζ C n)
 
 def H (C : chain_complex) (n : ℕ) :=
 (Z C n)/(B C n)

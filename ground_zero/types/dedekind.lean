@@ -7,7 +7,7 @@ structure dedekind.is_cut (L U : ℚ → Prop) :=
 (inhabited : (∃ q, L q) ∧ ∃ r, U r)
 (rounded : ∀ q, iff (L q) (∃ r, q < r ∧ L r) ∧
            ∀ r, iff (U r) (∃ q, q < r ∧ U q))
-(disjoint : ∀ q, not (L q ∧ U q))
+(disjoint : ∀ q, ¬(L q ∧ U q))
 (located : ∀ q r, q < r → L q ∨ U r)
 
 def dedekind : Type := Σ L U, dedekind.is_cut L U

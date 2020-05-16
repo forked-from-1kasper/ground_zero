@@ -73,7 +73,7 @@ else frac
 
 private def generate_bool_list : bool → list ℕ → list bool
 | _ [] := []
-| x (hd :: tl) := list.repeat x hd ++ generate_bool_list (not x) tl
+| x (hd :: tl) := list.repeat x hd ++ generate_bool_list (bnot x) tl
 
 private def pos (num den : ℕ) : ℕ :=
 bitvec.bits_to_nat (generate_bool_list tt $ cont_frac_odd_rev ⟨num, den⟩)
