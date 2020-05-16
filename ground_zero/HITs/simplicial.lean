@@ -45,29 +45,4 @@ end
 def hull (n : ℕ) := network (fin n)
 def hull.elem {n : ℕ} : fin n → hull n := graph.elem
 
-abbreviation simplex (α : Type u) := list α
-def face {α : Type u} (xs : simplex α) (i : ℕ) : simplex α :=
-list.take i xs ++ list.drop (i + 1) xs
-
-def enum.aux {α : Type u} : ℕ → list α → list ℕ
-| _    []     := []
-| n (x :: xs) := n :: enum.aux (n + 1) xs
-def enum {α : Type u} := @enum.aux α 0
-
-def faces {α : Type u} (xs : simplex α) : list (simplex α) :=
-list.map (face xs) (enum xs)
-
-inductive simplex.nonempty {α : Type u} : simplex α → Type u
-| intro (x : α) (xs : simplex α) : simplex.nonempty (x :: xs)
-open simplex (nonempty)
-
-def simplex.head {α : Type u} : Π (v : simplex α), nonempty v → α
-| (x :: xs) _ := x
-
-def simplex.tail {α : Type u} : Π (v : simplex α), nonempty v → simplex α
-| (x :: xs) _ := xs
-
-def faces.nonempty {α : Type u} : Π (v : simplex α), nonempty v → nonempty (faces v) :=
-begin intros v H, induction H with y ys, apply simplex.nonempty.intro end
-
 end ground_zero.HITs
