@@ -1026,12 +1026,7 @@ namespace group
         { apply magma.set } },
       { apply magma.set } },
     split; existsi ker.encode,
-    { intro x, induction x with x H,
-      fapply ground_zero.types.sigma.prod,
-      { fapply ground_zero.HITs.merely.ind _ _ H; clear H; intro H,
-        { induction H with y p, apply p },
-        { apply magma.set } },
-      { apply ground_zero.HITs.merely.uniq } },
+    { intro x, apply (ker.decode_sigma x).snd },
     { fapply ground_zero.HITs.quotient.ind_prop,
       { intro x, trivial },
       { intro x, apply magma.set } }
