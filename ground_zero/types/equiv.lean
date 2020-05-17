@@ -1,5 +1,5 @@
 import ground_zero.support
-open ground_zero.proto (idfun)
+open ground_zero.proto (idfun identity identity.elem identity.elim)
 open combinator (S)
 
 section
@@ -413,6 +413,11 @@ namespace equiv
     (q : transport (λ x, μ x → η x) p f = g) :
     Π (x : μ a), transport η p (f x) = g (transport μ p x) :=
   begin induction p, induction q, intro x, trivial end
+
+  @[hott] def identity_eqv {α : Type u} : α ≃ identity α := begin
+    existsi identity.elem, split; existsi identity.elim; intro x,
+    { reflexivity }, { induction x, reflexivity }
+  end
 end equiv
 
 def is_qinv {α : Type u} {β : Type v} (f : α → β) (g : β → α) :=

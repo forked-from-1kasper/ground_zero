@@ -1,5 +1,8 @@
 import ground_zero.theorems.nat
 open ground_zero.structures (hset)
+open ground_zero.theorems
+
+hott theory
 
 namespace ground_zero.types
 
@@ -31,7 +34,7 @@ def abs : integer → ℕ
 
 def plus : ℕ → integer := integer.pos
 def minus : ℕ → integer
-| 0 := pos 0
+|    0    := pos 0
 | (n + 1) := neg n
 
 def negate : integer → integer
@@ -52,7 +55,7 @@ def signum : integer → (nat → integer)
 | (neg _) := minus
 
 def auxsucc : ℕ → integer
-| 0 := pos 0
+|    0    := pos 0
 | (n + 1) := neg n
 
 def succ : integer → integer
@@ -60,7 +63,7 @@ def succ : integer → integer
 | (pos v) := pos (v + 1)
 
 def auxpred : ℕ → integer
-| 0 := neg 0
+|    0    := neg 0
 | (n + 1) := pos n
 
 def pred : integer → integer
@@ -78,8 +81,8 @@ def pred : integer → integer
 end
 
 @[hott] def auxsub : nat → nat → integer
-| m       0       := pos m
-| 0       (n + 1) := neg n
+|    m       0    := pos m
+|    0    (n + 1) := neg n
 | (m + 1) (n + 1) := auxsub m n
 
 @[hott] def add : integer → integer → integer
@@ -105,6 +108,27 @@ instance : has_mul integer := ⟨mul⟩
 | (pos x) (neg y) := false
 | (pos x) (pos y) := x ≤ y
 instance : has_le integer := ⟨le⟩
+
+@[hott] def add_zero (x : integer) : x + 0 = x :=
+begin induction x; trivial end
+
+@[hott] def zero_add (x : integer) : 0 + x = x := begin
+  induction x,
+  { apply eq.map pos, apply nat.zero_plus_i },
+  { apply eq.map neg, reflexivity }
+end
+
+@[hott] def auxsub_asymm : Π x y, auxsub x y = negate (auxsub y x) := begin
+  intro x, induction x with x ih; intro y; induction y with y ih',
+  repeat { reflexivity }, { apply ih }
+end
+
+@[hott] def add_comm (x y : integer) : x + y = y + x := begin
+  induction x; induction y,
+  { apply eq.map pos, apply nat.comm },
+  { reflexivity }, { reflexivity },
+  { apply eq.map neg, apply nat.comm }
+end
 
 @[hott] noncomputable def set : hset integer := begin
   apply ground_zero.ua.coproduct_set;

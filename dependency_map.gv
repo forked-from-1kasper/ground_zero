@@ -32,6 +32,7 @@ digraph dependency_map {
       "HITs/graph", "theorems/funext"
     }
     "types/integer" -> {
+      "algebra/group",
       "HITs/circle",
       "types/rational"
     }
@@ -84,12 +85,11 @@ digraph dependency_map {
     "cubical/example"
     "cubical/path" -> {
       "cubical/square",
-      "cubical/example",
       "cubical/V",
       "cubical/connection"
     }
     "cubical/square"
-    "cubical/V"
+    "cubical/V" -> { "cubical/example" }
   }
 
   subgraph theorems {
@@ -99,6 +99,6 @@ digraph dependency_map {
     "theorems/hopf"
     "theorems/nat" -> { "HITs/int", "types/integer" }
     "theorems/prop" -> { "HITs/circle", "types/precategory" }
-    "theorems/ua" -> { "algebra/group", "theorems/nat", "cubical/V" }
+    "theorems/ua" -> { "theorems/nat", "cubical/V" }
   }
 }

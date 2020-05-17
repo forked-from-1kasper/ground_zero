@@ -1,9 +1,10 @@
-import ground_zero.theorems.functions ground_zero.theorems.ua
-import ground_zero.HITs.quotient
+import ground_zero.HITs.quotient ground_zero.types.integer
+import ground_zero.theorems.functions
 open ground_zero.types.equiv (biinv transport)
 open ground_zero.types.eq (map)
 open ground_zero.structures
 open ground_zero.types
+open ground_zero.proto
 
 namespace ground_zero.algebra
 universes u v w
@@ -900,6 +901,17 @@ namespace group
     { intros x y, apply univ_prop },
     split; existsi (λ _, ★); intro x,
     apply unit_is_prop, apply univ_prop
+  end
+
+  def Z := identity integer
+  instance Z.has_mul : has_mul Z := ⟨identity.lift₂ integer.add⟩
+  instance Z.has_one : has_one Z := ⟨identity.elem 0⟩
+  instance Z.has_inv : has_inv Z := ⟨identity.lift integer.negate⟩
+
+  noncomputable instance Z.magma : magma Z := begin
+    split, apply transport hset,
+    { apply ground_zero.ua, apply equiv.identity_eqv },
+    apply integer.set
   end
 end group
 
