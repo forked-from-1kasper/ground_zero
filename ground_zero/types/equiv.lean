@@ -90,26 +90,19 @@ namespace equiv
   @[hott, refl] def id (α : Type u) : α ≃ α :=
   begin existsi id, split; { existsi id, intro, reflexivity } end
 
-  @[hott, trans] def trans {α : Type u} {β : Type v} {γ : Type w}
-    (e₁ : α ≃ β) (e₂ : β ≃ γ) : α ≃ γ := begin
-    cases e₁ with f₁ H₁,
-    cases H₁ with linv₁ rinv₁,
-    cases linv₁ with g₁ α₁,
-    cases rinv₁ with h₁ β₁,
-
-    cases e₂ with f₂ H₂,
-    cases H₂ with linv₂ rinv₂,
-    cases linv₂ with g₂ α₂,
-    cases rinv₂ with h₂ β₂,
-
-    existsi (f₂ ∘ f₁), split,
-    { existsi (g₁ ∘ g₂),
-      intro x, transitivity,
-      apply eq.map g₁, apply α₂, exact α₁ x },
-    { existsi (h₁ ∘ h₂),
-      intro x, transitivity,
-      apply eq.map f₂, apply β₁, exact β₂ x }
+  @[hott] def biinv_trans {α : Type u} {β : Type v} {γ : Type w}
+    {f : α → β} {g : β → γ} : biinv f → biinv g → biinv (g ∘ f)
+  | (⟨g₁, G₁⟩, ⟨h₁, H₁⟩) (⟨g₂, G₂⟩, ⟨h₂, H₂⟩) := begin
+    split,
+    { existsi (g₁ ∘ g₂), intro x, transitivity,
+      apply eq.map g₁, apply G₂, exact G₁ x },
+    { existsi (h₁ ∘ h₂), intro x, transitivity,
+      apply eq.map g, apply H₁, exact H₂ x }
   end
+
+  @[hott, trans] def trans {α : Type u} {β : Type v} {γ : Type w} :
+    α ≃ β → β ≃ γ → α ≃ γ
+  | ⟨f, F⟩ ⟨g, G⟩ := ⟨g ∘ f, biinv_trans F G⟩
 
   @[hott] def idtoeqv {α β : Type u} (p : α = β :> Type u) : α ≃ β :=
   begin induction p, apply id end

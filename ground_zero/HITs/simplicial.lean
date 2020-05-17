@@ -14,7 +14,12 @@ universes u v w
 
 def neq {α : Type u} (a b : α) : Type u := a = b → (𝟎 : Type)
 
-def fin := iter 𝟏 𝟏
+def fin := iter 𝟏 𝟎
+@[pattern] def fin.zero {n : ℕ} : fin (n + 1) := sum.inr ★
+@[pattern] def fin.succ {n : ℕ} : fin n → fin (n + 1) := sum.inl
+
+def simplex (α : Type u) (n : ℕ) := fin n → α
+
 def filled (n : ℕ) := ∥fin n∥
 
 def network (α : Type u) := graph (@neq α)

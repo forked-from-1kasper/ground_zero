@@ -17,6 +17,9 @@ infix ∈ := set.contains
 def set.prop {α : Type u} (x : α) (s : set α) : prop (x ∈ s) := s.snd x
 def set.subtype {α : Type u} (s : set α) := Σ x, s.fst x
 
+def set.univ (α : Type u) : set α :=
+⟨λ _, 𝟏, λ _, unit_is_prop⟩
+
 @[hott] def set.hset {α : Type u} (s : set α) : hset α → hset s.subtype := begin
   intro H, apply zero_eqv_set.forward,
   fapply ground_zero.structures.ntype_respects_sigma 0,
@@ -174,10 +177,32 @@ namespace group
   Σ (f : α → β), respects_mul f × biinv f
   infix ` ≅ `:25 := iso
 
-  @[refl] def iso.refl (α : Type u) [group α] : α ≅ α := begin
+  @[hott, refl] def iso.refl (α : Type u) [group α] : α ≅ α := begin
     existsi id, split,
     { intros a b, trivial },
     { split; existsi id; intro x; reflexivity }
+  end
+
+  @[hott, symm] def iso.symm {α : Type u} {β : Type v}
+    [group α] [group β] : α ≅ β → β ≅ α
+  | ⟨f, ⟨F, (⟨g, G⟩, ⟨h, H⟩)⟩⟩ := begin
+    have G' := qinv.rinv_inv f h g H G,
+    existsi g, split,
+    { intros a b, symmetry, transitivity,
+      { symmetry, apply G }, transitivity,
+      { apply map g, apply F }, transitivity,
+      { apply map g, apply map (* f (g b)), apply G' },
+      { apply map g, apply map (has_mul.mul a), apply G' } },
+    { split; existsi f, apply G', apply G }
+  end
+
+  @[hott, trans] def iso.trans {α : Type u} {β : Type v} {γ : Type w}
+    [group α] [group β] [group γ] : α ≅ β → β ≅ γ → α ≅ γ
+  | ⟨f, ⟨F, e₁⟩⟩ ⟨g, ⟨G, e₂⟩⟩ := begin
+    existsi g ∘ f, split,
+    { intros a b, transitivity, { apply map g, apply F },
+      transitivity, apply G, reflexivity },
+    { apply equiv.biinv_trans e₁ e₂ }
   end
 
   class is_subgroup (φ : set α) :=
@@ -771,6 +796,110 @@ namespace group
     { fapply ground_zero.HITs.quotient.ind_prop; intro x,
       { reflexivity },
       { apply magma.set } }
+  end
+
+  inductive exp (α : Type u)
+  | unit {} : exp
+  | elem {} : α → exp
+  | mul  {} : exp → exp → exp
+  | inv  {} : exp → exp
+
+  section
+    variables {ε : Type u}
+    instance exp.has_one : has_one (exp ε) := ⟨exp.unit⟩
+    instance exp.has_mul : has_mul (exp ε) := ⟨exp.mul⟩
+    instance exp.has_inv : has_inv (exp ε) := ⟨exp.inv⟩
+  end
+
+  namespace exp
+    inductive rel (α : Type u) : exp α → exp α → Type u
+    | mul_assoc (a b c : exp α) : rel ((a * b) * c) (a * (b * c))
+    | mul_one (a : exp α) : rel (a * 1) a
+    | one_mul (a : exp α) : rel (1 * a) a
+    | mul_left_inv (a : exp α) : rel (a⁻¹ * a) 1
+  end exp
+
+  def F (α : Type u) := ∥ground_zero.HITs.graph (exp.rel α)∥₀
+
+  @[hott] def zentrum (α : Type u) [group α] : set α :=
+  ⟨λ z, Π g, z * g = g * z, begin
+    intros x p q, apply ground_zero.theorems.funext,
+    intro y, apply magma.set
+  end⟩
+
+  @[hott] instance zentrum_is_subgroup : is_subgroup (zentrum α) := begin
+    split,
+    { intro x, transitivity,
+      { apply monoid.one_mul },
+      { symmetry, apply monoid.mul_one } },
+    { intros a b g h c, symmetry, calc
+        c * (a * b) = (c * a) * b : (semigroup.mul_assoc _ _ _)⁻¹
+                ... = (a * c) * b : (* b) # (g c)⁻¹
+                ... = a * (c * b) : semigroup.mul_assoc _ _ _
+                ... = a * (b * c) : (has_mul.mul a) # (h c)⁻¹
+                ... = a * b * c   : (semigroup.mul_assoc _ _ _)⁻¹ },
+    { intros a g b, calc
+      a⁻¹ * b = a⁻¹ * b⁻¹⁻¹ : (has_mul.mul a⁻¹) # (inv_inv b)⁻¹
+          ... = (b⁻¹ * a)⁻¹ : (inv_explode _ _)⁻¹
+          ... = (a * b⁻¹)⁻¹ : has_inv.inv # (g b⁻¹)⁻¹
+          ... = b⁻¹⁻¹ * a⁻¹ : inv_explode _ _
+          ... = b * a⁻¹     : (* a⁻¹) # (inv_inv b) }
+  end
+
+  @[hott] instance zentrum_is_normal : is_normal_subgroup (zentrum α) := begin
+    split, intros g h G z,
+    have p := (semigroup.mul_assoc g h g)⁻¹ ⬝ G g,
+    have q := mul_cancel_left p,
+    transitivity, { apply map (* z), apply q },
+    symmetry, transitivity, { apply map (has_mul.mul z), apply q },
+    symmetry, apply G
+  end
+
+  @[hott] instance univ_is_subgroup : is_subgroup (set.univ α) :=
+  begin split; intros; apply ★ end
+
+  @[hott] instance univ_is_normal : is_normal_subgroup (set.univ α) :=
+  begin split, intros, apply ★ end
+
+  @[hott] instance unit_mul : has_mul 𝟏 :=
+  begin split, intros, apply ★ end
+
+  @[hott] instance unit_magma : magma 𝟏 :=
+  begin split, apply unit_is_set end
+
+  @[hott] instance unit_semigroup : semigroup 𝟏 :=
+  begin split, intros, reflexivity end
+
+  @[hott] instance unit_has_one : has_one 𝟏 := ⟨★⟩
+
+  @[hott] instance unit_monoid : monoid 𝟏 :=
+  begin split; intro x; induction x; reflexivity end
+
+  @[hott] instance unit_has_inv : has_inv 𝟏 := ⟨λ _, ★⟩
+
+  @[hott] instance unit_is_group : group 𝟏 :=
+  begin split; intro x; reflexivity end
+
+  @[hott] instance unit_is_abelian : abelian 𝟏 :=
+  begin split, intros, reflexivity end
+
+  def univ.decode : 𝟏 → α/set.univ α := λ _, 1
+
+  @[hott] noncomputable def univ_contr : contr (α/set.univ α) := begin
+    existsi univ.decode ★,
+    fapply ground_zero.HITs.quotient.ind_prop; intro x,
+    { apply ground_zero.HITs.quotient.sound, apply ★ },
+    { apply magma.set }
+  end
+
+  @[hott] noncomputable def univ_prop : prop (α/set.univ α) :=
+  contr_impl_prop univ_contr
+
+  @[hott] noncomputable def univ_factor : 𝟏 ≅ α/set.univ α := begin
+    existsi univ.decode, split,
+    { intros x y, apply univ_prop },
+    split; existsi (λ _, ★); intro x,
+    apply unit_is_prop, apply univ_prop
   end
 end group
 
