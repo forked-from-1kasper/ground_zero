@@ -805,22 +805,71 @@ namespace group
   | mul  {} : exp → exp → exp
   | inv  {} : exp → exp
 
-  section
-    variables {ε : Type u}
-    instance exp.has_one : has_one (exp ε) := ⟨exp.unit⟩
-    instance exp.has_mul : has_mul (exp ε) := ⟨exp.mul⟩
-    instance exp.has_inv : has_inv (exp ε) := ⟨exp.inv⟩
-  end
-
   namespace exp
-    inductive rel (α : Type u) : exp α → exp α → Type u
-    | mul_assoc (a b c : exp α) : rel ((a * b) * c) (a * (b * c))
-    | mul_one (a : exp α) : rel (a * 1) a
-    | one_mul (a : exp α) : rel (1 * a) a
-    | mul_left_inv (a : exp α) : rel (a⁻¹ * a) 1
+    @[hott] def eval {α : Type u} {β : Type v} [group β]
+      (f : α → β) : exp α → β
+    | unit      := 1
+    | (elem x)  := f x
+    | (mul x y) := eval x * eval y
+    | (inv x)   := (eval x)⁻¹
   end exp
 
-  def F (α : Type u) := ∥ground_zero.HITs.graph (exp.rel α)∥₀
+  private structure F.aux (α : Type u) :=
+  (val : exp α)
+
+  def F (α : Type u) := F.aux α
+
+  namespace F
+    variables {ε : Type u}
+    attribute [nothott] F.aux.rec_on F.aux.rec aux.val
+
+    @[hott] def unit : F ε := ⟨exp.unit⟩
+    @[hott] def elem : ε → F ε := λ x, ⟨exp.elem x⟩
+
+    @[safe] def mul (x y : F ε) : F ε := ⟨exp.mul x.val y.val⟩
+    @[safe] def inv (x : F ε)   : F ε := ⟨exp.inv x.val⟩
+
+    @[safe] def rec {α : Type u} [group α] (f : ε → α) (x : F ε) : α :=
+    exp.eval f x.val
+
+    attribute [irreducible] F
+
+    instance : has_one (F ε) := ⟨unit⟩
+    instance : has_mul (F ε) := ⟨mul⟩
+    instance : has_inv (F ε) := ⟨inv⟩
+
+    axiom mul_assoc    (a b c : F ε) : (a * b) * c = a * (b * c)
+    axiom one_mul          (a : F ε) : 1 * a = a
+    axiom mul_one          (a : F ε) : a * 1 = a
+    axiom mul_left_inv     (a : F ε) : a⁻¹ * a = 1
+
+    axiom set : hset (F ε)
+
+    noncomputable instance : magma (F ε) :=
+    begin split, apply set end
+
+    noncomputable instance : semigroup (F ε) :=
+    begin split, apply mul_assoc end
+
+    noncomputable instance : monoid (F ε) :=
+    begin split, apply one_mul, apply mul_one end
+
+    noncomputable instance : group (F ε) :=
+    begin split, apply mul_left_inv end
+
+    noncomputable def homomorphism {α : Type u} [group α] (f : ε → α) : F ε ⤳ α :=
+    ⟨rec f, begin intros x y, reflexivity end⟩
+
+    axiom recβrule₁ {a b c : F ε} (f : ε → α) :
+      rec f # (mul_assoc a b c) =
+        semigroup.mul_assoc (rec f a) (rec f b) (rec f c)
+    axiom recβrule₂ {a : F ε} (f : ε → α) :
+      rec f # (one_mul a) = monoid.one_mul (rec f a)
+    axiom recβrule₃ {a : F ε} (f : ε → α) :
+      rec f # (mul_one a) = monoid.mul_one (rec f a)
+    axiom recβrule₄ {a : F ε} (f : ε → α) :
+      rec f # (mul_left_inv a) = group.mul_left_inv (rec f a)
+  end F
 
   @[hott] def zentrum (α : Type u) [group α] : set α :=
   ⟨λ z, Π g, z * g = g * z, begin
@@ -904,11 +953,11 @@ namespace group
   end
 
   def Z := identity integer
-  instance Z.has_mul : has_mul Z := ⟨identity.lift₂ integer.add⟩
-  instance Z.has_one : has_one Z := ⟨identity.elem 0⟩
-  instance Z.has_inv : has_inv Z := ⟨identity.lift integer.negate⟩
+  @[hott] instance Z.has_mul : has_mul Z := ⟨identity.lift₂ integer.add⟩
+  @[hott] instance Z.has_one : has_one Z := ⟨identity.elem 0⟩
+  @[hott] instance Z.has_inv : has_inv Z := ⟨identity.lift integer.negate⟩
 
-  noncomputable instance Z.magma : magma Z := begin
+  @[hott] noncomputable instance Z.magma : magma Z := begin
     split, apply transport hset,
     { apply ground_zero.ua, apply equiv.identity_eqv },
     apply integer.set

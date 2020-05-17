@@ -7,7 +7,7 @@ open ground_zero.structures (prop contr lem_contr)
 namespace ground_zero.HITs
 hott theory
 
-universes u v
+universes u v w
 
 /-
   Propositional truncation is colimit of a following sequence:
@@ -134,8 +134,16 @@ namespace merely
     { intro x, apply ground_zero.structures.contr_is_prop }
   end
 
-  @[hott] def lift {α β : Type u} (f : α → β) : ∥α∥ → ∥β∥ :=
+  @[hott] def lift {α : Type u} {β : Type v} (f : α → β) : ∥α∥ → ∥β∥ :=
   rec uniq (elem ∘ f)
+
+  @[hott] def lift₂ {α : Type u} {β : Type v} {γ : Type w}
+    (f : α → β → γ) : ∥α∥ → ∥β∥ → ∥γ∥ := begin
+    fapply @rec α (∥β∥ → ∥γ∥),
+    { apply ground_zero.structures.impl_prop, apply uniq },
+    { intro a, fapply rec, apply uniq,
+      intro b, apply elem, exact f a b }
+  end
 
   @[hott] theorem equiv_iff_trunc {α β : Type u}
     (f : α → β) (g : β → α) : ∥α∥ ≃ ∥β∥ := begin

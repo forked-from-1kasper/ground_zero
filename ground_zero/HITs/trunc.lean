@@ -2,7 +2,7 @@ import ground_zero.structures
 open ground_zero.structures
 
 namespace ground_zero.HITs
-universes u v
+universes u v w
 
 hott theory
 
@@ -13,7 +13,7 @@ def trunc (n : ℕ₋₂) (α : Type u) := trunc.aux n α
 
 namespace trunc
   variables {α : Type u} {n : ℕ₋₂}
-  attribute [nothott] trunc.aux.rec_on trunc.aux.rec
+  attribute [nothott] trunc.aux.rec_on trunc.aux.rec aux.val
 
   @[hott] def elem (x : α) : trunc n α := aux.mk n x
   axiom uniq (n : ℕ₋₂) : is-n-type (trunc n α)
@@ -53,6 +53,20 @@ namespace trunc
 
   @[hott] noncomputable def set_equiv {α : Type u} (H : hset α) : α ≃ ∥α∥₀ :=
   begin apply nth_trunc, apply zero_eqv_set.left, assumption end
+
+  @[hott] noncomputable def lift {α : Type u} {β : Type v} {n : ℕ₋₂}
+    (f : α → β) : trunc n α → trunc n β := begin
+    fapply rec, { intro x, apply elem, apply f x }, apply uniq
+  end
+
+  @[hott] noncomputable def lift₂ {α : Type u} {β : Type v} {γ : Type w} {n : ℕ₋₂}
+    (f : α → β → γ) : trunc n α → trunc n β → trunc n γ := begin
+    fapply @rec α n (trunc n β → trunc n γ),
+    { intro a, fapply rec,
+      { intro b, apply elem, apply f a b },
+      { apply uniq } },
+    { apply pi_respects_ntype, intros, apply uniq }
+  end
 end trunc
 
 end ground_zero.HITs
