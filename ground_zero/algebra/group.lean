@@ -81,6 +81,9 @@ namespace group
     x * x⁻¹ = x⁻¹⁻¹ * x⁻¹ : (* x⁻¹) # (inv_inv x)⁻¹
         ... = 1           : by apply group.mul_left_inv x⁻¹
 
+  @[hott] def mul_eq_one_of_inv_eq {x y : α} (h : x⁻¹ = y) : x * y = 1 :=
+  (has_mul.mul x # h)⁻¹ ⬝ (mul_right_inv x)
+
   @[hott] def inv_inj {x y : α} (h : x⁻¹ = y⁻¹) : x = y := calc
       x = x⁻¹⁻¹ : (inv_inv x)⁻¹
     ... = y⁻¹⁻¹ : has_inv.inv # h
@@ -254,7 +257,7 @@ namespace group
     (x⁻¹ * y)⁻¹ = y⁻¹ * x⁻¹⁻¹ : by apply inv_explode
             ... = y⁻¹ * x     : (has_mul.mul y⁻¹) # (inv_inv x)
 
-  @[hott] def x_mul_inv_y_inv (x y : α) :=  calc
+  @[hott] def x_mul_inv_y_inv (x y : α) := calc
     (x * y⁻¹)⁻¹ = y⁻¹⁻¹ * x⁻¹ : by apply inv_explode
             ... = y * x⁻¹     : (* x⁻¹) # (inv_inv y)
 
@@ -838,10 +841,10 @@ namespace group
     instance : has_mul (F ε) := ⟨mul⟩
     instance : has_inv (F ε) := ⟨inv⟩
 
-    axiom mul_assoc    (a b c : F ε) : (a * b) * c = a * (b * c)
-    axiom one_mul          (a : F ε) : 1 * a = a
-    axiom mul_one          (a : F ε) : a * 1 = a
-    axiom mul_left_inv     (a : F ε) : a⁻¹ * a = 1
+    axiom mul_assoc (a b c : F ε) : (a * b) * c = a * (b * c)
+    axiom one_mul       (a : F ε) : 1 * a = a
+    axiom mul_one       (a : F ε) : a * 1 = a
+    axiom mul_left_inv  (a : F ε) : a⁻¹ * a = 1
 
     axiom set : hset (F ε)
 
@@ -961,6 +964,77 @@ namespace group
     split, apply transport hset,
     { apply ground_zero.ua, apply equiv.identity_eqv },
     apply integer.set
+  end
+
+  @[hott] def ker.encode {β : Type v} [group β] {φ : α ⤳ β} : α/ker φ → Im φ := begin
+    fapply ground_zero.HITs.quotient.rec,
+    { intro x, existsi φ.fst x, apply ground_zero.HITs.merely.elem,
+      existsi x, trivial },
+    { intros x y H, fapply ground_zero.types.sigma.prod,
+      change _ = _ at H, transitivity, { symmetry, apply inv_inv },
+      apply inv_eq_of_mul_eq_one, transitivity,
+      { apply map (* φ.fst y), symmetry, apply homo_respects_inv },
+      transitivity, { symmetry, apply φ.snd }, apply H,
+      apply ground_zero.HITs.merely.uniq },
+    { apply set.hset, apply magma.set }
+  end
+
+  @[hott] noncomputable def ker.encode_inj {β : Type v} [group β] {φ : α ⤳ β} :
+    Π (x y : α/ker φ), ker.encode x = ker.encode y → x = y := begin
+    intros x y, fapply ground_zero.HITs.quotient.ind_prop _ _ x; clear x; intro x,
+    { fapply ground_zero.HITs.quotient.ind_prop _ _ y; clear y; intro y,
+      { intro p, apply ground_zero.HITs.quotient.sound,
+        change _ = _, transitivity, apply φ.snd,
+        transitivity, { apply eq.map (* φ.fst y), apply homo_respects_inv },
+        apply mul_eq_one_of_inv_eq,
+        transitivity, apply inv_inv,
+        apply (ground_zero.types.sigma.sigma_eq_of_eq p).fst },
+      { apply impl_prop, apply magma.set } },
+    { apply impl_prop, apply magma.set }
+  end
+
+  @[hott] noncomputable def ker.decode_sigma {β : Type v} [group β] {φ : α ⤳ β} :
+    Π (x : Im φ), (Σ (y : α/ker φ), ker.encode y = x) := begin
+    intro x, induction x with x H,
+    fapply ground_zero.HITs.merely.ind _ _ H; intro z,
+    { induction z with z p, existsi factor.incl z,
+      fapply ground_zero.types.sigma.prod, apply p,
+      apply ground_zero.HITs.merely.uniq },
+    { intros u v, induction u with u H, induction v with v G,
+      fapply ground_zero.types.sigma.prod,
+      { apply ker.encode_inj, transitivity, exact H,
+        symmetry, exact G },
+      { apply set.hset, apply magma.set } }
+  end
+
+  @[hott] noncomputable def ker.decode {β : Type v} [group β] {φ : α ⤳ β}
+    (x : Im φ) : α/ker φ :=
+  (ker.decode_sigma x).fst
+
+  instance im.subgroup {β : Type v} [group β] {φ : α ⤳ β} : group (Im φ) :=
+  by apply @subgroup.is_group _ _ (im φ.fst) _
+
+  -- Fundamental theorem on homomorphisms
+  @[hott] noncomputable def first_homo_theorem {β : Type v} [group β]
+    {φ : α ⤳ β} : Im φ ≅ α/ker φ := begin
+    existsi ker.decode, split,
+    { intros a b, induction a with a A, induction b with b B,
+      change ∥_∥ at A, change ∥_∥ at B,
+      fapply ground_zero.HITs.merely.ind _ _ A; clear A; intro A,
+      { fapply ground_zero.HITs.merely.ind _ _ B; clear B; intro B,
+        { induction A, induction B, reflexivity },
+        { apply magma.set } },
+      { apply magma.set } },
+    split; existsi ker.encode,
+    { intro x, induction x with x H,
+      fapply ground_zero.types.sigma.prod,
+      { fapply ground_zero.HITs.merely.ind _ _ H; clear H; intro H,
+        { induction H with y p, apply p },
+        { apply magma.set } },
+      { apply ground_zero.HITs.merely.uniq } },
+    { fapply ground_zero.HITs.quotient.ind_prop,
+      { intro x, trivial },
+      { intro x, apply magma.set } }
   end
 end group
 
