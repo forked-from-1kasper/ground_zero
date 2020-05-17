@@ -57,8 +57,7 @@ digraph dependency_map {
     }
     "HITs/infinitesimal"
     "HITs/interval" -> {
-      "cubical/cubes"
-      "HITs/circle",
+      "cubical/cubes",
       "theorems/prop",
       "theorems/fibration"
     }
