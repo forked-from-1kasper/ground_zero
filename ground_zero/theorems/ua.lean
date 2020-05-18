@@ -40,63 +40,62 @@ J idp
 
 namespace ua
 
-@[hott] noncomputable theorem refl_on_ua (α : Type u) :
+@[hott] noncomputable def refl_on_ua (α : Type u) :
   ua (ideqv α) = idp α :=
 by apply Jβrule
 
-@[hott] noncomputable theorem comp_rule {α β : Type u} (e : α ≃ β) :
+@[hott] noncomputable def comp_rule {α β : Type u} (e : α ≃ β) :
   Π (x : α), x =[ua e] e.fst x := begin
   refine J _ e, intros ψ x,
   refine types.eq.rec _ (refl_on_ua ψ)⁻¹,
   reflexivity
 end
 
-@[hott] noncomputable theorem transport_rule {α β : Type u} (e : α ≃ β) :
+@[hott] noncomputable def transport_rule {α β : Type u} (e : α ≃ β) :
   Π (x : α), types.equiv.subst (ua e) x = e.fst x := begin
   refine J _ e, intros ψ x,
   refine types.eq.rec _ (refl_on_ua ψ)⁻¹,
   reflexivity
 end
 
-@[hott] noncomputable theorem transport_inv_rule {α β : Type u} (e : α ≃ β) :
+@[hott] noncomputable def transport_inv_rule {α β : Type u} (e : α ≃ β) :
   Π (x : β), types.equiv.subst_inv (ua e) x = e.left x := begin
   refine J _ e, intros ψ x,
   refine types.eq.rec _ (refl_on_ua ψ)⁻¹,
   reflexivity
 end
 
-@[hott] theorem idtoeqv_and_id {α : Type u} :
+@[hott] def idtoeqv_and_id {α : Type u} :
   idtoeqv (idp α) = ideqv α :=
 by trivial
 
-@[hott] noncomputable theorem prop_uniq {α β : Type u} (p : α = β) :
+@[hott] noncomputable def uaβrule {α β : Type u} (e : α ≃ β) :
+  idtoeqv (ua e) = e := begin
+  refine J _ e, intro δ, change _ = idtoeqv (idp δ),
+  apply eq.map idtoeqv, apply Jβrule
+end
+
+@[hott] noncomputable def prop_uniq {α β : Type u} (p : α = β) :
   ua (idtoeqv p) = p :=
 begin induction p, exact Jβrule end
 
-@[hott] noncomputable theorem univalence (α β : Type u) :
-  (α ≃ β) ≃ (α = β) := begin
-  existsi ua, split; existsi idtoeqv,
-  { intro e,
-    refine J _ e,
-    intro δ, transitivity,
-    apply eq.map idtoeqv, apply Jβrule,
-    reflexivity },
-  { intro e, apply prop_uniq }
-end
+@[hott] noncomputable def univalence (α β : Type u) :
+  (α ≃ β) ≃ (α = β) :=
+⟨ua, (⟨idtoeqv, uaβrule⟩, ⟨idtoeqv, prop_uniq⟩)⟩
 
 @[hott] noncomputable def propext {α β : Type u}
   (F : prop α) (G : prop β) : (α ↔ β) → α = β :=
 λ h, ua (prop_equiv_lemma F G h.left h.right)
 
--- perfect proof
-inductive so : bool → Type
-| intro : so tt
-
-namespace so
-  def absurd {α : Type u} (x : so false) : α := by cases x
-  theorem ff_neq_tt (h : ff = tt) : empty :=
-  so.absurd (transport so h⁻¹ intro)
-end so
+@[hott] noncomputable def ua_trans :
+  Π {α β : Type u} (p : α ≃ β) {γ : Type u} (q : β ≃ γ),
+    ua (equiv.trans p q) = ua p ⬝ ua q := begin
+  fapply @J (λ α β (p : α ≃ β), Π {γ : Type u} (q : β ≃ γ),
+    ua (equiv.trans p q) = ua p ⬝ ua q),
+  fapply J, intro δ, symmetry, transitivity,
+  apply eq.map, apply refl_on_ua,
+  apply types.eq.refl_right
+end
 
 @[hott] def is_zero : ℕ → bool
 |    0    := tt

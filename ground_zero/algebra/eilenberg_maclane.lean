@@ -1,13 +1,42 @@
 import ground_zero.algebra.group ground_zero.theorems.prop
 open ground_zero.theorems.functions ground_zero.theorems.prop
-open ground_zero.structures
+open ground_zero.types.equiv (idtoeqv)
 open ground_zero.types.eq (dotted)
+open ground_zero.ua (uaβrule)
+open ground_zero.structures
 open ground_zero.types
+open ground_zero (ua)
 
 namespace ground_zero.algebra
 universes u v
 
 hott theory
+
+@[hott] noncomputable def ntype_is_succ_n_type (n : ℕ₋₂) :
+  is-(hlevel.succ n)-type (n_type.{u} n) := begin
+  intros x y,
+  induction x with X p, induction y with Y p',
+  apply ntype_respects_equiv,
+  symmetry, apply sigma.sigma_path,
+  { fapply ntype_respects_sigma,
+    { apply ntype_respects_equiv,
+      exact ground_zero.ua.univalence X Y,
+      induction n with n ih,
+      { existsi contr_type_equiv p p',
+        intro e, fapply sigma.prod,
+        { apply ground_zero.theorems.funext,
+          intro x, apply contr_impl_prop, exact p' },
+        { apply biinv_prop } },
+      { fapply ntype_over_embedding equiv.forward,
+        { apply prop_sigma_embedding, apply biinv_prop },
+        { apply pi_respects_ntype (hlevel.succ n),
+          intro x, apply p' } } },
+    { intros q, apply ground_zero.structures.prop_is_ntype,
+      apply ntype_is_prop } }
+end
+
+@[hott] noncomputable def ens_is_groupoid : groupoid (0-Type) :=
+begin apply one_eqv_groupoid.forward, apply ntype_is_succ_n_type 0 end
 
 private structure K1.aux :=
 (val : 𝟏)
@@ -81,27 +110,38 @@ namespace K1
   noncomputable def loop.inv (p : Ω¹(K1 α)) : loop p⁻¹ = (loop p)⁻¹ :=
   by apply group.homo_respects_inv homomorphism
 
-  @[hott] noncomputable def ntype_is_succ_n_type (n : ℕ₋₂) :
-    is-(hlevel.succ n)-type (n-Type) := begin
-    intros x y,
-    induction x with X p, induction y with Y p',
-    apply ntype_respects_equiv,
-    symmetry, apply sigma.sigma_path,
-    { fapply ntype_respects_sigma,
-      { apply ntype_respects_equiv,
-        exact ground_zero.ua.univalence X Y,
-        induction n with n ih,
-        { existsi contr_type_equiv p p',
-          intro e, fapply sigma.prod,
-          { apply ground_zero.theorems.funext,
-            intro x, apply contr_impl_prop, exact p' },
-          { apply biinv_prop } },
-        { fapply ntype_over_embedding equiv.forward,
-          { apply prop_sigma_embedding, apply biinv_prop },
-          { apply pi_respects_ntype (hlevel.succ n),
-            intro x, apply p' } } },
-      { intros q, apply ground_zero.structures.prop_is_ntype,
-        apply ntype_is_prop } }
+  @[hott] noncomputable def family
+    (baseπ : Type u)
+    (loopπ : α → baseπ = baseπ)
+    (mulπ : Π x y, loopπ (x * y) = loopπ x ⬝ loopπ y)
+    (setπ : hset baseπ) : K1 α → (0-Type) := begin
+    fapply rec,
+    { existsi baseπ, apply zero_eqv_set.left,
+      intros p q, apply setπ },
+    { intro x, fapply sigma.prod, apply loopπ x,
+      apply ntype_is_prop },
+    { intros x y, symmetry,
+      transitivity, symmetry, apply sigma.prod_comp,
+      fapply sigma.prod_eq, { symmetry, apply mulπ },
+      { apply prop_is_set, apply ntype_is_prop } },
+    { apply ens_is_groupoid }
+  end
+
+  @[hott] noncomputable def helix : K1 α → (0-Type) := begin
+    fapply family, exact α,
+    { intro x, apply ground_zero.ua, existsi (* x), split;
+      existsi (* x⁻¹); intro y; change _ * _ * _ = _,
+      repeat { transitivity, apply semigroup.mul_assoc,
+               transitivity, apply eq.map },
+      apply group.mul_right_inv, apply monoid.mul_one,
+      apply group.mul_left_inv, apply monoid.mul_one },
+    { intros x y, symmetry, transitivity,
+      { symmetry, apply ground_zero.ua.ua_trans },
+      apply eq.map ua, fapply sigma.prod,
+      { apply ground_zero.theorems.funext, intro z,
+        apply semigroup.mul_assoc },
+      { apply biinv_prop } },
+    { apply magma.set }
   end
 end K1
 

@@ -84,7 +84,7 @@ def is_n_type : hlevel → Type u → Type u
 | (hlevel.succ n)  := λ α, Π (x y : α), is_n_type n (x = y)
 notation [parsing_only] `is-` n `-type ` := is_n_type n
 
-def n_type (n : hlevel) :=
+def n_type (n : hlevel) : Type (u + 1) :=
 Σ (α : Type u), is_n_type n α
 notation n `-Type` := n_type n
 

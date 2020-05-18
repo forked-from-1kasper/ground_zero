@@ -39,6 +39,29 @@ namespace sigma
     prod eq.rfl eq.rfl = eq.refl u :=
   begin cases u with x u, trivial end
 
+  @[hott] def prod_comp {α : Type u} {β : α → Type v} {x y z : sigma β}
+    (p : x.fst = y.fst) (q : y.fst = z.fst)
+    (r : x.snd =[p] y.snd) (s : y.snd =[q] z.snd) :
+    prod (p ⬝ q) (r ⬝' s) = prod p r ⬝ prod q s := begin
+    induction x with x X, induction y with y Y, induction z with z Z,
+    change x = y at p, change y = z at q,
+    induction p, induction q,
+    change X = Y at r, change Y = Z at s,
+    induction r, induction s,
+    reflexivity
+  end
+
+  @[hott] def prod_eq {α : Type u} {β : α → Type v} {u v : sigma β}
+    (p p' : u.fst = v.fst)
+    (q : equiv.subst p u.snd = v.snd) (q' : equiv.subst p' u.snd = v.snd)
+    (r : p = p') (s : q =[r] q') :
+    sigma.prod p q = sigma.prod p' q' := begin
+    induction u with x u, induction v with y v,
+    induction r, change x = y at p, induction p,
+    induction s, change u = v at q, induction q,
+    reflexivity
+  end
+
   @[hott] def spec {α : Type u} {β : Type v} : (Σ (a : α), β) → α × β
   | ⟨x, y⟩ := ⟨x, y⟩
   @[hott] def gen {α : Type u} {β : Type v} : α × β → Σ (a : α), β
