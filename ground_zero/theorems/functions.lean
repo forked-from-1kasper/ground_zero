@@ -1,4 +1,5 @@
 import ground_zero.HITs.merely
+open ground_zero.structures (hlevel.succ prop)
 open ground_zero.types ground_zero.HITs
 
 namespace ground_zero.theorems.functions
@@ -68,6 +69,38 @@ end
 
 @[hott] def embedding {α : Type u} {β : Type v} (f : α → β) :=
 Π (x y : α), @equiv.biinv (x = y) (f x = f y) (eq.map f)
+
+@[hott] def ntype_over_embedding {α : Type u} {β : Type v} (f : α → β)
+  (n : ℕ₋₂) : embedding f → is-(hlevel.succ n)-type β → is-(hlevel.succ n)-type α := begin
+  intros η H, intros x y, apply ground_zero.structures.ntype_respects_equiv,
+  { symmetry, existsi eq.map f, apply η }, apply H
+end
+
+@[hott] def eqv_map_forward {α : Type u} {β : Type v} (e : α ≃ β)
+  (x y : α) (p : e.forward x = e.forward y) : x = y :=
+(e.left_forward x)⁻¹ ⬝ (@eq.map β α _ _ e.left p) ⬝ (e.left_forward y)
+
+@[hott] def sigma_prop_eq {α : Type u} {β : α → Type v}
+  (H : Π x, prop (β x)) {x y : sigma β} (p : x.fst = y.fst) : x = y :=
+begin fapply ground_zero.types.sigma.prod, exact p, apply H end
+
+@[hott] def prop_sigma_embedding {α : Type u} {β : α → Type v}
+  (H : Π x, prop (β x)) : embedding (@sigma.fst α β) := begin
+  intros x y, split; existsi sigma_prop_eq H,
+  { intro p, induction x, induction y, induction p,
+    change ground_zero.types.sigma.prod _ _ = _,
+    transitivity, apply eq.map, change _ = idp _,
+    apply ground_zero.structures.prop_is_set,
+    apply H, reflexivity },
+  { intro p, induction x with x X, induction y with y Y,
+    change x = y at p, induction p,
+    have q := H x X Y, induction q,
+    change eq.map sigma.fst (ground_zero.types.sigma.prod _ _) = _,
+    transitivity, apply eq.map (eq.map sigma.fst),
+    apply eq.map, change _ = idp _,
+    apply ground_zero.structures.prop_is_set,
+    apply H, reflexivity }
+end
 
 @[hott] def is_connected (α : Type u) :=
 Σ (x : α), Π y, ∥x = y∥

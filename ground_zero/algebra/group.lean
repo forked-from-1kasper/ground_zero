@@ -863,15 +863,19 @@ namespace group
     noncomputable def homomorphism {α : Type u} [group α] (f : ε → α) : F ε ⤳ α :=
     ⟨rec f, begin intros x y, reflexivity end⟩
 
-    axiom recβrule₁ {a b c : F ε} (f : ε → α) :
+    noncomputable def recβrule₁ {a b c : F ε} (f : ε → α) :
       rec f # (mul_assoc a b c) =
-        semigroup.mul_assoc (rec f a) (rec f b) (rec f c)
-    axiom recβrule₂ {a : F ε} (f : ε → α) :
-      rec f # (one_mul a) = monoid.one_mul (rec f a)
-    axiom recβrule₃ {a : F ε} (f : ε → α) :
-      rec f # (mul_one a) = monoid.mul_one (rec f a)
-    axiom recβrule₄ {a : F ε} (f : ε → α) :
-      rec f # (mul_left_inv a) = group.mul_left_inv (rec f a)
+        semigroup.mul_assoc (rec f a) (rec f b) (rec f c) :=
+    by apply magma.set
+    noncomputable def recβrule₂ {a : F ε} (f : ε → α) :
+      rec f # (one_mul a) = monoid.one_mul (rec f a) :=
+    by apply magma.set
+    noncomputable def recβrule₃ {a : F ε} (f : ε → α) :
+      rec f # (mul_one a) = monoid.mul_one (rec f a) :=
+    by apply magma.set
+    noncomputable def recβrule₄ {a : F ε} (f : ε → α) :
+      rec f # (mul_left_inv a) = group.mul_left_inv (rec f a) :=
+    by apply magma.set
   end F
 
   @[hott] def zentrum (α : Type u) [group α] : set α :=

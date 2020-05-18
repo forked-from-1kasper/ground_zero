@@ -62,7 +62,7 @@ namespace equiv
   end
 end equiv
 
-def equiv (α : Type u) (β : Type v) :=
+def equiv (α : Type u) (β : Type v) : Type (max u v) :=
 Σ (f : α → β), equiv.biinv f
 infix ` ≃ `:25 := equiv
 

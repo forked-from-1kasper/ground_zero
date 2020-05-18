@@ -121,6 +121,11 @@ begin intros x y, induction x, induction y, trivial end
   { intro x, cases x, reflexivity }
 end
 
+@[hott] def contr_type_equiv {α : Type u} {β : Type v}
+  (p : contr α) (q : contr β) : α ≃ β := calc
+      α ≃ 𝟏 : contr_equiv_unit p
+    ... ≃ β : types.equiv.symm (contr_equiv_unit q)
+
 @[hott] def prod_unit_equiv (α : Type u) : 𝟏 × α ≃ α := begin
   existsi prod.snd, split;
   existsi prod.mk ★,
@@ -234,10 +239,10 @@ end⟩
     apply H }
 end
 
-@[hott] def equiv_induces_retraction {α β : Type u} : α ≃ β → retract β α
+@[hott] def equiv_induces_retraction {α : Type u} {β : Type v} : α ≃ β → retract β α
 | ⟨f, (_, ⟨g, ε⟩)⟩ := ⟨f, g, ε⟩
 
-@[hott] def ntype_respects_equiv (n : ℕ₋₂) {α β : Type u} :
+@[hott] def ntype_respects_equiv (n : ℕ₋₂) {α : Type u} {β : Type v} :
   α ≃ β → is-n-type α → is-n-type β :=
 equiv_respects_rectraction ∘ equiv_induces_retraction
 
@@ -340,6 +345,15 @@ end
                          apply equiv_funext, intro y,
                          apply zero_eqv_set end
             ... ≃ groupoid α : by reflexivity
+
+@[hott] def prop_is_ntype {α : Type u} :
+  prop α → Π n, is-(hlevel.succ n)-type α := begin
+  intros H n, induction n with n ih,
+  { apply ground_zero.structures.minus_one_eqv_prop.left,
+    assumption },
+  { apply ground_zero.structures.hlevel.cumulative (hlevel.succ n),
+    assumption }
+end
 
 @[hott] def hset_respects_equiv {α β : Type u} :
   α ≃ β → hset α → hset β := begin

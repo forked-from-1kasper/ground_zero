@@ -98,7 +98,11 @@ digraph dependency_map {
     "theorems/funext" -> { "types/product" }
     "theorems/hopf"
     "theorems/nat" -> { "HITs/int", "types/integer" }
-    "theorems/prop" -> { "HITs/circle", "types/precategory" }
+    "theorems/prop" -> {
+      "HITs/circle",
+      "types/precategory",
+      "algebra/eilenberg_maclane"
+    }
     "theorems/ua" -> { "theorems/nat", "cubical/V" }
   }
 }
