@@ -146,6 +146,19 @@ namespace K1
 
   @[hott] def code : K1 α → Type u := sigma.fst ∘ code'
 
+  @[hott] noncomputable def code.hset : Π (z : K1 α), hset (code z) := begin
+    intro z, fapply ind _ _ _ _ z,
+    { change hset α, apply magma.set },
+    { intro x, change _ = _, apply set_is_prop },
+    { intros x y, change _ = _, apply prop_is_set,
+      apply set_is_prop },
+    { intro x, apply one_eqv_groupoid.forward,
+      apply prop_is_ntype _ 0, apply set_is_prop }
+  end
+
+  @[hott] noncomputable def hset_base : hset (@code α _ base) :=
+  by intros p q; apply code.hset base
+
   @[hott] def encode : Π (z : K1 α), base = z → code z :=
   λ z p, equiv.transport code p (1 : α)
 
@@ -179,6 +192,40 @@ namespace K1
       apply pi_respects_ntype 1,
       intro z, apply hlevel.cumulative 0,
       apply zero_eqv_set.left, apply grpd }
+  end
+
+  @[hott] noncomputable def encode_decode :
+    Π (z : K1 α) (p : code z), encode z (decode z p) = p := begin
+    intros z p, fapply @ind α _ (λ z,
+      Π (p : code z), encode z (decode z p) = p) _ _ _ _ z,
+    { intro x, change α at x, change encode base (loop x) = _,
+      transitivity, apply equiv.transport_to_transportconst,
+      transitivity, apply eq.map (λ p, equiv.transportconst p (1 : α)),
+      transitivity, apply equiv.map_over_comp,
+      transitivity, apply eq.map, apply recβrule,
+      apply sigma.map_fst_over_prod,
+      transitivity, apply ground_zero.ua.transportconst_rule,
+      apply monoid.one_mul },
+    { intros, apply ground_zero.theorems.funext, intro x,
+      apply hset_base },
+    { intros x y, apply prop_is_set,
+      apply pi_prop, intro x, apply hset_base },
+    { intro x, apply one_eqv_groupoid.forward,
+      apply prop_is_ntype _ 0,
+      intros p q, apply ground_zero.theorems.funext,
+      intro y, apply code.hset x }
+  end
+
+  @[hott] noncomputable def decode_encode :
+    Π (z : K1 α) (p : base = z), decode z (encode z p) = p :=
+  begin intros z p, induction p, apply loop.one end
+
+  @[hott] noncomputable def univ : α ≅ Ω¹(K1 α) := begin
+    existsi loop, split,
+    { intros x y, apply loop.mul },
+    split; existsi encode base,
+    { apply encode_decode base },
+    { apply decode_encode base }
   end
 end K1
 
