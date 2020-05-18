@@ -58,6 +58,20 @@ end
   reflexivity
 end
 
+@[hott] noncomputable def transportconst_rule {α β : Type u} (e : α ≃ β) :
+  Π (x : α), equiv.transportconst (ua e) x = e.fst x := begin
+  fapply ground_zero.J _ e, intros α x,
+  transitivity, apply eq.map (λ p, equiv.transportconst p x),
+  apply refl_on_ua, reflexivity
+end
+
+@[hott] noncomputable def transportconst_inv_rule {α β : Type u} (e : α ≃ β) :
+  Π (x : β), equiv.transportconst_inv (ua e) x = e.left x := begin
+  fapply ground_zero.J _ e, intros α x,
+  transitivity, apply eq.map (λ p, equiv.transportconst_inv p x),
+  apply refl_on_ua, reflexivity
+end
+
 @[hott] noncomputable def transport_inv_rule {α β : Type u} (e : α ≃ β) :
   Π (x : β), types.equiv.subst_inv (ua e) x = e.left x := begin
   refine J _ e, intros ψ x,

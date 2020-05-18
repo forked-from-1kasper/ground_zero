@@ -107,7 +107,7 @@ namespace K1
   noncomputable def loop.one : loop 1 = idp base :> Ω¹(K1 α) :=
   by apply group.homo_saves_unit homomorphism
 
-  noncomputable def loop.inv (p : Ω¹(K1 α)) : loop p⁻¹ = (loop p)⁻¹ :=
+  noncomputable def loop.inv (p : α) : loop p⁻¹ = (loop p)⁻¹ :=
   by apply group.homo_respects_inv homomorphism
 
   @[hott] noncomputable def family
@@ -127,7 +127,7 @@ namespace K1
     { apply ens_is_groupoid }
   end
 
-  @[hott] noncomputable def helix : K1 α → (0-Type) := begin
+  @[hott] noncomputable def code' : K1 α → (0-Type) := begin
     fapply family, exact α,
     { intro x, apply ground_zero.ua, existsi (* x), split;
       existsi (* x⁻¹); intro y; change _ * _ * _ = _,
@@ -142,6 +142,43 @@ namespace K1
         apply semigroup.mul_assoc },
       { apply biinv_prop } },
     { apply magma.set }
+  end
+
+  @[hott] def code : K1 α → Type u := sigma.fst ∘ code'
+
+  @[hott] def encode : Π (z : K1 α), base = z → code z :=
+  λ z p, equiv.transport code p (1 : α)
+
+  @[hott] noncomputable def decode : Π (z : K1 α), code z → base = z := begin
+    intro z, fapply ind _ _ _ _ z,
+    { exact loop },
+    { intro x, change _ = _, transitivity,
+      apply @equiv.transport_characterization (K1 α) code (λ x, base = x),
+      apply ground_zero.theorems.funext, intro y,
+      transitivity, apply eq.map (λ p, equiv.transport (λ x, base = x) (loop x) (loop p)),
+      transitivity, apply equiv.transport_to_transportconst,
+      transitivity, apply eq.map (λ p, equiv.transportconst p y),
+      transitivity, apply eq.map_inv, apply eq.map,
+      transitivity, apply equiv.map_over_comp,
+      transitivity, apply eq.map, apply recβrule,
+      apply sigma.map_fst_over_prod,
+      transitivity, apply equiv.transportconst_over_inv,
+      apply ground_zero.ua.transportconst_inv_rule,
+      transitivity, apply equiv.transport_over_inv_contr_map,
+      transitivity, apply eq.map, apply equiv.idmap,
+      transitivity, apply eq.map (⬝ loop x), apply loop.mul,
+      transitivity, symmetry, apply eq.assoc,
+      transitivity, apply eq.map, apply eq.map (⬝ loop x), apply loop.inv,
+      transitivity, apply eq.map, apply eq.inv_comp, apply eq.refl_right },
+    { intros x y,
+      apply zero_eqv_set.forward,
+      apply pi_respects_ntype 0,
+      intro z, apply zero_eqv_set.left,
+      apply grpd },
+    { intro x, apply one_eqv_groupoid.forward,
+      apply pi_respects_ntype 1,
+      intro z, apply hlevel.cumulative 0,
+      apply zero_eqv_set.left, apply grpd }
   end
 end K1
 

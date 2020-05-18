@@ -107,11 +107,15 @@ namespace equiv
   @[hott] def idtoeqv {α β : Type u} (p : α = β :> Type u) : α ≃ β :=
   begin induction p, apply id end
 
-  def transportconst {α β : Type u} : α = β → α → β :=
+  @[hott] def transportconst {α β : Type u} : α = β → α → β :=
   forward ∘ idtoeqv
 
   def transportconst_inv {α β : Type u} : α = β → β → α :=
   left ∘ idtoeqv
+
+  @[hott] def transportconst_over_inv {α β : Type u} (p : α = β) :
+    Π x, transportconst p⁻¹ x = transportconst_inv p x :=
+  begin intro x, induction p, trivial end
 
   @[hott] def subst {α : Type u} {π : α → Type v} {a b : α}
     (p : a = b :> α) : π a → π b :=
