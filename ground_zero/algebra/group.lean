@@ -21,6 +21,14 @@ def set.subtype {α : Type u} (s : set α) := Σ x, s.fst x
 def set.univ (α : Type u) : set α :=
 ⟨λ _, 𝟏, λ _, unit_is_prop⟩
 
+def set.inter {α : Type u} (a b : set α) : set α :=
+⟨λ x, x ∈ a × x ∈ b, begin
+  intro x, apply ground_zero.structures.product_prop;
+  apply set.prop
+end⟩
+
+instance {α : Type u} : has_inter (set α) := ⟨set.inter⟩
+
 @[hott] def set.hset {α : Type u} (s : set α) : hset α → hset s.subtype := begin
   intro H, apply zero_eqv_set.forward,
   fapply ground_zero.structures.ntype_respects_sigma 0,
@@ -152,7 +160,7 @@ namespace group
     end
 
     @[hott] def homo.comp {α : Type u} {β : Type v} {φ : Type w}
-      [group α] [group β]   [group φ]
+      [group α] [group β] [group φ]
       (f : β ⤳ φ) (g : α ⤳ β) : α ⤳ φ := begin
       cases f with f F, cases g with g G,
       existsi f ∘ g, intros a b, calc
@@ -692,14 +700,14 @@ namespace group
     repeat { apply ground_zero.structures.empty_is_prop }
   end⟩
 
-  @[hott] instance : is_subgroup A₃ := begin
+  @[hott] instance A₃.subgroup : is_subgroup A₃ := begin
     split, { apply ★ },
     { intros a b p q, induction a; induction b;
       induction p; induction q; apply ★ },
     { intros a p, induction a; induction p; apply ★ }
   end
 
-  @[hott] instance : is_normal_subgroup A₃ := begin
+  @[hott] instance A₃.normal_subgroup : is_normal_subgroup A₃ := begin
     split, intros g h p; induction g; induction h;
     induction p; apply ★
   end
@@ -1035,6 +1043,21 @@ namespace group
       { intro x, trivial },
       { intro x, apply magma.set } }
   end
+
+  @[hott] instance inter_subgroup (φ ψ : set α)
+    [is_subgroup φ] [is_subgroup ψ] : is_subgroup (φ ∩ ψ) := begin
+    split, { split; apply is_subgroup.unit },
+    { intros a b p q,
+      induction p with p₁ p₂,
+      induction q with q₁ q₂,
+      split; apply is_subgroup.mul; assumption },
+    { intros a h, induction h with u v,
+      split; apply is_subgroup.inv; assumption }
+  end
+
+  @[hott] def mul (φ ψ : set α) : set α :=
+  ⟨λ a, ∥(Σ x y, x ∈ φ × y ∈ ψ × x * y = a)∥,
+   λ _, ground_zero.HITs.merely.uniq⟩
 end group
 
 end ground_zero.algebra
