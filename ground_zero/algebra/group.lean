@@ -1,5 +1,5 @@
 import ground_zero.HITs.quotient ground_zero.types.integer
-import ground_zero.theorems.functions
+import ground_zero.theorems.functions ground_zero.theorems.prop
 open ground_zero.types.equiv (biinv transport)
 open ground_zero.types.eq (map)
 open ground_zero.structures
@@ -35,6 +35,15 @@ instance {α : Type u} : has_inter (set α) := ⟨set.inter⟩
   { apply zero_eqv_set.left, intros a b, apply H },
   { intro x, apply zero_eqv_set.left,
     apply prop_is_set, apply s.snd }
+end
+
+@[hott] def hset_equiv {α : Type u} (h : hset α) : hset (α ≃ α) := begin
+  apply zero_eqv_set.forward,
+  fapply ground_zero.structures.ntype_respects_sigma 0,
+  { apply ground_zero.structures.pi_respects_ntype 0,
+    intro x, apply zero_eqv_set.left, assumption },
+  { intro x, apply zero_eqv_set.left, apply prop_is_set,
+    apply ground_zero.theorems.prop.biinv_prop }
 end
 
 class magma (α : Type u) extends has_mul α :=
@@ -1058,6 +1067,47 @@ namespace group
   @[hott] def mul (φ ψ : set α) : set α :=
   ⟨λ a, ∥(Σ x y, x ∈ φ × y ∈ ψ × x * y = a)∥,
    λ _, ground_zero.HITs.merely.uniq⟩
+
+  -- Permutations
+  @[hott] def S (α : 0-Type) := α.fst ≃ α.fst
+
+  section
+    variables {ε : 0-Type}
+    @[hott] def S.mul (p q : S ε) := equiv.trans p q
+    @[hott] def S.one             := equiv.id ε.fst
+    @[hott] def S.inv (p : S ε)   := equiv.symm p
+
+    @[hott] instance S.has_mul : has_mul (S ε) := ⟨S.mul⟩
+    @[hott] instance S.has_one : has_one (S ε) := ⟨S.one⟩
+    @[hott] instance S.has_inv : has_inv (S ε) := ⟨S.inv⟩
+
+    @[hott] instance S.magma : magma (S ε) :=
+    begin split, apply hset_equiv, apply zero_eqv_set.forward, exact ε.snd end
+
+    @[hott] instance S.semigroup : semigroup (S ε) := begin
+      split, intros, fapply sigma.prod,
+      { apply ground_zero.theorems.funext, intro x,
+        induction a, induction b, induction c,
+        reflexivity },
+      { apply ground_zero.theorems.prop.biinv_prop }
+    end
+
+    @[hott] instance S.monoid : monoid (S ε) := begin
+      split; intros; fapply sigma.prod,
+      repeat { apply ground_zero.theorems.funext, intro x,
+               induction a, reflexivity },
+      repeat { apply ground_zero.theorems.prop.biinv_prop }
+    end
+
+    @[hott] instance S.group : group (S ε) := begin
+      split, intros, fapply sigma.prod,
+      { apply ground_zero.theorems.funext, intro x,
+        induction a with f e, induction e with e₁ e₂,
+        induction e₁ with g G, induction e₂ with h H,
+        change f _ = x, apply H },
+      { apply ground_zero.theorems.prop.biinv_prop }
+    end
+  end
 end group
 
 end ground_zero.algebra
