@@ -226,6 +226,14 @@ namespace group
     { apply equiv.biinv_trans e₁ e₂ }
   end
 
+  @[hott] def iso.of_equiv {α : Type u} {β : Type v} [group α] [group β] :
+    Π (e : α ≃ β), respects_mul e.forward → α ≅ β
+  | ⟨f, e⟩ h := ⟨f, (h, e)⟩
+
+  @[hott] def iso.of_homo {α : Type u} {β : Type v} [group α] [group β] :
+    Π (φ : α ⤳ β), biinv φ.fst → α ≅ β
+  | ⟨f, h⟩ e := ⟨f, (h, e)⟩
+
   class is_subgroup (φ : set α) :=
   (unit : (1 : α) ∈ φ)
   (mul : Π a b, a ∈ φ → b ∈ φ → a * b ∈ φ)
@@ -1139,6 +1147,22 @@ namespace group
   @[hott] instance op.group : group αᵒᵖ := begin
     split, intros, cases a,
     apply eq.map identity.elem, apply mul_right_inv
+  end
+
+  @[hott] def op.elim : αᵒᵖ → α
+  | ⟨x⟩ := x⁻¹
+
+  @[hott] def op.intro : α → αᵒᵖ :=
+  λ x, identity.elem x⁻¹
+
+  @[hott] def op.univ : α ⤳ αᵒᵖ :=
+  ⟨op.intro, begin intros a b, apply eq.map identity.elem, apply inv_explode end⟩
+
+  @[hott] def op.iso : α ≅ αᵒᵖ := begin
+    fapply iso.of_homo, exact op.univ,
+    split; existsi op.elim; intro x,
+    { apply inv_inv },
+    { induction x, apply eq.map identity.elem, apply inv_inv }
   end
 end group
 
