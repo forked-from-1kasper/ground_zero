@@ -976,16 +976,16 @@ namespace group
     apply unit_is_prop, apply univ_prop
   end
 
+  @[hott] def identity.set {α : Type u} (H : hset α) : hset (identity α) :=
+  begin apply hset_respects_equiv, apply equiv.identity_eqv, assumption end
+
   def Z := identity integer
   @[hott] instance Z.has_mul : has_mul Z := ⟨identity.lift₂ integer.add⟩
   @[hott] instance Z.has_one : has_one Z := ⟨identity.elem 0⟩
   @[hott] instance Z.has_inv : has_inv Z := ⟨identity.lift integer.negate⟩
 
-  @[hott] noncomputable instance Z.magma : magma Z := begin
-    split, apply transport hset,
-    { apply ground_zero.ua, apply equiv.identity_eqv },
-    apply integer.set
-  end
+  @[hott] noncomputable instance Z.magma : magma Z :=
+  begin split, apply identity.set, apply integer.set end
 
   @[hott] def ker.encode {β : Type v} [group β] {φ : α ⤳ β} : α/ker φ → Im φ := begin
     fapply ground_zero.HITs.quotient.rec,
@@ -1107,6 +1107,38 @@ namespace group
         change f _ = x, apply H },
       { apply ground_zero.theorems.prop.biinv_prop }
     end
+  end
+
+  @[hott] def op (α : Type u) [group α] := identity α
+  postfix `ᵒᵖ`:2000 := op
+
+  @[hott] def op.mul : αᵒᵖ → αᵒᵖ → αᵒᵖ
+  | ⟨x⟩ ⟨y⟩ := ⟨y * x⟩
+  @[hott] def op.inv : αᵒᵖ → αᵒᵖ
+  | ⟨x⟩ := ⟨x⁻¹⟩
+  @[hott] def op.one : αᵒᵖ := ⟨1⟩
+
+  @[hott] instance op.has_mul : has_mul αᵒᵖ := ⟨op.mul⟩
+  @[hott] instance op.has_inv : has_inv αᵒᵖ := ⟨op.inv⟩
+  @[hott] instance op.has_one : has_one αᵒᵖ := ⟨op.one⟩
+
+  @[hott] instance op.magma : magma αᵒᵖ :=
+  begin split, apply identity.set, apply magma.set end
+
+  @[hott] instance op.semigroup : semigroup αᵒᵖ := begin
+    split, intros, cases a, cases b, cases c,
+    apply eq.map identity.elem,
+    symmetry, apply semigroup.mul_assoc
+  end
+
+  @[hott] instance op.monoid : monoid αᵒᵖ := begin
+    split; intros; cases a; apply eq.map identity.elem,
+    apply monoid.mul_one, apply monoid.one_mul
+  end
+
+  @[hott] instance op.group : group αᵒᵖ := begin
+    split, intros, cases a,
+    apply eq.map identity.elem, apply mul_right_inv
   end
 end group
 
