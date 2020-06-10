@@ -5,6 +5,7 @@ open ground_zero.types.eq (map)
 open ground_zero.structures
 open ground_zero.types
 open ground_zero.proto
+open ground_zero
 
 namespace ground_zero.algebra
 universes u v w
@@ -60,6 +61,9 @@ class group (α : Type u) extends monoid α, has_inv α :=
 
 class abelian (α : Type u) extends group α :=
 (mul_comm : Π (a b : α), a * b = b * a)
+
+class diff (α : Type u) extends abelian α :=
+(δ : α → α) (sqr : δ ∘ δ ~ id)
 
 @[hott] def mul_uniq {α : Type u} {a b c d : α} [has_mul α]
   (h : a = b) (g : c = d) : a * c = b * d :=
@@ -252,6 +256,14 @@ namespace group
       a = a * 1         : (monoid.mul_one a)⁻¹
     ... = a * (b * b⁻¹) : (has_mul.mul a) # (mul_right_inv b)⁻¹
     ... = (a * b) * b⁻¹ : (semigroup.mul_assoc a b b⁻¹)⁻¹
+
+  @[hott] def comm_impl_conj {x y : α} (p : x * y = y * x) : x = x ^ y := calc
+      x = 1 * x         : (monoid.one_mul x)⁻¹
+    ... = (y⁻¹ * y) * x : (* x) # (group.mul_left_inv y)⁻¹
+    ... = y⁻¹ * (y * x) : semigroup.mul_assoc y⁻¹ y x
+    ... = y⁻¹ * (x * y) : (has_mul.mul y⁻¹) # p⁻¹
+    ... = (y⁻¹ * x) * y : (semigroup.mul_assoc y⁻¹ x y)⁻¹
+    ... = x ^ y         : by reflexivity
 
   @[hott] def is_normal_subgroup.conj (φ : set α)
     [is_normal_subgroup φ] (n g : α) : n ∈ φ → n ^ g ∈ φ := begin
@@ -885,8 +897,19 @@ namespace group
     noncomputable instance : group (F ε) :=
     begin split, apply mul_left_inv end
 
-    noncomputable def homomorphism {α : Type u} [group α] (f : ε → α) : F ε ⤳ α :=
-    ⟨rec f, begin intros x y, reflexivity end⟩
+    @[hott] def rec_mul {α : Type u} [group α] (f : ε → α) (x y : F ε) :
+      rec f (x * y) = rec f x * rec f y :=
+    by reflexivity
+
+    @[hott] def rec_inv {α : Type u} [group α] (f : ε → α) (x : F ε) :
+      rec f x⁻¹ = (rec f x)⁻¹ :=
+    by reflexivity
+
+    @[hott] def rec_one {α : Type u} [group α] (f : ε → α) : rec f 1 = 1 :=
+    by reflexivity
+
+    @[hott] def homomorphism {α : Type u} [group α] (f : ε → α) : F ε ⤳ α :=
+    ⟨rec f, rec_mul f⟩
 
     noncomputable def recβrule₁ {a b c : F ε} (f : ε → α) :
       rec f # (mul_assoc a b c) =
@@ -902,6 +925,8 @@ namespace group
       rec f # (mul_left_inv a) = group.mul_left_inv (rec f a) :=
     by apply magma.set
   end F
+
+  @[hott] def commutator (x y : α) := x * y * x⁻¹ * y⁻¹
 
   @[hott] def zentrum (α : Type u) [group α] : set α :=
   ⟨λ z, Π g, z * g = g * z, begin
