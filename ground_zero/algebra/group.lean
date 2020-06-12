@@ -24,11 +24,21 @@ def set.univ (α : Type u) : set α :=
 
 def set.inter {α : Type u} (a b : set α) : set α :=
 ⟨λ x, x ∈ a × x ∈ b, begin
-  intro x, apply ground_zero.structures.product_prop;
-  apply set.prop
+  intro x, apply structures.product_prop; apply set.prop
 end⟩
 
 instance {α : Type u} : has_inter (set α) := ⟨set.inter⟩
+
+def set.smallest {α : Type u} (φ : set α → Type v) : set α :=
+⟨λ x, ∀ s, φ s → x ∈ s, λ y, begin
+  apply structures.pi_prop, intro φ,
+  apply structures.impl_prop, apply set.prop
+end⟩
+
+def set.inf_inter {α : Type u} (φ : set (set α)) : set α := set.smallest φ.fst
+
+def set.ssubset {α : Type u} (φ ψ : set α) := Π x, x ∈ φ → x ∈ ψ
+infix ⊆ := set.ssubset
 
 @[hott] def set.hset {α : Type u} (s : set α) : hset α → hset s.subtype := begin
   intro H, apply zero_eqv_set.forward,
@@ -152,7 +162,7 @@ namespace group
   section
     variables {μ : Type u} {η : Type v} (φ : μ → η)
     def im.aux := ground_zero.theorems.functions.fib_inh φ
-    def im : set η := ⟨im.aux φ, λ _, ground_zero.HITs.merely.uniq⟩
+    def im : set η := ⟨im.aux φ, λ _, HITs.merely.uniq⟩
   end
 
   section
@@ -562,20 +572,20 @@ namespace group
     { unit := ground_zero.HITs.merely.elem ⟨1, homo_saves_unit φ⟩,
       mul := begin
         intros a b G' H', fapply ground_zero.HITs.merely.rec _ _ G',
-        { apply ground_zero.HITs.merely.uniq },
+        { apply HITs.merely.uniq },
         { intro G,
-          { fapply ground_zero.HITs.merely.rec _ _ H',
-            { apply ground_zero.HITs.merely.uniq },
+          { fapply HITs.merely.rec _ _ H',
+            { apply HITs.merely.uniq },
             { intro H, induction G with x G,
               induction H with y H,
-              apply ground_zero.HITs.merely.elem,
+              apply HITs.merely.elem,
               existsi (x * y), transitivity, apply φ.snd,
               induction G, induction H, trivial } } }
       end,
       inv := begin
-        intros x H', fapply ground_zero.HITs.merely.rec _ _ H',
-        { apply ground_zero.HITs.merely.uniq },
-        { intro H, apply ground_zero.HITs.merely.elem,
+        intros x H', fapply HITs.merely.rec _ _ H',
+        { apply HITs.merely.uniq },
+        { intro H, apply HITs.merely.elem,
           induction H with y H, existsi y⁻¹,
           transitivity, apply homo_respects_inv,
           apply map, assumption }
@@ -1021,15 +1031,15 @@ namespace group
   begin split, apply identity.set, apply integer.set end
 
   @[hott] def ker.encode {β : Type v} [group β] {φ : α ⤳ β} : α/ker φ → Im φ := begin
-    fapply ground_zero.HITs.quotient.rec,
-    { intro x, existsi φ.fst x, apply ground_zero.HITs.merely.elem,
+    fapply HITs.quotient.rec,
+    { intro x, existsi φ.fst x, apply HITs.merely.elem,
       existsi x, trivial },
     { intros x y H, fapply ground_zero.types.sigma.prod,
       change _ = _ at H, transitivity, { symmetry, apply inv_inv },
       apply inv_eq_of_mul_eq_one, transitivity,
       { apply map (* φ.fst y), symmetry, apply homo_respects_inv },
       transitivity, { symmetry, apply φ.snd }, apply H,
-      apply ground_zero.HITs.merely.uniq },
+      apply HITs.merely.uniq },
     { apply set.hset, apply magma.set }
   end
 
@@ -1053,7 +1063,7 @@ namespace group
     fapply ground_zero.HITs.merely.ind _ _ H; intro z,
     { induction z with z p, existsi factor.incl z,
       fapply ground_zero.types.sigma.prod, apply p,
-      apply ground_zero.HITs.merely.uniq },
+      apply HITs.merely.uniq },
     { intros u v, induction u with u H, induction v with v G,
       fapply ground_zero.types.sigma.prod,
       { apply ker.encode_inj, transitivity, exact H,
@@ -1098,8 +1108,7 @@ namespace group
   end
 
   @[hott] def mul (φ ψ : set α) : set α :=
-  ⟨λ a, ∥(Σ x y, x ∈ φ × y ∈ ψ × x * y = a)∥,
-   λ _, ground_zero.HITs.merely.uniq⟩
+  ⟨λ a, ∥(Σ x y, x ∈ φ × y ∈ ψ × x * y = a)∥, λ _, HITs.merely.uniq⟩
 
   -- Permutations
   @[hott] def S (α : 0-Type) := α.fst ≃ α.fst
@@ -1189,6 +1198,31 @@ namespace group
     { apply inv_inv },
     { induction x, apply eq.map identity.elem, apply inv_inv }
   end
+
+  @[hott] def closure (x : set α) : set α :=
+  set.smallest (λ φ, is_normal_subgroup φ × x ⊆ φ)
+
+  @[hott] def closure.sub (s : set α) : s ⊆ closure s :=
+  begin intros x G y H, apply H.snd, assumption end
+
+  @[hott] instance closure.subgroup (x : set α) : is_subgroup (closure x) := begin
+    split,
+    { intros y H, induction H with G H,
+      apply G.to_is_subgroup.unit },
+    { intros a b G H y F, apply F.fst.to_is_subgroup.mul,
+      apply G y, assumption, apply H y, assumption },
+    { intros a H y G, apply G.fst.to_is_subgroup.inv,
+      apply H y, assumption }
+  end
+
+  @[hott] instance closure.normal_subgroup (x : set α) :
+    is_normal_subgroup (closure x) := begin
+    split, intros g h G y H, apply H.fst.cosets_eqv,
+    apply G y, assumption
+  end
+
+  @[hott] def presentation {α : Type u} (R : set (F α)) : Type u :=
+  (F α)/(closure R)
 end group
 
 end ground_zero.algebra
