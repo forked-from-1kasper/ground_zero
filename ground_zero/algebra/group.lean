@@ -936,8 +936,6 @@ namespace group
     by apply magma.set
   end F
 
-  @[hott] def commutator (x y : α) := x * y * x⁻¹ * y⁻¹
-
   @[hott] def zentrum (α : Type u) [group α] : set α :=
   ⟨λ z, Π g, z * g = g * z, begin
     intros x p q, apply ground_zero.theorems.funext,
@@ -1223,6 +1221,58 @@ namespace group
 
   @[hott] def presentation {α : Type u} (R : set (F α)) : Type u :=
   (F α)/(closure R)
+
+  noncomputable instance presentation.group {α : Type u} (R : set (F α)) :
+    group (presentation R) :=
+  by apply factor.is_group
+
+  @[hott] def commutator (x y : α) := (x * y) * (x⁻¹ * y⁻¹)
+
+  @[hott] def commutators (α : Type u) [group α] : set α :=
+  @im (α × α) α (function.uncurry commutator)
+
+  @[hott] def FAb (α : Type u) := presentation (commutators (F α))
+
+  noncomputable instance (α : Type u) : group (FAb α) :=
+  by apply presentation.group
+
+  @[hott] def commutes {x y : α} (p : commutator x y = 1) : x * y = y * x := begin
+    symmetry, transitivity, { symmetry, apply inv_inv },
+    transitivity, apply eq.map, apply inv_explode,
+    symmetry, apply eq_inv_of_mul_eq_one, exact p
+  end
+
+  @[hott] def div_by_unit (x : α) : x / 1 = x := begin
+    change _ * _ = _,
+    transitivity, { apply eq.map, symmetry, apply unit_inv },
+    apply monoid.mul_one
+  end
+
+  @[hott] def ldiv_by_unit (x : α) : x \ 1 = x⁻¹ :=
+  by apply monoid.mul_one
+
+  @[hott] def commutator_over_inv (x y : α) :
+    (commutator x y)⁻¹ = commutator y x := begin
+    transitivity, apply inv_explode,
+    transitivity, apply eq.map, apply inv_explode,
+    apply eq.map (* y⁻¹ * x⁻¹), transitivity, apply inv_explode,
+    transitivity, apply eq.map, apply inv_inv,
+    apply eq.map (* x), apply inv_inv
+  end
+
+  @[hott] noncomputable instance FAb.abelian : abelian (FAb α) := begin
+    split, intros a b, apply commutes,
+    fapply HITs.quot.ind _ _ _ a; clear a; intro a,
+    { fapply HITs.quot.ind _ _ _ b; clear b; intro b,
+      { apply HITs.quot.sound, intros y H,
+        apply H.snd, apply HITs.merely.elem,
+        existsi (b, a), symmetry, transitivity, apply ldiv_by_unit,
+        apply commutator_over_inv },
+      { intros, apply HITs.quot.set },
+      { apply prop_is_set, apply HITs.quot.set } },
+    { intros, apply HITs.quot.set },
+    { apply prop_is_set, apply HITs.quot.set }
+  end
 end group
 
 end ground_zero.algebra
