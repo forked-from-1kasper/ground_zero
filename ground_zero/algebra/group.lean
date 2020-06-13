@@ -8,11 +8,13 @@ open ground_zero.proto
 open ground_zero
 
 namespace ground_zero.algebra
-universes u v w
+universes u v u' v' w
 
 hott theory
 
-def set (α : Type u) := Σ (φ : α → Type v), Π x, prop (φ x)
+def set (α : Type u) : Type (max u (v + 1)) :=
+Σ (φ : α → Type v), Π x, prop (φ x)
+
 def set.contains {α : Type u} (x : α) (s : set α) : Type v := s.fst x
 infix ∈ := set.contains
 
@@ -30,7 +32,7 @@ end⟩
 instance {α : Type u} : has_inter (set α) := ⟨set.inter⟩
 
 def set.smallest {α : Type u} (φ : set α → Type v) : set α :=
-⟨λ x, ∀ s, φ s → x ∈ s, λ y, begin
+⟨λ x, ∀ (s : set.{u v} α), φ s → x ∈ s, λ y, begin
   apply structures.pi_prop, intro φ,
   apply structures.impl_prop, apply set.prop
 end⟩
@@ -39,6 +41,25 @@ def set.inf_inter {α : Type u} (φ : set (set α)) : set α := set.smallest φ.
 
 def set.ssubset {α : Type u} (φ ψ : set α) := Π x, x ∈ φ → x ∈ ψ
 infix ⊆ := set.ssubset
+
+def set.ssubset.refl {α : Type u} (φ : set α) : φ ⊆ φ :=
+begin intros x, apply id end
+
+def set.image {α : Type u} {β : Type v} (φ : set α) (f : α → β) : set β :=
+⟨λ y, ∥(Σ x, f x = y × x ∈ φ)∥, λ _, HITs.merely.uniq⟩
+
+noncomputable def set.ext {α : Type u} {φ ψ : set α}
+  (H : Π x, x ∈ φ ↔ x ∈ ψ) : φ = ψ := begin
+  fapply sigma.prod; apply theorems.funext; intro x,
+  { apply ua, apply structures.prop_equiv_lemma,
+    apply φ.snd, apply ψ.snd,
+    apply (H x).left, apply (H x).right },
+  { apply prop_is_prop }
+end
+
+noncomputable def set.ssubset.asymm {α : Type u} {φ ψ : set α}
+  (f : φ ⊆ ψ) (g : ψ ⊆ φ) : φ = ψ :=
+set.ext (λ x, ⟨f x, g x⟩)
 
 @[hott] def set.hset {α : Type u} (s : set α) : hset α → hset s.subtype := begin
   intro H, apply zero_eqv_set.forward,
@@ -196,6 +217,9 @@ namespace group
     @[hott] def homo.zero : α ⤳ β :=
     ⟨λ _, 1, λ _ _, (monoid.one_mul 1)⁻¹⟩
     instance : has_zero (α ⤳ β) := ⟨homo.zero⟩
+
+    @[hott] def homo.id (α : Type u) [group α] : α ⤳ α :=
+    ⟨id, λ x y, types.eq.refl (x * y)⟩
 
     variable (φ : α ⤳ β)
     def ker.aux := λ g, φ.fst g = 1
@@ -1197,11 +1221,14 @@ namespace group
     { induction x, apply eq.map identity.elem, apply inv_inv }
   end
 
-  @[hott] def closure (x : set α) : set α :=
+  @[hott] def closure (x : set.{u v} α) : set α :=
   set.smallest (λ φ, is_normal_subgroup φ × x ⊆ φ)
 
-  @[hott] def closure.sub (s : set α) : s ⊆ closure s :=
+  @[hott] def closure.sub (φ : set α) : φ ⊆ closure φ :=
   begin intros x G y H, apply H.snd, assumption end
+
+  @[hott] def closure.elim (φ : set α) [is_normal_subgroup φ] : closure φ ⊆ φ :=
+  begin intros x G, apply G, split, assumption, apply set.ssubset.refl end
 
   @[hott] instance closure.subgroup (x : set α) : is_subgroup (closure x) := begin
     split,
@@ -1266,13 +1293,87 @@ namespace group
     { fapply HITs.quot.ind _ _ _ b; clear b; intro b,
       { apply HITs.quot.sound, intros y H,
         apply H.snd, apply HITs.merely.elem,
-        existsi (b, a), symmetry, transitivity, apply ldiv_by_unit,
+        existsi (b, a), symmetry,
+        transitivity, apply ldiv_by_unit,
         apply commutator_over_inv },
       { intros, apply HITs.quot.set },
       { apply prop_is_set, apply HITs.quot.set } },
     { intros, apply HITs.quot.set },
     { apply prop_is_set, apply HITs.quot.set }
   end
+
+  @[hott] def homo.id.encode : α → Im (homo.id α) :=
+  λ x, ⟨x, HITs.merely.elem ⟨x, idp x⟩⟩
+
+  @[hott] def homo.id.decode : Im (homo.id α) → α :=
+  sigma.fst
+
+  @[hott] def homo.id.iso : α ≅ Im (homo.id α) := begin
+    existsi homo.id.encode, split,
+    { intros a b, reflexivity },
+    split; existsi homo.id.decode,
+    { intro x, reflexivity },
+    { intro x, induction x with x H,
+      fapply sigma.prod, reflexivity,
+      apply set.prop }
+  end
+
+  section
+    variables {φ : set.{u v} α} {ψ : set.{u w} α}
+    variables [is_normal_subgroup φ] [is_normal_subgroup ψ] 
+
+    @[hott] noncomputable def factor.transfer (f : φ ⊆ ψ) : α/φ → α/ψ := begin
+      fapply HITs.quotient.rec,
+      { exact factor.incl },
+      { intros x y H, apply HITs.quotient.sound,
+        apply f, exact H },
+      { apply HITs.quotient.set }
+    end
+
+    @[hott] noncomputable def factor.iso
+      (f : φ ⊆ ψ) (g : ψ ⊆ φ) : α/φ ≅ α/ψ := begin
+      existsi factor.transfer f, split,
+      { intro x, fapply HITs.quotient.ind_prop _ _ x; clear x; intro x,
+        { fapply HITs.quotient.ind_prop,
+          { intro y, reflexivity },
+          { intros, apply HITs.quotient.set } },
+        { intros, apply pi_prop,
+          intro z, apply HITs.quotient.set } },
+      { split; existsi factor.transfer g;
+        { fapply HITs.quotient.ind_prop,
+          { intro x, reflexivity },
+          { intros, apply HITs.quotient.set } } }
+    end
+  end
+
+  @[hott] noncomputable def normal_factor (φ : set α)
+    [is_normal_subgroup φ] : α/φ ≅ α/(closure φ) :=
+  factor.iso (closure.sub φ) (closure.elim φ)
+
+  @[hott] def F.homomorphism.encode : α → Im (F.homomorphism id) :=
+  λ x, ⟨x, HITs.merely.elem ⟨F.elem x, idp _⟩⟩
+
+  @[hott] noncomputable def F.homomorphism.iso :
+    α ≅ Im (F.homomorphism (@id α)) := begin
+    existsi F.homomorphism.encode, split,
+    { intros x y, fapply sigma.prod,
+      { reflexivity },
+      { apply HITs.merely.uniq } },
+    { split; existsi sigma.fst,
+      { intro x, trivial },
+      { intro x, induction x with x H,
+        fapply sigma.prod,
+        { reflexivity },
+        { apply HITs.merely.uniq } } }
+  end
+
+  @[hott] noncomputable def presentation.univ :
+    Σ (R : set (F α)), α ≅ presentation R :=
+  ⟨ker (F.homomorphism id), begin
+    apply iso.trans F.homomorphism.iso,
+    apply iso.trans first_homo_theorem,
+    apply normal_factor.{u u u u}
+  end⟩
 end group
 
 end ground_zero.algebra
