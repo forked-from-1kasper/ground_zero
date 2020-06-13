@@ -94,7 +94,7 @@ class abelian (α : Type u) extends group α :=
 (mul_comm : Π (a b : α), a * b = b * a)
 
 class diff (α : Type u) extends abelian α :=
-(δ : α → α) (sqr : δ ∘ δ ~ id)
+(δ : α → α) (sqr : δ ∘ δ ~ λ _, 1)
 
 @[hott] def mul_uniq {α : Type u} {a b c d : α} [has_mul α]
   (h : a = b) (g : c = d) : a * c = b * d :=
