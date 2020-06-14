@@ -21,17 +21,22 @@ infix ∈ := set.contains
 def set.prop {α : Type u} (x : α) (s : set α) : prop (x ∈ s) := s.snd x
 def set.subtype {α : Type u} (s : set α) := Σ x, s.fst x
 
-def set.univ (α : Type u) : set α :=
+@[hott] def set.univ (α : Type u) : set α :=
 ⟨λ _, 𝟏, λ _, unit_is_prop⟩
 
-def set.inter {α : Type u} (a b : set α) : set α :=
+@[hott] def set.union {α : Type u} (a b : set α) : set α :=
+⟨λ x, ∥(x ∈ a) + (x ∈ b)∥, λ _, HITs.merely.uniq⟩
+
+instance {α : Type u} : has_union (set α) := ⟨set.union⟩
+
+@[hott] def set.inter {α : Type u} (a b : set α) : set α :=
 ⟨λ x, x ∈ a × x ∈ b, begin
   intro x, apply structures.product_prop; apply set.prop
 end⟩
 
 instance {α : Type u} : has_inter (set α) := ⟨set.inter⟩
 
-def set.smallest {α : Type u} (φ : set α → Type v) : set α :=
+@[hott] def set.smallest {α : Type u} (φ : set.{u v} α → Type w) : set α :=
 ⟨λ x, ∀ (s : set.{u v} α), φ s → x ∈ s, λ y, begin
   apply structures.pi_prop, intro φ,
   apply structures.impl_prop, apply set.prop
@@ -39,16 +44,21 @@ end⟩
 
 def set.inf_inter {α : Type u} (φ : set (set α)) : set α := set.smallest φ.fst
 
-def set.ssubset {α : Type u} (φ ψ : set α) := Π x, x ∈ φ → x ∈ ψ
+def set.ssubset {α : Type u} (φ : set.{u v} α) (ψ : set.{u w} α) :=
+Π x, x ∈ φ → x ∈ ψ
 infix ⊆ := set.ssubset
 
-def set.ssubset.refl {α : Type u} (φ : set α) : φ ⊆ φ :=
+@[hott, refl] def set.ssubset.refl {α : Type u} (φ : set α) : φ ⊆ φ :=
 begin intros x, apply id end
 
-def set.image {α : Type u} {β : Type v} (φ : set α) (f : α → β) : set β :=
+@[hott, trans] def set.ssubset.trans {α : Type u} {a b c : set α} :
+  a ⊆ b → b ⊆ c → a ⊆ c :=
+λ G H x p, H x (G x p)
+
+@[hott] def set.image {α : Type u} {β : Type v} (φ : set α) (f : α → β) : set β :=
 ⟨λ y, ∥(Σ x, f x = y × x ∈ φ)∥, λ _, HITs.merely.uniq⟩
 
-noncomputable def set.ext {α : Type u} {φ ψ : set α}
+@[hott] noncomputable def set.ext {α : Type u} {φ ψ : set α}
   (H : Π x, x ∈ φ ↔ x ∈ ψ) : φ = ψ := begin
   fapply sigma.prod; apply theorems.funext; intro x,
   { apply ua, apply structures.prop_equiv_lemma,
@@ -57,7 +67,7 @@ noncomputable def set.ext {α : Type u} {φ ψ : set α}
   { apply prop_is_prop }
 end
 
-noncomputable def set.ssubset.asymm {α : Type u} {φ ψ : set α}
+@[hott] noncomputable def set.ssubset.asymm {α : Type u} {φ ψ : set α}
   (f : φ ⊆ ψ) (g : ψ ⊆ φ) : φ = ψ :=
 set.ext (λ x, ⟨f x, g x⟩)
 
@@ -179,6 +189,9 @@ namespace group
 
   instance : has_div α   := ⟨right_div⟩
   instance : has_sdiff α := ⟨left_div⟩
+
+  @[hott] def eq_of_div_eq {x y : α} (h : x \ y = 1) : x = y :=
+  (inv_inv x)⁻¹ ⬝ (inv_eq_of_mul_eq_one h)
 
   section
     variables {μ : Type u} {η : Type v} (φ : μ → η)
@@ -331,6 +344,15 @@ namespace group
   @[hott] def x_mul_inv_y_inv (x y : α) := calc
     (x * y⁻¹)⁻¹ = y⁻¹⁻¹ * x⁻¹ : by apply inv_explode
             ... = y * x⁻¹     : (* x⁻¹) # (inv_inv y)
+
+  @[hott] def div_by_unit (x : α) : x / 1 = x := begin
+    change _ * _ = _,
+    transitivity, { apply eq.map, symmetry, apply unit_inv },
+    apply monoid.mul_one
+  end
+
+  @[hott] def ldiv_by_unit (x : α) : x \ 1 = x⁻¹ :=
+  by apply monoid.mul_one
 
   @[hott] def normal_subgroup_cosets (φ : set α) [is_normal_subgroup φ] :
     Π {x y}, ldiv φ x y ↔ rdiv φ x y := begin
@@ -542,6 +564,13 @@ namespace group
       mul_left_inv := factor.left_inv }
   end
 
+  @[hott] def factor.sound {φ : set α} [is_normal_subgroup φ]
+    {x : α} (H : x ∈ φ) : factor.incl x = 1 :> α/φ := begin
+    apply HITs.quotient.sound, apply transport (∈ φ),
+    { symmetry, apply ldiv_by_unit },
+    apply is_subgroup.inv, assumption
+  end
+
   section
     variables {β : Type v} [group β] (φ : α ⤳ β)
     @[hott] def homo_saves_unit : φ.fst 1 = 1 := begin
@@ -614,6 +643,20 @@ namespace group
           transitivity, apply homo_respects_inv,
           apply map, assumption }
       end }
+  end
+
+  @[hott] def factor.lift {β : Type v} [group β] (f : α ⤳ β)
+    {φ : set α} [is_normal_subgroup φ]
+    (H : Π x, x ∈ φ → f.fst x = 1) : α/φ → β := begin
+    fapply HITs.quotient.rec,
+    { exact f.fst },
+    { intros x y G, apply eq_of_div_eq,
+      transitivity,
+      { apply eq.map (* f.fst y), symmetry,
+        apply homo_respects_inv },
+      transitivity, { symmetry, apply f.snd },
+      apply H, apply G },
+    { apply magma.set }
   end
 
   section
@@ -903,7 +946,7 @@ namespace group
     @[safe] def mul (x y : F ε) : F ε := ⟨exp.mul x.val y.val⟩
     @[safe] def inv (x : F ε)   : F ε := ⟨exp.inv x.val⟩
 
-    @[safe] def rec {α : Type u} [group α] (f : ε → α) (x : F ε) : α :=
+    @[safe] def rec {α : Type v} [group α] (f : ε → α) (x : F ε) : α :=
     exp.eval f x.val
 
     attribute [irreducible] F
@@ -919,30 +962,30 @@ namespace group
 
     axiom set : hset (F ε)
 
-    noncomputable instance : magma (F ε) :=
+    noncomputable instance magma : magma (F ε) :=
     begin split, apply set end
 
-    noncomputable instance : semigroup (F ε) :=
+    noncomputable instance semigroup : semigroup (F ε) :=
     begin split, apply mul_assoc end
 
-    noncomputable instance : monoid (F ε) :=
+    noncomputable instance monoid : monoid (F ε) :=
     begin split, apply one_mul, apply mul_one end
 
-    noncomputable instance : group (F ε) :=
+    noncomputable instance group : group (F ε) :=
     begin split, apply mul_left_inv end
 
-    @[hott] def rec_mul {α : Type u} [group α] (f : ε → α) (x y : F ε) :
+    @[hott] def rec_mul {α : Type v} [group α] (f : ε → α) (x y : F ε) :
       rec f (x * y) = rec f x * rec f y :=
     by reflexivity
 
-    @[hott] def rec_inv {α : Type u} [group α] (f : ε → α) (x : F ε) :
+    @[hott] def rec_inv {α : Type v} [group α] (f : ε → α) (x : F ε) :
       rec f x⁻¹ = (rec f x)⁻¹ :=
     by reflexivity
 
-    @[hott] def rec_one {α : Type u} [group α] (f : ε → α) : rec f 1 = 1 :=
+    @[hott] def rec_one {α : Type v} [group α] (f : ε → α) : rec f 1 = 1 :=
     by reflexivity
 
-    @[hott] def homomorphism {α : Type u} [group α] (f : ε → α) : F ε ⤳ α :=
+    @[hott] def homomorphism {α : Type v} [group α] (f : ε → α) : F ε ⤳ α :=
     ⟨rec f, rec_mul f⟩
 
     noncomputable def recβrule₁ {a b c : F ε} (f : ε → α) :
@@ -1221,14 +1264,19 @@ namespace group
     { induction x, apply eq.map identity.elem, apply inv_inv }
   end
 
-  @[hott] def closure (x : set.{u v} α) : set α :=
-  set.smallest (λ φ, is_normal_subgroup φ × x ⊆ φ)
+  @[hott] def closure (x : set α) : set α :=
+  set.smallest (λ (φ : set α), is_normal_subgroup φ × x ⊆ φ)
 
   @[hott] def closure.sub (φ : set α) : φ ⊆ closure φ :=
   begin intros x G y H, apply H.snd, assumption end
 
+  @[hott] def closure.sub_trans
+    {φ ψ : set α} [is_normal_subgroup ψ] :
+    φ ⊆ ψ → closure φ ⊆ ψ :=
+  begin intros H x G, apply G, split; assumption end
+
   @[hott] def closure.elim (φ : set α) [is_normal_subgroup φ] : closure φ ⊆ φ :=
-  begin intros x G, apply G, split, assumption, apply set.ssubset.refl end
+  closure.sub_trans (set.ssubset.refl φ)
 
   @[hott] instance closure.subgroup (x : set α) : is_subgroup (closure x) := begin
     split,
@@ -1253,6 +1301,10 @@ namespace group
     group (presentation R) :=
   by apply factor.is_group
 
+  @[hott] noncomputable def presentation.sound {α : Type u} {R : set (F α)}
+    {x : F α} (H : x ∈ R) : factor.incl x = 1 :> presentation R :=
+  begin apply factor.sound, apply closure.sub, assumption end
+
   @[hott] def commutator (x y : α) := (x * y) * (x⁻¹ * y⁻¹)
 
   @[hott] def commutators (α : Type u) [group α] : set α :=
@@ -1269,15 +1321,6 @@ namespace group
     symmetry, apply eq_inv_of_mul_eq_one, exact p
   end
 
-  @[hott] def div_by_unit (x : α) : x / 1 = x := begin
-    change _ * _ = _,
-    transitivity, { apply eq.map, symmetry, apply unit_inv },
-    apply monoid.mul_one
-  end
-
-  @[hott] def ldiv_by_unit (x : α) : x \ 1 = x⁻¹ :=
-  by apply monoid.mul_one
-
   @[hott] def commutator_over_inv (x y : α) :
     (commutator x y)⁻¹ = commutator y x := begin
     transitivity, apply inv_explode,
@@ -1287,7 +1330,7 @@ namespace group
     apply eq.map (* x), apply inv_inv
   end
 
-  @[hott] noncomputable instance FAb.abelian : abelian (FAb α) := begin
+  @[hott] noncomputable instance FAb.abelian {α : Type u} : abelian (FAb α) := begin
     split, intros a b, apply commutes,
     fapply HITs.quot.ind _ _ _ a; clear a; intro a,
     { fapply HITs.quot.ind _ _ _ b; clear b; intro b,
@@ -1300,6 +1343,39 @@ namespace group
       { apply prop_is_set, apply HITs.quot.set } },
     { intros, apply HITs.quot.set },
     { apply prop_is_set, apply HITs.quot.set }
+  end
+
+  @[hott] def commutators.to_ker {β : Type v} [abelian β] (f : α ⤳ β) :
+    commutators α ⊆ ker f := begin
+    intros x, fapply HITs.merely.rec,
+    { apply set.prop },
+    { intro H, induction H with p q, induction f with f F,
+      induction p with a b, change _ = _, calc
+        f x = f (a * b * (a⁻¹ * b⁻¹))     : f # q⁻¹
+        ... = f (a * b) * f (a⁻¹ * b⁻¹)   : F (a * b) (a⁻¹ * b⁻¹)
+        ... = f (a * b) * (f a⁻¹ * f b⁻¹) : by apply eq.map; apply F
+        ... = f (a * b) * (f b⁻¹ * f a⁻¹) : by apply eq.map; apply abelian.mul_comm
+        ... = f (a * b) * f (b⁻¹ * a⁻¹)   : by apply eq.map; symmetry; apply F
+        ... = f (a * b * (b⁻¹ * a⁻¹))     : (F _ _)⁻¹
+        ... = f (a * b * b⁻¹ * a⁻¹)       : f # (semigroup.mul_assoc _ _ _)⁻¹
+        ... = f (a * (b * b⁻¹) * a⁻¹)     : @eq.map α β _ _ (λ x, f (x * a⁻¹))
+                                            (semigroup.mul_assoc a b b⁻¹)
+        ... = f (a * 1 * a⁻¹)             : @eq.map α β _ _ (λ x, f (a * x * a⁻¹))
+                                            (mul_right_inv b)
+        ... = f (a * a⁻¹)                 : @eq.map α β _ _ (λ x, f (x * a⁻¹))
+                                            (monoid.mul_one a)
+        ... = f 1                         : f # (mul_right_inv a)
+        ... = 1                           : homo_saves_unit ⟨f, F⟩ }
+  end
+
+  @[hott] def commutators.to_closure_ker {β : Type v} [abelian β] (f : α ⤳ β) :
+    set.ssubset (closure (commutators α)) (ker f) :=
+  closure.sub_trans (commutators.to_ker f)
+
+  @[hott] noncomputable def FAb.rec {α : Type u} {ε : Type v}
+    [abelian α] (f : ε → α) : FAb ε → α := begin
+    fapply factor.lift, exact F.homomorphism f,
+    { intros x H, apply commutators.to_closure_ker, assumption }
   end
 
   @[hott] def homo.id.encode : α → Im (homo.id α) :=
@@ -1372,7 +1448,7 @@ namespace group
   ⟨ker (F.homomorphism id), begin
     apply iso.trans F.homomorphism.iso,
     apply iso.trans first_homo_theorem,
-    apply normal_factor.{u u u u}
+    apply normal_factor
   end⟩
 end group
 
