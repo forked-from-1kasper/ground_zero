@@ -234,6 +234,14 @@ namespace group
     @[hott] def homo.id (α : Type u) [group α] : α ⤳ α :=
     ⟨id, λ x y, types.eq.refl (x * y)⟩
 
+    @[hott] def homo.funext {f g : α ⤳ β} : f.fst ~ g.fst → f = g := begin
+      intro p, induction f with f F, induction g with g G, fapply sigma.prod,
+      { apply theorems.funext, assumption },
+      { apply theorems.funext, intro x,
+        apply theorems.funext, intro y,
+        apply magma.set }
+    end
+
     variable (φ : α ⤳ β)
     def ker.aux := λ g, φ.fst g = 1
     @[hott] def ker_is_prop (x : α) : prop (ker.aux φ x) :=
@@ -1312,6 +1320,9 @@ namespace group
 
   @[hott] def FAb (α : Type u) := presentation (commutators (F α))
 
+  @[hott] noncomputable def FAb.elem {α : Type u} : α → FAb α :=
+  factor.incl ∘ F.elem
+
   noncomputable instance (α : Type u) : group (FAb α) :=
   by apply presentation.group
 
@@ -1377,6 +1388,16 @@ namespace group
     fapply factor.lift, exact F.homomorphism f,
     { intros x H, apply commutators.to_closure_ker, assumption }
   end
+
+  @[hott] noncomputable def FAb.homomorphism {α : Type u} {ε : Type v}
+    [abelian α] (f : ε → α) : FAb ε ⤳ α :=
+  ⟨FAb.rec f, begin
+    intros a b, fapply HITs.quotient.ind_prop _ _ a; clear a; intro a,
+    { fapply HITs.quotient.ind_prop _ _ b; clear b; intro b,
+      { reflexivity },
+      { apply magma.set } },
+    { apply magma.set }
+  end⟩
 
   @[hott] def homo.id.encode : α → Im (homo.id α) :=
   λ x, ⟨x, HITs.merely.elem ⟨x, idp x⟩⟩
