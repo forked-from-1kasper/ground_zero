@@ -8,10 +8,10 @@ hott theory
 
 namespace homology
   structure chain_complex :=
-  (K : ℕ → Type u)
+  (K          : ℕ → Type u)
   (is_abelian : Π n, abelian (K n))
-  (δ : Π n, K (n + 1) ⤳ K n)
-  (triv : Π n, δ n ⋅ δ (n + 1) = 0)
+  (δ          : Π n, K (n + 1) ⤳ K n)
+  (triv       : Π n, δ n ⋅ δ (n + 1) = 0)
 
   instance chain_complex.abelian (C : chain_complex) (n : ℕ) : abelian (C.K n) :=
   C.is_abelian n

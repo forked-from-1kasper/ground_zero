@@ -166,6 +166,12 @@ namespace group
   @[hott] def unit_sqr : (1 : α) = 1 * 1 :=
   begin symmetry, apply monoid.one_mul end
 
+  @[hott] def unit_commutes (x : α) : 1 * x = x * 1 :=
+  (monoid.one_mul x) ⬝ (monoid.mul_one x)⁻¹
+
+  @[hott] def unit_commutes_inv (x : α) : x * 1 = 1 * x :=
+  (unit_commutes x)⁻¹
+
   @[hott] def inv_explode (x y : α) : (x * y)⁻¹ = y⁻¹ * x⁻¹ :=
   inv_eq_of_mul_eq_one
     (calc (x * y) * (y⁻¹ * x⁻¹)
@@ -954,11 +960,6 @@ namespace group
     @[safe] def mul (x y : F ε) : F ε := ⟨exp.mul x.val y.val⟩
     @[safe] def inv (x : F ε)   : F ε := ⟨exp.inv x.val⟩
 
-    @[safe] def rec {α : Type v} [group α] (f : ε → α) (x : F ε) : α :=
-    exp.eval f x.val
-
-    attribute [irreducible] F
-
     instance : has_one (F ε) := ⟨unit⟩
     instance : has_mul (F ε) := ⟨mul⟩
     instance : has_inv (F ε) := ⟨inv⟩
@@ -969,6 +970,26 @@ namespace group
     axiom mul_left_inv  (a : F ε) : a⁻¹ * a = 1
 
     axiom set : hset (F ε)
+
+    @[safe] def rec {α : Type v} [group α] (f : ε → α) (x : F ε) : α :=
+    exp.eval f x.val
+
+    @[safe] def ind {π : F ε → Type v}
+      (setπ : Π x, hset (π x))
+      (e : π unit) (η : Π {x}, π (elem x))
+      (m : Π {x y}, π x → π y → π (mul x y))
+      (i : Π {x}, π x → π (inv x))
+      (mul_assoc : Π {x y z : F ε} (a : π x) (b : π y) (c : π z),
+        m (m a b) c =[mul_assoc x y z] m a (m b c))
+      (one_mul : Π {x : F ε} (a : π x), m e a =[one_mul x] a)
+      (mul_one : Π {x : F ε} (a : π x), m a e =[mul_one x] a)
+      (mul_left_inv : Π {x : F ε} (a : π x),
+        m (i a) a =[mul_left_inv x] e) : Π x, π x := begin
+      intro x, cases x, induction x with x x y u v x u,
+      { exact e }, { apply η }, { apply m u v }, { apply i u }
+    end
+
+    attribute [irreducible] F
 
     noncomputable instance magma : magma (F ε) :=
     begin split, apply set end
@@ -1009,6 +1030,19 @@ namespace group
     noncomputable def recβrule₄ {a : F ε} (f : ε → α) :
       rec f # (mul_left_inv a) = group.mul_left_inv (rec f a) :=
     by apply magma.set
+
+    @[hott] noncomputable def ind_prop {π : F ε → Type v}
+      (propπ : Π x, prop (π x))
+      (e : π unit) (η : Π {x}, π (elem x))
+      (m : Π {x y}, π x → π y → π (mul x y))
+      (i : Π {x}, π x → π (inv x)) : Π x, π x := begin
+      fapply ind, { intro x, apply prop_is_set, apply propπ },
+      { exact e },
+      { intro x, apply η },
+      { intros x y u v, apply m u v },
+      { intros x u, apply i u },
+      repeat { intros, apply propπ }
+    end
   end F
 
   @[hott] def zentrum (α : Type u) [group α] : set α :=
