@@ -103,9 +103,6 @@ class group (α : Type u) extends monoid α, has_inv α :=
 class abelian (α : Type u) extends group α :=
 (mul_comm : Π (a b : α), a * b = b * a)
 
-class diff (α : Type u) extends abelian α :=
-(δ : α → α) (sqr : δ ∘ δ ~ λ _, 1)
-
 @[hott] def mul_uniq {α : Type u} {a b c d : α} [has_mul α]
   (h : a = b) (g : c = d) : a * c = b * d :=
 begin induction h, induction g, reflexivity end
@@ -224,12 +221,12 @@ namespace group
 
     @[hott] def homo.comp {α : Type u} {β : Type v} {φ : Type w}
       [group α] [group β] [group φ]
-      (f : β ⤳ φ) (g : α ⤳ β) : α ⤳ φ := begin
-      cases f with f F, cases g with g G,
-      existsi f ∘ g, intros a b, calc
+      (f : β ⤳ φ) (g : α ⤳ β) : α ⤳ φ :=
+    ⟨f.fst ∘ g.fst, λ a b, begin
+      cases f with f F, cases g with g G, calc
         (f ∘ g) (a * b) = f (g a * g b)         : f # (G a b)
                     ... = (f ∘ g) a * (f ∘ g) b : by apply F
-    end
+    end⟩
 
     infix ` ⋅ `:60 := homo.comp
 
@@ -247,6 +244,9 @@ namespace group
         apply theorems.funext, intro y,
         apply magma.set }
     end
+
+    @[hott] def idhomo (f g : α ⤳ β) : f = g → f.fst ~ g.fst :=
+    begin intro p, induction p, reflexivity end
 
     variable (φ : α ⤳ β)
     def ker.aux := λ g, φ.fst g = 1
@@ -1506,5 +1506,20 @@ namespace group
     apply normal_factor
   end⟩
 end group
+
+class diff (α : Type u) extends abelian α :=
+(δ : α ⤳ α) (sqr : δ ⋅ δ = 0)
+
+namespace diff
+  variables {α : Type u} [diff α]
+
+  def im_impl_ker : group.im (δ α).fst ⊆ group.ker (δ α) := begin
+    intro x, fapply HITs.merely.rec,
+    { apply magma.set },
+    { intro H, induction H with y p, change _ = _,
+      transitivity, apply eq.map, exact p⁻¹,
+      apply group.idhomo (δ α ⋅ δ α) 0, apply sqr }
+  end
+end diff
 
 end ground_zero.algebra
