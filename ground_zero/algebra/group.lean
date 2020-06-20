@@ -1511,9 +1511,10 @@ class diff (α : Type u) extends abelian α :=
 (δ : α ⤳ α) (sqr : δ ⋅ δ = 0)
 
 namespace diff
+  open ground_zero.algebra.group (im ker)
   variables {α : Type u} [diff α]
 
-  def im_impl_ker : group.im (δ α).fst ⊆ group.ker (δ α) := begin
+  @[hott] def im_impl_ker : im (δ α).fst ⊆ ker (δ α) := begin
     intro x, fapply HITs.merely.rec,
     { apply magma.set },
     { intro H, induction H with y p, change _ = _,
