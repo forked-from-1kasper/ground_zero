@@ -235,7 +235,7 @@ namespace group
     instance : has_zero (α ⤳ β) := ⟨homo.zero⟩
 
     @[hott] def homo.id (α : Type u) [group α] : α ⤳ α :=
-    ⟨id, λ x y, types.eq.refl (x * y)⟩
+    ⟨id, λ x y, idp (x * y)⟩
 
     @[hott] def homo.funext {f g : α ⤳ β} : f.fst ~ g.fst → f = g := begin
       intro p, induction f with f F, induction g with g G, fapply sigma.prod,
@@ -300,9 +300,9 @@ namespace group
   | ⟨f, h⟩ e := ⟨f, (h, e)⟩
 
   class is_subgroup (φ : set α) :=
-  (unit : (1 : α) ∈ φ)
-  (mul : Π a b, a ∈ φ → b ∈ φ → a * b ∈ φ)
-  (inv : Π a, a ∈ φ → a⁻¹ ∈ φ)
+  (unit : 1 ∈ φ)
+  (mul  : Π a b, a ∈ φ → b ∈ φ → a * b ∈ φ)
+  (inv  : Π a, a ∈ φ → a⁻¹ ∈ φ)
 
   class is_normal_subgroup (φ : set α)
     extends is_subgroup φ :=
@@ -462,14 +462,14 @@ namespace group
 
   @[hott] noncomputable def factor_symm (φ : set α)
     [is_normal_subgroup φ] : α/φ = α\φ := begin
-      apply map ground_zero.HITs.quotient, apply ground_zero.HITs.setoid.eq,
-      repeat { apply ground_zero.theorems.funext, intro },
-      fapply ground_zero.types.sigma.prod,
-      { change ldiv φ _ _ = rdiv φ _ _,
-        repeat { apply ground_zero.HITs.interval.happly },
-        apply cosets_eq },
-      apply prop_is_prop
-    end
+    apply map ground_zero.HITs.quotient, apply ground_zero.HITs.setoid.eq,
+    repeat { apply ground_zero.theorems.funext, intro },
+    fapply ground_zero.types.sigma.prod,
+    { change ldiv φ _ _ = rdiv φ _ _,
+      repeat { apply ground_zero.HITs.interval.happly },
+      apply cosets_eq },
+    apply prop_is_prop
+  end
 
   def factor.incl {φ : set α} [is_normal_subgroup φ] : α → α/φ :=
   ground_zero.HITs.quotient.elem
@@ -568,13 +568,13 @@ namespace group
     end
 
     @[hott] noncomputable instance factor.is_group : group (α/φ) :=
-    { set := λ _ _, ground_zero.HITs.quotient.set,
-      mul := factor.mul,
-      one := factor.one,
-      mul_assoc := factor.assoc,
-      one_mul := factor.one_mul,
-      mul_one := factor.mul_one,
-      inv := factor.inv,
+    { set          := λ _ _, ground_zero.HITs.quotient.set,
+      mul          := factor.mul,
+      one          := factor.one,
+      mul_assoc    := factor.assoc,
+      one_mul      := factor.one_mul,
+      mul_one      := factor.mul_one,
+      inv          := factor.inv,
       mul_left_inv := factor.left_inv }
   end
 
@@ -719,10 +719,10 @@ namespace group
     end
 
     @[hott] instance subgroup.is_group : group φ.subtype :=
-    { set := λ _ _, subgroup.set,
-      mul_assoc := subgroup.mul_assoc,
-      one_mul := subgroup.one_mul,
-      mul_one := subgroup.mul_one,
+    { set          := λ _ _, subgroup.set,
+      mul_assoc    := subgroup.mul_assoc,
+      one_mul      := subgroup.one_mul,
+      mul_one      := subgroup.mul_one,
       mul_left_inv := subgroup.mul_left_inv }
   end
 
@@ -757,7 +757,7 @@ namespace group
 
   @[hott] def homo.surj {α : Type u} [group α]
     (φ : set α) [is_subgroup φ] : φ.subtype ⤳ α :=
-  ⟨sigma.fst, λ ⟨a, _⟩ ⟨b, _⟩, ground_zero.types.eq.refl (a * b)⟩
+  ⟨sigma.fst, λ ⟨a, _⟩ ⟨b, _⟩, idp (a * b)⟩
 
   inductive D₃
   | R₀ | R₁ | R₂
@@ -832,7 +832,7 @@ namespace group
     induction p; apply ★
   end
 
-  def Z₂ := bool
+  def Z₂     := bool
   def Z₂.mul := bxor
   def Z₂.inv := @ground_zero.proto.idfun Z₂
 
@@ -1352,13 +1352,14 @@ namespace group
   @[hott] def commutators (α : Type u) [group α] : set α :=
   @im (α × α) α (function.uncurry commutator)
 
-  @[hott] def FAb (α : Type u) := presentation (commutators (F α))
+  @[hott] def abelianization (α : Type u) [group α] :=
+  α/closure (commutators α)
 
-  @[hott] noncomputable def FAb.elem {α : Type u} : α → FAb α :=
-  factor.incl ∘ F.elem
+  @[hott] def abelianization.elem : α → abelianization α :=
+  factor.incl
 
-  noncomputable instance (α : Type u) : group (FAb α) :=
-  by apply presentation.group
+  @[hott] noncomputable instance abelianization.group : group (abelianization α) :=
+  factor.is_group
 
   @[hott] def commutes {x y : α} (p : commutator x y = 1) : x * y = y * x := begin
     symmetry, transitivity, { symmetry, apply inv_inv },
@@ -1375,15 +1376,14 @@ namespace group
     apply eq.map (* x), apply inv_inv
   end
 
-  @[hott] noncomputable instance FAb.abelian {α : Type u} : abelian (FAb α) := begin
+  @[hott] noncomputable instance abelianization.abelian :
+    abelian (abelianization α) := begin
     split, intros a b, apply commutes,
     fapply HITs.quot.ind _ _ _ a; clear a; intro a,
     { fapply HITs.quot.ind _ _ _ b; clear b; intro b,
-      { apply HITs.quot.sound, intros y H,
+      { apply factor.sound, intros y H,
         apply H.snd, apply HITs.merely.elem,
-        existsi (b, a), symmetry,
-        transitivity, apply ldiv_by_unit,
-        apply commutator_over_inv },
+        existsi (a, b), trivial },
       { intros, apply HITs.quot.set },
       { apply prop_is_set, apply HITs.quot.set } },
     { intros, apply HITs.quot.set },
@@ -1417,21 +1417,40 @@ namespace group
     set.ssubset (closure (commutators α)) (ker f) :=
   closure.sub_trans (commutators.to_ker f)
 
-  @[hott] noncomputable def FAb.rec {α : Type u} {ε : Type v}
-    [abelian α] (f : ε → α) : FAb ε → α := begin
-    fapply factor.lift, exact F.homomorphism f,
+  @[hott] def abelianization.rec {ε : Type u} {α : Type v}
+    [abelian α] [group ε] (f : ε ⤳ α) : abelianization ε → α := begin
+    fapply factor.lift, exact f,
     { intros x H, apply commutators.to_closure_ker, assumption }
   end
 
-  @[hott] noncomputable def FAb.homomorphism {α : Type u} {ε : Type v}
-    [abelian α] (f : ε → α) : FAb ε ⤳ α :=
-  ⟨FAb.rec f, begin
+  @[hott] noncomputable def abelianization.homomorphism {ε : Type u} {α : Type v}
+    [abelian α] [group ε] (f : ε ⤳ α) : abelianization ε ⤳ α :=
+  ⟨abelianization.rec f, begin
     intros a b, fapply HITs.quotient.ind_prop _ _ a; clear a; intro a,
     { fapply HITs.quotient.ind_prop _ _ b; clear b; intro b,
-      { reflexivity },
+      { apply f.snd },
       { apply magma.set } },
     { apply magma.set }
   end⟩
+
+  @[hott] def FAb (α : Type u) := abelianization (F α)
+
+  @[hott] noncomputable def FAb.elem {α : Type u} : α → FAb α :=
+  abelianization.elem ∘ F.elem
+
+  noncomputable instance (α : Type u) : group (FAb α) :=
+  by apply abelianization.group
+
+  noncomputable instance FAb.abelian {α : Type u} : abelian (FAb α) :=
+  by apply abelianization.abelian
+
+  @[hott] noncomputable def FAb.rec {α : Type u} {ε : Type v}
+    [abelian α] (f : ε → α) : FAb ε → α :=
+  abelianization.rec (F.homomorphism f)
+
+  @[hott] noncomputable def FAb.homomorphism {α : Type u} {ε : Type v}
+    [abelian α] (f : ε → α) : FAb ε ⤳ α :=
+  abelianization.homomorphism (F.homomorphism f)
 
   @[hott] def homo.id.encode : α → Im (homo.id α) :=
   λ x, ⟨x, HITs.merely.elem ⟨x, idp x⟩⟩
