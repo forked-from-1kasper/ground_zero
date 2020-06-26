@@ -48,6 +48,10 @@ def set.ssubset {α : Type u} (φ : set.{u v} α) (ψ : set.{u w} α) :=
 Π x, x ∈ φ → x ∈ ψ
 infix ⊆ := set.ssubset
 
+@[hott] def set.ssubset.prop {α : Type u}
+  (φ : set.{u v} α) (ψ : set.{u w} α) : prop (φ ⊆ ψ) :=
+begin apply pi_prop, intro x, apply impl_prop, apply set.prop end
+
 @[hott, refl] def set.ssubset.refl {α : Type u} (φ : set α) : φ ⊆ φ :=
 begin intros x, apply id end
 
@@ -1524,6 +1528,40 @@ namespace group
     apply iso.trans first_homo_theorem,
     apply normal_factor
   end⟩
+
+  @[hott] def im_impl_ker {φ : α ⤳ α}
+    (H : φ ⋅ φ = 0) : im φ.fst ⊆ ker φ := begin
+    intro x, fapply HITs.merely.rec,
+    { apply magma.set },
+    { intro H, induction H with y p, change _ = _,
+      transitivity, apply eq.map, exact p⁻¹,
+      apply group.idhomo (φ ⋅ φ) 0, apply H }
+  end
+
+  @[hott] def boundary_of_boundary {φ : α ⤳ α}
+    (G : im φ.fst ⊆ ker φ) : φ ⋅ φ = 0 := begin
+    induction φ with φ H, fapply group.homo.funext,
+    intro x, apply G, apply HITs.merely.elem,
+    existsi x, trivial
+  end
+
+  @[hott] def homo.set {α : Type u} {β : Type v}
+    [group α] [group β] : hset (α ⤳ β) := begin
+    apply zero_eqv_set.forward, fapply ntype_respects_sigma 0,
+    { apply pi_respects_ntype 0, intro x,
+      apply zero_eqv_set.left, apply magma.set },
+    { intro φ, apply zero_eqv_set.left, apply prop_is_set,
+      apply pi_prop, intro x,
+      apply pi_prop, intro y,
+      apply magma.set }
+  end
+
+  @[hott] def boundary_eqv (φ : α ⤳ α) :
+    (φ ⋅ φ = 0) ≃ (im φ.fst ⊆ ker φ) := begin
+    apply structures.prop_equiv_lemma,
+    apply homo.set, apply set.ssubset.prop,
+    exact im_impl_ker, exact boundary_of_boundary
+  end
 end group
 
 class diff (α : Type u) extends abelian α :=
@@ -1533,13 +1571,8 @@ namespace diff
   open ground_zero.algebra.group (im ker)
   variables {α : Type u} [diff α]
 
-  @[hott] def im_impl_ker : im (δ α).fst ⊆ ker (δ α) := begin
-    intro x, fapply HITs.merely.rec,
-    { apply magma.set },
-    { intro H, induction H with y p, change _ = _,
-      transitivity, apply eq.map, exact p⁻¹,
-      apply group.idhomo (δ α ⋅ δ α) 0, apply sqr }
-  end
+  @[hott] def univ : im (δ α).fst ⊆ ker (δ α) :=
+  group.im_impl_ker (sqr α)
 end diff
 
 end ground_zero.algebra
