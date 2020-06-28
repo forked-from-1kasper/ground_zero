@@ -121,6 +121,10 @@ namespace equiv
     (p : a = b :> α) : π a → π b :=
   begin induction p, exact idfun end
 
+  @[hott] def happly {α : Type u} {β : Type v} {f g : α ≃ β}
+    (p : f = g) : f.forward ~ g.forward :=
+  begin induction p, reflexivity end
+
   -- subst with explicit π
   abbreviation transport {α : Type u}
     (π : α → Type v) {a b : α}

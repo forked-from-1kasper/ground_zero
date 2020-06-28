@@ -95,6 +95,9 @@ end
 class magma (α : Type u) extends has_mul α :=
 (set : hset α)
 
+def magma.zero (α : Type u) [magma α] : 0-Type :=
+⟨α, zero_eqv_set.left (by apply magma.set)⟩
+
 class semigroup (α : Type u) extends magma α :=
 (mul_assoc : Π (a b c : α), (a * b) * c = a * (b * c))
 
@@ -1226,7 +1229,7 @@ namespace group
 
   section
     variables {ε : 0-Type}
-    @[hott] def S.mul (p q : S ε) := equiv.trans p q
+    @[hott] def S.mul (p q : S ε) := equiv.trans q p
     @[hott] def S.one             := equiv.id ε.fst
     @[hott] def S.inv (p : S ε)   := equiv.symm p
 
@@ -1238,28 +1241,48 @@ namespace group
     begin split, apply hset_equiv, apply zero_eqv_set.forward, exact ε.snd end
 
     @[hott] instance S.semigroup : semigroup (S ε) := begin
-      split, intros, fapply sigma.prod,
-      { apply ground_zero.theorems.funext, intro x,
-        induction a, induction b, induction c,
-        reflexivity },
-      { apply ground_zero.theorems.prop.biinv_prop }
+      split, intros, fapply theorems.prop.equiv_hmtpy_lem,
+      intro x, induction a, induction b, induction c, reflexivity
     end
 
     @[hott] instance S.monoid : monoid (S ε) := begin
-      split; intros; fapply sigma.prod,
-      repeat { apply ground_zero.theorems.funext, intro x,
-               induction a, reflexivity },
-      repeat { apply ground_zero.theorems.prop.biinv_prop }
+      split; intros; fapply theorems.prop.equiv_hmtpy_lem;
+      intro x; induction a; reflexivity
     end
 
     @[hott] instance S.group : group (S ε) := begin
-      split, intros, fapply sigma.prod,
-      { apply ground_zero.theorems.funext, intro x,
-        induction a with f e, induction e with e₁ e₂,
-        induction e₁ with g G, induction e₂ with h H,
-        change f _ = x, apply H },
-      { apply ground_zero.theorems.prop.biinv_prop }
+      split, intros, fapply theorems.prop.equiv_hmtpy_lem, intro x,
+      induction a with f e, induction e with e₁ e₂,
+      induction e₁ with g G, induction e₂ with h H,
+      change h _ = x, apply qinv.linv_inv, exact H, exact G
     end
+
+    @[hott] def left (x : α) : α ≃ α := begin
+      existsi (λ y, x * y), split; existsi (λ y, x⁻¹ * y); intro y,
+      { transitivity, { symmetry, apply semigroup.mul_assoc },
+        transitivity, { apply eq.map (* y), apply group.mul_left_inv },
+        apply monoid.one_mul },
+      { transitivity, { symmetry, apply semigroup.mul_assoc },
+        transitivity, { apply eq.map (* y), apply group.mul_right_inv },
+        apply monoid.one_mul }
+    end
+
+    @[hott] def S.univ (α : Type u) [group α] : α ⤳ S (magma.zero α) :=
+    ⟨left, begin
+      intros x y, fapply theorems.prop.equiv_hmtpy_lem,
+      intro z, apply semigroup.mul_assoc
+    end⟩
+
+    @[hott] def S.univ.ker.encode : ker (S.univ α) ⊆ triv :=
+    λ x H, begin change _ = _, symmetry, apply unit_of_sqr, apply equiv.happly H end
+
+    @[hott] def S.univ.ker.decode : triv ⊆ ker (S.univ α) := begin
+      intros x H, apply theorems.prop.equiv_hmtpy_lem,
+      intro y, induction H, apply monoid.one_mul
+    end
+
+    @[hott] noncomputable def S.univ.ker : ker (S.univ α) = triv :=
+    set.ext (λ x, ⟨S.univ.ker.encode x, S.univ.ker.decode x⟩)
   end
 
   @[hott] def op (α : Type u) [group α] := identity α
@@ -1498,6 +1521,12 @@ namespace group
           { intro x, reflexivity },
           { intros, apply HITs.quotient.set } } }
     end
+  end
+
+  @[hott] noncomputable def S.iso : Im (S.univ α) ≅ α := begin
+    fapply iso.trans first_homo_theorem,
+    symmetry, fapply iso.trans triv.factor,
+    apply factor.iso S.univ.ker.decode S.univ.ker.encode
   end
 
   @[hott] noncomputable def normal_factor (φ : set α)

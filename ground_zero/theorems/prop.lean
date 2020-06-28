@@ -137,18 +137,23 @@ end
   { apply rinv_contr, apply qinv.of_biinv, assumption }
 end
 
+@[hott] def equiv_hmtpy_lem {α : Type u} {β : Type v}
+  (f g : α ≃ β) (H : f.forward ~ g.forward) : f = g := begin
+  fapply sigma.prod,
+  { apply theorems.funext, exact H },
+  { apply biinv_prop }
+end
+
 @[hott] theorem prop_exercise (π : Type u) : (prop π) ≃ (π ≃ ∥π∥) :=
 begin
   existsi @prop_equiv π, split; existsi prop_from_equiv,
   { intro x, apply structures.prop_is_prop },
-  { intro x,
-    induction x with f H,
+  { intro x, induction x with f H,
     induction H with linv rinv,
     induction linv with f α,
     induction rinv with g β,
-    fapply sigma.prod,
-    { apply theorems.funext, intro x, apply HITs.merely.uniq },
-    { apply biinv_prop } }
+    apply equiv_hmtpy_lem,
+    intro x, apply HITs.merely.uniq }
 end
 
 @[hott] def lem_contr_inv {α : Type u} (h : prop α) (x : α) : contr α := ⟨x, h x⟩
