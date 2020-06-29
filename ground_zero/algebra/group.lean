@@ -1342,7 +1342,7 @@ namespace group
     end
 
     @[hott] noncomputable def S.univ.ker : ker (S.univ α) = triv :=
-    set.ext (λ x, ⟨S.univ.ker.encode x, S.univ.ker.decode x⟩)
+    set.ssubset.asymm S.univ.ker.encode S.univ.ker.decode
   end
 
   @[hott] def op (α : Type u) [group α] := identity α
