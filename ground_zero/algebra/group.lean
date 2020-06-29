@@ -1441,11 +1441,12 @@ namespace group
 
   @[hott] def abelianization (α : Type u) [group α] :=
   α/closure (commutators α)
+  postfix `ᵃᵇ`:2000 := abelianization
 
-  @[hott] def abelianization.elem : α → abelianization α :=
+  @[hott] def abelianization.elem : α → αᵃᵇ :=
   factor.incl
 
-  @[hott] noncomputable instance abelianization.group : group (abelianization α) :=
+  @[hott] noncomputable instance abelianization.group : group αᵃᵇ :=
   factor.is_group
 
   @[hott] def commutes {x y : α} (p : commutator x y = 1) : x * y = y * x := begin
@@ -1463,8 +1464,7 @@ namespace group
     apply eq.map (* x), apply inv_inv
   end
 
-  @[hott] noncomputable instance abelianization.abelian :
-    abelian (abelianization α) := begin
+  @[hott] noncomputable instance abelianization.abelian : abelian αᵃᵇ := begin
     split, intros a b, apply commutes,
     fapply HITs.quot.ind _ _ _ a; clear a; intro a,
     { fapply HITs.quot.ind _ _ _ b; clear b; intro b,
@@ -1505,13 +1505,13 @@ namespace group
   closure.sub_trans (commutators.to_ker f)
 
   @[hott] def abelianization.rec {ε : Type u} {α : Type v}
-    [abelian α] [group ε] (f : ε ⤳ α) : abelianization ε → α := begin
+    [abelian α] [group ε] (f : ε ⤳ α) : εᵃᵇ → α := begin
     fapply factor.lift, exact f,
     { intros x H, apply commutators.to_closure_ker, assumption }
   end
 
   @[hott] noncomputable def abelianization.homomorphism {ε : Type u} {α : Type v}
-    [abelian α] [group ε] (f : ε ⤳ α) : abelianization ε ⤳ α :=
+    [abelian α] [group ε] (f : ε ⤳ α) : εᵃᵇ ⤳ α :=
   ⟨abelianization.rec f, begin
     intros a b, fapply HITs.quotient.ind_prop _ _ a; clear a; intro a,
     { fapply HITs.quotient.ind_prop _ _ b; clear b; intro b,
