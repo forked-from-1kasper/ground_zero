@@ -7,6 +7,66 @@ open ground_zero.types
 open ground_zero.proto
 open ground_zero
 
+/-
+  Predicates.
+  * https://groupoid.space/math/homology/
+
+  Magma, semigroup, monoid, group, abelian group.
+  * HoTT 6.11
+
+  Basic lemmas about groups and abelian groups.
+
+  Homomorphism definition and properties
+  + composition
+  + extensionality
+  + 0-Type
+
+  Kernel and image of homomorphism.
+  * https://groupoid.space/math/homology/
+
+  Group isomorphism and its properties:
+  + reflexivity
+  + symmetry
+  + transitivity
+
+  Subgroup, normal subgroup. Factor/quotient group (as quotient type).
+  * https://groupoid.space/math/homology/
+
+  Trivial group, symmetric group, cyclic group Z₂,
+  dihedral group D₃, alternating group A₃ as its subgroup.
+  * https://en.wikipedia.org/wiki/Trivial_group
+  * https://en.wikipedia.org/wiki/Symmetric_group
+  * https://en.wikipedia.org/wiki/Cyclic_group
+  * https://en.wikipedia.org/wiki/Dihedral_group_of_order_6
+  * https://en.wikipedia.org/wiki/Alternating_group
+
+  Z₂ ≅ D₃/A₃ proof.
+
+  Group presentation, presentation of every group.
+  * https://en.wikipedia.org/wiki/Presentation_of_a_group#Definition
+
+  Abelianization (as factor group).
+  * https://groupprops.subwiki.org/wiki/Abelianization
+  * https://ncatlab.org/nlab/show/abelianization
+
+  Opposite group.
+  * https://en.wikipedia.org/wiki/Opposite_group
+
+  Free group, free abelian group.
+  * https://en.wikipedia.org/wiki/Free_group
+  * https://en.wikipedia.org/wiki/Free_abelian_group
+
+  First isomorphism theorem: Im φ ≅ α/ker φ.
+  * https://en.wikipedia.org/wiki/Fundamental_theorem_on_homomorphisms
+  * https://en.wikipedia.org/wiki/First_isomorphism_theorem#Theorem_A
+
+  Cayley’s theorem.
+  * https://en.wikipedia.org/wiki/Cayley's_theorem
+
+  Differential group.
+  * https://encyclopediaofmath.org/wiki/Differential_group
+-/
+
 namespace ground_zero.algebra
 universes u v u' v' w
 
@@ -1192,7 +1252,7 @@ namespace group
   instance im.subgroup {β : Type v} [group β] {φ : α ⤳ β} : group (Im φ) :=
   by apply @subgroup.is_group _ _ (im φ.fst) _
 
-  -- Fundamental theorem on homomorphisms
+  -- First isomorphism theorem.
   @[hott] noncomputable def first_homo_theorem {β : Type v} [group β]
     {φ : α ⤳ β} : Im φ ≅ α/ker φ := begin
     existsi ker.decode, split,
@@ -1528,6 +1588,19 @@ namespace group
     symmetry, fapply iso.trans triv.factor,
     apply factor.iso S.univ.ker.decode S.univ.ker.encode
   end
+
+  @[hott] def subgroup (α : Type u) [group α] :=
+  Σ (s : set α), is_subgroup s
+  @[hott] instance (s : subgroup α) : is_subgroup s.fst := s.snd
+
+  @[hott] def subgroup.subtype (s : subgroup α) := s.fst.subtype
+  @[hott] instance subgroup.group (s : subgroup α) : group s.subtype :=
+  subgroup.is_group
+
+  -- Cayley’s theorem
+  @[hott] noncomputable def Cayley :
+    Σ (s : subgroup (S (magma.zero α))), s.subtype ≅ α :=
+  ⟨⟨im (S.univ α).fst, by apply_instance⟩, S.iso⟩
 
   @[hott] noncomputable def normal_factor (φ : set α)
     [is_normal_subgroup φ] : α/φ ≅ α/(closure φ) :=
