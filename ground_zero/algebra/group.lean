@@ -1226,7 +1226,7 @@ namespace group
         transitivity, { apply eq.map (* φ.fst y), apply homo_respects_inv },
         apply mul_eq_one_of_inv_eq,
         transitivity, apply inv_inv,
-        apply (ground_zero.types.sigma.sigma_eq_of_eq p).fst },
+        apply (sigma.sigma_eq_of_eq p).fst },
       { apply impl_prop, apply magma.set } },
     { apply impl_prop, apply magma.set }
   end
@@ -1253,7 +1253,7 @@ namespace group
   by apply @subgroup.is_group _ _ (im φ.fst) _
 
   -- First isomorphism theorem.
-  @[hott] noncomputable def first_homo_theorem {β : Type v} [group β]
+  @[hott] noncomputable def first_iso_theorem {β : Type v} [group β]
     {φ : α ⤳ β} : Im φ ≅ α/ker φ := begin
     existsi ker.decode, split,
     { intros a b, induction a with a A, induction b with b B,
@@ -1584,7 +1584,7 @@ namespace group
   end
 
   @[hott] noncomputable def S.iso : Im (S.univ α) ≅ α := begin
-    fapply iso.trans first_homo_theorem,
+    fapply iso.trans first_iso_theorem,
     symmetry, fapply iso.trans triv.factor,
     apply factor.iso S.univ.ker.decode S.univ.ker.encode
   end
@@ -1627,7 +1627,7 @@ namespace group
     Σ (R : set (F α)), α ≅ presentation R :=
   ⟨ker (F.homomorphism id), begin
     apply iso.trans F.homomorphism.iso,
-    apply iso.trans first_homo_theorem,
+    apply iso.trans first_iso_theorem,
     apply normal_factor
   end⟩
 
