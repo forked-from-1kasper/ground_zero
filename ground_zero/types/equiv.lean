@@ -426,6 +426,10 @@ namespace equiv
     existsi identity.elem, split; existsi identity.elim; intro x,
     { reflexivity }, { induction x, reflexivity }
   end
+
+  @[hott, trans] def eqv_eq_eqv {α β γ : Type u}
+    (p : α ≃ β) (q : β = γ) : α ≃ γ :=
+  transport (equiv α) q p
 end equiv
 
 def is_qinv {α : Type u} {β : Type v} (f : α → β) (g : β → α) :=

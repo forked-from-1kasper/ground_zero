@@ -1,7 +1,8 @@
 import ground_zero.HITs.circle
 open ground_zero.theorems (funext)
-open ground_zero.types.Id
 open ground_zero.HITs.circle
+open ground_zero.structures
+open ground_zero.types.Id
 open ground_zero.types
 
 /-
@@ -137,18 +138,14 @@ namespace reals
   -/
   @[hott] noncomputable def Euler := calc
     fib cis base ≃ (Σ (x : R), circle.base = cis x) :
-                   by apply sigma.hmtpy_inv_eqv
-             ... ≃ (Σ (x : R), helix (cis x)) :
-                   equiv.idtoeqv (sigma #
-                     (funext (λ x, ground_zero.ua (circle.family (cis x)))))
-             ... ≃ (Σ (x : R), ℤ) :
-                   equiv.idtoeqv (sigma # (funext helix_over_cis))
+                   sigma.hmtpy_inv_eqv cis (λ _, circle.base)
+             ... = (Σ (x : R), helix (cis x)) :
+                   sigma # (funext (λ x, ground_zero.ua (circle.family (cis x))))
+             ... = (Σ (x : R), ℤ) : sigma # (funext helix_over_cis)
              ... ≃ R × ℤ : sigma.const R ℤ
-             ... ≃ 𝟏 × ℤ :
-                   ground_zero.ua.product_equiv₃
-                     (ground_zero.structures.contr_equiv_unit contr)
-                     (equiv.id ℤ)
-             ... ≃ ℤ : ground_zero.structures.prod_unit_equiv ℤ
+             ... ≃ 𝟏 × ℤ : ground_zero.ua.product_equiv₃
+                             (contr_equiv_unit contr) (equiv.id ℤ)
+             ... ≃ ℤ : prod_unit_equiv ℤ
 end reals
 
 def complex := R × R
