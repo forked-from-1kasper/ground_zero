@@ -34,7 +34,7 @@ namespace coproduct
     | (inr b) := 𝟎
 
     @[hott] def encode {a₀ : α} {x : α + β} (p : inl a₀ = x) : code a₀ x :=
-    equiv.transport (code a₀) p eq.rfl
+    equiv.transport (code a₀) p Id.refl
 
     @[hott] def decode {a₀ : α} : Π {x : α + β} (c : code a₀ x), inl a₀ = x
     | (inl a) c := inl # c
@@ -72,7 +72,7 @@ namespace coproduct
 
     @[hott] def encode {b₀ : β} {x : α + β}
       (p : inr b₀ = x :> α + β) : code b₀ x :=
-    equiv.transport (code b₀) p eq.rfl
+    equiv.transport (code b₀) p Id.refl
 
     @[hott] def decode {b₀ : β} : Π {x : α + β} (c : code b₀ x), inr b₀ = x
     | (inl a) c := by cases c

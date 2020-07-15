@@ -47,35 +47,35 @@ by apply Jβrule
 @[hott] noncomputable def comp_rule {α β : Type u} (e : α ≃ β) :
   Π (x : α), x =[ua e] e.fst x := begin
   refine J _ e, intros ψ x,
-  refine types.eq.rec _ (refl_on_ua ψ)⁻¹,
+  refine types.Id.rec _ (refl_on_ua ψ)⁻¹,
   reflexivity
 end
 
 @[hott] noncomputable def transport_rule {α β : Type u} (e : α ≃ β) :
   Π (x : α), types.equiv.subst (ua e) x = e.fst x := begin
   refine J _ e, intros ψ x,
-  refine types.eq.rec _ (refl_on_ua ψ)⁻¹,
+  refine types.Id.rec _ (refl_on_ua ψ)⁻¹,
   reflexivity
 end
 
 @[hott] noncomputable def transportconst_rule {α β : Type u} (e : α ≃ β) :
   Π (x : α), equiv.transportconst (ua e) x = e.fst x := begin
   fapply ground_zero.J _ e, intros α x,
-  transitivity, apply eq.map (λ p, equiv.transportconst p x),
+  transitivity, apply Id.map (λ p, equiv.transportconst p x),
   apply refl_on_ua, reflexivity
 end
 
 @[hott] noncomputable def transportconst_inv_rule {α β : Type u} (e : α ≃ β) :
   Π (x : β), equiv.transportconst_inv (ua e) x = e.left x := begin
   fapply ground_zero.J _ e, intros α x,
-  transitivity, apply eq.map (λ p, equiv.transportconst_inv p x),
+  transitivity, apply Id.map (λ p, equiv.transportconst_inv p x),
   apply refl_on_ua, reflexivity
 end
 
 @[hott] noncomputable def transport_inv_rule {α β : Type u} (e : α ≃ β) :
   Π (x : β), types.equiv.subst_inv (ua e) x = e.left x := begin
   refine J _ e, intros ψ x,
-  refine types.eq.rec _ (refl_on_ua ψ)⁻¹,
+  refine types.Id.rec _ (refl_on_ua ψ)⁻¹,
   reflexivity
 end
 
@@ -86,7 +86,7 @@ by trivial
 @[hott] noncomputable def uaβrule {α β : Type u} (e : α ≃ β) :
   idtoeqv (ua e) = e := begin
   refine J _ e, intro δ, change _ = idtoeqv (idp δ),
-  apply eq.map idtoeqv, apply Jβrule
+  apply Id.map idtoeqv, apply Jβrule
 end
 
 @[hott] noncomputable def prop_uniq {α β : Type u} (p : α = β) :
@@ -107,8 +107,8 @@ begin induction p, exact Jβrule end
   fapply @J (λ α β (p : α ≃ β), Π {γ : Type u} (q : β ≃ γ),
     ua (equiv.trans p q) = ua p ⬝ ua q),
   fapply J, intro δ, symmetry, transitivity,
-  apply eq.map, apply refl_on_ua,
-  apply types.eq.refl_right
+  apply Id.map, apply refl_on_ua,
+  apply types.Id.refl_right
 end
 
 @[hott] def is_zero : ℕ → bool

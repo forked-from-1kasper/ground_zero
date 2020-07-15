@@ -1,6 +1,6 @@
 import ground_zero.types.unit ground_zero.types.coproduct
 import ground_zero.types.product ground_zero.types.sigma
-open ground_zero.types.unit ground_zero.types.eq (map)
+open ground_zero.types.unit ground_zero.types.Id (map)
 open ground_zero.types (coproduct idp)
 
 hott theory
@@ -93,7 +93,7 @@ notation n `-Type` := n_type n
   induction n with n ih; intros α h,
   { induction h with a₀ p,
     intros x y, existsi (p x)⁻¹ ⬝ p y,
-    intro q, induction q, apply types.eq.inv_comp },
+    intro q, induction q, apply types.Id.inv_comp },
   { intros x y, apply ih, apply h }
 end
 
@@ -142,17 +142,16 @@ def bool_to_universe : bool → Type
 λ h, ground_zero.types.equiv.transport bool_to_universe h⁻¹ ★
 
 @[hott] theorem function_space : ¬(Π {α β : Type}, prop (α → β)) :=
-λ h, ff_neq_tt (types.equiv.homotopy.eq (h id bnot) ff)
+λ h, ff_neq_tt (types.equiv.homotopy.Id (h id bnot) ff)
 
 @[hott] theorem auto_contr {α : Type u} (x : α)
   (h : prop (α → α)) : prop α := begin
   apply contr_impl_prop, existsi x,
-  apply types.equiv.homotopy.eq,
-  apply h
+  apply types.equiv.homotopy.Id, apply h
 end
 
 section
-  open types.equiv types.eq
+  open types.equiv types.Id
   @[hott] def prop_is_set {α : Type u} (r : prop α) : hset α := begin
     intros x y p q, have g := r x,
     transitivity, symmetry, apply rewrite_comp,
@@ -174,7 +173,7 @@ section
 
   @[hott] def contr_is_prop {α : Type u} : prop (contr α) := begin
     intros x y, cases x with x u, cases y with y v,
-    have p := u y, induction p, apply types.eq.map,
+    have p := u y, induction p, apply types.Id.map,
     apply HITs.interval.funext, intro a,
     apply prop_is_set (contr_impl_prop ⟨x, u⟩)
   end
@@ -218,10 +217,10 @@ end
   retract (a = b) (H.section a = H.section b)
 | ⟨r, s, ε⟩ a b := ⟨λ q, (ε a)⁻¹ ⬝ (@map α β _ _ r q) ⬝ (ε b), map s,
 begin
-  intro p, transitivity, symmetry, apply types.eq.assoc,
+  intro p, transitivity, symmetry, apply types.Id.assoc,
   symmetry, apply types.equiv.inv_rewrite_comp,
   transitivity, calc
-    (ε a)⁻¹⁻¹ ⬝ p = ε a ⬝ p               : (⬝ p) # (types.eq.inv_inv (ε a))
+    (ε a)⁻¹⁻¹ ⬝ p = ε a ⬝ p               : (⬝ p) # (types.Id.inv_inv (ε a))
               ... = ε a ⬝ proto.idfun # p : (λ p, ε a ⬝ p) # (types.equiv.idmap p)⁻¹,
   symmetry, transitivity,
   { apply map (⬝ ε b),
@@ -285,7 +284,7 @@ def squash.lift {α : Type u} {β : Type v}
 lift.elem ∘ squash.prop (squash'.elem ∘ f)
 
 def K (α : Type u) :=
-Π (a : α) (p : a = a :> α), p = types.eq.refl a :> a = a :> α
+Π (a : α) (p : a = a :> α), p = idp a :> a = a :> α
 
 @[hott] theorem K_iff_set (α : Type u) : K α ↔ hset α := begin
   split,
@@ -385,12 +384,12 @@ pi_prop (λ _, h)
 @[hott] def refl_mere_rel {α : Type u} (R : α → α → Type v) (h : Π x y, prop (R x y))
   (ρ : Π x, R x x) (f : Π x y, R x y → x = y) : hset α := begin
   intros a b p q, induction q, symmetry,
-  apply types.eq.trans_cancel_left (f a a (ρ a)),
-  transitivity, { apply types.eq.refl_right }, symmetry,
+  apply types.Id.trans_cancel_left (f a a (ρ a)),
+  transitivity, { apply types.Id.refl_right }, symmetry,
   transitivity, { symmetry, apply types.equiv.transport_composition },
   transitivity, { apply types.equiv.lifted_happly (R a),
                   apply types.equiv.apd (f a) p },
-  apply types.eq.map, apply h
+  apply types.Id.map, apply h
 end
 
 @[hott] def double_neg_eq {α : Type u} (h : Π (x y : α), ¬¬(x = y) → x = y) : hset α := begin
@@ -460,7 +459,7 @@ namespace theorems
       existsi sigma.mk f (homotopy.id f),
       intro g, induction g with g H,
       change r (λ x, sigma.mk (f x) (idp _)) = r (s g H),
-      apply eq.map r, apply contr_impl_prop,
+      apply Id.map r, apply contr_impl_prop,
       apply weak, intro x, apply singl.contr
     end
 
@@ -474,7 +473,7 @@ namespace theorems
 
     @[hott] def homotopy_ind_id :
       homotopy_ind f r f (types.equiv.homotopy.id f) = r := begin
-      transitivity, apply eq.map
+      transitivity, apply Id.map
         (λ p, @transport (Σ g, f ~ g) (λ p, π p.fst p.snd)
            ⟨f, equiv.homotopy.id f⟩ ⟨f, equiv.homotopy.id f⟩ p r),
       change _ = idp _,
@@ -493,7 +492,7 @@ namespace theorems
     existsi HITs.interval.happly, split; existsi funext,
     { intro x, induction x, apply homotopy_ind_id },
     { apply homotopy_ind, change _ = HITs.interval.happly (idp _),
-      apply eq.map HITs.interval.happly, apply homotopy_ind_id }
+      apply Id.map HITs.interval.happly, apply homotopy_ind_id }
   end
 end theorems
 

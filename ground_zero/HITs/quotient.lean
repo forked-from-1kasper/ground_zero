@@ -14,7 +14,7 @@ trunc.elem ∘ graph.elem
 
 @[hott] def quot.sound {α : Type u} {R : α → α → propset.{v}} {a b : α} :
   (R a b).fst → quot.elem a = quot.elem b :> quot R := begin
-  intro H, apply ground_zero.types.eq.map trunc.elem,
+  intro H, apply ground_zero.types.Id.map trunc.elem,
   apply graph.line, assumption
 end
 
@@ -28,7 +28,7 @@ end
   (set   : Π x, hset (π x)) : Π x, π x := begin
   fapply trunc.ind,
   { fapply graph.ind, apply elemπ,
-    { intros x y H, apply ground_zero.types.eq.trans,
+    { intros x y H, apply ground_zero.types.Id.trans,
       apply ground_zero.types.equiv.transport_comp,
       apply lineπ } },
   { intro x, apply zero_eqv_set.left, apply set }

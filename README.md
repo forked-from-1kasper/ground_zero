@@ -14,14 +14,14 @@ There are:
 * Pushout ![pushout](pictures/pushout.svg).
 * Homotopical reals ![R](pictures/reals.svg).
 * (Sequential) colimit.
-* Generalized circle ![{α}](pictures/gen_circle.svg).
+* Generalized circle ![{α}](pictures/gen-circle.svg).
 * Integers ![ℤ](pictures/integer.svg).
 * Rational numbers ![ℚ](pictures/rat.svg).
 * Möbius band.
-* n-Simplex ![Δⁿ](pictures/n_simplex.svg).
+* n-Simplex ![Δⁿ](pictures/n-simplex.svg).
 * Propositional truncation is colimit of a following sequence:
-  ![α → {α} → {{α}} → ...](pictures/prop_truncation_seq_colimit.svg)
-* Suspension ![∑α](pictures/susp.svg) is defined as the pushout of the span ![𝟏 ← α → 𝟏](pictures/susp_span.svg).
+  ![α → {α} → {{α}} → ...](pictures/prop-truncation-seq-colimit.svg)
+* Suspension ![∑α](pictures/susp.svg) is defined as the pushout of the span ![𝟏 ← α → 𝟏](pictures/susp-span.svg).
 * Circle ![S¹](pictures/s1.svg) is the suspension of the bool ![𝟐](pictures/bool.svg).
 * Sphere ![S²](pictures/s2.svg) is the suspension of the circle ![S¹](pictures/s1.svg).
 * Join ![join α β](pictures/join.svg).
@@ -108,4 +108,4 @@ Path.rec (# seg)
 
 ## Dependency map
 
-![dependency map](pictures/dependency_map.svg "dependency map")
+![dependency map](pictures/dependency-map.svg "dependency map")

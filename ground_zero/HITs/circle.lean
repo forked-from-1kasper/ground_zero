@@ -1,10 +1,11 @@
 import ground_zero.HITs.suspension ground_zero.theorems.prop
 import ground_zero.types.integer
-open ground_zero.HITs.interval (happly)
 open ground_zero.types.equiv (subst transport)
-open ground_zero.types.eq
+open ground_zero.HITs.interval (happly)
 open ground_zero.structures (hset)
+open ground_zero.types.Id
 open ground_zero.types
+open combinator (S)
 
 /-
   Circle S¹ as Higher Inductive Type.
@@ -68,10 +69,10 @@ namespace circle
   interval.lam (λ i, interval.elim loop (i ∧ (interval.neg i)))
 
   def rec {β : Type u} (b : β) (ℓ : b = b) : S¹ → β :=
-  suspension.rec b b (λ b, bool.cases_on b rfl ℓ)
+  suspension.rec b b (λ b, bool.cases_on b Id.refl ℓ)
 
   def recβrule₁ {β : Type u} (b : β) (ℓ : b = b) :
-    rec b ℓ base = b := rfl
+    rec b ℓ base = b := Id.refl
 
   @[hott] def map_symm {α : Type u} {β : Type v}
     {a b : α} (f : α → β) {p : a = b} :
@@ -84,36 +85,35 @@ namespace circle
   @[hott] noncomputable def recβrule₂ {β : Type u} (b : β) (ℓ : b = b) := calc
     rec b ℓ # loop = rec b ℓ # seg₂ ⬝ rec b ℓ # seg₁⁻¹ : by apply equiv.map_functoriality
                ... = rec b ℓ # seg₂ ⬝ (rec b ℓ # seg₁)⁻¹ :
-                     begin apply eq.map, apply eq.map_inv end
+                     begin apply Id.map, apply Id.map_inv end
                ... = ℓ ⬝ (rec b ℓ # seg₁)⁻¹ :
-                     begin apply eq.map (⬝ (rec b ℓ # seg₁)⁻¹),
+                     begin apply Id.map (⬝ (rec b ℓ # seg₁)⁻¹),
                            apply suspension.recβrule end
-               ... = ℓ ⬝ eq.rfl⁻¹ :
-                     begin apply eq.map, apply eq.map types.eq.symm,
+               ... = ℓ ⬝ Id.refl⁻¹ :
+                     begin apply Id.map, apply Id.map types.Id.symm,
                            apply suspension.recβrule end
-               ... = ℓ : by apply eq.refl_right
+               ... = ℓ : by apply Id.refl_right
 
   @[hott] def ind {β : S¹ → Type u} (b : β base)
     (ℓ : b =[loop] b) : Π (x : S¹), β x :=
-  ind₂ b (types.equiv.subst seg₁ b)
-    types.eq.rfl
+  ind₂ b (types.equiv.subst seg₁ b) Id.refl
     (begin
       have p := types.equiv.subst_comp seg₂ seg₁⁻¹ b,
       have q := (λ p, subst p (subst seg₂ b)) #
-                (types.eq.inv_comp seg₁),
-      apply types.eq.trans, exact q⁻¹, transitivity,
+                (types.Id.inv_comp seg₁),
+      apply types.Id.trans, exact q⁻¹, transitivity,
       exact types.equiv.subst_comp seg₁⁻¹ seg₁ (subst seg₂ b),
       symmetry, exact subst seg₁ # (ℓ⁻¹ ⬝ p)
     end)
 
-  instance pointed_circle : types.eq.dotted S¹ := ⟨base⟩
+  instance pointed_circle : types.Id.dotted S¹ := ⟨base⟩
 
   @[hott] noncomputable def loop_eq_refl_impls_uip {α : Type u}
     (H : loop = idp base) : structures.K α := begin
     intros a p, transitivity,
     symmetry, apply circle.recβrule₂ a p,
     change _ = (rec a p) # (idp base),
-    apply eq.map, assumption
+    apply Id.map, assumption
   end
 
   @[hott] noncomputable def loop_neq_refl : ¬(loop = idp base) := begin
@@ -135,19 +135,19 @@ namespace circle
 
     @[hott] noncomputable def trivial_hmtpy : trivial ~ (λ _, base) := begin
       intro x, apply ind _ _ x,
-      refl, apply types.eq.trans, apply equiv.transport_over_contr_map,
-      transitivity, apply eq.map (⬝ idp base), apply eq.map_inv,
-      transitivity, apply eq.map (⬝ idp base), apply eq.map,
+      refl, apply types.Id.trans, apply equiv.transport_over_contr_map,
+      transitivity, apply Id.map (⬝ idp base), apply Id.map_inv,
+      transitivity, apply Id.map (⬝ idp base), apply Id.map,
       apply recβrule₂, trivial
     end
 
     @[hott] noncomputable def nontrivial_hmtpy : nontrivial ~ id := begin
       intro x, apply ind _ _ x,
-      refl, apply types.eq.trans, apply equiv.transport_over_involution,
-      transitivity, apply eq.map (λ p, p ⬝ idp base ⬝ loop),
-      transitivity, apply eq.map_inv, apply eq.map, apply recβrule₂,
-      transitivity, apply eq.map (⬝ loop), apply eq.refl_right,
-      apply types.eq.inv_comp
+      refl, apply types.Id.trans, apply equiv.transport_over_involution,
+      transitivity, apply Id.map (λ p, p ⬝ idp base ⬝ loop),
+      transitivity, apply Id.map_inv, apply Id.map, apply recβrule₂,
+      transitivity, apply Id.map (⬝ loop), apply Id.refl_right,
+      apply types.Id.inv_comp
     end
 
     @[hott] noncomputable def nontrivial_not_hmtpy : ¬(nontrivial = (λ _, base)) :=
@@ -190,23 +190,23 @@ namespace circle
 
   @[hott] noncomputable def transport_there (x : integer) := calc
     transport helix loop x = @transport Type id (helix base) (helix base)
-                               (@eq.map S¹ Type base base helix loop) x :
+                               (@Id.map S¹ Type base base helix loop) x :
                              by apply types.equiv.transport_comp id
                        ... = @transport Type id (helix base) (helix base)
                                (ua integer.succ_equiv) x :
-                             begin apply types.equiv.homotopy.eq,
-                                   apply eq.map, apply recβrule₂ end
+                             begin apply types.equiv.homotopy.Id,
+                                   apply Id.map, apply recβrule₂ end
                        ... = integer.succ x : by apply ua.transport_rule
 
   @[hott] noncomputable def transport_back (x : integer) := calc
     transport helix loop⁻¹ x = @transport Type id (helix base) (helix base)
-                                 (@eq.map S¹ Type base base helix loop⁻¹) x :
+                                 (@Id.map S¹ Type base base helix loop⁻¹) x :
                                by apply types.equiv.transport_comp id
                          ... = @transport Type id (helix base) (helix base)
                                  (ua integer.succ_equiv)⁻¹ x :
-                               begin apply types.equiv.homotopy.eq, apply eq.map,
-                                     transitivity, apply eq.map_inv,
-                                     apply eq.map, apply recβrule₂ end
+                               begin apply types.equiv.homotopy.Id, apply Id.map,
+                                     transitivity, apply Id.map_inv,
+                                     apply Id.map, apply recβrule₂ end
                          ... = @equiv.subst_inv Type id (helix base) (helix base)
                                  (ua integer.succ_equiv) x :
                                by apply types.equiv.subst_over_inv_path
@@ -217,25 +217,25 @@ namespace circle
   @[hott] noncomputable def decode : Π (x : S¹), helix x → base = x :=
   @ind (λ x, helix x → base = x) power (begin
     apply theorems.funext, intro x,
-    apply types.equiv.homotopy.eq, transitivity,
+    apply types.equiv.homotopy.Id, transitivity,
     exact types.equiv.transport_characterization power loop,
     apply theorems.funext, intro n, transitivity,
     apply types.equiv.transport_composition, transitivity,
-    apply types.eq.map (λ p, power p ⬝ loop),
+    apply types.Id.map (λ p, power p ⬝ loop),
     apply transport_back, induction n,
     -- :-(
     { induction n with n ih,
-      { apply types.eq.inv_comp },
+      { apply types.Id.inv_comp },
       { trivial } },
     { induction n with n ih,
       { symmetry, transitivity, symmetry,
-        apply types.eq.refl_right, symmetry,
-        transitivity, apply (types.eq.assoc loop⁻¹ loop⁻¹ loop)⁻¹,
-        apply types.eq.map, apply types.eq.inv_comp },
+        apply types.Id.refl_right, symmetry,
+        transitivity, apply (types.Id.assoc loop⁻¹ loop⁻¹ loop)⁻¹,
+        apply types.Id.map, apply types.Id.inv_comp },
       { transitivity,
-        apply (types.eq.assoc (neg n ⬝ loop⁻¹) loop⁻¹ loop)⁻¹,
-        transitivity, apply types.eq.map,
-        apply types.eq.inv_comp, apply types.eq.refl_right } }
+        apply (types.Id.assoc (neg n ⬝ loop⁻¹) loop⁻¹ loop)⁻¹,
+        transitivity, apply types.Id.map,
+        apply types.Id.inv_comp, apply types.Id.refl_right } }
   end)
 
   @[hott] noncomputable def decode_encode (x : S¹) (p : base = x) :
@@ -252,13 +252,13 @@ namespace circle
         { reflexivity },
         { transitivity, apply equiv.subst_over_path_comp,
           transitivity, apply transport_there,
-          transitivity, apply eq.map, apply ih,
+          transitivity, apply Id.map, apply ih,
           reflexivity } },
       { induction c with c ih,
         { apply transport_back },
         { transitivity, apply equiv.subst_over_path_comp,
           transitivity, apply transport_back,
-          transitivity, apply eq.map, apply ih,
+          transitivity, apply Id.map, apply ih,
           reflexivity } }
     end)
     (begin
@@ -284,9 +284,9 @@ namespace circle
 
   @[hott] def rot : Π (x : S¹), x = x :=
   circle.ind circle.loop (begin
-    apply types.eq.trans, apply equiv.transport_inv_comp_comp,
-    transitivity, apply eq.map (⬝ loop),
-    apply eq.inv_comp, apply eq.refl_left
+    apply types.Id.trans, apply equiv.transport_inv_comp_comp,
+    transitivity, apply Id.map (⬝ loop),
+    apply Id.inv_comp, apply Id.refl_left
   end)
 
   def μₑ : S¹ → S¹ ≃ S¹ :=
@@ -298,9 +298,9 @@ namespace circle
 
   def μ (x : S¹) : S¹ → S¹ := (μₑ x).forward
 
-  noncomputable def μ_loop : eq.map μ loop = theorems.funext rot := begin
+  noncomputable def μ_loop : Id.map μ loop = theorems.funext rot := begin
     transitivity, apply equiv.map_over_comp,
-    transitivity, apply eq.map, apply recβrule₂,
+    transitivity, apply Id.map, apply recβrule₂,
     apply sigma.map_fst_over_prod
   end
 
@@ -308,31 +308,31 @@ namespace circle
   circle.rec base loop⁻¹
 
   @[hott] noncomputable def inv_inv (x : S¹) : inv (inv x) = x :=
-  let invₚ := @eq.map S¹ S¹ base base (inv ∘ inv) in
+  let invₚ := @Id.map S¹ S¹ base base (inv ∘ inv) in
   begin
     fapply circle.ind _ _ x; clear x,
     { reflexivity },
     { calc
-        equiv.transport (λ x, inv (inv x) = x) loop eq.rfl =
-                              invₚ loop⁻¹ ⬝ eq.rfl ⬝ loop :
+        equiv.transport (λ x, inv (inv x) = x) loop Id.refl =
+                              invₚ loop⁻¹ ⬝ Id.refl ⬝ loop :
       by apply equiv.transport_over_involution
-        ... = invₚ loop⁻¹ ⬝ (eq.rfl ⬝ loop) :
-      begin symmetry, apply eq.assoc end
+        ... = invₚ loop⁻¹ ⬝ (Id.refl ⬝ loop) :
+      begin symmetry, apply Id.assoc end
         ... = inv # (inv # loop⁻¹) ⬝ loop :
-      begin apply eq.map (⬝ loop), apply equiv.map_over_comp end
+      begin apply Id.map (⬝ loop), apply equiv.map_over_comp end
         ... = inv # (inv # loop)⁻¹ ⬝ loop :
-      begin apply eq.map (⬝ loop),
-            apply eq.map, apply eq.map_inv end
+      begin apply Id.map (⬝ loop),
+            apply Id.map, apply Id.map_inv end
         ... = inv # loop⁻¹⁻¹ ⬝ loop :
-      begin apply eq.map (⬝ loop),
-            apply eq.map, apply eq.map,
+      begin apply Id.map (⬝ loop),
+            apply Id.map, apply Id.map,
             apply circle.recβrule₂ end
         ... = inv # loop ⬝ loop :
-      begin apply eq.map (⬝ loop),
-            apply eq.map, apply eq.inv_inv end
+      begin apply Id.map (⬝ loop),
+            apply Id.map, apply Id.inv_inv end
         ... = loop⁻¹ ⬝ loop :
-      begin apply eq.map (⬝ loop), apply circle.recβrule₂ end
-        ... = eq.rfl : by apply eq.inv_comp }
+      begin apply Id.map (⬝ loop), apply circle.recβrule₂ end
+        ... = Id.refl : by apply Id.inv_comp }
   end
 
   @[hott] def unit_left (x : S¹) : μ base x = x :=
@@ -342,10 +342,10 @@ namespace circle
   by apply equiv.idmap
 
   @[hott] noncomputable def μ_left := calc
-    (λ x, μ x base) # loop = happly (eq.map μ loop) base :
+    (λ x, μ x base) # loop = happly (Id.map μ loop) base :
                              by apply interval.map_happly
                        ... = happly (theorems.funext rot) base :
-                             begin apply eq.map (λ f, happly f base),
+                             begin apply Id.map (λ f, happly f base),
                                    apply μ_loop end
                        ... = loop :
                              begin change _ = rot base, apply happly,
@@ -353,11 +353,11 @@ namespace circle
 
   @[hott] noncomputable def unit_right (x : S¹) : μ x base = x := begin
     fapply circle.ind _ _ x, refl,
-    apply types.eq.trans, apply equiv.transport_over_involution (λ x, μ x base),
-    transitivity, apply eq.map (λ p, p ⬝ idp base ⬝ loop),
-    transitivity, apply eq.map_inv, apply eq.map,
-    apply μ_left, transitivity, apply eq.map (λ p, p ⬝ loop),
-    apply eq.refl_right, apply eq.inv_comp
+    apply types.Id.trans, apply equiv.transport_over_involution (λ x, μ x base),
+    transitivity, apply Id.map (λ p, p ⬝ idp base ⬝ loop),
+    transitivity, apply Id.map_inv, apply Id.map,
+    apply μ_left, transitivity, apply Id.map (λ p, p ⬝ loop),
+    apply Id.refl_right, apply Id.inv_comp
   end
 
   @[hott] noncomputable def unit_comm (x : S¹) : μ base x = μ x base :=
@@ -366,12 +366,11 @@ namespace circle
   @[hott] noncomputable def mul_inv (x : S¹) : base = μ x (inv x) := begin
     fapply circle.ind _ _ x; clear x,
     { exact circle.loop },
-    { apply types.eq.trans,
-      apply equiv.transport_comp (λ x, base = x) (combinator.S μ inv),
+    { apply Id.trans, apply equiv.transport_comp (λ x, base = x) (S μ inv) loop,
       transitivity, apply equiv.transport_composition,
-      transitivity, apply eq.map, apply equiv.map_over_S,
-      transitivity, apply eq.map, apply eq.map, apply circle.recβrule₂,
-      transitivity, apply eq.map (⬝ equiv.bimap μ loop loop⁻¹),
+      transitivity, apply Id.map, apply equiv.map_over_S,
+      transitivity, apply Id.map, apply Id.map, apply circle.recβrule₂,
+      transitivity, apply Id.map (⬝ equiv.bimap μ loop loop⁻¹),
       symmetry, apply μ_right,
       symmetry, transitivity, symmetry, apply μ_left,
       apply equiv.bimap_comp }
@@ -411,7 +410,7 @@ namespace sphere
 
   abbreviation base : S² := suspension.north
   @[hott] def surf : idp base = idp base :=
-  (types.eq.comp_inv loop)⁻¹ ⬝ surf_trans ⬝ (types.eq.comp_inv loop)
+  (types.Id.comp_inv loop)⁻¹ ⬝ surf_trans ⬝ (types.Id.comp_inv loop)
 
   @[hott] def rec {β : Type u} (b : β) (s : idp b = idp b) : S² → β :=
   suspension.rec b b (circle.rec (idp b) s)
@@ -473,10 +472,10 @@ namespace torus'
   graph.line (rel.bottom x)
 
   @[hott] def p : b = b :> torus' :=
-  graph.elem # (product.prod rfl   seg) ⬝
-  graph.elem # (product.prod seg   rfl) ⬝
-  graph.elem # (product.prod rfl   seg⁻¹) ⬝
-  graph.elem # (product.prod seg⁻¹ rfl)
+  graph.elem # (product.prod Id.refl seg) ⬝
+  graph.elem # (product.prod seg     Id.refl) ⬝
+  graph.elem # (product.prod Id.refl seg⁻¹) ⬝
+  graph.elem # (product.prod seg⁻¹   Id.refl)
 
   @[hott] def q : b = b :> torus' :=
   bottom 0 ⬝ top 1 ⬝ (bottom 1)⁻¹ ⬝ (top 0)⁻¹
@@ -504,10 +503,10 @@ namespace types.integer
     induction z,
     { trivial },
     { induction z with n ih,
-      { apply eq.inv_comp },
-      { transitivity, symmetry, apply eq.assoc,
-        transitivity, apply eq.map (λ p, neg_shift n ⬝ p),
-        apply eq.inv_comp, apply types.eq.refl_right } }
+      { apply Id.inv_comp },
+      { transitivity, symmetry, apply Id.assoc,
+        transitivity, apply Id.map (λ p, neg_shift n ⬝ p),
+        apply Id.inv_comp, apply types.Id.refl_right } }
   end
 end types.integer
 

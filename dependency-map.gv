@@ -19,7 +19,6 @@ digraph dependency_map {
   subgraph types {
     "types/category"
     "types/coproduct" -> { structures }
-    "types/dedekind"
     "types/eq" -> { support }
     "types/equiv" -> {
       "types/heq",
@@ -34,14 +33,12 @@ digraph dependency_map {
     }
     "types/integer" -> {
       "algebra/group",
-      "HITs/circle",
-      "types/rational"
+      "HITs/circle"
     }
     "types/lost"
     "types/nat" -> { "theorems/nat" }
     "types/precategory" -> { "types/category" }
     "types/product" -> { structures }
-    "types/rational" -> { "types/dedekind" }
     "types/sigma" -> { structures }
     "types/unit" -> { structures, "HITs/suspension" }
   }

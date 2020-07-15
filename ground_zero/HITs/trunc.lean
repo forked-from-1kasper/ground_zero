@@ -15,7 +15,7 @@ namespace trunc
   variables {α : Type u} {n : ℕ₋₂}
   attribute [nothott] trunc.aux.rec_on trunc.aux.rec aux.val
 
-  @[hott] def elem (x : α) : trunc n α := aux.mk n x
+  @[hott] def elem (x : α) : trunc n α := aux.mk x
   axiom uniq (n : ℕ₋₂) : is-n-type (trunc n α)
 
   @[safe] def ind {π : trunc n α → Type v}

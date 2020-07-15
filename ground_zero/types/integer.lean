@@ -114,8 +114,8 @@ begin induction x; trivial end
 
 @[hott] def zero_add (x : integer) : 0 + x = x := begin
   induction x,
-  { apply eq.map pos, apply nat.zero_plus_i },
-  { apply eq.map neg, reflexivity }
+  { apply Id.map pos, apply nat.zero_plus_i },
+  { apply Id.map neg, reflexivity }
 end
 
 @[hott] def auxsub_asymm : Π x y, auxsub x y = negate (auxsub y x) := begin
@@ -125,9 +125,9 @@ end
 
 @[hott] def add_comm (x y : integer) : x + y = y + x := begin
   induction x; induction y,
-  { apply eq.map pos, apply nat.comm },
+  { apply Id.map pos, apply nat.comm },
   { reflexivity }, { reflexivity },
-  { apply eq.map neg, apply nat.comm }
+  { apply Id.map neg, apply nat.comm }
 end
 
 @[hott] noncomputable def set : hset integer := begin

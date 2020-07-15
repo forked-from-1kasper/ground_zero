@@ -43,21 +43,21 @@ def moebius' := Σ b, M b
 
 def cylinder := S¹ × I
 
-def C : S¹ → Type := circle.rec I ground_zero.types.eq.rfl
+def C : S¹ → Type := circle.rec I Id.refl
 def cylinder' := Σ b, C b
 
 @[hott] noncomputable def C.const : Π x, C x = I := begin
   intro x, fapply circle.ind _ _ x,
-  refl, apply ground_zero.types.eq.trans,
+  refl, apply Id.trans,
   apply equiv.transport_over_contr_map,
-  transitivity, apply eq.map (⬝ idp I),
-  transitivity, apply eq.map_inv, apply eq.map,
+  transitivity, apply Id.map (⬝ idp I),
+  transitivity, apply Id.map_inv, apply Id.map,
   apply circle.recβrule₂, trivial
 end
 
 @[hott] noncomputable def cyl_eqv : cylinder' ≃ cylinder := begin
   transitivity,
-  { apply equiv.idtoeqv, apply eq.map,
+  { apply equiv.idtoeqv, apply Id.map,
     apply ground_zero.theorems.funext, exact C.const },
   { apply sigma.const }
 end

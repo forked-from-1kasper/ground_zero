@@ -17,7 +17,7 @@ namespace unit
   | star := g
 
   def uniq : Π (x : unit), x = star :> unit
-  | star := eq.refl star
+  | star := idp star
 end unit
 
 end ground_zero.types

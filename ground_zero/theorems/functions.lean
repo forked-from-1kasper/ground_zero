@@ -20,7 +20,7 @@ fiberwise (fib_inh f)
 total (fib_inh f)
 
 @[hott] def cut {α : Type u} {β : Type v} (f : α → β) : α → ran f :=
-λ x, ⟨f x, merely.elem ⟨x, eq.rfl⟩⟩
+λ x, ⟨f x, merely.elem ⟨x, Id.refl⟩⟩
 
 @[hott] def cut_is_surj {α : Type u} {β : Type v}
   (f : α → β) : surj (cut f) := begin
@@ -52,7 +52,7 @@ end
 
 @[hott] def ran_const {α : Type u} (a : α) {β : Type v} (b : β) :
   ran (function.const α b) :=
-⟨b, merely.elem ⟨a, eq.rfl⟩⟩
+⟨b, merely.elem ⟨a, Id.refl⟩⟩
 
 @[hott] def ran_const_eqv {α : Type u} (a : α) {β : Type v}
   (h : ground_zero.structures.hset β) (b : β) :
@@ -68,17 +68,17 @@ end
 end
 
 @[hott] def embedding {α : Type u} {β : Type v} (f : α → β) :=
-Π (x y : α), @equiv.biinv (x = y) (f x = f y) (eq.map f)
+Π (x y : α), @equiv.biinv (x = y) (f x = f y) (Id.map f)
 
 @[hott] def ntype_over_embedding {α : Type u} {β : Type v} (f : α → β)
   (n : ℕ₋₂) : embedding f → is-(hlevel.succ n)-type β → is-(hlevel.succ n)-type α := begin
   intros η H, intros x y, apply ground_zero.structures.ntype_respects_equiv,
-  { symmetry, existsi eq.map f, apply η }, apply H
+  { symmetry, existsi Id.map f, apply η }, apply H
 end
 
 @[hott] def eqv_map_forward {α : Type u} {β : Type v} (e : α ≃ β)
   (x y : α) (p : e.forward x = e.forward y) : x = y :=
-(e.left_forward x)⁻¹ ⬝ (@eq.map β α _ _ e.left p) ⬝ (e.left_forward y)
+(e.left_forward x)⁻¹ ⬝ (@Id.map β α _ _ e.left p) ⬝ (e.left_forward y)
 
 @[hott] def sigma_prop_eq {α : Type u} {β : α → Type v}
   (H : Π x, prop (β x)) {x y : sigma β} (p : x.fst = y.fst) : x = y :=
@@ -89,15 +89,15 @@ begin fapply ground_zero.types.sigma.prod, exact p, apply H end
   intros x y, split; existsi sigma_prop_eq H,
   { intro p, induction x, induction y, induction p,
     change ground_zero.types.sigma.prod _ _ = _,
-    transitivity, apply eq.map, change _ = idp _,
+    transitivity, apply Id.map, change _ = idp _,
     apply ground_zero.structures.prop_is_set,
     apply H, reflexivity },
   { intro p, induction x with x X, induction y with y Y,
     change x = y at p, induction p,
     have q := H x X Y, induction q,
-    change eq.map sigma.fst (ground_zero.types.sigma.prod _ _) = _,
-    transitivity, apply eq.map (eq.map sigma.fst),
-    apply eq.map, change _ = idp _,
+    change Id.map sigma.fst (ground_zero.types.sigma.prod _ _) = _,
+    transitivity, apply Id.map (Id.map sigma.fst),
+    apply Id.map, change _ = idp _,
     apply ground_zero.structures.prop_is_set,
     apply H, reflexivity }
 end

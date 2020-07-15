@@ -26,6 +26,7 @@ lam (λ i j, a)
           a -----------------> a
                    <i> a
 -/
+
 @[hott] def and {α : Type u} {a b : α}
   (p : a ⇝ b) : Square a a a b :=
 lam (λ i j, p # i ∧ j)

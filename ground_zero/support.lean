@@ -1,4 +1,4 @@
-import ground_zero.types.eq
+import ground_zero.types.Id
 
 attribute [nothott] quot.lift quot.ind quot.rec classical.choice
 

@@ -11,7 +11,7 @@ namespace product
   g x.pr₁ x.pr₂
 
   def uniq : Π (x : α × β), (x.pr₁, x.pr₂) = x :> (α × β)
-  | (a, b) := eq.refl (a, b)
+  | (a, b) := idp (a, b)
 
   def construction (a b : α) (c d : β)
     (p : a = b :> α) (q : c = d :> β) :

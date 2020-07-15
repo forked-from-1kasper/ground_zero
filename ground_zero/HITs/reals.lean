@@ -1,6 +1,6 @@
 import ground_zero.HITs.circle
 open ground_zero.theorems (funext)
-open ground_zero.types.eq
+open ground_zero.types.Id
 open ground_zero.HITs.circle
 open ground_zero.types
 
@@ -50,11 +50,11 @@ namespace reals
   end
 
   @[hott] def positive : Π n, elem 0 = elem (integer.pos n) :> R
-  | 0 := ground_zero.types.eq.refl (elem 0)
+  |    0    := idp (elem 0)
   | (n + 1) := positive n ⬝ glue (integer.pos n)
 
   @[hott] def negative : Π n, elem 0 = elem (integer.neg n) :> R
-  | 0 := (glue (integer.neg 0))⁻¹
+  |    0    := (glue (integer.neg 0))⁻¹
   | (n + 1) := negative n ⬝ (glue $ integer.neg (n + 1))⁻¹
 
   @[hott] def center : Π z, elem 0 = elem z :> R
@@ -67,15 +67,15 @@ namespace reals
   @[hott] def contr : ground_zero.structures.contr R :=
   { point := elem 0,
     intro := @ind (λ x, elem 0 = x :> R) center (begin
-      intro z, apply ground_zero.types.eq.trans,
+      intro z, apply Id.trans,
       apply equiv.transport_composition,
       induction z,
       { trivial },
       { induction z with z ih,
-        { apply eq.inv_comp },
-        { transitivity, symmetry, apply eq.assoc,
-          transitivity, apply eq.map, apply eq.inv_comp,
-          transitivity, apply eq.refl_right,
+        { apply Id.inv_comp },
+        { transitivity, symmetry, apply Id.assoc,
+          transitivity, apply Id.map, apply Id.inv_comp,
+          transitivity, apply Id.refl_right,
           reflexivity } }
     end) }
 
@@ -108,23 +108,23 @@ namespace reals
     { intro z, change _ = _,
       let p := integer.shift z, calc
             equiv.transport (λ x, helix (cis x) = ℤ) (glue z) (integer.shift z)⁻¹
-          = @eq.map R Type _ _ (helix ∘ cis) (glue z)⁻¹ ⬝ (integer.shift z)⁻¹ :
+          = @Id.map R Type _ _ (helix ∘ cis) (glue z)⁻¹ ⬝ (integer.shift z)⁻¹ :
         by apply equiv.transport_over_contr_map
-      ... = (eq.map (helix ∘ cis) (glue z))⁻¹ ⬝ (integer.shift z)⁻¹ :
-        begin apply eq.map (⬝ p⁻¹), apply eq.map_inv end
+      ... = (Id.map (helix ∘ cis) (glue z))⁻¹ ⬝ (integer.shift z)⁻¹ :
+        begin apply Id.map (⬝ p⁻¹), apply Id.map_inv end
       ... = (helix # (cis # (glue z)))⁻¹ ⬝ (integer.shift z)⁻¹ :
-        begin apply eq.map (λ q, inv q ⬝ p⁻¹),
+        begin apply Id.map (λ q, inv q ⬝ p⁻¹),
               apply equiv.map_over_comp end
       ... = (helix # loop)⁻¹ ⬝ (integer.shift z)⁻¹ :
-        begin apply eq.map (λ q, inv q ⬝ p⁻¹),
-              apply eq.map, apply recβrule end
+        begin apply Id.map (λ q, inv q ⬝ p⁻¹),
+              apply Id.map, apply recβrule end
       ... = integer.succ_path⁻¹ ⬝ (integer.shift z)⁻¹ :
-        begin apply eq.map (λ q, inv q ⬝ p⁻¹),
+        begin apply Id.map (λ q, inv q ⬝ p⁻¹),
               apply circle.recβrule₂ end
       ... = (integer.shift z ⬝ integer.succ_path)⁻¹ :
-        begin symmetry, apply eq.explode_inv end
+        begin symmetry, apply Id.explode_inv end
       ... = (integer.shift (integer.succ z))⁻¹ :
-        begin apply eq.map, apply integer.shift_comp end }
+        begin apply Id.map, apply integer.shift_comp end }
   end
 
   /-

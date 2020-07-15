@@ -28,7 +28,7 @@ end
   intros a b,
   transitivity, exact (α a)⁻¹,
   symmetry, transitivity, exact (α b)⁻¹,
-  apply eq.map g, exact HITs.merely.uniq (f b) (f a)
+  apply Id.map g, exact HITs.merely.uniq (f b) (f a)
 end
 
 @[hott] def map_to_happly {α : Type u} {β : Type v}
@@ -39,26 +39,26 @@ begin induction p, trivial end
 @[hott] def hmtpy_rewrite {α : Type u} (f : α → α) (H : f ~ proto.idfun) :
   Π x, H (f x) = f # (H x) := begin
   intro x,
-  symmetry, transitivity, { symmetry, apply eq.refl_right }, transitivity,
-  { apply eq.map (λ p, f # (H x) ⬝ p), symmetry, apply eq.comp_inv (H x) },
-  transitivity, { apply eq.assoc },
-  transitivity, { apply eq.map (⬝ (H x)⁻¹), symmetry, apply equiv.homotopy_square },
-  transitivity, { symmetry, apply eq.assoc },
-  transitivity, { apply eq.map (λ p, H (f x) ⬝ (p ⬝ (H x)⁻¹)), apply equiv.idmap },
-  transitivity, { apply eq.map (λ p, H (f x) ⬝ p), apply eq.comp_inv },
-  apply eq.refl_right
+  symmetry, transitivity, { symmetry, apply Id.refl_right }, transitivity,
+  { apply Id.map (λ p, f # (H x) ⬝ p), symmetry, apply Id.comp_inv (H x) },
+  transitivity, { apply Id.assoc },
+  transitivity, { apply Id.map (⬝ (H x)⁻¹), symmetry, apply equiv.homotopy_square },
+  transitivity, { symmetry, apply Id.assoc },
+  transitivity, { apply Id.map (λ p, H (f x) ⬝ (p ⬝ (H x)⁻¹)), apply equiv.idmap },
+  transitivity, { apply Id.map (λ p, H (f x) ⬝ p), apply Id.comp_inv },
+  apply Id.refl_right
 end
 
 @[hott] def qinv_impls_ishae {α : Type u} {β : Type v}
   (f : α → β) : qinv f → ishae f := begin
   intro H, cases H with g H, cases H with ε η,
-  let ε' := λ b, (ε (f (g b)))⁻¹ ⬝ (@eq.map α β _ _ f (η (g b)) ⬝ ε b),
+  let ε' := λ b, (ε (f (g b)))⁻¹ ⬝ (@Id.map α β _ _ f (η (g b)) ⬝ ε b),
   existsi g, existsi η, existsi ε', intro x,
   symmetry, transitivity,
-  { apply eq.map (λ p, (ε (f (g (f x))))⁻¹ ⬝ ((@eq.map α β _ _ f p) ⬝ ε (f x))),
+  { apply Id.map (λ p, (ε (f (g (f x))))⁻¹ ⬝ ((@Id.map α β _ _ f p) ⬝ ε (f x))),
     apply hmtpy_rewrite (g ∘ f) },
   apply types.equiv.rewrite_comp, transitivity,
-  { apply eq.map (⬝ ε (f x)), symmetry,
+  { apply Id.map (⬝ ε (f x)), symmetry,
     apply equiv.map_over_comp (g ∘ f) },
   symmetry, apply @equiv.homotopy_square α β (f ∘ g ∘ f) f
                     (λ x, ε (f x)) (g (f x)) x (η x)
@@ -69,7 +69,7 @@ end
   ⟨a, p⟩ = ⟨b, q⟩ :> fib f y := begin
   induction H with γ r, fapply sigma.prod, exact γ,
   transitivity, { apply types.equiv.transport_over_contr_map },
-  transitivity, { apply eq.map (⬝ p), apply types.eq.map_inv },
+  transitivity, { apply Id.map (⬝ p), apply types.Id.map_inv },
   apply equiv.rewrite_comp, exact r⁻¹
 end
 
@@ -79,13 +79,13 @@ end
   intro y, existsi (⟨g y, ε y⟩ : fib f y),
   intro g, induction g with x p, apply fib_eq,
   existsi (g # p)⁻¹ ⬝ η x, transitivity,
-  { apply eq.map (⬝ p), apply types.equiv.map_functoriality },
-  transitivity, apply eq.map (λ q, eq.map f (eq.map g p)⁻¹ ⬝ q ⬝ p),
-  apply τ, transitivity, { symmetry, apply eq.assoc }, transitivity,
-  { apply eq.map (⬝ (ε (f x) ⬝ p)), transitivity, apply eq.map_inv,
-    apply eq.map types.eq.inv, symmetry, apply equiv.map_over_comp },
+  { apply Id.map (⬝ p), apply types.equiv.map_functoriality },
+  transitivity, apply Id.map (λ q, Id.map f (Id.map g p)⁻¹ ⬝ q ⬝ p),
+  apply τ, transitivity, { symmetry, apply Id.assoc }, transitivity,
+  { apply Id.map (⬝ (ε (f x) ⬝ p)), transitivity, apply Id.map_inv,
+    apply Id.map types.Id.inv, symmetry, apply equiv.map_over_comp },
   apply types.equiv.rewrite_comp, transitivity,
-  { apply eq.map (λ q, ε (f x) ⬝ q), symmetry, apply equiv.idmap },
+  { apply Id.map (λ q, ε (f x) ⬝ q), symmetry, apply equiv.idmap },
   apply types.equiv.homotopy_square
 end
 
@@ -101,7 +101,7 @@ end
   (f : α → β) (g : β → α) (H : is_qinv f g) :
   @qinv (β → γ) (α → γ) (λ (h : β → γ), h ∘ f) := begin
   existsi (λ h, h ∘ g), split;
-  intro h; apply theorems.funext; intro x; apply eq.map h,
+  intro h; apply theorems.funext; intro x; apply Id.map h,
   apply H.pr₂, apply H.pr₁
 end
 
@@ -181,12 +181,12 @@ end
   { cases x with x u, fapply types.sigma.prod,
     { apply h.intro },
     { apply types.equiv.transport_back_and_forward } },
-  { transitivity, apply eq.map (λ p, types.equiv.subst p x),
-    apply prop_is_set (structures.contr_impl_prop h) _ eq.rfl,
+  { transitivity, apply Id.map (λ p, types.equiv.subst p x),
+    apply prop_is_set (structures.contr_impl_prop h) _ Id.refl,
     trivial }
 end
 
-@[hott] def propset.eq (α β : Ω) (h : α.fst = β.fst) : α = β :=
+@[hott] def propset.Id (α β : Ω) (h : α.fst = β.fst) : α = β :=
 types.sigma.prod h (structures.prop_is_prop _ _)
 
 end theorems.prop

@@ -1,4 +1,5 @@
 import ground_zero.theorems.nat
+open ground_zero.types
 
 /-
   Integers ℤ as a quotient of ℕ × ℕ.
@@ -77,7 +78,7 @@ namespace int
     apply knife, transitivity,
     { symmetry, apply ground_zero.theorems.nat.assoc },
     symmetry, transitivity, { symmetry, apply ground_zero.theorems.nat.assoc },
-    apply ground_zero.types.eq.map (+ k), apply ground_zero.theorems.nat.comm
+    apply Id.map (+ k), apply ground_zero.theorems.nat.comm
   end
 end int
 

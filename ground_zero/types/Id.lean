@@ -6,13 +6,13 @@ universes u v
 theorem UIP {α : Type u} {a b : α} (p q : a = b) : p = q :=
 by trivial
 
-inductive eq {α : Type u} (a : α) : α → Type u
-| refl : eq a
+inductive Id {α : Type u} (a : α) : α → Type u
+| refl : Id a
 
-attribute [hott, refl] eq.refl
+attribute [hott, refl] Id.refl
 
 hott theory
-notation a ` = ` b ` :> ` α := @eq α a b
+notation a ` = ` b ` :> ` α := @Id α a b
 
 /- fails!
 theorem UIP₁ {α : Type u} {a b : α} (p q : a = b :> α) :
@@ -20,12 +20,9 @@ theorem UIP₁ {α : Type u} {a b : α} (p q : a = b :> α) :
 by trivial
 -/
 
-abbreviation idp {α : Type u} (a : α) : a = a :> α := eq.refl a
+abbreviation idp {α : Type u} (a : α) : a = a :> α := Id.refl
 
-namespace eq
-  @[inline] def rfl {α : Type u} {a : α} : a = a :> α :=
-  eq.refl a
-
+namespace Id
   @[hott, trans] def trans {α : Type u} {a b c : α}
     (p : a = b :> α) (q : b = c :> α) : a = c :> α :=
   begin induction p, assumption end
@@ -40,23 +37,23 @@ namespace eq
   postfix ⁻¹ := symm
 
   @[hott] def comp_inv {α : Type u} {a b : α} (p : a = b :> α) :
-    p ⬝ p⁻¹ = eq.refl a :> a = a :> α :=
+    p ⬝ p⁻¹ = Id.refl :> a = a :> α :=
   begin induction p, trivial end
 
   @[hott] def inv_comp {α : Type u} {a b : α} (p : a = b :> α) :
-    p⁻¹ ⬝ p = eq.refl b :> b = b :> α :=
+    p⁻¹ ⬝ p = Id.refl :> b = b :> α :=
   begin induction p, trivial end
 
   @[hott] def refl_left {α : Type u} {a b : α} (p : a = b :> α) :
-    eq.refl a ⬝ p = p :> a = b :> α :=
+    Id.refl ⬝ p = p :> a = b :> α :=
   begin induction p, trivial end
 
   @[hott] def refl_right {α : Type u} {a b : α} (p : a = b :> α) :
-    p ⬝ eq.refl b = p :> a = b :> α :=
+    p ⬝ Id.refl = p :> a = b :> α :=
   begin induction p, trivial end
 
   @[hott] def refl_twice {α : Type u} {a b : α} (p : a = b :> α) :
-    rfl ⬝ p ⬝ rfl = p :> a = b :> α :=
+    Id.refl ⬝ p ⬝ Id.refl = p :> a = b :> α :=
   begin induction p, trivial end
 
   @[hott] def explode_inv {α : Type u} {a b c : α}
@@ -118,20 +115,20 @@ namespace eq
   (space : Type u) (point : space)
 
   def loop_space (X : pointed) : pointed :=
-  ⟨X.point = X.point :> X.space, eq.refl X.point⟩
+  ⟨X.point = X.point :> X.space, Id.refl⟩
 
   def iterated_loop_space : pointed → ℕ → pointed
-  | X 0 := X
+  | X    0    := X
   | X (n + 1) := iterated_loop_space (loop_space X) n
 
   def loop_pointed_space (α : Type u) [h : dotted α] :=
-  iterated_loop_space ⟨α, dotted.point α⟩
+  iterated_loop_space ⟨α, dotted.point⟩
 
   notation `Ω` `[` n `]` `, ` X := (iterated_loop_space X n).space
   notation `Θ` `[` n `]` `, ` X := (iterated_loop_space X n).point
 
   notation `Ω¹`:25 X := (loop_pointed_space X 1).space
-end eq
+end Id
 
 def not (α : Type u) : Type u := α → (𝟎 : Type)
 namespace not
@@ -151,13 +148,13 @@ namespace whiskering
 
   @[hott] def right_whs (ν : p = q) (r : b = c) : p ⬝ r = q ⬝ r := begin
     induction r,
-    exact (eq.refl_right p) ⬝ ν ⬝ (eq.refl_right q)⁻¹
+    exact (Id.refl_right p) ⬝ ν ⬝ (Id.refl_right q)⁻¹
   end
   infix ` ⬝ᵣ `:60 := right_whs
 
   @[hott] def left_whs (q : a = b) (κ : r = s) : q ⬝ r = q ⬝ s := begin
     induction q,
-    exact (eq.refl_left r) ⬝ κ ⬝ (eq.refl_left s)⁻¹
+    exact (Id.refl_left r) ⬝ κ ⬝ (Id.refl_left s)⁻¹
   end
   infix ` ⬝ₗ `:60 := left_whs
 
@@ -170,30 +167,31 @@ namespace whiskering
   infix ` ⋆′ `:65 := horizontal_comp₂
 
   @[hott] lemma comp_uniq : ν ⋆ κ = ν ⋆′ κ := begin
-    induction p, induction r, induction ν, induction κ,
+    induction p, induction r,
+    induction ν, induction κ,
     reflexivity
   end
 
   @[hott] lemma loop₁ {α : Type u} {a : α}
-    {ν κ : eq.refl a = eq.refl a} :
+    {ν κ : idp a = idp a} :
     ν ⬝ κ = ν ⋆ κ := begin
     symmetry, transitivity,
-    { apply eq.map (⬝ eq.rfl ⬝ κ ⬝ eq.rfl),
-      apply eq.refl_twice },
-    apply eq.map (λ p, ν ⬝ p), apply eq.refl_twice
+    { apply Id.map (⬝ Id.refl ⬝ κ ⬝ Id.refl),
+      apply Id.refl_twice },
+    apply Id.map (λ p, ν ⬝ p), apply Id.refl_twice
   end
 
   @[hott] lemma loop₂ {α : Type u} {a : α}
-    {ν κ : eq.refl a = eq.refl a} :
+    {ν κ : idp a = idp a} :
     ν ⋆′ κ = κ ⬝ ν := begin
     transitivity,
-    { apply eq.map (⬝ eq.rfl ⬝ ν ⬝ eq.rfl),
-      apply eq.refl_twice },
-    apply eq.map (λ p, κ ⬝ p), apply eq.refl_twice
+    { apply Id.map (⬝ Id.refl ⬝ ν ⬝ Id.refl),
+      apply Id.refl_twice },
+    apply Id.map (λ p, κ ⬝ p), apply Id.refl_twice
   end
 
   @[hott] theorem «Eckmann–Hilton argument» {α : Type u} {a : α}
-    (ν κ : eq.refl a = eq.refl a) : ν ⬝ κ = κ ⬝ ν :=
+    (ν κ : idp a = idp a) : ν ⬝ κ = κ ⬝ ν :=
   loop₁ ⬝ comp_uniq ⬝ loop₂
 end whiskering
 

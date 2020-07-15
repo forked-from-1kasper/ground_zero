@@ -65,11 +65,11 @@ namespace precategory
   def Path (α : Type u) (h : groupoid α) : precategory α :=
   { hom      := (=),
     set      := λ a b p q, h,
-    id       := ground_zero.types.eq.refl,
+    id       := idp,
     comp     := λ a b c p q, q ⬝ p,
-    id_right := λ a b p, (eq.refl_left p)⁻¹,
-    id_left  := λ a b p, (eq.refl_right p)⁻¹,
-    assoc    := λ a b c d f g h, (eq.assoc f g h)⁻¹ }
+    id_right := λ a b p, (Id.refl_left p)⁻¹,
+    id_left  := λ a b p, (Id.refl_right p)⁻¹,
+    assoc    := λ a b c d f g h, (Id.assoc f g h)⁻¹ }
 
   def sigma_unique {α : Type u} (π : α → Type v) :=
   Σ x, (π x) × (Π y, π y → y = x)

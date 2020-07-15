@@ -1,7 +1,7 @@
 import ground_zero.HITs.colimit ground_zero.HITs.generalized
 import ground_zero.structures
 open ground_zero.types.equiv (subst apd pathover_from_trans)
-open ground_zero.types.eq (cong inv)
+open ground_zero.types.Id (cong inv)
 open ground_zero.structures (prop contr lem_contr)
 
 namespace ground_zero.HITs
@@ -51,7 +51,7 @@ namespace merely
   @[hott] def weak_uniq {α : Type u} (x y : α) : elem x = elem y :> ∥α∥ := begin
     transitivity, { symmetry, apply colimit.glue }, symmetry,
     transitivity, { symmetry, apply colimit.glue },
-    apply ground_zero.types.eq.map, apply generalized.glue
+    apply ground_zero.types.Id.map, apply generalized.glue
   end
 
   abbreviation incl {α : Type u} {n : ℕ} :=
@@ -84,15 +84,15 @@ namespace merely
   @[hott] def weakly_constant_ap {α : Type u} {β : Type v} (f : α → β)
     {a b : α} (p q : a = b) (H : Π (a b : α), f a = f b) : f # p = f # q :=
   let L : Π {u v : α} {r : u = v}, (H a u)⁻¹ ⬝ H a v = f # r :=
-  begin intros, induction r, apply ground_zero.types.eq.inv_comp end in
+  begin intros, induction r, apply ground_zero.types.Id.inv_comp end in
   L⁻¹ ⬝ L
 
   @[hott] def cong_close {α : Type u} {n : ℕ} {a b : generalized.repeat α n} (p : a = b) :
     inv glue ⬝ incl # (generalized.dep α n # p) ⬝ glue = incl # p := begin
     induction p, transitivity,
-    { symmetry, apply ground_zero.types.eq.assoc },
+    { symmetry, apply ground_zero.types.Id.assoc },
     apply ground_zero.types.equiv.rewrite_comp, symmetry,
-    apply ground_zero.types.eq.refl_right
+    apply ground_zero.types.Id.refl_right
   end
 
   @[hott] def cong_over_path {α : Type u} {n : ℕ} {a b : generalized.repeat α n}
@@ -127,10 +127,10 @@ namespace merely
         symmetry, transitivity, apply cong
           (λ p, p ⬝ incl_uniq (exact_nth x (n + 1)) (generalized.dep α n y) ⬝
                     colimit.glue y),
-        apply ground_zero.types.eq.explode_inv,
-        repeat { transitivity, symmetry, apply ground_zero.types.eq.assoc },
+        apply ground_zero.types.Id.explode_inv,
+        repeat { transitivity, symmetry, apply ground_zero.types.Id.assoc },
         apply cong (λ p, (nth_glue x n)⁻¹ ⬝ p),
-        apply ground_zero.types.eq.assoc } },
+        apply ground_zero.types.Id.assoc } },
     { intro x, apply ground_zero.structures.contr_is_prop }
   end
 

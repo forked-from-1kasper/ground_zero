@@ -1,7 +1,7 @@
 import ground_zero.algebra.group ground_zero.theorems.prop
 open ground_zero.theorems.functions ground_zero.theorems.prop
 open ground_zero.types.equiv (idtoeqv)
-open ground_zero.types.eq (dotted)
+open ground_zero.types.Id (dotted)
 open ground_zero.ua (uaβrule)
 open ground_zero.structures
 open ground_zero.types
@@ -86,20 +86,20 @@ namespace K1
 
   instance : has_mul (Ω¹(K1 α)) := ⟨λ p q, p ⬝ q⟩
   instance : has_one (Ω¹(K1 α)) := ⟨idp base⟩
-  instance : has_inv (Ω¹(K1 α)) := ⟨eq.inv⟩
+  instance : has_inv (Ω¹(K1 α)) := ⟨Id.inv⟩
 
   noncomputable instance : magma (Ω¹(K1 α)) :=
   begin split, apply grpd end
 
   noncomputable instance : semigroup (Ω¹(K1 α)) :=
-  begin split, intros p q r, symmetry, apply eq.assoc end
+  begin split, intros p q r, symmetry, apply Id.assoc end
 
   noncomputable instance : monoid (Ω¹(K1 α)) := begin
-    split; intro p, apply eq.refl_left, apply eq.refl_right
+    split; intro p, apply Id.refl_left, apply Id.refl_right
   end
 
   noncomputable instance : group (Ω¹(K1 α)) :=
-  begin split, intro p, apply eq.inv_comp end
+  begin split, intro p, apply Id.inv_comp end
 
   noncomputable def homomorphism : α ⤳ Ω¹(K1 α) :=
   ⟨loop, loop.mul⟩
@@ -132,12 +132,12 @@ namespace K1
     { intro x, apply ground_zero.ua, existsi (* x), split;
       existsi (* x⁻¹); intro y; change _ * _ * _ = _,
       repeat { transitivity, apply semigroup.mul_assoc,
-               transitivity, apply eq.map },
+               transitivity, apply Id.map },
       apply group.mul_right_inv, apply monoid.mul_one,
       apply group.mul_left_inv, apply monoid.mul_one },
     { intros x y, symmetry, transitivity,
       { symmetry, apply ground_zero.ua.ua_trans },
-      apply eq.map ua, fapply sigma.prod,
+      apply Id.map ua, fapply sigma.prod,
       { apply ground_zero.theorems.funext, intro z,
         apply semigroup.mul_assoc },
       { apply biinv_prop } },
@@ -168,21 +168,21 @@ namespace K1
     { intro x, change _ = _, transitivity,
       apply @equiv.transport_characterization (K1 α) code (λ x, base = x),
       apply ground_zero.theorems.funext, intro y,
-      transitivity, apply eq.map (λ p, equiv.transport (λ x, base = x) (loop x) (loop p)),
+      transitivity, apply Id.map (λ p, equiv.transport (λ x, base = x) (loop x) (loop p)),
       transitivity, apply equiv.transport_to_transportconst,
-      transitivity, apply eq.map (λ p, equiv.transportconst p y),
-      transitivity, apply eq.map_inv, apply eq.map,
+      transitivity, apply Id.map (λ p, equiv.transportconst p y),
+      transitivity, apply Id.map_inv, apply Id.map,
       transitivity, apply equiv.map_over_comp,
-      transitivity, apply eq.map, apply recβrule,
+      transitivity, apply Id.map, apply recβrule,
       apply sigma.map_fst_over_prod,
       transitivity, apply equiv.transportconst_over_inv,
       apply ground_zero.ua.transportconst_inv_rule,
       transitivity, apply equiv.transport_over_inv_contr_map,
-      transitivity, apply eq.map, apply equiv.idmap,
-      transitivity, apply eq.map (⬝ loop x), apply loop.mul,
-      transitivity, symmetry, apply eq.assoc,
-      transitivity, apply eq.map, apply eq.map (⬝ loop x), apply loop.inv,
-      transitivity, apply eq.map, apply eq.inv_comp, apply eq.refl_right },
+      transitivity, apply Id.map, apply equiv.idmap,
+      transitivity, apply Id.map (⬝ loop x), apply loop.mul,
+      transitivity, symmetry, apply Id.assoc,
+      transitivity, apply Id.map, apply Id.map (⬝ loop x), apply loop.inv,
+      transitivity, apply Id.map, apply Id.inv_comp, apply Id.refl_right },
     { intros x y,
       apply zero_eqv_set.forward,
       apply pi_respects_ntype 0,
@@ -200,9 +200,9 @@ namespace K1
       Π (p : code z), encode z (decode z p) = p) _ _ _ _ z,
     { intro x, change α at x, change encode base (loop x) = _,
       transitivity, apply equiv.transport_to_transportconst,
-      transitivity, apply eq.map (λ p, equiv.transportconst p (1 : α)),
+      transitivity, apply Id.map (λ p, equiv.transportconst p (1 : α)),
       transitivity, apply equiv.map_over_comp,
-      transitivity, apply eq.map, apply recβrule,
+      transitivity, apply Id.map, apply recβrule,
       apply sigma.map_fst_over_prod,
       transitivity, apply ground_zero.ua.transportconst_rule,
       apply monoid.one_mul },

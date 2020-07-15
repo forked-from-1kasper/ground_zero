@@ -32,7 +32,7 @@ namespace colimit
   abbreviation inclusion (n : ℕ) : α n → colimit α f := incl
 
   @[hott] def glue {n : ℕ} (x : α n) : incl (f n x) = incl x :> colimit α f :=
-  graph.line (colimit.rel.glue f n x)
+  graph.line (colimit.rel.glue n x)
 
   @[hott] def ind {π : colimit α f → Type v}
     (incl₁ : Π {n : ℕ} (x : α n), π (incl x))

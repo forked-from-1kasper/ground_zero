@@ -41,10 +41,10 @@ end
 
   existsi f, split; existsi g,
   { intro x, induction x,
-    { apply eq.map sum.inl, apply β' },
+    { apply Id.map sum.inl, apply β' },
     { trivial } },
   { intro x, induction x,
-    { apply eq.map sum.inl, apply α' },
+    { apply Id.map sum.inl, apply α' },
     { trivial } }
 end
 
@@ -92,14 +92,14 @@ equiv.subst p (r m)
 | (m + 1)    0    p := by cases p
 |    0    (n + 1) p := by cases p
 | (m + 1) (n + 1) p := begin
-  apply eq.map nat.succ, apply decode, exact p
+  apply Id.map nat.succ, apply decode, exact p
 end
 
 @[hott] def decode_encode {m n : ℕ} (p : m = n) : decode (encode p) = p :=
 begin
   induction p, induction m with m ih,
   { reflexivity },
-  { transitivity, apply eq.map (eq.map nat.succ),
+  { transitivity, apply Id.map (Id.map nat.succ),
     apply ih, reflexivity }
 end
 

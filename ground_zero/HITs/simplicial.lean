@@ -1,6 +1,5 @@
 import ground_zero.HITs.merely ground_zero.types.integer
 open ground_zero (iter vect vect.map vect.constant)
-open ground_zero.types.eq (renaming rfl -> idp)
 open ground_zero.structures (prop)
 open ground_zero.types
 open ground_zero
@@ -34,7 +33,7 @@ end
 @[hott] def network.prop {α : Type u} (H : prop α) : prop (network α) := begin
   intros x y, fapply graph.ind _ _ x; clear x; intro x,
   { fapply graph.ind _ _ y; clear y; intro y,
-    { apply eq.map, apply H },
+    { apply Id.map, apply H },
     { intros z G, apply ground_zero.proto.empty.elim,
       apply G, apply H } },
   { intros z G, apply ground_zero.proto.empty.elim,

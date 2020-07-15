@@ -36,7 +36,7 @@ namespace sigma
   end
 
   @[hott] def prod_refl {α : Type u} {β : α → Type v} (u : sigma β) :
-    prod eq.rfl eq.rfl = eq.refl u :=
+    prod Id.refl Id.refl = idp u :=
   begin cases u with x u, trivial end
 
   @[hott] def prod_comp {α : Type u} {β : α → Type v} {x y z : sigma β}
@@ -100,8 +100,8 @@ namespace sigma
     { intro x, induction x with x h,
       fapply prod, refl,
       transitivity, apply equiv.transport_over_hmtpy,
-      transitivity, apply eq.refl_right,
-      apply eq.inv_inv },
+      transitivity, apply Id.refl_right,
+      apply Id.inv_inv },
   end
 
   @[hott] def sigma_eq_of_eq {α : Type u} {β : α → Type v} {a b : Σ x, β x}

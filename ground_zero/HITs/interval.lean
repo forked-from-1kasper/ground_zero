@@ -35,15 +35,15 @@ namespace interval
   begin fapply rec, exact f ff, exact f tt, apply H end
 
   @[hott] def contr_left : Π i, i₀ = i :=
-  interval.ind types.eq.rfl seg (begin
+  interval.ind types.Id.refl seg (begin
     apply types.equiv.pathover_from_trans,
-    apply types.eq.refl_left
+    apply types.Id.refl_left
   end)
 
   @[hott] def contr_right : Π i, i₁ = i :=
-  interval.ind seg⁻¹ types.eq.rfl (begin
+  interval.ind seg⁻¹ types.Id.refl (begin
     apply types.equiv.pathover_from_trans,
-    apply types.eq.inv_comp
+    apply types.Id.inv_comp
   end)
 
   @[hott] def interval_contr : contr I := ⟨i₁, contr_right⟩
@@ -51,7 +51,7 @@ namespace interval
   @[hott] def interval_prop : prop I :=
   contr_impl_prop interval_contr
 
-  @[hott] def seg_inv_comp : seg ⬝ seg⁻¹ = types.eq.rfl :=
+  @[hott] def seg_inv_comp : seg ⬝ seg⁻¹ = types.Id.refl :=
   by apply prop_is_set interval_prop
 
   @[hott] def transport_over_hmtpy {α : Type u} {β : Type v} {γ : Type w}
@@ -92,7 +92,7 @@ namespace interval
   @[hott] noncomputable def cong_refl {α : Type u} {β : Type v}
     {a : α} (f : α → β) : cong f (idp a) = idp (f a) := begin
     transitivity, apply types.equiv.map_over_comp,
-    transitivity, apply eq.map, apply recβrule, trivial
+    transitivity, apply Id.map, apply recβrule, trivial
   end
 
   @[hott] noncomputable def map_eq_cong {α : Type u} {β : Type v} {a b : α}
@@ -100,30 +100,30 @@ namespace interval
   begin induction p, symmetry, apply cong_refl end
 
   @[hott] noncomputable def neg_neg : Π x, neg (neg x) = x :=
-  interval.ind eq.rfl eq.rfl (calc
+  interval.ind Id.refl Id.refl (calc
     equiv.transport (λ x, neg (neg x) = x) seg (idp i₀) =
-    (@eq.map I I i₁ i₀ (neg ∘ neg) seg⁻¹) ⬝ idp i₀ ⬝ seg :
+    (@Id.map I I i₁ i₀ (neg ∘ neg) seg⁻¹) ⬝ idp i₀ ⬝ seg :
       by apply equiv.transport_over_involution
     ... = neg # (neg # seg⁻¹) ⬝ idp i₀ ⬝ seg :
-      begin apply eq.map (λ p, p ⬝ idp i₀ ⬝ seg),
+      begin apply Id.map (λ p, p ⬝ idp i₀ ⬝ seg),
             apply equiv.map_over_comp end
     ... = neg # (neg # seg)⁻¹ ⬝ idp i₀ ⬝ seg :
-      begin apply eq.map (λ p, p ⬝ idp i₀ ⬝ seg),
-            apply eq.map, apply eq.map_inv end
+      begin apply Id.map (λ p, p ⬝ idp i₀ ⬝ seg),
+            apply Id.map, apply Id.map_inv end
     ... = neg # seg⁻¹⁻¹ ⬝ idp i₀ ⬝ seg :
-      begin apply eq.map (λ p, p ⬝ idp i₀ ⬝ seg),
-            apply eq.map, apply eq.map ground_zero.types.eq.symm,
+      begin apply Id.map (λ p, p ⬝ idp i₀ ⬝ seg),
+            apply Id.map, apply Id.map ground_zero.types.Id.symm,
             apply interval.recβrule end
     ... = neg # seg ⬝ idp i₀ ⬝ seg :
-      begin apply eq.map (λ (p : i₀ = i₁), neg # p ⬝ idp i₀ ⬝ seg),
-            apply eq.inv_inv end
+      begin apply Id.map (λ (p : i₀ = i₁), neg # p ⬝ idp i₀ ⬝ seg),
+            apply Id.inv_inv end
     ... = seg⁻¹ ⬝ idp i₀ ⬝ seg :
-      begin apply eq.map (λ p, p ⬝ idp i₀ ⬝ seg),
+      begin apply Id.map (λ p, p ⬝ idp i₀ ⬝ seg),
             apply interval.recβrule end
     ... = seg⁻¹ ⬝ seg :
-      begin apply eq.map (λ p, p ⬝ seg),
-            apply eq.refl_right end
-    ... = idp i₁ : by apply eq.inv_comp)
+      begin apply Id.map (λ p, p ⬝ seg),
+            apply Id.refl_right end
+    ... = idp i₁ : by apply Id.inv_comp)
 
   @[hott] def neg_neg' (x : I) : neg (neg x) = x :=
   (conn_and seg⁻¹ (neg x))⁻¹ ⬝ contr_right x
@@ -135,16 +135,16 @@ namespace interval
     interval.rec (p 0) (p 1) (p # seg) = p :> I → α := begin
     apply theorems.funext, intro x, fapply interval.ind _ _ _ x,
     { refl }, { refl },
-    { apply ground_zero.types.eq.trans,
+    { apply ground_zero.types.Id.trans,
       apply equiv.transport_over_hmtpy,
-      transitivity, { apply eq.map ( ⬝ p # seg), apply eq.refl_right },
+      transitivity, { apply Id.map ( ⬝ p # seg), apply Id.refl_right },
       transitivity,
-      { apply eq.map (⬝ p # seg), transitivity,
-        { apply eq.map_inv },
-        { apply eq.map, apply interval.recβrule } },
-      transitivity, { apply eq.map, symmetry, apply eq.map_inv p },
+      { apply Id.map (⬝ p # seg), transitivity,
+        { apply Id.map_inv },
+        { apply Id.map, apply interval.recβrule } },
+      transitivity, { apply Id.map, symmetry, apply Id.map_inv p },
       transitivity, { symmetry, apply equiv.map_functoriality p },
-      transitivity, { apply eq.map, apply eq.inv_comp },
+      transitivity, { apply Id.map, apply Id.inv_comp },
       trivial }
   end
 
@@ -153,7 +153,7 @@ namespace interval
     @equiv.transport I (λ (i : I), π (interval.elim p i))
       0 1 interval.seg u = equiv.subst p u :> π b := begin
     transitivity, apply equiv.transport_comp,
-    transitivity, apply eq.map (λ p, equiv.subst p u),
+    transitivity, apply Id.map (λ p, equiv.subst p u),
     apply interval.recβrule, trivial
   end
 
@@ -162,7 +162,7 @@ namespace interval
     @equiv.transport I (interval.elim p) 0 1 interval.seg x =
       equiv.subst p x :> β := begin
     transitivity, apply equiv.transport_to_transportconst,
-    transitivity, apply eq.map (λ p, equiv.transportconst p x),
+    transitivity, apply Id.map (λ p, equiv.transportconst p x),
     apply interval.recβrule, induction p, trivial
   end
 end interval

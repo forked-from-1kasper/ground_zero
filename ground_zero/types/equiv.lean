@@ -7,7 +7,7 @@ section
   variables {α : Type u} {β : Type v}
 
   abbreviation product := α × β
-  def prod.eq {a c : α} {b d : β}
+  def prod.Id {a c : α} {b d : β}
     (p : a = c :> α) (q : b = d :> β) : (a, b) = (c, d) :> α × β :=
   begin induction p, induction q, reflexivity end
 
@@ -32,7 +32,7 @@ namespace equiv
     (f : Π (x : α), π x) : f ~ f :=
   begin intro x, reflexivity end
 
-  @[hott] def homotopy.eq {α : Type u} {π : α → Type v}
+  @[hott] def homotopy.Id {α : Type u} {π : α → Type v}
     {f g : Π (x : α), π x} (h : f = g :> Π (x : α), π x) : f ~ g :=
   begin induction h, reflexivity end
 
@@ -57,8 +57,8 @@ namespace equiv
     {f g : α → β} (H : f ~ g) {x y : α} (p : x = y :> α) :
     H x ⬝ (g # p) = (f # p) ⬝ H y :> f x = g y :> β := begin
     induction p, transitivity,
-    apply eq.refl_right,
-    apply eq.refl_left
+    apply Id.refl_right,
+    apply Id.refl_left
   end
 end equiv
 
@@ -95,9 +95,9 @@ namespace equiv
   | (⟨g₁, G₁⟩, ⟨h₁, H₁⟩) (⟨g₂, G₂⟩, ⟨h₂, H₂⟩) := begin
     split,
     { existsi (g₁ ∘ g₂), intro x, transitivity,
-      apply eq.map g₁, apply G₂, exact G₁ x },
+      apply Id.map g₁, apply G₂, exact G₁ x },
     { existsi (h₁ ∘ h₂), intro x, transitivity,
-      apply eq.map g, apply H₁, exact H₂ x }
+      apply Id.map g, apply H₁, exact H₂ x }
   end
 
   @[hott, trans] def trans {α : Type u} {β : Type v} {γ : Type w} :
@@ -138,8 +138,8 @@ namespace equiv
   notation u ` =[` p `] ` v := dep_path _ p u v
 
   @[hott, refl] def dep_path.refl {α : Type u} (π : α → Type v) {a : α}
-    (u : π a) : u =[eq.refl a] u :=
-  ground_zero.types.eq.refl u
+    (u : π a) : u =[Id.refl] u :=
+  ground_zero.types.Id.refl
 
   @[hott] def pathover_of_eq {α : Type u} {β : Type v}
     {a b : α} {a' b' : β}
@@ -238,9 +238,9 @@ namespace equiv
 
   @[hott] def transport_composition {α : Type u} {a x₁ x₂ : α}
     (p : x₁ = x₂ :> α) (q : a = x₁ :> α) :
-    transport (ground_zero.types.eq a) p q = q ⬝ p :> _ := begin
+    transport (ground_zero.types.Id a) p q = q ⬝ p :> _ := begin
     induction p, symmetry, transitivity,
-    apply eq.refl_right, trivial
+    apply Id.refl_right, trivial
   end
 
   @[hott] def transport_characterization
@@ -271,12 +271,12 @@ namespace equiv
   @[hott] def rewrite_comp {α : Type u} {a b c : α}
     {p : a = b} {q : b = c} {r : a = c}
     (h : r = p ⬝ q) : p⁻¹ ⬝ r = q :=
-  begin induction p, exact eq.refl_left r ⬝ h end
+  begin induction p, exact Id.refl_left r ⬝ h end
 
   @[hott] def inv_rewrite_comp {α : Type u} {a b c : α}
     {p : a = b} {q : b = c} {r : a = c}
     (h : p⁻¹ ⬝ r = q) : r = p ⬝ q :=
-  begin induction p, exact eq.refl_left r ⬝ h end
+  begin induction p, exact Id.refl_left r ⬝ h end
 
   @[hott] def pathover_from_trans {α : Type u} {a b c : α}
     (p : b = c :> α) (q : a = b :> α) (r : a = c :> α) :
@@ -286,8 +286,8 @@ namespace equiv
   @[hott] def transport_inv_comp_comp {α : Type u} {a b : α} (p : a = b) (q : a = a) :
     equiv.transport (λ x, x = x) p q = p⁻¹ ⬝ q ⬝ p := begin
     induction p, symmetry, transitivity,
-    apply eq.refl_left (q ⬝ eq.rfl), transitivity,
-    apply eq.refl_right, trivial
+    apply Id.refl_left (q ⬝ Id.refl), transitivity,
+    apply Id.refl_right, trivial
   end
 
   @[hott] def map_functoriality {α : Type u} {β : Type v}
@@ -303,44 +303,44 @@ namespace equiv
   @[hott] def transport_over_inv_contr_map {α : Type u} {β : Type v} {a b : α} {c : β}
     (f : α → β) (p : a = b) (q : c = f a) :
     equiv.transport (λ x, c = f x) p q = q ⬝ f # p :=
-  begin induction p, symmetry, apply eq.refl_right end
+  begin induction p, symmetry, apply Id.refl_right end
 
   @[hott] def transport_over_involution {α : Type u} {a b : α}
     (f : α → α) (p : a = b) (q : f a = a) :
     equiv.transport (λ x, f x = x) p q = (f # p⁻¹) ⬝ q ⬝ p := begin
     induction p, symmetry,
-    transitivity, apply eq.refl_left (q ⬝ eq.refl a),
-    apply eq.refl_right
+    transitivity, apply Id.refl_left (q ⬝ Id.refl),
+    apply Id.refl_right
   end
 
   @[hott] def transport_over_hmtpy {α : Type u} {β : Type v} {a b : α}
     (f g : α → β) (p : a = b) (q : f a = g a) :
     equiv.transport (λ x, f x = g x) p q = (f # p⁻¹) ⬝ q ⬝ g # p := begin
     induction p, symmetry,
-    transitivity, apply eq.refl_left,
-    apply eq.refl_right
+    transitivity, apply Id.refl_left,
+    apply Id.refl_right
   end
 
   @[hott] def idmap {α : Type u} {a b : α} (p : a = b) : idfun # p = p :=
   begin induction p, trivial end
 
   @[hott] def constmap {α : Type u} {β : Type v} {a b : α} {c : β}
-    (p : a = b) : (λ _, c) # p = eq.refl c :=
+    (p : a = b) : (λ _, c) # p = Id.refl :=
   begin induction p, trivial end
 
   @[hott] def transport_over_dhmtpy {α : Type u} {β : α → Type v} {a b : α}
     (f g : Π x, β x) (p : a = b) (q : f a = g a) :
     equiv.transport (λ x, f x = g x) p q = (apd f p)⁻¹ ⬝ subst p # q ⬝ apd g p := begin
     induction p, symmetry,
-    transitivity, apply eq.map (⬝ apd g _), apply eq.refl_left,
-    transitivity, apply eq.map, apply idmap,
-    transitivity, apply eq.refl_right,
+    transitivity, apply Id.map (⬝ apd g _), apply Id.refl_left,
+    transitivity, apply Id.map, apply idmap,
+    transitivity, apply Id.refl_right,
     trivial
   end
 
   @[hott] def map_over_comp {α : Type u} {β : Type v} {γ : Type w} {a b : α}
     (f : α → β) (g : β → γ) (p : a = b) :
-    @eq.map α γ a b (g ∘ f) p = g # (f # p) :> g (f a) = g (f b) :> γ :=
+    @Id.map α γ a b (g ∘ f) p = g # (f # p) :> g (f a) = g (f b) :> γ :=
   begin induction p, trivial end
 
   @[hott] def apd_over_constant_family {α : Type u} {β : Type v} {a b : α}
@@ -349,10 +349,10 @@ namespace equiv
   begin induction p, trivial end
 
   def refl_pathover {α : Type u} {β : Type v} {a : α} {x y : β}
-    (p : x =[eq.refl a] y) : x = y := p
+    (p : x =[idp a] y) : x = y := p
 
   @[hott] def pathover_inv {α : Type u} {β : Type v} (a : α) {x y : β} (p : x = y) :
-    refl_pathover (pathover_of_eq (eq.refl a) p) = p :=
+    refl_pathover (pathover_of_eq (idp a) p) = p :=
   begin induction p, reflexivity end
 
   @[hott] def pathover_of_eq_inj {α : Type u} {β : Type v} {a b : α} {a' b' : β}
@@ -373,7 +373,7 @@ namespace equiv
   @[hott] def transport_over_function {α : Type u} {β : Type v}
     {a : α} {b : β} (f g : α → β) (p : f = g) (q : f a = b) :
     equiv.transport (λ (f' : α → β), f' a = b) p q =
-    @eq.map (α → β) β g f (λ (f' : α → β), f' a) p⁻¹ ⬝ q :=
+    @Id.map (α → β) β g f (λ (f' : α → β), f' a) p⁻¹ ⬝ q :=
   begin induction p, trivial end
 
   @[hott] def bimap {α : Type u} {β : Type v} {γ : Type w}
@@ -394,7 +394,7 @@ namespace equiv
   @[hott] def bimap_characterization {α : Type u} {β : Type v} {γ : Type w}
     {a b : α} {a' b' : β} (f : α → β → γ)
     (p : a = b) (q : a' = b') :
-    bimap f p q = @eq.map α γ a b (λ x, f x a') p ⬝ f b # q :=
+    bimap f p q = @Id.map α γ a b (λ x, f x a') p ⬝ f b # q :=
   begin induction p, trivial end
 
   @[hott] def bimap_inv {α : Type u} {β : Type v} {γ : Type w}
@@ -406,9 +406,9 @@ namespace equiv
     {a b : α} {a' b' : β} (f : α → β → γ) (p : a = b) (q : a' = b') :
     (λ x, f x a') # p = f a # q ⬝ bimap f p q⁻¹ := begin
     induction p, symmetry,
-    transitivity, { apply eq.map, apply bimap_refl_left },
-    transitivity, { apply eq.map, apply eq.map_inv },
-    apply eq.comp_inv
+    transitivity, { apply Id.map, apply bimap_refl_left },
+    transitivity, { apply Id.map, apply Id.map_inv },
+    apply Id.comp_inv
   end
 
   @[hott] def map_over_S {α : Type u} {a b : α}

@@ -72,7 +72,7 @@ namespace interval
 
   @[hott] def funext {α : Type u} {β : α → Type v}
     {f g : Π x, β x} (p : f ~ g) : f = g :=
-  @eq.map I (Π x, β x) 0 1 (function.swap (homotopy p)) interval.seg
+  @Id.map I (Π x, β x) 0 1 (function.swap (homotopy p)) interval.seg
 
   @[hott] def happly {α : Type u} {β : α → Type v}
     {f g : Π x, β x} (p : f = g) : f ~ g :=

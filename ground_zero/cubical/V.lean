@@ -17,7 +17,7 @@ interval.rec α β (ground_zero.ua e) i
 
 @[hott] noncomputable def Vproj (i : I) {α β : Type u} (e : α ≃ β) (m : α) : V i e :=
 @interval.ind (λ i, V i e) m (e.fst m) (begin
-  apply ground_zero.types.eq.trans,
+  apply Id.trans,
   apply interval.transportconst_with_seg,
   apply ground_zero.ua.comp_rule
 end) i

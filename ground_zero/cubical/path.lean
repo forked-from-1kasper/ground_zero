@@ -16,13 +16,13 @@ namespace Path
 universes u v
 
 @[hott] def coe.forward (π : I → Type u) (i : I) (x : π i₀) : π i :=
-interval.ind x (equiv.subst interval.seg x) eq.rfl i
+interval.ind x (equiv.subst interval.seg x) Id.refl i
 
 @[hott] def coe.back (π : I → Type u) (i : I) (x : π i₁) : π i :=
 interval.ind (equiv.subst interval.seg⁻¹ x) x (begin
-  apply ground_zero.types.eq.trans,
+  apply Id.trans,
   { symmetry, apply equiv.subst_comp }, transitivity,
-  { apply eq.map (λ p, equiv.subst p x), apply eq.inv_comp },
+  { apply Id.map (λ p, equiv.subst p x), apply Id.inv_comp },
   reflexivity
 end) i
 
@@ -151,7 +151,7 @@ interval.hrec _ (refl a) p (begin
   refine interval.prop_rec _ _ i,
   { reflexivity },
   { apply ground_zero.support.truncation,
-    apply eq.map, exact interval.seg }
+    apply Id.map, exact interval.seg }
 end)
 
 /-
