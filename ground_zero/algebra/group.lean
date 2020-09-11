@@ -1687,6 +1687,20 @@ namespace group
     apply homo.set, apply ens.ssubset.prop,
     exact im_impl_ker, exact boundary_of_boundary
   end
+
+  @[hott] def sqr_unit {x : G.carrier} (p : x * x = e) := calc
+      x = x * e         : Id.inv (G.mul_one x)
+    ... = x * (x * x⁻¹) : (G.φ x) # (Id.inv $ mul_right_inv x)
+    ... = (x * x) * x⁻¹ : Id.inv (G.mul_assoc x x x⁻¹)
+    ... = e * x⁻¹       : (* x⁻¹) # p
+    ... = x⁻¹           : G.one_mul x⁻¹
+
+  @[hott] instance sqr_unit_impls_abelian (H : Π x, x * x = e) : abelian G := begin
+    split, intros x y, have p := λ x, sqr_unit (H x), calc
+      x * y = x⁻¹ * y⁻¹ : equiv.bimap G.φ (p x) (p y)
+        ... = (y * x)⁻¹ : Id.inv (inv_explode y x)
+        ... = y * x     : Id.inv (p _)
+  end
 end group
 
 def diff := Σ (G : group) [abelian G] (δ : G ⤳ G), δ ⋅ δ = 0
