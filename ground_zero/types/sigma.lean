@@ -97,11 +97,10 @@ namespace sigma
   @[hott] def hmtpy_inv_eqv {α : Type v} {β : Type u} (f g : α → β) :
     (Σ x, f x = g x) ≃ (Σ x, g x = f x) := begin
     existsi hmtpy_inv f g, split; existsi hmtpy_inv g f;
-    { intro x, induction x with x h,
-      fapply prod, refl,
-      transitivity, apply equiv.transport_over_hmtpy,
-      transitivity, apply Id.refl_right,
-      apply Id.inv_inv },
+    { intro x, induction x with x p,
+      change ⟨x, p⁻¹⁻¹⟩ = ⟨x, p⟩ :> sigma _,
+      have r := (Id.inv_inv p)⁻¹, induction r,
+      reflexivity }
   end
 
   @[hott] def sigma_eq_of_eq {α : Type u} {β : α → Type v} {a b : Σ x, β x}
