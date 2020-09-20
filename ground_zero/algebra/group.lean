@@ -1762,6 +1762,7 @@ end diff
 
 structure ring extends group :=
 (ψ : α.fst → α.fst → α.fst)
+(add_comm      : Π a b, φ a b = φ b a)
 (distrib_left  : Π a b c, ψ a (φ b c) = φ (ψ a b) (ψ a c))
 (distrib_right : Π a b c, ψ (φ a b) c = φ (ψ a c) (ψ b c))
 
