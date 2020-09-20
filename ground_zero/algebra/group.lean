@@ -1761,7 +1761,7 @@ namespace diff
 end diff
 
 structure ring extends group :=
-(ψ : α.fst → α.fst → α.fst)
+(ψ             : α.fst → α.fst → α.fst)
 (add_comm      : Π a b, φ a b = φ b a)
 (distrib_left  : Π a b c, ψ a (φ b c) = φ (ψ a b) (ψ a c))
 (distrib_right : Π a b c, ψ (φ a b) c = φ (ψ a c) (ψ b c))
@@ -1775,7 +1775,7 @@ def ring.carrier (T : ring) := T.α.fst
 Π a b, T.ψ a b = T.ψ b a
 
 class ring.identity (T : ring) :=
-(unit : T.carrier)
+(unit     : T.carrier)
 (mul_unit : Π x, T.φ x unit = x)
 (unit_mul : Π x, T.φ unit x = x)
 
