@@ -930,13 +930,15 @@ namespace group
   @[hott] instance Z₂.has_inv : has_inv Z₂.carrier := ⟨Z₂.inv⟩
   @[hott] instance Z₂.has_mul : has_mul Z₂.carrier := ⟨Z₂.mul⟩
 
-  @[hott] def Z₂.magma : magma := begin
-    fapply magma.mk, fapply zeroeqv, exact Z₂.carrier,
+  @[hott] def Z₂.set : hset Z₂.carrier := begin
     apply ground_zero.structures.Hedberg,
     intros x y, induction x; induction y; try { apply sum.inl, refl },
     repeat { apply sum.inr, intro p, apply ff_neq_tt },
-    exact p, exact Id.inv p, exact Z₂.mul
+    exact p, exact Id.inv p
   end
+
+  @[hott] def Z₂.magma : magma :=
+  begin fapply magma.mk, fapply @zeroeqv Z₂.carrier, intros p q, exact Z₂.set, exact Z₂.mul end
 
   @[hott] def Z₂.semigroup : semigroup :=
   ⟨Z₂.magma, begin intros a b c, induction a; induction b; induction c; trivial end⟩
@@ -1701,6 +1703,35 @@ namespace group
         ... = (y * x)⁻¹ : Id.inv (inv_explode y x)
         ... = y * x     : Id.inv (p _)
   end
+
+  def P.carrier (G : group) := ℕ → G.carrier
+
+  def P.set (G : group) : is-0-type (P.carrier G) :=
+  structures.pi_respects_ntype 0 (λ _, G.α.snd)
+
+  def P.mul : P.carrier G → P.carrier G → P.carrier G :=
+  λ f g n, f n * g n
+
+  def P.one : P.carrier G := λ _, e
+  def P.inv : P.carrier G → P.carrier G :=
+  λ f n, (f n)⁻¹
+
+  def P.magma (G : group) : magma :=
+  ⟨⟨P.carrier G, P.set G⟩, P.mul⟩
+
+  def P.semigroup (G : group) : semigroup :=
+  ⟨P.magma G, λ f g h, begin fapply theorems.funext, intro n, apply G.mul_assoc end⟩
+
+  def P.monoid (G : group) : monoid := begin
+    fapply monoid.mk, exact P.semigroup G, exact P.one,
+    repeat { intro f, fapply theorems.funext, intro n },
+    apply G.one_mul, apply G.mul_one
+  end
+
+  def P (G : group) : group :=
+  ⟨P.monoid G, P.inv, begin intro f, fapply theorems.funext, intro n, apply G.mul_left_inv end⟩
+
+  def P₂ := P Z₂
 end group
 
 def diff := Σ (G : group) [abelian G] (δ : G ⤳ G), δ ⋅ δ = 0
