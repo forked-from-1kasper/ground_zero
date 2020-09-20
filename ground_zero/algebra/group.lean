@@ -1716,22 +1716,31 @@ namespace group
   def P.inv : P.carrier G → P.carrier G :=
   λ f n, (f n)⁻¹
 
-  def P.magma (G : group) : magma :=
+  @[hott] def P.magma (G : group) : magma :=
   ⟨⟨P.carrier G, P.set G⟩, P.mul⟩
 
-  def P.semigroup (G : group) : semigroup :=
+  @[hott] def P.semigroup (G : group) : semigroup :=
   ⟨P.magma G, λ f g h, begin fapply theorems.funext, intro n, apply G.mul_assoc end⟩
 
-  def P.monoid (G : group) : monoid := begin
+  @[hott] def P.monoid (G : group) : monoid := begin
     fapply monoid.mk, exact P.semigroup G, exact P.one,
     repeat { intro f, fapply theorems.funext, intro n },
     apply G.one_mul, apply G.mul_one
   end
 
-  def P (G : group) : group :=
+  @[hott] def P (G : group) : group :=
   ⟨P.monoid G, P.inv, begin intro f, fapply theorems.funext, intro n, apply G.mul_left_inv end⟩
 
+  @[hott] instance P.abelian (G : group) [abelian G] : abelian (P G) :=
+  ⟨begin intros f g, fapply theorems.funext, intro n, fapply abelian.mul_comm end⟩
+
+  @[hott] def P.unit_sqr (H : Π x, x * x = e) (x : P.carrier G) :
+    P.mul x x = P.one :=
+  begin fapply theorems.funext, intro n, apply H end
+
   def P₂ := P Z₂
+  @[hott] def P₂.periodic (x : P₂.carrier) : P.mul x x = P.one :=
+  begin apply P.unit_sqr, intro b, induction b; trivial end
 end group
 
 def diff := Σ (G : group) [abelian G] (δ : G ⤳ G), δ ⋅ δ = 0
