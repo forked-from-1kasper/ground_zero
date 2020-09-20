@@ -1760,4 +1760,22 @@ namespace diff
   group.im_impl_ker G.sqr
 end diff
 
+structure ring extends group :=
+(ψ : α.fst → α.fst → α.fst)
+(distrib_left  : Π a b c, ψ a (φ b c) = φ (ψ a b) (ψ a c))
+(distrib_right : Π a b c, ψ (φ a b) c = φ (ψ a c) (ψ b c))
+
+def ring.carrier (T : ring) := T.α.fst
+
+@[class] def ring.assoc (T : ring) :=
+Π a b c, T.ψ (T.ψ a b) c = T.ψ a (T.ψ b c)
+
+@[class] def ring.comm (T : ring) :=
+Π a b, T.ψ a b = T.ψ b a
+
+class ring.identity (T : ring) :=
+(unit : T.carrier)
+(mul_unit : Π x, T.φ x unit = x)
+(unit_mul : Π x, T.φ unit x = x)
+
 end ground_zero.algebra
