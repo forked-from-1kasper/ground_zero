@@ -1776,7 +1776,7 @@ def ring.carrier (T : ring) := T.α.fst
 
 class ring.identity (T : ring) :=
 (unit     : T.carrier)
-(mul_unit : Π x, T.φ x unit = x)
-(unit_mul : Π x, T.φ unit x = x)
+(mul_unit : Π x, T.ψ x unit = x)
+(unit_mul : Π x, T.ψ unit x = x)
 
 end ground_zero.algebra
