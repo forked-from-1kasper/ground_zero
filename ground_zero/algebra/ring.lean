@@ -1,4 +1,7 @@
 import ground_zero.algebra.group
+open ground_zero.types.Id (map)
+
+hott theory
 
 namespace ground_zero.algebra
 
@@ -29,6 +32,23 @@ structure field :=
 (surj : Π x, G.proper x → η (μ x) = x)
 (add_comm     : Π a b, G.φ a b = G.φ b a)
 (mul_comm     : Π a b, H.φ a b = H.φ b a)
-(distrib_left : Π a b c, H.φ (μ a) (μ (G.φ b c)) = H.φ (μ (G.φ a b)) (μ (G.φ a c)))
+(distrib_left : Π a b c,
+  η (H.φ (μ a) (μ (G.φ b c))) = G.φ (η (H.φ (μ a) (μ b))) (η (H.φ (μ a) (μ c))))
+
+def field.carrier (F : field) := F.G.carrier
+
+def field.add (F : field) : F.carrier → F.carrier → F.carrier := F.G.φ
+def field.mul (F : field) (x y : F.carrier) : F.carrier :=
+F.η (F.H.φ (F.μ x) (F.μ y))
+
+def field.distrib_right (F : field) (a b c : F.carrier) :
+  F.mul (F.add a b) c = F.add (F.mul a c) (F.mul b c) := begin
+  transitivity, { apply map F.η, apply F.mul_comm },
+  transitivity, { apply F.distrib_left },
+  apply ground_zero.types.equiv.bimap; apply map F.η; apply F.mul_comm
+end
+
+def field.to_ring (F : field) : ring :=
+⟨F.G, F.mul, F.add_comm, F.distrib_left, F.distrib_right⟩
 
 end ground_zero.algebra
