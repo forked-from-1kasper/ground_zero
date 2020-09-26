@@ -131,9 +131,11 @@ namespace Id
 end Id
 
 def not (α : Type u) : Type u := α → (𝟎 : Type)
+def neq {α : Type u} (a b : α) := not (Id a b)
+
 namespace not
-  notation `¬` α     := not α
-  notation a ` ≠ ` b := ¬(a = b :> _)
+  notation `¬` α := not α
+  infix ` ≠ `    := neq
 
   def absurd {α : Type u} {β : Type v} (h : α) (g : ¬α) : β :=
   ground_zero.proto.empty.cases_on (λ _, β) (g h)
