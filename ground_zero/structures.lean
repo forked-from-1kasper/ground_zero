@@ -31,6 +31,8 @@ structure contr (α : Type u) :=
 --  or we can write `idfun ~ λ _, point`
 
 def LEM := Π (α : Type w), prop α → (α + ¬α)
+axiom lem : LEM
+
 def law_of_double_negation :=
 Π (α : Type u), prop α → (¬¬α → α)
 

@@ -193,7 +193,12 @@ namespace group
   local notation `e` := G.e
   local postfix ⁻¹ := G.inv
 
-  @[hott] def proper (G : group) (x : G.carrier) := neq x G.e
+  @[hott] def isproper (G : group) (x : G.carrier) := neq x G.e
+
+  @[hott] def proper (G : group) := Σ x, G.isproper x
+
+  @[hott] def proper.prop (G : group) {x : G.carrier} : prop (G.isproper x) :=
+  structures.impl_prop structures.empty_is_prop
 
   @[hott] def left_unit_uniq (e' : G.carrier) (one_mul' : Π a, e' * a = a) : e' = e :=
   Id.inv (G.mul_one e') ⬝ one_mul' e
