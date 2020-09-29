@@ -90,12 +90,6 @@ namespace reals
   rec (λ x, rec (elem ∘ f x) (begin intros, apply dist end))
     (begin intros, apply ground_zero.theorems.funext, intro x, apply dist end)
 
-  instance : has_neg R := ⟨lift integer.negate⟩
-
-  instance : has_add R := ⟨operator integer.add⟩
-  instance : has_sub R := ⟨operator integer.sub⟩
-  instance : has_mul R := ⟨operator integer.mul⟩
-
   instance : has_coe integer R := ⟨elem⟩
 
   instance : has_zero R := ⟨elem 0⟩
@@ -103,30 +97,8 @@ namespace reals
 
   @[hott] def cis : R → S¹ := rec (λ _, base) (λ _, loop)
 
-  @[hott] noncomputable def helix_over_cis (x : R) : helix (cis x) = ℤ := begin
-    fapply ind _ _ x; clear x,
-    { intro x, exact (integer.shift x)⁻¹ },
-    { intro z, change _ = _,
-      let p := integer.shift z, calc
-            equiv.transport (λ x, helix (cis x) = ℤ) (glue z) (integer.shift z)⁻¹
-          = @Id.map R Type _ _ (helix ∘ cis) (glue z)⁻¹ ⬝ (integer.shift z)⁻¹ :
-        by apply equiv.transport_over_contr_map
-      ... = (Id.map (helix ∘ cis) (glue z))⁻¹ ⬝ (integer.shift z)⁻¹ :
-        begin apply Id.map (⬝ p⁻¹), apply Id.map_inv end
-      ... = (helix # (cis # (glue z)))⁻¹ ⬝ (integer.shift z)⁻¹ :
-        begin apply Id.map (λ q, inv q ⬝ p⁻¹),
-              apply equiv.map_over_comp end
-      ... = (helix # loop)⁻¹ ⬝ (integer.shift z)⁻¹ :
-        begin apply Id.map (λ q, inv q ⬝ p⁻¹),
-              apply Id.map, apply recβrule end
-      ... = integer.succ_path⁻¹ ⬝ (integer.shift z)⁻¹ :
-        begin apply Id.map (λ q, inv q ⬝ p⁻¹),
-              apply circle.recβrule₂ end
-      ... = (integer.shift z ⬝ integer.succ_path)⁻¹ :
-        begin symmetry, apply Id.explode_inv end
-      ... = (integer.shift (integer.succ z))⁻¹ :
-        begin apply Id.map, apply integer.shift_comp end }
-  end
+  @[hott] def helix_over_cis (x : R) : helix (cis x) = ℤ :=
+  begin change _ = helix (cis 0), apply map (helix ∘ cis), apply dist end
 
   /-
             ≃
@@ -153,28 +125,6 @@ notation `C` := complex
 
 namespace complex
   def inj (x : R) : C := ⟨x, 0⟩
-
-  def add : C → C → C
-  | ⟨a, b⟩ ⟨c, d⟩ := ⟨a + c, b + d⟩
-  instance : has_add C := ⟨add⟩
-
-  def mul : C → C → C
-  | ⟨a, b⟩ ⟨c, d⟩ := ⟨a * c - b * d, a * d + b * c⟩
-  instance : has_mul C := ⟨mul⟩
-
-  def neg : C → C
-  | ⟨a, b⟩ := ⟨-a, -b⟩
-  instance : has_neg C := ⟨neg⟩
-
-  instance : has_coe R C := ⟨inj⟩
-  instance : has_zero C := ⟨inj 0⟩
-  instance : has_one C := ⟨inj 1⟩
-
-  def i : C := ⟨0, 1⟩
-  example : i * i = -1 := by trivial
-
-  def conj : C → C
-  | ⟨a, b⟩ := ⟨a, -b⟩
 
   abbreviation Re : C → R := prod.pr₁
   abbreviation Im : C → R := prod.pr₂
