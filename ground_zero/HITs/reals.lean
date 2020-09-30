@@ -95,10 +95,26 @@ namespace reals
   instance : has_zero R := ⟨elem 0⟩
   instance : has_one R := ⟨elem 1⟩
 
-  @[hott] def cis : R → S¹ := rec (λ _, base) (λ _, loop)
+  section
+    variables (φ : R → S¹) (p : φ 0 = base)
+    include p
 
-  @[hott] def helix_over_cis (x : R) : helix (cis x) = ℤ :=
-  begin change _ = helix (cis 0), apply map (helix ∘ cis), apply dist end
+    @[hott] def helix_over_homo (x : R) : helix (φ x) = ℤ := begin
+      transitivity, apply map (helix ∘ φ), apply dist x 0,
+      change _ = helix base, apply map helix, exact p
+    end
+
+    @[hott] noncomputable def ker_of_homo := calc
+      fib φ base ≃ (Σ (x : R), circle.base = φ x) :
+                   sigma.hmtpy_inv_eqv φ (λ _, circle.base)
+             ... = (Σ (x : R), helix (φ x)) :
+                   sigma # (funext (λ x, ground_zero.ua (circle.family (φ x))))
+             ... = (Σ (x : R), ℤ) : sigma # (funext (helix_over_homo φ p))
+             ... ≃ R × ℤ : sigma.const R ℤ
+             ... ≃ 𝟏 × ℤ : ground_zero.ua.product_equiv₃
+                             (contr_equiv_unit contr) (equiv.id ℤ)
+             ... ≃ ℤ : prod_unit_equiv ℤ
+  end
 
   /-
             ≃
@@ -108,16 +124,10 @@ namespace reals
        |          |
        R ════════ R
   -/
-  @[hott] noncomputable def Euler := calc
-    fib cis base ≃ (Σ (x : R), circle.base = cis x) :
-                   sigma.hmtpy_inv_eqv cis (λ _, circle.base)
-             ... = (Σ (x : R), helix (cis x)) :
-                   sigma # (funext (λ x, ground_zero.ua (circle.family (cis x))))
-             ... = (Σ (x : R), ℤ) : sigma # (funext helix_over_cis)
-             ... ≃ R × ℤ : sigma.const R ℤ
-             ... ≃ 𝟏 × ℤ : ground_zero.ua.product_equiv₃
-                             (contr_equiv_unit contr) (equiv.id ℤ)
-             ... ≃ ℤ : prod_unit_equiv ℤ
+  @[hott] def cis : R → S¹ := rec (λ _, base) (λ _, loop)
+
+  @[hott] noncomputable def Euler : fib cis base ≃ ℤ :=
+  ker_of_homo cis (idp base)
 end reals
 
 def complex := R × R
