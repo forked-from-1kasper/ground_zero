@@ -65,7 +65,7 @@ namespace reals
   @[hott] def vect (u v : ℤ) : elem u = elem v :> R :=
   (center u)⁻¹ ⬝ center v
 
-  @[hott] def contr : ground_zero.structures.contr R :=
+  @[hott] def contractible : contr R :=
   { point := elem 0,
     intro := @ind (λ x, elem 0 = x :> R) center (begin
       intro z, apply Id.trans,
@@ -81,7 +81,7 @@ namespace reals
     end) }
 
   @[hott] def dist : Π (u v : R), u = v :> R :=
-  ground_zero.structures.contr_impl_prop contr
+  ground_zero.structures.contr_impl_prop contractible
 
   @[hott] def lift (f : ℤ → ℤ) : R → R :=
   rec (elem ∘ f) (begin intros, apply dist end)
@@ -112,7 +112,7 @@ namespace reals
              ... = (Σ (x : R), ℤ) : sigma # (funext (helix_over_homo φ p))
              ... ≃ R × ℤ : sigma.const R ℤ
              ... ≃ 𝟏 × ℤ : ground_zero.ua.product_equiv₃
-                             (contr_equiv_unit contr) (equiv.id ℤ)
+                             (contr_equiv_unit contractible) (equiv.id ℤ)
              ... ≃ ℤ : prod_unit_equiv ℤ
   end
 
@@ -128,6 +128,17 @@ namespace reals
 
   @[hott] noncomputable def Euler : fib cis base ≃ ℤ :=
   ker_of_homo cis (idp base)
+
+  @[hott] def phi_eqv_base_impl_contr {α : Type u} {x : α}
+    (H : Π (φ : α → S¹), φ x = base) : contr S¹ :=
+  ⟨base, λ y, (H (λ _, y))⁻¹⟩
+
+  @[hott] def phi_neq_base_impl_false {α : Type u} {x : α}
+    (φ : α → S¹) : ¬¬(φ x = base) := begin
+    fapply @circle.ind (λ b, ¬¬(b = base)) _ _ (φ x),
+    { intro p, apply p, reflexivity },
+    { change _ = _, apply impl_prop empty_is_prop }
+  end
 end reals
 
 def complex := R × R
