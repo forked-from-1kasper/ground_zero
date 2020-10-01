@@ -139,6 +139,20 @@ namespace reals
     { intro p, apply p, reflexivity },
     { change _ = _, apply impl_prop empty_is_prop }
   end
+
+  @[hott] def lem_inf_impl_dneg_inf (H : LEM∞) {α : Type u} : ¬¬α → α := begin
+    intro p, cases H α with u v,
+    { assumption }, { cases p v }
+  end
+
+  @[hott] noncomputable def lem_inf_disproved : LEM∞ → 𝟎 := begin
+    intro H, apply circle.loop_neq_refl,
+    apply prop_is_set, apply contr_impl_prop,
+    apply phi_eqv_base_impl_contr,
+    intro φ, apply lem_inf_impl_dneg_inf H,
+    apply phi_neq_base_impl_false φ,
+    exact R, exact 0
+  end
 end reals
 
 def complex := R × R
