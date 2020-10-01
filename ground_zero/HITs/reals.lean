@@ -140,7 +140,8 @@ namespace reals
     { change _ = _, apply impl_prop empty_is_prop }
   end
 
-  @[hott] def lem_inf_impl_dneg_inf (H : LEM∞) {α : Type u} : ¬¬α → α := begin
+  @[hott] def lem_inf_impl_dneg_inf (H : LEM∞)
+    {α : Type u} : ¬¬α → α := begin
     intro p, cases H α with u v,
     { assumption }, { cases p v }
   end
