@@ -1,4 +1,5 @@
 import ground_zero.theorems.ua ground_zero.types.nat
+open ground_zero.structures (prop contr)
 open ground_zero.types
 
 namespace ground_zero
@@ -68,6 +69,11 @@ namespace nat
     trivial, exact ih
   end
 
+  @[hott] def one_mul (i : ℕ) : 1 * i = i := begin
+    induction i with i ih, { reflexivity },
+    { apply Id.map nat.succ, assumption }
+  end
+
   @[hott] def distrib_left (i j n : ℕ) : n * (i + j) = n * i + n * j := begin
     induction j with j ih,
     { trivial },
@@ -95,6 +101,9 @@ namespace nat
       symmetry, apply zero_plus_i }
   end
 
+  @[hott] def mul_one (i : ℕ) : i * 1 = i :=
+  mul_comm i 1 ⬝ one_mul i
+
   @[hott] def distrib_right (i j n : ℕ) : (i + j) * n = i * n + j * n := begin
     transitivity, apply mul_comm,
     symmetry, transitivity, apply Id.map, apply mul_comm,
@@ -120,6 +129,12 @@ namespace nat
 
   @[hott] def n_plus_n (n : ℕ) : n * 2 = n + n :=
   begin apply Id.map (+ n), apply zero_plus_i end
+
+  def apart : ℕ → ℕ → Type
+  |    0       0    := 𝟎
+  | (m + 1)    0    := 𝟏
+  |    0    (n + 1) := 𝟏
+  | (m + 1) (n + 1) := apart m n
 end nat
 
 namespace unit_list

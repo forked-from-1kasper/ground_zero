@@ -33,9 +33,6 @@ structure contr (α : Type u) :=
 def LEM := Π (α : Type w), prop α → (α + ¬α)
 axiom lem : LEM
 
-def law_of_double_negation :=
-Π (α : Type u), prop α → (¬¬α → α)
-
 def LEM_inf := Π (α : Type u), α + ¬α
 notation `LEM∞` := LEM_inf
 
@@ -383,6 +380,9 @@ end
   (h : prop β) : prop (α → β) :=
 pi_prop (λ _, h)
 
+@[hott] def not_is_prop {α : Type u} : prop ¬α :=
+impl_prop empty_is_prop
+
 @[hott] def refl_mere_rel {α : Type u} (R : α → α → Type v) (h : Π x y, prop (R x y))
   (ρ : Π x, R x x) (f : Π x y, R x y → x = y) : hset α := begin
   intros a b p q, induction q, symmetry,
@@ -410,6 +410,16 @@ end
   intro h, apply double_neg_eq,
   intros x y, apply lem_to_double_neg, apply h x y
 end
+
+@[hott] noncomputable def dneg.decode {α : Type u}
+  (H : prop α) : ¬¬α → α :=
+begin intro p, cases lem α H with u v, exact u, cases p v end
+
+@[hott] def dneg.encode {α : Type u} : α → ¬¬α :=
+λ x p, p x
+
+@[hott] noncomputable def dneg {α : Type u} (H : prop α) : α ≃ ¬¬α :=
+prop_equiv_lemma H not_is_prop dneg.encode (dneg.decode H)
 
 end structures
 

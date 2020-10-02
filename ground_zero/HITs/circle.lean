@@ -47,6 +47,32 @@ end
 def circle := ∑S⁰
 notation `S¹` := circle
 
+namespace loop
+  variables {α : Type u} {a : α}
+
+  def pos (p : a = a) : ℕ → a = a
+  |    0    := idp a
+  | (n + 1) := pos n ⬝ p
+
+  def neg (p : a = a) : ℕ → a = a
+  |    0    := p⁻¹
+  | (n + 1) := neg n ⬝ p⁻¹
+
+  def power (p : a = a) : integer → a = a
+  | (integer.pos n) := pos p n
+  | (integer.neg n) := neg p n
+
+  @[hott] def power_comp (p : a = a) (z : integer) :
+    power p z ⬝ p = power p (integer.succ z) := begin
+    induction z, { trivial },
+    { induction z with n ih,
+      { apply Id.inv_comp },
+      { transitivity, symmetry, apply Id.assoc,
+        transitivity, apply Id.map (λ q, neg p n ⬝ q),
+        apply Id.inv_comp, apply types.Id.refl_right } }
+  end
+end loop
+
 namespace circle
   -- https://github.com/leanprover/lean2/blob/master/hott/homotopy/circle.hlean
   def base₁ : S¹ := suspension.north
@@ -167,17 +193,7 @@ namespace circle
   def helix : S¹ → Type :=
   rec integer (ua integer.succ_equiv)
 
-  def pos : ℕ → Ω¹(S¹)
-  |    0    := idp base
-  | (n + 1) := pos n ⬝ loop
-
-  def neg : ℕ → Ω¹(S¹)
-  |    0    := loop⁻¹
-  | (n + 1) := neg n ⬝ loop⁻¹
-
-  def power : integer → Ω¹(S¹)
-  | (integer.pos n) := pos n
-  | (integer.neg n) := neg n
+  def power : integer → Ω¹(S¹) := loop.power loop
 
   def encode (x : S¹) (p : base = x) : helix x :=
   transport helix p (integer.pos 0)
@@ -221,7 +237,7 @@ namespace circle
     exact types.equiv.transport_characterization power loop,
     apply theorems.funext, intro n, transitivity,
     apply types.equiv.transport_composition, transitivity,
-    apply types.Id.map (λ p, power p ⬝ loop),
+    apply types.Id.map (λ z, power z ⬝ loop),
     apply transport_back, induction n,
     -- :-(
     { induction n with n ih,
@@ -233,7 +249,7 @@ namespace circle
         transitivity, apply (types.Id.assoc loop⁻¹ loop⁻¹ loop)⁻¹,
         apply types.Id.map, apply types.Id.inv_comp },
       { transitivity,
-        apply (types.Id.assoc (neg n ⬝ loop⁻¹) loop⁻¹ loop)⁻¹,
+        apply (types.Id.assoc (@loop.neg S¹ _ loop n ⬝ loop⁻¹) loop⁻¹ loop)⁻¹,
         transitivity, apply types.Id.map,
         apply types.Id.inv_comp, apply types.Id.refl_right } }
   end)
@@ -487,27 +503,12 @@ namespace types.integer
   local notation ℤ := integer
   noncomputable def succ_path := ground_zero.ua integer.succ_equiv
 
-  noncomputable def pos_shift (n : ℕ) :=
-  @nat.rec_on (λ _, ℤ = ℤ) n (idp ℤ) (λ n p, p ⬝ succ_path)
-
-  noncomputable def neg_shift (n : ℕ) :=
-  @nat.rec_on (λ _, ℤ = ℤ) n succ_path⁻¹
-    (λ n p, p ⬝ succ_path⁻¹)
-
-  noncomputable def shift : ℤ → ℤ = ℤ
-  | (integer.pos n) := pos_shift n
-  | (integer.neg n) := neg_shift n
+  noncomputable def shift : ℤ → ℤ = ℤ :=
+  HITs.loop.power succ_path
 
   @[hott] noncomputable def shift_comp (z : ℤ) :
-    shift z ⬝ succ_path = shift (integer.succ z) := begin
-    induction z,
-    { trivial },
-    { induction z with n ih,
-      { apply Id.inv_comp },
-      { transitivity, symmetry, apply Id.assoc,
-        transitivity, apply Id.map (λ p, neg_shift n ⬝ p),
-        apply Id.inv_comp, apply types.Id.refl_right } }
-  end
+    shift z ⬝ succ_path = shift (integer.succ z) :=
+  HITs.loop.power_comp succ_path z
 end types.integer
 
 end ground_zero

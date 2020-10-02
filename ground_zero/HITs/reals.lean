@@ -1,4 +1,5 @@
 import ground_zero.HITs.circle
+open ground_zero.types.equiv (transport)
 open ground_zero.theorems (funext)
 open ground_zero.HITs.circle
 open ground_zero.structures
@@ -128,6 +129,32 @@ namespace reals
 
   @[hott] noncomputable def Euler : fib cis base ≃ ℤ :=
   ker_of_homo cis (idp base)
+
+  -- Another (more tricky) proof, but it does not use R contractibility
+  @[hott] noncomputable def helix_over_cis (x : R) : helix (cis x) = ℤ := begin
+    fapply ind _ _ x; clear x,
+    { intro x, exact (integer.shift x)⁻¹ },
+    { intro z, change _ = _,
+      let p := integer.shift z, calc
+            equiv.transport (λ x, helix (cis x) = ℤ) (glue z) (integer.shift z)⁻¹
+          = @Id.map R Type _ _ (helix ∘ cis) (glue z)⁻¹ ⬝ (integer.shift z)⁻¹ :
+        by apply equiv.transport_over_contr_map
+      ... = (Id.map (helix ∘ cis) (glue z))⁻¹ ⬝ (integer.shift z)⁻¹ :
+        begin apply Id.map (⬝ p⁻¹), apply Id.map_inv end
+      ... = (helix # (cis # (glue z)))⁻¹ ⬝ (integer.shift z)⁻¹ :
+        begin apply Id.map (λ q, inv q ⬝ p⁻¹),
+              apply equiv.map_over_comp end
+      ... = (helix # loop)⁻¹ ⬝ (integer.shift z)⁻¹ :
+        begin apply Id.map (λ q, inv q ⬝ p⁻¹),
+              apply Id.map, apply recβrule end
+      ... = integer.succ_path⁻¹ ⬝ (integer.shift z)⁻¹ :
+        begin apply Id.map (λ q, inv q ⬝ p⁻¹),
+              apply circle.recβrule₂ end
+      ... = (integer.shift z ⬝ integer.succ_path)⁻¹ :
+        begin symmetry, apply Id.explode_inv end
+      ... = (integer.shift (integer.succ z))⁻¹ :
+        begin apply Id.map, apply integer.shift_comp end }
+  end
 
   @[hott] def phi_eqv_base_impl_contr {α : Type u} {x : α}
     (H : Π (φ : α → S¹), φ x = base) : contr S¹ :=
