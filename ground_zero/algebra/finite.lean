@@ -123,6 +123,8 @@ namespace types.product
   end
 end types.product
 
+namespace algebra
+
 namespace finite
   @[hott] def finite.plus {n m : ℕ} : finite n + finite m ≃ finite (n + m) := begin
     induction n with n ih,
@@ -151,5 +153,14 @@ namespace finite
       apply finite.plus }
   end
 end finite
+
+namespace group
+  class fin (G : group) :=
+  (eqv : Σ n, G.carrier ≃ finite n)
+
+  def ord (G : group) [fin G] := (@fin.eqv G _).fst
+end group
+
+end algebra
 
 end ground_zero
