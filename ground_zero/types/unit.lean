@@ -6,8 +6,8 @@ universe u
 inductive unit : Type u
 | star : unit
 
-notation [parsing_only] `𝟏` := unit
-notation [parsing_only] `★` := unit.star
+notation `𝟏` := unit
+notation `★` := unit.star
 
 namespace unit
   def elim {α : Type u} (a : α) : unit → α

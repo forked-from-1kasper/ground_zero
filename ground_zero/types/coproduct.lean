@@ -4,7 +4,7 @@ namespace ground_zero.types
 
 hott theory
 
-universes u v f
+universes u v w
 
 abbreviation coproduct (α : Type u) (β : Type v) := sum α β
 infix ` + ` := coproduct
@@ -15,7 +15,7 @@ namespace coproduct
   @[pattern] abbreviation inl : α → α + β := sum.inl
   @[pattern] abbreviation inr : β → α + β := sum.inr
 
-  @[hott] def elim {γ : Type f} (g₀ : α → γ) (g₁ : β → γ) : α + β → γ
+  @[hott] def elim {γ : Type w} (g₀ : α → γ) (g₁ : β → γ) : α + β → γ
   | (inl a) := g₀ a
   | (inr b) := g₁ b
 
@@ -23,7 +23,7 @@ namespace coproduct
   | (coproduct.inl x) := coproduct.inr x
   | (coproduct.inr x) := coproduct.inl x
 
-  @[hott] theorem symm : α + β ≃ β + α := begin
+  @[hott] def symm : α + β ≃ β + α := begin
     existsi inv, split; existsi inv;
     { intro x, induction x; trivial }
   end

@@ -12,9 +12,11 @@ digraph dependency_map {
 
   subgraph algebra {
     "algebra/eilenberg_maclane"
+    "algebra/finite"
     "algebra/group" -> {
-      "algebra/homology",
       "algebra/eilenberg_maclane",
+      "algebra/finite",
+      "algebra/homology",
       "algebra/ring"
     }
     "algebra/homology"

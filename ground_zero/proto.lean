@@ -10,8 +10,8 @@ structure iff (α : Sort u) (β : Sort v) :=
 
 infix ↔ := iff
 
-notation [parsing_only] `𝟎` := empty
-notation [parsing_only] `𝟐` := bool
+notation `𝟎` := empty
+notation `𝟐` := bool
 
 def empty.elim {α : Sort u} : empty → α.
 

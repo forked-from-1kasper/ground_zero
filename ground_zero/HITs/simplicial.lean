@@ -11,15 +11,9 @@ hott theory
 namespace ground_zero.HITs
 universes u v w
 
-def neq {α : Type u} (a b : α) : Type u := a = b → (𝟎 : Type)
+def simplex (α : Type u) (n : ℕ) := finite n → α
 
-def fin := iter 𝟏 𝟎
-@[pattern] def fin.zero {n : ℕ} : fin (n + 1) := sum.inr ★
-@[pattern] def fin.succ {n : ℕ} : fin n → fin (n + 1) := sum.inl
-
-def simplex (α : Type u) (n : ℕ) := fin n → α
-
-def filled (n : ℕ) := ∥fin n∥
+def filled (n : ℕ) := ∥finite n∥
 
 def network (α : Type u) := graph (@neq α)
 
@@ -46,7 +40,7 @@ end
   apply graph.elem, apply network.decode H
 end
 
-def hull (n : ℕ) := network (fin n)
-def hull.elem {n : ℕ} : fin n → hull n := graph.elem
+def hull (n : ℕ) := network (finite n)
+def hull.elem {n : ℕ} : finite n → hull n := graph.elem
 
 end ground_zero.HITs

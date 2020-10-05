@@ -45,7 +45,7 @@ namespace product
   def swap : α × β → β × α
   | (a, b) := (b, a)
 
-  theorem comm : α × β ≃ β × α := begin
+  @[hott] def comm : α × β ≃ β × α := begin
     existsi swap, split; existsi swap;
     { intro x, induction x, trivial }
   end

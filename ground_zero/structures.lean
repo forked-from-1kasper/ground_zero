@@ -547,4 +547,8 @@ def vect.map {α : Type u} {β : Type v} (f : α → β) :
     { apply ih } }
 end
 
+def finite := iter 𝟏 𝟎
+@[pattern] def finite.zero {n : ℕ} : finite (n + 1) := sum.inr ★
+@[pattern] def finite.succ {n : ℕ} : finite n → finite (n + 1) := sum.inl
+
 end ground_zero
