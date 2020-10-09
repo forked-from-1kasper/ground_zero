@@ -17,6 +17,15 @@ axiom choice {α : Type u} (β : α → Type v) (η : Π x, β x → Type w) :
   (Π (x : α), ∥(Σ (y : β x), η x y)∥) →
   ∥(Σ (φ : Π x, β x), Π x, η x (φ x))∥
 
+@[hott] noncomputable def choice_of_rel {α : Type u} {β : Type v}
+  (R : α → β → propset.{w}) (H : hset α) (G : hset β) :
+  (Π x, ∥(Σ y, (R x y).fst)∥) → ∥(Σ (φ : α → β), Π x, (R x (φ x)).fst)∥ := begin
+  apply @choice α (λ _, β) (λ x y, (R x y).fst),
+  { intros x y, apply H },
+  { intros x y z, apply G },
+  { intros x y, apply (R x y).snd }
+end
+
 @[hott] noncomputable def cartesian {α : Type u} (β : α → Type v) :
   hset α → (Π x, hset (β x)) → (Π x, ∥β x∥) → ∥(Π x, β x)∥ :=
 begin
@@ -72,9 +81,8 @@ section
   -- due to http://www.cs.ioc.ee/ewscs/2017/altenkirch/altenkirch-notes.pdf
   @[hott] noncomputable def lem {α : Type u} (H : prop α) : α + ¬α :=
   begin
-    have f := @choice inh (λ _, 𝟐) (λ φ x, (φ.fst x).fst)
-      (by apply inh.hset) (λ _, by apply bool_is_set)
-      (begin intros p x, apply (p.fst x).snd end)
+    have f := @choice_of_rel inh 𝟐 (λ φ x, φ.fst x)
+      (by apply inh.hset) (by apply bool_is_set)
       (begin intro x, apply HITs.merely.lift id x.snd end),
     fapply HITs.merely.rec _ _ f,
     { apply prop_excluded_middle H },
