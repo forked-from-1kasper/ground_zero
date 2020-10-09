@@ -360,6 +360,13 @@ end
   apply zero_eqv_set.left, assumption
 end
 
+@[hott] def hset_respects_sigma {α : Type u} {β : α → Type v}
+  (H : hset α) (G : Π x, hset (β x)) : hset (Σ x, β x) := begin
+  apply zero_eqv_set.forward, apply ntype_respects_sigma 0,
+  { apply zero_eqv_set.left, intros x y, apply H },
+  { intro x, apply zero_eqv_set.left, apply G }
+end
+
 @[hott] def prop_respects_equiv {α : Type u} {β : Type v} :
   α ≃ β → prop α → prop β := begin
   intros e h, apply minus_one_eqv_prop.forward,
@@ -524,6 +531,13 @@ end theorems
   { intros, intros f g, apply structures.ntype_respects_equiv,
     symmetry, apply ground_zero.theorems.full,
     apply ih, intro x, apply H }
+end
+
+@[hott] def structures.pi_hset {α : Type u} {β : α → Type v}
+  (H : Π x, structures.hset (β x)) : structures.hset (Π x, β x) := begin
+  apply structures.zero_eqv_set.forward,
+  apply structures.pi_respects_ntype 0,
+  intro x, apply structures.zero_eqv_set.left, apply H
 end
 
 def iter (α β : Type) : ℕ → Type

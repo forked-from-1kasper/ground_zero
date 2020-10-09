@@ -18,7 +18,8 @@ axiom choice {α : Type u} (β : α → Type v) (η : Π x, β x → Type w) :
   ∥(Σ (φ : Π x, β x), Π x, η x (φ x))∥
 
 @[hott] noncomputable def cartesian {α : Type u} (β : α → Type v) :
-  hset α → (Π x, hset (β x)) → (Π x, ∥β x∥) → ∥(Π x, β x)∥ := begin
+  hset α → (Π x, hset (β x)) → (Π x, ∥β x∥) → ∥(Π x, β x)∥ :=
+begin
   intros p q φ, apply transport, apply ground_zero.ua,
   change (Σ (φ : Π x, β x), Π (x : α), (𝟏 : Type)) ≃ _,
   transitivity, apply types.sigma.const, transitivity,
@@ -30,7 +31,8 @@ axiom choice {α : Type u} (β : α → Type v) (η : Π x, β x → Type w) :
   apply HITs.merely.uniq, intro y, apply HITs.merely.elem, exact ⟨y, ★⟩
 end
 
-@[hott] def prop_excluded_middle {α : Type u} (H : prop α) : prop (α + ¬α) := begin
+@[hott] def prop_excluded_middle {α : Type u} (H : prop α) : prop (α + ¬α) :=
+begin
   intros x y, induction x; induction y,
   { apply map, apply H },
   { apply proto.empty.elim, apply y x },
@@ -49,7 +51,8 @@ section
     apply theorems.prop.prop_equiv_prop G
   end
 
-  @[hott] noncomputable def propset.set : hset propset := begin
+  @[hott] noncomputable def propset.set : hset propset :=
+  begin
     intros x y, induction x with x H, induction y with y G,
     apply transport (λ π, Π (p q : π), p = q),
     symmetry, apply ground_zero.ua, apply types.sigma.sigma_path,
@@ -59,16 +62,16 @@ section
     { apply prop_is_set, apply prop_is_prop }
   end
 
-  @[hott] noncomputable def inh.hset : hset inh := begin
-    apply zero_eqv_set.forward, apply ntype_respects_sigma 0,
-    { apply pi_respects_ntype 0, intro x,
-      apply zero_eqv_set.left, apply propset.set },
-    { intros x, apply zero_eqv_set.left, apply prop_is_set,
-      apply HITs.merely.uniq }
+  @[hott] noncomputable def inh.hset : hset inh :=
+  begin
+    apply hset_respects_sigma,
+    apply pi_hset, intro x, apply propset.set,
+    intro φ, apply prop_is_set, apply HITs.merely.uniq
   end
 
   -- due to http://www.cs.ioc.ee/ewscs/2017/altenkirch/altenkirch-notes.pdf
-  @[hott] noncomputable def lem {α : Type u} (H : prop α) : α + ¬α := begin
+  @[hott] noncomputable def lem {α : Type u} (H : prop α) : α + ¬α :=
+  begin
     have f := @choice inh (λ _, 𝟐) (λ φ x, (φ.fst x).fst)
       (by apply inh.hset) (λ _, by apply bool_is_set)
       (begin intros p x, apply (p.fst x).snd end)
