@@ -20,7 +20,7 @@ namespace ground_zero
 
 hott theory
 
-universes u v
+universes u v u' v'
 
 axiom J {π : Π (α β : Type u), α ≃ β → Type v}
   (h : Π (α : Type u), π α α (ideqv α))
@@ -167,7 +167,7 @@ end
 
 section
   open ground_zero.types.product
-  @[hott] theorem product_equiv₃ {α α' β β' : Type u}
+  @[hott] theorem product_equiv₃ {α : Type u} {α' : Type v} {β : Type u'} {β' : Type v'}
     (e₁ : α ≃ α') (e₂ : β ≃ β') : (α × β) ≃ (α' × β') := begin
     cases e₁ with f H, induction H with linv rinv,
     cases linv with g α₁, induction rinv with h β₁,

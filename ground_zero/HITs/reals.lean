@@ -181,6 +181,20 @@ namespace reals
     apply phi_neq_base_impl_false φ,
     exact R, exact 0
   end
+
+  @[hott] def zero.decode {α : Type u} (f : 𝟏 → α) : α := f ★
+  @[hott] def zero.encode {α : Type u} (x : α) : 𝟏 → α := λ _, x
+
+  @[hott] def zero.desc {α : Type u} : (𝟏 → α) ≃ α := begin
+    existsi zero.decode, split; existsi zero.encode,
+    { intro f, apply ground_zero.theorems.funext,
+      intro x, induction x, trivial },
+    { intro x, trivial }
+  end
+
+  @[hott] noncomputable def cis_family : (R → S¹) ≃ S¹ :=
+  @transport Type (λ α, (α → S¹) ≃ S¹) 𝟏 R
+    (Id.symm $ ground_zero.ua (contr_equiv_unit contractible)) zero.desc
 end reals
 
 def complex := R × R

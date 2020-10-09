@@ -144,6 +144,9 @@ end
   { apply biinv_prop }
 end
 
+@[hott] def prop_equiv_prop {α β : Type u} (G : prop β) : prop (α ≃ β) :=
+begin intros f g, apply theorems.prop.equiv_hmtpy_lem, intro x, apply G end
+
 @[hott] theorem prop_exercise (π : Type u) : (prop π) ≃ (π ≃ ∥π∥) :=
 begin
   existsi @prop_equiv π, split; existsi prop_from_equiv,

@@ -2,7 +2,7 @@ import ground_zero.theorems.funext
 
 namespace ground_zero.types
 
-universes u v w
+universes u v u' v' w
 
 namespace product
   variables {α : Type u} {β : Type v}
@@ -38,8 +38,8 @@ namespace product
     { intro x, cases x with f g, trivial }
   end
 
-  def bimap {γ δ : Type v} (f : α → γ) (g : β → δ) :
-    α × β → γ × δ
+  def bimap {γ : Type u'} {δ : Type v'}
+    (f : α → γ) (g : β → δ) : α × β → γ × δ
   | (a, b) := (f a, g b)
 
   def swap : α × β → β × α

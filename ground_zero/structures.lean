@@ -30,12 +30,6 @@ structure contr (α : Type u) :=
 (point : α) (intro : Π (a : α), point = a :> α)
 --  or we can write `idfun ~ λ _, point`
 
-def LEM := Π (α : Type w), prop α → (α + ¬α)
-axiom lem : LEM
-
-def LEM_inf := Π (α : Type u), α + ¬α
-notation `LEM∞` := LEM_inf
-
 inductive hlevel
 | minus_two
 | succ : hlevel → hlevel
@@ -119,6 +113,12 @@ begin intros x y, induction x, induction y, trivial end
   { intro x, apply h.intro },
   { intro x, cases x, reflexivity }
 end
+
+@[hott] def zero_morphism_contr {α : Type u} : contr (α → 𝟏) :=
+⟨λ _, ★, λ f, HITs.interval.funext (λ x, unit_is_prop ★ (f x))⟩
+
+@[hott] def zero_morphism_eqv {α : Type u} : (α → 𝟏) ≃ 𝟏 :=
+contr_equiv_unit zero_morphism_contr
 
 @[hott] def contr_type_equiv {α : Type u} {β : Type v}
   (p : contr α) (q : contr β) : α ≃ β := calc
@@ -353,14 +353,21 @@ end
     assumption }
 end
 
-@[hott] def hset_respects_equiv {α β : Type u} :
+@[hott] def hset_respects_equiv {α : Type u} {β : Type v} :
   α ≃ β → hset α → hset β := begin
   intros e h, apply zero_eqv_set.forward,
   apply ntype_respects_equiv 0 e,
   apply zero_eqv_set.left, assumption
 end
 
-@[hott] def contr_respects_equiv {α β : Type u} :
+@[hott] def prop_respects_equiv {α : Type u} {β : Type v} :
+  α ≃ β → prop α → prop β := begin
+  intros e h, apply minus_one_eqv_prop.forward,
+  apply ntype_respects_equiv −1 e,
+  apply minus_one_eqv_prop.left, assumption
+end
+
+@[hott] def contr_respects_equiv {α : Type u} {β : Type v} :
   α ≃ β → contr α → contr β :=
 by apply ntype_respects_equiv −2
 
@@ -411,15 +418,14 @@ end
   intros x y, apply lem_to_double_neg, apply h x y
 end
 
-@[hott] noncomputable def dneg.decode {α : Type u}
-  (H : prop α) : ¬¬α → α :=
-begin intro p, cases lem α H with u v, exact u, cases p v end
-
-@[hott] def dneg.encode {α : Type u} : α → ¬¬α :=
-λ x p, p x
-
-@[hott] noncomputable def dneg {α : Type u} (H : prop α) : α ≃ ¬¬α :=
-prop_equiv_lemma H not_is_prop dneg.encode (dneg.decode H)
+@[hott] def bool_is_set : hset 𝟐 := begin
+  apply Hedberg, intros x y,
+  induction x; induction y,
+  { apply sum.inl, reflexivity },
+  { apply sum.inr, apply structures.ff_neq_tt },
+  { apply sum.inr, intro p, apply structures.ff_neq_tt, exact p⁻¹ },
+  { apply sum.inl, reflexivity }
+end
 
 end structures
 
@@ -550,5 +556,8 @@ end
 def finite := iter 𝟏 𝟎
 @[pattern] def finite.zero {n : ℕ} : finite (n + 1) := sum.inr ★
 @[pattern] def finite.succ {n : ℕ} : finite n → finite (n + 1) := sum.inl
+
+def LEM_inf := Π (α : Type u), α + ¬α
+notation `LEM∞` := LEM_inf
 
 end ground_zero
