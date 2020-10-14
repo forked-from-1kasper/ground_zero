@@ -1,4 +1,6 @@
+import ground_zero.theorems.functions
 import ground_zero.HITs.circle
+open ground_zero.theorems.functions (injective)
 open ground_zero.types.equiv (transport)
 open ground_zero.theorems (funext)
 open ground_zero.HITs.circle
@@ -173,9 +175,13 @@ namespace reals
     { assumption }, { cases p v }
   end
 
-  @[hott] noncomputable def lem_inf_disproved : LEM∞ → 𝟎 := begin
-    intro H, apply circle.loop_neq_refl,
-    apply prop_is_set, apply contr_impl_prop,
+  @[hott] noncomputable def circle_not_hset : ¬(hset S¹) :=
+  begin intro H, apply circle.loop_neq_refl, apply H end
+
+  @[hott] noncomputable def lem_inf_disproved : LEM∞ → 𝟎 :=
+  begin
+    intro H, apply circle_not_hset, apply prop_is_set,
+    apply contr_impl_prop,
     apply phi_eqv_base_impl_contr,
     intro φ, apply lem_inf_impl_dneg_inf H,
     apply phi_neq_base_impl_false φ,
@@ -195,6 +201,21 @@ namespace reals
   @[hott] noncomputable def cis_family : (R → S¹) ≃ S¹ :=
   @transport Type (λ α, (α → S¹) ≃ S¹) 𝟏 R
     (Id.symm $ ground_zero.ua (contr_equiv_unit contractible)) zero.desc
+
+  @[hott] def countable (α : Type u) :=
+  ∥(Σ (f : α → ℕ), injective f)∥
+
+  @[hott] noncomputable def circle_uncountable : ¬(countable S¹) :=
+  begin
+    fapply ground_zero.HITs.merely.rec, apply empty_is_prop,
+    intro p, cases p with f p, apply circle_not_hset,
+    apply prop_is_set, intros x y, apply p,
+    { fapply circle.ind _ _ x,
+      { fapply circle.ind _ _ y,
+        { reflexivity },
+        { apply ground_zero.theorems.nat.nat_is_set } },
+      { apply ground_zero.theorems.nat.nat_is_set } }
+  end
 end reals
 
 def complex := R × R
