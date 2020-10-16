@@ -415,6 +415,18 @@ namespace group
   notation φ ` ⊴ `:50 G := is_normal_subgroup G φ
   infix ` ⊵ `:50 := is_normal_subgroup
 
+  @[hott] def is_subgroup.prop (φ : ens G.carrier) :
+    structures.prop (G ≥ φ)
+  | ⟨p₁, q₁, r₁⟩ ⟨p₂, q₂, r₂⟩ := begin
+    have p := ens.prop G.e φ p₁ p₂, induction p,
+    have q : q₁ = q₂ :=
+    begin repeat { apply theorems.funext, intro }, apply ens.prop end,
+    induction q,
+    have r : r₁ = r₂ :=
+    begin repeat { apply theorems.funext, intro }, apply ens.prop end,
+    induction r, reflexivity
+  end
+
   @[hott] def cancel_left (a b : G.carrier) := calc
       a = a * e         : Id.inv (G.mul_one a)
     ... = a * (b⁻¹ * b) : (G.φ a) # (Id.inv $ G.mul_left_inv b)
@@ -858,6 +870,13 @@ namespace group
       subgroup.inv, @subgroup.mul_left_inv G φ _⟩
   end
 
+  @[hott] def subgroup.ext (φ ψ : ens G.carrier) [G ≥ φ] [G ≥ ψ] :
+    φ = ψ → subgroup.group G φ = subgroup.group G ψ :=
+  begin
+    intro p, tactic.unfreeze_local_instances, induction p,
+    apply types.Id.map, apply is_subgroup.prop
+  end
+
   @[hott] def subgroup.inter (φ ψ : ens G.carrier)
     [G ≥ φ] [G ≥ ψ] : ens ψ.subtype :=
   ⟨λ x, x.fst ∈ φ, λ x, ens.prop x.fst φ⟩
@@ -1232,6 +1251,14 @@ namespace group
 
   @[hott] instance univ_is_normal : G ⊵ ens.univ G.carrier :=
   begin split, intros, apply ★ end
+
+  @[hott] def univ_iso (G : group) : G ≅ subgroup.group G (ens.univ G.carrier) :=
+  begin
+    fapply sigma.mk, { intro x, existsi x, exact ★ }, split,
+    { intros x y, reflexivity }, apply types.qinv.to_biinv,
+    fapply sigma.mk, { apply sigma.fst }, split; intro x,
+    { induction x with x z, induction z, reflexivity }, { reflexivity }
+  end
 
   @[hott] instance Z₁.has_mul : has_mul 𝟏 :=
   begin split, intros, apply ★ end
