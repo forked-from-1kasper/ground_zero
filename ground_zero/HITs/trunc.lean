@@ -36,13 +36,15 @@ namespace trunc
   notation `∥` α `∥₁`  := trunc  1 α
 
   @[hott] def elem_close {β : Type v} (G : is-n-type β)
-    (f g : trunc n α → β) (H : f ∘ elem = g ∘ elem) : f = g := begin
+    (f g : trunc n α → β) (H : f ∘ elem = g ∘ elem) : f = g :=
+  begin
     apply ground_zero.theorems.funext, fapply ind; intro x,
     { exact (λ (f : α → β), f x) # H },
     { apply hlevel.cumulative, assumption }
   end
 
-  @[hott] noncomputable def nth_trunc (H : is-n-type α) : α ≃ trunc n α := begin
+  @[hott] noncomputable def nth_trunc (H : is-n-type α) : α ≃ trunc n α :=
+  begin
     existsi elem, split; existsi rec id H,
     { intro x, trivial },
     { apply ground_zero.HITs.interval.happly,
@@ -55,12 +57,12 @@ namespace trunc
   begin apply nth_trunc, apply zero_eqv_set.left, assumption end
 
   @[hott] noncomputable def lift {α : Type u} {β : Type v} {n : ℕ₋₂}
-    (f : α → β) : trunc n α → trunc n β := begin
-    fapply rec, { intro x, apply elem, apply f x }, apply uniq
-  end
+    (f : α → β) : trunc n α → trunc n β :=
+  begin fapply rec, { intro x, apply elem, apply f x }, apply uniq end
 
   @[hott] noncomputable def lift₂ {α : Type u} {β : Type v} {γ : Type w} {n : ℕ₋₂}
-    (f : α → β → γ) : trunc n α → trunc n β → trunc n γ := begin
+    (f : α → β → γ) : trunc n α → trunc n β → trunc n γ :=
+  begin
     fapply @rec α n (trunc n β → trunc n γ),
     { intro a, fapply rec,
       { intro b, apply elem, apply f a b },

@@ -27,7 +27,8 @@ namespace product
     Π (x : α × β), π x
   | (a, b) := g a b
 
-  @[hott] def univ {ν : Type w} : (ν → α × β) ≃ (ν → α) × (ν → β) := begin
+  @[hott] def univ {ν : Type w} : (ν → α × β) ≃ (ν → α) × (ν → β) :=
+  begin
     let e₁ : (ν → α × β) → (ν → α) × (ν → β) :=
     λ f, (prod.pr₁ ∘ f, prod.pr₂ ∘ f),
     let e₂ : (ν → α) × (ν → β) → (ν → α × β) :=
@@ -45,7 +46,8 @@ namespace product
   def swap : α × β → β × α
   | (a, b) := (b, a)
 
-  @[hott] def comm : α × β ≃ β × α := begin
+  @[hott] def comm : α × β ≃ β × α :=
+  begin
     existsi swap, split; existsi swap;
     { intro x, induction x, trivial }
   end

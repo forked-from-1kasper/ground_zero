@@ -35,7 +35,8 @@ namespace pushout
   @[hott] def ind {δ : pushout f g → Type w}
     (inl₁ : Π (x : α), δ (inl x)) (inr₁ : Π (x : β), δ (inr x))
     (glue₁ : Π (x : σ), inl₁ (f x) =[glue x] inr₁ (g x)) :
-    Π (x : pushout f g), δ x := begin
+    Π (x : pushout f g), δ x :=
+  begin
     fapply graph.ind,
     { intro x, induction x, apply inl₁, apply inr₁ },
     { intros u v H, induction H with x, apply glue₁ }
@@ -54,7 +55,8 @@ namespace pushout
 
   @[hott] noncomputable def recβrule {δ : Type w} (inl₁ : α → δ) (inr₁ : β → δ)
     (glue₁ : Π x, inl₁ (f x) = inr₁ (g x)) (x : σ) :
-    (rec inl₁ inr₁ glue₁) # (glue x) = glue₁ x := begin
+    (rec inl₁ inr₁ glue₁) # (glue x) = glue₁ x :=
+  begin
     apply types.equiv.pathover_of_eq_inj (glue x), transitivity,
     symmetry, apply types.equiv.apd_over_constant_family,
     transitivity, apply indβrule, reflexivity

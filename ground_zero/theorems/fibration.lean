@@ -25,8 +25,8 @@ namespace ground_zero.theorems.fibration
   @leg.lam (sigma β) (λ i, ⟨f i,
     @interval.ind (β ∘ f) u (types.equiv.subst seg u) Id.refl i⟩)
 
-  @[hott] def type_family {α : Type u} (β : α → Type v) :
-    (Σ x, β x) ↠ α := begin
+  @[hott] def type_family {α : Type u} (β : α → Type v) : (Σ x, β x) ↠ α :=
+  begin
     existsi sigma.fst, intros x f, induction x with x u,
     apply @leg.rec_on α (λ x f, Π (u : β x), @leg (Σ x, β x) ⟨x, u⟩) x f,
     apply lifting
@@ -41,7 +41,8 @@ namespace ground_zero.theorems.fibration
   ⟨⟨x, u⟩, by trivial⟩
 
   @[hott] theorem fiber_over {α : Type u} {β : α → Type v} (x : α) :
-    types.fib (@sigma.fst α β) x ≃ β x := begin
+    types.fib (@sigma.fst α β) x ≃ β x :=
+  begin
     existsi (forward x), split; existsi (@left α β x),
     { intro u, cases u with u h, cases u with y u,
       induction h, fapply types.sigma.prod; trivial },

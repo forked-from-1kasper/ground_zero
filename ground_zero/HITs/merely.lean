@@ -33,7 +33,8 @@ namespace merely
 
   @[hott] def ind {α : Type u} {π : ∥α∥ → Type v}
     (elemπ : Π x, π (elem x))
-    (uniqπ : Π x, prop (π x)) : Π x, π x := begin
+    (uniqπ : Π x, prop (π x)) : Π x, π x :=
+  begin
     fapply colimit.ind,
     { intros, induction n with n ih,
       { apply elemπ },
@@ -48,7 +49,8 @@ namespace merely
     (f : α → β) : ∥α∥ → β :=
   ind f (λ _, h)
 
-  @[hott] def weak_uniq {α : Type u} (x y : α) : elem x = elem y :> ∥α∥ := begin
+  @[hott] def weak_uniq {α : Type u} (x y : α) : elem x = elem y :> ∥α∥ :=
+  begin
     transitivity, { symmetry, apply colimit.glue }, symmetry,
     transitivity, { symmetry, apply colimit.glue },
     apply ground_zero.types.Id.map, apply generalized.glue
@@ -88,7 +90,8 @@ namespace merely
   L⁻¹ ⬝ L
 
   @[hott] def cong_close {α : Type u} {n : ℕ} {a b : generalized.repeat α n} (p : a = b) :
-    inv glue ⬝ incl # (generalized.dep α n # p) ⬝ glue = incl # p := begin
+    inv glue ⬝ incl # (generalized.dep α n # p) ⬝ glue = incl # p :=
+  begin
     induction p, transitivity,
     { symmetry, apply ground_zero.types.Id.assoc },
     apply ground_zero.types.equiv.rewrite_comp, symmetry,
@@ -102,7 +105,8 @@ namespace merely
   @[hott] def glue_close {α : Type u} {n : ℕ} {a b : generalized.repeat α n} :
     inv glue ⬝ incl # (generalized.glue (generalized.dep α n a)
                                         (generalized.dep α n b)) ⬝ glue =
-    incl # (generalized.glue a b) := begin
+    incl # (generalized.glue a b) :=
+  begin
     symmetry, transitivity,
     { symmetry, exact cong_close (generalized.glue a b) },
     apply cong (λ p, p ⬝ glue), apply cong,
@@ -111,12 +115,14 @@ namespace merely
 
   @[hott] def incl_uniq_close {α : Type u} {n : ℕ} (a b : generalized.repeat α n) :
     inv glue ⬝ incl_uniq (generalized.dep α n a) (generalized.dep α n b) ⬝ glue =
-    incl_uniq a b := begin
+    incl_uniq a b :=
+  begin
     apply cong (λ p, p ⬝ glue), apply cong,
     apply glue_close
   end
 
-  @[hott] def uniq {α : Type u} : prop ∥α∥ := begin
+  @[hott] def uniq {α : Type u} : prop ∥α∥ :=
+  begin
     apply lem_contr, fapply ind,
     { intro x, existsi elem x, fapply colimit.ind; intros n y,
       { apply incl_zero_eq_incl },
@@ -138,7 +144,8 @@ namespace merely
   rec uniq (elem ∘ f)
 
   @[hott] def lift₂ {α : Type u} {β : Type v} {γ : Type w}
-    (f : α → β → γ) : ∥α∥ → ∥β∥ → ∥γ∥ := begin
+    (f : α → β → γ) : ∥α∥ → ∥β∥ → ∥γ∥ :=
+  begin
     fapply @rec α (∥β∥ → ∥γ∥),
     { apply ground_zero.structures.impl_prop, apply uniq },
     { intro a, fapply rec, apply uniq,
@@ -146,14 +153,15 @@ namespace merely
   end
 
   @[hott] theorem equiv_iff_trunc {α β : Type u}
-    (f : α → β) (g : β → α) : ∥α∥ ≃ ∥β∥ := begin
+    (f : α → β) (g : β → α) : ∥α∥ ≃ ∥β∥ :=
+  begin
     existsi lift f, split; existsi lift g;
     { intro x, apply uniq }
   end
 
   def double {α : Type u} (a : α) : α × α := ⟨a, a⟩
-  @[hott] theorem product_identity {α : Type u} :
-    ∥α∥ ≃ ∥α × α∥ := begin
+  @[hott] theorem product_identity {α : Type u} : ∥α∥ ≃ ∥α × α∥ :=
+  begin
     apply equiv_iff_trunc, exact double,
     intro x, cases x with u v, exact u
   end

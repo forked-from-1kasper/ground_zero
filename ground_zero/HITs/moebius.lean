@@ -46,7 +46,8 @@ def cylinder := S¹ × I
 def C : S¹ → Type := circle.rec I Id.refl
 def cylinder' := Σ b, C b
 
-@[hott] noncomputable def C.const : Π x, C x = I := begin
+@[hott] noncomputable def C.const : Π x, C x = I :=
+begin
   intro x, fapply circle.ind _ _ x,
   refl, apply Id.trans,
   apply equiv.transport_over_contr_map,
@@ -55,7 +56,8 @@ def cylinder' := Σ b, C b
   apply circle.recβrule₂, trivial
 end
 
-@[hott] noncomputable def cyl_eqv : cylinder' ≃ cylinder := begin
+@[hott] noncomputable def cyl_eqv : cylinder' ≃ cylinder :=
+begin
   transitivity,
   { apply equiv.idtoeqv, apply Id.map,
     apply ground_zero.theorems.funext, exact C.const },

@@ -39,7 +39,8 @@ namespace interval
   abbreviation one := i₁
 
   @[safe] def ind {π : I → Type u} (b₀ : π i₀) (b₁ : π i₁)
-    (s : b₀ =[seg] b₁) (x : I) : π x := begin
+    (s : b₀ =[seg] b₁) (x : I) : π x :=
+  begin
     fapply quot.hrec_on x,
     { intro b, cases b, exact b₀, exact b₁ },
     { intros,
@@ -60,7 +61,8 @@ namespace interval
     (s : b₀ =[seg] b₁) : equiv.apd (ind b₀ b₁ s) seg = s
 
   @[hott] noncomputable def recβrule {π : Type u} (b₀ b₁ : π)
-    (s : b₀ = b₁) : rec b₀ b₁ s # seg = s := begin
+    (s : b₀ = b₁) : rec b₀ b₁ s # seg = s :=
+  begin
     apply equiv.pathover_of_eq_inj seg, transitivity,
     symmetry, apply equiv.apd_over_constant_family,
     transitivity, apply indβrule, reflexivity

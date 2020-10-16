@@ -21,13 +21,15 @@ local notation ℤ := int
 namespace nat.product
   universes u v
 
-  def add (x y : ℕ × ℕ) : ℕ × ℕ := begin
+  def add (x y : ℕ × ℕ) : ℕ × ℕ :=
+  begin
     cases x with a b, cases y with c d,
     split, apply a + c, apply b + d
   end
   instance : has_add (ℕ × ℕ) := ⟨add⟩
 
-  def mul (x y : ℕ × ℕ) : ℕ × ℕ := begin
+  def mul (x y : ℕ × ℕ) : ℕ × ℕ :=
+  begin
     cases x with a b, cases y with c d,
     split, apply a * c + b * d,
     apply a * d + b * c
@@ -56,7 +58,8 @@ namespace int
   @[hott] def ind {π : ℤ → Type u}
     (mk₁ : Π (x : ℕ × ℕ), π (mk x))
     (knife₁ : Π {a b c d : ℕ} (H : a + d = b + c),
-      mk₁ (a, b) =[knife H] mk₁ (c, d)) (x : ℤ) : π x := begin
+      mk₁ (a, b) =[knife H] mk₁ (c, d)) (x : ℤ) : π x :=
+  begin
     fapply graph.ind, exact mk₁,
     { intros x y H, cases x with a b, cases y with c d, apply knife₁ }
   end
@@ -64,7 +67,8 @@ namespace int
   @[hott] def rec {π : Type u}
     (mk₁ : ℕ × ℕ → π)
     (knife₁ : Π {a b c d : ℕ} (H : a + d = b + c),
-      mk₁ (a, b) = mk₁ (c, d)) : ℤ → π := begin
+      mk₁ (a, b) = mk₁ (c, d)) : ℤ → π :=
+  begin
     fapply graph.rec, exact mk₁,
     { intros x y H, cases x with a b, cases y with c d,
       apply knife₁, assumption }
@@ -74,7 +78,8 @@ namespace int
   ⟨rec (λ x, mk ⟨x.pr₂, x.pr₁⟩)
     (begin intros a b c d H, apply knife, symmetry, assumption end)⟩
 
-  @[hott] theorem k_equiv (a b k : ℕ) : mk (a, b) = mk (a + k, b + k) := begin
+  @[hott] theorem k_equiv (a b k : ℕ) : mk (a, b) = mk (a + k, b + k) :=
+  begin
     apply knife, transitivity,
     { symmetry, apply ground_zero.theorems.nat.assoc },
     symmetry, transitivity, { symmetry, apply ground_zero.theorems.nat.assoc },

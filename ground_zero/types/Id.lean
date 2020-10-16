@@ -87,7 +87,8 @@ namespace Id
   begin intro μ, induction r, exact μ end
 
   @[hott] def trans_cancel_right {α : Type u} {a b c : α}
-    (r : b = c) (p q : a = b) : p ⬝ r = q ⬝ r → p = q := begin
+    (r : b = c) (p q : a = b) : p ⬝ r = q ⬝ r → p = q :=
+  begin
     intro μ, induction r,
     transitivity, { symmetry, apply refl_right },
     symmetry, transitivity, { symmetry, apply refl_right },
@@ -148,13 +149,15 @@ namespace whiskering
   variables {p q : a = b :> α} {r s : b = c :> α}
   variables {ν : p = q} {κ : r = s}
 
-  @[hott] def right_whs (ν : p = q) (r : b = c) : p ⬝ r = q ⬝ r := begin
+  @[hott] def right_whs (ν : p = q) (r : b = c) : p ⬝ r = q ⬝ r :=
+  begin
     induction r,
     exact (Id.refl_right p) ⬝ ν ⬝ (Id.refl_right q)⁻¹
   end
   infix ` ⬝ᵣ `:60 := right_whs
 
-  @[hott] def left_whs (q : a = b) (κ : r = s) : q ⬝ r = q ⬝ s := begin
+  @[hott] def left_whs (q : a = b) (κ : r = s) : q ⬝ r = q ⬝ s :=
+  begin
     induction q,
     exact (Id.refl_left r) ⬝ κ ⬝ (Id.refl_left s)⁻¹
   end
@@ -168,15 +171,16 @@ namespace whiskering
   (p ⬝ₗ κ) ⬝ (ν ⬝ᵣ s)
   infix ` ⋆′ `:65 := horizontal_comp₂
 
-  @[hott] lemma comp_uniq : ν ⋆ κ = ν ⋆′ κ := begin
+  @[hott] lemma comp_uniq : ν ⋆ κ = ν ⋆′ κ :=
+  begin
     induction p, induction r,
     induction ν, induction κ,
     reflexivity
   end
 
   @[hott] lemma loop₁ {α : Type u} {a : α}
-    {ν κ : idp a = idp a} :
-    ν ⬝ κ = ν ⋆ κ := begin
+    {ν κ : idp a = idp a} : ν ⬝ κ = ν ⋆ κ :=
+  begin
     symmetry, transitivity,
     { apply Id.map (⬝ Id.refl ⬝ κ ⬝ Id.refl),
       apply Id.refl_twice },
@@ -184,8 +188,8 @@ namespace whiskering
   end
 
   @[hott] lemma loop₂ {α : Type u} {a : α}
-    {ν κ : idp a = idp a} :
-    ν ⋆′ κ = κ ⬝ ν := begin
+    {ν κ : idp a = idp a} : ν ⋆′ κ = κ ⬝ ν :=
+  begin
     transitivity,
     { apply Id.map (⬝ Id.refl ⬝ ν ⬝ Id.refl),
       apply Id.refl_twice },

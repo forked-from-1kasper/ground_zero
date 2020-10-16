@@ -30,7 +30,8 @@ namespace reals
   graph.line (rel.glue z)
 
   @[hott] def ind {π : R → Type u} (cz : Π x, π (elem x))
-    (sz : Π z, cz z =[glue z] cz (integer.succ z)) (u : R) : π u := begin
+    (sz : Π z, cz z =[glue z] cz (integer.succ z)) (u : R) : π u :=
+  begin
     fapply graph.ind, exact cz,
     { intros u v H, induction H, apply sz }
   end
@@ -47,7 +48,8 @@ namespace reals
 
   @[hott] noncomputable def recβrule {π : Type u} (cz : ℤ → π)
     (sz : Π z, cz z = cz (integer.succ z) :> π) (z : ℤ) :
-    rec cz sz # (glue z) = sz z := begin
+    rec cz sz # (glue z) = sz z := 
+  begin
     apply equiv.pathover_of_eq_inj (glue z), transitivity,
     symmetry, apply equiv.apd_over_constant_family,
     transitivity, apply indβrule, reflexivity
@@ -102,7 +104,8 @@ namespace reals
     variables (φ : R → S¹) (p : φ 0 = base)
     include p
 
-    @[hott] def helix_over_homo (x : R) : helix (φ x) = ℤ := begin
+    @[hott] def helix_over_homo (x : R) : helix (φ x) = ℤ :=
+    begin
       transitivity, apply map (helix ∘ φ), apply dist x 0,
       change _ = helix base, apply map helix, exact p
     end
@@ -133,7 +136,8 @@ namespace reals
   ker_of_homo cis (idp base)
 
   -- Another (more tricky) proof, but it does not use R contractibility
-  @[hott] noncomputable def helix_over_cis (x : R) : helix (cis x) = ℤ := begin
+  @[hott] noncomputable def helix_over_cis (x : R) : helix (cis x) = ℤ :=
+  begin
     fapply ind _ _ x; clear x,
     { intro x, exact (integer.shift x)⁻¹ },
     { intro z, change _ = _,
@@ -163,14 +167,16 @@ namespace reals
   ⟨base, λ y, (H (λ _, y))⁻¹⟩
 
   @[hott] def phi_neq_base_impl_false {α : Type u} {x : α}
-    (φ : α → S¹) : ¬¬(φ x = base) := begin
+    (φ : α → S¹) : ¬¬(φ x = base) :=
+  begin
     fapply @circle.ind (λ b, ¬¬(b = base)) _ _ (φ x),
     { intro p, apply p, reflexivity },
     { change _ = _, apply impl_prop empty_is_prop }
   end
 
   @[hott] def lem_inf_impl_dneg_inf (H : LEM∞)
-    {α : Type u} : ¬¬α → α := begin
+    {α : Type u} : ¬¬α → α :=
+  begin
     intro p, cases H α with u v,
     { assumption }, { cases p v }
   end
@@ -191,7 +197,8 @@ namespace reals
   @[hott] def zero.decode {α : Type u} (f : 𝟏 → α) : α := f ★
   @[hott] def zero.encode {α : Type u} (x : α) : 𝟏 → α := λ _, x
 
-  @[hott] def zero.desc {α : Type u} : (𝟏 → α) ≃ α := begin
+  @[hott] def zero.desc {α : Type u} : (𝟏 → α) ≃ α :=
+  begin
     existsi zero.decode, split; existsi zero.encode,
     { intro f, apply ground_zero.theorems.funext,
       intro x, induction x, trivial },

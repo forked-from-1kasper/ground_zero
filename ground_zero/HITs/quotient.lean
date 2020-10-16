@@ -13,7 +13,8 @@ def quot {α : Type u} (R : α → α → propset.{v}) := ∥graph (λ x y, (R x
 trunc.elem ∘ graph.elem
 
 @[hott] def quot.sound {α : Type u} {R : α → α → propset.{v}} {a b : α} :
-  (R a b).fst → quot.elem a = quot.elem b :> quot R := begin
+  (R a b).fst → quot.elem a = quot.elem b :> quot R :=
+begin
   intro H, apply ground_zero.types.Id.map trunc.elem,
   apply graph.line, assumption
 end
@@ -25,7 +26,8 @@ end
   {π : quot R → Type v}
   (elemπ : Π x, π (quot.elem x))
   (lineπ : Π x y H, elemπ x =[quot.sound H] elemπ y)
-  (set   : Π x, hset (π x)) : Π x, π x := begin
+  (set   : Π x, hset (π x)) : Π x, π x :=
+begin
   fapply trunc.ind,
   { fapply graph.ind, apply elemπ,
     { intros x y H, apply ground_zero.types.Id.trans,
@@ -46,7 +48,8 @@ end
   {R₁ : α → α → propset.{u'}} {R₂ : β → β → propset.{v'}}
   (R₁refl : Π x, (R₁ x x).fst) (R₂refl : Π x, (R₂ x x).fst) (f : α → β → γ)
   (h : hset γ) (p : Π a₁ a₂ b₁ b₂, (R₁ a₁ b₁).fst → (R₂ a₂ b₂).fst → f a₁ a₂ = f b₁ b₂) :
-  quot R₁ → quot R₂ → γ := begin
+  quot R₁ → quot R₂ → γ :=
+begin
   intro x, fapply quot.rec _ _ _ x; clear x,
   { intros x y, fapply quot.rec _ _ _ y; clear y,
     { intro y, exact f x y },
@@ -83,7 +86,8 @@ structure setoid (α : Type u) :=
 begin induction p, induction q, trivial end
 
 @[hott] def eqv_prop {α : Type u} {rel : α → α → propset.{v}}
-  (h g : equivalence rel) : h = g := begin
+  (h g : equivalence rel) : h = g :=
+begin
   apply ground_zero.structures.product_prop,
   { intros f g, apply ground_zero.theorems.funext, intro x,
     apply (rel x x).snd },
@@ -120,7 +124,8 @@ quot.ind elemπ lineπ set
 @[hott] def quotient.ind_prop {α : Type u} {s : setoid α}
   {π : quotient s → Type v}
   (elemπ : Π x, π (quotient.elem x))
-  (propπ : Π x, prop (π x)) : Π x, π x := begin
+  (propπ : Π x, prop (π x)) : Π x, π x :=
+begin
   fapply quotient.ind,
   { exact elemπ },
   { intros, change _ = _, apply propπ },
@@ -137,7 +142,8 @@ by apply quot.rec; assumption
 @[hott] def quotient.lift₂ {α : Type u} {β : Type v} {γ : Type w}
   {s₁ : setoid α} {s₂ : setoid β} (f : α → β → γ) (h : hset γ)
   (p : Π a₁ a₂ b₁ b₂, s₁.apply a₁ b₁ → s₂.apply a₂ b₂ → f a₁ a₂ = f b₁ b₂) :
-  quotient s₁ → quotient s₂ → γ := begin
+  quotient s₁ → quotient s₂ → γ :=
+begin
   fapply quot.lift₂, apply s₁.iseqv.fst, apply s₂.iseqv.fst,
   repeat { assumption }
 end

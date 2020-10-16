@@ -16,7 +16,8 @@ def peel_off : ℕ + 𝟏 → ℕ
 | (coproduct.inr _) := nat.zero
 | (coproduct.inl n) := nat.succ n
 
-@[hott] def closed_nat : ℕ ≃ ℕ + 𝟏 := begin
+@[hott] def closed_nat : ℕ ≃ ℕ + 𝟏 :=
+begin
   existsi glue, split; existsi peel_off,
   { intro n, induction n with n ih; trivial },
   { intro n, induction n,
@@ -25,7 +26,8 @@ def peel_off : ℕ + 𝟏 → ℕ
 end
 
 @[hott] def equiv_addition {α : Type u} {β : Type v} (γ : Type w)
-  (e : α ≃ β) : α + γ ≃ β + γ := begin
+  (e : α ≃ β) : α + γ ≃ β + γ :=
+begin
   induction e with f H,
   have q := qinv.of_biinv f H,
   cases q with g inv, induction inv with α' β',
@@ -48,12 +50,14 @@ end
     { trivial } }
 end
 
-@[hott] example : ℕ ≃ ℕ + 𝟏 + 𝟏 := begin
+@[hott] example : ℕ ≃ ℕ + 𝟏 + 𝟏 :=
+begin
   transitivity, exact closed_nat,
   apply equiv_addition, exact closed_nat
 end
 
-@[hott] def nat_plus_unit (n : ℕ) : ℕ ≃ pt ℕ n := begin
+@[hott] def nat_plus_unit (n : ℕ) : ℕ ≃ pt ℕ n :=
+begin
   induction n with n ih,
   { reflexivity },
   { transitivity,
@@ -114,7 +118,8 @@ end
   apply encode_decode
 end
 
-@[hott] def recognize (m n : ℕ) : m = n ≃ code m n := begin
+@[hott] def recognize (m n : ℕ) : m = n ≃ code m n :=
+begin
   existsi encode, split; existsi decode,
   apply decode_encode, apply encode_decode
 end

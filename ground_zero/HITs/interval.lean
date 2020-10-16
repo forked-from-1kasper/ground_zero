@@ -14,14 +14,16 @@ namespace interval
   /- β i₀ and β i₁ are Prop’s,
      so s : b₀ = b₁ is trivial -/
   def prop_rec {β : I → Prop} (b₀ : β i₀) (b₁ : β i₁) :
-    Π (x : I), β x := begin
+    Π (x : I), β x :=
+  begin
     intros, refine quot.ind _ x, intro b,
     cases b, exact b₀, exact b₁
   end
 
   def hrec (β : I → Type u)
     (b₀ : β 0) (b₁ : β 1) (s : b₀ == b₁)
-    (x : I) : β x := begin
+    (x : I) : β x :=
+  begin
     fapply quot.hrec_on x,
     { intro b, cases b, exact b₀, exact b₁ },
     { intros a b R, cases a; cases b,
@@ -90,7 +92,8 @@ namespace interval
   lam (λ i, f (elim p i))
 
   @[hott] noncomputable def cong_refl {α : Type u} {β : Type v}
-    {a : α} (f : α → β) : cong f (idp a) = idp (f a) := begin
+    {a : α} (f : α → β) : cong f (idp a) = idp (f a) :=
+  begin
     transitivity, apply types.equiv.map_over_comp,
     transitivity, apply Id.map, apply recβrule, trivial
   end
@@ -132,7 +135,8 @@ namespace interval
   ⟨neg, ⟨⟨neg, neg_neg⟩, ⟨neg, neg_neg⟩⟩⟩
 
   @[hott] noncomputable def line_rec {α : Type u} (p : I → α) :
-    interval.rec (p 0) (p 1) (p # seg) = p :> I → α := begin
+    interval.rec (p 0) (p 1) (p # seg) = p :> I → α :=
+  begin
     apply theorems.funext, intro x, fapply interval.ind _ _ _ x,
     { refl }, { refl },
     { apply ground_zero.types.Id.trans,
@@ -151,7 +155,8 @@ namespace interval
   @[hott] noncomputable def transport_over_seg {α : Type u} (π : α → Type v)
     {a b : α} (p : a = b :> α) (u : π a) :
     @equiv.transport I (λ (i : I), π (interval.elim p i))
-      0 1 interval.seg u = equiv.subst p u :> π b := begin
+      0 1 interval.seg u = equiv.subst p u :> π b :=
+  begin
     transitivity, apply equiv.transport_comp,
     transitivity, apply Id.map (λ p, equiv.subst p u),
     apply interval.recβrule, trivial
@@ -160,7 +165,8 @@ namespace interval
   @[hott] noncomputable def transportconst_with_seg
     {α β : Type u} (p : α = β) (x : α) :
     @equiv.transport I (interval.elim p) 0 1 interval.seg x =
-      equiv.subst p x :> β := begin
+      equiv.subst p x :> β :=
+  begin
     transitivity, apply equiv.transport_to_transportconst,
     transitivity, apply Id.map (λ p, equiv.transportconst p x),
     apply interval.recβrule, induction p, trivial

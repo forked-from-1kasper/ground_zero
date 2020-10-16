@@ -70,7 +70,8 @@ def pred : integer → integer
 | (neg u) := neg (u + 1)
 | (pos v) := auxpred v
 
-@[hott] def succ_equiv : integer ≃ integer := begin
+@[hott] def succ_equiv : integer ≃ integer :=
+begin
   existsi succ, split; existsi pred,
   repeat {
     intro n, induction n,
@@ -112,25 +113,29 @@ instance : has_le integer := ⟨le⟩
 @[hott] def add_zero (x : integer) : x + 0 = x :=
 begin induction x; trivial end
 
-@[hott] def zero_add (x : integer) : 0 + x = x := begin
+@[hott] def zero_add (x : integer) : 0 + x = x :=
+begin
   induction x,
   { apply Id.map pos, apply nat.zero_plus_i },
   { apply Id.map neg, reflexivity }
 end
 
-@[hott] def auxsub_asymm : Π x y, auxsub x y = negate (auxsub y x) := begin
+@[hott] def auxsub_asymm : Π x y, auxsub x y = negate (auxsub y x) :=
+begin
   intro x, induction x with x ih; intro y; induction y with y ih',
   repeat { reflexivity }, { apply ih }
 end
 
-@[hott] def add_comm (x y : integer) : x + y = y + x := begin
+@[hott] def add_comm (x y : integer) : x + y = y + x :=
+begin
   induction x; induction y,
   { apply Id.map pos, apply nat.comm },
   { reflexivity }, { reflexivity },
   { apply Id.map neg, apply nat.comm }
 end
 
-@[hott] noncomputable def set : hset integer := begin
+@[hott] noncomputable def set : hset integer :=
+begin
   apply ground_zero.ua.coproduct_set;
   apply ground_zero.theorems.nat.nat_is_set
 end

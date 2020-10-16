@@ -28,26 +28,30 @@ section
   instance : has_zero T.carrier := ⟨T.zero⟩
 end
 
-@[hott] def ring.mul_zero {T : ring} (a : T.carrier) : a * 0 = 0 := begin
+@[hott] def ring.mul_zero {T : ring} (a : T.carrier) : a * 0 = 0 :=
+begin
   apply group.unit_of_sqr, transitivity,
   { symmetry, apply T.distrib_left },
   apply map (T.ψ a), apply T.mul_one
 end
 
-@[hott] def ring.zero_mul {T : ring} (a : T.carrier) : 0 * a = 0 := begin
+@[hott] def ring.zero_mul {T : ring} (a : T.carrier) : 0 * a = 0 :=
+begin
   apply group.unit_of_sqr, transitivity,
   { symmetry, apply T.distrib_right },
   apply map (* a), apply T.mul_one
 end
 
-@[hott] def ring.mul_neg {T : ring} (a b : T.carrier) : a * (-b) = -(a * b) := begin
+@[hott] def ring.mul_neg {T : ring} (a b : T.carrier) : a * (-b) = -(a * b) :=
+begin
   apply group.eq_inv_of_mul_eq_one, transitivity,
   { symmetry, apply T.distrib_left }, transitivity,
   { apply map (T.ψ a), apply group.mul_left_inv },
   apply ring.mul_zero
 end
 
-@[hott] def ring.neg_mul {T : ring} (a b : T.carrier) : (-a) * b = -(a * b) := begin
+@[hott] def ring.neg_mul {T : ring} (a b : T.carrier) : (-a) * b = -(a * b) :=
+begin
   apply group.eq_inv_of_mul_eq_one, transitivity,
   { symmetry, apply T.distrib_right }, transitivity,
   { apply map (* b), apply group.mul_left_inv },

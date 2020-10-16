@@ -40,48 +40,56 @@ namespace nat
   @[hott] def nat_is_set : structures.hset ℕ :=
   λ n m, structures.Hedberg nat_dec_eq
 
-  @[hott] def zero_plus_i (i : ℕ) : 0 + i = i := begin
+  @[hott] def zero_plus_i (i : ℕ) : 0 + i = i :=
+  begin
     induction i with i ih,
     { trivial },
     { apply Id.map nat.succ, assumption }
   end
 
-  @[hott] def succ_i_plus_j (i j : ℕ) : nat.succ i + j = nat.succ (i + j) := begin
+  @[hott] def succ_i_plus_j (i j : ℕ) : nat.succ i + j = nat.succ (i + j) :=
+  begin
     induction j with j ih,
     { trivial },
     { apply Id.map nat.succ, assumption }
   end
 
-  @[hott] def comm (i j : ℕ) : i + j = j + i := begin
+  @[hott] def comm (i j : ℕ) : i + j = j + i :=
+  begin
     induction i with i ih,
     { apply zero_plus_i },
     { transitivity, apply succ_i_plus_j,
       apply Id.map, assumption }
   end
 
-  @[hott] def assoc (i j k : ℕ) : (i + j) + k = i + (j + k) := begin
+  @[hott] def assoc (i j k : ℕ) : (i + j) + k = i + (j + k) :=
+  begin
     induction k with k ih,
     { trivial }, { apply Id.map nat.succ, exact ih }
   end
 
-  @[hott] def zero_mul_n (i : ℕ) : 0 * i = 0 := begin
+  @[hott] def zero_mul_n (i : ℕ) : 0 * i = 0 :=
+  begin
     induction i with i ih,
     trivial, exact ih
   end
 
-  @[hott] def one_mul (i : ℕ) : 1 * i = i := begin
+  @[hott] def one_mul (i : ℕ) : 1 * i = i :=
+  begin
     induction i with i ih, { reflexivity },
     { apply Id.map nat.succ, assumption }
   end
 
-  @[hott] def distrib_left (i j n : ℕ) : n * (i + j) = n * i + n * j := begin
+  @[hott] def distrib_left (i j n : ℕ) : n * (i + j) = n * i + n * j :=
+  begin
     induction j with j ih,
     { trivial },
     { transitivity, apply Id.map (+ n), exact ih,
       transitivity, apply assoc, trivial }
   end
 
-  @[hott] def mul_succ_i_j (i j : ℕ) : nat.succ i * j = i * j + j := begin
+  @[hott] def mul_succ_i_j (i j : ℕ) : nat.succ i * j = i * j + j :=
+  begin
     induction j with j ih,
     { trivial },
     { apply Id.map nat.succ,
@@ -91,7 +99,8 @@ namespace nat
       apply Id.map, apply comm }
   end
 
-  @[hott] def mul_comm (i j : ℕ) : i * j = j * i := begin
+  @[hott] def mul_comm (i j : ℕ) : i * j = j * i :=
+  begin
     induction j with j ih,
     { symmetry, apply zero_mul_n },
     { transitivity, apply distrib_left j 1,
@@ -104,7 +113,8 @@ namespace nat
   @[hott] def mul_one (i : ℕ) : i * 1 = i :=
   mul_comm i 1 ⬝ one_mul i
 
-  @[hott] def distrib_right (i j n : ℕ) : (i + j) * n = i * n + j * n := begin
+  @[hott] def distrib_right (i j n : ℕ) : (i + j) * n = i * n + j * n :=
+  begin
     transitivity, apply mul_comm,
     symmetry, transitivity, apply Id.map, apply mul_comm,
     transitivity, apply Id.map (+ n * j), apply mul_comm,
@@ -158,7 +168,8 @@ namespace unit_list
   | [] := nat.zero
   | (_ :: tail) := nat.succ (decode tail)
 
-  @[hott] theorem nat_isomorphic : ℕ ≃ list 𝟏 := begin
+  @[hott] theorem nat_isomorphic : ℕ ≃ list 𝟏 :=
+  begin
     existsi encode, split; existsi decode,
     { intro n, induction n with n ih,
       { trivial },

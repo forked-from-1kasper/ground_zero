@@ -47,13 +47,15 @@ namespace hlevel
   | step (a b : hlevel) : le a b → le a (succ b)
   infix ` ≤ ` := le
 
-  def le.minus_two (a : hlevel) : −2 ≤ a := begin
+  def le.minus_two (a : hlevel) : −2 ≤ a :=
+  begin
     induction a with a ih,
     { apply le.refl },
     { apply le.step, assumption }
   end
 
-  def le.succ (a b : hlevel) : a ≤ b → succ a ≤ succ b := begin
+  def le.succ (a b : hlevel) : a ≤ b → succ a ≤ succ b :=
+  begin
     intro h, induction h with c a' b' h ih,
     { apply le.refl },
     { apply le.step, assumption }
@@ -82,7 +84,8 @@ def n_type (n : hlevel) : Type (u + 1) :=
 notation n `-Type` := n_type n
 
 @[hott] def hlevel.cumulative (n : hlevel) : Π {α : Type u},
-  (is-n-type α) → is-(hlevel.succ n)-type α := begin
+  (is-n-type α) → is-(hlevel.succ n)-type α :=
+begin
   induction n with n ih; intros α h,
   { induction h with a₀ p,
     intros x y, existsi (p x)⁻¹ ⬝ p y,
@@ -91,7 +94,8 @@ notation n `-Type` := n_type n
 end
 
 @[hott] def hlevel.strong_cumulative (n m : hlevel) (h : n ≤ m) :
-  Π {α : Type u}, (is-n-type α) → (is-m-type α) := begin
+  Π {α : Type u}, (is-n-type α) → (is-m-type α) :=
+begin
   induction h with c a' b' h ih,
   { intros, assumption },
   { intros α g, apply hlevel.cumulative,
@@ -107,7 +111,8 @@ begin intros x, induction x end
 def unit_is_prop : prop 𝟏 :=
 begin intros x y, induction x, induction y, trivial end
 
-@[hott] def contr_equiv_unit {α : Type u} (h : contr α) : α ≃ 𝟏 := begin
+@[hott] def contr_equiv_unit {α : Type u} (h : contr α) : α ≃ 𝟏 :=
+begin
   existsi (λ _, ★), split;
   existsi (λ _, h.point),
   { intro x, apply h.intro },
@@ -125,7 +130,8 @@ contr_equiv_unit zero_morphism_contr
       α ≃ 𝟏 : contr_equiv_unit p
     ... ≃ β : types.equiv.symm (contr_equiv_unit q)
 
-@[hott] def prod_unit_equiv (α : Type u) : 𝟏 × α ≃ α := begin
+@[hott] def prod_unit_equiv (α : Type u) : 𝟏 × α ≃ α :=
+begin
   existsi prod.snd, split;
   existsi prod.mk ★,
   { intro x, induction x with a b,
@@ -144,21 +150,24 @@ def bool_to_universe : bool → Type
 λ h, ff_neq_tt (types.equiv.homotopy.Id (h id bnot) ff)
 
 @[hott] theorem auto_contr {α : Type u} (x : α)
-  (h : prop (α → α)) : prop α := begin
+  (h : prop (α → α)) : prop α :=
+begin
   apply contr_impl_prop, existsi x,
   apply types.equiv.homotopy.Id, apply h
 end
 
 section
   open types.equiv types.Id
-  @[hott] def prop_is_set {α : Type u} (r : prop α) : hset α := begin
+  @[hott] def prop_is_set {α : Type u} (r : prop α) : hset α :=
+  begin
     intros x y p q, have g := r x,
     transitivity, symmetry, apply rewrite_comp,
     exact (apd g p)⁻¹ ⬝ transport_composition p (g x),
     induction q, apply inv_comp
   end
 
-  @[hott] def set_impl_groupoid {α : Type u} (r : hset α) : groupoid α := begin
+  @[hott] def set_impl_groupoid {α : Type u} (r : hset α) : groupoid α :=
+  begin
     intros a b p q η μ, have g := r p,
     transitivity, symmetry, apply rewrite_comp,
     transitivity, symmetry, exact apd g η, apply transport_composition,
@@ -170,24 +179,28 @@ section
   @[hott] def unit_is_set : hset 𝟏 :=
   begin apply prop_is_set, apply unit_is_prop end
 
-  @[hott] def contr_is_prop {α : Type u} : prop (contr α) := begin
+  @[hott] def contr_is_prop {α : Type u} : prop (contr α) :=
+  begin
     intros x y, cases x with x u, cases y with y v,
     have p := u y, induction p, apply types.Id.map,
     apply HITs.interval.funext, intro a,
     apply prop_is_set (contr_impl_prop ⟨x, u⟩)
   end
 
-  @[hott] def prop_is_prop {α : Type u} : prop (prop α) := begin
+  @[hott] def prop_is_prop {α : Type u} : prop (prop α) :=
+  begin
     intros f g, repeat { apply HITs.interval.funext, intro },
     apply prop_is_set, assumption
   end
 
-  @[hott] def set_is_prop {α : Type u} : prop (hset α) := begin
+  @[hott] def set_is_prop {α : Type u} : prop (hset α) :=
+  begin
     intros f g, repeat { apply HITs.interval.funext, intro },
     apply set_impl_groupoid, assumption
   end
 
-  @[hott] def ntype_is_prop (n : hlevel) : Π {α : Type u}, prop (is-n-type α) := begin
+  @[hott] def ntype_is_prop (n : hlevel) : Π {α : Type u}, prop (is-n-type α) :=
+  begin
     induction n with n ih,
     { apply contr_is_prop },
     { intros α p q, apply HITs.interval.funext,
@@ -195,9 +208,8 @@ section
       apply ih }
   end
 
-  @[hott] def function_to_contr {α : Type u} : prop (α → contr α) := begin
-    intros f g, apply HITs.interval.funext, intro x, apply contr_is_prop
-  end
+  @[hott] def function_to_contr {α : Type u} : prop (α → contr α) :=
+  begin intros f g, apply HITs.interval.funext, intro x, apply contr_is_prop end
 end
 
 @[hott] def retract (β : Type u) (α : Type v) :=
@@ -229,7 +241,8 @@ end⟩
 
 @[hott] def equiv_respects_rectraction {n : ℕ₋₂} :
   Π {α : Type u} {β : Type v},
-    retract β α → is-n-type α → is-n-type β := begin
+    retract β α → is-n-type α → is-n-type β :=
+begin
   induction n with n ih,
   { apply ground_zero.structures.contr_retract },
   { intros α β G H, intros a b,
@@ -246,7 +259,8 @@ equiv_respects_rectraction ∘ equiv_induces_retraction
 
 @[hott] def ntype_respects_sigma (n : ℕ₋₂) :
   Π {α : Type u} {β : α → Type v},
-    is-n-type α → (Π x, is-n-type (β x)) → is-n-type (Σ x, β x) := begin
+    is-n-type α → (Π x, is-n-type (β x)) → is-n-type (Σ x, β x) :=
+begin
   induction n with n ih,
   { intros α β A B, induction A with a₀ p,
     existsi sigma.mk a₀ (B a₀).point,
@@ -285,7 +299,8 @@ lift.elem ∘ squash.prop (squash'.elem ∘ f)
 def K (α : Type u) :=
 Π (a : α) (p : a = a :> α), p = idp a :> a = a :> α
 
-@[hott] theorem K_iff_set (α : Type u) : K α ↔ hset α := begin
+@[hott] theorem K_iff_set (α : Type u) : K α ↔ hset α :=
+begin
   split,
   { intro h, intros x y p q,
     induction q, apply h },
@@ -311,14 +326,16 @@ end
 @[hott] def minus_two_eqv_contr {α : Type u} : (is-(−2)-type α) ≃ contr α :=
 by refl
 
-@[hott] def minus_one_eqv_prop {α : Type u} : (is-(−1)-type α) ≃ prop α := begin
+@[hott] def minus_one_eqv_prop {α : Type u} : (is-(−1)-type α) ≃ prop α :=
+begin
   apply prop_equiv_lemma, apply ntype_is_prop, apply prop_is_prop,
   { intros h a b, exact (h a b).point },
   { intros h a b, existsi h a b, apply prop_is_set h }
 end
 
 @[hott] def equiv_funext {α : Type u} {η μ : α → Type v}
-  (h : Π x, η x ≃ μ x) : (Π x, η x) ≃ (Π x, μ x) := begin
+  (h : Π x, η x ≃ μ x) : (Π x, η x) ≃ (Π x, μ x) :=
+begin
   existsi (λ (f : Π x, η x) (x : α), (h x).forward (f x)), split,
   { existsi (λ (f : Π x, μ x) (x : α), (h x).left (f x)),
     intro f, apply HITs.interval.funext,
@@ -345,7 +362,8 @@ end
             ... ≃ groupoid α : by reflexivity
 
 @[hott] def prop_is_ntype {α : Type u} :
-  prop α → Π n, is-(hlevel.succ n)-type α := begin
+  prop α → Π n, is-(hlevel.succ n)-type α :=
+begin
   intros H n, induction n with n ih,
   { apply ground_zero.structures.minus_one_eqv_prop.left,
     assumption },
@@ -361,14 +379,16 @@ end
 end
 
 @[hott] def hset_respects_sigma {α : Type u} {β : α → Type v}
-  (H : hset α) (G : Π x, hset (β x)) : hset (Σ x, β x) := begin
+  (H : hset α) (G : Π x, hset (β x)) : hset (Σ x, β x) :=
+begin
   apply zero_eqv_set.forward, apply ntype_respects_sigma 0,
   { apply zero_eqv_set.left, intros x y, apply H },
   { intro x, apply zero_eqv_set.left, apply G }
 end
 
 @[hott] def prop_respects_equiv {α : Type u} {β : Type v} :
-  α ≃ β → prop α → prop β := begin
+  α ≃ β → prop α → prop β :=
+begin
   intros e h, apply minus_one_eqv_prop.forward,
   apply ntype_respects_equiv −1 e,
   apply minus_one_eqv_prop.left, assumption
@@ -379,7 +399,8 @@ end
 by apply ntype_respects_equiv −2
 
 @[hott] def product_prop {α : Type u} {β : Type v}
-  (h : prop α) (g : prop β) : prop (α × β) := begin
+  (h : prop α) (g : prop β) : prop (α × β) :=
+begin
   intros a b,
   cases a with x y, cases b with u v,
   have p := h x u, have q := g y v,
@@ -398,7 +419,8 @@ pi_prop (λ _, h)
 impl_prop empty_is_prop
 
 @[hott] def refl_mere_rel {α : Type u} (R : α → α → Type v) (h : Π x y, prop (R x y))
-  (ρ : Π x, R x x) (f : Π x y, R x y → x = y) : hset α := begin
+  (ρ : Π x, R x x) (f : Π x y, R x y → x = y) : hset α :=
+begin
   intros a b p q, induction q, symmetry,
   apply types.Id.trans_cancel_left (f a a (ρ a)),
   transitivity, { apply types.Id.refl_right }, symmetry,
@@ -408,7 +430,8 @@ impl_prop empty_is_prop
   apply types.Id.map, apply h
 end
 
-@[hott] def double_neg_eq {α : Type u} (h : Π (x y : α), ¬¬(x = y) → x = y) : hset α := begin
+@[hott] def double_neg_eq {α : Type u} (h : Π (x y : α), ¬¬(x = y) → x = y) : hset α :=
+begin
   fapply refl_mere_rel,
   { intros x y, exact ¬¬(x = y) },
   { intros x y, apply impl_prop, apply empty_is_prop },
@@ -420,12 +443,14 @@ end
 | (sum.inl x) := λ _, x
 | (sum.inr t) := λ g, proto.empty.rec (λ _, α) (g t)
 
-@[hott] def Hedberg {α : Type u} : (Π (x y : α), dec (x = y)) → hset α := begin
+@[hott] def Hedberg {α : Type u} : (Π (x y : α), dec (x = y)) → hset α :=
+begin
   intro h, apply double_neg_eq,
   intros x y, apply lem_to_double_neg, apply h x y
 end
 
-@[hott] def bool_is_set : hset 𝟐 := begin
+@[hott] def bool_is_set : hset 𝟐 :=
+begin
   apply Hedberg, intros x y,
   induction x; induction y,
   { apply sum.inl, reflexivity },
@@ -467,7 +492,8 @@ namespace theorems
   HITs.interval.funext
 
   @[hott] def weak {α : Type u} {β : α → Type v}
-    (H : Π x, contr (β x)) : contr (Π x, β x) := begin
+    (H : Π x, contr (β x)) : contr (Π x, β x) :=
+  begin
     existsi (λ x, (H x).point),
     intro f, apply naive, intro x, apply (H x).intro
   end
@@ -497,7 +523,8 @@ namespace theorems
       (contr_impl_prop (is_contr_sigma_homotopy f) _ _) r
 
     @[hott] def homotopy_ind_id :
-      homotopy_ind f r f (types.equiv.homotopy.id f) = r := begin
+      homotopy_ind f r f (types.equiv.homotopy.id f) = r :=
+    begin
       transitivity, apply Id.map
         (λ p, @transport (Σ g, f ~ g) (λ p, π p.fst p.snd)
            ⟨f, equiv.homotopy.id f⟩ ⟨f, equiv.homotopy.id f⟩ p r),
@@ -513,7 +540,8 @@ namespace theorems
   @homotopy_ind _ _ f (λ g x, f = g) (idp _) g
 
   @[hott] def full {α : Type u} {β : α → Type v}
-    {f g : Π x, β x} : (f = g) ≃ (f ~ g) := begin
+    {f g : Π x, β x} : (f = g) ≃ (f ~ g) :=
+  begin
     existsi HITs.interval.happly, split; existsi funext,
     { intro x, induction x, apply homotopy_ind_id },
     { apply homotopy_ind, change _ = HITs.interval.happly (idp _),
@@ -523,7 +551,8 @@ end theorems
 
 @[hott] def structures.pi_respects_ntype (n : ℕ₋₂) :
   Π {α : Type u} {β : α → Type v}
-    (H : Π x, is-n-type (β x)), is-n-type (Π x, β x) := begin
+    (H : Π x, is-n-type (β x)), is-n-type (Π x, β x) :=
+begin
   induction n with n ih,
   { intros, existsi (λ x, (H x).point),
     intro h, apply ground_zero.theorems.funext, intro x,
@@ -534,7 +563,8 @@ end theorems
 end
 
 @[hott] def structures.pi_hset {α : Type u} {β : α → Type v}
-  (H : Π x, structures.hset (β x)) : structures.hset (Π x, β x) := begin
+  (H : Π x, structures.hset (β x)) : structures.hset (Π x, β x) :=
+begin
   apply structures.zero_eqv_set.forward,
   apply structures.pi_respects_ntype 0,
   intro x, apply structures.zero_eqv_set.left, apply H
@@ -559,7 +589,8 @@ def vect.map {α : Type u} {β : Type v} (f : α → β) :
 | (n + 1) := λ v, (f v.1, vect.map v.2)
 
 @[hott] def vect.const_map {α : Type u} {β : Type v} (a : α) (f : α → β) :
-  Π {n : ℕ}, vect.map f (vect.constant a n) = vect.constant (f a) n := begin
+  Π {n : ℕ}, vect.map f (vect.constant a n) = vect.constant (f a) n :=
+begin
   intro n, induction n with n ih,
   { reflexivity },
   { fapply ground_zero.types.product.prod,

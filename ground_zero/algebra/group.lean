@@ -126,7 +126,8 @@ begin intros x, apply id end
 ⟨λ y, ∥(Σ x, f x = y × x ∈ φ)∥, λ _, HITs.merely.uniq⟩
 
 @[hott] noncomputable def ens.ext {α : Type u} {φ ψ : ens α}
-  (H : Π x, x ∈ φ ↔ x ∈ ψ) : φ = ψ := begin
+  (H : Π x, x ∈ φ ↔ x ∈ ψ) : φ = ψ :=
+begin
   fapply sigma.prod; apply theorems.funext; intro x,
   { apply ua, apply structures.prop_equiv_lemma,
     apply φ.snd, apply ψ.snd,
@@ -138,7 +139,8 @@ end
   (f : φ ⊆ ψ) (g : ψ ⊆ φ) : φ = ψ :=
 ens.ext (λ x, ⟨f x, g x⟩)
 
-@[hott] def ens.hset {α : Type u} (s : ens α) : hset α → hset s.subtype := begin
+@[hott] def ens.hset {α : Type u} (s : ens α) : hset α → hset s.subtype :=
+begin
   intro H, apply zero_eqv_set.forward,
   fapply ground_zero.structures.ntype_respects_sigma 0,
   { apply zero_eqv_set.left, intros a b, apply H },
@@ -146,7 +148,8 @@ ens.ext (λ x, ⟨f x, g x⟩)
     apply prop_is_set, apply s.snd }
 end
 
-@[hott] def hset_equiv {α : Type u} (h : hset α) : hset (α ≃ α) := begin
+@[hott] def hset_equiv {α : Type u} (h : hset α) : hset (α ≃ α) :=
+begin
   apply zero_eqv_set.forward,
   fapply ground_zero.structures.ntype_respects_sigma 0,
   { apply ground_zero.structures.pi_respects_ntype 0,
@@ -332,7 +335,8 @@ namespace group
     @[hott] def homo.id : G ⤳ G :=
     ⟨id, λ x y, idp (x * y)⟩
 
-    @[hott] def homo.funext {f g : G ⤳ H} : f.fst ~ g.fst → f = g := begin
+    @[hott] def homo.funext {f g : G ⤳ H} : f.fst ~ g.fst → f = g :=
+    begin
       intro p, induction f with f F, induction g with g G, fapply sigma.prod,
       { apply theorems.funext, assumption },
       { apply theorems.funext, intro x,
@@ -358,7 +362,8 @@ namespace group
   Σ (f : G.carrier → H.carrier), @respects_mul G H f × biinv f
   infix ` ≅ `:25 := iso
 
-  @[hott, refl] def iso.refl (G : group) : G ≅ G := begin
+  @[hott, refl] def iso.refl (G : group) : G ≅ G :=
+  begin
     existsi id, split,
     { intros a b, trivial },
     { split; existsi id; intro x; reflexivity }
@@ -429,7 +434,8 @@ namespace group
     ... = x ^ y         : by reflexivity
 
   @[hott] def is_normal_subgroup.conj (φ : ens G.carrier)
-    [φ ⊴ G] (n g : G.carrier) : n ∈ φ → n ^ g ∈ φ := begin
+    [G ⊵ φ] (n g : G.carrier) : n ∈ φ → n ^ g ∈ φ :=
+  begin
     intro h, change g⁻¹ * n * g ∈ φ,
     apply ground_zero.types.equiv.transport (∈ φ),
     { symmetry, apply semigroup.mul_assoc },
@@ -438,8 +444,9 @@ namespace group
     apply cancel_right, assumption
   end
 
-  @[hott] def conjugate_eqv (φ : ens G.carrier) [φ ⊴ G] (n g : G.carrier) :
-    @conjugate G n g ∈ φ → @conjugate_rev G n g ∈ φ := begin
+  @[hott] def conjugate_eqv (φ : ens G.carrier) [G ⊵ φ] (n g : G.carrier) :
+    @conjugate G n g ∈ φ → @conjugate_rev G n g ∈ φ :=
+  begin
     intro h, apply is_normal_subgroup.cosets_eqv,
     apply transport (∈ φ),
     calc g * (g⁻¹ * n) = (g * g⁻¹) * n : Id.inv (G.mul_assoc g g⁻¹ n)
@@ -460,7 +467,8 @@ namespace group
     (x * y⁻¹)⁻¹ = y⁻¹⁻¹ * x⁻¹ : by apply inv_explode
             ... = y * x⁻¹     : (* x⁻¹) # (inv_inv y)
 
-  @[hott] def div_by_unit (x : G.carrier) : x / e = x := begin
+  @[hott] def div_by_unit (x : G.carrier) : x / e = x :=
+  begin
     change _ * _ = _,
     transitivity, { apply Id.map, symmetry, apply unit_inv },
     apply monoid.mul_one
@@ -469,8 +477,9 @@ namespace group
   @[hott] def ldiv_by_unit (x : G.carrier) : left_div x e = x⁻¹ :=
   by apply monoid.mul_one
 
-  @[hott] def normal_subgroup_cosets (φ : ens G.carrier) [φ ⊴ G] :
-    Π {x y : G.carrier}, ldiv φ x y ↔ rdiv φ x y := begin
+  @[hott] def normal_subgroup_cosets (φ : ens G.carrier) [G ⊵ φ] :
+    Π {x y : G.carrier}, ldiv φ x y ↔ rdiv φ x y :=
+  begin
     intros x y, split; intro h,
     { change x * y⁻¹ ∈ φ, apply transport (∈ φ),
       calc x * (y⁻¹ * x) * x⁻¹ = x * (y⁻¹ * x * x⁻¹) :
@@ -489,7 +498,8 @@ namespace group
       apply is_subgroup.inv, assumption }
   end
 
-  @[hott] noncomputable def cosets_eq (φ : ens G.carrier) [φ ⊴ G] : ldiv φ = rdiv φ := begin
+  @[hott] noncomputable def cosets_eq (φ : ens G.carrier) [G ⊵ φ] : ldiv φ = rdiv φ :=
+  begin
     repeat { apply ground_zero.theorems.funext, intro },
     apply ground_zero.ua.propext,
     repeat { apply ens.prop },
@@ -561,8 +571,9 @@ namespace group
   HITs.quotient (factor_setoid_right φ)
   --infix `\` := factor_right
 
-  @[hott] noncomputable def factor_symm (φ : ens G.carrier) [φ ⊴ G] :
-    factor_left G φ = factor_right G φ := begin
+  @[hott] noncomputable def factor_symm (φ : ens G.carrier) [G ⊵ φ] :
+    factor_left G φ = factor_right G φ :=
+  begin
     apply map ground_zero.HITs.quotient, apply ground_zero.HITs.setoid.eq,
     repeat { apply ground_zero.theorems.funext, intro },
     fapply ground_zero.types.sigma.prod,
@@ -573,14 +584,15 @@ namespace group
     apply prop_is_prop
   end
 
-  def factor.incl {φ : ens G.carrier} [φ ⊴ G] : G.carrier → factor_left G φ :=
+  def factor.incl {φ : ens G.carrier} [G ⊵ φ] : G.carrier → factor_left G φ :=
   ground_zero.HITs.quotient.elem
 
   section
-    variables {φ : ens G.carrier} [φ ⊴ G]
+    variables {φ : ens G.carrier} [G ⊵ φ]
 
     @[hott] noncomputable def factor.mul :
-      factor_left G φ → factor_left G φ → factor_left G φ := begin
+      factor_left G φ → factor_left G φ → factor_left G φ :=
+    begin
       fapply ground_zero.HITs.quotient.lift₂,
       { intros a b, exact factor.incl (a * b) },
       { apply ground_zero.HITs.quotient.set },
@@ -623,7 +635,8 @@ namespace group
     instance : has_one (factor_left G φ) := ⟨factor.one⟩
 
     @[hott] noncomputable def factor.mul_one (x : factor_left G φ) :
-      factor.mul x 1 = x := begin
+      factor.mul x 1 = x :=
+    begin
       fapply ground_zero.HITs.quotient.ind_prop _ _ x; clear x,
       { intro x, apply ground_zero.HITs.quotient.sound,
         apply transport (∈ φ), calc
@@ -636,7 +649,8 @@ namespace group
     end
 
     @[hott] noncomputable def factor.one_mul (x : factor_left G φ) :
-      factor.mul 1 x = x := begin
+      factor.mul 1 x = x :=
+    begin
       fapply ground_zero.HITs.quotient.ind_prop _ _ x; clear x,
       { intro x, change ground_zero.HITs.quotient.elem _ = _,
         apply map, apply monoid.one_mul },
@@ -644,7 +658,8 @@ namespace group
     end
 
     @[hott] noncomputable def factor.assoc (x y z : factor_left G φ) :
-      factor.mul (factor.mul x y) z = factor.mul x (factor.mul y z) := begin
+      factor.mul (factor.mul x y) z = factor.mul x (factor.mul y z) :=
+    begin
       fapply ground_zero.HITs.quotient.ind_prop _ _ x; clear x,
       { fapply ground_zero.HITs.quotient.ind_prop _ _ y; clear y,
         { fapply ground_zero.HITs.quotient.ind_prop _ _ z; clear z,
@@ -657,7 +672,8 @@ namespace group
       { intros, apply ground_zero.HITs.quotient.set }
     end
 
-    @[hott] noncomputable def factor.inv (x : factor_left G φ) : factor_left G φ := begin
+    @[hott] noncomputable def factor.inv (x : factor_left G φ) : factor_left G φ :=
+    begin
       apply ground_zero.HITs.quotient.rec _ _ _ x; clear x,
       { intro x, exact factor.incl x⁻¹ },
       { intros u v H, apply ground_zero.HITs.quotient.sound,
@@ -668,22 +684,24 @@ namespace group
     noncomputable instance : has_inv (factor_left G φ) := ⟨factor.inv⟩
 
     @[hott] noncomputable def factor.left_inv (x : factor_left G φ) :
-      factor.mul (factor.inv x) x = 1 := begin
+      factor.mul (factor.inv x) x = 1 :=
+    begin
       fapply ground_zero.HITs.quotient.ind_prop _ _ x; clear x,
       { intro x, change ground_zero.HITs.quotient.elem _ = _,
         apply map, apply mul_left_inv },
       { intros, apply ground_zero.HITs.quotient.set }
     end
 
-    @[hott] noncomputable def factor (G : group) (φ : ens G.carrier) [φ ⊴ G] : group :=
+    @[hott] noncomputable def factor (G : group) (φ : ens G.carrier) [G ⊵ φ] : group :=
     ⟨⟨⟨⟨@zeroeqv (factor_left G φ) (λ _ _, HITs.quotient.set), factor.mul⟩, factor.assoc⟩,
       factor.one, @factor.one_mul G φ _, factor.mul_one⟩,
       factor.inv, factor.left_inv⟩
   end
   infix \ := factor
 
-  @[hott] def factor.sound {φ : ens G.carrier} [φ ⊴ G]
-    {x : G.carrier} (H : x ∈ φ) : factor.incl x = 1 :> factor_left G φ := begin
+  @[hott] def factor.sound {φ : ens G.carrier} [G ⊵ φ]
+    {x : G.carrier} (H : x ∈ φ) : factor.incl x = 1 :> factor_left G φ :=
+  begin
     apply HITs.quotient.sound, apply transport (∈ φ),
     { symmetry, apply ldiv_by_unit },
     apply is_subgroup.inv, assumption
@@ -693,13 +711,15 @@ namespace group
     variables {H : group} (φ : G ⤳ H)
     local infix × : 70 := H.φ
 
-    @[hott] def homo_saves_unit : φ.fst G.e = H.e := begin
+    @[hott] def homo_saves_unit : φ.fst G.e = H.e :=
+    begin
       cases φ with φ p, apply unit_of_sqr, calc
         φ G.e × φ G.e = φ (G.e * G.e) : Id.inv (p G.e G.e)
                   ... = φ G.e         : φ # (Id.inv unit_sqr)
     end
 
-    @[hott] def homo_respects_inv (x : G.carrier) : φ.fst x⁻¹ = H.inv (φ.fst x) := begin
+    @[hott] def homo_respects_inv (x : G.carrier) : φ.fst x⁻¹ = H.inv (φ.fst x) :=
+    begin
       cases φ with φ p, calc
         φ x⁻¹ = φ x⁻¹ × H.e             : Id.inv (H.mul_one (φ x⁻¹))
           ... = φ x⁻¹ × (φ x × H.inv (φ x)) : (λ y, φ x⁻¹ × y) # (Id.inv $ mul_right_inv (φ x))
@@ -711,7 +731,8 @@ namespace group
     end
 
     @[hott] def homo_respects_div (x y : G.carrier) :
-      φ.fst (x / y) = right_div (φ.fst x) (φ.fst y) := begin
+      φ.fst (x / y) = right_div (φ.fst x) (φ.fst y) :=
+    begin
       cases φ with φ p, calc
         φ (x / y) = φ x × φ y⁻¹       : p x y⁻¹
               ... = φ x × H.inv (φ y) : (λ y, φ x × y) # (homo_respects_inv ⟨φ, p⟩ y)
@@ -733,7 +754,8 @@ namespace group
             ... = H.e         : Id.inv unit_inv
       end }
 
-    @[hott] instance ker_is_normal_subgroup : ker φ ⊴ G := begin
+    @[hott] instance ker_is_normal_subgroup : G ⊵ ker φ :=
+    begin
       apply is_normal_subgroup.mk, intros n g p, cases φ with φ q,
       change _ = _ at p, have r := Id.inv (q n g) ⬝ p, calc
         φ (g * n) = φ g × φ n         : q g n
@@ -765,8 +787,9 @@ namespace group
       end }
   end
 
-  @[hott] def factor.lift {H : group} (f : G ⤳ H) {φ : ens G.carrier} [φ ⊴ G]
-    (p : Π x, x ∈ φ → f.fst x = H.e) : factor_left G φ → H.carrier := begin
+  @[hott] def factor.lift {H : group} (f : G ⤳ H) {φ : ens G.carrier} [G ⊵ φ]
+    (p : Π x, x ∈ φ → f.fst x = H.e) : factor_left G φ → H.carrier :=
+  begin
     fapply HITs.quotient.rec,
     { exact f.fst },
     { intros x y q, apply eq_of_div_eq, transitivity,
@@ -781,13 +804,15 @@ namespace group
     variables {φ : ens G.carrier} [G ≥ φ]
     include G
 
-    @[hott] def subgroup.mul (x y : φ.subtype) : φ.subtype := begin
+    @[hott] def subgroup.mul (x y : φ.subtype) : φ.subtype :=
+    begin
       induction x with x p, induction y with y q,
       existsi (x * y), apply is_subgroup.mul; assumption
     end
     local infix ` ∗ `:70 := @subgroup.mul G φ _
 
-    @[hott] def subgroup.inv (x : φ.subtype) : φ.subtype := begin
+    @[hott] def subgroup.inv (x : φ.subtype) : φ.subtype :=
+    begin
       induction x with x H, existsi x⁻¹,
       apply is_subgroup.inv, assumption
     end
@@ -797,26 +822,30 @@ namespace group
     @[hott] def subgroup.ens : hset φ.subtype :=
     begin apply ens.hset, intros a b, apply G.set end
 
-    @[hott] def subgroup.mul_assoc (x y z : φ.subtype) : x ∗ y ∗ z = x ∗ (y ∗ z) := begin
+    @[hott] def subgroup.mul_assoc (x y z : φ.subtype) : x ∗ y ∗ z = x ∗ (y ∗ z) :=
+    begin
       induction x with x A, induction y with y B, induction z with z C,
       fapply ground_zero.types.sigma.prod,
       apply semigroup.mul_assoc, apply φ.snd
     end
 
-    @[hott] def subgroup.one_mul (x : φ.subtype) : subgroup.unit ∗ x = x := begin
+    @[hott] def subgroup.one_mul (x : φ.subtype) : subgroup.unit ∗ x = x :=
+    begin
       induction x with x H,
       fapply ground_zero.types.sigma.prod,
       apply monoid.one_mul, apply φ.snd
     end
 
-    @[hott] def subgroup.mul_one (x : φ.subtype) : x ∗ subgroup.unit = x := begin
+    @[hott] def subgroup.mul_one (x : φ.subtype) : x ∗ subgroup.unit = x :=
+    begin
       induction x with x H,
       fapply ground_zero.types.sigma.prod,
       apply monoid.mul_one, apply φ.snd
     end
 
     @[hott] def subgroup.mul_left_inv (x : φ.subtype) :
-      subgroup.inv x ∗ x = subgroup.unit := begin
+      subgroup.inv x ∗ x = subgroup.unit :=
+    begin
       induction x with x H,
       fapply ground_zero.types.sigma.prod,
       apply group.mul_left_inv, apply φ.snd
@@ -834,7 +863,8 @@ namespace group
   ⟨λ x, x.fst ∈ φ, λ x, ens.prop x.fst φ⟩
 
   @[hott] instance subgroup_subgroup (φ ψ : ens G.carrier)
-    [G ≥ φ] [G ≥ ψ] : subgroup.group G ψ ≥ subgroup.inter φ ψ := begin
+    [G ≥ φ] [G ≥ ψ] : subgroup.group G ψ ≥ subgroup.inter φ ψ :=
+  begin
     split, { change e ∈ φ, apply is_subgroup.unit },
     { intros a b G H, induction a with a g,
       induction b with b h, change _ ∈ φ,
@@ -845,11 +875,12 @@ namespace group
   end
 
   @[hott] def abelian_subgroup_is_normal (G : group) [abelian G]
-    (φ : ens G.carrier) [G ≥ φ] : φ ⊴ G :=
+    (φ : ens G.carrier) [G ≥ φ] : G ⊵ φ :=
   begin split, intros g h p, apply transport (∈ φ), apply abelian.mul_comm, assumption end
 
   @[hott] instance abelian_subgroup_is_abelian (G : group) [abelian G]
-    (φ : ens G.carrier) [G ≥ φ] : abelian (subgroup.group G φ) := begin
+    (φ : ens G.carrier) [G ≥ φ] : abelian (subgroup.group G φ) :=
+  begin
     split, intros a b, induction a with a p, induction b with b q,
     fapply sigma.prod, apply abelian.mul_comm, apply φ.snd
   end
@@ -887,7 +918,8 @@ namespace group
   def D₃.elim {β : Type u} : β → β → β → β → β → β → D₃.carrier → β :=
   @D₃.carrier.rec (λ _, β)
 
-  @[hott] def D₃.magma : magma := begin
+  @[hott] def D₃.magma : magma :=
+  begin
     fapply magma.mk, fapply zeroeqv, exact D₃.carrier,
     apply ground_zero.structures.Hedberg,
     intros x y, induction x; induction y;
@@ -920,14 +952,16 @@ namespace group
     repeat { apply ground_zero.structures.empty_is_prop }
   end⟩
 
-  @[hott] instance A₃.subgroup : D₃ ≥ A₃ := begin
+  @[hott] instance A₃.subgroup : D₃ ≥ A₃ :=
+  begin
     split, { apply ★ },
     { intros a b p q, induction a; induction b;
       induction p; induction q; apply ★ },
     { intros a p, induction a; induction p; apply ★ }
   end
 
-  @[hott] instance A₃.normal_subgroup : A₃ ⊴ D₃ := begin
+  @[hott] instance A₃.normal_subgroup : D₃ ⊵ A₃ :=
+  begin
     split, intros g h p; induction g; induction h;
     induction p; apply ★
   end
@@ -940,7 +974,8 @@ namespace group
   @[hott] instance Z₂.has_inv : has_inv Z₂.carrier := ⟨Z₂.inv⟩
   @[hott] instance Z₂.has_mul : has_mul Z₂.carrier := ⟨Z₂.mul⟩
 
-  @[hott] def Z₂.set : hset Z₂.carrier := begin
+  @[hott] def Z₂.set : hset Z₂.carrier :=
+  begin
     apply ground_zero.structures.Hedberg,
     intros x y, induction x; induction y; try { apply sum.inl, refl },
     repeat { apply sum.inr, intro p, apply ff_neq_tt },
@@ -967,14 +1002,16 @@ namespace group
   | ff := D₃.inj R₀
   | tt := D₃.inj S₀
 
-  @[hott] def Z₂.decode : factor_left D₃ A₃ → Z₂.carrier := begin
+  @[hott] def Z₂.decode : factor_left D₃ A₃ → Z₂.carrier :=
+  begin
     fapply ground_zero.HITs.quotient.rec,
     { exact D₃.elim ff ff ff tt tt tt },
     { intros x y H; induction x; induction y; induction H; trivial },
     { intros a b, apply Z₂.set }
   end
 
-  @[hott] noncomputable def Z₂.iso : Z₂ ≅ D₃\A₃ := begin
+  @[hott] noncomputable def Z₂.iso : Z₂ ≅ D₃\A₃ :=
+  begin
     existsi Z₂.encode, split,
     { intros x y, induction x; induction y; trivial },
     split; existsi Z₂.decode,
@@ -988,7 +1025,8 @@ namespace group
   @[hott] def triv (G : group) : ens G.carrier :=
   ⟨λ x, G.e = x, begin intro x, apply G.set end⟩
 
-  @[hott] instance triv.subgroup : G ≥ triv G := begin
+  @[hott] instance triv.subgroup : G ≥ triv G :=
+  begin
     split, { change _ = _, reflexivity },
     { intros a b p q,
       change _ = _ at p, change _ = _ at q,
@@ -1000,7 +1038,8 @@ namespace group
       apply unit_inv }
   end
 
-  @[hott] instance triv.normal_subgroup : triv G ⊴ G := begin
+  @[hott] instance triv.normal_subgroup : G ⊵ triv G :=
+  begin
     split, intros g h p, change _ = _ at p,
     change _ = _, apply @mul_cancel_left G _ _ g,
     transitivity, apply monoid.mul_one,
@@ -1011,7 +1050,8 @@ namespace group
   end
 
   @[hott] def triv.encode : G.carrier → factor_left G (triv G) := factor.incl
-  @[hott] def triv.decode : factor_left G (triv G) → G.carrier := begin
+  @[hott] def triv.decode : factor_left G (triv G) → G.carrier :=
+  begin
     fapply HITs.quotient.rec,
     exact id,
     { intros x y p, change _ = _ * _ at p,
@@ -1020,7 +1060,8 @@ namespace group
     intros a b, apply G.set
   end
 
-  @[hott] noncomputable def triv.factor : G ≅ G\triv G := begin
+  @[hott] noncomputable def triv.factor : G ≅ G\triv G :=
+  begin
     existsi triv.encode, split,
     { intros x y, reflexivity },
     split; existsi triv.decode,
@@ -1084,7 +1125,8 @@ namespace group
       (one_mul : Π {x : F.carrier ε} (a : π x), m u a =[one_mul x] a)
       (mul_one : Π {x : F.carrier ε} (a : π x), m a u =[mul_one x] a)
       (mul_left_inv : Π {x : F.carrier ε} (a : π x),
-        m (i a) a =[mul_left_inv x] u) : Π x, π x := begin
+        m (i a) a =[mul_left_inv x] u) : Π x, π x :=
+    begin
       intro x, cases x, induction x with x x y u v x u,
       { exact u }, { apply η }, { apply m u v }, { apply i u }
     end
@@ -1138,7 +1180,8 @@ namespace group
       (propπ : Π x, prop (π x))
       (u : π unit) (η : Π {x}, π (elem x))
       (m : Π {x y}, π x → π y → π (mul x y))
-      (i : Π {x}, π x → π (inv x)) : Π x, π x := begin
+      (i : Π {x}, π x → π (inv x)) : Π x, π x :=
+    begin
       fapply ind, { intro x, apply prop_is_set, apply propπ },
       { exact u },
       { intro x, apply η },
@@ -1154,7 +1197,8 @@ namespace group
     intro y, apply G.set
   end⟩
 
-  @[hott] instance zentrum_is_subgroup : G ≥ zentrum G := begin
+  @[hott] instance zentrum_is_subgroup : G ≥ zentrum G :=
+  begin
     split,
     { intro x, transitivity,
       { apply monoid.one_mul },
@@ -1173,7 +1217,8 @@ namespace group
           ... = b * a⁻¹     : (* a⁻¹) # (inv_inv b) }
   end
 
-  @[hott] instance zentrum_is_normal : zentrum G ⊴ G := begin
+  @[hott] instance zentrum_is_normal : G ⊵ zentrum G :=
+  begin
     split, intros g h r z,
     have p := Id.inv (G.mul_assoc g h g) ⬝ r g,
     have q := mul_cancel_left p,
@@ -1185,7 +1230,7 @@ namespace group
   @[hott] instance univ_is_subgroup : G ≥ ens.univ G.carrier :=
   begin split; intros; apply ★ end
 
-  @[hott] instance univ_is_normal : ens.univ G.carrier ⊴ G :=
+  @[hott] instance univ_is_normal : G ⊵ ens.univ G.carrier :=
   begin split, intros, apply ★ end
 
   @[hott] instance Z₁.has_mul : has_mul 𝟏 :=
@@ -1215,7 +1260,8 @@ namespace group
   def univ.decode : 𝟏 → factor_left G (ens.univ G.carrier) := λ _, 1
 
   @[hott] noncomputable def univ_contr :
-    contr (factor_left G (ens.univ G.carrier)) := begin
+    contr (factor_left G (ens.univ G.carrier)) :=
+  begin
     existsi univ.decode ★,
     fapply HITs.quotient.ind_prop; intro x,
     { apply HITs.quotient.sound, apply ★ },
@@ -1226,7 +1272,8 @@ namespace group
     prop (factor_left G (ens.univ G.carrier)) :=
   contr_impl_prop univ_contr
 
-  @[hott] noncomputable def univ_factor : Z₁ ≅ G\ens.univ G.carrier := begin
+  @[hott] noncomputable def univ_factor : Z₁ ≅ G\ens.univ G.carrier :=
+  begin
     existsi univ.decode, split,
     { intros x y, apply univ_prop },
     split; existsi (λ _, ★); intro x,
@@ -1244,7 +1291,8 @@ namespace group
     variables {H : group}
     local infix ` × `:50 := H.φ
 
-    @[hott] def ker.encode {φ : G ⤳ H} : factor_left G (ker φ) → im.carrier φ := begin
+    @[hott] def ker.encode {φ : G ⤳ H} : factor_left G (ker φ) → im.carrier φ :=
+    begin
       fapply HITs.quotient.rec,
       { intro x, existsi φ.fst x, apply HITs.merely.elem,
         existsi x, trivial },
@@ -1260,7 +1308,8 @@ namespace group
   
     @[hott] noncomputable def ker.encode_inj {φ : G ⤳ H} :
       Π (x y : factor_left G (ker φ)),
-        ker.encode x = ker.encode y → x = y := begin
+        ker.encode x = ker.encode y → x = y :=
+    begin
       intros x y, fapply ground_zero.HITs.quotient.ind_prop _ _ x; clear x; intro x,
       { fapply ground_zero.HITs.quotient.ind_prop _ _ y; clear y; intro y,
         { intro p, apply ground_zero.HITs.quotient.sound,
@@ -1274,7 +1323,8 @@ namespace group
     end
   
     @[hott] noncomputable def ker.decode_sigma {φ : G ⤳ H} :
-      Π (x : im.carrier φ), (Σ (y : factor_left G (ker φ)), ker.encode y = x) := begin
+      Π (x : im.carrier φ), (Σ (y : factor_left G (ker φ)), ker.encode y = x) :=
+    begin
       intro x, induction x with x p,
       fapply ground_zero.HITs.merely.ind _ _ p; intro z,
       { induction z with z q, existsi factor.incl z,
@@ -1296,7 +1346,8 @@ namespace group
   
     -- First isomorphism theorem.
     @[hott] noncomputable def first_iso_theorem
-      {φ : G ⤳ H} : Im φ ≅ G\ker φ := begin
+      {φ : G ⤳ H} : Im φ ≅ G\ker φ :=
+    begin
       existsi ker.decode, split,
       { intros a b, induction a with a A, induction b with b B,
         change ∥_∥ at A, change ∥_∥ at B,
@@ -1314,7 +1365,8 @@ namespace group
   end
 
   @[hott] instance inter_subgroup (φ ψ : ens G.carrier)
-    [G ≥ φ] [G ≥ ψ] : G ≥ φ ∩ ψ := begin
+    [G ≥ φ] [G ≥ ψ] : G ≥ φ ∩ ψ :=
+  begin
     split, { split; apply is_subgroup.unit },
     { intros a b p q,
       induction p with p₁ p₂,
@@ -1351,7 +1403,8 @@ namespace group
         intro x, induction a, induction b, induction c, reflexivity
       end⟩
 
-      @[hott] def S.monoid : monoid := begin
+      @[hott] def S.monoid : monoid :=
+      begin
         fapply monoid.mk, exact @S.semigroup ε, exact S.one,
         repeat { intro x, fapply theorems.prop.equiv_hmtpy_lem,
                  intro y, induction x, reflexivity },
@@ -1366,7 +1419,8 @@ namespace group
       end⟩
     end
 
-    @[hott] def left (G : group) (x : G.carrier) : G.carrier ≃ G.carrier := begin
+    @[hott] def left (G : group) (x : G.carrier) : G.carrier ≃ G.carrier :=
+    begin
       existsi (λ y, x * y), split; existsi (λ y, x⁻¹ * y); intro y,
       { transitivity, { symmetry, apply semigroup.mul_assoc },
         transitivity, { apply Id.map (* y), apply group.mul_left_inv },
@@ -1385,7 +1439,8 @@ namespace group
     @[hott] def S.univ.ker.encode : ker (S.univ G) ⊆ triv G :=
     λ x H, begin change _ = _, symmetry, apply unit_of_sqr, apply equiv.happly H end
 
-    @[hott] def S.univ.ker.decode : triv G ⊆ ker (S.univ G) := begin
+    @[hott] def S.univ.ker.decode : triv G ⊆ ker (S.univ G) :=
+    begin
       intros x H, apply theorems.prop.equiv_hmtpy_lem,
       intro y, induction H, apply monoid.one_mul
     end
@@ -1413,26 +1468,28 @@ namespace group
   @[hott] def op.univ : G ⤳ Gᵒᵖ :=
   ⟨G.inv, begin intros a b, apply inv_explode end⟩
 
-  @[hott] def op.iso : G ≅ Gᵒᵖ := begin
+  @[hott] def op.iso : G ≅ Gᵒᵖ :=
+  begin
     fapply iso.of_homo, exact op.univ,
     split; existsi G.inv; intro x; apply inv_inv
   end
 
   @[hott] def closure (G : group) (x : ens G.carrier) : ens G.carrier :=
-  ens.smallest (λ (φ : ens G.carrier), (φ ⊴ G) × x ⊆ φ)
+  ens.smallest (λ (φ : ens G.carrier), (G ⊵ φ) × x ⊆ φ)
 
   @[hott] def closure.sub (φ : ens G.carrier) : φ ⊆ closure G φ :=
   begin intros x G y H, apply H.snd, assumption end
 
-  @[hott] def closure.sub_trans {φ ψ : ens G.carrier} [ψ ⊴ G] :
+  @[hott] def closure.sub_trans {φ ψ : ens G.carrier} [G ⊵ ψ] :
     φ ⊆ ψ → closure G φ ⊆ ψ :=
   begin intros H x G, apply G, split; assumption end
 
-  @[hott] def closure.elim (φ : ens G.carrier) [φ ⊴ G] : closure G φ ⊆ φ :=
+  @[hott] def closure.elim (φ : ens G.carrier) [G ⊵ φ] : closure G φ ⊆ φ :=
   closure.sub_trans (ens.ssubset.refl φ)
 
   @[hott] instance closure.subgroup (x : ens G.carrier) :
-    G ≥ closure G x := begin
+    G ≥ closure G x :=
+  begin
     split,
     { intros y H, induction H with G H,
       apply G.to_is_subgroup.unit },
@@ -1443,7 +1500,8 @@ namespace group
   end
 
   @[hott] instance closure.normal_subgroup (x : ens G.carrier) :
-    closure G x ⊴ G := begin
+    G ⊵ closure G x :=
+  begin
     split, intros g h G y H, apply H.fst.cosets_eqv,
     apply G y, assumption
   end
@@ -1478,14 +1536,16 @@ namespace group
   factor.incl
 
   @[hott] def commutes {x y : G.carrier}
-    (p : commutator x y = e) : x * y = y * x := begin
+    (p : commutator x y = e) : x * y = y * x :=
+  begin
     symmetry, transitivity, { symmetry, apply inv_inv },
     transitivity, apply Id.map, apply inv_explode,
     symmetry, apply eq_inv_of_mul_eq_one, exact p
   end
 
   @[hott] def commutator_over_inv (x y : G.carrier) :
-    (commutator x y)⁻¹ = commutator y x := begin
+    (commutator x y)⁻¹ = commutator y x :=
+  begin
     transitivity, apply inv_explode,
     transitivity, apply Id.map, apply inv_explode,
     apply Id.map (* y⁻¹ * x⁻¹), transitivity, apply inv_explode,
@@ -1511,8 +1571,8 @@ namespace group
     variables {H : group} [abelian H]
     local infix ×:70 := H.φ
 
-    @[hott] def commutators.to_ker (f : G ⤳ H) :
-      commutators G ⊆ ker f := begin
+    @[hott] def commutators.to_ker (f : G ⤳ H) : commutators G ⊆ ker f :=
+    begin
       intros x, fapply HITs.merely.rec,
       { apply ens.prop },
       { intro H, induction H with p q, induction f with f F,
@@ -1542,7 +1602,8 @@ namespace group
   closure.sub_trans (commutators.to_ker f)
 
   @[hott] def abelianization.rec {ε : group} {α : group} [abelian α] (f : ε ⤳ α) :
-    εᵃᵇ.carrier → α.carrier := begin
+    εᵃᵇ.carrier → α.carrier :=
+  begin
     fapply factor.lift, exact f,
     { intros x H, apply commutators.to_closure_ker,
       assumption }
@@ -1580,7 +1641,8 @@ namespace group
   @[hott] def homo.id.decode : im.carrier homo.id → G.carrier :=
   sigma.fst
 
-  @[hott] def homo.id.iso : G ≅ Im homo.id := begin
+  @[hott] def homo.id.iso : G ≅ Im homo.id :=
+  begin
     existsi homo.id.encode, split,
     { intros a b, reflexivity },
     split; existsi homo.id.decode,
@@ -1592,10 +1654,11 @@ namespace group
 
   section
     variables {φ : ens G.carrier} {ψ : ens G.carrier}
-    variables [φ ⊴ G] [ψ ⊴ G]
+    variables [G ⊵ φ] [G ⊵ ψ]
 
     @[hott] noncomputable def factor.transfer (f : φ ⊆ ψ) :
-      (G\φ).carrier → (G\ψ).carrier := begin
+      (G\φ).carrier → (G\ψ).carrier :=
+    begin
       fapply HITs.quotient.rec,
       { exact factor.incl },
       { intros x y H, apply HITs.quotient.sound,
@@ -1604,7 +1667,8 @@ namespace group
     end
 
     @[hott] noncomputable def factor.iso
-      (f : φ ⊆ ψ) (g : ψ ⊆ φ) : G\φ ≅ G\ψ := begin
+      (f : φ ⊆ ψ) (g : ψ ⊆ φ) : G\φ ≅ G\ψ :=
+    begin
       existsi factor.transfer f, split,
       { intro x, fapply HITs.quotient.ind_prop _ _ x; clear x; intro x,
         { fapply HITs.quotient.ind_prop,
@@ -1619,7 +1683,8 @@ namespace group
     end
   end
 
-  @[hott] noncomputable def S.iso : Im (S.univ G) ≅ G := begin
+  @[hott] noncomputable def S.iso : Im (S.univ G) ≅ G :=
+  begin
     fapply iso.trans first_iso_theorem,
     symmetry, fapply iso.trans triv.factor,
     apply factor.iso S.univ.ker.decode S.univ.ker.encode
@@ -1638,7 +1703,7 @@ namespace group
     Σ (s : subgroup (S G.zero)), s.grp ≅ G :=
   ⟨⟨im (S.univ G).fst, by apply_instance⟩, S.iso⟩
 
-  @[hott] noncomputable def normal_factor (φ : ens G.carrier) [φ ⊴ G] :
+  @[hott] noncomputable def normal_factor (φ : ens G.carrier) [G ⊵ φ] :
     G\φ ≅ G\closure G φ :=
   factor.iso (closure.sub φ) (closure.elim φ)
 
@@ -1646,7 +1711,8 @@ namespace group
   λ x, ⟨x, HITs.merely.elem ⟨F.elem x, idp _⟩⟩
 
   @[hott] noncomputable def F.homomorphism.iso :
-    G ≅ Im (F.homomorphism id) := begin
+    G ≅ Im (F.homomorphism id) :=
+  begin
     existsi F.homomorphism.encode, split,
     { intros x y, fapply sigma.prod,
       { reflexivity },
@@ -1668,7 +1734,8 @@ namespace group
   end⟩
 
   @[hott] def im_impl_ker {φ : G ⤳ G}
-    (H : φ ⋅ φ = 0) : im φ.fst ⊆ ker φ := begin
+    (H : φ ⋅ φ = 0) : im φ.fst ⊆ ker φ :=
+  begin
     intro x, fapply HITs.merely.rec,
     { apply G.set },
     { intro H, induction H with y p, change _ = _,
@@ -1677,13 +1744,15 @@ namespace group
   end
 
   @[hott] def boundary_of_boundary {φ : G ⤳ G}
-    (G : im φ.fst ⊆ ker φ) : φ ⋅ φ = 0 := begin
+    (G : im φ.fst ⊆ ker φ) : φ ⋅ φ = 0 :=
+  begin
     induction φ with φ H, fapply group.homo.funext,
     intro x, apply G, apply HITs.merely.elem,
     existsi x, trivial
   end
 
-  @[hott] def homo.set {G H : group} : hset (G ⤳ H) := begin
+  @[hott] def homo.set {G H : group} : hset (G ⤳ H) :=
+  begin
     apply zero_eqv_set.forward, fapply ntype_respects_sigma 0,
     { apply pi_respects_ntype 0, intro x,
       apply zero_eqv_set.left, intros a b, apply H.set },
@@ -1694,7 +1763,8 @@ namespace group
   end
 
   @[hott] def boundary_eqv (φ : G ⤳ G) :
-    (φ ⋅ φ = 0) ≃ (im φ.fst ⊆ ker φ) := begin
+    (φ ⋅ φ = 0) ≃ (im φ.fst ⊆ ker φ) :=
+  begin
     apply structures.prop_equiv_lemma,
     apply homo.set, apply ens.ssubset.prop,
     exact im_impl_ker, exact boundary_of_boundary
@@ -1707,7 +1777,8 @@ namespace group
     ... = e * x⁻¹       : (* x⁻¹) # p
     ... = x⁻¹           : G.one_mul x⁻¹
 
-  @[hott] instance sqr_unit_impls_abelian (H : Π x, x * x = e) : abelian G := begin
+  @[hott] instance sqr_unit_impls_abelian (H : Π x, x * x = e) : abelian G :=
+  begin
     split, intros x y, have p := λ x, sqr_unit (H x), calc
       x * y = x⁻¹ * y⁻¹ : equiv.bimap G.φ (p x) (p y)
         ... = (y * x)⁻¹ : Id.inv (inv_explode y x)
@@ -1732,7 +1803,8 @@ namespace group
   @[hott] def P.semigroup (G : group) : semigroup :=
   ⟨P.magma G, λ f g h, begin fapply theorems.funext, intro n, apply G.mul_assoc end⟩
 
-  @[hott] def P.monoid (G : group) : monoid := begin
+  @[hott] def P.monoid (G : group) : monoid :=
+  begin
     fapply monoid.mk, exact P.semigroup G, exact P.one,
     repeat { intro f, fapply theorems.funext, intro n },
     apply G.one_mul, apply G.mul_one

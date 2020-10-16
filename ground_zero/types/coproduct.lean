@@ -23,7 +23,8 @@ namespace coproduct
   | (coproduct.inl x) := coproduct.inr x
   | (coproduct.inr x) := coproduct.inl x
 
-  @[hott] def symm : α + β ≃ β + α := begin
+  @[hott] def symm : α + β ≃ β + α :=
+  begin
     existsi inv, split; existsi inv;
     { intro x, induction x; trivial }
   end
@@ -45,7 +46,8 @@ namespace coproduct
     begin induction p, trivial end
 
     @[hott] def encode_decode {a₀ : α} {x : α + β} (c : code a₀ x) :
-      encode (decode c) = c :> _ := begin
+      encode (decode c) = c :=
+    begin
       induction x,
       { transitivity, symmetry, apply equiv.transport_comp,
         apply equiv.transport_composition },
@@ -53,7 +55,8 @@ namespace coproduct
     end
 
     @[hott] def recognize (a₀ : α) (x : α + β) :
-      (inl a₀ = x) ≃ code a₀ x := begin
+      (inl a₀ = x) ≃ code a₀ x :=
+    begin
       existsi encode, split; existsi decode,
       apply decode_encode, apply encode_decode
     end
@@ -83,7 +86,8 @@ namespace coproduct
     begin induction p, trivial end
 
     @[hott] def encode_decode {b₀ : β} {x : α + β} (c : code b₀ x) :
-      encode (decode c) = c := begin
+      encode (decode c) = c :=
+    begin
       induction x,
       { cases c },
       { transitivity, symmetry,
@@ -92,7 +96,8 @@ namespace coproduct
     end
 
     @[hott] def recognize (b₀ : β) (x : α + β) :
-      (inr b₀ = x :> α + β) ≃ code b₀ x := begin
+      (inr b₀ = x :> α + β) ≃ code b₀ x :=
+    begin
       existsi encode, split; existsi decode,
       apply decode_encode, apply encode_decode
     end

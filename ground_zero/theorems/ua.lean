@@ -45,35 +45,40 @@ namespace ua
 by apply Jβrule
 
 @[hott] noncomputable def comp_rule {α β : Type u} (e : α ≃ β) :
-  Π (x : α), x =[ua e] e.fst x := begin
+  Π (x : α), x =[ua e] e.fst x :=
+begin
   refine J _ e, intros ψ x,
   refine types.Id.rec _ (refl_on_ua ψ)⁻¹,
   reflexivity
 end
 
 @[hott] noncomputable def transport_rule {α β : Type u} (e : α ≃ β) :
-  Π (x : α), types.equiv.subst (ua e) x = e.fst x := begin
+  Π (x : α), types.equiv.subst (ua e) x = e.fst x :=
+begin
   refine J _ e, intros ψ x,
   refine types.Id.rec _ (refl_on_ua ψ)⁻¹,
   reflexivity
 end
 
 @[hott] noncomputable def transportconst_rule {α β : Type u} (e : α ≃ β) :
-  Π (x : α), equiv.transportconst (ua e) x = e.fst x := begin
+  Π (x : α), equiv.transportconst (ua e) x = e.fst x :=
+begin
   fapply ground_zero.J _ e, intros α x,
   transitivity, apply Id.map (λ p, equiv.transportconst p x),
   apply refl_on_ua, reflexivity
 end
 
 @[hott] noncomputable def transportconst_inv_rule {α β : Type u} (e : α ≃ β) :
-  Π (x : β), equiv.transportconst_inv (ua e) x = e.left x := begin
+  Π (x : β), equiv.transportconst_inv (ua e) x = e.left x :=
+begin
   fapply ground_zero.J _ e, intros α x,
   transitivity, apply Id.map (λ p, equiv.transportconst_inv p x),
   apply refl_on_ua, reflexivity
 end
 
 @[hott] noncomputable def transport_inv_rule {α β : Type u} (e : α ≃ β) :
-  Π (x : β), types.equiv.subst_inv (ua e) x = e.left x := begin
+  Π (x : β), types.equiv.subst_inv (ua e) x = e.left x :=
+begin
   refine J _ e, intros ψ x,
   refine types.Id.rec _ (refl_on_ua ψ)⁻¹,
   reflexivity
@@ -103,7 +108,8 @@ begin induction p, exact Jβrule end
 
 @[hott] noncomputable def ua_trans :
   Π {α β : Type u} (p : α ≃ β) {γ : Type u} (q : β ≃ γ),
-    ua (equiv.trans p q) = ua p ⬝ ua q := begin
+    ua (equiv.trans p q) = ua p ⬝ ua q :=
+begin
   fapply @J (λ α β (p : α ≃ β), Π {γ : Type u} (q : β ≃ γ),
     ua (equiv.trans p q) = ua p ⬝ ua q),
   fapply J, intro δ, symmetry, transitivity,
@@ -152,7 +158,8 @@ end
 
 -- exercise 2.17 (i) in HoTT book
 @[hott] noncomputable theorem product_equiv₁ {α α' β β' : Type u}
-  (e₁ : α ≃ α') (e₂ : β ≃ β') : (α × β) ≃ (α' × β') := begin
+  (e₁ : α ≃ α') (e₂ : β ≃ β') : (α × β) ≃ (α' × β') :=
+begin
   have p := ua e₁, have q := ua e₂,
   induction p, induction q, reflexivity
 end
@@ -168,7 +175,8 @@ end
 section
   open ground_zero.types.product
   @[hott] theorem product_equiv₃ {α : Type u} {α' : Type v} {β : Type u'} {β' : Type v'}
-    (e₁ : α ≃ α') (e₂ : β ≃ β') : (α × β) ≃ (α' × β') := begin
+    (e₁ : α ≃ α') (e₂ : β ≃ β') : (α × β) ≃ (α' × β') :=
+  begin
     cases e₁ with f H, induction H with linv rinv,
     cases linv with g α₁, induction rinv with h β₁,
   
@@ -189,13 +197,13 @@ end
 
 @[hott] theorem family_on_bool {π : bool → Type u} :
   (π ff × π tt) ≃ Π (b : bool), π b := begin
-  let construct : (π ff × π tt) → Π (b : bool), π b := begin
+  let construct : (π ff × π tt) → Π (b : bool), π b :=
+  begin
     intros x b, cases x with p q,
     cases b, exact p, exact q
   end,
-  let deconstruct : (Π (b : bool), π b) → (π ff × π tt) := begin
-    intro H, split, exact H ff, exact H tt
-  end,
+  let deconstruct : (Π (b : bool), π b) → (π ff × π tt) :=
+  begin intro H, split, exact H ff, exact H tt end,
   existsi construct, split; existsi deconstruct,
   { intro x, cases x with p q, reflexivity },
   { intro x, apply theorems.funext,

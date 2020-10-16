@@ -26,7 +26,8 @@ namespace generalized
   @[hott] def ind {α : Type u} {π : {α} → Type v}
     (incl₁ : Π (a : α), π (incl a))
     (glue₁ : Π (a b : α), incl₁ a =[glue a b] incl₁ b) :
-    Π (x : generalized α), π x := begin
+    Π (x : generalized α), π x :=
+  begin
     fapply graph.ind, exact incl₁,
     { intros u v H, induction H, apply glue₁ }
   end

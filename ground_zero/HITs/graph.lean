@@ -20,7 +20,8 @@ namespace graph
   ground_zero.support.inclusion (quot.sound (rel.line h))
 
   @[safe] def rec {α : Type u} {β : Type v} {R : α → α → Type w}
-    (f : α → β) (h : Π x y, R x y → f x = f y) : graph R → β := begin
+    (f : α → β) (h : Π x y, R x y → f x = f y) : graph R → β :=
+  begin
     fapply quot.lift, exact f,
     { intros a b, intro H, cases H,
       apply ground_zero.support.truncation,
@@ -29,7 +30,8 @@ namespace graph
 
   @[safe] def ind {α : Type u} {R : α → α → Type w} {β : graph R → Type v}
     (f : Π x, β (elem x)) (h : Π x y (H : R x y), f x =[line H] f y) :
-    Π x, β x := begin
+    Π x, β x :=
+  begin
     intro x, fapply quot.hrec_on x,
     exact f, intros a b H, cases H,
     apply ground_zero.types.heq.from_pathover (line H_a),

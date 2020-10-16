@@ -19,7 +19,8 @@ axiom choice {α : Type u} (β : α → Type v) (η : Π x, β x → Type w) :
 
 @[hott] noncomputable def choice_of_rel {α : Type u} {β : Type v}
   (R : α → β → propset.{w}) (H : hset α) (G : hset β) :
-  (Π x, ∥(Σ y, (R x y).fst)∥) → ∥(Σ (φ : α → β), Π x, (R x (φ x)).fst)∥ := begin
+  (Π x, ∥(Σ y, (R x y).fst)∥) → ∥(Σ (φ : α → β), Π x, (R x (φ x)).fst)∥ :=
+begin
   apply @choice α (λ _, β) (λ x y, (R x y).fst),
   { intros x y, apply H },
   { intros x y z, apply G },

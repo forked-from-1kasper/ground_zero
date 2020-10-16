@@ -23,7 +23,8 @@ total (fib_inh f)
 λ x, ⟨f x, merely.elem ⟨x, Id.refl⟩⟩
 
 @[hott] def cut_is_surj {α : Type u} {β : Type v}
-  (f : α → β) : surj (cut f) := begin
+  (f : α → β) : surj (cut f) :=
+begin
   intro x, induction x with x h,
   fapply merely.ind _ _ h,
   { intro g, induction g with y p,
@@ -42,7 +43,8 @@ sigma.fst
 λ x, ⟨x, h x⟩
 
 @[hott] def surj_impl_ran_eqv {α : Type u} {β : Type v}
-  (f : α → β) (h : surj f) : ran f ≃ β := begin
+  (f : α → β) (h : surj f) : ran f ≃ β :=
+begin
   existsi sigma.fst, split; existsi ran.incl h,
   { intro x, induction x with x g,
     fapply sigma.prod, refl,
@@ -56,7 +58,8 @@ end
 
 @[hott] def ran_const_eqv {α : Type u} (a : α) {β : Type v}
   (h : ground_zero.structures.hset β) (b : β) :
-  ran (function.const α b) ≃ 𝟏 := begin
+  ran (function.const α b) ≃ 𝟏 :=
+begin
   existsi (λ _, ★), split; existsi (λ _, ran_const a b),
   { intro x, induction x with b' inh,
     fapply sigma.prod, change b = b',
@@ -71,7 +74,8 @@ end
 Π (x y : α), @equiv.biinv (x = y) (f x = f y) (Id.map f)
 
 @[hott] def ntype_over_embedding {α : Type u} {β : Type v} (f : α → β)
-  (n : ℕ₋₂) : embedding f → is-(hlevel.succ n)-type β → is-(hlevel.succ n)-type α := begin
+  (n : ℕ₋₂) : embedding f → is-(hlevel.succ n)-type β → is-(hlevel.succ n)-type α :=
+begin
   intros η H, intros x y, apply ground_zero.structures.ntype_respects_equiv,
   { symmetry, existsi Id.map f, apply η }, apply H
 end
@@ -85,7 +89,8 @@ end
 begin fapply ground_zero.types.sigma.prod, exact p, apply H end
 
 @[hott] def prop_sigma_embedding {α : Type u} {β : α → Type v}
-  (H : Π x, prop (β x)) : embedding (@sigma.fst α β) := begin
+  (H : Π x, prop (β x)) : embedding (@sigma.fst α β) :=
+begin
   intros x y, split; existsi sigma_prop_eq H,
   { intro p, induction x, induction y, induction p,
     change ground_zero.types.sigma.prod _ _ = _,

@@ -15,14 +15,16 @@ universes u v w
   HITs.merely.uniq a b = p :=
 prop_is_set HITs.merely.uniq (HITs.merely.uniq a b) p
 
-@[hott] def prop_equiv {π : Type u} (h : prop π) : π ≃ ∥π∥ := begin
+@[hott] def prop_equiv {π : Type u} (h : prop π) : π ≃ ∥π∥ :=
+begin
   existsi HITs.merely.elem,
   split; existsi (HITs.merely.rec h id); intro x,
   { reflexivity },
   { apply HITs.merely.uniq }
 end
 
-@[hott] def prop_from_equiv {π : Type u} (e : π ≃ ∥π∥) : prop π := begin
+@[hott] def prop_from_equiv {π : Type u} (e : π ≃ ∥π∥) : prop π :=
+begin
   cases e with f H, cases H with linv rinv,
   cases linv with g α, cases rinv with h β,
   intros a b,
@@ -37,7 +39,8 @@ end
 begin induction p, trivial end
 
 @[hott] def hmtpy_rewrite {α : Type u} (f : α → α) (H : f ~ proto.idfun) :
-  Π x, H (f x) = f # (H x) := begin
+  Π x, H (f x) = f # (H x) :=
+begin
   intro x,
   symmetry, transitivity, { symmetry, apply Id.refl_right }, transitivity,
   { apply Id.map (λ p, f # (H x) ⬝ p), symmetry, apply Id.comp_inv (H x) },
@@ -50,7 +53,8 @@ begin induction p, trivial end
 end
 
 @[hott] def qinv_impls_ishae {α : Type u} {β : Type v}
-  (f : α → β) : qinv f → ishae f := begin
+  (f : α → β) : qinv f → ishae f :=
+begin
   intro H, cases H with g H, cases H with ε η,
   let ε' := λ b, (ε (f (g b)))⁻¹ ⬝ (@Id.map α β _ _ f (η (g b)) ⬝ ε b),
   existsi g, existsi η, existsi ε', intro x,
@@ -66,7 +70,8 @@ end
 
 @[hott] def fib_eq {α : Type u} {β : Type v} (f : α → β) {y : β}
   {a b : α} (p : f a = y) (q : f b = y) (H : Σ (γ : a = b), f # γ ⬝ q = p) :
-  ⟨a, p⟩ = ⟨b, q⟩ :> fib f y := begin
+  ⟨a, p⟩ = ⟨b, q⟩ :> fib f y :=
+begin
   induction H with γ r, fapply sigma.prod, exact γ,
   transitivity, { apply types.equiv.transport_over_contr_map },
   transitivity, { apply Id.map (⬝ p), apply types.Id.map_inv },
@@ -91,7 +96,8 @@ end
 
 @[hott] def comp_qinv₁ {α : Type u} {β : Type v} {γ : Type w}
   (f : α → β) (g : β → α) (H : is_qinv f g) :
-  @qinv (γ → α) (γ → β) (λ (h : γ → α), f ∘ h) := begin
+  @qinv (γ → α) (γ → β) (λ (h : γ → α), f ∘ h) :=
+begin
   existsi (λ h, g ∘ h), split;
   intro h; apply theorems.funext; intro x,
   apply H.pr₁, apply H.pr₂
@@ -99,14 +105,16 @@ end
 
 @[hott] def comp_qinv₂ {α : Type u} {β : Type v} {γ : Type w}
   (f : α → β) (g : β → α) (H : is_qinv f g) :
-  @qinv (β → γ) (α → γ) (λ (h : β → γ), h ∘ f) := begin
+  @qinv (β → γ) (α → γ) (λ (h : β → γ), h ∘ f) :=
+begin
   existsi (λ h, h ∘ g), split;
   intro h; apply theorems.funext; intro x; apply Id.map h,
   apply H.pr₂, apply H.pr₁
 end
 
 @[hott] def linv_contr {α : Type u} {β : Type v}
-  (f : α → β) (h : qinv f) : contr (linv f) := begin
+  (f : α → β) (h : qinv f) : contr (linv f) :=
+begin
   apply structures.contr_respects_equiv,
   { symmetry, apply sigma.respects_equiv,
     intro g, symmetry, apply @theorems.full α (λ _, α) (g ∘ f) },
@@ -115,7 +123,8 @@ end
 end
 
 @[hott] def rinv_contr {α : Type u} {β : Type v}
-  (f : α → β) (h : qinv f) : contr (rinv f) := begin
+  (f : α → β) (h : qinv f) : contr (rinv f) :=
+begin
   apply structures.contr_respects_equiv,
   { symmetry, apply sigma.respects_equiv,
     intro g, symmetry, apply @theorems.full β (λ _, β) (f ∘ g) },
@@ -124,21 +133,24 @@ end
 end
 
 @[hott] def product_contr {α : Type u} {β : Type v}
-  (h : contr α) (g : contr β) : contr (α × β) := begin
+  (h : contr α) (g : contr β) : contr (α × β) :=
+begin
   existsi (h.point, g.point), intro p,
   induction p with a b, fapply product.prod,
   apply h.intro, apply g.intro
 end
 
 @[hott] def biinv_prop {α : Type u} {β : Type v}
-  (f : α → β) : prop (biinv f) := begin
+  (f : α → β) : prop (biinv f) :=
+begin
   apply structures.lem_contr, intro g, apply product_contr,
   { apply linv_contr, apply qinv.of_biinv, assumption },
   { apply rinv_contr, apply qinv.of_biinv, assumption }
 end
 
 @[hott] def equiv_hmtpy_lem {α : Type u} {β : Type v}
-  (f g : α ≃ β) (H : f.forward ~ g.forward) : f = g := begin
+  (f g : α ≃ β) (H : f.forward ~ g.forward) : f = g :=
+begin
   fapply sigma.prod,
   { apply theorems.funext, exact H },
   { apply biinv_prop }
@@ -161,7 +173,8 @@ end
 
 @[hott] def lem_contr_inv {α : Type u} (h : prop α) (x : α) : contr α := ⟨x, h x⟩
 
-@[hott] def lem_contr_equiv {α : Type u} : (prop α) ≃ (α → contr α) := begin
+@[hott] def lem_contr_equiv {α : Type u} : (prop α) ≃ (α → contr α) :=
+begin
   apply structures.prop_equiv_lemma,
   { apply structures.prop_is_prop },
   { apply structures.function_to_contr },
@@ -178,7 +191,8 @@ end
 
 -- HoTT 3.20
 @[hott] def contr_family {α : Type u} {β : α → Type v} (h : contr α) :
-  (Σ x, β x) ≃ β h.point := begin
+  (Σ x, β x) ≃ β h.point :=
+begin
   existsi contr_to_type h, split;
   existsi @type_to_contr α β h; intro x,
   { cases x with x u, fapply types.sigma.prod,

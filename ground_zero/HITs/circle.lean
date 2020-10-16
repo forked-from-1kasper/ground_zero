@@ -63,7 +63,8 @@ namespace loop
   | (integer.neg n) := neg p n
 
   @[hott] def power_comp (p : a = a) (z : integer) :
-    power p z ⬝ p = power p (integer.succ z) := begin
+    power p z ⬝ p = power p (integer.succ z) :=
+  begin
     induction z, { trivial },
     { induction z with n ih,
       { apply Id.inv_comp },
@@ -135,14 +136,16 @@ namespace circle
   instance pointed_circle : types.Id.dotted S¹ := ⟨base⟩
 
   @[hott] noncomputable def loop_eq_refl_impls_uip {α : Type u}
-    (H : loop = idp base) : structures.K α := begin
+    (H : loop = idp base) : structures.K α :=
+  begin
     intros a p, transitivity,
     symmetry, apply circle.recβrule₂ a p,
     change _ = (rec a p) # (idp base),
     apply Id.map, assumption
   end
 
-  @[hott] noncomputable def loop_neq_refl : ¬(loop = idp base) := begin
+  @[hott] noncomputable def loop_neq_refl : ¬(loop = idp base) :=
+  begin
     intro h, apply ua.universe_not_a_set,
     intros α β p q, apply (structures.K_iff_set Type).left,
     apply loop_eq_refl_impls_uip, assumption
@@ -152,14 +155,16 @@ namespace circle
     def trivial    : S¹ → S¹ := rec base (idp base)
     def nontrivial : S¹ → S¹ := rec base loop
 
-    @[hott] noncomputable def trivial_not_hmtpy : ¬(trivial = id) := begin
+    @[hott] noncomputable def trivial_not_hmtpy : ¬(trivial = id) :=
+    begin
       intro p, apply loop_neq_refl,
       transitivity, apply idmap,
       apply transport (λ f, f # loop = idp (f base)) p,
       apply circle.recβrule₂
     end
 
-    @[hott] noncomputable def trivial_hmtpy : trivial ~ (λ _, base) := begin
+    @[hott] noncomputable def trivial_hmtpy : trivial ~ (λ _, base) :=
+    begin
       intro x, apply ind _ _ x,
       refl, apply types.Id.trans, apply equiv.transport_over_contr_map,
       transitivity, apply Id.map (⬝ idp base), apply Id.map_inv,
@@ -167,7 +172,8 @@ namespace circle
       apply recβrule₂, trivial
     end
 
-    @[hott] noncomputable def nontrivial_hmtpy : nontrivial ~ id := begin
+    @[hott] noncomputable def nontrivial_hmtpy : nontrivial ~ id :=
+    begin
       intro x, apply ind _ _ x,
       refl, apply types.Id.trans, apply equiv.transport_over_involution,
       transitivity, apply Id.map (λ p, p ⬝ idp base ⬝ loop),
@@ -282,7 +288,8 @@ namespace circle
       intro x, apply types.integer.set
     end) x c
 
-  @[hott] noncomputable def family (x : S¹) : (base = x) ≃ helix x := begin
+  @[hott] noncomputable def family (x : S¹) : (base = x) ≃ helix x :=
+  begin
     existsi encode x, split; existsi decode x,
     apply decode_encode x, apply encode_decode x
   end
@@ -314,7 +321,8 @@ namespace circle
 
   def μ (x : S¹) : S¹ → S¹ := (μₑ x).forward
 
-  noncomputable def μ_loop : Id.map μ loop = theorems.funext rot := begin
+  noncomputable def μ_loop : Id.map μ loop = theorems.funext rot :=
+  begin
     transitivity, apply equiv.map_over_comp,
     transitivity, apply Id.map, apply recβrule₂,
     apply sigma.map_fst_over_prod
@@ -367,7 +375,8 @@ namespace circle
                              begin change _ = rot base, apply happly,
                                    apply theorems.full.forward_right end
 
-  @[hott] noncomputable def unit_right (x : S¹) : μ x base = x := begin
+  @[hott] noncomputable def unit_right (x : S¹) : μ x base = x :=
+  begin
     fapply circle.ind _ _ x, refl,
     apply types.Id.trans, apply equiv.transport_over_involution (λ x, μ x base),
     transitivity, apply Id.map (λ p, p ⬝ idp base ⬝ loop),
@@ -379,7 +388,8 @@ namespace circle
   @[hott] noncomputable def unit_comm (x : S¹) : μ base x = μ x base :=
   unit_left x ⬝ (unit_right x)⁻¹
 
-  @[hott] noncomputable def mul_inv (x : S¹) : base = μ x (inv x) := begin
+  @[hott] noncomputable def mul_inv (x : S¹) : base = μ x (inv x) :=
+  begin
     fapply circle.ind _ _ x; clear x,
     { exact circle.loop },
     { apply Id.trans, apply equiv.transport_comp (λ x, base = x) (S μ inv) loop,

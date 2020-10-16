@@ -55,7 +55,8 @@ namespace equiv
 
   @[hott] def homotopy_square {α : Type u} {β : Type v}
     {f g : α → β} (H : f ~ g) {x y : α} (p : x = y :> α) :
-    H x ⬝ (g # p) = (f # p) ⬝ H y :> f x = g y :> β := begin
+    H x ⬝ (g # p) = (f # p) ⬝ H y :> f x = g y :> β :=
+  begin
     induction p, transitivity,
     apply Id.refl_right,
     apply Id.refl_left
@@ -71,7 +72,7 @@ namespace equiv
     has_coe (α ≃ β) (α → β) :=
   ⟨begin intro e, cases e with f H, exact f end⟩
 
-  @[hott] def forward  {α : Type u} {β : Type v} (e : α ≃ β) : α → β := e.fst
+  @[hott] def forward {α : Type u} {β : Type v} (e : α ≃ β) : α → β := e.fst
 
   @[hott] def left {α : Type u} {β : Type v} : α ≃ β → β → α
   | ⟨_, (⟨g, _⟩, _)⟩ := g
@@ -92,7 +93,8 @@ namespace equiv
 
   @[hott] def biinv_trans {α : Type u} {β : Type v} {γ : Type w}
     {f : α → β} {g : β → γ} : biinv f → biinv g → biinv (g ∘ f)
-  | (⟨g₁, G₁⟩, ⟨h₁, H₁⟩) (⟨g₂, G₂⟩, ⟨h₂, H₂⟩) := begin
+  | (⟨g₁, G₁⟩, ⟨h₁, H₁⟩) (⟨g₂, G₂⟩, ⟨h₂, H₂⟩) :=
+  begin
     split,
     { existsi (g₁ ∘ g₂), intro x, transitivity,
       apply Id.map g₁, apply G₂, exact G₁ x },
@@ -238,7 +240,8 @@ namespace equiv
 
   @[hott] def transport_composition {α : Type u} {a x₁ x₂ : α}
     (p : x₁ = x₂ :> α) (q : a = x₁ :> α) :
-    transport (ground_zero.types.Id a) p q = q ⬝ p :> _ := begin
+    transport (ground_zero.types.Id a) p q = q ⬝ p :=
+  begin
     induction p, symmetry, transitivity,
     apply Id.refl_right, trivial
   end
@@ -284,7 +287,8 @@ namespace equiv
   begin intro h, induction h, apply transport_composition end
 
   @[hott] def transport_inv_comp_comp {α : Type u} {a b : α} (p : a = b) (q : a = a) :
-    equiv.transport (λ x, x = x) p q = p⁻¹ ⬝ q ⬝ p := begin
+    equiv.transport (λ x, x = x) p q = p⁻¹ ⬝ q ⬝ p :=
+  begin
     induction p, symmetry, transitivity,
     apply Id.refl_left (q ⬝ Id.refl), transitivity,
     apply Id.refl_right, trivial
@@ -307,7 +311,8 @@ namespace equiv
 
   @[hott] def transport_over_involution {α : Type u} {a b : α}
     (f : α → α) (p : a = b) (q : f a = a) :
-    equiv.transport (λ x, f x = x) p q = (f # p⁻¹) ⬝ q ⬝ p := begin
+    equiv.transport (λ x, f x = x) p q = (f # p⁻¹) ⬝ q ⬝ p :=
+  begin
     induction p, symmetry,
     transitivity, apply Id.refl_left (q ⬝ Id.refl),
     apply Id.refl_right
@@ -315,7 +320,8 @@ namespace equiv
 
   @[hott] def transport_over_hmtpy {α : Type u} {β : Type v} {a b : α}
     (f g : α → β) (p : a = b) (q : f a = g a) :
-    equiv.transport (λ x, f x = g x) p q = (f # p⁻¹) ⬝ q ⬝ g # p := begin
+    equiv.transport (λ x, f x = g x) p q = (f # p⁻¹) ⬝ q ⬝ g # p :=
+  begin
     induction p, symmetry,
     transitivity, apply Id.refl_left,
     apply Id.refl_right
@@ -330,7 +336,8 @@ namespace equiv
 
   @[hott] def transport_over_dhmtpy {α : Type u} {β : α → Type v} {a b : α}
     (f g : Π x, β x) (p : a = b) (q : f a = g a) :
-    equiv.transport (λ x, f x = g x) p q = (apd f p)⁻¹ ⬝ subst p # q ⬝ apd g p := begin
+    equiv.transport (λ x, f x = g x) p q = (apd f p)⁻¹ ⬝ subst p # q ⬝ apd g p :=
+  begin
     induction p, symmetry,
     transitivity, apply Id.map (⬝ apd g _), apply Id.refl_left,
     transitivity, apply Id.map, apply idmap,
@@ -357,7 +364,8 @@ namespace equiv
 
   @[hott] def pathover_of_eq_inj {α : Type u} {β : Type v} {a b : α} {a' b' : β}
     (r : a = b :> α) (p q : a' = b' :> β) :
-    pathover_of_eq r p = pathover_of_eq r q → p = q := begin
+    pathover_of_eq r p = pathover_of_eq r q → p = q :=
+  begin
     intro H, induction r, induction p,
     transitivity, symmetry, apply pathover_inv a,
     symmetry, transitivity, symmetry, apply pathover_inv a,
@@ -404,7 +412,8 @@ namespace equiv
 
   @[hott] def bimap_comp {α : Type u} {β : Type v} {γ : Type w}
     {a b : α} {a' b' : β} (f : α → β → γ) (p : a = b) (q : a' = b') :
-    (λ x, f x a') # p = f a # q ⬝ bimap f p q⁻¹ := begin
+    (λ x, f x a') # p = f a # q ⬝ bimap f p q⁻¹ :=
+  begin
     induction p, symmetry,
     transitivity, { apply Id.map, apply bimap_refl_left },
     transitivity, { apply Id.map, apply Id.map_inv },
@@ -422,7 +431,8 @@ namespace equiv
     Π (x : μ a), transport η p (f x) = g (transport μ p x) :=
   begin induction p, induction q, intro x, trivial end
 
-  @[hott] def identity_eqv {α : Type u} : α ≃ identity α := begin
+  @[hott] def identity_eqv {α : Type u} : α ≃ identity α :=
+  begin
     existsi identity.elem, split; existsi identity.elim; intro x,
     { reflexivity }, { induction x, reflexivity }
   end
@@ -447,7 +457,8 @@ namespace qinv
   Σ (f : α → β), qinv f
 
   @[hott] def to_biinv {α : Type u} {β : Type v} (f : α → β) (q : qinv f) :
-    equiv.biinv f := begin
+    equiv.biinv f :=
+  begin
     cases q with g H,
     cases H with α β,
     split; existsi g,
