@@ -545,8 +545,7 @@ namespace group
     G.carrier → G.carrier → Ω :=
   λ x y, ⟨rdiv φ x y, by apply ens.prop⟩
 
-  @[hott] def factor_setoid_left (φ : ens G.carrier) [G ≥ φ] :
-    ground_zero.HITs.setoid G.carrier :=
+  @[hott] def factor_eqrel_left (φ : ens G.carrier) [G ≥ φ] : eqrel G.carrier :=
   ⟨factor_left_rel φ, begin
     split,
     { intro x, apply transport (∈ φ),
@@ -560,8 +559,7 @@ namespace group
       assumption }
   end⟩
 
-  @[hott] def factor_setoid_right (φ : ens G.carrier) [G ≥ φ] :
-    ground_zero.HITs.setoid G.carrier :=
+  @[hott] def factor_eqrel_right (φ : ens G.carrier) [G ≥ φ] : eqrel G.carrier :=
   ⟨factor_right_rel φ, begin
     split,
     { intro x, apply transport (∈ φ),
@@ -576,17 +574,15 @@ namespace group
   end⟩
 
   def factor_left (G : group) (φ : ens G.carrier) [G ≥ φ] :=
-  HITs.quotient (factor_setoid_left φ)
-  --infix `/` := factor
+  HITs.quotient (factor_eqrel_left φ)
 
   def factor_right (G : group) (φ : ens G.carrier) [G ≥ φ] :=
-  HITs.quotient (factor_setoid_right φ)
-  --infix `\` := factor_right
+  HITs.quotient (factor_eqrel_right φ)
 
   @[hott] noncomputable def factor_symm (φ : ens G.carrier) [G ⊵ φ] :
     factor_left G φ = factor_right G φ :=
   begin
-    apply map ground_zero.HITs.quotient, apply ground_zero.HITs.setoid.eq,
+    apply map ground_zero.HITs.quotient, apply ground_zero.eqrel.eq,
     repeat { apply ground_zero.theorems.funext, intro },
     fapply ground_zero.types.sigma.prod,
     { change ldiv φ _ _ = rdiv φ _ _,

@@ -73,12 +73,7 @@ def pred : integer → integer
 @[hott] def succ_equiv : integer ≃ integer :=
 begin
   existsi succ, split; existsi pred,
-  repeat {
-    intro n, induction n,
-    repeat { trivial },
-    { induction n with n ih,
-      repeat { trivial } }
-  }
+  repeat { intro n, repeat { trivial <|> induction n } }
 end
 
 @[hott] def auxsub : nat → nat → integer
@@ -128,11 +123,25 @@ end
 
 @[hott] def add_comm (x y : integer) : x + y = y + x :=
 begin
-  induction x; induction y,
-  { apply Id.map pos, apply nat.comm },
-  { reflexivity }, { reflexivity },
-  { apply Id.map neg, apply nat.comm }
+  induction x; induction y;
+  try { trivial <|> apply Id.map pos <|> apply Id.map neg },
+  repeat { apply nat.comm }
 end
+
+@[hott] def auxsub_zero_right (n : nat) : auxsub n 0 = pos n :=
+begin induction n; trivial end
+
+@[hott] def auxsub_succ : Π (n m : nat), auxsub (n + 1) m = auxsub n m + 1
+|    0       0    := by trivial
+|    0    (m + 1) := by trivial
+| (n + 1)    0    := by trivial
+| (n + 1) (m + 1) := auxsub_succ n m
+
+@[hott] def auxsub_neg : Π (n m : nat), auxsub n m = negate (auxsub m n)
+|    0       0    := by trivial
+|    0    (m + 1) := by trivial
+| (n + 1)    0    := by trivial
+| (n + 1) (m + 1) := auxsub_neg n m
 
 @[hott] noncomputable def set : hset integer :=
 begin

@@ -605,4 +605,40 @@ def finite := iter 𝟏 𝟎
 def LEM_inf := Π (α : Type u), α + ¬α
 notation `LEM∞` := LEM_inf
 
+open structures (prop propset)
+
+def hrel (α : Type u) := α → α → propset.{v}  
+
+section
+  variables {α : Type u} (R : hrel α)
+
+  def isrefl  := Π a, (R a a).fst
+  def issymm  := Π a b, (R a b).fst → (R b a).fst
+  def istrans := Π a b c, (R a b).fst → (R b c).fst → (R a c).fst
+
+  def iseqrel := isrefl R × issymm R × istrans R
+end
+
+def eqrel (α : Type u) :=
+Σ φ, @iseqrel α φ
+
+@[hott] def eqrel.rel {α : Type u} : eqrel α → hrel α := sigma.fst
+@[hott] def eqrel.iseqv {α : Type u} (s : eqrel α) : iseqrel s.rel := s.snd
+
+@[hott] def iseqrel.prop {α : Type u} {rel : hrel α} : prop (iseqrel rel) :=
+begin
+  apply structures.product_prop,
+  { intros f g, apply theorems.funext,
+    intro x, apply (rel x x).snd },
+  apply structures.product_prop;
+  { intros f g, repeat { apply theorems.funext, intro },
+    apply (rel _ _).snd }
+end
+
+@[hott] def eqrel.eq {α : Type u} {x y : eqrel α} (p : x.rel = y.rel) : x = y :=
+begin apply types.sigma.prod p, apply iseqrel.prop end
+
+@[hott] def eqrel.apply {α : Type u} (s : eqrel α) (a b : α) : Type v :=
+(s.rel a b).fst
+
 end ground_zero
