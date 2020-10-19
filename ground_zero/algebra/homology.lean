@@ -1,5 +1,5 @@
 import ground_zero.algebra.group
-open ground_zero ground_zero.algebra (abelian) ground_zero.algebra.group
+open ground_zero ground_zero.types ground_zero.algebra.group
 
 namespace ground_zero.algebra
 universe u

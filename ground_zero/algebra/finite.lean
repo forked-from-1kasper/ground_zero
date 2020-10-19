@@ -2,7 +2,7 @@ import ground_zero.algebra.group
 open ground_zero.types.equiv (transport)
 open ground_zero.types.qinv (eqv)
 open ground_zero.types.Id (map)
-open ground_zero.types (idp)
+open ground_zero.types
 
 hott theory
 
