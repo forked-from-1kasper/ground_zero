@@ -1,6 +1,7 @@
 import ground_zero.HITs.interval ground_zero.HITs.merely
+import ground_zero.theorems.ua
+open ground_zero.structures (prop contr hset propset prop_is_set)
 open ground_zero.HITs.interval
-open ground_zero.structures (prop contr hset prop_is_set)
 open ground_zero.types.equiv
 open ground_zero.types
 
@@ -205,6 +206,32 @@ end
 
 @[hott] def propset.Id (α β : Ω) (h : α.fst = β.fst) : α = β :=
 types.sigma.prod h (structures.prop_is_prop _ _)
+
+@[hott] noncomputable def prop_eq_prop {α β : Type u} (G : prop β) : prop (α = β) :=
+begin
+  apply structures.prop_respects_equiv,
+  apply ground_zero.ua.univalence α β,
+  apply theorems.prop.prop_equiv_prop G
+end
+
+@[hott] noncomputable def propset_is_set : hset propset :=
+begin
+  intros x y, induction x with x H, induction y with y G,
+  apply transport (λ π, Π (p q : π), p = q),
+  symmetry, apply ground_zero.ua, apply types.sigma.sigma_path,
+  intros p q, induction p with p p', induction q with q q',
+  change x = y at p, change x = y at q, fapply types.sigma.prod,
+  { apply prop_eq_prop, exact G },
+  { apply prop_is_set, apply structures.prop_is_prop }
+end
+
+@[hott] def hset_equiv {α : Type u} (h : hset α) : hset (α ≃ α) :=
+begin
+  fapply structures.hset_respects_sigma,
+  { apply structures.pi_hset, intro x, assumption },
+  { intro x, apply structures.prop_is_set,
+    apply theorems.prop.biinv_prop }
+end
 
 end theorems.prop
 end ground_zero

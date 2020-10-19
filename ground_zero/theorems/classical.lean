@@ -1,4 +1,3 @@
-import ground_zero.theorems.ua
 import ground_zero.theorems.prop
 open ground_zero.types.equiv (transport)
 open ground_zero.types.Id (map)
@@ -54,28 +53,10 @@ section
   variables {α : Type u} (H : prop α)
   def inh := Σ (φ : 𝟐 → propset), ∥(Σ (x : 𝟐), (φ x).fst)∥
 
-  @[hott] noncomputable def prop_eq_prop {α β : Type u} (G : prop β) : prop (α = β) :=
-  begin
-    apply structures.prop_respects_equiv,
-    apply ground_zero.ua.univalence α β,
-    apply theorems.prop.prop_equiv_prop G
-  end
-
-  @[hott] noncomputable def propset.set : hset propset :=
-  begin
-    intros x y, induction x with x H, induction y with y G,
-    apply transport (λ π, Π (p q : π), p = q),
-    symmetry, apply ground_zero.ua, apply types.sigma.sigma_path,
-    intros p q, induction p with p p', induction q with q q',
-    change x = y at p, change x = y at q, fapply types.sigma.prod,
-    { apply prop_eq_prop, exact G },
-    { apply prop_is_set, apply prop_is_prop }
-  end
-
   @[hott] noncomputable def inh.hset : hset inh :=
   begin
-    apply hset_respects_sigma,
-    apply pi_hset, intro x, apply propset.set,
+    apply hset_respects_sigma, apply pi_hset,
+    intro x, apply theorems.prop.propset_is_set,
     intro φ, apply prop_is_set, apply HITs.merely.uniq
   end
 

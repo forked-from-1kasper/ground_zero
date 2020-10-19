@@ -27,6 +27,7 @@ digraph dependency_map {
     "types/category"
     "types/coproduct" -> { structures }
     "types/eq" -> { support }
+    "types/ens" -> { "algebra/group", "types/setquot" }
     "types/equiv" -> {
       "types/heq",
       "HITs/infinitesimal",
@@ -46,6 +47,7 @@ digraph dependency_map {
     "types/nat" -> { "theorems/nat" }
     "types/precategory" -> { "types/category" }
     "types/product" -> { structures }
+    "types/setquot"
     "types/sigma" -> { structures }
     "types/unit" -> { structures, "HITs/suspension" }
   }
@@ -106,9 +108,14 @@ digraph dependency_map {
     "theorems/prop" -> {
       "algebra/eilenberg_maclane",
       "HITs/circle",
+      "types/ens",
       "types/precategory",
       "theorems/classical"
     }
-    "theorems/ua" -> { "theorems/classical", "theorems/nat", "cubical/V" }
+    "theorems/ua" -> {
+      "theorems/nat",
+      "theorems/prop",
+      "cubical/V"
+    }
   }
 }

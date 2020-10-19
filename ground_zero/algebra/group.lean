@@ -1,5 +1,5 @@
 import ground_zero.HITs.quotient ground_zero.types.integer
-import ground_zero.theorems.functions ground_zero.theorems.prop
+import ground_zero.theorems.functions ground_zero.types.ens
 open ground_zero.types.equiv (biinv transport)
 open ground_zero.types.Id (map)
 open ground_zero.structures
@@ -8,9 +8,6 @@ open ground_zero.proto
 open ground_zero
 
 /-
-  Predicates.
-  * https://groupoid.space/math/homology/
-
   Magma, semigroup, monoid, group, abelian group.
   * HoTT 6.11
 
@@ -71,92 +68,6 @@ namespace ground_zero.algebra
 universes u v u' v' w
 
 hott theory
-
-def ens (α : Type u) : Type (max u (v + 1)) :=
-Σ (φ : α → Type v), Π x, prop (φ x)
-
-def ens.contains {α : Type u} (x : α) (s : ens α) : Type v := s.fst x
-infix ∈ := ens.contains
-
-def ens.prop {α : Type u} (x : α) (s : ens α) : prop (x ∈ s) := s.snd x
-def ens.subtype {α : Type u} (s : ens α) := Σ x, s.fst x
-
-@[hott] def ens.univ (α : Type u) : ens α :=
-⟨λ _, 𝟏, λ _, unit_is_prop⟩
-
-@[hott] def ens.union {α : Type u} (a b : ens α) : ens α :=
-⟨λ x, ∥(x ∈ a) + (x ∈ b)∥, λ _, HITs.merely.uniq⟩
-
-@[hott] def ens.sunion {α : Type u} (φ : ens.{u v} α → Type w) : ens α :=
-⟨λ x, ∥(Σ (s : ens.{u v} α), x ∈ s × φ s)∥, λ _, HITs.merely.uniq⟩
-
-instance {α : Type u} : has_union (ens α) := ⟨ens.union⟩
-
-@[hott] def ens.inter {α : Type u} (a b : ens α) : ens α :=
-⟨λ x, x ∈ a × x ∈ b, begin
-  intro x, apply structures.product_prop; apply ens.prop
-end⟩
-
-instance {α : Type u} : has_inter (ens α) := ⟨ens.inter⟩
-
-@[hott] def ens.smallest {α : Type u} (φ : ens.{u v} α → Type w) : ens α :=
-⟨λ x, ∀ (s : ens.{u v} α), φ s → x ∈ s, λ y, begin
-  apply structures.pi_prop, intro φ,
-  apply structures.impl_prop, apply ens.prop
-end⟩
-
-def ens.inf_inter {α : Type u} (φ : ens (ens α)) : ens α := ens.smallest φ.fst
-
-def ens.ssubset {α : Type u} (φ : ens.{u v} α) (ψ : ens.{u w} α) :=
-Π x, x ∈ φ → x ∈ ψ
-infix ⊆ := ens.ssubset
-
-@[hott] def ens.ssubset.prop {α : Type u}
-  (φ : ens.{u v} α) (ψ : ens.{u w} α) : prop (φ ⊆ ψ) :=
-begin apply pi_prop, intro x, apply impl_prop, apply ens.prop end
-
-@[hott, refl] def ens.ssubset.refl {α : Type u} (φ : ens α) : φ ⊆ φ :=
-begin intros x, apply id end
-
-@[hott, trans] def ens.ssubset.trans {α : Type u} {a b c : ens α} :
-  a ⊆ b → b ⊆ c → a ⊆ c :=
-λ G H x p, H x (G x p)
-
-@[hott] def ens.image {α : Type u} {β : Type v} (φ : ens α) (f : α → β) : ens β :=
-⟨λ y, ∥(Σ x, f x = y × x ∈ φ)∥, λ _, HITs.merely.uniq⟩
-
-@[hott] noncomputable def ens.ext {α : Type u} {φ ψ : ens α}
-  (H : Π x, x ∈ φ ↔ x ∈ ψ) : φ = ψ :=
-begin
-  fapply sigma.prod; apply theorems.funext; intro x,
-  { apply ua, apply structures.prop_equiv_lemma,
-    apply φ.snd, apply ψ.snd,
-    apply (H x).left, apply (H x).right },
-  { apply prop_is_prop }
-end
-
-@[hott] noncomputable def ens.ssubset.asymm {α : Type u} {φ ψ : ens α}
-  (f : φ ⊆ ψ) (g : ψ ⊆ φ) : φ = ψ :=
-ens.ext (λ x, ⟨f x, g x⟩)
-
-@[hott] def ens.hset {α : Type u} (s : ens α) : hset α → hset s.subtype :=
-begin
-  intro H, apply zero_eqv_set.forward,
-  fapply ground_zero.structures.ntype_respects_sigma 0,
-  { apply zero_eqv_set.left, intros a b, apply H },
-  { intro x, apply zero_eqv_set.left,
-    apply prop_is_set, apply s.snd }
-end
-
-@[hott] def hset_equiv {α : Type u} (h : hset α) : hset (α ≃ α) :=
-begin
-  apply zero_eqv_set.forward,
-  fapply ground_zero.structures.ntype_respects_sigma 0,
-  { apply ground_zero.structures.pi_respects_ntype 0,
-    intro x, apply zero_eqv_set.left, assumption },
-  { intro x, apply zero_eqv_set.left, apply prop_is_set,
-    apply ground_zero.theorems.prop.biinv_prop }
-end
 
 section
   def zeroeqv {α : Type u} (H : hset α) : 0-Type :=
@@ -1418,7 +1329,11 @@ namespace group
     section
       include ε
       @[hott] def S.magma : magma :=
-      ⟨zeroeqv (begin apply hset_equiv, apply zero_eqv_set.forward, exact ε.snd end), S.mul⟩
+      ⟨zeroeqv (begin
+        apply theorems.prop.hset_equiv,
+        apply zero_eqv_set.forward,
+        exact ε.snd
+      end), S.mul⟩
 
       @[hott] def S.semigroup : semigroup :=
       ⟨@S.magma ε, begin

@@ -641,4 +641,7 @@ begin apply types.sigma.prod p, apply iseqrel.prop end
 @[hott] def eqrel.apply {α : Type u} (s : eqrel α) (a b : α) : Type v :=
 (s.rel a b).fst
 
+@[hott] def eqrel.prop {α : Type u} (s : eqrel α) (a b : α) : prop (s.apply a b) :=
+(s.rel a b).snd
+
 end ground_zero
