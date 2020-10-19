@@ -606,7 +606,6 @@ def LEM_inf := Π (α : Type u), α + ¬α
 notation `LEM∞` := LEM_inf
 
 open structures (prop propset)
-
 def hrel (α : Type u) := α → α → propset.{v}  
 
 section
@@ -622,26 +621,43 @@ end
 def eqrel (α : Type u) :=
 Σ φ, @iseqrel α φ
 
-@[hott] def eqrel.rel {α : Type u} : eqrel α → hrel α := sigma.fst
-@[hott] def eqrel.iseqv {α : Type u} (s : eqrel α) : iseqrel s.rel := s.snd
-
-@[hott] def iseqrel.prop {α : Type u} {rel : hrel α} : prop (iseqrel rel) :=
+@[hott] def iseqrel.prop {α : Type u} {R : hrel α} : prop (iseqrel R) :=
 begin
   apply structures.product_prop,
   { intros f g, apply theorems.funext,
-    intro x, apply (rel x x).snd },
+    intro x, apply (R x x).snd },
   apply structures.product_prop;
   { intros f g, repeat { apply theorems.funext, intro },
-    apply (rel _ _).snd }
+    apply (R _ _).snd }
+end
+
+section
+  variables {α : Type u} (R : eqrel.{u v} α)
+
+  @[hott] def eqrel.rel : hrel α := R.fst
+  @[hott] def eqrel.iseqv : iseqrel R.rel := R.snd
+
+  @[hott] def eqrel.apply (a b : α) : Type v :=
+  (R.rel a b).fst
+
+  @[hott] def eqrel.prop (a b : α) : prop (R.apply a b) :=
+  (R.rel a b).snd
+
+  -- Accessors
+  variables {α : Type u} (R : eqrel α)
+
+  @[hott] def eqrel.refl (a : α) : R.apply a a :=
+  R.snd.fst a
+
+  @[hott] def eqrel.symm {a b : α} : R.apply a b → R.apply b a :=
+  R.snd.snd.fst a b
+
+  @[hott] def eqrel.trans {a b c : α} :
+    R.apply a b → R.apply b c → R.apply a c :=
+  R.snd.snd.snd a b c
 end
 
 @[hott] def eqrel.eq {α : Type u} {x y : eqrel α} (p : x.rel = y.rel) : x = y :=
 begin apply types.sigma.prod p, apply iseqrel.prop end
-
-@[hott] def eqrel.apply {α : Type u} (s : eqrel α) (a b : α) : Type v :=
-(s.rel a b).fst
-
-@[hott] def eqrel.prop {α : Type u} (s : eqrel α) (a b : α) : prop (s.apply a b) :=
-(s.rel a b).snd
 
 end ground_zero
