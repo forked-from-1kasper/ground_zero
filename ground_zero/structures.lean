@@ -644,8 +644,6 @@ section
   (R.rel a b).snd
 
   -- Accessors
-  variables {α : Type u} (R : eqrel α)
-
   @[hott] def eqrel.refl (a : α) : R.apply a a :=
   R.snd.fst a
 
