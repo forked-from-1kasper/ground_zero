@@ -1,5 +1,5 @@
 import ground_zero.HITs.circle ground_zero.theorems.fibration
-open ground_zero ground_zero.HITs
+open ground_zero ground_zero.HITs ground_zero.types.equiv ground_zero.types
 
 hott theory
 

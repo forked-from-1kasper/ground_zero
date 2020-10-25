@@ -233,5 +233,34 @@ begin
     apply theorems.prop.biinv_prop }
 end
 
+@[hott] def bool.decode : 𝟐 ≃ 𝟐 → 𝟐 :=
+λ e, e.fst ff
+
+@[hott] def bool.encode : 𝟐 → 𝟐 ≃ 𝟐
+| ff := equiv.id 𝟐
+| tt := ua.neg_bool_equiv
+
+@[hott] def eqv_inj {α : Type u} {β : Type v}
+  (e : α ≃ β) (x y : α) (p : e.forward x = e.forward y) : x = y :=
+begin
+  transitivity, symmetry, apply e.left_forward,
+  transitivity, apply Id.map e.left, exact p,
+  apply e.left_forward
+end
+
+@[hott] def bool_equiv_eqv_bool : (𝟐 ≃ 𝟐) ≃ 𝟐 :=
+begin
+  fapply sigma.mk, exact bool.decode, fapply qinv.to_biinv,
+  fapply sigma.mk, exact bool.encode, split,
+  { intro x, induction x; reflexivity },
+  { intro e, induction e with φ e, apply theorems.prop.equiv_hmtpy_lem,
+    intro x, cases structures.bool_eq_total (φ ff) with p₁ q₁;
+    cases structures.bool_eq_total (φ tt) with p₂ q₂;
+    { apply proto.empty.elim, apply structures.ff_neq_tt,
+      apply eqv_inj ⟨φ, e⟩, exact p₁ ⬝ p₂⁻¹ <|> exact q₁ ⬝ q₂⁻¹ } <|>
+    { transitivity, apply Id.map (λ (ψ : 𝟐), (bool.encode ψ).forward x),
+      exact p₁ <|> exact q₁, symmetry, cases x; assumption } }
+end
+
 end theorems.prop
 end ground_zero

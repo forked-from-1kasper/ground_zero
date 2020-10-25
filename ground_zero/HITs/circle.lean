@@ -92,8 +92,25 @@ namespace circle
   def base : S¹ := base₁
   def loop : base = base := seg₂ ⬝ seg₁⁻¹
 
+  def halfway.φ : I → S¹ :=
+  λ i, interval.elim loop (i ∧ (interval.neg i))
+
   def halfway : base = base :=
-  interval.lam (λ i, interval.elim loop (i ∧ (interval.neg i)))
+  interval.lam halfway.φ
+
+  @[hott] def halfway.const : halfway.φ = λ _, base :=
+  begin
+    apply theorems.funext, fapply interval.ind,
+    { reflexivity }, { reflexivity },
+    { change _ = _, transitivity,
+      apply types.equiv.transport_over_contr_map,
+      transitivity, apply Id.refl_right,
+      transitivity, apply Id.map_inv,
+      transitivity, apply map, apply equiv.map_over_comp,
+      transitivity, apply map, apply map, change _ = idp interval.zero,
+      apply structures.prop_is_set, apply interval.interval_prop,
+      reflexivity }
+  end
 
   def rec {β : Type u} (b : β) (ℓ : b = b) : S¹ → β :=
   suspension.rec b b (λ b, bool.cases_on b Id.refl ℓ)
@@ -120,6 +137,10 @@ namespace circle
                      begin apply Id.map, apply Id.map types.Id.symm,
                            apply suspension.recβrule end
                ... = ℓ : by apply Id.refl_right
+
+  @[hott] noncomputable def recβrule₃ {β : Type u} (b : β) (ℓ : b = b) :
+    Π x, rec b ℓ # (suspension.merid x) = bool.cases_on x Id.refl ℓ :=
+  by apply suspension.recβrule
 
   @[hott] def ind {β : S¹ → Type u} (b : β base)
     (ℓ : b =[loop] b) : Π (x : S¹), β x :=
@@ -207,8 +228,7 @@ namespace circle
   example : power (integer.pos 2) = loop ⬝ loop :=
   by reflexivity
 
-  def winding (x : base = base) : integer :=
-  @transport S¹ helix base base x (integer.pos 0)
+  def winding : base = base → integer := encode base
 
   @[hott] noncomputable def transport_there (x : integer) := calc
     transport helix loop x = @transport Type id (helix base) (helix base)
@@ -299,11 +319,14 @@ namespace circle
   @[hott] noncomputable def fundamental_group : (Ω¹(S¹)) = ℤ :=
   ua (family base)
 
+  @[hott] noncomputable example : winding (loop ⬝ loop) = integer.pos 2 :=
+  encode_decode base (integer.pos 2)
+
   @[hott] noncomputable example : winding loop = integer.pos 1 :=
-  transport_there (integer.pos 0)
+  encode_decode base (integer.pos 1)
 
   @[hott] noncomputable example : winding loop⁻¹ = integer.neg 0 :=
-  transport_back (integer.pos 0)
+  encode_decode base (integer.neg 0)
 
   @[hott] def rot : Π (x : S¹), x = x :=
   circle.ind circle.loop (begin
@@ -413,7 +436,7 @@ end circle
 
 namespace ncircle
   def S : ℕ → Type
-  | 0 := S⁰
+  |    0    := S⁰
   | (n + 1) := ∑(S n)
 
   def lift : Π n, S n → S (n + 1)
@@ -478,7 +501,7 @@ namespace torus
 end torus
 
 inductive torus'.rel : I × I → I × I → Type
-| top (x : I) : torus'.rel ⟨0, x⟩ ⟨1, x⟩
+| top    (x : I) : torus'.rel ⟨0, x⟩ ⟨1, x⟩
 | bottom (x : I) : torus'.rel ⟨x, 0⟩ ⟨x, 1⟩
 
 def torus' : Type := graph torus'.rel

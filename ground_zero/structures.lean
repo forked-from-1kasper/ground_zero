@@ -449,15 +449,20 @@ begin
   intros x y, apply lem_to_double_neg, apply h x y
 end
 
-@[hott] def bool_is_set : hset 𝟐 :=
+@[hott] def bool_eq_total (x : 𝟐) : (x = ff) + (x = tt) :=
+begin cases x, left, reflexivity, right, reflexivity end
+
+@[hott] def bool_dec_eq (x y : 𝟐) : dec (x = y) :=
 begin
-  apply Hedberg, intros x y,
   induction x; induction y,
-  { apply sum.inl, reflexivity },
-  { apply sum.inr, apply structures.ff_neq_tt },
-  { apply sum.inr, intro p, apply structures.ff_neq_tt, exact p⁻¹ },
-  { apply sum.inl, reflexivity }
+  { left, reflexivity },
+  { right, apply structures.ff_neq_tt },
+  { right, intro p, apply structures.ff_neq_tt, exact p⁻¹ },
+  { left, reflexivity }
 end
+
+@[hott] def bool_is_set : hset 𝟐 :=
+by intros a b; apply Hedberg bool_dec_eq
 
 end structures
 
