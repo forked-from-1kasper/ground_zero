@@ -112,20 +112,23 @@ namespace reals
       apply map helix, apply φ.id
     end
 
-    @[hott] def homo_over_path {x : S¹} (z : α.space) : (φ.ap z = x) = (base = x) :=
-    Id.map (= x) (φ.ap # (H z α.point) ⬝ φ.id)
-
     @[hott] noncomputable def fib_of_homo (x : S¹) := calc
-      fib φ.ap x ≃ (Σ z, φ.ap z = x) : by reflexivity
+      fib φ.ap x ≃ (Σ z, φ.ap z = x) :
+        equiv.id (fib φ.ap x)
+             ... = (Σ z, φ.ap α.point = x) :
+        sigma # (funext (λ z, (λ u, φ.ap u = x) # (H z α.point)))
              ... = (Σ z, base = x) :
-                   sigma # (funext (homo_over_path H φ))
+        sigma # (funext (λ _, (= x) # φ.id))
              ... = (Σ z, helix x) :
-                   sigma # (funext (λ z, ground_zero.ua (circle.family x)))
-             ... ≃ α.space × (helix x) : sigma.const α.space (helix x)
-             ... ≃ 𝟏 × (helix x) : ground_zero.ua.product_equiv₃
-                                     (contr_equiv_unit ⟨α.point, H α.point⟩)
-                                     (equiv.id (helix x))
-             ... ≃ helix x : prod_unit_equiv (helix x)
+        sigma # (funext (λ z, ground_zero.ua (circle.family x)))
+             ... ≃ α.space × (helix x) :
+        sigma.const α.space (helix x)
+             ... ≃ 𝟏 × (helix x) :
+        ground_zero.ua.product_equiv₃
+          (contr_equiv_unit ⟨α.point, H α.point⟩)
+          (equiv.id (helix x))
+             ... ≃ helix x :
+        prod_unit_equiv (helix x)
 
     @[hott] noncomputable def ker_of_homo : fib φ.ap base ≃ ℤ :=
     fib_of_homo H φ base
