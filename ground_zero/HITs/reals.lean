@@ -101,34 +101,34 @@ namespace reals
   instance : has_one R := ⟨elem 1⟩
 
   section
-    variables {α : Type u} (H : contr α)
-    variables (φ : α → S¹) (p : φ H.point = base)
-    include p
+    variables {α : Type⁎} (H : prop α.space)
+    variables (φ : Map⁎ α ⟨S¹, base⟩)
+    include H
 
-    @[hott] def helix_over_homo (x : α) : helix (φ x) = ℤ :=
+    @[hott] def helix_over_homo (x : α.space) : helix (φ.ap x) = ℤ :=
     begin
-      transitivity, apply map (helix ∘ φ), symmetry,
-      apply H.intro x, change _ = helix base,
-      apply map helix, exact p
+      transitivity, apply map (helix ∘ φ.ap),
+      apply H x α.point, change _ = helix base,
+      apply map helix, apply φ.id
     end
 
-    @[hott] def homo_over_path (x : S¹) (z : α) : (φ z = x) = (base = x) :=
-    Id.map (= x) (φ # (H.intro z)⁻¹ ⬝ p)
+    @[hott] def homo_over_path (x : S¹) (z : α.space) : (φ.ap z = x) = (base = x) :=
+    Id.map (= x) (φ.ap # (H z α.point) ⬝ φ.id)
 
     @[hott] noncomputable def fib_of_homo (x : S¹) := calc
-      fib φ x ≃ (Σ z, φ z = x) : by reflexivity
-          ... = (Σ (z : α), base = x) :
-                sigma # (funext (λ z, homo_over_path H φ p x z))
-          ... = (Σ (z : α), helix x) :
-                sigma # (funext (λ z, ground_zero.ua (circle.family x)))
-          ... ≃ α × (helix x) : sigma.const α (helix x)
-          ... ≃ 𝟏 × (helix x) : ground_zero.ua.product_equiv₃
-                                  (contr_equiv_unit H)
-                                  (equiv.id (helix x))
-          ... ≃ helix x : prod_unit_equiv (helix x)
+      fib φ.ap x ≃ (Σ z, φ.ap z = x) : by reflexivity
+             ... = (Σ z, base = x) :
+                   sigma # (funext (λ z, homo_over_path H φ x z))
+             ... = (Σ z, helix x) :
+                   sigma # (funext (λ z, ground_zero.ua (circle.family x)))
+             ... ≃ α.space × (helix x) : sigma.const α.space (helix x)
+             ... ≃ 𝟏 × (helix x) : ground_zero.ua.product_equiv₃
+                                     (contr_equiv_unit ⟨α.point, H α.point⟩)
+                                     (equiv.id (helix x))
+             ... ≃ helix x : prod_unit_equiv (helix x)
 
-    @[hott] noncomputable def ker_of_homo : fib φ base ≃ ℤ :=
-    fib_of_homo H φ p base
+    @[hott] noncomputable def ker_of_homo : fib φ.ap base ≃ ℤ :=
+    fib_of_homo H φ base
   end
 
   /-
@@ -142,7 +142,7 @@ namespace reals
   @[hott] def cis : R → S¹ := rec (λ _, base) (λ _, loop)
 
   @[hott] noncomputable def Euler : fib cis base ≃ ℤ :=
-  ker_of_homo contractible cis (idp base)
+  @ker_of_homo ⟨R, 0⟩ dist ⟨cis, idp base⟩
 
   -- Another (more tricky) proof, but it does not use R contractibility
   @[hott] noncomputable def helix_over_cis (x : R) : helix (cis x) = ℤ :=

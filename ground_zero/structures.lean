@@ -30,6 +30,8 @@ structure contr (α : Type u) :=
 (point : α) (intro : Π (a : α), point = a :> α)
 --  or we can write `idfun ~ λ _, point`
 
+instance contr.dotted {α : Type u} (H : contr α) : types.Id.dotted α := ⟨H.point⟩
+
 inductive hlevel
 | minus_two
 | succ : hlevel → hlevel

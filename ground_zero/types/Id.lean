@@ -115,10 +115,23 @@ namespace Id
   structure pointed :=
   (space : Type u) (point : space)
 
-  def loop_space (X : pointed) : pointed :=
+  notation `Type⁎` := pointed
+
+  def pointed.map (α β : Type⁎) :=
+  Σ (f : α.space → β.space), f α.point = β.point
+  notation `Map⁎` := pointed.map
+
+  namespace pointed.map
+    variables {α β : Type⁎} (φ : Map⁎ α β)
+
+    def ap : α.space → β.space := φ.fst
+    def id : φ.ap α.point = β.point := φ.snd
+  end pointed.map
+
+  def loop_space (X : Type⁎) : Type⁎ :=
   ⟨X.point = X.point :> X.space, Id.refl⟩
 
-  def iterated_loop_space : pointed → ℕ → pointed
+  def iterated_loop_space : Type⁎ → ℕ → Type⁎
   | X    0    := X
   | X (n + 1) := iterated_loop_space (loop_space X) n
 
