@@ -112,13 +112,13 @@ namespace reals
       apply map helix, apply φ.id
     end
 
-    @[hott] def homo_over_path (x : S¹) (z : α.space) : (φ.ap z = x) = (base = x) :=
+    @[hott] def homo_over_path {x : S¹} (z : α.space) : (φ.ap z = x) = (base = x) :=
     Id.map (= x) (φ.ap # (H z α.point) ⬝ φ.id)
 
     @[hott] noncomputable def fib_of_homo (x : S¹) := calc
       fib φ.ap x ≃ (Σ z, φ.ap z = x) : by reflexivity
              ... = (Σ z, base = x) :
-                   sigma # (funext (λ z, homo_over_path H φ x z))
+                   sigma # (funext (homo_over_path H φ))
              ... = (Σ z, helix x) :
                    sigma # (funext (λ z, ground_zero.ua (circle.family x)))
              ... ≃ α.space × (helix x) : sigma.const α.space (helix x)
