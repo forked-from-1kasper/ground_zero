@@ -27,10 +27,11 @@ hott theory
         { apply ground_zero.theorems.funext,
           intro x, apply contr_impl_prop, exact p' },
         { apply biinv_prop } },
-      { fapply ntype_over_embedding equiv.forward,
-        { apply prop_sigma_embedding, apply biinv_prop },
+      { fapply ntype_over_embedding, exact X → Y,
+        apply prop_sigma_embedding,
+        { intro x, apply biinv_prop },
         { apply pi_respects_ntype (hlevel.succ n),
-          intro x, apply p' } } },
+          intro x, exact p' } } },
     { intros q, apply ground_zero.structures.prop_is_ntype,
       apply ntype_is_prop } }
 end

@@ -70,14 +70,24 @@ begin
   { intro x, induction x, refl }
 end
 
-@[hott] def embedding {α : Type u} {β : Type v} (f : α → β) :=
-Π (x y : α), @equiv.biinv (x = y) (f x = f y) (Id.map f)
+@[hott] def embedding (α : Type u) (β : Type v) :=
+Σ (f : α → β), Π x y, @equiv.biinv (x = y) (f x = f y) (Id.map f)
 
-@[hott] def ntype_over_embedding {α : Type u} {β : Type v} (f : α → β)
-  (n : ℕ₋₂) : embedding f → is-(hlevel.succ n)-type β → is-(hlevel.succ n)-type α :=
+infix ` ↪ `:50 := embedding
+
+section
+  variables {α : Type u} {β : Type v} (f : α ↪ β)
+
+  def embedding.ap : α → β := f.fst
+  def embedding.eqv (x y : α) : (x = y) ≃ (f.ap x = f.ap y) :=
+  ⟨Id.map f.ap, f.snd x y⟩
+end
+
+@[hott] def ntype_over_embedding {α : Type u} {β : Type v}
+  (f : α ↪ β) (n : ℕ₋₂) : is-(hlevel.succ n)-type β → is-(hlevel.succ n)-type α :=
 begin
-  intros η H, intros x y, apply ground_zero.structures.ntype_respects_equiv,
-  { symmetry, existsi Id.map f, apply η }, apply H
+  intros H x y, apply ground_zero.structures.ntype_respects_equiv,
+  { symmetry, apply f.eqv }, apply H
 end
 
 @[hott] def eqv_map_forward {α : Type u} {β : Type v} (e : α ≃ β)
@@ -89,9 +99,9 @@ end
 begin fapply ground_zero.types.sigma.prod, exact p, apply H end
 
 @[hott] def prop_sigma_embedding {α : Type u} {β : α → Type v}
-  (H : Π x, prop (β x)) : embedding (@sigma.fst α β) :=
+  (H : Π x, prop (β x)) : (Σ x, β x) ↪ α :=
 begin
-  intros x y, split; existsi sigma_prop_eq H,
+  existsi sigma.fst, intros x y, split; existsi sigma_prop_eq H,
   { intro p, induction x, induction y, induction p,
     change ground_zero.types.sigma.prod _ _ = _,
     transitivity, apply Id.map, change _ = idp _,

@@ -22,8 +22,7 @@ namespace ground_zero.theorems.fibration
 
   @[hott] def lifting {α : Type u} {β : α → Type v} (f : I → α)
     (u : β (f 0)) : @leg (sigma β) ⟨f 0, u⟩ :=
-  @leg.lam (sigma β) (λ i, ⟨f i,
-    @interval.ind (β ∘ f) u (types.equiv.subst seg u) Id.refl i⟩)
+  @leg.lam (sigma β) (λ i, ⟨f i, @interval.ind (β ∘ f) u (equiv.subst seg u) Id.refl i⟩)
 
   @[hott] def type_family {α : Type u} (β : α → Type v) : (Σ x, β x) ↠ α :=
   begin
