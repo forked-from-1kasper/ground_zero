@@ -17,10 +17,12 @@ digraph dependency_map {
       "algebra/eilenberg_maclane",
       "algebra/finite",
       "algebra/homology",
-      "algebra/ring"
+      "algebra/ring",
+      "algebra/Z"
     }
     "algebra/homology"
     "algebra/ring"
+    "algebra/Z"
   }
 
   subgraph types {
@@ -53,7 +55,12 @@ digraph dependency_map {
   }
 
   subgraph HITs {
-    "HITs/circle" -> { "theorems/hopf", "HITs/moebius", "HITs/reals" }
+    "HITs/circle" -> {
+      "algebra/Z",
+      "theorems/hopf",
+      "HITs/moebius",
+      "HITs/reals"
+    }
     "HITs/colimit" -> { "HITs/merely", "types/nat" }
     "HITs/generalized" -> "HITs/merely"
     "HITs/graph" -> {

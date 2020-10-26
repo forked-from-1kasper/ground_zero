@@ -149,6 +149,18 @@ begin
   apply ground_zero.theorems.nat.nat_is_set
 end
 
+@[hott] def {u} indsp {π : integer → Type u}
+  (π₀ : π 0) (πsucc : Π x, π x → π (integer.succ x))
+  (πpred : Π x, π x → π (integer.pred x)) : Π x, π x :=
+begin
+  intro x, induction x,
+  { induction x with x ih,
+    { exact π₀ }, { apply πsucc x ih } },
+  { induction x with x ih,
+    { exact πpred 0 π₀ },
+    { apply πpred (integer.neg x) ih } }
+end
+
 end integer
 
 end ground_zero.types

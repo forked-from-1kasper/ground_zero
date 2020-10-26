@@ -70,7 +70,83 @@ namespace loop
       { apply Id.inv_comp },
       { transitivity, symmetry, apply Id.assoc,
         transitivity, apply Id.map (λ q, neg p n ⬝ q),
-        apply Id.inv_comp, apply types.Id.refl_right } }
+        apply Id.inv_comp, apply Id.refl_right } }
+  end
+
+  @[hott] def power_comp_pred (p : a = a) (z : integer) :
+    power p z ⬝ p⁻¹ = power p (integer.pred z) :=
+  begin
+    induction z,
+    { induction z with n ih,
+      { reflexivity },
+      { transitivity, symmetry, apply Id.assoc,
+        transitivity, apply Id.map (λ q, pos p n ⬝ q),
+        apply Id.comp_inv, apply Id.refl_right } },
+    { trivial }
+  end
+
+  @[hott] def comp_power (p : a = a) (z : integer) :
+    p ⬝ power p z = power p (integer.succ z) :=
+  begin
+    induction z,
+    { induction z with n ih,
+      { apply Id.refl_right },
+      { transitivity, apply Id.assoc,
+        transitivity, apply Id.map (⬝ p),
+        exact ih, reflexivity } },
+    { induction z with n ih,
+      { apply Id.comp_inv },
+      { transitivity, apply Id.assoc,
+        symmetry, apply equiv.inv_comp_rewrite,
+        symmetry, transitivity, apply ih,
+        symmetry, apply power_comp } }
+  end
+
+  @[hott] def comp_power_pred (p : a = a) (z : integer) :
+    p⁻¹ ⬝ power p z = power p (integer.pred z) :=
+  begin
+    induction z,
+    { induction z with n ih,
+      { apply Id.refl_right },
+      { apply equiv.rewrite_comp,
+        symmetry, apply comp_power } },
+    { induction z with n ih,
+      { reflexivity },
+      { apply equiv.rewrite_comp,
+        symmetry, apply comp_power } }
+  end
+
+  @[hott] def comp_power_comm (p : a = a) (z : integer) :
+    p ⬝ power p z = power p z ⬝ p :=
+  comp_power p z ⬝ (power_comp p z)⁻¹
+
+  @[hott] def inv_comp_power_comm (p : a = a) (z : integer) :
+    p⁻¹ ⬝ power p z = power p z ⬝ p⁻¹ :=
+  comp_power_pred p z ⬝ (power_comp_pred p z)⁻¹
+
+  @[hott] def power_comm (p : a = a) (x y : integer) :
+    power p x ⬝ power p y = power p y ⬝ power p x :=
+  begin
+    fapply integer.indsp _ _ _ x; clear x,
+    { symmetry, apply Id.refl_right },
+    { intros x ih, transitivity, apply Id.map (⬝ power p y),
+      symmetry, apply comp_power,
+      transitivity, symmetry, apply Id.assoc,
+      transitivity, apply Id.map, exact ih,
+      transitivity, apply Id.assoc,
+      transitivity, apply Id.map (⬝ power p x),
+      apply comp_power_comm,
+      transitivity, symmetry, apply Id.assoc,
+      apply Id.map, apply comp_power },
+    { intros x ih, transitivity, apply Id.map (⬝ power p y),
+      symmetry, apply comp_power_pred,
+      transitivity, symmetry, apply Id.assoc,
+      transitivity, apply Id.map, exact ih,
+      transitivity, apply Id.assoc,
+      transitivity, apply Id.map (⬝ power p x),
+      apply inv_comp_power_comm,
+      transitivity, symmetry, apply Id.assoc,
+      apply Id.map, apply comp_power_pred }
   end
 end loop
 
@@ -283,6 +359,14 @@ namespace circle
   @[hott] noncomputable def decode_encode (x : S¹) (p : base = x) :
     decode x (encode x p) = p :=
   begin induction p, reflexivity end
+
+  @[hott] noncomputable def power_of_winding : power ∘ winding ~ id :=
+  decode_encode base
+
+  @[hott] noncomputable def comm (x y : Ω¹(S¹)) : x ⬝ y = y ⬝ x :=
+    equiv.bimap Id.trans (power_of_winding x)⁻¹ (power_of_winding y)⁻¹
+  ⬝ loop.power_comm circle.loop (winding x) (winding y)
+  ⬝ equiv.bimap Id.trans (power_of_winding y) (power_of_winding x)
 
   @[hott] noncomputable def encode_decode (x : S¹) (c : helix x) :
     encode x (decode x c) = c :=

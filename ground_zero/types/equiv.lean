@@ -281,6 +281,11 @@ namespace equiv
     (h : p⁻¹ ⬝ r = q) : r = p ⬝ q :=
   begin induction p, exact Id.refl_left r ⬝ h end
 
+  @[hott] def inv_comp_rewrite {α : Type u} {a b c : α}
+    {p : a = b} {q : b = c} {r : a = c}
+    (h : p ⬝ q = r) : p = r ⬝ q⁻¹ :=
+  begin induction q, exact (Id.refl_right p)⁻¹ ⬝ h ⬝ (Id.refl_right r)⁻¹ end
+
   @[hott] def pathover_from_trans {α : Type u} {a b c : α}
     (p : b = c :> α) (q : a = b :> α) (r : a = c :> α) :
     (q ⬝ p = r :> a = c :> α) → (q =[p] r) :=

@@ -117,7 +117,8 @@ namespace K1
     (baseπ : Type u)
     (loopπ : G.carrier → baseπ = baseπ)
     (mulπ : Π x y, loopπ (x * y) = loopπ x ⬝ loopπ y)
-    (setπ : hset baseπ) : K1 G → (0-Type) := begin
+    (setπ : hset baseπ) : K1 G → (0-Type) :=
+  begin
     fapply rec,
     { existsi baseπ, apply zero_eqv_set.left,
       intros p q, apply setπ },
@@ -130,7 +131,8 @@ namespace K1
     { apply ens_is_groupoid }
   end
 
-  @[hott] noncomputable def code' : K1 G → (0-Type) := begin
+  @[hott] noncomputable def code' : K1 G → (0-Type) :=
+  begin
     fapply family, exact G.carrier,
     { intro x, apply ground_zero.ua, existsi (* x), split;
       existsi (* G.inv x); intro y; change _ * _ * _ = _,
@@ -149,7 +151,8 @@ namespace K1
 
   @[hott] def code (x : K1 G) := (code' x).fst
 
-  @[hott] noncomputable def code.hset : Π (z : K1 G), hset (code z) := begin
+  @[hott] noncomputable def code.hset : Π (z : K1 G), hset (code z) :=
+  begin
     intro z, fapply ind _ _ _ _ z,
     { intros a b, apply G.set },
     { intro x, change _ = _, apply set_is_prop },
@@ -165,7 +168,8 @@ namespace K1
   @[hott] def encode : Π (z : K1 G), base = z → code z :=
   λ z p, equiv.transport code p G.e
 
-  @[hott] noncomputable def decode : Π (z : K1 G), code z → base = z := begin
+  @[hott] noncomputable def decode : Π (z : K1 G), code z → base = z :=
+  begin
     intro z, fapply ind _ _ _ _ z,
     { exact loop },
     { intro x, change _ = _, transitivity,
@@ -198,7 +202,8 @@ namespace K1
   end
 
   @[hott] noncomputable def encode_decode :
-    Π (z : K1 G) (p : code z), encode z (decode z p) = p := begin
+    Π (z : K1 G) (p : code z), encode z (decode z p) = p :=
+  begin
     intros z p, fapply @ind G (λ z, Π (p : code z), encode z (decode z p) = p) _ _ _ _ z,
     { intro x, change G.carrier at x, change encode base (loop x) = _,
       transitivity, apply equiv.transport_to_transportconst,
