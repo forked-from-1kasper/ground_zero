@@ -1761,6 +1761,63 @@ namespace group
   def P₂ := P Z₂
   @[hott] def P₂.periodic (x : P₂.carrier) : P.mul x x = P.one :=
   begin apply P.unit_sqr, intro b, induction b; trivial end
+
+  @[hott] def prod_hset {α : Type u} {β : Type u}
+    (p : hset α) (q : hset β) : hset (α × β) :=
+  begin
+    apply hset_respects_equiv,
+    apply sigma.const,
+    apply hset_respects_sigma,
+    intros a b, apply p,
+    intro x, intros a b, exact q
+  end
+
+  @[hott] def prod (G H : group) : group :=
+  ⟨⟨⟨⟨zeroeqv (λ _ _, prod_hset (λ _ _, G.set) (λ _ _, H.set)),
+    λ ⟨a₁, b₁⟩ ⟨a₂, b₂⟩, (G.φ a₁ a₂, H.φ b₁ b₂)⟩,
+    begin
+      intros a b c, cases a, cases b, cases c,
+      apply product.prod,
+      apply G.mul_assoc,
+      apply H.mul_assoc
+    end⟩,
+    (G.e, H.e),
+    begin
+      intros a, cases a, apply product.prod,
+      apply G.one_mul, apply H.one_mul
+    end,
+    begin
+      intros a, cases a, apply product.prod,
+      apply G.mul_one, apply H.mul_one
+    end⟩,
+    λ ⟨a, b⟩, (G.inv a, H.inv b),
+    begin
+      intros a, cases a, apply product.prod,
+      apply G.mul_left_inv, apply H.mul_left_inv
+    end⟩
+
+  notation G × H := prod G H
+
+  @[hott] instance prod.abelian (G H : group)
+    [abelian G] [abelian H] : abelian (G × H) :=
+  begin
+    split, intros x y, cases x, cases y,
+    apply product.prod; apply abelian.mul_comm
+  end
+
+  @[hott] def homo.prod {G H F : group} [abelian F]
+    (φ : G ⤳ F) (ψ : H ⤳ F) : G × H ⤳ F :=
+  ⟨λ ⟨g, h⟩, F.φ (φ.fst g) (ψ.fst h), begin
+    intros x y, cases x with g₁ h₁, cases y with g₂ h₂,
+    change F.φ (φ.fst _) (ψ.fst _) = F.φ (F.φ _ _) (F.φ _ _),
+    transitivity, apply equiv.bimap F.φ,
+    apply φ.snd, apply ψ.snd,
+    transitivity, apply F.mul_assoc,
+    transitivity, apply map (F.φ (φ.fst g₁)),
+    transitivity, apply abelian.mul_comm, apply F.mul_assoc,
+    transitivity, symmetry, apply F.mul_assoc,
+    apply map, apply abelian.mul_comm
+  end⟩
 end group
 
 def diff := Σ (G : group) [abelian G] (δ : G ⤳ G), δ ⋅ δ = 0
