@@ -6,25 +6,25 @@ hott theory
 
 namespace ground_zero.algebra
 
-noncomputable def Z.magma : magma :=
+noncomputable def ZΩ.magma : magma :=
 ⟨zeroeqv (transport hset circle.fundamental_group⁻¹ (λ _ _, integer.set)), Id.trans⟩
 
-noncomputable def Z.semigroup : semigroup :=
-⟨Z.magma, λ a b c, (Id.assoc a b c)⁻¹⟩
+noncomputable def ZΩ.semigroup : semigroup :=
+⟨ZΩ.magma, λ a b c, (Id.assoc a b c)⁻¹⟩
 
-noncomputable def Z.monoid : monoid :=
-⟨Z.semigroup, Id.refl, Id.refl_left, Id.refl_right⟩
+noncomputable def ZΩ.monoid : monoid :=
+⟨ZΩ.semigroup, Id.refl, Id.refl_left, Id.refl_right⟩
 
-noncomputable def Z : group :=
-⟨Z.monoid, Id.inv, Id.inv_comp⟩
+noncomputable def ZΩ : group :=
+⟨ZΩ.monoid, Id.inv, Id.inv_comp⟩
 
-noncomputable instance Z.abelian : abelian Z :=
+noncomputable instance ZΩ.abelian : abelian ZΩ :=
 ⟨circle.comm⟩
 
 @[hott] def helix {G : group} (z : G.carrier) : S¹ → Type :=
 circle.rec G.carrier (ground_zero.ua (group.left G z))
 
-@[hott] def power {G : group} (z : G.carrier) (p : Z.carrier) : G.carrier :=
+@[hott] def power {G : group} (z : G.carrier) (p : ZΩ.carrier) : G.carrier :=
 @transport S¹ (helix z) circle.base circle.base p G.e
 
 -- In cubicaltt these two lemmas will just compute
@@ -55,7 +55,7 @@ begin intro p, transitivity, apply equiv.subst_comp, apply helix.mul end
 begin intro p, transitivity, apply equiv.subst_comp, apply helix.mul_inv end
 
 @[hott] noncomputable def power.mul {G : group} (z : G.carrier)
-  (p q : Z.carrier) : power z (p ⬝ q) = G.φ (power z p) (power z q) :=
+  (p q : ZΩ.carrier) : power z (p ⬝ q) = G.φ (power z p) (power z q) :=
 begin
   fapply circle.Ωind₁ _ _ _ p; clear p,
   { symmetry, apply G.one_mul },
@@ -76,7 +76,7 @@ begin
     symmetry, apply power.pred }
 end
 
-@[hott] noncomputable def Z.rec {G : group} (z : G.carrier) : Z ⤳ G :=
+@[hott] noncomputable def ZΩ.rec {G : group} (z : G.carrier) : ZΩ ⤳ G :=
 ⟨power z, power.mul z⟩
 
 end ground_zero.algebra

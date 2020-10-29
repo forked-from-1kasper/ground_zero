@@ -1,5 +1,6 @@
-import ground_zero.algebra.group
-open ground_zero ground_zero.types ground_zero.algebra.group
+import ground_zero.algebra.Z
+open ground_zero.HITs ground_zero.algebra.group
+open ground_zero ground_zero.types
 
 namespace ground_zero.algebra
 universe u
@@ -34,26 +35,25 @@ end homology
 namespace digon
   open homology (B Z H)
 
-  @[hott] noncomputable def K : ℕ → group
+  notation `ZΩ²` := group.prod.{0 0} ZΩ ZΩ
+
+  @[hott] noncomputable def K : ℕ → group.{0}
   |    0    := Z₁
-  |    1    := FAb 𝟐 -- two points
-  |    2    := FAb 𝟐 -- and two paths between them
-  | (n + 3) := Z₁    -- and no higher-dimensional paths
+  |    1    := ZΩ² -- two points
+  |    2    := ZΩ² -- and two paths between them
+  | (n + 3) := Z₁  -- and no higher-dimensional paths
 
   noncomputable instance K.abelian : Π n, abelian (K n)
-  |    0    := by change abelian Z₁; apply_instance
-  |    1    := by change abelian (FAb _); apply_instance
-  |    2    := by change abelian (FAb _); apply_instance
-  | (n + 3) := by change abelian Z₁; apply_instance
+  |    0    := by change abelian Z₁;  apply_instance
+  |    1    := by change abelian ZΩ²; apply_instance
+  |    2    := by change abelian ZΩ²; apply_instance
+  | (n + 3) := by change abelian Z₁;  apply_instance
 
   noncomputable def δ : Π n, K (n + 1) ⤳ K n
   |    0    := 0
   |    1    :=
-  FAb.homomorphism
-    (λ x, match x with
-    | ff := right_div (FAb.elem tt) (FAb.elem ff)
-    | tt := right_div (FAb.elem ff) (FAb.elem tt)
-    end)
+  homo.prod (ZΩ.rec (circle.loop⁻¹, circle.loop))
+            (ZΩ.rec (circle.loop, circle.loop⁻¹))
   | (n + 2) := 0
 
   noncomputable def C : homology.chain_complex :=
