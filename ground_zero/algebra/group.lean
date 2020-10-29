@@ -1217,10 +1217,6 @@ namespace group
   @[hott] def identity.ens {α : Type u} (H : hset α) : hset (identity α) :=
   begin apply hset_respects_equiv, apply equiv.identity_eqv, assumption end
 
-  abbreviation Z := integer
-  @[hott] noncomputable def Z.magma : magma :=
-  ⟨zeroeqv (λ _ _, integer.set), integer.add⟩
-
   section
     variables {H : group}
     local infix ` × `:50 := H.φ

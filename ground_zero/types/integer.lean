@@ -38,17 +38,17 @@ def minus : ℕ → integer
 | (n + 1) := neg n
 
 def negate : integer → integer
-| (pos $ n + 1) := neg n
 | (pos 0)       := pos 0
+| (pos (n + 1)) := neg n
 | (neg n)       := pos (n + 1)
 
 instance : has_neg integer := ⟨negate⟩
 instance : has_coe ℕ integer := ⟨integer.pos⟩
 
 def sgn : integer → integer
-| (pos $ n + 1) := 1
-| (pos 0) := 0
-| (neg n) := -1
+| (pos 0)       := 0
+| (pos (n + 1)) := 1
+| (neg n)       := -1
 
 def signum : integer → (nat → integer)
 | (pos _) := plus
@@ -82,7 +82,7 @@ end
 | (m + 1) (n + 1) := auxsub m n
 
 @[hott] def add : integer → integer → integer
-| (neg x) (neg y) := neg (x + y)
+| (neg x) (neg y) := neg (x + y + 1)
 | (neg x) (pos y) := auxsub y (x + 1)
 | (pos x) (neg y) := auxsub x (y + 1)
 | (pos x) (pos y) := pos (x + y)
@@ -125,7 +125,8 @@ end
 begin
   induction x; induction y;
   try { trivial <|> apply Id.map pos <|> apply Id.map neg },
-  repeat { apply nat.comm }
+  { apply nat.comm },
+  { transitivity, symmetry, apply nat.succ_i_plus_j, apply nat.comm }
 end
 
 @[hott] def auxsub_zero_right (n : nat) : auxsub n 0 = pos n :=
@@ -160,6 +161,12 @@ begin
     { exact πpred 0 π₀ },
     { apply πpred (integer.neg x) ih } }
 end
+
+@[hott] def succ_to_add (x : integer) : x + 1 = integer.succ x :=
+begin induction x, trivial, { induction x with x ih; trivial } end
+
+@[hott] def pred_to_sub (x : integer) : x - 1 = integer.pred x :=
+begin induction x, { induction x with x ih, trivial, apply auxsub_zero_right }, trivial end
 
 end integer
 

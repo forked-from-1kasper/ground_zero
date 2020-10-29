@@ -233,10 +233,15 @@ namespace equiv
     subst (f # p) u :> π (f y) :=
   begin induction p, trivial end
 
-  def transport_to_transportconst {α : Type u} (π : α → Type v)
+  @[hott] def transport_to_transportconst {α : Type u} (π : α → Type v)
     {a b : α} (p : a = b) (u : π a) :
     equiv.transport π p u = equiv.transportconst (π # p) u :=
   begin induction p, trivial end
+
+  @[hott] def transportconst_over_composition {α β γ : Type u}
+    (p : α = β) (q : β = γ) (x : α) :
+    transportconst (p ⬝ q) x = transportconst q (transportconst p x) :=
+  begin induction p, induction q, trivial end
 
   @[hott] def transport_composition {α : Type u} {a x₁ x₂ : α}
     (p : x₁ = x₂ :> α) (q : a = x₁ :> α) :

@@ -403,6 +403,29 @@ namespace circle
   @[hott] noncomputable def fundamental_group : (Ω¹(S¹)) = ℤ :=
   ua (family base)
 
+  @[hott] noncomputable def Ωind₁ {π : (Ω¹(S¹)) → Type u}
+    (zeroπ : π Id.refl) (succπ : Π x, π x → π (x ⬝ loop))
+    (predπ : Π x, π x → π (x ⬝ loop⁻¹)) : Π x, π x :=
+  begin
+    intro x, apply transport π, apply power_of_winding,
+    fapply @types.integer.indsp (π ∘ power) _ _ _ (winding x),
+    { exact zeroπ },
+    { intros x ih, apply transport π,
+      apply HITs.loop.power_comp circle.loop,
+      apply succπ, exact ih },
+    { intros x ih, apply transport π,
+      apply HITs.loop.power_comp_pred,
+      apply predπ, exact ih }
+  end
+
+  @[hott] noncomputable def Ωind₂ {π : (Ω¹(S¹)) → Type u}
+    (zeroπ : π Id.refl) (succπ : Π x, π x → π (loop ⬝ x))
+    (predπ : Π x, π x → π (loop⁻¹ ⬝ x)) : Π x, π x :=
+  begin
+    fapply Ωind₁, exact zeroπ, repeat { intros x ih, apply transport π, apply comm },
+    apply succπ x ih, apply predπ x ih
+  end
+
   @[hott] noncomputable example : winding (loop ⬝ loop) = integer.pos 2 :=
   encode_decode base (integer.pos 2)
 
