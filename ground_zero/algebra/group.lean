@@ -158,11 +158,20 @@ namespace group
   @[hott] def mul_cancel_left {a b c : G.carrier} (h : c * a = c * b) := calc
       a = e * a         : Id.inv (G.one_mul a)
     ... = (c⁻¹ * c) * a : (* a) # (Id.inv $ G.mul_left_inv c)
-    ... = c⁻¹ * (c * a) : by apply semigroup.mul_assoc
+    ... = c⁻¹ * (c * a) : G.mul_assoc _ _ _
     ... = c⁻¹ * (c * b) : G.φ c⁻¹ # h
-    ... = (c⁻¹ * c) * b : by symmetry; apply semigroup.mul_assoc
+    ... = (c⁻¹ * c) * b : Id.inv (G.mul_assoc _ _ _)
     ... = e * b         : (* b) # (G.mul_left_inv c)
     ... = b             : G.one_mul b
+
+  @[hott] def mul_cancel_right {a b c : G.carrier} (h : a * c = b * c) := calc
+      a = a * e         : Id.inv (G.mul_one a)
+    ... = a * (c * c⁻¹) : (G.φ a) # (Id.inv $ mul_right_inv c)
+    ... = (a * c) * c⁻¹ : Id.inv (G.mul_assoc _ _ _)
+    ... = (b * c) * c⁻¹ : (* c⁻¹) # h
+    ... = b * (c * c⁻¹) : G.mul_assoc _ _ _
+    ... = b * e         : (G.φ b) # (mul_right_inv c)
+    ... = b             : G.mul_one b
 
   @[hott] def unit_inv : e = e⁻¹ :=
   Id.inv (mul_right_inv e) ⬝ G.one_mul e⁻¹
@@ -311,6 +320,21 @@ namespace group
 
     @[hott] def iso.of_homo : Π (φ : G ⤳ H), biinv φ.fst → G ≅ H :=
     λ ⟨f, h⟩ eqv, ⟨f, (h, eqv)⟩
+
+    @[hott] def iso.ext (φ ψ : G ≅ H) : φ.fst ~ ψ.fst → φ = ψ :=
+    begin
+      intro p, fapply sigma.prod, apply theorems.funext p,
+      apply product_prop, apply prop_respects_mul, apply theorems.prop.biinv_prop
+    end
+
+    @[hott] def iso.hset : hset (G ≅ H) :=
+    begin
+      apply hset_respects_sigma,
+      { apply pi_hset, intros x a b, apply H.set },
+      { intro x, apply prop_is_set,
+        apply product_prop, apply prop_respects_mul,
+        apply theorems.prop.biinv_prop }
+    end
   end
 
   class is_subgroup (G : group) (φ : ens G.carrier) :=
@@ -1814,12 +1838,56 @@ namespace group
     transitivity, symmetry, apply F.mul_assoc,
     apply map, apply abelian.mul_comm
   end⟩
+
+  def Aut.carrier (G : group) := G ≅ G
+
+  @[hott] def Aut.magma (G : group) : magma :=
+  ⟨@zeroeqv (G ≅ G) (λ _ _, iso.hset), λ φ ψ, iso.trans ψ φ⟩
+
+  meta def iso.funext :=
+  `[ apply iso.ext, intro x, reflexivity ]
+
+  @[hott] def Aut.semigroup (G : group) : semigroup :=
+  ⟨Aut.magma G, λ ⟨f, ⟨f', e₁⟩⟩ ⟨g, ⟨g', e₂⟩⟩ ⟨h, ⟨h', e₂⟩⟩, by iso.funext⟩
+
+  @[hott] def Aut.monoid (G : group) : monoid :=
+  ⟨Aut.semigroup G, iso.refl G,
+   λ ⟨f, ⟨f', e₁⟩⟩, by iso.funext,
+   λ ⟨f, ⟨f', e₁⟩⟩, by iso.funext⟩
+
+  @[hott] def Aut (G : group) : group :=
+  ⟨Aut.monoid G, iso.symm, λ ⟨f, ⟨f', ⟨⟨g, G⟩, ⟨h, H⟩⟩⟩⟩, begin
+    apply iso.ext, apply G
+  end⟩
+
+  @[hott] def conjugate.idem {G : group} (x : G.carrier) := calc
+    conjugate x x = G.φ G.e x : (λ y, G.φ y x) # (G.mul_left_inv x)
+              ... = x         : G.one_mul x
+
+  @[hott] def conjugate.eq {G : group} {x y : G.carrier}
+    (p : conjugate x y = y) : x = y :=
+  begin
+    symmetry, apply eq_of_div_eq, fapply mul_cancel_right, exact y,
+    transitivity, exact p, symmetry, apply G.one_mul
+  end
+
+  @[hott] def conjugate.comm {G : group} {x y : G.carrier}
+    (p : conjugate x y = x) : G.φ x y = G.φ y x :=
+  begin
+    fapply mul_cancel_left, exact G.inv y,
+    transitivity, { symmetry, apply G.mul_assoc },
+    transitivity, exact p, transitivity,
+    { transitivity, symmetry, apply G.one_mul,
+      apply Id.map (λ y, G.φ y x),
+      symmetry, apply G.mul_left_inv y },
+    apply G.mul_assoc
+  end
 end group
 
 def diff := Σ (G : group) [abelian G] (δ : G ⤳ G), δ ⋅ δ = 0
 
 -- Accessors
-def diff.grp (G : diff)                  := G.fst
+def diff.grp (G : diff)                 := G.fst
 def diff.δ   (G : diff) : G.grp ⤳ G.grp := G.snd.snd.fst
 def diff.sqr (G : diff) : G.δ ⋅ G.δ = 0  := G.snd.snd.snd
 
@@ -1829,7 +1897,7 @@ namespace diff
   open ground_zero.algebra.group (im ker)
   variables (G : diff)
 
-  @[hott] def univ : (im G.δ.fst : ens G.grp.carrier) ⊆ ker G.δ :=
+  @[hott] def univ : im G.δ.fst ⊆ ker G.δ :=
   group.im_impl_ker G.sqr
 end diff
 
