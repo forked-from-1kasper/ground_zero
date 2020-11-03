@@ -19,6 +19,9 @@ section
   def ring.neg := T.inv
   def ring.sub (x y : T.carrier) := T.φ x (T.neg y)
 
+  def ring.isproper := T.to_group.isproper
+  def ring.proper   := T.to_group.proper
+
   instance : has_add T.carrier := ⟨T.φ⟩
   instance : has_sub T.carrier := ⟨T.sub⟩
   instance : has_neg T.carrier := ⟨T.neg⟩
@@ -71,5 +74,16 @@ class ring.assoc (T : ring) :=
 
 class ring.comm (T : ring) :=
 (mul_comm : Π a b, T.ψ a b = T.ψ b a)
+
+class ring.monoid (T : ring) extends has_one T.carrier :=
+(mul_one : Π a, T.ψ a one = a)
+(one_mul : Π a, T.ψ a one = a)
+
+class ring.divisible (T : ring) extends ring.monoid T :=
+(inv           : T.carrier → T.carrier)
+(zero          : inv 0 = 0)
+(mul_inv_right : Π (x : T.carrier), T.isproper x → x * inv x = 1)
+
+class field (T : ring) extends ring.assoc T, ring.divisible T, ring.comm T
 
 end ground_zero.algebra
