@@ -79,8 +79,7 @@ class ring.monoid (T : ring) extends has_one T.carrier :=
 (mul_one : Π a, T.ψ a one = a)
 (one_mul : Π a, T.ψ a one = a)
 
-class ring.divisible (T : ring) extends ring.monoid T :=
-(inv           : T.carrier → T.carrier)
+class ring.divisible (T : ring) extends has_inv T.carrier, ring.monoid T :=
 (zero          : inv 0 = 0)
 (mul_inv_right : Π (x : T.carrier), T.isproper x → x * inv x = 1)
 
