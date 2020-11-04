@@ -89,7 +89,7 @@ class ring.monoid (T : ring) extends has_one T.carrier :=
 (mul_one : Π a, T.ψ a one = a)
 
 class ring.divisible (T : ring) extends has_inv T.carrier, ring.monoid T :=
-(zero          : inv 0 = 0)
+(zero         : inv 0 = 0)
 (mul_left_inv : Π (x : T.carrier), T.isproper x → inv x * x = 1)
 
 class field (T : ring) extends ring.assoc T, ring.divisible T, ring.comm T :=
@@ -139,7 +139,7 @@ def multiplicative (T : ring) [field T] : group :=
 postfix `ˣ`:1034 := multiplicative
 
 -- voilà, no need to repeat a bunch of lemmas
-def field.mul_right_inv (T : ring) [field T] {x : T.carrier}
+@[hott] def field.mul_right_inv (T : ring) [field T] {x : T.carrier}
   (p : T.isproper x) : x * x⁻¹ = 1 :=
 sigma.fst # (@group.mul_right_inv Tˣ ⟨x, p⟩)
 
