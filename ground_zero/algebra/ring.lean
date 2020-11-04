@@ -1,5 +1,7 @@
 import ground_zero.algebra.group
 open ground_zero.types.Id (map)
+open ground_zero.structures
+open ground_zero.types
 
 hott theory
 
@@ -19,8 +21,15 @@ section
   def ring.neg := T.inv
   def ring.sub (x y : T.carrier) := T.φ x (T.neg y)
 
-  def ring.isproper := T.to_group.isproper
-  def ring.proper   := T.to_group.proper
+  def ring.isproper (x : T.carrier) := T.to_group.isproper x
+  def ring.proper := T.to_group.proper
+
+  def ring.proper_hset : hset T.proper :=
+  begin
+    apply hset_respects_sigma,
+    intros a b, apply T.to_group.set,
+    intro x, apply prop_is_set, apply not_is_prop
+  end
 
   instance : has_add T.carrier := ⟨T.φ⟩
   instance : has_sub T.carrier := ⟨T.sub⟩
@@ -76,13 +85,62 @@ class ring.comm (T : ring) :=
 (mul_comm : Π a b, T.ψ a b = T.ψ b a)
 
 class ring.monoid (T : ring) extends has_one T.carrier :=
+(one_mul : Π a, T.ψ one a = a)
 (mul_one : Π a, T.ψ a one = a)
-(one_mul : Π a, T.ψ a one = a)
 
 class ring.divisible (T : ring) extends has_inv T.carrier, ring.monoid T :=
 (zero          : inv 0 = 0)
-(mul_inv_right : Π (x : T.carrier), T.isproper x → x * inv x = 1)
+(mul_left_inv : Π (x : T.carrier), T.isproper x → inv x * x = 1)
 
-class field (T : ring) extends ring.assoc T, ring.divisible T, ring.comm T
+class field (T : ring) extends ring.assoc T, ring.divisible T, ring.comm T :=
+(nontrivial : T.isproper 1)
+
+@[hott] def field.proper_mul {T : ring} [field T] {a b : T.carrier} :
+  T.isproper a → T.isproper b → T.isproper (a * b) :=
+begin
+  intros p q r, apply @field.nontrivial T _,
+  transitivity, { symmetry, apply ring.divisible.mul_left_inv b q },
+  transitivity, { apply map (* b), symmetry, apply ring.monoid.mul_one },
+  transitivity, apply ring.assoc.mul_assoc,
+  transitivity, apply map (λ y, b⁻¹ * (y * b)),
+  { symmetry, apply ring.divisible.mul_left_inv a p },
+  transitivity, apply map (T.ψ _), apply ring.assoc.mul_assoc,
+  transitivity, { symmetry, apply ring.assoc.mul_assoc },
+  transitivity, apply map, exact r, apply ring.mul_zero
+end
+
+@[hott] def field.prop_inv {T : ring} [field T] {a : T.carrier} :
+  T.isproper a → T.isproper a⁻¹ :=
+begin
+  intros p q, apply @field.nontrivial T _,
+  transitivity, { symmetry, apply ring.divisible.mul_left_inv a p },
+  transitivity, apply map (* a), exact q, apply ring.zero_mul
+end
+
+@[hott] def field.mul (T : ring) [field T] :
+  T.proper → T.proper → T.proper :=
+λ ⟨a, p⟩ ⟨b, q⟩, ⟨T.ψ a b, field.proper_mul p q⟩
+
+@[hott] def field.inv (T : ring) [field T] : T.proper → T.proper :=
+λ ⟨a, p⟩, ⟨@has_inv.inv T.carrier _ a, field.prop_inv p⟩
+
+@[hott] def ring.proper_eq {T : ring} {x y : T.proper} (p : x.fst = y.fst) : x = y :=
+begin fapply sigma.prod, exact p, apply not_is_prop end
+
+abbreviation additive : ring → group := ring.to_group
+
+def multiplicative (T : ring) [field T] : group :=
+⟨⟨⟨⟨zeroeqv (λ _ _, T.proper_hset), field.mul T⟩,
+  λ ⟨a, p⟩ ⟨b, q⟩ ⟨c, r⟩, ring.proper_eq (ring.assoc.mul_assoc a b c)⟩,
+  ⟨1, field.nontrivial⟩,
+  λ ⟨a, p⟩, ring.proper_eq (ring.monoid.one_mul a),
+  λ ⟨a, p⟩, ring.proper_eq (ring.monoid.mul_one a)⟩,
+  field.inv T, λ ⟨a, p⟩, ring.proper_eq (ring.divisible.mul_left_inv a p)⟩
+postfix `ˣ`:1034 := multiplicative
+
+-- voilà, no need to repeat a bunch of lemmas
+def field.mul_right_inv (T : ring) [field T] {x : T.carrier}
+  (p : T.isproper x) : x * x⁻¹ = 1 :=
+sigma.fst # (@group.mul_right_inv Tˣ ⟨x, p⟩)
 
 end ground_zero.algebra
