@@ -128,6 +128,7 @@ end
 begin fapply sigma.prod, exact p, apply not_is_prop end
 
 abbreviation additive : ring → group := ring.to_group
+postfix `⁺`:1034 := additive
 
 def multiplicative (T : ring) [field T] : group :=
 ⟨⟨⟨⟨zeroeqv (λ _ _, T.proper_hset), field.mul T⟩,
