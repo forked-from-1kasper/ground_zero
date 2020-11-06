@@ -176,8 +176,6 @@ namespace ring
   @[hott] instance normal : T⁺ ⊵ φ :=
   group.abelian_subgroup_is_normal T⁺ φ
 
-  noncomputable def factor.group := T⁺\φ
-
   noncomputable def factor.mul :
     group.factor_left T⁺ φ → group.factor_left T⁺ φ → group.factor_left T⁺ φ :=
   begin
@@ -213,7 +211,7 @@ namespace ring
   `[ intro x, fapply HITs.quotient.ind_prop _ _ x; clear x ]
 
   @[hott] noncomputable def factor : ring :=
-  ⟨factor.group T φ, factor.mul T φ, begin
+  ⟨T⁺\φ, factor.mul T φ, begin
     iterate 2 { quotΩind, intros },
     apply Id.map HITs.quotient.elem,
     apply ring.add_comm,
