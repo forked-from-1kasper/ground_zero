@@ -18,6 +18,8 @@ section
   def ring.carrier  := T.α.fst
   def ring.zero     := T.to_group.e
 
+  def ring.subset := ens T.carrier
+
   def ring.neg := T.inv
   def ring.sub (x y : T.carrier) := T.φ x (T.neg y)
 
@@ -143,5 +145,21 @@ postfix `ˣ`:1034 := multiplicative
 @[hott] def field.mul_right_inv (T : ring) [field T] {x : T.carrier}
   (p : T.isproper x) : x * x⁻¹ = 1 :=
 sigma.fst # (@group.mul_right_inv Tˣ ⟨x, p⟩)
+
+class lid (T : ring) (φ : T.subset) :=
+(subgroup : T⁺ ≥ φ)
+(ideal    : Π r i, i ∈ φ → r * i ∈ φ)
+
+class rid (T : ring) (φ : T.subset) :=
+(subgroup : T⁺ ≥ φ)
+(ideal    : Π i r, i ∈ φ → i * r ∈ φ)
+
+@[class] def ideal (T : ring) (φ : T.subset) := lid T φ × rid T φ
+
+@[hott] def ideal.mk {T : ring}
+  {φ : T.subset} [H : T⁺ ≥ φ]
+  (left  : Π r i, i ∈ φ → r * i ∈ φ)
+  (right : Π i r, i ∈ φ → i * r ∈ φ) : ideal T φ :=
+(⟨H, left⟩, ⟨H, right⟩)
 
 end ground_zero.algebra
