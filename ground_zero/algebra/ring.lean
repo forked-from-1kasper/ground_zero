@@ -1,7 +1,9 @@
 import ground_zero.algebra.group
+open ground_zero.types.equiv (transport)
 open ground_zero.types.Id (map)
 open ground_zero.structures
 open ground_zero.types
+open ground_zero
 
 hott theory
 
@@ -132,6 +134,9 @@ begin fapply sigma.prod, exact p, apply not_is_prop end
 abbreviation additive : ring → group := ring.to_group
 postfix `⁺`:1034 := additive
 
+@[hott] instance additive.abelian (T : ring) : abelian T⁺ :=
+⟨T.add_comm⟩
+
 def multiplicative (T : ring) [field T] : group :=
 ⟨⟨⟨⟨zeroeqv (λ _ _, T.proper_hset), field.mul T⟩,
   λ ⟨a, p⟩ ⟨b, q⟩ ⟨c, r⟩, ring.proper_eq (ring.assoc.mul_assoc a b c)⟩,
@@ -154,12 +159,78 @@ class rid (T : ring) (φ : T.subset) :=
 (subgroup : T⁺ ≥ φ)
 (ideal    : Π i r, i ∈ φ → i * r ∈ φ)
 
-@[class] def ideal (T : ring) (φ : T.subset) := lid T φ × rid T φ
+class ideal (T : ring) (φ : T.subset) :=
+(subgroup : T⁺ ≥ φ)
+(left     : Π r i, i ∈ φ → r * i ∈ φ)
+(right    : Π i r, i ∈ φ → i * r ∈ φ)
 
-@[hott] def ideal.mk {T : ring}
-  {φ : T.subset} [H : T⁺ ≥ φ]
-  (left  : Π r i, i ∈ φ → r * i ∈ φ)
-  (right : Π i r, i ∈ φ → i * r ∈ φ) : ideal T φ :=
-(⟨H, left⟩, ⟨H, right⟩)
+instance ideal.auto (T : ring) (φ : T.subset) [lid T φ] [rid T φ] : ideal T φ :=
+⟨lid.subgroup, lid.ideal, rid.ideal⟩
+
+namespace ring
+  variables (T : ring) (φ : T.subset) [ideal T φ]
+
+  @[hott] instance subgroup : T⁺ ≥ φ :=
+  ideal.subgroup
+
+  @[hott] instance normal : T⁺ ⊵ φ :=
+  group.abelian_subgroup_is_normal T⁺ φ
+
+  noncomputable def factor.group := T⁺\φ
+
+  noncomputable def factor.mul :
+    group.factor_left T⁺ φ → group.factor_left T⁺ φ → group.factor_left T⁺ φ :=
+  begin
+    fapply HITs.quotient.lift₂,
+    { intros a b, apply HITs.quotient.elem, exact T.ψ a b },
+    { apply HITs.quotient.set },
+    { intros a₁ a₂ b₁ b₂ p q,
+      apply HITs.quotient.sound,
+      apply transport (∈ φ),
+      { let φ' := @group.left_div T⁺,
+        change T.φ (φ' (T.ψ a₁ a₂) (T.ψ a₁ b₂)) (φ' (T.ψ a₁ b₂) (T.ψ b₁ b₂)) = _,
+        transitivity, apply T⁺.mul_assoc,
+        transitivity, apply Id.map (T.φ _),
+        transitivity, symmetry, apply T⁺.mul_assoc,
+        apply Id.map (λ z, T.φ z (T.ψ b₁ b₂)),
+        apply group.mul_right_inv,
+        apply Id.map, apply T⁺.one_mul },
+      apply group.is_subgroup.mul,
+      { apply transport (∈ φ),
+        transitivity, apply ring.distrib_left T a₁ (T.inv a₂) b₂,
+        apply Id.map (λ z, T.φ z (T.ψ a₁ b₂)),
+        apply ring.mul_neg, apply ideal.left, exact q },
+      { apply transport (∈ φ),
+        transitivity, apply ring.distrib_right T (T.inv a₁) b₁ b₂,
+        apply Id.map (λ z, T.φ z (T.ψ b₁ b₂)),
+        apply ring.neg_mul, apply ideal.right, exact p } }
+  end
+
+  meta def πprop :=
+  `[ repeat { intros, apply structures.pi_prop <|> apply HITs.quotient.set } ]
+
+  meta def quotΩind :=
+  `[ intro x, fapply HITs.quotient.ind_prop _ _ x; clear x ]
+
+  @[hott] noncomputable def factor : ring :=
+  ⟨factor.group T φ, factor.mul T φ, begin
+    iterate 2 { quotΩind, intros },
+    apply Id.map HITs.quotient.elem,
+    apply ring.add_comm,
+    repeat { πprop }
+  end, begin
+    iterate 3 { quotΩind, intros },
+    apply Id.map HITs.quotient.elem,
+    apply ring.distrib_left,
+    repeat { πprop }
+  end, begin
+    iterate 3 { quotΩind, intros },
+    apply Id.map HITs.quotient.elem,
+    apply ring.distrib_right,
+    repeat { πprop }
+  end⟩
+
+  infix \ := factor
+end ring
 
 end ground_zero.algebra
