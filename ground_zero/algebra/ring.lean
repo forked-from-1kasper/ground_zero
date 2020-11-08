@@ -1,4 +1,5 @@
 import ground_zero.algebra.group
+open ground_zero.algebra.group (factor_left)
 open ground_zero.types.equiv (transport)
 open ground_zero.types.Id (map)
 open ground_zero.structures
@@ -176,8 +177,7 @@ namespace ring
   @[hott] instance normal : T⁺ ⊵ φ :=
   group.abelian_subgroup_is_normal T⁺ φ
 
-  noncomputable def factor.mul :
-    group.factor_left T⁺ φ → group.factor_left T⁺ φ → group.factor_left T⁺ φ :=
+  noncomputable def factor.mul : factor_left T⁺ φ → factor_left T⁺ φ → factor_left T⁺ φ :=
   begin
     fapply HITs.quotient.lift₂,
     { intros a b, apply HITs.quotient.elem, exact T.ψ a b },
@@ -195,11 +195,11 @@ namespace ring
         apply Id.map, apply T⁺.one_mul },
       apply group.is_subgroup.mul,
       { apply transport (∈ φ),
-        transitivity, apply ring.distrib_left T a₁ (T.inv a₂) b₂,
+        transitivity, apply ring.distrib_left T a₁ (T.neg a₂) b₂,
         apply Id.map (λ z, T.φ z (T.ψ a₁ b₂)),
         apply ring.mul_neg, apply ideal.left, exact q },
       { apply transport (∈ φ),
-        transitivity, apply ring.distrib_right T (T.inv a₁) b₁ b₂,
+        transitivity, apply ring.distrib_right T (T.neg a₁) b₁ b₂,
         apply Id.map (λ z, T.φ z (T.ψ b₁ b₂)),
         apply ring.neg_mul, apply ideal.right, exact p } }
   end
