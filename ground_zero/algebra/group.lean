@@ -1,5 +1,5 @@
 import ground_zero.HITs.quotient ground_zero.types.integer
-import ground_zero.theorems.functions ground_zero.types.ens
+import ground_zero.theorems.functions ground_zero.algebra.basic
 open ground_zero.types.equiv (biinv transport)
 open ground_zero.types.Id (map)
 open ground_zero.structures
@@ -8,9 +8,6 @@ open ground_zero.proto
 open ground_zero
 
 /-
-  Magma, semigroup, monoid, group, abelian group.
-  * HoTT 6.11
-
   Basic lemmas about groups and abelian groups.
 
   Homomorphism definition and properties
@@ -68,40 +65,6 @@ namespace ground_zero.algebra
 universes u v u' v' w
 
 hott theory
-
-section
-  def zeroeqv {α : Type u} (H : hset α) : 0-Type :=
-  ⟨α, zero_eqv_set.left (λ _ _, H)⟩
-
-  structure magma :=
-  (α : 0-Type) (φ : α.fst → α.fst → α.fst)
-
-  def magma.zero : magma → (0-Type) := magma.α
-
-  structure semigroup extends magma :=
-  (mul_assoc : Π a b c, φ (φ a b) c = φ a (φ b c))
-
-  structure monoid extends semigroup :=
-  (e : α.fst) (one_mul : Π a, φ e a = a) (mul_one : Π a, φ a e = a)
-
-  structure group extends monoid :=
-  (inv : α.fst → α.fst) (mul_left_inv : Π a, φ (inv a) a = e)
-
-  def group.to_magma : group → magma :=
-  semigroup.to_magma ∘ monoid.to_semigroup ∘ group.to_monoid
-
-  def group.carrier (G : group) := G.α.fst
-  def group.set (G : group) : hset G.carrier := λ _ _, zero_eqv_set.forward G.α.snd
-
-  def group.subset (G : group) := ens G.carrier
-  def group.univ (G : group) : G.subset := ens.univ G.carrier
-
-  def group.zero : group → (0-Type) :=
-  magma.zero ∘ group.to_magma
-
-  class abelian (G : group) :=
-  (mul_comm : Π a b, G.φ a b = G.φ b a)
-end
 
 @[hott] def mul_uniq {α : Type u} {a b c d : α}
   (h : a = b) (g : c = d) {φ : α → α → α} : φ a c = φ b d :=

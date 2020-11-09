@@ -11,6 +11,7 @@ digraph dependency_map {
   }
 
   subgraph algebra {
+    "algebra/basic" -> { "algebra/monoid", "algebra/group" }
     "algebra/eilenberg_maclane"
     "algebra/finite"
     "algebra/group" -> {
@@ -20,6 +21,7 @@ digraph dependency_map {
       "algebra/Z"
     }
     "algebra/homology"
+    "algebra/monoid"
     "algebra/ring"
     "algebra/Z" -> { "algebra/homology" }
   }
@@ -28,7 +30,7 @@ digraph dependency_map {
     "types/category"
     "types/coproduct" -> { structures }
     "types/eq" -> { support }
-    "types/ens" -> { "algebra/group", "types/setquot" }
+    "types/ens" -> { "algebra/basic", "types/setquot" }
     "types/equiv" -> {
       "types/heq",
       "HITs/infinitesimal",
@@ -88,7 +90,7 @@ digraph dependency_map {
     "HITs/reals"
     "HITs/simplicial"
     "HITs/suspension" -> { "HITs/circle", "HITs/join" }
-    "HITs/trunc" -> { "HITs/quotient" }
+    "HITs/trunc" -> { "algebra/monoid", "HITs/quotient" }
   }
 
   subgraph cubical {
