@@ -293,6 +293,9 @@ namespace group
       apply product_prop, apply prop_respects_mul, apply theorems.prop.biinv_prop
     end
 
+    @[hott] def iso.homo (φ : G ≅ H) : G ⤳ H :=
+    ⟨φ.fst, φ.snd.fst⟩
+
     @[hott] def iso.hset : hset (G ≅ H) :=
     begin
       apply hset_respects_sigma,
@@ -1849,6 +1852,59 @@ namespace group
       symmetry, apply G.mul_left_inv y },
     apply G.mul_assoc
   end
+
+  @[hott] def semidirect.magma {N H : group} (φ : H ⤳ Aut N) : magma :=
+  ⟨zeroeqv (λ _ _, prod_hset (λ _ _, N.set) (λ _ _, H.set)),
+  λ ⟨n₁, h₁⟩ ⟨n₂, h₂⟩, (N.φ n₁ ((φ.fst h₁).fst n₂), H.φ h₁ h₂)⟩
+
+  @[hott] def semidirect.semigroup {N H : group} (φ : H ⤳ Aut N) : semigroup :=
+  ⟨semidirect.magma φ,
+  λ ⟨n₁, h₁⟩ ⟨n₂, h₂⟩ ⟨n₃, h₃⟩, begin
+    apply product.prod,
+    { repeat { clear _fun_match },
+      induction φ with φ H,
+      transitivity, apply N.mul_assoc,
+      apply Id.map (N.φ n₁), symmetry,
+      transitivity, apply (φ h₁).snd.fst,
+      apply Id.map, symmetry,
+      transitivity, apply HITs.interval.happly,
+      apply Id.map, apply H,
+      change _ = (φ h₁).fst ((φ h₂).fst n₃),
+      cases φ h₁ with f F,cases φ h₂ with g G,
+      cases F with F₁ F₂, cases G with G₁ G₂,
+      reflexivity },
+    { apply H.mul_assoc }
+  end⟩
+
+  @[hott] def semidirect.monoid {N H : group} (φ : H ⤳ Aut N) : monoid :=
+  ⟨semidirect.semigroup φ, (N.e, H.e), λ ⟨n, h⟩, begin
+    apply product.prod,
+    { transitivity, apply monoid.one_mul,
+      transitivity, apply HITs.interval.happly,
+      apply Id.map, apply homo_saves_unit,
+      reflexivity },
+    { apply monoid.one_mul }
+  end, λ ⟨n, h⟩, begin
+    apply product.prod,
+    { transitivity, apply Id.map (N.φ n),
+      apply homo_saves_unit (φ.fst h).homo,
+      apply monoid.mul_one },
+    { apply monoid.mul_one }
+  end⟩
+
+  -- Outer semidirect product
+  @[hott] def semidirect {N H : group} (φ : H ⤳ Aut N) : group :=
+  ⟨semidirect.monoid φ, λ ⟨n, h⟩, ⟨(φ.fst (H.inv h)).fst (N.inv n), H.inv h⟩,
+  λ ⟨n, h⟩, begin
+    apply product.prod,
+    { transitivity, symmetry, apply (φ.fst (H.inv h)).snd.fst,
+      transitivity, apply Id.map, apply N.mul_left_inv,
+      apply homo_saves_unit (φ.fst (H.inv h)).homo },
+    { apply H.mul_left_inv }
+  end⟩
+
+  notation N ` ⋊` `[` φ `] ` H := @semidirect N H φ
+  notation H ` ⋉` `[` φ `] ` N := @semidirect N H φ
 end group
 
 def diff := Σ (G : group) [abelian G] (δ : G ⤳ G), δ ⋅ δ = 0
