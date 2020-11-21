@@ -18,11 +18,13 @@ digraph dependency_map {
       "algebra/eilenberg_maclane",
       "algebra/finite",
       "algebra/ring",
+      "algebra/transformational",
       "algebra/Z"
     }
     "algebra/homology"
     "algebra/monoid"
     "algebra/ring"
+    "algebra/transformational"
     "algebra/Z" -> { "algebra/homology" }
   }
 
