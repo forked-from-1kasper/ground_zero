@@ -53,20 +53,6 @@ namespace monoid
       assumption },
     setpi
   end⟩
-
-  @[hott] noncomputable def F.homomorphism {ε : Type v}
-    {M : monoid} (φ : ε → M.carrier) : F ε ⤳ M :=
-  ⟨HITs.trunc.rec (list.foldr (M.φ ∘ φ) M.e) M.α.snd, by reflexivity,
-  begin
-    indtrunc, intro a,
-    indtrunc, intro b,
-    { induction a,
-      { transitivity, apply M.one_mul, } },
-    repeat {
-      intro x, try { apply structures.pi_respects_ntype 0, intro y },
-      apply structures.hlevel.cumulative 0, exact M.α.snd
-    }
-  end⟩
 end monoid
 
 end ground_zero.algebra
