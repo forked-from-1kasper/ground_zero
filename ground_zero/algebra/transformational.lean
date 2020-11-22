@@ -1,4 +1,5 @@
 import ground_zero.algebra.group
+open ground_zero.algebra.group (S S.ap orbit Orbits)
 open ground_zero.types.equiv
 open ground_zero.structures
 open ground_zero.types
@@ -107,5 +108,47 @@ namespace ground_zero.algebra
         apply L.trans a b c, apply group.is_subgroup.mul;
         assumption }
     end
+
+    -- Transposition
+    @[hott] def τ (i : G.carrier) : M → M :=
+    λ x, (L.fixι i x).fst
+
+    @[hott] def τ.lawful : Π i x, L.ι x (L.τ i x) = i :=
+    λ i x, (L.fixι i x).snd
   end gis
+
+  -- In case of α = {C, C♯, D, D♯, E, F, ...},
+  -- this is 12 ordered notes
+  abbreviation P (α : 0-Type) := α ≃₀ α
+
+  def L (α : Type u) := Σ n, finite n → α
+
+  def L.length {α : Type u} : L α → ℕ := sigma.fst
+  def L.nth {α : Type u} (xs : L α) : finite xs.length → α := xs.snd
+
+  @[hott] def L.all {α : Type u} (π : α → propset)
+    (xs : L α) : propset :=
+  ⟨Π n, (π (xs.nth n)).fst, begin
+    apply pi_prop, intro x,
+    apply (π _).snd
+  end⟩
+
+  -- Set of (12 × n) ordered notes, where n ∈ ℕ
+  def M (α : 0-Type) := L (P α).fst
+
+  -- Set of *all* tone row transformations
+  abbreviation T (α : 0-Type) := S (P α)
+
+  section
+    variables {α : 0-Type} (φ : (T α).subset) [T α ≥ φ]
+
+    -- Tone row transformations in terms of φ ≤ T α
+    def tr := (@S.ap (α ≃₀ α)).cut φ
+
+    -- Set of tone rows
+    def R := Orbits (tr φ)
+
+    def M.dodecaphonic (xs : M α) (r : (P α).fst) : propset :=
+    xs.all (λ x, ⟨x ∈ orbit (tr φ) r, ens.prop _ _⟩)
+  end
 end ground_zero.algebra

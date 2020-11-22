@@ -1306,6 +1306,14 @@ namespace group
   -- Permutations
   @[hott] def S.carrier (α : 0-Type) := α.fst ≃ α.fst
 
+  @[hott] def S.equiv (α β : 0-Type) : 0-Type :=
+  @zeroeqv (α.fst ≃ β.fst) (begin
+    apply theorems.prop.hset_equiv,
+    apply zero_eqv_set.forward,
+    exact β.snd
+  end)
+  infix ` ≃₀ `:25 := S.equiv
+
   section
     variables {ε : 0-Type}
     @[hott] def S.mul (p q : S.carrier ε) := equiv.trans q p
@@ -1319,11 +1327,7 @@ namespace group
     section
       include ε
       @[hott] def S.magma : magma :=
-      ⟨zeroeqv (begin
-        apply theorems.prop.hset_equiv,
-        apply zero_eqv_set.forward,
-        exact ε.snd
-      end), S.mul⟩
+      ⟨ε ≃₀ ε, S.mul⟩
 
       @[hott] def S.semigroup : semigroup :=
       ⟨@S.magma ε, begin
@@ -1905,6 +1909,71 @@ namespace group
 
   notation N ` ⋊` `[` φ `] ` H := @semidirect N H φ
   notation H ` ⋉` `[` φ `] ` N := @semidirect N H φ
+
+  @[hott] def left_action (G : group) (α : Type u) :=
+  Σ (φ : G.carrier → α → α), (Π x, φ G.e x = x) × (Π g h x, φ g (φ h x) = φ (G.φ g h) x)
+  infix ` ⮎ `:20 := left_action
+
+  @[hott] def right_action (G : group) (α : Type u) :=
+  Σ (φ : α → G.carrier → α), (Π x, φ x G.e = x) × (Π g h x, φ (φ x g) h = φ x (G.φ g h))
+  infix ` ⮌ `:20 := right_action
+
+  section
+    variable {α : Type u}
+
+    @[hott] def right_action.associated : (G ⮎ α) → (G ⮌ α) :=
+    λ ⟨φ, (p, q)⟩, ⟨λ x g, φ (G.inv g) x, (begin
+      intro x, transitivity, apply Id.map (λ g, φ g x),
+      symmetry, apply unit_inv, apply p
+    end, begin
+      intros g h x, transitivity,
+      apply q, apply Id.map (λ g, φ g x),
+      symmetry, apply inv_explode
+    end)⟩
+
+    def orbit (φ : G ⮎ α) (x : α) :=
+    im (λ g, φ.fst g x)
+
+    def Orb (φ : G ⮎ α) (x : α) :=
+    (orbit φ x).subtype
+
+    def orbitᵣ (φ : G ⮌ α) (x : α) :=
+    im (φ.fst x)
+
+    def Orbᵣ (φ : G ⮌ α) (x : α) :=
+    (orbitᵣ φ x).subtype
+  end
+
+  @[hott] def S.ap {α : 0-Type} : S α ⮎ α.fst :=
+  ⟨λ f x, f.fst x, (idp, λ ⟨g, G⟩ ⟨h, G⟩ x, idp (g (h x)))⟩
+
+  @[hott] def left_action.cut {α : Type u} (φ : G.subset)
+    [G ≥ φ] : (G ⮎ α) → (subgroup.group G φ ⮎ α) :=
+  λ ⟨φ, (p, q)⟩, ⟨λ ⟨g, G⟩ x, φ g x, (p, λ ⟨g, G⟩ ⟨h, G⟩, q g h)⟩
+
+  @[hott] def left_action.rel {α : Type u} (φ : G ⮎ α) : hrel α :=
+  λ n m, ⟨∥(Σ g, φ.fst g n = m)∥, HITs.merely.uniq⟩
+
+  @[hott] def left_action.eqrel {α : Type u} (φ : G ⮎ α) : eqrel α :=
+  ⟨left_action.rel φ, (begin
+    intro a, apply HITs.merely.elem,
+    existsi G.e, apply φ.snd.fst
+  end, begin
+    intros a b, apply HITs.merely.lift,
+    intro p, induction p with g p, existsi G.inv g,
+    transitivity, apply Id.map, exact Id.inv p,
+    transitivity, apply φ.snd.snd,
+    transitivity, apply Id.map (λ g, φ.fst g a),
+    apply mul_left_inv, apply φ.snd.fst
+  end, begin
+    intros a b c, apply HITs.merely.lift₂,
+    intros p q, induction p with g p, induction q with h q,
+    existsi G.φ h g, transitivity, symmetry, apply φ.snd.snd,
+    transitivity, apply Id.map, exact p, exact q
+  end)⟩
+
+  @[hott] def Orbits {α : Type u} (φ : G ⮎ α) :=
+  HITs.quotient φ.eqrel
 end group
 
 def diff := Σ (G : group) [abelian G] (δ : G ⤳ G), δ ⋅ δ = 0

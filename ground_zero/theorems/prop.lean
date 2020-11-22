@@ -225,7 +225,7 @@ begin
   { apply prop_is_set, apply structures.prop_is_prop }
 end
 
-@[hott] def hset_equiv {α : Type u} (h : hset α) : hset (α ≃ α) :=
+@[hott] def hset_equiv {α : Type u} {β : Type v} (g : hset β) : hset (α ≃ β) :=
 begin
   fapply structures.hset_respects_sigma,
   { apply structures.pi_hset, intro x, assumption },
