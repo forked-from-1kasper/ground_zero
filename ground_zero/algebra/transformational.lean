@@ -11,8 +11,14 @@ hott theory
 universes u v
 
 namespace ground_zero.algebra
-  -- Generalized Interval System and Its Applications, Minseon Song
-  -- https://www.whitman.edu/documents/Academics/Mathematics/2014/songm.pdf
+  /- Generalized Interval System and Its Applications, Minseon Song
+     https://www.whitman.edu/documents/Academics/Mathematics/2014/songm.pdf
+  -/
+
+  /- Conceptualizing Music Through Mathematics And
+     The Generalized Interval Systen
+     http://www.math.uchicago.edu/~may/VIGRE/VIGRE2006/PAPERS/Sternberg.pdf
+  -/
   structure gis (M : Type u) (G : group) :=
   (ι     : M → M → G.carrier)
   (trans : Π x y z, G.φ (ι x y) (ι y z) = ι x z)
@@ -115,6 +121,30 @@ namespace ground_zero.algebra
 
     @[hott] def τ.lawful : Π i x, L.ι x (L.τ i x) = i :=
     λ i x, (L.fixι i x).snd
+
+    @[hott] def τ.comp : Π i j x, L.τ i (L.τ j x) = L.τ (j * i) x :=
+    begin
+      intros i j x, apply @injιᵣ M G L _ _ x,
+      transitivity, symmetry, apply L.trans, exact L.τ j x,
+      transitivity, apply bimap; apply τ.lawful,
+      symmetry, apply τ.lawful
+    end
+
+    @[hott] def τ.id : Π x, L.τ G.e x = x :=
+    begin
+      intro x, apply @injιᵣ M G L _ _ x,
+      transitivity, apply τ.lawful,
+      symmetry, apply L.neut
+    end
+
+    @[hott] def τ.biinv (i : G.carrier) : biinv (L.τ i) :=
+    begin
+      split; existsi (L.τ (G.inv i));
+      { intro x, transitivity, apply τ.comp,
+        transitivity, apply Id.map (λ g, L.τ g x),
+        apply group.mul_left_inv <|> apply group.mul_right_inv,
+        apply τ.id }
+    end
   end gis
 
   -- In case of α = {C, C♯, D, D♯, E, F, ...},
@@ -149,6 +179,6 @@ namespace ground_zero.algebra
     def R := Orbits (tr φ)
 
     def M.dodecaphonic (xs : M α) (r : (P α).fst) : propset :=
-    xs.all (λ x, ⟨x ∈ orbit (tr φ) r, ens.prop _ _⟩)
+    xs.all (λ x, ⟨x ∈ orbit (tr φ) r, ens.prop x _⟩)
   end
 end ground_zero.algebra
