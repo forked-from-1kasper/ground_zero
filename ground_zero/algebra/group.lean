@@ -1974,6 +1974,54 @@ namespace group
 
   @[hott] def Orbits {α : Type u} (φ : G ⮎ α) :=
   HITs.quotient φ.eqrel
+
+  @[hott] def transitive {α : Type u} (φ : G ⮎ α) :=
+  Π a b, ∥(Σ g, φ.fst g a = b)∥
+
+  @[hott] def free {α : Type u} (φ : G ⮎ α) :=
+  Π x g h, φ.fst g x = φ.fst h x → g = h
+
+  @[hott] def regular {α : Type u} (φ : G ⮎ α) :=
+  Π a b, contr (Σ g, φ.fst g a = b)
+
+  @[hott] def regular.mk {α : Type u} (H : hset α)
+    (φ : G ⮎ α) : transitive φ → free φ → regular φ :=
+  begin
+    intros f g a b, fapply HITs.merely.rec _ _ (f a b),
+    { apply contr_is_prop },
+    { intro p, existsi p,
+      intro q, fapply sigma.prod,
+      { apply g a, transitivity, exact p.snd,
+        symmetry, exact q.snd },
+      { apply H } }
+  end
+
+  @[hott] def regular.elim {α : Type u}
+    (φ : G ⮎ α) : regular φ → transitive φ × free φ :=
+  begin
+    intro H, split,
+    { intros a b, apply HITs.merely.elem,
+      exact (H a b).point },
+    { intros x g h p,
+      apply @Id.map (Σ g, φ.fst g x = φ.fst h x) G.carrier
+                    ⟨g, p⟩ ⟨h, Id.refl⟩ sigma.fst,
+      apply contr_impl_prop, apply H }
+  end
+
+  @[hott] def regular.eqv {α : Type u} (H : hset α)
+    (φ : G ⮎ α) : regular φ ≃ transitive φ × free φ :=
+  begin
+    apply prop_equiv_lemma,
+    { repeat { apply pi_prop, intro },
+      apply contr_is_prop },
+    { apply product_prop;
+      repeat { apply pi_prop, intro },
+      { apply HITs.merely.uniq },
+      { apply G.set } },
+    { apply regular.elim },
+    { intro x, induction x,
+      apply regular.mk; assumption }
+  end
 end group
 
 def diff := Σ (G : group) [abelian G] (δ : G ⤳ G), δ ⋅ δ = 0

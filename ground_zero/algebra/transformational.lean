@@ -1,5 +1,5 @@
 import ground_zero.algebra.group
-open ground_zero.algebra.group (S S.ap orbit Orbits)
+open ground_zero.algebra.group
 open ground_zero.types.equiv
 open ground_zero.structures
 open ground_zero.types
@@ -67,6 +67,14 @@ namespace ground_zero.algebra
       transitivity, apply inv, symmetry,
       transitivity, apply inv,
       exact Id.inv p
+    end
+
+    @[hott] def injεᵣ (x y z : M) (H : hset M) :
+      L.ι z x = L.ι z y ≃ x = y :=
+    begin
+      apply prop_equiv_lemma,
+      { apply G.set }, { apply H }, { exact injιᵣ L },
+      { intro p, induction p, reflexivity }
     end
 
     omit L
@@ -144,6 +152,26 @@ namespace ground_zero.algebra
         transitivity, apply Id.map (λ g, L.τ g x),
         apply group.mul_left_inv <|> apply group.mul_right_inv,
         apply τ.id }
+    end
+
+    @[hott] def τ.tauto {a b : M} : L.τ (L.ι a b) a = b :=
+    begin apply @injιᵣ M G L _ _ a, apply τ.lawful end
+
+    @[hott] def τ.inj {g h : G.carrier} (x : M) (p : L.τ g x = L.τ h x) : g = h :=
+    Id.inv (τ.lawful L g x) ⬝ (Id.map (L.ι x) p) ⬝ (τ.lawful L h x)
+
+    @[hott] def τ.act : Gᵒᵖ ⮎ M :=
+    ⟨L.τ, (τ.id L, τ.comp L)⟩
+
+    @[hott] def τ.reg (H : hset M) : regular (τ.act L) :=
+    begin
+      intros a b, fapply contr.mk,
+      { existsi L.ι a b, apply τ.tauto },
+      { intros p, induction p with g p,
+        fapply sigma.prod,
+        { apply τ.inj L a, transitivity,
+          apply τ.tauto, exact Id.inv p },
+        { apply H } }
     end
   end gis
 

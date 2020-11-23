@@ -91,6 +91,9 @@ namespace equiv
   @[hott, refl] def id (α : Type u) : α ≃ α :=
   begin existsi id, split; { existsi id, intro, reflexivity } end
 
+  @[hott] def inveqv {α : Type u} {a b : α} : (a = b) ≃ (b = a) :=
+  ⟨Id.inv, (⟨Id.inv, Id.inv_inv⟩, ⟨Id.inv, Id.inv_inv⟩)⟩
+
   @[hott] def biinv_trans {α : Type u} {β : Type v} {γ : Type w}
     {f : α → β} {g : β → γ} : biinv f → biinv g → biinv (g ∘ f)
   | (⟨g₁, G₁⟩, ⟨h₁, H₁⟩) (⟨g₂, G₂⟩, ⟨h₂, H₂⟩) :=
