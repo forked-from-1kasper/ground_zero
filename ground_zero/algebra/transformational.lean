@@ -49,8 +49,8 @@ namespace ground_zero.algebra
     @[hott] def zero {x y : M} : L.ι x y = G.e → x = y :=
     begin
       intro p, symmetry,
-      have r := L.propι (L.ι x y) x ⟨y, Id.refl⟩ ⟨x, L.neut x ⬝ Id.inv p⟩,
-      apply Id.map sigma.fst r
+      have m := L.propι (L.ι x y) x ⟨y, Id.refl⟩ ⟨x, L.neut x ⬝ Id.inv p⟩,
+      apply Id.map sigma.fst m
     end
 
     @[hott] def injιᵣ {x y z : M} : L.ι z x = L.ι z y → x = y :=
@@ -172,6 +172,27 @@ namespace ground_zero.algebra
         { apply τ.inj L a, transitivity,
           apply τ.tauto, exact Id.inv p },
         { apply H } }
+    end
+
+    @[hott] def preserving (f : M → M) :=
+    Π x y, L.ι (f x) (f y) = L.ι x y
+
+    @[hott] def preserving.comm {f : M → M} {i : G.carrier}
+      (H : preserving L f) : L.τ i ∘ f ~ f ∘ L.τ i :=
+    begin
+      intro x, apply @injιᵣ M G L _ _ (f x),
+      transitivity, apply τ.lawful,
+      symmetry, transitivity, apply H,
+      apply τ.lawful
+    end
+
+    @[hott] def preserving.abelian (m : M)
+      (H : Π i, preserving L (L.τ i)) : abelian G :=
+    begin
+      split, intros i j, apply τ.inj L m,
+      transitivity, { symmetry, apply τ.comp },
+      symmetry, transitivity, { symmetry, apply τ.comp },
+      apply preserving.comm, apply H
     end
   end gis
 
