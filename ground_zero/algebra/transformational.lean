@@ -282,6 +282,23 @@ namespace ground_zero.algebra
       { symmetry, apply L.trans _ (f m) _ },
       apply Id.map, apply H
     end
+
+    @[hott] def τ.abelian_impl_preserving [abelian G] :
+      Π i, preserving L (L.τ i) :=
+    begin
+      intros i a b,
+      transitivity, { symmetry, apply L.trans _ a },
+      transitivity, apply Id.map (* L.ι a (L.τ i b)),
+      transitivity, { symmetry, apply inv },
+      apply Id.map, apply τ.lawful,
+      transitivity, apply Id.map (G.φ i⁻¹),
+      transitivity, { symmetry, apply L.trans _ b },
+      transitivity, apply abelian.mul_comm,
+      apply Id.map (* L.ι a b), apply τ.lawful,
+      transitivity, { symmetry, apply G.mul_assoc },
+      transitivity, apply Id.map (* L.ι a b),
+      apply mul_left_inv, apply G.one_mul
+    end
   end gis
 
   -- In case of α = {C, C♯, D, D♯, E, F, ...},
