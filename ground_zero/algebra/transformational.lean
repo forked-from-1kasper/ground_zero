@@ -299,6 +299,13 @@ namespace ground_zero.algebra
       transitivity, apply Id.map (* L.ι a b),
       apply mul_left_inv, apply G.one_mul
     end
+
+    @[hott] def τ.π [abelian G] (m : M) : Π i, L.π i m ~ L.τ i :=
+    begin
+      intro i, apply transport (λ j, L.π j m ~ L.τ i),
+      apply τ.lawful L i m, apply π.uniq₂,
+      apply τ.abelian_impl_preserving
+    end
   end gis
 
   -- In case of α = {C, C♯, D, D♯, E, F, ...},
