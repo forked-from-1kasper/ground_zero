@@ -214,6 +214,27 @@ namespace ground_zero.algebra
       transitivity, symmetry, apply inv,
       apply Id.map, apply τ.lawful
     end
+
+    @[hott] def reversing.acommᵣ {f : M → M} {i : G.carrier}
+      (H : reversing L f) : L.τ i ∘ f ~ f ∘ L.τ i⁻¹ :=
+    begin
+      apply transport (λ j, L.τ j ∘ f ~ f ∘ L.τ i⁻¹),
+      apply inv_inv, apply reversing.acomm L H
+    end
+
+    @[hott] def reversing.unit_sqr (m : M)
+      (H : Π i, reversing L (L.τ i)) : Π i, i * i = G.e :=
+    begin
+      intros i, apply τ.inj L m,
+      transitivity, { symmetry, apply τ.comp },
+      transitivity, apply reversing.acommᵣ, apply H,
+      transitivity, apply τ.comp, apply Id.map (λ i, L.τ i m),
+      apply mul_left_inv
+    end
+
+    @[hott] def reversing.abelian (m : M)
+      (H : Π i, reversing L (L.τ i)) : abelian G :=
+    group.sqr_unit_impls_abelian (reversing.unit_sqr L m H)
   end gis
 
   -- In case of α = {C, C♯, D, D♯, E, F, ...},
