@@ -44,6 +44,12 @@ namespace ground_zero.algebra
       transitivity, apply L.trans, apply gis.neut
     end
 
+    @[hott] def inv_trans (x y z : M) : (L.ι x y)⁻¹ * (L.ι x z) = L.ι y z :=
+    begin transitivity, apply Id.map (* L.ι x z), apply inv, apply L.trans end
+
+    @[hott] def trans_inv (x y z : M) : (L.ι x y) * (L.ι z y)⁻¹ = L.ι x z :=
+    begin transitivity, apply Id.map, apply inv, apply L.trans end
+
     @[hott] def propι : Π g x, prop (Σ y, L.ι x y = g) :=
     λ g x, contr_impl_prop (L.full g x)
 
@@ -235,6 +241,37 @@ namespace ground_zero.algebra
     @[hott] def reversing.abelian (m : M)
       (H : Π i, reversing L (L.τ i)) : abelian G :=
     group.sqr_unit_impls_abelian (reversing.unit_sqr L m H)
+
+    @[hott] def π (i : G.carrier) (a b : M) : M :=
+    (L.fixι (G.φ i (L.ι a b)) a).fst
+
+    @[hott] def π.lawful {i : G.carrier} (a b : M) :
+      L.ι a (L.π i a b) = G.φ i (L.ι a b) :=
+    (L.fixι (G.φ i (L.ι a b)) a).snd
+
+    @[hott] def π.preserving {i : G.carrier}
+      (x : M) : preserving L (L.π i x) :=
+    begin
+      intros a b, transitivity, { symmetry, apply L.trans _ x },
+      transitivity, apply Id.map, apply π.lawful,
+      transitivity, apply Id.map (* i * L.ι x b),
+      transitivity, symmetry, apply inv,
+      transitivity, { apply Id.map, apply π.lawful },
+      apply inv_explode, transitivity, apply G.mul_assoc,
+      transitivity, apply Id.map,
+      transitivity, symmetry, apply G.mul_assoc,
+      transitivity, apply Id.map (* L.ι x b), apply mul_left_inv,
+      apply G.one_mul, apply inv_trans
+    end
+
+    @[hott] def π.uniq {f : M → M} (H : preserving L f)
+      (m : M) : L.π (L.ι m (f m)) (f m) ~ f :=
+    begin
+      intro n, apply @injιᵣ M G L _ _ (f m),
+      transitivity, apply π.lawful,
+      transitivity, apply trans,
+      symmetry, apply H
+    end
   end gis
 
   -- In case of α = {C, C♯, D, D♯, E, F, ...},
