@@ -306,6 +306,18 @@ namespace ground_zero.algebra
       apply τ.lawful L i m, apply π.uniq₂,
       apply τ.abelian_impl_preserving
     end
+
+    @[hott] def ρ (u v : M) : M → M :=
+    λ x, (L.fixι (L.ι x u) v).fst
+
+    @[hott] def ρ.lawful (u v x : M) : L.ι v (L.ρ u v x) = L.ι x u :=
+    (L.fixι (L.ι x u) v).snd
+
+    @[hott] def ρ.ι (u v a b : M) : L.ι a (L.ρ u v b) = L.ι a v * L.ι b u :=
+    begin
+      transitivity, { symmetry, apply L.trans _ v _ },
+      apply Id.map, apply ρ.lawful
+    end
   end gis
 
   -- In case of α = {C, C♯, D, D♯, E, F, ...},
