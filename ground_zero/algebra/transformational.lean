@@ -11,6 +11,10 @@ hott theory
 universes u v
 
 namespace ground_zero.algebra
+  /- Generalized Musical Intervals and Transformations
+     David Lewin, 1987
+  -/
+
   /- Generalized Interval System and Its Applications, Minseon Song
      https://www.whitman.edu/documents/Academics/Mathematics/2014/songm.pdf
   -/
@@ -177,6 +181,9 @@ namespace ground_zero.algebra
     @[hott] def preserving (f : M → M) :=
     Π x y, L.ι (f x) (f y) = L.ι x y
 
+    @[hott] def reversing (f : M → M) :=
+    Π x y, L.ι (f x) (f y) = L.ι y x
+
     @[hott] def preserving.comm {f : M → M} {i : G.carrier}
       (H : preserving L f) : L.τ i ∘ f ~ f ∘ L.τ i :=
     begin
@@ -193,6 +200,19 @@ namespace ground_zero.algebra
       transitivity, { symmetry, apply τ.comp },
       symmetry, transitivity, { symmetry, apply τ.comp },
       apply preserving.comm, apply H
+    end
+
+    @[hott] def preserving.id : preserving L id :=
+    λ x y, idp (L.ι x y)
+
+    @[hott] def reversing.acomm {f : M → M} {i : G.carrier}
+      (H : reversing L f) : L.τ i⁻¹ ∘ f ~ f ∘ L.τ i :=
+    begin
+      intro x, apply @injιᵣ M G L _ _ (f x),
+      transitivity, apply τ.lawful,
+      symmetry, transitivity, apply H,
+      transitivity, symmetry, apply inv,
+      apply Id.map, apply τ.lawful
     end
   end gis
 
