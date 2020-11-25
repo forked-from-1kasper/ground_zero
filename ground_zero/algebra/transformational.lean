@@ -264,13 +264,23 @@ namespace ground_zero.algebra
       apply G.one_mul, apply inv_trans
     end
 
-    @[hott] def π.uniq {f : M → M} (H : preserving L f)
+    @[hott] def π.uniq₁ {f : M → M} (H : preserving L f)
       (m : M) : L.π (L.ι m (f m)) (f m) ~ f :=
     begin
       intro n, apply @injιᵣ M G L _ _ (f m),
       transitivity, apply π.lawful,
       transitivity, apply trans,
       symmetry, apply H
+    end
+
+    @[hott] def π.uniq₂ {f : M → M} (H : preserving L f)
+      (m : M) : L.π (L.ι m (f m)) m ~ f :=
+    begin
+      intro n, apply @injιᵣ M G L _ _ m,
+      transitivity, apply π.lawful,
+      symmetry, transitivity,
+      { symmetry, apply L.trans _ (f m) _ },
+      apply Id.map, apply H
     end
   end gis
 
