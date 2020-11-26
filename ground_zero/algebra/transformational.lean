@@ -157,7 +157,7 @@ namespace ground_zero.algebra
 
     @[hott] def τ.biinv (i : G.carrier) : biinv (L.τ i) :=
     begin
-      split; existsi (L.τ (G.inv i));
+      split; existsi L.τ i⁻¹;
       { intro x, transitivity, apply τ.comp,
         transitivity, apply Id.map (λ g, L.τ g x),
         apply group.mul_left_inv <|> apply group.mul_right_inv,
@@ -306,6 +306,36 @@ namespace ground_zero.algebra
       apply τ.lawful L i m, apply π.uniq₂,
       apply τ.abelian_impl_preserving
     end
+
+    @[hott] def π.comp (i j : G.carrier) {m : M} :
+      L.π i m ∘ L.π j m ~ L.π (i * j) m :=
+    begin
+      intro n, apply @injιᵣ M G L _ _ m,
+      transitivity, apply π.lawful,
+      transitivity, apply Id.map (G.φ i), apply π.lawful,
+      symmetry, transitivity, apply π.lawful,
+      apply G.mul_assoc
+    end
+
+    @[hott] def π.id (m : M) : L.π G.e m ~ id :=
+    begin
+      intro n, apply @injιᵣ M G L _ _ m,
+      transitivity, apply π.lawful,
+      apply G.one_mul
+    end
+
+    @[hott] def π.biinv (i : G.carrier) (m : M) : biinv (L.π i m) :=
+    begin
+      split; existsi L.π i⁻¹ m;
+      { intro x, transitivity, apply π.comp,
+        transitivity, apply Id.map (λ g, L.π g m x),
+        apply group.mul_left_inv <|> apply group.mul_right_inv,
+        apply π.id }
+    end
+
+    @[hott] def preserving.biinv {f : M → M}
+      (H : preserving L f) (m : M) : biinv f :=
+    transport biinv (theorems.funext (π.uniq₂ L H m)) (π.biinv L _ m)
 
     @[hott] def ρ (u v : M) : M → M :=
     λ x, (L.fixι (L.ι x u) v).fst
