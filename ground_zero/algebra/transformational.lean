@@ -28,6 +28,9 @@ namespace ground_zero.algebra
   (trans : Π x y z, G.φ (ι x y) (ι y z) = ι x z)
   (full  : Π g x, contr (Σ y, ι x y = g))
 
+  def rga (M : Type u) (G : group) :=
+  Σ (φ : G ⮎ M), regular φ
+
   namespace gis
     variables {M : Type u} {G : group} (L : gis M G)
     include L
@@ -413,6 +416,55 @@ namespace ground_zero.algebra
         intros H a b, transitivity, { symmetry, apply H },
         apply bimap; apply f.forward_right
       end
+    end
+
+    omit L
+    @[hott] def rga.decode (H : hset M) : gis M G → rga M Gᵒᵖ :=
+    λ L, ⟨τ.act L, τ.reg L (λ _ _, H)⟩
+
+    @[hott] def rga.encode : rga M Gᵒᵖ → gis M G :=
+    λ ⟨φ, H⟩, ⟨λ a b, (H a b).point.fst, begin
+      intros x y z, apply (regular.elim φ H).snd x,
+      transitivity, symmetry, apply φ.snd.snd,
+      transitivity, apply Id.map, apply (H x y).point.snd,
+      transitivity, apply (H y z).point.snd,
+      symmetry, apply (H x z).point.snd
+    end, begin
+      intros g x, fapply contr.mk,
+      { existsi φ.fst g x, apply (regular.elim φ H).snd x,
+        apply (H _ _).point.snd },
+      { intro p, induction p with y p, fapply sigma.prod,
+        { transitivity, apply Id.map (λ g, φ.fst g x),
+          exact Id.inv p, apply (H x y).point.snd },
+        { apply G.set } }
+    end⟩
+
+    @[hott] def gis.id (L K : gis M G) : L.ι ~ K.ι → L = K :=
+    begin
+      intro p', induction L with φ₁ p₁ q₁,
+      induction K with φ₂ p₂ q₂,
+      have p := theorems.funext p',
+      change φ₁ = φ₂ at p, induction p,
+      have q : p₁ = p₂ := begin
+        repeat { apply pi_prop, intro },
+        apply G.set
+      end,
+      have r : q₁ = q₂ := begin
+        repeat { apply pi_prop, intro },
+        apply contr_is_prop
+      end,
+      induction q, induction r,
+      reflexivity
+    end
+
+    @[hott] def rga.eqv (H : hset M) : rga M Gᵒᵖ ≃ gis M G := begin
+      existsi rga.encode, split; existsi rga.decode (λ _ _, H),
+      { intro p, induction p with φ q, fapply sigma.prod,
+        { fapply left_action.id, intros a b, apply H,
+          intro x, apply theorems.funext, intro m,
+          reflexivity },
+        { repeat { apply pi_prop, intro }, apply contr_is_prop } },
+      { intro p, apply gis.id, reflexivity }
     end
   end gis
 

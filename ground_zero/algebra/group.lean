@@ -1914,6 +1914,14 @@ namespace group
   Σ (φ : G.carrier → α → α), (Π x, φ G.e x = x) × (Π g h x, φ g (φ h x) = φ (G.φ g h) x)
   infix ` ⮎ `:20 := left_action
 
+  @[hott] def left_action.id {G : group} {α : Type u} (H : hset α)
+    (φ ψ : G ⮎ α) : φ.fst ~ ψ.fst → φ = ψ :=
+  begin
+    intro p, induction φ with φ p₁, induction ψ with ψ p₂,
+    fapply sigma.prod, apply theorems.funext, exact p, apply product_prop;
+    { repeat { apply pi_prop, intro }, apply H }
+  end
+
   @[hott] def right_action (G : group) (α : Type u) :=
   Σ (φ : α → G.carrier → α), (Π x, φ x G.e = x) × (Π g h x, φ (φ x g) h = φ x (G.φ g h))
   infix ` ⮌ `:20 := right_action
