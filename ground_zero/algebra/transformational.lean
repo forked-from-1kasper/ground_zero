@@ -382,6 +382,38 @@ namespace ground_zero.algebra
         preserving L (f ∘ h) :=
       begin intros x y, transitivity, apply F, apply H end
     end
+
+    section
+      variables {f : M ≃ M}
+
+      @[hott] def preserving.inv₁ :
+        preserving L f.forward → preserving L f.left :=
+      begin
+        intros H a b, transitivity, { symmetry, apply H }, apply bimap;
+        { apply qinv.rinv_inv, apply f.forward_right, apply f.left_forward }
+      end
+
+      @[hott] def preserving.inv₂ :
+        preserving L f.forward → preserving L f.right :=
+      begin
+        intros H a b, transitivity, { symmetry, apply H },
+        apply bimap; apply f.forward_right
+      end
+
+      @[hott] def reversing.inv₁ :
+        reversing L f.forward → reversing L f.left :=
+      begin
+        intros H a b, transitivity, { symmetry, apply H }, apply bimap;
+        { apply qinv.rinv_inv, apply f.forward_right, apply f.left_forward }
+      end
+
+      @[hott] def reversing.inv₂ :
+        reversing L f.forward → reversing L f.right :=
+      begin
+        intros H a b, transitivity, { symmetry, apply H },
+        apply bimap; apply f.forward_right
+      end
+    end
   end gis
 
   -- In case of α = {C, C♯, D, D♯, E, F, ...},
