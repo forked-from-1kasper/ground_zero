@@ -249,6 +249,21 @@ namespace ground_zero.algebra
       L.ι a (L.π i a b) = G.φ i (L.ι a b) :=
     (L.fixι (G.φ i (L.ι a b)) a).snd
 
+    @[hott] def τ.mul_right {i : G.carrier} (a b : M) :
+      L.ι a (L.τ i b) = G.φ (L.ι a b) i :=
+    begin
+      transitivity, { symmetry, apply L.trans _ b _ },
+      apply Id.map, apply τ.lawful
+    end
+
+    @[hott] def π.conjugate {i : G.carrier} (a b : M) :
+      L.ι a (L.π i⁻¹ a (L.τ i b)) = conjugate (L.ι a b) i :=
+    begin
+      transitivity, { apply π.lawful },
+      transitivity, { apply Id.map (G.φ i⁻¹), apply τ.mul_right },
+      symmetry, apply G.mul_assoc
+    end
+
     @[hott] def π.preserving {i : G.carrier}
       (x : M) : preserving L (L.π i x) :=
     begin
@@ -347,6 +362,25 @@ namespace ground_zero.algebra
     begin
       transitivity, { symmetry, apply L.trans _ v _ },
       apply Id.map, apply ρ.lawful
+    end
+
+    section
+      variables {f h : M → M}
+      @[hott] def reversing.comp₁ (F : reversing L f) (H : preserving L h) :
+        reversing L (f ∘ h) :=
+      begin intros x y, transitivity, apply F, apply H end
+
+      @[hott] def reversing.comp₂ (F : preserving L f) (H : reversing L h) :
+        reversing L (f ∘ h) :=
+      begin intros x y, transitivity, apply F, apply H end
+
+      @[hott] def reversing.comp₃ (F : reversing L f) (H : reversing L h) :
+        preserving L (f ∘ h) :=
+      begin intros x y, transitivity, apply F, apply H end
+
+      @[hott] def reversing.comp₄ (F : preserving L f) (H : preserving L h) :
+        preserving L (f ∘ h) :=
+      begin intros x y, transitivity, apply F, apply H end
     end
   end gis
 
