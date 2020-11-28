@@ -466,6 +466,10 @@ namespace ground_zero.algebra
         { repeat { apply pi_prop, intro }, apply contr_is_prop } },
       { intro p, apply gis.id, reflexivity }
     end
+
+    @[hott] noncomputable def rga.eqv' (G : group) (H : hset M) : rga M G ≃ gis M G :=
+    @transport group (λ H, rga M H ≃ gis M G) Gᵒᵖ G
+      (Id.inv (iso.ua op.iso)) (rga.eqv (λ _ _, H))
   end gis
 
   -- In case of α = {C, C♯, D, D♯, E, F, ...},
