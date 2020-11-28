@@ -387,15 +387,23 @@ namespace equiv
 
   @[hott] def transport_over_pi {α : Type u} {a b : α} {β : Type v}
     (π : α → β → Type w) (p : a = b) (u : Π (y : β), π a y) :
-    equiv.transport (λ x, Π y, π x y) p u =
-    (λ y, @equiv.transport α (λ x, π x y) a b p (u y)) :=
+    transport (λ x, Π y, π x y) p u =
+    (λ y, @transport α (λ x, π x y) a b p (u y)) :=
   begin induction p, trivial end
 
   @[hott] def transport_over_function {α : Type u} {β : Type v}
     {a : α} {b : β} (f g : α → β) (p : f = g) (q : f a = b) :
-    equiv.transport (λ (f' : α → β), f' a = b) p q =
+    transport (λ (f' : α → β), f' a = b) p q =
     @Id.map (α → β) β g f (λ (f' : α → β), f' a) p⁻¹ ⬝ q :=
   begin induction p, trivial end
+
+  @[hott] def transport_over_operation {α β : Type u} (φ : α → α → α) (p : α = β) :
+    transport (λ α, α → α → α) p φ = λ x y, subst p (φ (subst p⁻¹ x) (subst p⁻¹ y)) :=
+  begin induction p, reflexivity end
+
+  @[hott] def transport_over_morphism {α β : Type u} (φ : α → α) (p : α = β) :
+    transport (λ α, α → α) p φ = λ x, subst p (φ (subst p⁻¹ x)) :=
+  begin induction p, reflexivity end
 
   @[hott] def bimap {α : Type u} {β : Type v} {γ : Type w}
     {a b : α} {a' b' : β} (f : α → β → γ)
@@ -502,6 +510,14 @@ namespace qinv
   @[hott] def to_equiv {α : Type u} {β : Type v} : eqv α β → α ≃ β
   | ⟨f, ⟨g, (G, H)⟩⟩ := ⟨f, (⟨g, H⟩, ⟨g, G⟩)⟩
 end qinv
+
+@[hott] def equiv.forward_left {α : Type u} {β : Type v}
+  (e : α ≃ β) : e.forward ∘ e.left ~ id :=
+begin apply qinv.rinv_inv, apply e.forward_right, apply e.left_forward end
+
+@[hott] def equiv.right_forward {α : Type u} {β : Type v}
+  (e : α ≃ β) : e.right ∘ e.forward ~ id :=
+begin apply qinv.linv_inv, apply e.forward_right, apply e.left_forward end
 
 namespace equiv
   @[hott, symm] def symm {α : Type u} {β : Type v} : α ≃ β → β ≃ α

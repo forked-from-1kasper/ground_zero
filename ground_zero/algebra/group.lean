@@ -284,6 +284,9 @@ namespace group
       @respects_mul G H eqv.forward → G ≅ H :=
     λ ⟨f, eqv⟩ h, ⟨f, (h, eqv)⟩
 
+    @[hott] def iso.to_equiv : G ≅ H → G.carrier ≃ H.carrier :=
+    λ ⟨f, (p, q)⟩, ⟨f, q⟩
+
     @[hott] def iso.of_homo : Π (φ : G ⤳ H), biinv φ.fst → G ≅ H :=
     λ ⟨f, h⟩ eqv, ⟨f, (h, eqv)⟩
 
@@ -697,6 +700,31 @@ namespace group
           transitivity, apply homo_respects_inv,
           apply map, assumption }
       end }
+  end
+
+  @[hott] noncomputable def iso.ua {G H : group} (φ : G ≅ H) : G = H :=
+  begin
+    induction φ with φ p, induction p with p q,
+    fapply group.prod, apply ground_zero.ua,
+    apply iso.to_equiv, exact ⟨φ, (p, q)⟩,
+    { apply Id.trans, apply equiv.transport_over_operation,
+      apply theorems.funext, intro a,
+      apply theorems.funext, intro b,
+      transitivity, apply ua.transport_rule,
+      transitivity, apply p, apply equiv.bimap;
+      { transitivity, apply Id.map,
+        transitivity, apply equiv.subst_over_inv_path,
+        apply ua.transport_inv_rule,
+        apply equiv.forward_left ⟨φ, q⟩ } },
+    { apply Id.trans, apply ua.transport_rule,
+      apply homo_saves_unit ⟨φ, p⟩ },
+    { apply Id.trans, apply equiv.transport_over_morphism,
+      apply theorems.funext, intro x,
+      transitivity, apply ua.transport_rule,
+      transitivity, apply homo_respects_inv ⟨φ, p⟩,
+      apply Id.map, transitivity, apply Id.map,
+      transitivity, apply equiv.subst_over_inv_path,
+      apply ua.transport_inv_rule, apply equiv.forward_left ⟨φ, q⟩ }
   end
 
   @[hott] def factor.lift {H : group} (f : G ⤳ H) {φ : G.subset} [G ⊵ φ]
