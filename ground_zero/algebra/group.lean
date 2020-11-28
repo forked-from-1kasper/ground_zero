@@ -705,7 +705,7 @@ namespace group
   @[hott] noncomputable def iso.ua {G H : group} (φ : G ≅ H) : G = H :=
   begin
     induction φ with φ p, induction p with p q,
-    fapply group.prod, apply ground_zero.ua,
+    fapply group.ext, apply ground_zero.ua,
     apply iso.to_equiv, exact ⟨φ, (p, q)⟩,
     { apply Id.trans, apply equiv.transport_over_operation,
       apply theorems.funext, intro a,

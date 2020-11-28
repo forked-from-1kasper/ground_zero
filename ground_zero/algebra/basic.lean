@@ -58,7 +58,7 @@ namespace ground_zero.algebra
   class abelian (G : group) :=
   (mul_comm : Π a b, G.φ a b = G.φ b a)
 
-  @[hott] def magma.prod (M₁ M₂ : magma) (p : M₁.carrier = M₂.carrier)
+  @[hott] def magma.ext (M₁ M₂ : magma) (p : M₁.carrier = M₂.carrier)
     (q : M₁.φ =[λ M, M → M → M, p] M₂.φ) : M₁ = M₂ :=
   begin
     induction M₁ with M₁ φ₁, induction M₂ with M₂ φ₂,
@@ -68,18 +68,18 @@ namespace ground_zero.algebra
     induction r, apply Id.map, apply q
   end
 
-  @[hott] def semigroup.prod (S₁ S₂ : semigroup) (p : S₁.carrier = S₂.carrier)
+  @[hott] def semigroup.ext (S₁ S₂ : semigroup) (p : S₁.carrier = S₂.carrier)
     (q : S₁.φ =[λ M, M → M → M, p] S₂.φ) : S₁ = S₂ :=
   begin
     induction S₁ with S₁ p₁, induction S₂ with S₂ p₂,
-    have p := magma.prod S₁ S₂ p q, induction p, apply Id.map,
+    have p := magma.ext S₁ S₂ p q, induction p, apply Id.map,
     repeat { apply pi_prop, intro }, apply S₁.set
   end
 
   meta def propauto :=
   `[ repeat { apply pi_prop, intro }, apply p ]
 
-  @[hott] def group.prod (G₁ G₂ : group) (p : G₁.carrier = G₂.carrier)
+  @[hott] def group.ext (G₁ G₂ : group) (p : G₁.carrier = G₂.carrier)
     (q : G₁.φ =[λ G, G → G → G, p] G₂.φ) (r : G₁.e =[λ G, G, p] G₂.e)
     (s : G₁.inv =[λ G, G → G, p] G₂.inv) : G₁ = G₂ :=
   begin
