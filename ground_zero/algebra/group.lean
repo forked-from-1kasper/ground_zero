@@ -165,6 +165,21 @@ namespace group
     ... = x * x⁻¹ : (* x⁻¹) # (G.mul_one x)
     ... = e : by apply mul_right_inv)
 
+  @[hott] def sqr_unit {x : G.carrier} (p : x * x = e) := calc
+      x = x * e         : Id.inv (G.mul_one x)
+    ... = x * (x * x⁻¹) : (G.φ x) # (Id.inv $ mul_right_inv x)
+    ... = (x * x) * x⁻¹ : Id.inv (G.mul_assoc x x x⁻¹)
+    ... = e * x⁻¹       : (* x⁻¹) # p
+    ... = x⁻¹           : G.one_mul x⁻¹
+
+  @[hott] instance sqr_unit_impls_abelian (H : Π x, x * x = e) : abelian G :=
+  begin
+    split, intros x y, have p := λ x, sqr_unit (H x), calc
+      x * y = x⁻¹ * y⁻¹ : equiv.bimap G.φ (p x) (p y)
+        ... = (y * x)⁻¹ : Id.inv (inv_explode y x)
+        ... = y * x     : Id.inv (p _)
+  end
+
   def conjugate (a x : G.carrier) := x⁻¹ * a * x
 
   local infix ^ := @conjugate G
@@ -636,13 +651,13 @@ namespace group
     @[hott] def homo_respects_inv (x : G.carrier) : φ.fst x⁻¹ = H.inv (φ.fst x) :=
     begin
       cases φ with φ p, calc
-        φ x⁻¹ = φ x⁻¹ × H.e             : Id.inv (H.mul_one (φ x⁻¹))
+        φ x⁻¹ = φ x⁻¹ × H.e                 : Id.inv (H.mul_one (φ x⁻¹))
           ... = φ x⁻¹ × (φ x × H.inv (φ x)) : (λ y, φ x⁻¹ × y) # (Id.inv $ mul_right_inv (φ x))
-          ... = φ x⁻¹ × φ x × H.inv (φ x) : Id.inv (H.mul_assoc _ _ _)
-          ... = φ (x⁻¹ * x) × H.inv (φ x) : (× H.inv (φ x)) # (Id.inv $ p x⁻¹ x)
-          ... = φ G.e × H.inv (φ x)       : (λ y, φ y × H.inv (φ x)) # (G.mul_left_inv x)
-          ... = H.e × H.inv (φ x)         : (× H.inv (φ x)) # (homo_saves_unit ⟨φ, p⟩)
-          ... = H.inv (φ x)               : H.one_mul (H.inv $ φ x)
+          ... = φ x⁻¹ × φ x × H.inv (φ x)   : Id.inv (H.mul_assoc _ _ _)
+          ... = φ (x⁻¹ * x) × H.inv (φ x)   : (× H.inv (φ x)) # (Id.inv $ p x⁻¹ x)
+          ... = φ G.e × H.inv (φ x)         : (λ y, φ y × H.inv (φ x)) # (G.mul_left_inv x)
+          ... = H.e × H.inv (φ x)           : (× H.inv (φ x)) # (homo_saves_unit ⟨φ, p⟩)
+          ... = H.inv (φ x)                 : H.one_mul (H.inv $ φ x)
     end
 
     @[hott] def homo_respects_div (x y : G.carrier) :
@@ -702,10 +717,34 @@ namespace group
       end }
   end
 
+  -- Of course, this can be done by induction
+  @[hott] def homo.of_path {G H : group} (φ : G.carrier = H.carrier)
+    (p : G.φ =[λ G, G → G → G, φ] H.φ) : G ⤳ H :=
+  begin
+    fapply sigma.mk, exact @transport _ (λ G, G) G.carrier H.carrier φ,
+    intros a b, transitivity, apply Id.map, apply equiv.bimap,
+    iterate 2 { symmetry, apply @equiv.transport_forward_and_back _ (λ G, G) _ _ φ },
+    transitivity, symmetry, apply equiv.transport_over_operation_pointwise G.φ,
+    iterate 2 { apply HITs.interval.happly }, exact p
+  end
+
+  -- This statement in fact says that two groups are equal
+  -- if their multiplication tables are equal
+  @[hott] def table {G H : group} (φ : G.carrier = H.carrier)
+    (p : G.φ =[λ G, G → G → G, φ] H.φ) : G = H :=
+  begin
+    fapply group.ext, exact φ, exact p,
+    { apply homo_saves_unit (homo.of_path φ p) },
+    { apply theorems.funext, intro x,
+      transitivity, apply equiv.transport_over_morphism_pointwise,
+      transitivity, apply homo_respects_inv (homo.of_path φ p),
+      apply Id.map, apply @equiv.transport_back_and_forward _ (λ G, G) _ _ φ }
+  end
+
   @[hott] noncomputable def iso.ua {G H : group} (φ : G ≅ H) : G = H :=
   begin
     induction φ with φ p, induction p with p q,
-    fapply group.ext, apply ground_zero.ua,
+    fapply group.table, apply ground_zero.ua,
     apply iso.to_equiv, exact ⟨φ, (p, q)⟩,
     { apply Id.trans, apply equiv.transport_over_operation,
       apply theorems.funext, intro a,
@@ -715,16 +754,7 @@ namespace group
       { transitivity, apply Id.map,
         transitivity, apply equiv.subst_over_inv_path,
         apply ua.transport_inv_rule,
-        apply equiv.forward_left ⟨φ, q⟩ } },
-    { apply Id.trans, apply ua.transport_rule,
-      apply homo_saves_unit ⟨φ, p⟩ },
-    { apply Id.trans, apply equiv.transport_over_morphism,
-      apply theorems.funext, intro x,
-      transitivity, apply ua.transport_rule,
-      transitivity, apply homo_respects_inv ⟨φ, p⟩,
-      apply Id.map, transitivity, apply Id.map,
-      transitivity, apply equiv.subst_over_inv_path,
-      apply ua.transport_inv_rule, apply equiv.forward_left ⟨φ, q⟩ }
+        apply equiv.forward_left ⟨φ, q⟩ } }
   end
 
   @[hott] def factor.lift {H : group} (f : G ⤳ H) {φ : G.subset} [G ⊵ φ]
@@ -1728,21 +1758,6 @@ namespace group
     apply structures.prop_equiv_lemma,
     apply homo.set, apply ens.ssubset.prop,
     exact im_impl_ker, exact boundary_of_boundary
-  end
-
-  @[hott] def sqr_unit {x : G.carrier} (p : x * x = e) := calc
-      x = x * e         : Id.inv (G.mul_one x)
-    ... = x * (x * x⁻¹) : (G.φ x) # (Id.inv $ mul_right_inv x)
-    ... = (x * x) * x⁻¹ : Id.inv (G.mul_assoc x x x⁻¹)
-    ... = e * x⁻¹       : (* x⁻¹) # p
-    ... = x⁻¹           : G.one_mul x⁻¹
-
-  @[hott] instance sqr_unit_impls_abelian (H : Π x, x * x = e) : abelian G :=
-  begin
-    split, intros x y, have p := λ x, sqr_unit (H x), calc
-      x * y = x⁻¹ * y⁻¹ : equiv.bimap G.φ (p x) (p y)
-        ... = (y * x)⁻¹ : Id.inv (inv_explode y x)
-        ... = y * x     : Id.inv (p _)
   end
 
   def P.carrier (G : group) := ℕ → G.carrier

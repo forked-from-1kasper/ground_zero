@@ -405,6 +405,14 @@ namespace equiv
     transport (λ α, α → α) p φ = λ x, subst p (φ (subst p⁻¹ x)) :=
   begin induction p, reflexivity end
 
+  @[hott] def transport_over_operation_pointwise {α β : Type u} (φ : α → α → α) (p : α = β)
+    {x y : β} : transport (λ α, α → α → α) p φ x y = subst p (φ (subst p⁻¹ x) (subst p⁻¹ y)) :=
+  begin induction p, reflexivity end
+
+  @[hott] def transport_over_morphism_pointwise {α β : Type u} (φ : α → α) (p : α = β)
+    {x : β} : transport (λ α, α → α) p φ x = subst p (φ (subst p⁻¹ x)) :=
+  begin induction p, reflexivity end
+
   @[hott] def bimap {α : Type u} {β : Type v} {γ : Type w}
     {a b : α} {a' b' : β} (f : α → β → γ)
     (p : a = b) (q : a' = b') : f a a' = f b b' :=
