@@ -505,5 +505,17 @@ namespace ground_zero.algebra
 
     def M.dodecaphonic (xs : M α) (r : (P α).fst) : propset :=
     xs.all (λ x, ⟨x ∈ orbit (tr φ) r, ens.prop x _⟩)
+
+    @[hott] noncomputable def R.dodecaphonic (xs : M α) (r : R φ) : propset :=
+    begin
+      fapply HITs.quotient.rec _ _ _ r,
+      { exact M.dodecaphonic φ xs },
+      { intros x y p, fapply theorems.prop.propset.Id,
+        apply ground_zero.ua, apply equiv_funext,
+        intro z, apply prop_equiv_lemma,
+        repeat { apply ens.prop }, apply orbit.subset, exact p,
+        apply orbit.subset, apply left_action.symm, exact p },
+      { apply theorems.prop.propset_is_set }
+    end
   end
 end ground_zero.algebra

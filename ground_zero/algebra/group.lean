@@ -2002,26 +2002,44 @@ namespace group
     [G ≥ φ] : (G ⮎ α) → (subgroup.group G φ ⮎ α) :=
   λ ⟨φ, (p, q)⟩, ⟨λ ⟨g, G⟩ x, φ g x, (p, λ ⟨g, G⟩ ⟨h, G⟩, q g h)⟩
 
-  @[hott] def left_action.rel {α : Type u} (φ : G ⮎ α) : hrel α :=
-  λ n m, ⟨∥(Σ g, φ.fst g n = m)∥, HITs.merely.uniq⟩
+  @[hott] def left_action.eqv {α : Type u} (φ : G ⮎ α) (n m : α) :=
+  ∥(Σ g, φ.fst g n = m)∥
 
-  @[hott] def left_action.eqrel {α : Type u} (φ : G ⮎ α) : eqrel α :=
-  ⟨left_action.rel φ, (begin
-    intro a, apply HITs.merely.elem,
-    existsi G.e, apply φ.snd.fst
-  end, begin
-    intros a b, apply HITs.merely.lift,
+  @[hott] def left_action.refl {α : Type u} (φ : G ⮎ α) {a : α} : φ.eqv a a :=
+  begin apply HITs.merely.elem, existsi G.e, apply φ.snd.fst end
+
+  @[hott] def left_action.symm {α : Type u} (φ : G ⮎ α)
+    {a b : α} : φ.eqv a b → φ.eqv b a :=
+  begin
+    apply HITs.merely.lift,
     intro p, induction p with g p, existsi G.inv g,
     transitivity, apply Id.map, exact Id.inv p,
     transitivity, apply φ.snd.snd,
     transitivity, apply Id.map (λ g, φ.fst g a),
     apply mul_left_inv, apply φ.snd.fst
-  end, begin
-    intros a b c, apply HITs.merely.lift₂,
-    intros p q, induction p with g p, induction q with h q,
+  end
+
+  @[hott] def left_action.trans {α : Type u} (φ : G ⮎ α)
+    {a b c : α} : φ.eqv a b → φ.eqv b c → φ.eqv a c :=
+  begin
+    apply HITs.merely.lift₂, intros p q,
+    induction p with g p, induction q with h q,
     existsi G.φ h g, transitivity, symmetry, apply φ.snd.snd,
     transitivity, apply Id.map, exact p, exact q
-  end)⟩
+  end
+
+  @[hott] def left_action.rel {α : Type u} (φ : G ⮎ α) : hrel α :=
+  λ n m, ⟨φ.eqv n m, HITs.merely.uniq⟩
+
+  @[hott] def left_action.eqrel {α : Type u} (φ : G ⮎ α) : eqrel α :=
+  ⟨left_action.rel φ, (λ _, φ.refl, λ _ _, φ.symm, λ _ _ _, φ.trans)⟩
+
+  @[hott] def orbit.subset {α : Type u} (φ : G ⮎ α) {a b : α}
+    (p : φ.eqv a b) : orbit φ a ⊆ orbit φ b :=
+  begin
+    intro c, change φ.eqv a c → φ.eqv b c,
+    intro q, apply φ.trans, apply φ.symm p, exact q
+  end
 
   @[hott] def Orbits {α : Type u} (φ : G ⮎ α) :=
   HITs.quotient φ.eqrel
