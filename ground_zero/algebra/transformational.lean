@@ -353,7 +353,8 @@ namespace ground_zero.algebra
 
     @[hott] def preserving.biinv {f : M → M}
       (H : preserving L f) (m : M) : biinv f :=
-    transport biinv (theorems.funext (π.uniq₂ L H m)) (π.biinv L _ m)
+    transport biinv (theorems.funext (π.uniq₂ L H m))
+      (π.biinv L (L.ι m (f m)) m)
 
     @[hott] def ρ (u v : M) : M → M :=
     λ x, (L.fixι (L.ι x u) v).fst
