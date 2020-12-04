@@ -61,6 +61,8 @@ open ground_zero
   * https://encyclopediaofmath.org/wiki/Differential_group
 -/
 
+set_option pp.generalized_field_notation false
+
 namespace ground_zero.algebra
 universes u v u' v' w
 
@@ -1325,7 +1327,7 @@ namespace group
   
     @[hott] def Im (φ : G ⤳ H) : group :=
     subgroup.group H (im φ.fst)
-  
+
     -- First isomorphism theorem.
     @[hott] noncomputable def first_iso_theorem
       {φ : G ⤳ H} : Im φ ≅ G\ker φ :=
@@ -1340,9 +1342,8 @@ namespace group
         { apply HITs.quotient.set } },
       split; existsi ker.encode,
       { intro x, apply (ker.decode_sigma x).snd },
-      { fapply ground_zero.HITs.quotient.ind_prop,
-        { intro x, trivial },
-        { intro x, apply HITs.quotient.set } }
+      { fapply ground_zero.HITs.quotient.ind_prop; intro x,
+        { trivial }, { apply HITs.quotient.set } }
     end
   end
 
