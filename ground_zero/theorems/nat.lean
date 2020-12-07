@@ -140,11 +140,57 @@ namespace nat
   @[hott] def n_plus_n (n : ℕ) : n * 2 = n + n :=
   begin apply Id.map (+ n), apply zero_plus_i end
 
-  def apart : ℕ → ℕ → Type
+  @[hott] def apart : ℕ → ℕ → Type
   |    0       0    := 𝟎
   | (m + 1)    0    := 𝟏
   |    0    (n + 1) := 𝟏
   | (m + 1) (n + 1) := apart m n
+
+  @[hott] def max : ℕ → ℕ → ℕ
+  |    0       0    := 0
+  | (m + 1)    0    := m + 1
+  |    0    (n + 1) := n + 1
+  | (m + 1) (n + 1) := max m n + 1
+
+  @[hott] def max.comm : Π (m n : ℕ), max m n = max n m
+  |    0       0    := idp 0
+  | (m + 1)    0    := idp (m + 1)
+  |    0    (n + 1) := idp (n + 1)
+  | (m + 1) (n + 1) := (+ 1) # (max.comm m n)
+
+  @[hott] def min : ℕ → ℕ → ℕ
+  |    0       0    := 0
+  | (m + 1)    0    := 0
+  |    0    (n + 1) := 0
+  | (m + 1) (n + 1) := min m n + 1
+
+  @[hott] def min.comm : Π (m n : ℕ), min m n = min n m
+  |    0       0    := idp 0
+  | (m + 1)    0    := idp 0
+  |    0    (n + 1) := idp 0
+  | (m + 1) (n + 1) := (+ 1) # (min.comm m n)
+
+  @[hott] def max.refl (n : ℕ) : max n n = n :=
+  begin
+    induction n with n ih,
+    { reflexivity },
+    { apply Id.map (+ 1), assumption }
+  end
+
+  @[hott] def min.refl (n : ℕ) : min n n = n :=
+  begin
+    induction n with n ih,
+    { reflexivity },
+    { apply Id.map (+ 1), assumption }
+  end
+
+  inductive lt (n : ℕ) : ℕ → Type
+  | refl : lt n
+  | step : Π {m}, lt m → lt (m + 1)
+  infix ≤ := lt
+
+  @[hott] def gt (n m : ℕ) : Type := m ≤ n
+  infix ≥ := gt
 end nat
 
 namespace unit_list

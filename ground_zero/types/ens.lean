@@ -26,6 +26,10 @@ def ens.subtype {α : Type u} (s : ens α) := Σ x, s.fst x
 @[hott] def ens.sunion {α : Type u} (φ : ens.{u v} α → Type w) : ens α :=
 ⟨λ x, ∥(Σ (s : ens.{u v} α), x ∈ s × φ s)∥, λ _, HITs.merely.uniq⟩
 
+@[hott] def ens.iunion {α : Type u} {β : Type v} (φ : α → ens β) : ens β :=
+⟨λ x, ∥(Σ y, x ∈ φ y)∥, λ _, HITs.merely.uniq⟩
+prefix `⋃`:110 := ens.iunion
+
 instance {α : Type u} : has_union (ens α) := ⟨ens.union⟩
 
 @[hott] def ens.inter {α : Type u} (a b : ens α) : ens α :=
