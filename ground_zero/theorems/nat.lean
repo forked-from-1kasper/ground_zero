@@ -296,6 +296,12 @@ namespace nat
                                       (sum.inr ∘ Id.map nat.succ)
                                       (le.dec m n)
 
+  @[hott] def le.ne_succ (n : ℕ) : le (n + 1) n → 𝟎 :=
+  begin intro p, induction n with n ih, apply max.ne_zero p, apply ih, exact le.inj _ _ p end
+
+  @[hott] def le.empty (m n : ℕ) : le m n → le (n + 1) m → 𝟎 :=
+  begin intros p q, apply le.ne_succ n, transitivity, exact q, exact p end
+
   @[hott] def le.neq_succ {n m : ℕ} : neq n (m + 1) → le n (m + 1) → le n m :=
   begin
     intros p q, cases le.dec n m with r₁ r₂, assumption,
