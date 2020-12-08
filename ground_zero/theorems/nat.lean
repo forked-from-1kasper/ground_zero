@@ -184,13 +184,63 @@ namespace nat
     { apply Id.map (+ 1), assumption }
   end
 
-  inductive lt (n : ℕ) : ℕ → Type
-  | refl : lt n
-  | step : Π {m}, lt m → lt (m + 1)
+  def lt (n m : ℕ) := max n m = m
   infix ≤ := lt
 
-  @[hott] def gt (n m : ℕ) : Type := m ≤ n
+  def gt (n m : ℕ) : Type := m ≤ n
   infix ≥ := gt
+
+  @[hott] def max.zero_left (n : ℕ) : max 0 n = n :=
+  begin induction n; reflexivity end
+
+  @[hott] def max.zero_right (n : ℕ) : max n 0 = n :=
+  begin induction n; reflexivity end
+
+  @[hott] def max.ne_zero (n : ℕ) : max (n + 1) 0 = 0 → 𝟎 :=
+  begin intro p, apply @ua.succ_neq_zero n, exact p end
+
+  @[hott] def max.zero (n : ℕ) : max n 0 = 0 → n = 0 :=
+  begin
+    intro p, induction n with n ih, reflexivity,
+    apply proto.empty.elim, apply max.ne_zero n,
+    assumption
+  end
+
+  @[hott] def lt.prop (n m : ℕ) : prop (n ≤ m) :=
+  by apply nat_is_set
+
+  @[hott] def max.assoc : Π (n m k : ℕ), max n (max m k) = max (max n m) k
+  |    0       0       0    := idp 0
+  |    0       0    (k + 1) := idp (k + 1)
+  |    0    (m + 1)    0    := idp (m + 1)
+  |    0    (m + 1) (k + 1) := max.zero_left (max m k + 1)
+  | (n + 1)    0       0    := idp (n + 1)
+  | (n + 1)    0    (k + 1) := idp (max n k + 1)
+  | (n + 1) (m + 1)    0    := idp (max n m + 1)
+  | (n + 1) (m + 1) (k + 1) := (+ 1) # (max.assoc n m k)
+
+  @[hott, trans] def lt.trans (n m k : ℕ) : lt n m → lt m k → lt n k :=
+  begin
+    intros p q, change _ = _, transitivity,
+    apply Id.map, exact q⁻¹, transitivity, apply max.assoc,
+    transitivity, apply Id.map (λ p, max p k), exact p, exact q
+  end
+
+  @[hott] def lt.inj (n m : ℕ) : lt (n + 1) (m + 1) → lt n m :=
+  λ p, nat.pred # p
+
+  @[hott] def lt.succ (n : ℕ) : lt n (n + 1) :=
+  begin
+    induction n with n ih, change _ = _, reflexivity,
+    apply Id.map (+ 1), exact ih
+  end
+
+  @[hott] def lt.step (n m : ℕ) : lt n m → lt n (m + 1) :=
+  begin
+    intro p, induction n with n ih,
+    { change _ = _, reflexivity },
+    { transitivity, exact p, apply lt.succ }
+  end
 end nat
 
 namespace unit_list
