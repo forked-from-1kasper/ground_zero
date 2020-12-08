@@ -184,11 +184,11 @@ namespace nat
     { apply Id.map (+ 1), assumption }
   end
 
-  def lt (n m : ℕ) := max n m = m
-  infix ≤ := lt
+  def le (n m : ℕ) := max n m = m
+  infix ≤ := le
 
-  def gt (n m : ℕ) : Type := m ≤ n
-  infix ≥ := gt
+  def ge (n m : ℕ) : Type := m ≤ n
+  infix ≥ := ge
 
   @[hott] def max.zero_left (n : ℕ) : max 0 n = n :=
   begin induction n; reflexivity end
@@ -196,17 +196,23 @@ namespace nat
   @[hott] def max.zero_right (n : ℕ) : max n 0 = n :=
   begin induction n; reflexivity end
 
-  @[hott] def max.ne_zero (n : ℕ) : max (n + 1) 0 = 0 → 𝟎 :=
+  @[hott] def min.zero_left (n : ℕ) : min 0 n = 0 :=
+  begin induction n; reflexivity end
+
+  @[hott] def min.zero_right (n : ℕ) : min n 0 = 0 :=
+  begin induction n; reflexivity end
+
+  @[hott] def max.ne_zero {n : ℕ} : max (n + 1) 0 = 0 → 𝟎 :=
   begin intro p, apply @ua.succ_neq_zero n, exact p end
 
   @[hott] def max.zero (n : ℕ) : max n 0 = 0 → n = 0 :=
   begin
     intro p, induction n with n ih, reflexivity,
-    apply proto.empty.elim, apply max.ne_zero n,
-    assumption
+    apply proto.empty.elim,
+    apply @max.ne_zero n, assumption
   end
 
-  @[hott] def lt.prop (n m : ℕ) : prop (n ≤ m) :=
+  @[hott] def le.prop (n m : ℕ) : prop (n ≤ m) :=
   by apply nat_is_set
 
   @[hott] def max.assoc : Π (n m k : ℕ), max n (max m k) = max (max n m) k
@@ -219,27 +225,95 @@ namespace nat
   | (n + 1) (m + 1)    0    := idp (max n m + 1)
   | (n + 1) (m + 1) (k + 1) := (+ 1) # (max.assoc n m k)
 
-  @[hott, trans] def lt.trans (n m k : ℕ) : lt n m → lt m k → lt n k :=
+  @[hott] def min.assoc : Π (n m k : ℕ), min n (min m k) = min (min n m) k
+  |    0       0       0    := idp 0
+  |    0       0    (k + 1) := idp 0
+  |    0    (m + 1)    0    := idp 0
+  |    0    (m + 1) (k + 1) := min.zero_left (min m k + 1)
+  | (n + 1)    0       0    := idp 0
+  | (n + 1)    0    (k + 1) := idp 0
+  | (n + 1) (m + 1)    0    := idp 0
+  | (n + 1) (m + 1) (k + 1) := (+ 1) # (min.assoc n m k)
+
+  @[hott, trans] def le.trans (n m k : ℕ) : le n m → le m k → le n k :=
   begin
     intros p q, change _ = _, transitivity,
     apply Id.map, exact q⁻¹, transitivity, apply max.assoc,
     transitivity, apply Id.map (λ p, max p k), exact p, exact q
   end
 
-  @[hott] def lt.inj (n m : ℕ) : lt (n + 1) (m + 1) → lt n m :=
+  @[hott] def le.inj (n m : ℕ) : le (n + 1) (m + 1) → le n m :=
   λ p, nat.pred # p
 
-  @[hott] def lt.succ (n : ℕ) : lt n (n + 1) :=
+  @[hott] def le.map (n m : ℕ) : le n m → le (n + 1) (m + 1) :=
+  λ p, (+ 1) # p
+
+  @[hott] def le.succ (n : ℕ) : le n (n + 1) :=
   begin
     induction n with n ih, change _ = _, reflexivity,
     apply Id.map (+ 1), exact ih
   end
 
-  @[hott] def lt.step (n m : ℕ) : lt n m → lt n (m + 1) :=
+  @[hott] def le.step (n m : ℕ) : le n m → le n (m + 1) :=
   begin
     intro p, induction n with n ih,
     { change _ = _, reflexivity },
-    { transitivity, exact p, apply lt.succ }
+    { transitivity, exact p, apply le.succ }
+  end
+
+  @[hott] def min_max : Π (m n : ℕ), max m n = n → min m n = m
+  |    0       0    := λ p, idp 0
+  | (m + 1)    0    := λ p, proto.empty.elim (max.ne_zero p)
+  |    0    (n + 1) := λ p, idp 0
+  | (m + 1) (n + 1) := λ p, (+ 1) # (min_max m n (nat.pred # p))
+
+  @[hott] def le.max (n m : ℕ) : le n (max n m) :=
+  begin
+    change _ = _, transitivity, apply max.assoc,
+    apply Id.map (λ p, max p m), apply max.refl
+  end
+
+  @[hott] def le.max_rev (n m : ℕ) : le n (max m n) :=
+  equiv.transport (le n) (max.comm n m) (le.max n m)
+
+  @[hott] def le.min : Π (n m : ℕ), le (min n m) m
+  |    0       0    := idp 0
+  | (n + 1)    0    := idp 0
+  |    0    (m + 1) := idp (m + 1)
+  | (n + 1) (m + 1) := (+ 1) # (le.min n m)
+
+  @[hott] def le.min_rev (n m : ℕ) : le (min m n) m :=
+  @equiv.transport ℕ (λ n, le n m) (min n m) (min m n) (min.comm n m) (le.min n m)
+
+  @[hott] def le.asymm {n m : ℕ} : le n m → le m n → n = m :=
+  begin intros p q, transitivity, exact q⁻¹, transitivity, apply max.comm, exact p end
+
+  @[hott] def le.dec : Π (m n : ℕ), le m n + le (n + 1) m
+  |    0       0    := sum.inl (idp 0)
+  | (m + 1)    0    := sum.inr (nat.succ # (max.zero_left m))
+  |    0    (n + 1) := sum.inl (idp (n + 1))
+  | (m + 1) (n + 1) := coproduct.elim (sum.inl ∘ Id.map nat.succ)
+                                      (sum.inr ∘ Id.map nat.succ)
+                                      (le.dec m n)
+
+  @[hott] def le.neq_succ {n m : ℕ} : neq n (m + 1) → le n (m + 1) → le n m :=
+  begin
+    intros p q, cases le.dec n m with r₁ r₂, assumption,
+    apply proto.empty.elim, apply p, apply le.asymm; assumption
+  end
+
+  @[hott] def le.elim (ρ : ℕ → ℕ → Type u)
+    (τ : Π n m k, ρ n m → ρ m k → ρ n k)
+    (reflρ : Π n, ρ n n) (succρ : Π n, ρ n (n + 1))
+    {n m : ℕ} : le n m → ρ n m :=
+  begin
+    intro p, induction m with m ih,
+    { apply equiv.transport (λ n, ρ n 0), symmetry,
+      apply max.zero, exact p, apply reflρ },
+    { cases nat_dec_eq n (m + 1) with q₁ q₂,
+      { apply equiv.transport (ρ n), exact q₁, apply reflρ },
+      { apply τ n m, apply ih, apply le.neq_succ, exact q₂,
+        exact p, apply succρ } }
   end
 end nat
 

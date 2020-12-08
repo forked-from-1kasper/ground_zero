@@ -2092,6 +2092,23 @@ namespace group
     { intro x, induction x,
       apply regular.mk; assumption }
   end
+
+  open ground_zero.theorems
+  @[hott] def union (φ : ℕ → G.subset) (p : Π i, φ i ⊆ φ (i + 1))
+    (H : Π i, G ≥ φ i) : G ≥ ⋃φ :=
+  begin
+    split, { apply HITs.merely.elem, existsi 0, apply (H 0).unit },
+    { intros a b, apply HITs.merely.lift₂,
+      intros r s, induction r with n r, induction s with m s,
+      let ε := @nat.le.elim (λ n m, φ n ⊆ φ m)
+        (λ n m k, ens.ssubset.trans) (λ n, ens.ssubset.refl (φ n)) p,
+      existsi nat.max n m, apply (H (nat.max n m)).mul,
+      apply ε, apply nat.le.max, assumption,
+      apply ε, apply nat.le.max_rev, assumption },
+    { intro a, apply HITs.merely.lift, intro r,
+      induction r with n r, existsi n, apply (H n).inv,
+      assumption }
+  end
 end group
 
 def diff := Σ (G : group) [abelian G] (δ : G ⤳ G), δ ⋅ δ = 0
