@@ -38,6 +38,13 @@ namespace category
   (K f → K g → K (g ∘ f)) ×
   (K (g ∘ f) → K g → K f) ×
   (K f → K (g ∘ f) → K g)
+
+  @[hott] def is_product (a b c : α) :=
+  Σ (π₁ : hom 𝒞 c a) (π₂ : hom 𝒞 c b),
+    Π (x : α) (f₁ : hom 𝒞 x a) (f₂ : hom 𝒞 x b),
+      contr (Σ (f : hom 𝒞 x c), π₁ ∘ f = f₁ × π₂ ∘ f = f₂)
+
+  @[hott] def Product (a b : α) := Σ c, is_product 𝒞 a b c
 end category
 
 end ground_zero.types
