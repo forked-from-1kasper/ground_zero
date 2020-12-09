@@ -1,4 +1,4 @@
-import ground_zero.types.precatergory
+import ground_zero.types.precategory
 open ground_zero.structures
 
 namespace ground_zero.types

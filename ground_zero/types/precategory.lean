@@ -70,18 +70,6 @@ namespace precategory
     id_right := λ a b p, (Id.refl_left p)⁻¹,
     id_left  := λ a b p, (Id.refl_right p)⁻¹,
     assoc    := λ a b c d f g h, (Id.assoc f g h)⁻¹ }
-
-  def sigma_unique {α : Type u} (π : α → Type v) :=
-  Σ x, (π x) × (Π y, π y → y = x)
-  notation `Σ!` binders `, ` r:(scoped P, sigma_unique P) := r
-
-  structure product {α : Type u} (𝒞 : precategory α) (X₁ X₂ : α) :=
-  (X : α) (π₁ : hom 𝒞 X X₁) (π₂ : hom 𝒞 X X₂)
-  (canonicity : Π (Y : α) (f₁ : hom 𝒞 Y X₁) (f₂ : hom 𝒞 Y X₂),
-    Σ! (f : hom 𝒞 Y X), π₁ ∘ f = f₁ × π₂ ∘ f = f₂)
-
-  def coproduct {α : Type u} (𝒞 : precategory α) (X₁ X₂ : α) :=
-  product (op 𝒞) X₁ X₂
 end precategory
 
 end ground_zero.types
