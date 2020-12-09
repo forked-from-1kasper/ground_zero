@@ -27,6 +27,23 @@ namespace category
     h ∘ (g ∘ f) = (h ∘ g) ∘ f :=
   𝒞.fst.assoc
 
+  def iso (a b : α) := precategory.iso 𝒞.fst a b
+
+  @[hott] def idtoiso {a b : α} : a = b → iso 𝒞 a b :=
+  precategory.idtoiso 𝒞.fst
+
+  @[hott] def univalence {a b : α} : (a = b) ≃ (iso 𝒞 a b) :=
+  ⟨idtoiso 𝒞, 𝒞.snd a b⟩
+
+  @[hott] def ua {a b : α} : iso 𝒞 a b → a = b :=
+  (univalence 𝒞).left
+
+  @[hott] def uaβrule₁ {a b : α} (φ : iso 𝒞 a b) : idtoiso 𝒞 (ua 𝒞 φ) = φ :=
+  (univalence 𝒞).forward_left φ
+
+  @[hott] def uaβrule₂ {a b : α} (φ : a = b) : ua 𝒞 (idtoiso 𝒞 φ) = φ :=
+  (univalence 𝒞).left_forward φ
+
   def Mor {α : Type u} (𝒞 : category α) := Σ (x y : α), hom 𝒞 x y
 
   instance {α : Type u} (𝒞 : category α) {x y : α} :
@@ -40,9 +57,9 @@ namespace category
   (K f → K (g ∘ f) → K g)
 
   @[hott] def is_product (a b c : α) :=
-  Σ (π₁ : hom 𝒞 c a) (π₂ : hom 𝒞 c b),
+  Σ (π : hom 𝒞 c a × hom 𝒞 c b),
     Π (x : α) (f₁ : hom 𝒞 x a) (f₂ : hom 𝒞 x b),
-      contr (Σ (f : hom 𝒞 x c), π₁ ∘ f = f₁ × π₂ ∘ f = f₂)
+      contr (Σ (f : hom 𝒞 x c), π.fst ∘ f = f₁ × π.snd ∘ f = f₂)
 
   @[hott] def Product (a b : α) := Σ c, is_product 𝒞 a b c
 end category
