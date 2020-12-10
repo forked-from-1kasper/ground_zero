@@ -2109,6 +2109,22 @@ namespace group
       induction r with n r, existsi n, apply (H n).inv,
       assumption }
   end
+
+  @[hott] def distinct_normal_subgroups {φ ψ : G.subset}
+    (H : Π x, x ∈ φ → x ∈ ψ → x = e) [G ⊵ φ] [G ⊵ ψ] :
+    Π g h, g ∈ φ → h ∈ ψ → g * h = h * g :=
+  begin
+    intros g h p q, apply commutes, apply H,
+    { apply transport (∈ φ), symmetry, apply G.mul_assoc,
+      apply is_subgroup.mul, exact p,
+      apply transport (∈ φ), apply G.mul_assoc,
+      apply conjugate_eqv, apply is_normal_subgroup.conj,
+      apply is_subgroup.inv, exact p },
+    { apply transport (∈ ψ), apply G.mul_assoc,
+      apply is_subgroup.mul, apply conjugate_eqv,
+      apply is_normal_subgroup.conj, exact q,
+      apply is_subgroup.inv, exact q }
+  end
 end group
 
 def diff := Σ (G : group) [abelian G] (δ : G ⤳ G), δ ⋅ δ = 0
