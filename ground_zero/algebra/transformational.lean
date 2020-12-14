@@ -8,7 +8,7 @@ open ground_zero
 
 hott theory
 
-universes u v
+universes u v w
 
 namespace ground_zero.algebra
   /- Generalized Musical Intervals and Transformations
@@ -32,6 +32,37 @@ namespace ground_zero.algebra
   Σ (φ : G ⮎ M), regular φ
 
   namespace gis
+    section
+      variables {M : Type u} {N : Type v} {G : group}
+      variables (L : gis M G) (K : gis N G)
+      variable (f : M → N)
+
+      def preserving := Π x y, K.ι (f x) (f y) = L.ι x y
+      def reversing  := Π x y, K.ι (f x) (f y) = L.ι y x
+    end
+
+    section
+      variables {α : Type u} {β : Type v} {γ : Type w} {G : group}
+      variables (L : gis α G) (K : gis β G) (N : gis γ G)
+      variables {f : β → γ} {h : α → β}
+
+      @[hott] def reversing.comp₁ (F : reversing K N f) (H : preserving L K h) :
+        reversing L N (f ∘ h) :=
+      begin intros x y, transitivity, apply F, apply H end
+
+      @[hott] def reversing.comp₂ (F : preserving K N f) (H : reversing L K h) :
+        reversing L N (f ∘ h) :=
+      begin intros x y, transitivity, apply F, apply H end
+
+      @[hott] def reversing.comp₃ (F : reversing K N f) (H : reversing L K h) :
+        preserving L N (f ∘ h) :=
+      begin intros x y, transitivity, apply F, apply H end
+
+      @[hott] def reversing.comp₄ (F : preserving K N f) (H : preserving L K h) :
+        preserving L N (f ∘ h) :=
+      begin intros x y, transitivity, apply F, apply H end
+    end
+
     variables {M : Type u} {G : group} (L : gis M G)
     include L
 
@@ -187,14 +218,8 @@ namespace ground_zero.algebra
         { apply H } }
     end
 
-    @[hott] def preserving (f : M → M) :=
-    Π x y, L.ι (f x) (f y) = L.ι x y
-
-    @[hott] def reversing (f : M → M) :=
-    Π x y, L.ι (f x) (f y) = L.ι y x
-
     @[hott] def preserving.comm {f : M → M} {i : G.carrier}
-      (H : preserving L f) : L.τ i ∘ f ~ f ∘ L.τ i :=
+      (H : preserving L L f) : L.τ i ∘ f ~ f ∘ L.τ i :=
     begin
       intro x, apply @injιᵣ M G L _ _ (f x),
       transitivity, apply τ.lawful,
@@ -203,7 +228,7 @@ namespace ground_zero.algebra
     end
 
     @[hott] def preserving.abelian (m : M)
-      (H : Π i, preserving L (L.τ i)) : abelian G :=
+      (H : Π i, preserving L L (L.τ i)) : abelian G :=
     begin
       split, intros i j, apply τ.inj L m,
       transitivity, { symmetry, apply τ.comp },
@@ -211,11 +236,11 @@ namespace ground_zero.algebra
       apply preserving.comm, apply H
     end
 
-    @[hott] def preserving.id : preserving L id :=
+    @[hott] def preserving.id : preserving L L id :=
     λ x y, idp (L.ι x y)
 
     @[hott] def reversing.acomm {f : M → M} {i : G.carrier}
-      (H : reversing L f) : L.τ i⁻¹ ∘ f ~ f ∘ L.τ i :=
+      (H : reversing L L f) : L.τ i⁻¹ ∘ f ~ f ∘ L.τ i :=
     begin
       intro x, apply @injιᵣ M G L _ _ (f x),
       transitivity, apply τ.lawful,
@@ -225,14 +250,14 @@ namespace ground_zero.algebra
     end
 
     @[hott] def reversing.acommᵣ {f : M → M} {i : G.carrier}
-      (H : reversing L f) : L.τ i ∘ f ~ f ∘ L.τ i⁻¹ :=
+      (H : reversing L L f) : L.τ i ∘ f ~ f ∘ L.τ i⁻¹ :=
     begin
       apply transport (λ j, L.τ j ∘ f ~ f ∘ L.τ i⁻¹),
       apply inv_inv, apply reversing.acomm L H
     end
 
     @[hott] def reversing.unit_sqr (m : M)
-      (H : Π i, reversing L (L.τ i)) : Π i, i * i = G.e :=
+      (H : Π i, reversing L L (L.τ i)) : Π i, i * i = G.e :=
     begin
       intros i, apply τ.inj L m,
       transitivity, { symmetry, apply τ.comp },
@@ -242,7 +267,7 @@ namespace ground_zero.algebra
     end
 
     @[hott] def reversing.abelian (m : M)
-      (H : Π i, reversing L (L.τ i)) : abelian G :=
+      (H : Π i, reversing L L (L.τ i)) : abelian G :=
     group.sqr_unit_impls_abelian (reversing.unit_sqr L m H)
 
     @[hott] def π (i : G.carrier) (a b : M) : M :=
@@ -268,7 +293,7 @@ namespace ground_zero.algebra
     end
 
     @[hott] def π.preserving {i : G.carrier}
-      (x : M) : preserving L (L.π i x) :=
+      (x : M) : preserving L L (L.π i x) :=
     begin
       intros a b, transitivity, { symmetry, apply L.trans _ x },
       transitivity, apply Id.map, apply π.lawful,
@@ -282,7 +307,7 @@ namespace ground_zero.algebra
       apply G.one_mul, apply inv_trans
     end
 
-    @[hott] def π.uniq₁ {f : M → M} (H : preserving L f)
+    @[hott] def π.uniq₁ {f : M → M} (H : preserving L L f)
       (m : M) : L.π (L.ι m (f m)) (f m) ~ f :=
     begin
       intro n, apply @injιᵣ M G L _ _ (f m),
@@ -291,7 +316,7 @@ namespace ground_zero.algebra
       symmetry, apply H
     end
 
-    @[hott] def π.uniq₂ {f : M → M} (H : preserving L f)
+    @[hott] def π.uniq₂ {f : M → M} (H : preserving L L f)
       (m : M) : L.π (L.ι m (f m)) m ~ f :=
     begin
       intro n, apply @injιᵣ M G L _ _ m,
@@ -302,7 +327,7 @@ namespace ground_zero.algebra
     end
 
     @[hott] def τ.abelian_impl_preserving [abelian G] :
-      Π i, preserving L (L.τ i) :=
+      Π i, preserving L L (L.τ i) :=
     begin
       intros i a b,
       transitivity, { symmetry, apply L.trans _ a },
@@ -352,7 +377,7 @@ namespace ground_zero.algebra
     end
 
     @[hott] def preserving.biinv {f : M → M}
-      (H : preserving L f) (m : M) : biinv f :=
+      (H : preserving L L f) (m : M) : biinv f :=
     transport biinv (theorems.funext (π.uniq₂ L H m))
       (π.biinv L (L.ι m (f m)) m)
 
@@ -369,50 +394,33 @@ namespace ground_zero.algebra
     end
 
     section
-      variables {f h : M → M}
-      @[hott] def reversing.comp₁ (F : reversing L f) (H : preserving L h) :
-        reversing L (f ∘ h) :=
-      begin intros x y, transitivity, apply F, apply H end
-
-      @[hott] def reversing.comp₂ (F : preserving L f) (H : reversing L h) :
-        reversing L (f ∘ h) :=
-      begin intros x y, transitivity, apply F, apply H end
-
-      @[hott] def reversing.comp₃ (F : reversing L f) (H : reversing L h) :
-        preserving L (f ∘ h) :=
-      begin intros x y, transitivity, apply F, apply H end
-
-      @[hott] def reversing.comp₄ (F : preserving L f) (H : preserving L h) :
-        preserving L (f ∘ h) :=
-      begin intros x y, transitivity, apply F, apply H end
-    end
-
-    section
-      variables {f : M ≃ M}
+      variables {α : Type u} {β : Type v} {H : group}
+      variables (N : gis α H) (K : gis β H)
+      variables {f : α ≃ β}
 
       @[hott] def preserving.inv₁ :
-        preserving L f.forward → preserving L f.left :=
+        preserving N K f.forward → preserving K N f.left :=
       begin
-        intros H a b, transitivity, { symmetry, apply H }, apply bimap;
-        { apply qinv.rinv_inv, apply f.forward_right, apply f.left_forward }
+        intros H a b, transitivity, { symmetry, apply H },
+        apply bimap; apply f.forward_left
       end
 
       @[hott] def preserving.inv₂ :
-        preserving L f.forward → preserving L f.right :=
+        preserving N K f.forward → preserving K N f.right :=
       begin
         intros H a b, transitivity, { symmetry, apply H },
         apply bimap; apply f.forward_right
       end
 
       @[hott] def reversing.inv₁ :
-        reversing L f.forward → reversing L f.left :=
+        reversing N K f.forward → reversing K N f.left :=
       begin
-        intros H a b, transitivity, { symmetry, apply H }, apply bimap;
-        { apply qinv.rinv_inv, apply f.forward_right, apply f.left_forward }
+        intros H a b, transitivity, { symmetry, apply H },
+        apply bimap; apply f.forward_left
       end
 
       @[hott] def reversing.inv₂ :
-        reversing L f.forward → reversing L f.right :=
+        reversing N K f.forward → reversing K N f.right :=
       begin
         intros H a b, transitivity, { symmetry, apply H },
         apply bimap; apply f.forward_right
