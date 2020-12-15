@@ -2125,6 +2125,31 @@ namespace group
       apply is_normal_subgroup.conj, exact q,
       apply is_subgroup.inv, exact q }
   end
+
+  def absolutizer (G : group) :=
+  Σ (φ : G.carrier → G.carrier), (φ ∘ φ ~ φ) × (φ ∘ G.inv ~ φ)
+
+  section
+    variables (φ : absolutizer G)
+
+    def absolutizer.ap := φ.fst
+
+    def absolutizer.idem : φ.ap ∘ φ.ap ~ φ.ap  := φ.snd.fst
+    def absolutizer.even : φ.ap ∘ G.inv ~ φ.ap := φ.snd.snd
+
+    @[hott] def absolutizer.inv : absolutizer G :=
+    ⟨G.inv ∘ φ.ap, begin
+      split; intro x; apply Id.map G.inv,
+      { transitivity, apply φ.even, apply φ.idem },
+      { apply φ.even }
+    end⟩
+
+    @[hott] def absolutizer.comp₁ : φ.ap ∘ φ.inv.ap ~ φ.ap :=
+    begin intro x, transitivity, apply φ.even, apply φ.idem end
+
+    @[hott] def absolutizer.comp₂ : φ.inv.ap ∘ φ.ap ~ φ.inv.ap :=
+    begin intro x, apply Id.map G.inv, apply φ.idem end
+  end
 end group
 
 def diff := Σ (G : group) [abelian G] (δ : G ⤳ G), δ ⋅ δ = 0
