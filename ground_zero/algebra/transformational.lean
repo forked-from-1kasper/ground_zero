@@ -72,6 +72,9 @@ namespace ground_zero.algebra
     @[hott] def neut : Π x, L.ι x x = G.e :=
     begin intro x, apply group.unit_of_sqr, apply L.trans end
 
+    @[hott] def neut₂ (x y : M) : L.ι x x = L.ι y y :=
+    neut L x ⬝ Id.inv (neut L y)
+
     @[hott] def inv : Π x y, (L.ι x y)⁻¹ = L.ι y x :=
     begin
       intros x y, apply group.inv_eq_of_mul_eq_one,
@@ -90,12 +93,9 @@ namespace ground_zero.algebra
     @[hott] def fixι : Π g x, Σ y, L.ι x y = g :=
     λ g x, (L.full g x).point
 
-    @[hott] def zero {x y : M} : L.ι x y = G.e → x = y :=
-    begin
-      intro p, symmetry,
-      have m := L.propι (L.ι x y) x ⟨y, Id.refl⟩ ⟨x, L.neut x ⬝ Id.inv p⟩,
-      apply Id.map sigma.fst m
-    end
+    @[hott] def zero {x y : M} (p : L.ι x y = G.e) : x = y :=
+    let q := L.propι (L.ι x y) x ⟨y, Id.refl⟩ ⟨x, L.neut x ⬝ Id.inv p⟩ in
+    Id.map sigma.fst (Id.inv q)
 
     @[hott] def injιᵣ {x y z : M} : L.ι z x = L.ι z y → x = y :=
     begin
@@ -150,7 +150,7 @@ namespace ground_zero.algebra
     notation L × K := prod L K
 
     @[hott] def octave.hrel (φ : G.subset) : hrel M :=
-    λ a b, ⟨L.ι a b ∈ φ, ens.prop _ φ⟩
+    λ a b, ⟨L.ι a b ∈ φ, ens.prop (L.ι a b) φ⟩
 
     include L
     @[hott] def octave (φ : G.subset) [G ≥ φ] : eqrel M :=
@@ -393,6 +393,24 @@ namespace ground_zero.algebra
       apply Id.map, apply ρ.lawful
     end
 
+    @[hott] def ρ.inv (u v : M) : ρ L u v ∘ ρ L v u ~ id :=
+    begin
+      intro m, apply @injιᵣ M G L _ _ m,
+      transitivity, apply ρ.ι,
+      transitivity, apply Id.map (G.φ (L.ι m v)),
+      transitivity, symmetry, apply inv,
+      transitivity, apply Id.map, apply ρ.ι,
+      apply group.inv_explode,
+      transitivity, symmetry, apply G.mul_assoc,
+      transitivity, apply Id.map (* (L.ι u u)⁻¹),
+      apply group.mul_right_inv,
+      transitivity, apply G.one_mul,
+      transitivity, apply inv, apply neut₂
+    end
+
+    @[hott] def ρ.biinv (u v : M) : biinv (ρ L u v) :=
+    begin split; existsi ρ L v u; apply ρ.inv end
+
     section
       variables {α : Type u} {β : Type v} {H : group}
       variables (N : gis α H) (K : gis β H)
@@ -479,6 +497,29 @@ namespace ground_zero.algebra
     @[hott] noncomputable def rga.eqv' (G : group) (H : hset M) : rga M G ≃ gis M G :=
     @transport group (λ H, rga M H ≃ gis M G) Gᵒᵖ G
       (Id.inv (iso.ua op.iso)) (rga.eqv (λ _ _, H))
+
+    @[hott] def reversing.ι (f : M → M) (H : reversing L L f) :
+      Π a b, L.ι a (f b) = L.ι a (f a) * (L.ι a b)⁻¹ :=
+    begin
+      intros a b, transitivity, symmetry, apply L.trans a (f a),
+      apply Id.map (G.φ (L.ι a (f a))), transitivity,
+      apply H, symmetry, apply inv
+    end
+
+    @[hott] def reversing.desc (f : M → M) (H : reversing L L f)
+      (m : M) : ρ L m (f m) ~ f :=
+    begin
+      intro n, apply @injιᵣ M G L _ _ n,
+      transitivity, apply ρ.ι,
+      transitivity, apply Id.map (* L.ι n m),
+      apply reversing.ι L f H,
+      symmetry, apply group.cancel_left
+    end
+
+    @[hott] def reversing.biinv {f : M → M}
+      (H : reversing L L f) (m : M) : biinv f :=
+    transport biinv (theorems.funext (reversing.desc L f H m))
+      (ρ.biinv L m (f m))
   end gis
 
   -- In case of α = {C, C♯, D, D♯, E, F, ...},
