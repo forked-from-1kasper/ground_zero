@@ -2127,7 +2127,8 @@ namespace group
   end
 
   def absolutizer (G : group) :=
-  Σ (φ : G.carrier → G.carrier), (φ ∘ φ ~ φ) × (φ ∘ G.inv ~ φ)
+  Σ (φ : G.carrier → G.carrier), (φ ∘ φ ~ φ) × (φ ∘ G.inv ~ φ) ×
+    (Π a b, φ (G.φ a (G.inv b)) = G.e ↔ a = b)
 
   section
     variables (φ : absolutizer G)
@@ -2135,14 +2136,32 @@ namespace group
     def absolutizer.ap := φ.fst
 
     def absolutizer.idem : φ.ap ∘ φ.ap ~ φ.ap  := φ.snd.fst
-    def absolutizer.even : φ.ap ∘ G.inv ~ φ.ap := φ.snd.snd
+    def absolutizer.even : φ.ap ∘ G.inv ~ φ.ap := φ.snd.snd.fst
+    def absolutizer.indis {a b : G.carrier} :
+      φ.ap (a / b) = e ↔ a = b :=
+    φ.snd.snd.snd a b
 
     @[hott] def absolutizer.inv : absolutizer G :=
-    ⟨G.inv ∘ φ.ap, begin
-      split; intro x; apply Id.map G.inv,
-      { transitivity, apply φ.even, apply φ.idem },
-      { apply φ.even }
+    ⟨G.inv ∘ φ.ap, begin split,
+      { intro x, apply Id.map G.inv, transitivity,
+        apply φ.even, apply φ.idem }, split,
+      { intro x, apply Id.map G.inv, apply φ.even },
+      { intros a b, split,
+        { intro p, apply φ.indis.left,
+          apply inv_inj, transitivity,
+          exact p, apply unit_inv },
+        { intro p, transitivity, apply Id.map G.inv,
+          apply φ.indis.right, exact p,
+          symmetry, apply unit_inv } }
     end⟩
+
+    @[hott] def absolutizer.unit : φ.ap e = e :=
+    begin
+      transitivity, apply Id.map φ.ap,
+      transitivity, apply unit_sqr,
+      apply Id.map (G.φ e), apply unit_inv,
+      apply φ.indis.right, reflexivity
+    end
 
     @[hott] def absolutizer.comp₁ : φ.ap ∘ φ.inv.ap ~ φ.ap :=
     begin intro x, transitivity, apply φ.even, apply φ.idem end
