@@ -2126,42 +2126,47 @@ namespace group
       apply is_subgroup.inv, exact q }
   end
 
-  def absolutizer (G : group) :=
-  Σ (φ : G.carrier → G.carrier), (φ ∘ φ ~ φ) × (φ ∘ G.inv ~ φ) ×
-    (Π a b, φ (G.φ a (G.inv b)) = G.e ↔ a = b)
-
-  section
-    variables (φ : absolutizer G)
-
-    def absolutizer.ap := φ.fst
-
-    def absolutizer.idem : φ.ap ∘ φ.ap ~ φ.ap  := φ.snd.fst
-    def absolutizer.even : φ.ap ∘ G.inv ~ φ.ap := φ.snd.snd.fst
-    def absolutizer.indis {a b : G.carrier} :
-      φ.ap (a / b) = e ↔ a = b :=
-    φ.snd.snd.snd a b
-
-    @[hott] def absolutizer.inv : absolutizer G :=
-    ⟨G.inv ∘ φ.ap, begin split,
-      { intro x, apply Id.map G.inv, transitivity,
-        apply φ.even, apply φ.idem }, split,
-      { intro x, apply Id.map G.inv, apply φ.even },
-      { intros a b, split,
-        { intro p, apply φ.indis.left,
-          apply inv_inj, transitivity,
-          exact p, apply unit_inv },
-        { intro p, transitivity, apply Id.map G.inv,
-          apply φ.indis.right, exact p,
-          symmetry, apply unit_inv } }
+  @[hott] def «Sosnitsky construction» (G : group) :=
+  @HITs.quotient G.carrier
+    ⟨λ g h, ⟨∥(g = h) + (g = G.inv h)∥, HITs.merely.uniq⟩, begin
+      split, intro a, apply HITs.merely.elem, left, reflexivity, split,
+      { intros a b, apply HITs.merely.lift, intro p,
+        induction p with u v, left, exact Id.inv u,
+        right, transitivity, symmetry, apply inv_inv,
+        apply Id.map, exact Id.inv v },
+      { intros a b c, apply HITs.merely.lift₂, intros p q,
+        induction p with p₁ p₂; induction q with q₁ q₂,
+        { left, exact Id.trans p₁ q₁ },
+        { right, exact Id.trans p₁ q₂ },
+        { right, transitivity, exact p₂,
+          apply Id.map, exact q₁ },
+        { left, transitivity, exact p₂, transitivity,
+          apply Id.map, exact q₂, apply inv_inv } }
     end⟩
 
-    @[hott] def absolutizer.unit : φ.ap e = e :=
+  notation `⌈` G `⌉` := «Sosnitsky construction» G
+
+  def absolutizer (G : group.{u}) :=
+  Σ (φ : ⌈G⌉ → G.carrier), φ ∘ HITs.quotient.elem ∘ φ ~ φ
+
+  section
+    variable (φ : absolutizer G)
+    def absolutizer.ap := φ.fst ∘ HITs.quotient.elem
+
+    @[hott] def absolutizer.idem : φ.ap ∘ φ.ap ~ φ.ap :=
+    λ x, φ.snd (HITs.quotient.elem x)
+
+    @[hott] def absolutizer.even : φ.ap ∘ G.inv ~ φ.ap :=
     begin
-      transitivity, apply Id.map φ.ap,
-      transitivity, apply unit_sqr,
-      apply Id.map (G.φ e), apply unit_inv,
-      apply φ.indis.right, reflexivity
+      intro x, apply Id.map φ.fst, apply HITs.quotient.sound,
+      apply HITs.merely.elem, right, reflexivity
     end
+
+    @[hott] def absolutizer.inv : absolutizer G :=
+    ⟨G.inv ∘ φ.fst, begin
+      intro x, apply Id.map G.inv,
+      transitivity, apply φ.even, apply φ.snd
+    end⟩
 
     @[hott] def absolutizer.comp₁ : φ.ap ∘ φ.inv.ap ~ φ.ap :=
     begin intro x, transitivity, apply φ.even, apply φ.idem end
