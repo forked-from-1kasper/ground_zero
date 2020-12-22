@@ -2059,33 +2059,38 @@ namespace group
   | comp : β → marked → marked
 
   section
-    private structure fra.aux (α : Type u) (G : group) :=
+    private structure fga.aux (α : Type u) (G : group) :=
     (val : marked α G.carrier)
 
-    def fra (α : Type u) (G : group) := fra.aux α G
+    def fga (α : Type u) (G : group) := fga.aux α G
   end
 
-  namespace fra
+  namespace fga
     variables {α : Type u}
-    attribute [nothott] fra.aux.rec_on fra.aux.rec aux.val
+    attribute [nothott] fga.aux.rec_on fga.aux.rec aux.val
 
-    @[hott] def elem : α → fra α G := aux.mk ∘ marked.elem
-    @[safe] def φ (g : G.carrier) (x : fra α G) :=
+    @[hott] def elem : α → fga α G := aux.mk ∘ marked.elem
+    @[safe] def φ (g : G.carrier) (x : fga α G) :=
     aux.mk (marked.comp g x.val)
 
-    axiom unit : Π (x : fra α G), φ G.e x = x
-    axiom assoc : Π g h, Π (x : fra α G), φ g (φ h x) = φ (G.φ g h) x
+    axiom unit : Π (x : fga α G), φ G.e x = x
+    axiom assoc : Π g h, Π (x : fga α G), φ g (φ h x) = φ (G.φ g h) x
 
-    axiom ens : hset (fra α G)
+    axiom ens : hset (fga α G)
 
-    def rec.aux (ψ : G ⮎ α) : marked α G.carrier → α
-    |  (marked.elem a)  := a
-    | (marked.comp g x) := ψ.fst g (rec.aux x)
-    @[safe] def rec (ψ : G ⮎ α) : fra α G → α := rec.aux ψ ∘ aux.val
+    section
+      variables (ψ : G ⮎ α) (H : hset α)
+      include H
 
-    @[hott] noncomputable def act : G ⮎ fra α G :=
+      def rec.aux : marked α G.carrier → α
+      |  (marked.elem a)  := a
+      | (marked.comp g x) := ψ.fst g (rec.aux x)
+      @[safe] def rec : fga α G → α := rec.aux ψ (λ _ _, H) ∘ aux.val
+    end
+
+    @[hott] noncomputable def act : G ⮎ fga α G :=
     ⟨φ, (unit, assoc)⟩
-  end fra
+  end fga
 
   @[hott] def regular.mk {α : Type u} (H : hset α)
     (φ : G ⮎ α) : transitive φ → free φ → regular φ :=
