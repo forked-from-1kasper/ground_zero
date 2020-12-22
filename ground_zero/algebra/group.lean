@@ -2054,6 +2054,39 @@ namespace group
   @[hott] def regular {α : Type u} (φ : G ⮎ α) :=
   Π a b, contr (Σ g, φ.fst g a = b)
 
+  inductive marked (α : Type u) (β : Type v)
+  | elem : α → marked
+  | comp : β → marked → marked
+
+  section
+    private structure fra.aux (α : Type u) (G : group) :=
+    (val : marked α G.carrier)
+
+    def fra (α : Type u) (G : group) := fra.aux α G
+  end
+
+  namespace fra
+    variables {α : Type u}
+    attribute [nothott] fra.aux.rec_on fra.aux.rec aux.val
+
+    @[hott] def elem : α → fra α G := aux.mk ∘ marked.elem
+    @[safe] def φ (g : G.carrier) (x : fra α G) :=
+    aux.mk (marked.comp g x.val)
+
+    axiom unit : Π (x : fra α G), φ G.e x = x
+    axiom assoc : Π g h, Π (x : fra α G), φ g (φ h x) = φ (G.φ g h) x
+
+    axiom ens : hset (fra α G)
+
+    def rec.aux (ψ : G ⮎ α) : marked α G.carrier → α
+    |  (marked.elem a)  := a
+    | (marked.comp g x) := ψ.fst g (rec.aux x)
+    @[safe] def rec (ψ : G ⮎ α) : fra α G → α := rec.aux ψ ∘ aux.val
+
+    @[hott] noncomputable def act : G ⮎ fra α G :=
+    ⟨φ, (unit, assoc)⟩
+  end fra
+
   @[hott] def regular.mk {α : Type u} (H : hset α)
     (φ : G ⮎ α) : transitive φ → free φ → regular φ :=
   begin
