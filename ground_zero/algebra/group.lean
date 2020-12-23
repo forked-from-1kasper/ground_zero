@@ -2092,6 +2092,11 @@ namespace group
     ⟨φ, (unit, assoc)⟩
   end fga
 
+  @[hott] def pact {α : Type u} : G ⮎ G.carrier × α :=
+  ⟨λ g ⟨h, x⟩, (G.φ g h, x),
+   (λ ⟨g, x⟩, product.prod (G.one_mul g) (idp x),
+    λ g h ⟨f, x⟩, product.prod (Id.inv (G.mul_assoc g h f)) (idp x))⟩
+
   @[hott] def regular.mk {α : Type u} (H : hset α)
     (φ : G ⮎ α) : transitive φ → free φ → regular φ :=
   begin
