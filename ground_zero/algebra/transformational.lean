@@ -167,6 +167,28 @@ namespace ground_zero.algebra
         assumption }
     end
 
+    @[hott] def oct (φ : G.subset) [G ≥ φ] := HITs.quotient (octave L φ)
+
+    @[hott] def normal (φ : G.subset) [G ⊵ φ] {a₁ a₂ b₁ b₂ : M}
+      (p : L.ι a₁ b₁ ∈ φ) (q : L.ι a₂ b₂ ∈ φ) : (L.ι a₁ a₂)⁻¹ * (L.ι b₁ b₂) ∈ φ :=
+    begin
+      apply transport (∈ φ), symmetry,
+      transitivity, apply Id.map (G.φ _),
+      symmetry, apply G.one_mul, transitivity,
+      apply Id.map, apply Id.map (* L.ι b₁ b₂),
+      symmetry, apply G.mul_left_inv (L.ι a₂ b₁),
+      transitivity, apply Id.map, apply G.mul_assoc,
+      symmetry, apply G.mul_assoc, apply is_subgroup.mul,
+      { apply transport (∈ φ), apply inv_explode, apply is_subgroup.inv,
+        apply transport (∈ φ), symmetry, apply Id.map (* L.ι a₁ a₂),
+        transitivity, symmetry, apply L.trans a₂ a₁, apply Id.map (* L.ι a₁ b₁),
+        symmetry, apply inv, apply is_normal_subgroup.conj, exact p },
+      { apply is_normal_subgroup.cosets_eqv, apply transport (∈ φ), symmetry,
+        apply Id.map (* L.ι a₂ b₁), transitivity, symmetry, apply L.trans b₁ a₂,
+        apply Id.map (* L.ι a₂ b₂), symmetry, apply inv,
+        apply is_normal_subgroup.conj, exact q }
+    end
+
     -- Transposition
     @[hott] def τ (i : G.carrier) : M → M :=
     λ x, (L.fixι i x).fst
