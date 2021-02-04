@@ -8,6 +8,11 @@ import Std.Data
 open Lean.Parser.Command
 open Lean Std
 
+/-
+  Original implementation:
+  https://github.com/gebner/hott3/blob/master/src/hott/init/meta/support.lean
+-/
+
 namespace GroundZero.Meta.HottTheory
 
 partial def instArgsAux : LocalContext → Expr → MetaM (LocalContext × Expr)
@@ -98,12 +103,12 @@ checkDeclAux []
 
 end GroundZero.Meta.HottTheory
 
--- check
-hott def τ := 42
-
 inductive Id' {α : Type u} : α → α → Type u
 | refl (a : α) : Id' a a
 
 -- throws an error
 --hott def K {α : Type u} {a b : α} (p q : Id' a b) : Id' p q :=
 --by { cases p; cases q; apply Id'.refl }
+
+-- checks
+hott def τ := 42
