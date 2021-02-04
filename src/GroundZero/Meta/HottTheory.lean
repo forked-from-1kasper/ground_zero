@@ -88,9 +88,8 @@ checkDeclAux []
 
 @[commandParser] def hott := parser! declModifiers false >> "hott " >> «def»
 @[commandElab «hott»] def elabHoTT : Elab.Command.CommandElab :=
-λ stx => do
-  let mods := stx[0]
-  let cmd  := stx[2]
+λ stx => match stx.getArgs with
+| #[mods, _, cmd] => do
   let ⟨shortDeclName, declName, levelNames⟩ ←
     Elab.Command.liftTermElabM none (do
       let modifiers ← Elab.elabModifiers mods
@@ -100,6 +99,7 @@ checkDeclAux []
   Elab.Command.elabDeclaration
     (mkNode `Lean.Parser.Command.def #[mods, cmd])
   Elab.Command.liftTermElabM (some declName) (checkDecl declName)
+| _ => throwError "unknown declaration"
 
 end GroundZero.Meta.HottTheory
 
