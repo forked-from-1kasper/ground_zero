@@ -4,6 +4,10 @@ os:
 notifications:
   email: true
 
+branches:
+  only:
+    - master
+
 before_install:
   - wget https://github.com/leanprover-community/lean/releases/download/v3.19.0/lean-3.19.0-linux.tar.gz -O lean.tgz
   - mkdir lean
