@@ -1,6 +1,6 @@
 # Ground Zero
 
-[![Build Status](https://travis-ci.org/groupoid/lean.svg?branch=master)](https://travis-ci.org/groupoid/lean)
+**Lean 4 in-development version**
 
 This library provides computable HITs, variation of Cubical Type Theory using them, and some other math.
 
