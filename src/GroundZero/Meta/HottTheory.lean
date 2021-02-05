@@ -86,19 +86,20 @@ partial def checkDeclAux (chain : List Name) (name : Name) : MetaM Unit := do
 def checkDecl : Name → MetaM Unit :=
 checkDeclAux []
 
-@[commandParser] def hott := parser! declModifiers false >> "hott " >> «def»
+@[commandParser] def hott :=
+parser! declModifiers false >> "hott " >> («def» <|> «theorem»)
 @[commandElab «hott»] def elabHoTT : Elab.Command.CommandElab :=
 λ stx => match stx.getArgs with
 | #[mods, _, cmd] => do
-  let ⟨shortDeclName, declName, levelNames⟩ ←
-    Elab.Command.liftTermElabM none (do
-      let modifiers ← Elab.elabModifiers mods
-      Elab.expandDeclId (← getCurrNamespace) (← Elab.Term.getLevelNames)
-                        (cmd.getArg 1) modifiers)
+  let declId   := cmd[1]
+  let declName := declId[0].getId
 
-  Elab.Command.elabDeclaration
-    (mkNode `Lean.Parser.Command.def #[mods, cmd])
-  Elab.Command.liftTermElabM (some declName) (checkDecl declName)
+  mkNode `Lean.Parser.Command.declaration #[mods, cmd]
+  |> Elab.Command.elabDeclaration
+
+  let ns ← getCurrNamespace
+  checkDecl (ns ++ declName)
+  |> Elab.Command.liftTermElabM (some declName)
 | _ => throwError "unknown declaration"
 
 end GroundZero.Meta.HottTheory
