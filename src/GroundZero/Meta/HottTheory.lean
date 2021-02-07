@@ -27,7 +27,7 @@ partial def instArgsAux : LocalContext → Expr → MetaM (LocalContext × Expr)
       mkFVar varId
       |> mkApp e
       |> instArgsAux lctx'
-  else pure (lctx, e)
+  else return (lctx, e)
 
 def instArgs (e : Expr) : MetaM (LocalContext × Expr) := do
   let ctx ← read; instArgsAux ctx.lctx e
@@ -41,7 +41,7 @@ def isProof : LocalContext → Expr → MetaM Bool :=
 λ lctx e => Meta.inferType e >>= isProp lctx
 
 def mkNumMetaUnivs : Nat → MetaM (List Level)
-| 0     => pure []
+| 0     => return []
 | n + 1 => do
   let id ← mkFreshId;
   let xs ← mkNumMetaUnivs n;
@@ -62,7 +62,7 @@ def uncurry {α : Type u} {β : Type v} {γ : Type w} : (α → β → γ) → (
 def hasLargeElim (type : Name) : MetaM Bool := do
   let typeFormerIsProp ← const type >>= instArgs >>= uncurry isProp;
   let elimIsProp ← const (type ++ `rec) >>= instArgs >>= uncurry isProof;
-  pure (typeFormerIsProp ∧ ¬elimIsProp)
+  return (typeFormerIsProp ∧ ¬elimIsProp)
 
 def renderChain : List Name → String :=
 String.intercalate " <- " ∘ List.map toString
@@ -80,7 +80,7 @@ partial def checkDeclAux (chain : List Name) (name : Name) : MetaM Unit := do
     match info.value? with
     | some expr => Array.forM (λ n => checkDeclAux (n :: chain) n)
                               expr.getUsedConstants
-    | none => pure ()
+    | none => return ()
   | none => throwError! "unknown identifier “{name}”"
 
 def checkDecl : Name → MetaM Unit :=
