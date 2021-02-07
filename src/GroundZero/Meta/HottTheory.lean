@@ -1,5 +1,6 @@
 import Lean.Util.FoldConsts
 import Lean.Elab.Command
+import Lean.Environment
 import Lean.Parser
 import Lean.Meta
 import Lean.Elab
@@ -63,16 +64,15 @@ def hasLargeElim (type : Name) : MetaM Bool := do
   let elimIsProp ← const (type ++ `rec) >>= instArgs >>= uncurry isProof;
   pure (typeFormerIsProp ∧ ¬elimIsProp)
 
+def renderChain : List Name → String :=
+String.intercalate " <- " ∘ List.map toString
+
 def checkLargeElim (chain : List Name) (name : Name) : MetaM Unit := do
   let largeElim? ← hasLargeElim name;
-  if largeElim? then
-    let decls :=
-      List.map toString chain
-      |> String.intercalate " <- "
-    throwError! "uses large eliminator: {decls}"
+  if largeElim? then throwError! "uses large eliminator: {renderChain chain}"
 
 partial def checkDeclAux (chain : List Name) (name : Name) : MetaM Unit := do
-  let env ← getEnv;
+  let env ← getEnv
   match env.find? name with
   | some (ConstantInfo.recInfo v) =>
     List.forM (checkLargeElim chain) v.all
@@ -88,6 +88,7 @@ checkDeclAux []
 
 @[commandParser] def hott :=
 parser! declModifiers false >> "hott " >> («def» <|> «theorem»)
+
 @[commandElab «hott»] def elabHoTT : Elab.Command.CommandElab :=
 λ stx => match stx.getArgs with
 | #[mods, _, cmd] => do
