@@ -102,7 +102,17 @@ namespace ground_zero.algebra
     reflexivity
   end
 
-  def algop (α : Type u) := Σ k, vect α k → α
-  def Alg {ι : Type u} {υ : Type v} (α : Type w) :=
-  Σ (φ : ι → algop α) (ρ : υ → Type w), Π x, contr (ρ x)
+  def algop (deg : ℕ) (α : Type u) :=
+  vect α deg → α
+
+  def Alg {ι : Type u} (deg : ι → ℕ) (υ : Type v) (α : Type w) :=
+  Σ (φ : Π i, algop (deg i) α) (ρ : υ → Type w), Π x, contr (ρ x)
+
+  section
+    variables {ι : Type u} {υ : Type v} {α β : Type w} {deg : ι → ℕ}
+
+    def homo (μ : Alg deg υ α) (η : Alg deg υ β) (f : α → β) :=
+    Π i v, f (μ.fst i v) = η.fst i (v.map f)
+  end
+
 end ground_zero.algebra
