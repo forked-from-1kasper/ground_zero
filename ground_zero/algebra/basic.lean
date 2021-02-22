@@ -1,5 +1,6 @@
 import ground_zero.types.ens
 open ground_zero.types ground_zero.structures
+open ground_zero (vect)
 
 hott theory
 
@@ -9,7 +10,7 @@ hott theory
 -/
 
 namespace ground_zero.algebra
-  universe u
+  universes u v w
 
   def zeroeqv {α : Type u} (H : hset α) : 0-Type :=
   ⟨α, zero_eqv_set.left (λ _ _, H)⟩
@@ -100,4 +101,8 @@ namespace ground_zero.algebra
     have α₄ : r₁ = r₂ := by propauto, induction α₄,
     reflexivity
   end
+
+  def algop (α : Type u) := Σ k, vect α k → α
+  def Alg {ι : Type u} {υ : Type v} (α : Type w) :=
+  Σ (φ : ι → algop α) (ρ : υ → Type w), Π x, contr (ρ x)
 end ground_zero.algebra
