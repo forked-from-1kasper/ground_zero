@@ -51,7 +51,7 @@ def const (c : Name) : MetaM Expr := do
   let env ← getEnv;
   match env.constants.find? c with
   | some info => do
-    let num := info.lparams.length;
+    let num := info.levelParams.length;
     let levels ← mkNumMetaUnivs num;
     return mkConst c levels
   | none => throwError! "unknown identifier “{c}”"
