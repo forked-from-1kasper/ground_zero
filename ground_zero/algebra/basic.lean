@@ -105,14 +105,29 @@ namespace ground_zero.algebra
   def algop (deg : ℕ) (α : Type u) :=
   vect α deg → α
 
-  def Alg {ι : Type u} (deg : ι → ℕ) (υ : Type v) (α : Type w) :=
-  Σ (φ : Π i, algop (deg i) α) (ρ : υ → Type w), Π x, contr (ρ x)
+  section
+    variables {ι : Type u} {υ : Type v} (deg : ι + υ → ℕ)
+
+    def algebra (α : Type w) :=
+    (Π i, algop (deg (sum.inl i)) α) ×            -- algebraic operations
+    (Π i, vect α (deg (sum.inr i)) → propset.{w}) -- relations
+
+    def Alg := Σ (α : 0-Type), algebra deg α.fst
+  end
 
   section
-    variables {ι : Type u} {υ : Type v} {α β : Type w} {deg : ι → ℕ}
+    variables {ι : Type u} {υ : Type v} {deg : ι + υ → ℕ}
 
-    def homo (μ : Alg deg υ α) (η : Alg deg υ β) (f : α → β) :=
-    Π i v, f (μ.fst i v) = η.fst i (v.map f)
+    section
+      variable (A : Alg deg)
+      def Alg.carrier := A.fst.fst
+      def Alg.op      := A.snd.fst
+      def Alg.rel     := A.snd.snd
+    end
+
+    def homo (μ : Alg deg) (η : Alg deg) (f : μ.carrier → η.carrier) :=
+    (Π i v, f (μ.op i v) = η.op i (v.map f)) ×
+    (Π i v, μ.rel i v = η.rel i (v.map f))
   end
 
 end ground_zero.algebra
