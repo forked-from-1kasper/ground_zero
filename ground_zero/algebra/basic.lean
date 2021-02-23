@@ -159,6 +159,16 @@ namespace ground_zero.algebra
       apply q, apply r
     end
 
+    @[hott] noncomputable def equiv_comp_subst {α β : Type u} (φ : α ≃ β) :
+      φ.fst ∘ (equiv.subst (ground_zero.ua φ)⁻¹) = id :=
+    begin
+      apply ground_zero.theorems.funext,
+      intro x, transitivity, apply Id.map φ.fst,
+      transitivity, apply equiv.subst_over_inv_path,
+      apply ground_zero.ua.transport_inv_rule,
+      apply equiv.forward_left
+    end
+
     @[hott] noncomputable def Alg.ua {Γ Λ : Alg deg} (φ : iso Γ Λ) : Γ = Λ :=
     begin
       induction φ with φ H, induction H with p q,
@@ -167,26 +177,18 @@ namespace ground_zero.algebra
           (λ α, vect α (deg (sum.inl i))) id,
         apply ground_zero.theorems.funext, intro v,
         transitivity, apply ground_zero.ua.transport_rule,
-        transitivity, change φ _ = _, apply p.fst,
-        apply Id.map, transitivity, apply vect.subst,
+        transitivity, apply p.fst, apply Id.map,
+        transitivity, apply vect.subst,
         transitivity, apply Id.map (λ f, vect.map f v),
-        change _ = id, apply ground_zero.theorems.funext,
-        intro x, transitivity, apply Id.map φ,
-        transitivity, apply equiv.subst_over_inv_path,
-        apply ground_zero.ua.transport_inv_rule,
-        apply equiv.forward_left ⟨φ, q⟩, apply vect.id },
+        apply equiv_comp_subst ⟨φ, q⟩, apply vect.id },
       { intro i, apply Id.trans, apply equiv.transport_over_functor
           (λ α, vect α (deg (sum.inr i))) (λ _, propset),
         apply ground_zero.theorems.funext, intro v,
         transitivity, apply Id.map (equiv.subst (ground_zero.ua ⟨φ, q⟩)),
         transitivity, apply p.snd, apply Id.map (Λ.rel i),
-        transitivity, apply vect.subst, transitivity,
-        apply Id.map (λ f, vect.map f v),
-        change _ = id, apply ground_zero.theorems.funext,
-        intro x, transitivity, apply Id.map φ,
-        transitivity, apply equiv.subst_over_inv_path,
-        apply ground_zero.ua.transport_inv_rule,
-        apply equiv.forward_left ⟨φ, q⟩, apply vect.id,
+        transitivity, apply vect.subst,
+        transitivity, apply Id.map (λ f, vect.map f v),
+        apply equiv_comp_subst ⟨φ, q⟩, apply vect.id,
         transitivity, apply equiv.transport_to_transportconst,
         transitivity, apply Id.map (λ p, equiv.transportconst p (Λ.rel i v)),
         apply equiv.constmap, reflexivity }
