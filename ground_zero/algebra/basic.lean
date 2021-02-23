@@ -136,6 +136,17 @@ namespace ground_zero.algebra
     def iso.eqv {Γ Λ : Alg deg} : iso Γ Λ → Γ.carrier ≃ Λ.carrier
     | ⟨φ, (_, p)⟩ := ⟨φ, p⟩
 
+    @[hott] def iso.of_equiv {Γ Λ : Alg deg} :
+      Π (φ : Γ.carrier ≃ Λ.carrier), homo φ.fst → iso Γ Λ
+    | ⟨φ, q⟩ p := ⟨φ, (p, q)⟩
+
+    @[hott, refl] def iso.refl (Γ : Alg deg) : iso Γ Γ :=
+    begin
+      fapply iso.of_equiv, reflexivity, split; intros i v,
+      { apply Id.map (Γ.op i), symmetry, apply vect.id },
+      { apply Id.map (Γ.rel i), symmetry, apply vect.id }
+    end
+
     @[hott] def Alg.ext {Γ Λ : Alg deg} (p : Γ.carrier = Λ.carrier)
       (q : Π i, Γ.op i =[algop (deg (sum.inl i)), p] Λ.op i)
       (r : Π i, Γ.rel i =[λ A, vect A (deg (sum.inr i)) → propset, p] Λ.rel i) : Γ = Λ :=
