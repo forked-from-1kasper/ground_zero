@@ -143,7 +143,7 @@ namespace ground_zero.algebra
     @[hott, refl] def iso.refl (Γ : Alg deg) : iso Γ Γ :=
     begin
       fapply iso.of_equiv, reflexivity, split; intros i v,
-      { apply Id.map (Γ.op i), symmetry, apply vect.id },
+      { apply Id.map (Γ.op i),  symmetry, apply vect.id },
       { apply Id.map (Γ.rel i), symmetry, apply vect.id }
     end
 
@@ -160,7 +160,7 @@ namespace ground_zero.algebra
     end
 
     @[hott] noncomputable def equiv_comp_subst {α β : Type u} (φ : α ≃ β) :
-      φ.fst ∘ (equiv.subst (ground_zero.ua φ)⁻¹) = id :=
+      φ.fst ∘ equiv.subst (ground_zero.ua φ)⁻¹ = id :=
     begin
       apply ground_zero.theorems.funext,
       intro x, transitivity, apply Id.map φ.fst,
