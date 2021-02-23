@@ -125,9 +125,20 @@ namespace ground_zero.algebra
       def Alg.rel     := A.snd.snd
     end
 
-    def homo (μ : Alg deg) (η : Alg deg) (f : μ.carrier → η.carrier) :=
-    (Π i v, f (μ.op i v) = η.op i (v.map f)) ×
-    (Π i v, μ.rel i v = η.rel i (v.map f))
+    def homo (Γ : Alg deg) (Λ : Alg deg) (f : Γ.carrier → Λ.carrier) :=
+    (Π i v, f (Γ.op i v) = Λ.op i (v.map f)) ×
+    (Π i v, Γ.rel i v = Λ.rel i (v.map f))
+
+    @[hott] def Alg.ext (Γ : Alg deg) (Λ : Alg deg) (p : Γ.carrier = Λ.carrier)
+      (q : Π i, Γ.op i =[algop (deg (sum.inl i)), p] Λ.op i)
+      (r : Π i, Γ.rel i =[λ A, vect A (deg (sum.inr i)) → propset, p] Λ.rel i) : Γ = Λ := begin
+      induction Γ with A Γ, induction Λ with B Λ,
+      induction A with A h, induction B with B g,
+      change A = B at p, induction p, have ρ : h = g := ntype_is_prop 0 h g,
+      induction ρ, apply Id.map, induction Γ with Γ₁ Γ₂, induction Λ with Λ₁ Λ₂,
+      fapply product.prod; apply ground_zero.theorems.funext; intro i,
+      apply q, apply r
+    end
   end
 
 end ground_zero.algebra
