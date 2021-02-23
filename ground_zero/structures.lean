@@ -586,14 +586,31 @@ def vect (α : Type u) : ℕ → Type u
 |    0    := 𝟏
 | (n + 1) := α × vect n
 
-def vect.constant {α : Type u} (a : α) : Π n, vect α n
+@[hott] def vect.constant {α : Type u} (a : α) : Π n, vect α n
 |    0    := ★
 | (n + 1) := (a, vect.constant n)
 
-def vect.map {α : Type u} {β : Type v} (f : α → β) :
+@[hott] def vect.map {α : Type u} {β : Type v} (f : α → β) :
   Π {n : ℕ}, vect α n → vect β n 
 |    0    := λ _, ★
 | (n + 1) := λ v, (f v.1, vect.map v.2)
+
+section
+  open ground_zero.types.equiv (transport subst)
+  @[hott] def vect.subst {α β : Type u} (p : α = β) (f : β → α) {n : ℕ} (v : vect α n) :
+    vect.map f (@transport (Type u) (λ δ, vect δ n) α β p v) =
+    vect.map (λ (x : α), f (subst p x)) v :=
+  begin induction p, reflexivity end
+end
+
+@[hott] def vect.id {α : Type u} {n : ℕ} (v : vect α n) : vect.map id v = v :=
+begin
+  induction n with n ih,
+  { induction v, reflexivity },
+  { induction v with x y,
+    apply types.product.prod,
+    reflexivity, apply ih }
+end
 
 @[hott] def vect.const_map {α : Type u} {β : Type v} (a : α) (f : α → β) :
   Π {n : ℕ}, vect.map f (vect.constant a n) = vect.constant (f a) n :=

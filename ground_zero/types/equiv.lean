@@ -401,6 +401,11 @@ namespace equiv
     transport (λ α, α → α → α) p φ = λ x y, subst p (φ (subst p⁻¹ x) (subst p⁻¹ y)) :=
   begin induction p, reflexivity end
 
+  @[hott] def transport_over_functor {α β : Type u}
+    (μ : Type u → Type v) (η : Type u → Type w) (φ : μ α → η α) (p : α = β) :
+    transport (λ α, μ α → η α) p φ = λ x, subst p (φ (subst p⁻¹ x)) :=
+  begin induction p, reflexivity end
+
   @[hott] def transport_over_morphism {α β : Type u} (φ : α → α) (p : α = β) :
     transport (λ α, α → α) p φ = λ x, subst p (φ (subst p⁻¹ x)) :=
   begin induction p, reflexivity end

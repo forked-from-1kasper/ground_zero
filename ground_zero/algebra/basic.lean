@@ -1,7 +1,7 @@
 import ground_zero.types.ens
 open ground_zero.types ground_zero.structures
 open ground_zero.types.equiv (biinv)
-open ground_zero (vect)
+open ground_zero (vect vect.id vect.map vect.subst)
 
 hott theory
 
@@ -126,22 +126,59 @@ namespace ground_zero.algebra
       def Alg.rel     := A.snd.snd
     end
 
-    def homo {Γ : Alg deg} {Λ : Alg deg} (f : Γ.carrier → Λ.carrier) :=
+    def homo {Γ Λ : Alg deg} (f : Γ.carrier → Λ.carrier) :=
     (Π i v, f (Γ.op i v) = Λ.op i (v.map f)) ×
     (Π i v, Γ.rel i v = Λ.rel i (v.map f))
 
     def iso (Γ Λ : Alg deg) :=
     Σ (φ : Γ.carrier → Λ.carrier), homo φ × biinv φ
 
-    @[hott] def Alg.ext (Γ : Alg deg) (Λ : Alg deg) (p : Γ.carrier = Λ.carrier)
+    def iso.eqv {Γ Λ : Alg deg} : iso Γ Λ → Γ.carrier ≃ Λ.carrier
+    | ⟨φ, (_, p)⟩ := ⟨φ, p⟩
+
+    @[hott] def Alg.ext {Γ Λ : Alg deg} (p : Γ.carrier = Λ.carrier)
       (q : Π i, Γ.op i =[algop (deg (sum.inl i)), p] Λ.op i)
-      (r : Π i, Γ.rel i =[λ A, vect A (deg (sum.inr i)) → propset, p] Λ.rel i) : Γ = Λ := begin
+      (r : Π i, Γ.rel i =[λ A, vect A (deg (sum.inr i)) → propset, p] Λ.rel i) : Γ = Λ :=
+    begin
       induction Γ with A Γ, induction Λ with B Λ,
       induction A with A h, induction B with B g,
       change A = B at p, induction p, have ρ : h = g := ntype_is_prop 0 h g,
       induction ρ, apply Id.map, induction Γ with Γ₁ Γ₂, induction Λ with Λ₁ Λ₂,
       fapply product.prod; apply ground_zero.theorems.funext; intro i,
       apply q, apply r
+    end
+
+    @[hott] noncomputable def Alg.ua {Γ Λ : Alg deg} (φ : iso Γ Λ) : Γ = Λ :=
+    begin
+      induction φ with φ H, induction H with p q,
+      fapply Alg.ext, apply ground_zero.ua ⟨φ, q⟩,
+      { intro i, apply Id.trans, apply equiv.transport_over_functor
+          (λ α, vect α (deg (sum.inl i))) id,
+        apply ground_zero.theorems.funext, intro v,
+        transitivity, apply ground_zero.ua.transport_rule,
+        transitivity, change φ _ = _, apply p.fst,
+        apply Id.map, transitivity, apply vect.subst,
+        transitivity, apply Id.map (λ f, vect.map f v),
+        change _ = id, apply ground_zero.theorems.funext,
+        intro x, transitivity, apply Id.map φ,
+        transitivity, apply equiv.subst_over_inv_path,
+        apply ground_zero.ua.transport_inv_rule,
+        apply equiv.forward_left ⟨φ, q⟩, apply vect.id },
+      { intro i, apply Id.trans, apply equiv.transport_over_functor
+          (λ α, vect α (deg (sum.inr i))) (λ _, propset),
+        apply ground_zero.theorems.funext, intro v,
+        transitivity, apply Id.map (equiv.subst (ground_zero.ua ⟨φ, q⟩)),
+        transitivity, apply p.snd, apply Id.map (Λ.rel i),
+        transitivity, apply vect.subst, transitivity,
+        apply Id.map (λ f, vect.map f v),
+        change _ = id, apply ground_zero.theorems.funext,
+        intro x, transitivity, apply Id.map φ,
+        transitivity, apply equiv.subst_over_inv_path,
+        apply ground_zero.ua.transport_inv_rule,
+        apply equiv.forward_left ⟨φ, q⟩, apply vect.id,
+        transitivity, apply equiv.transport_to_transportconst,
+        transitivity, apply Id.map (λ p, equiv.transportconst p (Λ.rel i v)),
+        apply equiv.constmap, reflexivity }
     end
   end
 
