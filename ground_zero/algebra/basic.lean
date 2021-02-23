@@ -1,5 +1,6 @@
 import ground_zero.types.ens
 open ground_zero.types ground_zero.structures
+open ground_zero.types.equiv (biinv)
 open ground_zero (vect)
 
 hott theory
@@ -125,9 +126,12 @@ namespace ground_zero.algebra
       def Alg.rel     := A.snd.snd
     end
 
-    def homo (Γ : Alg deg) (Λ : Alg deg) (f : Γ.carrier → Λ.carrier) :=
+    def homo {Γ : Alg deg} {Λ : Alg deg} (f : Γ.carrier → Λ.carrier) :=
     (Π i v, f (Γ.op i v) = Λ.op i (v.map f)) ×
     (Π i v, Γ.rel i v = Λ.rel i (v.map f))
+
+    def iso (Γ Λ : Alg deg) :=
+    Σ (φ : Γ.carrier → Λ.carrier), homo φ × biinv φ
 
     @[hott] def Alg.ext (Γ : Alg deg) (Λ : Alg deg) (p : Γ.carrier = Λ.carrier)
       (q : Π i, Γ.op i =[algop (deg (sum.inl i)), p] Λ.op i)
