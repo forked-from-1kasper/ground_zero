@@ -1,6 +1,6 @@
 import ground_zero.types.ens
 open ground_zero.types ground_zero.structures
-open ground_zero.types.equiv (biinv)
+open ground_zero.types.equiv (biinv transport)
 open ground_zero (ua vect vect.id vect.map vect.subst)
 
 hott theory
@@ -127,6 +127,9 @@ namespace ground_zero.algebra
       def Alg.carrier := A.fst.fst
       def Alg.op      := A.snd.fst
       def Alg.rel     := A.snd.snd
+
+      def Alg.hset : hset A.carrier :=
+      λ _ _, zero_eqv_set.forward A.fst.snd
     end
 
     def homo {Γ Λ : Alg deg} (f : Γ.carrier → Λ.carrier) :=
@@ -150,16 +153,43 @@ namespace ground_zero.algebra
       { apply Id.map (Γ.rel i), symmetry, apply vect.id }
     end
 
-    @[hott] def Alg.ext {Γ Λ : Alg deg} (p : Γ.carrier = Λ.carrier)
-      (q : Π i, Γ.op i  =[algop  (deg (sum.inl i)), p] Λ.op i)
-      (r : Π i, Γ.rel i =[algrel (deg (sum.inr i)), p] Λ.rel i) : Γ = Λ :=
+    @[hott] def Alg.ext : Π {Γ Λ : Alg deg},
+      Π (p : Γ.carrier = Λ.carrier),
+      (Π i, Γ.op i  =[algop  (deg (sum.inl i)), p] Λ.op i) →
+      (Π i, Γ.rel i =[algrel (deg (sum.inr i)), p] Λ.rel i) → Γ = Λ
+    | ⟨⟨α, f⟩, (Γ₁, Γ₂)⟩ ⟨⟨β, g⟩, (Λ₁, Λ₂)⟩ :=
     begin
-      induction Γ with A Γ, induction Λ with B Λ,
-      induction A with A h, induction B with B g,
-      change A = B at p, induction p, have ρ : h = g := ntype_is_prop 0 h g,
-      induction ρ, apply Id.map, induction Γ with Γ₁ Γ₂, induction Λ with Λ₁ Λ₂,
-      fapply product.prod; apply ground_zero.theorems.funext; intro i,
-      apply q, apply r
+      intros p μ η, change α = β at p, induction p,
+      have ρ : f = g := ntype_is_prop 0 f g, induction ρ,
+      apply Id.map, apply product.prod;
+      apply ground_zero.theorems.funext; intro x,
+      apply μ, apply η
+    end
+
+    @[hott] noncomputable def Alg.extβrule :
+      Π Γ, @Alg.ext ι υ deg Γ Γ Id.refl (λ _, Id.refl) (λ _, Id.refl) = Id.refl :=
+    λ ⟨⟨α, f⟩, (Γ₁, Γ₂)⟩,
+    begin
+      apply @transport (f = f)
+        (λ p, @Id.rec _ f
+          (λ g (ρ : f = g),
+            Π (Λ₁ : Π i, algop (deg (sum.inl i)) α)
+              (Λ₂ : Π i, algrel (deg (sum.inr i)) α),
+            (Π i, Γ₁ i = Λ₁ i) → (Π i, Γ₂ i = Λ₂ i) →
+            @Id (Alg deg) ⟨⟨α, f⟩, (Γ₁, Γ₂)⟩ ⟨⟨α, g⟩, (Λ₁, Λ₂)⟩)
+          (λ Λ₁ Λ₂ μ η, Id.map (λ (Γ : algebra deg α), ⟨⟨α, f⟩, Γ⟩)
+            (product.prod (ground_zero.theorems.funext μ)
+                          (ground_zero.theorems.funext η)))
+          f p Γ₁ Γ₂ (λ _, Id.refl) (λ _, Id.refl) = Id.refl)
+        Id.refl (ntype_is_prop 0 f f),
+      apply prop_is_set, apply ntype_is_prop 0,
+      change Id.map _ _ = _, transitivity, apply Id.map,
+      change _ = product.prod Id.refl Id.refl, apply equiv.bimap,
+      { apply pi_hset, intro i, apply pi_hset, intro v,
+        apply zero_eqv_set.forward, exact f },
+      { apply pi_hset, intro i, apply pi_hset, intro v,
+        apply ground_zero.theorems.prop.propset_is_set },
+      reflexivity
     end
 
     @[hott] noncomputable def equiv_comp_subst {α β : Type u} (φ : α ≃ β) :

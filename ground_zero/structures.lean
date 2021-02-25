@@ -466,6 +466,18 @@ end
 @[hott] def bool_is_set : hset 𝟐 :=
 by intros a b; apply Hedberg bool_dec_eq
 
+section
+  open ground_zero.types
+  @[hott] def zero_path {α β : 0-Type} (p : α.fst = β.fst) : α = β :=
+  begin fapply sigma.prod, exact p, apply ntype_is_prop 0 end
+
+  @[hott] def zero_path_refl (α : 0-Type) : @zero_path α α Id.refl = Id.refl :=
+  begin
+    transitivity, apply Id.map (sigma.prod Id.refl), change _ = Id.refl,
+    apply prop_is_set (ntype_is_prop 0), apply sigma.prod_refl
+  end
+end
+
 end structures
 
 -- http://www.cs.bham.ac.uk/~mhe/truncation-and-extensionality/tiny-library.html
