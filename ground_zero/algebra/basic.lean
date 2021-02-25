@@ -151,8 +151,8 @@ namespace ground_zero.algebra
     end
 
     @[hott] def Alg.ext {Γ Λ : Alg deg} (p : Γ.carrier = Λ.carrier)
-      (q : Π i, Γ.op i =[algop (deg (sum.inl i)), p] Λ.op i)
-      (r : Π i, Γ.rel i =[λ A, vect A (deg (sum.inr i)) → propset, p] Λ.rel i) : Γ = Λ :=
+      (q : Π i, Γ.op i  =[algop (deg (sum.inl i)), p] Λ.op i)
+      (r : Π i, Γ.rel i =[algrel (deg (sum.inr i)), p] Λ.rel i) : Γ = Λ :=
     begin
       induction Γ with A Γ, induction Λ with B Λ,
       induction A with A h, induction B with B g,
