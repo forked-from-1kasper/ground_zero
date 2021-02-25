@@ -15,6 +15,9 @@ notation `𝟐` := bool
 
 def empty.elim {α : Sort u} : empty → α.
 
+def bottom := empty.{1}
+notation `⊥` := bottom
+
 inductive identity (α : Sort u)
 | elem {} : α → identity
 

@@ -198,7 +198,7 @@ namespace ground_zero.algebra
     begin induction p, reflexivity end
 
     namespace premonoid
-      def signature : 𝟐 + 𝟎 → ℕ
+      def signature : 𝟐 + ⊥ → ℕ
       | (sum.inl ff) := 0
       | (sum.inl tt) := 2
     end premonoid
@@ -218,7 +218,7 @@ namespace ground_zero.algebra
       | nullary | unary | binary
       open arity
 
-      def signature : arity + 𝟎 → ℕ
+      def signature : arity + ⊥ → ℕ
       | (sum.inl nullary) := 0
       | (sum.inl unary)   := 1
       | (sum.inl binary)  := 2
