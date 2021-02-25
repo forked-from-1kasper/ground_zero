@@ -1,7 +1,7 @@
 import ground_zero.types.ens
 open ground_zero.types ground_zero.structures
 open ground_zero.types.equiv (biinv)
-open ground_zero (vect vect.id vect.map vect.subst)
+open ground_zero (ua vect vect.id vect.map vect.subst)
 
 hott theory
 
@@ -106,12 +106,15 @@ namespace ground_zero.algebra
   def algop (deg : ℕ) (α : Type u) :=
   vect α deg → α
 
+  def algrel (deg : ℕ) (α : Type u) :=
+  vect α deg → propset
+
   section
     variables {ι : Type u} {υ : Type v} (deg : ι + υ → ℕ)
 
     def algebra (α : Type w) :=
-    (Π i, algop (deg (sum.inl i)) α) ×            -- algebraic operations
-    (Π i, vect α (deg (sum.inr i)) → propset.{w}) -- relations
+    (Π i, algop  (deg (sum.inl i)) α) × -- algebraic operations
+    (Π i, algrel (deg (sum.inr i)) α)   -- relations
 
     def Alg := Σ (α : 0-Type), algebra deg α.fst
   end
@@ -160,7 +163,7 @@ namespace ground_zero.algebra
     end
 
     @[hott] noncomputable def equiv_comp_subst {α β : Type u} (φ : α ≃ β) :
-      φ.fst ∘ equiv.subst (ground_zero.ua φ)⁻¹ = id :=
+      φ.fst ∘ equiv.subst (ua φ)⁻¹ = id :=
     begin
       apply ground_zero.theorems.funext,
       intro x, transitivity, apply Id.map φ.fst,
@@ -169,29 +172,41 @@ namespace ground_zero.algebra
       apply equiv.forward_left
     end
 
-    @[hott] noncomputable def Alg.ua {Γ Λ : Alg deg} (φ : iso Γ Λ) : Γ = Λ :=
+    @[hott] noncomputable def ua_preserves_op {Γ Λ : Alg deg}
+      (φ : iso Γ Λ) (i : ι) : Γ.op i =[ua φ.eqv] Λ.op i :=
     begin
       induction φ with φ H, induction H with p q,
-      fapply Alg.ext, apply ground_zero.ua ⟨φ, q⟩,
-      { intro i, apply Id.trans, apply equiv.transport_over_functor
-          (λ α, vect α (deg (sum.inl i))) id,
-        apply ground_zero.theorems.funext, intro v,
-        transitivity, apply ground_zero.ua.transport_rule,
-        transitivity, apply p.fst, apply Id.map,
-        transitivity, apply vect.subst,
-        transitivity, apply Id.map (λ f, vect.map f v),
-        apply equiv_comp_subst ⟨φ, q⟩, apply vect.id },
-      { intro i, apply Id.trans, apply equiv.transport_over_functor
-          (λ α, vect α (deg (sum.inr i))) (λ _, propset),
-        apply ground_zero.theorems.funext, intro v,
-        transitivity, apply Id.map (equiv.subst (ground_zero.ua ⟨φ, q⟩)),
-        transitivity, apply p.snd, apply Id.map (Λ.rel i),
-        transitivity, apply vect.subst,
-        transitivity, apply Id.map (λ f, vect.map f v),
-        apply equiv_comp_subst ⟨φ, q⟩, apply vect.id,
-        transitivity, apply equiv.transport_to_transportconst,
-        transitivity, apply Id.map (λ p, equiv.transportconst p (Λ.rel i v)),
-        apply equiv.constmap, reflexivity }
+      apply Id.trans, apply equiv.transport_over_functor
+        (λ α, vect α (deg (sum.inl i))) id,
+      apply ground_zero.theorems.funext, intro v,
+      transitivity, apply ground_zero.ua.transport_rule,
+      transitivity, apply p.fst, apply Id.map,
+      transitivity, apply vect.subst,
+      transitivity, apply Id.map (λ f, vect.map f v),
+      apply equiv_comp_subst ⟨φ, q⟩, apply vect.id
+    end
+
+    @[hott] noncomputable def ua_preserves_rel {Γ Λ : Alg deg} (φ : iso Γ Λ)
+      (i : υ) : Γ.rel i =[algrel (deg (sum.inr i)), ua φ.eqv] Λ.rel i :=
+    begin
+      induction φ with φ H, induction H with p q,
+      apply Id.trans, apply equiv.transport_over_functor
+        (λ α, vect α (deg (sum.inr i))) (λ _, propset),
+      apply ground_zero.theorems.funext, intro v,
+      transitivity, apply Id.map (equiv.subst (ua ⟨φ, q⟩)),
+      transitivity, apply p.snd, apply Id.map (Λ.rel i),
+      transitivity, apply vect.subst,
+      transitivity, apply Id.map (λ f, vect.map f v),
+      apply equiv_comp_subst ⟨φ, q⟩, apply vect.id,
+      transitivity, apply equiv.transport_to_transportconst,
+      transitivity, apply Id.map (λ p, equiv.transportconst p (Λ.rel i v)),
+      apply equiv.constmap, reflexivity
+    end
+
+    @[hott] noncomputable def Alg.ua {Γ Λ : Alg deg} (φ : iso Γ Λ) : Γ = Λ :=
+    begin
+      fapply Alg.ext, apply ua φ.eqv,
+      apply ua_preserves_op, apply ua_preserves_rel
     end
 
     @[hott] def Alg.id {Γ Λ : Alg deg} (p : Γ = Λ) : iso Γ Λ :=
