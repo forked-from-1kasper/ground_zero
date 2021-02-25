@@ -193,6 +193,37 @@ namespace ground_zero.algebra
         transitivity, apply Id.map (λ p, equiv.transportconst p (Λ.rel i v)),
         apply equiv.constmap, reflexivity }
     end
+
+    @[hott] def Alg.id {Γ Λ : Alg deg} (p : Γ = Λ) : iso Γ Λ :=
+    begin induction p, reflexivity end
+
+    namespace pregroup
+      inductive arity : Type
+      | nullary | unary | binary
+      open arity
+
+      @[hott] def signature : arity + 𝟎 → ℕ
+      | (sum.inl nullary) := 0
+      | (sum.inl unary)   := 1
+      | (sum.inl binary)  := 2
+    end pregroup
+
+    def pregroup := Alg pregroup.signature
+    
+    namespace pregroup
+      def carrier (G : pregroup) := G.carrier
+
+      def e (G : pregroup) : G.carrier :=
+      G.op arity.nullary ★
+
+      def ι (G : pregroup) : G.carrier → G.carrier :=
+      λ x, G.op arity.unary (x, ★)
+
+      def φ (G : pregroup) : G.carrier → G.carrier → G.carrier :=
+      λ x y, G.op arity.binary (x, y, ★)
+
+      #check φ
+    end pregroup
   end
 
 end ground_zero.algebra
