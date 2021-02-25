@@ -206,8 +206,6 @@ namespace ground_zero.algebra
     def premonoid := Alg premonoid.signature
 
     namespace premonoid
-      def carrier (M : premonoid) := M.carrier
-
       def e (M : premonoid) : M.carrier :=
       M.op ff ★
 
@@ -229,8 +227,6 @@ namespace ground_zero.algebra
     def pregroup := Alg pregroup.signature
 
     namespace pregroup
-      def carrier (G : pregroup) := G.carrier
-
       def e (G : pregroup) : G.carrier :=
       G.op arity.nullary ★
 
