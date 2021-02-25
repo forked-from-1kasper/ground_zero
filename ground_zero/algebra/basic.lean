@@ -209,7 +209,7 @@ namespace ground_zero.algebra
     end pregroup
 
     def pregroup := Alg pregroup.signature
-    
+
     namespace pregroup
       def carrier (G : pregroup) := G.carrier
 
@@ -222,7 +222,6 @@ namespace ground_zero.algebra
       def φ (G : pregroup) : G.carrier → G.carrier → G.carrier :=
       λ x y, G.op arity.binary (x, y, ★)
 
-      #check φ
     end pregroup
   end
 
