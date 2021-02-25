@@ -197,12 +197,30 @@ namespace ground_zero.algebra
     @[hott] def Alg.id {Γ Λ : Alg deg} (p : Γ = Λ) : iso Γ Λ :=
     begin induction p, reflexivity end
 
+    namespace premonoid
+      def signature : 𝟐 + 𝟎 → ℕ
+      | (sum.inl ff) := 0
+      | (sum.inl tt) := 2
+    end premonoid
+
+    def premonoid := Alg premonoid.signature
+
+    namespace premonoid
+      def carrier (M : premonoid) := M.carrier
+
+      def e (M : premonoid) : M.carrier :=
+      M.op ff ★
+
+      def φ (M : premonoid) : M.carrier → M.carrier → M.carrier :=
+      λ x y, M.op tt (x, y, ★)
+    end premonoid
+
     namespace pregroup
       inductive arity : Type
       | nullary | unary | binary
       open arity
 
-      @[hott] def signature : arity + 𝟎 → ℕ
+      def signature : arity + 𝟎 → ℕ
       | (sum.inl nullary) := 0
       | (sum.inl unary)   := 1
       | (sum.inl binary)  := 2
@@ -222,6 +240,14 @@ namespace ground_zero.algebra
       def φ (G : pregroup) : G.carrier → G.carrier → G.carrier :=
       λ x y, G.op arity.binary (x, y, ★)
 
+      @[hott] def to_premonoid (G : pregroup) : premonoid :=
+      begin
+        existsi G.fst, split,
+        { intro b, cases b,
+          exact G.op arity.nullary,
+          exact G.op arity.binary },
+        { intro x, cases x }
+      end
     end pregroup
   end
 
