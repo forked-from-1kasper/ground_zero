@@ -76,7 +76,7 @@ namespace digon
 
   @[hott] noncomputable def split (n : ℕ) := calc
     H C (n + 1) ≅ Z C (n + 1) \ triv (Z C _) : factor.iso (imₙ.encode n) (imₙ.decode n)
-            ... ≅ Z C (n + 1)                : iso.symm group.triv.factor
+            ... ≅ Z C (n + 1)                : group.iso.symm group.triv.factor
 
   @[hott] noncomputable def ker_triv_is_univ (G H : group) :
     @ker G H 0 = ens.univ G.carrier :=
