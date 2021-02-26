@@ -615,12 +615,26 @@ section
   begin induction p, reflexivity end
 end
 
-@[hott] def vect.id {α : Type u} {n : ℕ} (v : vect α n) : vect.map id v = v :=
+@[hott] def vect.idfunc {α : Type u} {n : ℕ} (f : α → α)
+  (H : f ~ id) (v : vect α n) : vect.map f v = v :=
 begin
   induction n with n ih,
   { induction v, reflexivity },
   { induction v with x y,
     apply types.product.prod,
+    apply H, apply ih }
+end
+
+@[hott] def vect.id {α : Type u} {n : ℕ} (v : vect α n) : vect.map id v = v :=
+begin apply vect.idfunc, reflexivity end
+
+@[hott] def vect.comp {α : Type u} {β : Type v} {γ : Type w} {n : ℕ}
+  (f : α → β) (g : β → γ) (v : vect α n) : vect.map g (vect.map f v) = vect.map (g ∘ f) v :=
+begin
+  induction n with n ih,
+  { induction v, reflexivity },
+  { induction v with x y,
+    fapply types.product.prod,
     reflexivity, apply ih }
 end
 

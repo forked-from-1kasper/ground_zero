@@ -1,7 +1,7 @@
 import ground_zero.types.ens
 open ground_zero.types ground_zero.structures
 open ground_zero.types.equiv (biinv transport)
-open ground_zero (ua vect vect.id vect.map vect.subst)
+open ground_zero (ua vect vect.id vect.idfunc vect.map vect.subst vect.comp)
 
 hott theory
 
@@ -151,6 +151,36 @@ namespace ground_zero.algebra
       fapply iso.of_equiv, reflexivity, split; intros i v,
       { apply Id.map (Γ.op i),  symmetry, apply vect.id },
       { apply Id.map (Γ.rel i), symmetry, apply vect.id }
+    end
+
+    @[hott, symm] def iso.symm {Γ Λ : Alg deg} : iso Γ Λ → iso Λ Γ :=
+    λ ⟨f, ⟨(η₁, η₂), (⟨g, μ₁⟩, μ₂)⟩⟩,
+    begin
+      have μ₃ := equiv.forward_left ⟨f, (⟨g, μ₁⟩, μ₂)⟩,
+      existsi g, split,
+      { split; intros i v,
+        { symmetry, transitivity, { symmetry, apply μ₁ },
+          transitivity, apply Id.map g, apply η₁,
+          apply Id.map (g ∘ Λ.op i), transitivity,
+          apply vect.comp, apply vect.idfunc, apply μ₃ },
+        { transitivity, apply Id.map (Λ.rel i),
+          transitivity, symmetry, apply vect.idfunc (f ∘ g),
+          apply μ₃, symmetry, apply vect.comp, symmetry, apply η₂ } },
+      { split; existsi f, apply μ₃, exact μ₁}
+    end
+
+    @[hott, trans] def iso.trans {Γ Λ Δ : Alg deg} : iso Γ Λ → iso Λ Δ → iso Γ Δ
+    | ⟨f, (η₁, μ₁)⟩ ⟨g, (η₂, μ₂)⟩ :=
+    begin
+      existsi g ∘ f, split,
+      { split; intros i v,
+        { transitivity, apply Id.map g, apply η₁.fst,
+          transitivity, apply η₂.fst,
+          apply Id.map, apply vect.comp },
+        { transitivity, apply η₁.snd,
+          transitivity, apply η₂.snd,
+          apply Id.map, apply vect.comp } },
+      { apply equiv.biinv_trans; assumption }
     end
 
     @[hott] def Alg.ext : Π {Γ Λ : Alg deg},
