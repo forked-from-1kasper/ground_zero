@@ -33,8 +33,8 @@ namespace graph
     Π x, β x :=
   begin
     intro x, fapply quot.hrec_on x,
-    exact f, intros a b H, cases H,
-    apply ground_zero.types.heq.from_pathover (line H_a),
+    exact f, intros a b H, cases H with _ _ ρ,
+    apply ground_zero.types.heq.from_pathover (line ρ),
     fapply h
   end
 

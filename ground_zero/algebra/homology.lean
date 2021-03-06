@@ -9,7 +9,7 @@ hott theory
 
 namespace homology
   structure chain_complex :=
-  (K    : ℕ → group)
+  (K    : ℕ → pregroup)
   (ab   : Π n, abelian (K n))
   (δ    : Π n, K (n + 1) ⤳ K n)
   (triv : Π n, δ n ⋅ δ (n + 1) = 0)
@@ -20,10 +20,10 @@ namespace homology
   ker (C.δ n)
 
   abbreviation Z (C : chain_complex) (n : ℕ) :=
-  subgroup.group _ (ζ C n)
+  Subgroup _ (ζ C n)
 
   abbreviation B (C : chain_complex) (n : ℕ) :=
-  subgroup.inter (im (C.δ (n + 1)).fst) (ζ C n)
+  group.inter (group.im (C.δ (n + 1))) (ζ C n)
 
   instance (C : chain_complex) (n : ℕ) : Z C n ⊵ B C n :=
   group.abelian_subgroup_is_normal _ _
@@ -37,7 +37,7 @@ namespace digon
 
   notation `ZΩ²` := group.prod.{0 0} ZΩ ZΩ
 
-  @[hott] noncomputable def K : ℕ → group.{0}
+  @[hott] noncomputable def K : ℕ → pregroup.{0}
   |    0    := Z₁
   |    1    := ZΩ² -- two points
   |    2    := ZΩ² -- and two paths between them
@@ -76,20 +76,21 @@ namespace digon
 
   @[hott] noncomputable def split (n : ℕ) := calc
     H C (n + 1) ≅ Z C (n + 1) \ triv (Z C _) : factor.iso (imₙ.encode n) (imₙ.decode n)
-            ... ≅ Z C (n + 1)                : group.iso.symm group.triv.factor
+            ... ≅ Z C (n + 1)                : iso.symm group.triv.factor
 
-  @[hott] noncomputable def ker_triv_is_univ (G H : group) :
-    @ker G H 0 = ens.univ G.carrier :=
+  @[hott] noncomputable def ker_triv_is_univ (G H : pregroup)
+    [g : group G] [h : group H] : @ker G g H h 0 = group.univ G :=
   begin
-    apply ens.ext, intro x, split; intro p, { exact ★ },
+    apply subgroup.ext, apply ens.ext,
+    intro x, split; intro p, { exact ★ },
     { change _ = _, reflexivity }
   end
 
   @[hott] noncomputable def Zₙ (n : ℕ) : Z C (n + 2) ≅ Z₁ :=
   begin
-    apply types.equiv.transport (≅ Z₁), change subgroup.group (K _) (ens.univ _) = _,
-    apply subgroup.ext.{0 0}, symmetry, apply ker_triv_is_univ,
-    apply group.univ_is_subgroup, change _ ≅ _, symmetry, apply univ_iso
+    apply types.equiv.transport (≅ Z₁), change Subgroup (K _) (group.univ _) = _,
+    apply Id.map (Subgroup _), symmetry, apply ker_triv_is_univ,
+    change _ ≅ _, symmetry, apply univ_iso
   end
 
   @[hott] noncomputable def Hₙ (n : ℕ) := calc

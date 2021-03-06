@@ -9,30 +9,69 @@ open ground_zero
 hott theory
 
 namespace ground_zero.algebra
+universe u
 
-structure ring extends group :=
-(ψ             : α.fst → α.fst → α.fst)
-(add_comm      : Π a b, φ a b = φ b a)
-(distrib_left  : Π a b c, ψ a (φ b c) = φ (ψ a b) (ψ a c))
-(distrib_right : Π a b c, ψ (φ a b) c = φ (ψ a c) (ψ b c))
+namespace prering
+  inductive arity : Type
+  | nullary | unary | add | mul
+  open arity
+
+  def signature : arity + ⊥ → ℕ
+  | (sum.inl nullary) := 0
+  | (sum.inl unary)   := 1
+  | (sum.inl add)     := 2
+  | (sum.inl mul)     := 2
+end prering
+
+def prering : Type (u + 1) :=
+Alg.{0 0 u 0} prering.signature
+
+namespace prering
+  @[hott] def intro {α : Type u} (H : hset α)
+    (φ ψ : α → α → α) (ι : α → α) (e : α) : prering :=
+  begin
+    existsi zeroeqv (λ _ _, H), split; intro i; induction i,
+    exact (λ _, e), exact (λ ⟨a, _⟩, ι a),
+    exact (λ ⟨a, b, _⟩, φ a b), exact (λ ⟨a, b, _⟩, ψ a b)
+  end
+
+  def zero (T : prering) : T.carrier :=
+  T.op arity.nullary ★
+
+  def neg (T : prering) : T.carrier → T.carrier :=
+  λ x, T.op arity.unary (x, ★)
+
+  def φ (T : prering) : T.carrier → T.carrier → T.carrier :=
+  λ x y, T.op arity.add (x, y, ★)
+
+  def ψ (T : prering) : T.carrier → T.carrier → T.carrier :=
+  λ x y, T.op arity.mul (x, y, ★)
+
+  @[hott] def pregroup (T : prering) : pregroup :=
+  pregroup.intro (λ _ _, T.hset) T.φ T.neg T.zero
+
+  abbreviation additive := pregroup
+end prering
+
+class ring (T : prering) :=
+(abgroup       : abelian T.pregroup)
+(distrib_left  : Π a b c, T.ψ a (T.φ b c) = T.φ (T.ψ a b) (T.ψ a c))
+(distrib_right : Π a b c, T.ψ (T.φ a b) c = T.φ (T.ψ a c) (T.ψ b c))
+
+postfix `⁺`:1034 := prering.pregroup
+instance abring (T : prering) [ring T] : abelian T⁺ := ring.abgroup
 
 section
-  variable (T : ring)
-  def ring.carrier  := T.α.fst
-  def ring.zero     := T.to_group.e
+  variable (T : prering)
+  def prering.sub (x y : T.carrier) := T.φ x (T.neg y)
 
-  def ring.subset := ens T.carrier
+  def prering.isproper (x : T.carrier) := T.pregroup.isproper x
+  def prering.proper := T.pregroup.proper
 
-  def ring.neg := T.inv
-  def ring.sub (x y : T.carrier) := T.φ x (T.neg y)
-
-  def ring.isproper (x : T.carrier) := T.to_group.isproper x
-  def ring.proper := T.to_group.proper
-
-  def ring.proper_hset : hset T.proper :=
+  def prering.proper_hset : hset T.proper :=
   begin
     apply hset_respects_sigma,
-    intros a b, apply T.to_group.set,
+    intros a b, apply T.pregroup.hset,
     intro x, apply prop_is_set, apply not_is_prop
   end
 
@@ -45,62 +84,91 @@ section
   instance : has_zero T.carrier := ⟨T.zero⟩
 end
 
-@[hott] def ring.mul_zero {T : ring} (a : T.carrier) : a * 0 = 0 :=
-begin
-  apply group.unit_of_sqr, transitivity,
-  { symmetry, apply T.distrib_left },
-  apply map (T.ψ a), apply T.mul_one
+namespace prering
+  variables (T : prering) [ring T]
+
+  @[hott] def add_assoc (a b c : T.carrier) : (a + b) + c = a + (b + c) :=
+  T.pregroup.mul_assoc a b c
+
+  @[hott] def zero_add (a : T.carrier) : 0 + a = a :=
+  T.pregroup.one_mul a
+
+  @[hott] def add_zero (a : T.carrier) : a + 0 = a :=
+  T.pregroup.mul_one a
+
+  @[hott] def add_comm (a b : T.carrier) : a + b = b + a :=
+  T.pregroup.mul_comm a b
+
+  @[hott] def add_left_neg (a : T.carrier) : (-a) + a = 0 :=
+  T.pregroup.mul_left_inv a
+
+  @[hott] def distrib_left (a b c : T.carrier) : a * (b + c) = a * b + a * c :=
+  ring.distrib_left a b c
+
+  @[hott] def distrib_right (a b c : T.carrier) : (a + b) * c = a * c + b * c :=
+  ring.distrib_right a b c
+end prering
+
+section
+  variables {T : prering} [ring T]
+
+  @[hott] def ring.mul_zero (a : T.carrier) : a * 0 = 0 :=
+  begin
+    apply @group.unit_of_sqr T⁺,
+    transitivity, { symmetry, apply ring.distrib_left },
+    apply map (T.ψ a), apply T.zero_add
+  end
+
+  @[hott] def ring.zero_mul (a : T.carrier) : 0 * a = 0 :=
+  begin
+    apply @group.unit_of_sqr T⁺, transitivity,
+    { symmetry, apply T.distrib_right },
+    apply map (* a), apply T.add_zero
+  end
+
+  @[hott] def ring.mul_neg (a b : T.carrier) : a * (-b) = -(a * b) :=
+  begin
+    apply @group.eq_inv_of_mul_eq_one T⁺, transitivity,
+    { symmetry, apply T.distrib_left }, transitivity,
+    { apply map (T.ψ a), apply T.add_left_neg },
+    apply ring.mul_zero
+  end
+
+  @[hott] def ring.neg_mul (a b : T.carrier) : (-a) * b = -(a * b) :=
+  begin
+    apply @group.eq_inv_of_mul_eq_one T⁺, transitivity,
+    { symmetry, apply T.distrib_right }, transitivity,
+    { apply map (* b), apply T.add_left_neg },
+    apply ring.zero_mul
+  end
+
+  @[hott] def ring.sub_distrib_left (a b c : T.carrier) := calc
+    a * (b - c) = a * b + a * (-c) : T.distrib_left a b (T.neg c)
+            ... = a * b - a * c    : (T.φ (T.ψ a b)) # (ring.mul_neg a c)
+
+  @[hott] def ring.sub_distrib_right (a b c : T.carrier) := calc
+    (a - b) * c = a * c + (-b) * c : T.distrib_right a (T.neg b) c
+            ... = a * c - b * c    : (T.φ (T.ψ a c)) # (ring.neg_mul b c)
 end
 
-@[hott] def ring.zero_mul {T : ring} (a : T.carrier) : 0 * a = 0 :=
-begin
-  apply group.unit_of_sqr, transitivity,
-  { symmetry, apply T.distrib_right },
-  apply map (* a), apply T.mul_one
-end
-
-@[hott] def ring.mul_neg {T : ring} (a b : T.carrier) : a * (-b) = -(a * b) :=
-begin
-  apply group.eq_inv_of_mul_eq_one, transitivity,
-  { symmetry, apply T.distrib_left }, transitivity,
-  { apply map (T.ψ a), apply group.mul_left_inv },
-  apply ring.mul_zero
-end
-
-@[hott] def ring.neg_mul {T : ring} (a b : T.carrier) : (-a) * b = -(a * b) :=
-begin
-  apply group.eq_inv_of_mul_eq_one, transitivity,
-  { symmetry, apply T.distrib_right }, transitivity,
-  { apply map (* b), apply group.mul_left_inv },
-  apply ring.zero_mul
-end
-
-@[hott] def ring.sub_distrib_left {T : ring} (a b c : T.carrier) := calc
-  a * (b - c) = a * b + a * (-c) : T.distrib_left a b (T.neg c)
-          ... = a * b - a * c    : (T.φ (T.ψ a b)) # (ring.mul_neg a c)
-
-@[hott] def ring.sub_distrib_right {T : ring} (a b c : T.carrier) := calc
-  (a - b) * c = a * c + (-b) * c : T.distrib_right a (T.neg b) c
-          ... = a * c - b * c    : (T.φ (T.ψ a c)) # (ring.neg_mul b c)
-
-class ring.assoc (T : ring) :=
+class ring.assoc (T : prering) :=
 (mul_assoc : Π a b c, T.ψ (T.ψ a b) c = T.ψ a (T.ψ b c))
 
-class ring.comm (T : ring) :=
+class ring.comm (T : prering) :=
 (mul_comm : Π a b, T.ψ a b = T.ψ b a)
 
-class ring.monoid (T : ring) extends has_one T.carrier :=
+class ring.monoid (T : prering) extends has_one T.carrier :=
 (one_mul : Π a, T.ψ one a = a)
 (mul_one : Π a, T.ψ a one = a)
 
-class ring.divisible (T : ring) extends has_inv T.carrier, ring.monoid T :=
-(zero         : inv 0 = 0)
+class ring.divisible (T : prering) extends has_inv T.carrier, ring.monoid T :=
+(zero_inv     : inv 0 = 0)
 (mul_left_inv : Π (x : T.carrier), T.isproper x → inv x * x = 1)
 
-class field (T : ring) extends ring.assoc T, ring.divisible T, ring.comm T :=
+class field (T : prering) extends ring T, ring.assoc T, ring.divisible T, ring.comm T :=
 (nontrivial : T.isproper 1)
 
-@[hott] def field.proper_mul {T : ring} [field T] {a b : T.carrier} :
+@[hott] def field.proper_mul {T : prering} [field T] {a b : T.carrier} :
   T.isproper a → T.isproper b → T.isproper (a * b) :=
 begin
   intros p q r, apply @field.nontrivial T _,
@@ -114,7 +182,7 @@ begin
   transitivity, apply map, exact r, apply ring.mul_zero
 end
 
-@[hott] def field.prop_inv {T : ring} [field T] {a : T.carrier} :
+@[hott] def field.prop_inv {T : prering} [field T] {a : T.carrier} :
   T.isproper a → T.isproper a⁻¹ :=
 begin
   intros p q, apply @field.nontrivial T _,
@@ -122,57 +190,60 @@ begin
   transitivity, apply map (* a), exact q, apply ring.zero_mul
 end
 
-@[hott] def field.mul (T : ring) [field T] :
+@[hott] def field.mul (T : prering) [field T] :
   T.proper → T.proper → T.proper :=
 λ ⟨a, p⟩ ⟨b, q⟩, ⟨T.ψ a b, field.proper_mul p q⟩
 
-@[hott] def field.inv (T : ring) [field T] : T.proper → T.proper :=
+@[hott] def field.inv (T : prering) [field T] : T.proper → T.proper :=
 λ ⟨a, p⟩, ⟨@has_inv.inv T.carrier _ a, field.prop_inv p⟩
 
-@[hott] def ring.proper_eq {T : ring} {x y : T.proper} (p : x.fst = y.fst) : x = y :=
+@[hott] def ring.proper_eq {T : prering.{u}}
+  {x y : T.proper} (p : x.fst = y.fst) : x = y :=
 begin fapply sigma.prod, exact p, apply not_is_prop end
 
-abbreviation additive : ring → group := ring.to_group
-postfix `⁺`:1034 := additive
-
-@[hott] instance additive.abelian (T : ring) : abelian T⁺ :=
-⟨T.add_comm⟩
-
-def multiplicative (T : ring) [field T] : group :=
-⟨⟨⟨⟨zeroeqv (λ _ _, T.proper_hset), field.mul T⟩,
-  λ ⟨a, p⟩ ⟨b, q⟩ ⟨c, r⟩, ring.proper_eq (ring.assoc.mul_assoc a b c)⟩,
-  ⟨1, field.nontrivial⟩,
-  λ ⟨a, p⟩, ring.proper_eq (ring.monoid.one_mul a),
-  λ ⟨a, p⟩, ring.proper_eq (ring.monoid.mul_one a)⟩,
-  field.inv T, λ ⟨a, p⟩, ring.proper_eq (ring.divisible.mul_left_inv a p)⟩
+@[hott] def multiplicative (T : prering) [field T] : pregroup :=
+pregroup.intro (λ _ _, T.proper_hset) (field.mul T) (field.inv T) ⟨1, field.nontrivial⟩
 postfix `ˣ`:1034 := multiplicative
 
+section
+  variables (T : prering) [field T]
+
+  @[hott] instance multiplicative.semigroup : semigroup Tˣ.magma :=
+  ⟨λ ⟨a, p⟩ ⟨b, q⟩ ⟨c, r⟩, begin
+    fapply @ring.proper_eq T,
+    apply @ring.assoc.mul_assoc T
+  end⟩
+
+  @[hott] instance multiplicative.monoid : monoid Tˣ.premonoid :=
+  ⟨multiplicative.semigroup T,
+  λ ⟨a, p⟩, ring.proper_eq (ring.monoid.one_mul a),
+  λ ⟨a, p⟩, ring.proper_eq (ring.monoid.mul_one a)⟩
+
+  @[hott] instance multiplicative.group : group Tˣ :=
+  ⟨multiplicative.monoid T, λ ⟨a, p⟩, ring.proper_eq (ring.divisible.mul_left_inv a p)⟩
+end
+
 -- voilà, no need to repeat a bunch of lemmas
-@[hott] def field.mul_right_inv (T : ring) [field T] {x : T.carrier}
+@[hott] def field.mul_right_inv (T : prering) [field T] {x : T.carrier}
   (p : T.isproper x) : x * x⁻¹ = 1 :=
-sigma.fst # (@group.mul_right_inv Tˣ ⟨x, p⟩)
+sigma.fst # (@group.mul_right_inv Tˣ _ ⟨x, p⟩)
 
-class lid (T : ring) (φ : T.subset) :=
-(subgroup : T⁺ ≥ φ)
-(ideal    : Π r i, i ∈ φ → r * i ∈ φ)
+class lid (T : prering) (φ : T⁺.subgroup) :=
+(ideal : Π r i, i ∈ φ → T.ψ r i ∈ φ.set)
 
-class rid (T : ring) (φ : T.subset) :=
-(subgroup : T⁺ ≥ φ)
-(ideal    : Π i r, i ∈ φ → i * r ∈ φ)
+class rid (T : prering) (φ : T⁺.subgroup) :=
+(ideal : Π i r, i ∈ φ → T.ψ i r ∈ φ.set)
 
-class ideal (T : ring) (φ : T.subset) :=
-(subgroup : T⁺ ≥ φ)
-(left     : Π r i, i ∈ φ → r * i ∈ φ)
-(right    : Π i r, i ∈ φ → i * r ∈ φ)
+class ideal (T : prering) (φ : T⁺.subgroup) :=
+(left  : Π r i, i ∈ φ → T.ψ r i ∈ φ.set)
+(right : Π i r, i ∈ φ → T.ψ i r ∈ φ.set)
 
-instance ideal.auto (T : ring) (φ : T.subset) [lid T φ] [rid T φ] : ideal T φ :=
-⟨lid.subgroup, lid.ideal, rid.ideal⟩
+instance ideal.auto (T : prering) (φ : T⁺.subgroup)
+  [lid T φ] [rid T φ] : ideal T φ :=
+⟨lid.ideal, rid.ideal⟩
 
 namespace ring
-  variables (T : ring) (φ : T.subset) [ideal T φ]
-
-  @[hott] instance subgroup : T⁺ ≥ φ :=
-  ideal.subgroup
+  variables (T : prering) [ring T] (φ : T⁺.subgroup) [ideal T φ]
 
   @[hott] instance normal : T⁺ ⊵ φ :=
   group.abelian_subgroup_is_normal T⁺ φ
@@ -185,21 +256,21 @@ namespace ring
     { intros a₁ a₂ b₁ b₂ p q,
       apply HITs.quotient.sound,
       apply transport (∈ φ),
-      { let φ' := @group.left_div T⁺,
+      { let φ' := @pregroup.left_div T⁺,
         change T.φ (φ' (T.ψ a₁ a₂) (T.ψ a₁ b₂)) (φ' (T.ψ a₁ b₂) (T.ψ b₁ b₂)) = _,
         transitivity, apply T⁺.mul_assoc,
         transitivity, apply Id.map (T.φ _),
         transitivity, symmetry, apply T⁺.mul_assoc,
         apply Id.map (λ z, T.φ z (T.ψ b₁ b₂)),
         apply group.mul_right_inv,
-        apply Id.map, apply T⁺.one_mul },
-      apply group.is_subgroup.mul,
+        apply Id.map, apply T.zero_add },
+      apply φ.mul,
       { apply transport (∈ φ),
-        transitivity, apply ring.distrib_left T a₁ (T.neg a₂) b₂,
+        transitivity, apply T.distrib_left a₁ (T.neg a₂) b₂,
         apply Id.map (λ z, T.φ z (T.ψ a₁ b₂)),
         apply ring.mul_neg, apply ideal.left, exact q },
       { apply transport (∈ φ),
-        transitivity, apply ring.distrib_right T (T.neg a₁) b₁ b₂,
+        transitivity, apply T.distrib_right (T.neg a₁) b₁ b₂,
         apply Id.map (λ z, T.φ z (T.ψ b₁ b₂)),
         apply ring.neg_mul, apply ideal.right, exact p } }
   end
@@ -210,13 +281,18 @@ namespace ring
   meta def quotΩind :=
   `[ intro x, fapply HITs.quotient.ind_prop _ _ x; clear x ]
 
-  @[hott] noncomputable def factor : ring :=
-  ⟨T⁺\φ, factor.mul T φ, begin
+  @[hott] noncomputable def factor : prering :=
+  prering.intro (λ _ _, (T⁺\φ).hset) (T⁺\φ).φ (factor.mul T φ) (T⁺\φ).ι (T⁺\φ).e
+
+  @[hott] noncomputable instance factor.abgroup : abelian (T⁺\φ) :=
+  ⟨begin
     iterate 2 { quotΩind, intros },
     apply Id.map HITs.quotient.elem,
-    apply ring.add_comm,
-    repeat { πprop }
-  end, begin
+    apply T.add_comm, repeat { πprop }
+  end⟩
+
+  @[hott] noncomputable instance factor.ring : ring (factor T φ) :=
+  ⟨factor.abgroup T φ, begin
     iterate 3 { quotΩind, intros },
     apply Id.map HITs.quotient.elem,
     apply ring.distrib_left,

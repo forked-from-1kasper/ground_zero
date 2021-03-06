@@ -9,7 +9,7 @@ branches:
     - master
 
 before_install:
-  - wget https://github.com/leanprover-community/lean/releases/download/v3.19.0/lean-3.19.0-linux.tar.gz -O lean.tgz
+  - wget https://github.com/leanprover-community/lean/releases/download/v3.27.0/lean-3.27.0-linux.tar.gz -O lean.tgz
   - mkdir lean
   - tar xzf lean.tgz -C lean --strip-components=1
   - export PATH=$PATH:`pwd`/lean/bin

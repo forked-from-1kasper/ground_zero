@@ -155,82 +155,84 @@ namespace finite
 end finite
 
 namespace group
-  class fin (G : group) :=
+  class fin (G : pregroup) :=
   (eqv : Σ n, G.carrier ≃ finite n)
 
-  def ord (G : group) [fin G] := (@fin.eqv G _).fst
+  def ord (G : pregroup) [fin G] := (@fin.eqv G _).fst
 
-  @[hott] def coset {G : group} (h : G.carrier) (φ : ens G.carrier) : ens G.carrier :=
+  @[hott] def coset {G : pregroup} [group G]
+    (h : G.carrier) (φ : G.subset) : ens G.carrier :=
   ⟨λ x, Σ y, (y ∈ φ) × (x = G.φ h y), begin
     intros x p q, induction p with a p, induction q with b q,
     fapply types.sigma.prod, fapply mul_cancel_left, exact h,
     transitivity, exact p.snd⁻¹, exact q.snd,
     apply structures.product_prop,
-    { apply ens.prop }, { apply G.set }
+    { apply ens.prop }, { apply G.hset }
   end⟩
 
-  @[hott] def coset.intro {G : group} {a b : G.carrier} {φ : ens G.carrier} :
+  @[hott] def coset.intro {G : pregroup} [group G]
+    {a b : G.carrier} {φ : G.subset} :
     b ∈ φ → G.φ a b ∈ coset a φ := begin
     intro p, existsi b, split,
     assumption, reflexivity
   end
 
-  @[hott] def coset.triv {G : group} (h : G.carrier)
-    (φ : ens G.carrier) [G ≥ φ] : h ∈ coset h φ := begin
-    existsi G.e, split, { apply is_subgroup.unit },
+  @[hott] def coset.triv {G : pregroup} [group G]
+    (h : G.carrier) (φ : G.subgroup) : h ∈ coset h φ.set := begin
+    existsi G.e, split, { apply φ.unit },
     { symmetry, apply G.mul_one }
   end
 
-  @[hott] noncomputable def coset.idem {G : group} (φ : ens G.carrier) [G ≥ φ]
-    {x : G.carrier} : x ∈ φ → coset x φ = φ := begin
+  @[hott] noncomputable def coset.idem {G : pregroup} [group G]
+    (φ : G.subgroup) {x : G.carrier} : x ∈ φ → coset x φ.set = φ.set := begin
     intro p, apply ens.ext, intro y, split; intro q,
     { induction q with z q, apply transport (∈ φ), exact q.snd⁻¹,
-      apply is_subgroup.mul, exact p, exact q.fst },
-    { existsi G.φ (G.inv x) y, split,
-      { apply is_subgroup.mul,
-        { apply is_subgroup.inv, exact p }, exact q },
+      apply φ.mul, exact p, exact q.fst },
+    { existsi G.φ (G.ι x) y, split,
+      { apply φ.mul, { apply φ.inv, exact p }, exact q },
       { transitivity, { symmetry, apply G.one_mul },
         symmetry, transitivity, { symmetry, apply G.mul_assoc },
         apply map (λ x, G.φ x y), apply mul_right_inv } }
   end
 
-  @[hott] noncomputable def coset.assoc {G : group} {a b : G.carrier} (φ : ens G.carrier)
-    [G ≥ φ] : coset a (coset b φ) = coset (G.φ a b) φ := begin
+  @[hott] noncomputable def coset.assoc {G : pregroup} [group G] {a b : G.carrier}
+    (φ : G.subgroup) : coset a (coset b φ.set) = coset (G.φ a b) φ.set := begin
     apply ens.ext, intro x, split; intro p,
     { cases p with y p, cases p with p r, cases p with z p, cases p with p q,
-      apply transport (∈ coset (G.φ a b) φ),
+      apply transport (∈ coset (G.φ a b) φ.set),
       symmetry, transitivity, { transitivity, exact r, apply map (G.φ a), exact q },
       symmetry, apply G.mul_assoc, apply coset.intro p },
-    { cases p with y p, apply transport (∈ coset a (coset b φ)),
+    { cases p with y p, apply transport (∈ coset a (coset b φ.set)),
       symmetry, transitivity, exact p.snd, apply G.mul_assoc,
       apply coset.intro, apply coset.intro, exact p.fst }
   end
 
-  @[hott] noncomputable def coset.uniq {G : group} {g₁ g₂ x : G.carrier} (φ : ens G.carrier)
-    [G ≥ φ] : x ∈ coset g₁ φ → x ∈ coset g₂ φ → coset g₁ φ = coset g₂ φ := begin
+  @[hott] noncomputable def coset.uniq {G : pregroup} [group G]
+    {g₁ g₂ x : G.carrier} (φ : G.subgroup) :
+    x ∈ coset g₁ φ.set → x ∈ coset g₂ φ.set → coset g₁ φ.set = coset g₂ φ.set := begin
     intros p q, induction p with x₁ p, induction q with x₂ q,
-    transitivity, apply map (λ x, coset x φ), calc
+    transitivity, apply map (λ x, coset x φ.set), calc
        g₁ = G.φ g₁ G.e : (G.mul_one g₁)⁻¹
-      ... = G.φ g₁ (G.φ x₁ (G.inv x₁)) : (G.φ g₁) # (mul_right_inv x₁)⁻¹
-      ... = G.φ (G.φ g₁ x₁) (G.inv x₁) : (G.mul_assoc _ _ _)⁻¹
-      ... = G.φ (G.φ g₂ x₂) (G.inv x₁) : (λ x, G.φ x (G.inv x₁)) # (p.snd⁻¹ ⬝ q.snd)
-      ... = G.φ g₂ (G.φ x₂ (G.inv x₁)) : G.mul_assoc _ _ _,
+      ... = G.φ g₁ (G.φ x₁ (G.ι x₁)) : (G.φ g₁) # (mul_right_inv x₁)⁻¹
+      ... = G.φ (G.φ g₁ x₁) (G.ι x₁) : (G.mul_assoc _ _ _)⁻¹
+      ... = G.φ (G.φ g₂ x₂) (G.ι x₁) : (λ x, G.φ x (G.ι x₁)) # (p.snd⁻¹ ⬝ q.snd)
+      ... = G.φ g₂ (G.φ x₂ (G.ι x₁)) : G.mul_assoc _ _ _,
     transitivity, { symmetry, apply coset.assoc },
-    apply map, apply coset.idem, apply is_subgroup.mul,
-    exact q.fst, apply is_subgroup.inv, exact p.fst
+    apply map, apply coset.idem, apply φ.mul,
+    exact q.fst, apply φ.inv, exact p.fst
   end
 
-  @[hott] def coset.all {G : group} (φ : subgroup G) : ens G.carrier :=
-  ens.sunion (λ s, Σ y, s = coset y φ.fst)
+  @[hott] def coset.all {G : pregroup} [group G] (φ : G.subgroup) : G.subset :=
+  ens.sunion (λ s, Σ y, s = coset y φ.set)
 
-  @[hott] def coset.total {G : group} (φ : subgroup G) :
+  @[hott] def coset.total {G : pregroup} [group G] (φ : G.subgroup) :
     G.carrier → (coset.all φ).subtype := begin
     intro x, existsi x, apply HITs.merely.elem,
     existsi coset x φ.fst, split,
     apply coset.triv, existsi x, reflexivity
   end
 
-  def coset.repr (G : group) (φ : subgroup G) :
+  def coset.repr (G : pregroup) [group G] (φ : G.subgroup) :
     G.carrier ≃ (coset.all φ).subtype := begin
     existsi coset.total φ, split; existsi sigma.fst; intro x,
     { reflexivity },

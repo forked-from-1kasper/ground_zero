@@ -7,29 +7,31 @@ hott theory
 
 namespace ground_zero.algebra
 
-noncomputable def ZΩ.magma : magma :=
-⟨zeroeqv (transport hset circle.fundamental_group⁻¹ (λ _ _, integer.set)), Id.trans⟩
+noncomputable def ZΩ : pregroup :=
+pregroup.intro (transport hset circle.fundamental_group⁻¹ (λ _ _, integer.set))
+  Id.trans Id.inv Id.refl
 
-noncomputable def ZΩ.semigroup : semigroup :=
-⟨ZΩ.magma, λ a b c, (Id.assoc a b c)⁻¹⟩
+noncomputable instance ZΩ.semigroup : semigroup ZΩ.magma :=
+⟨λ a b c, (Id.assoc a b c)⁻¹⟩
 
-noncomputable def ZΩ.monoid : monoid :=
-⟨ZΩ.semigroup, Id.refl, Id.refl_left, Id.refl_right⟩
+noncomputable instance ZΩ.monoid : monoid ZΩ.premonoid :=
+⟨ZΩ.semigroup, Id.refl_left, Id.refl_right⟩
 
-noncomputable def ZΩ : group :=
-⟨ZΩ.monoid, Id.inv, Id.inv_comp⟩
+noncomputable instance ZΩ.group : group ZΩ :=
+⟨ZΩ.monoid, Id.inv_comp⟩
 
 noncomputable instance ZΩ.abelian : abelian ZΩ :=
 ⟨circle.comm⟩
 
-@[hott] def helix {G : group} (z : G.carrier) : S¹ → Type :=
+@[hott] def helix {G : pregroup} [group G] (z : G.carrier) : S¹ → Type :=
 circle.rec G.carrier (ground_zero.ua (group.left G z))
 
-@[hott] def power {G : group} (z : G.carrier) (p : ZΩ.carrier) : G.carrier :=
+@[hott] def power {G : pregroup} [group G]
+  (z : G.carrier) (p : ZΩ.carrier) : G.carrier :=
 @transport S¹ (helix z) circle.base circle.base p G.e
 
 -- In cubicaltt these two lemmas will just compute
-@[hott] noncomputable def helix.loop {G : group} (z x : G.carrier) :
+@[hott] noncomputable def helix.loop {G : pregroup} [group G] (z x : G.carrier) :
   transport (helix z) circle.loop x = G.φ z x :=
 begin
   transitivity, apply equiv.transport_to_transportconst,
@@ -37,8 +39,8 @@ begin
   apply circle.recβrule₂, apply ground_zero.ua.transportconst_rule
 end
 
-@[hott] noncomputable def helix.loop_inv {G : group} (z x : G.carrier) :
-  transport (helix z) circle.loop⁻¹ x = G.φ (G.inv z) x :=
+@[hott] noncomputable def helix.loop_inv {G : pregroup} [group G] (z x : G.carrier) :
+  transport (helix z) circle.loop⁻¹ x = G.φ (G.ι z) x :=
 begin
   transitivity, apply equiv.transport_to_transportconst,
   transitivity, apply Id.map (λ p, transportconst p x),
@@ -47,15 +49,15 @@ begin
   apply ground_zero.ua.transportconst_inv_rule
 end
 
-@[hott] noncomputable def power.succ {G : group} (z : G.carrier) :
+@[hott] noncomputable def power.succ {G : pregroup} [group G] (z : G.carrier) :
   Π p, power z (circle.succ p) = G.φ z (power z p) :=
 begin intro p, transitivity, apply equiv.subst_comp, apply helix.loop end
 
-@[hott] noncomputable def power.pred {G : group} (z : G.carrier) :
-  Π p, power z (circle.pred p) = G.φ (G.inv z) (power z p) :=
+@[hott] noncomputable def power.pred {G : pregroup} [group G] (z : G.carrier) :
+  Π p, power z (circle.pred p) = G.φ (G.ι z) (power z p) :=
 begin intro p, transitivity, apply equiv.subst_comp, apply helix.loop_inv end
 
-@[hott] noncomputable def power.mul {G : group} (z : G.carrier)
+@[hott] noncomputable def power.mul {G : pregroup} [group G] (z : G.carrier)
   (p q : ZΩ.carrier) : power z (p ⬝ q) = G.φ (power z p) (power z q) :=
 begin
   fapply circle.Ωind₁ _ _ _ p; clear p,
@@ -71,19 +73,20 @@ begin
     apply Id.map (λ x, G.φ x (power z q)),
     symmetry, apply power.succ },
   { transitivity, apply power.pred,
-    transitivity, apply Id.map (G.φ (G.inv z)), apply ih,
+    transitivity, apply Id.map (G.φ (G.ι z)), apply ih,
     transitivity, symmetry, apply G.mul_assoc,
     apply Id.map (λ x, G.φ x (power z q)),
     symmetry, apply power.pred }
 end
 
-@[hott] noncomputable def ZΩ.rec {G : group} (z : G.carrier) : ZΩ ⤳ G :=
-⟨power z, power.mul z⟩
+@[hott] noncomputable def ZΩ.rec {G : pregroup} [group G]
+  (z : G.carrier) : ZΩ ⤳ G :=
+group.mkhomo (power z) (power.mul z)
 
 @[hott] noncomputable def ZΩ.mul (p q : ZΩ.carrier) : ZΩ.carrier :=
-(@power (S ZΩ.zero) (group.left ZΩ p) q).fst Id.refl
+(@power (S ZΩ.zero) _ (group.left ZΩ p) q).fst Id.refl
 
-@[hott] noncomputable def power.one {G : group} :
+@[hott] noncomputable def power.one {G : pregroup} [group G] :
   Π p, power G.e p = G.e :=
 begin
   fapply circle.Ωind₁, { trivial },
@@ -95,7 +98,7 @@ begin
     transitivity, apply G.one_mul, exact ih }
 end
 
-@[hott] def power.zero {G : group}
+@[hott] def power.zero {G : pregroup} [group G]
   (x : G.carrier) : power x Id.refl = G.e :=
 by reflexivity
 

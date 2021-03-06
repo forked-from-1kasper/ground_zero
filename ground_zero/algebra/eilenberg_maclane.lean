@@ -42,10 +42,10 @@ begin apply one_eqv_groupoid.forward, apply ntype_is_succ_n_type 0 end
 private structure K1.aux :=
 (val : 𝟏)
 
-def K1 (G : group) := K1.aux
+def K1 (G : pregroup) := K1.aux
 
 namespace K1
-  variables {G : group}
+  variables {G : pregroup}
   local infix * := G.φ
 
   attribute [nothott] K1.aux.rec_on K1.aux.rec aux.val
@@ -90,28 +90,29 @@ namespace K1
   def KΩ.one :  Ω¹(K1 G)                            := idp base
   def KΩ.inv : (Ω¹(K1 G)) → (Ω¹(K1 G))              := Id.inv
 
-  noncomputable def KΩ.magma (G : group) : magma :=
-  ⟨@zeroeqv (Ω¹(K1 G)) (λ _ _, grpd), KΩ.mul⟩
+  noncomputable def KΩ (G : pregroup) : pregroup :=
+  @pregroup.intro (Ω¹(K1 G)) (λ _ _, grpd) KΩ.mul KΩ.inv KΩ.one
 
-  noncomputable def KΩ.semigroup (G : group) : semigroup :=
-  ⟨KΩ.magma G, begin intros p q r, symmetry, apply Id.assoc end⟩
+  noncomputable instance KΩ.semigroup (G : pregroup) : semigroup (KΩ G).magma :=
+  ⟨begin intros p q r, symmetry, apply Id.assoc end⟩
 
-  noncomputable def KΩ.monoid (G : group) : monoid := begin
-    fapply monoid.mk, exact KΩ.semigroup G, exact KΩ.one,
-    intro p, apply Id.refl_left, apply Id.refl_right
+  noncomputable instance KΩ.monoid (G : pregroup) : monoid (KΩ G).premonoid :=
+  begin
+    split, exact KΩ.semigroup G, intro p,
+    apply Id.refl_left, apply Id.refl_right
   end
 
-  noncomputable def KΩ (G : group) : group :=
-  ⟨KΩ.monoid G, KΩ.inv, Id.inv_comp⟩
+  noncomputable instance KΩ.group (G : pregroup) : group (KΩ G) :=
+  begin split, exact KΩ.monoid G, apply Id.inv_comp end
 
-  noncomputable def homomorphism : G ⤳ KΩ G :=
-  ⟨loop, loop.mul⟩
+  noncomputable def homomorphism [group G] : G ⤳ KΩ G :=
+  group.mkhomo loop loop.mul
 
-  noncomputable def loop.one : loop G.e = idp base :> Ω¹(K1 G) :=
-  by apply group.homo_saves_unit homomorphism
+  noncomputable def loop.one [group G] : loop G.e = idp base :> Ω¹(K1 G) :=
+  group.homo_unit homomorphism
 
-  noncomputable def loop.inv (p : G.carrier) : loop (G.inv p) = (loop p)⁻¹ :=
-  by apply group.homo_respects_inv homomorphism
+  noncomputable def loop.inv [group G] : Π p, loop (G.ι p) = (loop p)⁻¹ :=
+  group.homo_inv homomorphism
 
   @[hott] noncomputable def family
     (baseπ : Type u)
@@ -131,30 +132,30 @@ namespace K1
     { apply ens_is_groupoid }
   end
 
-  @[hott] noncomputable def code' : K1 G → (0-Type) :=
+  @[hott] noncomputable def code' [group G] : K1 G → (0-Type) :=
   begin
     fapply family, exact G.carrier,
     { intro x, apply ground_zero.ua, existsi (* x), split;
-      existsi (* G.inv x); intro y; change _ * _ * _ = _,
-      repeat { transitivity, apply semigroup.mul_assoc,
+      existsi (* G.ι x); intro y; change _ * _ * _ = _,
+      repeat { transitivity, apply G.mul_assoc,
                transitivity, apply Id.map },
-      apply group.mul_right_inv, apply monoid.mul_one,
-      apply group.mul_left_inv, apply monoid.mul_one },
+      apply group.mul_right_inv, apply G.mul_one,
+      apply G.mul_left_inv, apply G.mul_one },
     { intros x y, symmetry, transitivity,
       { symmetry, apply ground_zero.ua.ua_trans },
       apply Id.map ua, fapply sigma.prod,
       { apply ground_zero.theorems.funext, intro z,
-        apply semigroup.mul_assoc },
+        apply G.mul_assoc },
       { apply biinv_prop } },
-    { intros a b, apply G.set }
+    { intros a b, apply G.hset }
   end
 
-  @[hott] def code (x : K1 G) := (code' x).fst
+  @[hott] def code [group G] (x : K1 G) := (code' x).fst
 
-  @[hott] noncomputable def code.hset : Π (z : K1 G), hset (code z) :=
+  @[hott] noncomputable def code.hset [group G] : Π (z : K1 G), hset (code z) :=
   begin
     intro z, fapply ind _ _ _ _ z,
-    { intros a b, apply G.set },
+    { intros a b, apply G.hset },
     { intro x, change _ = _, apply set_is_prop },
     { intros x y, change _ = _, apply prop_is_set,
       apply set_is_prop },
@@ -162,13 +163,13 @@ namespace K1
       apply prop_is_ntype _ 0, apply set_is_prop }
   end
 
-  @[hott] noncomputable def hset_base : hset (@code G base) :=
+  @[hott] noncomputable def hset_base [p : group G] : hset (@code G p base) :=
   by intros p q; apply code.hset base
 
-  @[hott] def encode : Π (z : K1 G), base = z → code z :=
+  @[hott] def encode [group G] : Π (z : K1 G), base = z → code z :=
   λ z p, equiv.transport code p G.e
 
-  @[hott] noncomputable def decode : Π (z : K1 G), code z → base = z :=
+  @[hott] noncomputable def decode [group G] : Π (z : K1 G), code z → base = z :=
   begin
     intro z, fapply ind _ _ _ _ z,
     { exact loop },
@@ -201,7 +202,7 @@ namespace K1
       apply zero_eqv_set.left, apply grpd }
   end
 
-  @[hott] noncomputable def encode_decode :
+  @[hott] noncomputable def encode_decode [group G] :
     Π (z : K1 G) (p : code z), encode z (decode z p) = p :=
   begin
     intros z p, fapply @ind G (λ z, Π (p : code z), encode z (decode z p) = p) _ _ _ _ z,
@@ -212,7 +213,7 @@ namespace K1
       transitivity, apply Id.map, apply recβrule,
       apply sigma.map_fst_over_prod,
       transitivity, apply ground_zero.ua.transportconst_rule,
-      apply monoid.one_mul },
+      apply G.one_mul },
     { intros, apply ground_zero.theorems.funext, intro x,
       apply hset_base },
     { intros x y, apply prop_is_set,
@@ -223,16 +224,16 @@ namespace K1
       intro y, apply code.hset x }
   end
 
-  @[hott] noncomputable def decode_encode :
+  @[hott] noncomputable def decode_encode [group G] :
     Π (z : K1 G) (p : base = z), decode z (encode z p) = p :=
   begin intros z p, induction p, apply loop.one end
 
-  @[hott] noncomputable def univ : G ≅ KΩ G := begin
-    existsi loop, split,
+  @[hott] noncomputable def univ [p : group G] : G ≅ KΩ G := begin
+    fapply group.mkiso, exact loop,
     { intros x y, apply loop.mul },
     split; existsi encode base,
-    { apply encode_decode base },
-    { apply decode_encode base }
+    { apply encode_decode base }, exact p,
+    { apply decode_encode base }, exact p
   end
 end K1
 
