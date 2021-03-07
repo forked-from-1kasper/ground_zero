@@ -2190,6 +2190,28 @@ namespace group
 
     @[hott] def absolutizer.comp₂ : φ.inv.ap ∘ φ.ap ~ φ.inv.ap :=
     begin intro x, apply Id.map G.ι, apply φ.idem end
+
+    include φ
+    @[hott] noncomputable def absolutizer.mul : ⌈G⌉ → ⌈G⌉ → ⌈G⌉ :=
+    begin
+      fapply HITs.quotient.lift₂,
+      { intros a b, apply HITs.quotient.elem, exact φ.ap a * φ.ap b },
+      { apply HITs.quotient.set },
+      { intros a₁ a₂ b₁ b₂, intro p, fapply HITs.merely.rec _ _ p; clear p,
+        { apply pi_prop, intro x, apply HITs.quotient.set },
+        { intro p, fapply HITs.merely.rec, apply HITs.quotient.set,
+          intro q, fapply Id.map HITs.quotient.elem, fapply equiv.bimap,
+          { induction p, exact φ.ap # p,
+            transitivity, apply φ.ap # p,
+            apply absolutizer.even },
+          { induction q, exact φ.ap # q,
+            transitivity, apply φ.ap # q,
+            apply absolutizer.even } } }
+    end
+
+    omit φ
+    @[hott] def absolutizer.one : ⌈G⌉ :=
+    HITs.quotient.elem G.e
   end
 end group
 
