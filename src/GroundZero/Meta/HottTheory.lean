@@ -75,7 +75,7 @@ partial def checkDeclAux (chain : List Name) (name : Name) : MetaM Unit := do
   let env ← getEnv
   match env.find? name with
   | some (ConstantInfo.recInfo v) =>
-    List.forM (checkLargeElim chain) v.all
+    List.forM v.all (checkLargeElim chain)
   | some info =>
     match info.value? with
     | some expr => Array.forM (λ n => checkDeclAux (n :: chain) n)
