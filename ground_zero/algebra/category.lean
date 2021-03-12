@@ -62,6 +62,8 @@ end precategory
 class category (𝒞 : precategory) :=
 (bottom_left  : Π a, 𝒞.μ ∄ a = ∄)
 (bottom_right : Π a, 𝒞.μ a ∄ = ∄)
+(bottom_dom   : 𝒞.dom ∄ = ∄)
+(bottom_cod   : 𝒞.cod ∄ = ∄)
 (dom_comp     : Π a, 𝒞.μ (𝒞.dom a) a = a)
 (cod_comp     : Π a, 𝒞.μ a (𝒞.cod a) = a)
 (dom_dom      : 𝒞.dom ∘ 𝒞.dom ~ 𝒞.dom)
