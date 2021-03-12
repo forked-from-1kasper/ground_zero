@@ -232,6 +232,21 @@ namespace group
   Id.inv (inv_inv x) ⬝ (inv_eq_of_mul_eq_one h)
 
   section
+    variables {H K : pregroup}
+
+    @[hott] def homo_unit (φ : H ⤳ K) : φ.fst H.e = K.e :=
+    φ.snd.fst pregroup.arity.nullary ★
+
+    @[hott] def homo_inv (φ : H ⤳ K) (x : H.carrier) :
+      φ.fst (H.ι x) = K.ι (φ.fst x) :=
+    φ.snd.fst pregroup.arity.unary (x, ★)
+
+    @[hott] def homo_mul (φ : H ⤳ K) (x y : H.carrier) :
+      φ.fst (H.φ x y) = K.φ (φ.fst x) (φ.fst y) :=
+    φ.snd.fst pregroup.arity.binary (x, y, ★)
+  end
+
+  section
     variables {H : pregroup} [group H]
     local infix × : 70 := H.φ
 
@@ -263,16 +278,6 @@ namespace group
     @[hott] def mkiso (φ : G.carrier → H.carrier)
       (p : Π a b, φ (a * b) = φ a × φ b) (q : biinv φ) : G ≅ H :=
     ⟨φ, ((mkhomo φ p).snd, q)⟩
-
-    @[hott] def homo_unit (φ : G ⤳ H) : φ.fst G.e = H.e :=
-    φ.snd.fst pregroup.arity.nullary ★
-
-    @[hott] def homo_inv (φ : G ⤳ H) (x : G.carrier) : φ.fst x⁻¹ = H.ι (φ.fst x) :=
-    φ.snd.fst pregroup.arity.unary (x, ★)
-
-    @[hott] def homo_mul (φ : G ⤳ H) (x y : G.carrier) :
-      φ.fst (x * y) = φ.fst x × φ.fst y :=
-    φ.snd.fst pregroup.arity.binary (x, y, ★)
 
     @[hott] def iso_unit (φ : G ≅ H) : φ.fst G.e = H.e :=
     homo_unit φ.homo

@@ -11,7 +11,7 @@ hott theory
 -/
 
 namespace ground_zero.algebra
-  universes u v w
+  universes u v u' v' w
 
   def zeroeqv {α : Type u} (H : hset α) : 0-Type :=
   ⟨α, zero_eqv_set.left (λ _ _, H)⟩
