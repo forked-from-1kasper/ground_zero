@@ -44,6 +44,9 @@ namespace precategory
 
   def objs := Σ x, id 𝒞 x
 
+  def Hom (a b : 𝒞.carrier) :=
+  Σ φ, ∥(𝒞.dom φ = a) + (𝒞.cod φ = b)∥
+
   def defined (x : 𝒞.carrier) : Type u := x ≠ ∄
 
   def monic (a : 𝒞.carrier) :=
