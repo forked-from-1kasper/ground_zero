@@ -69,20 +69,44 @@ class category (𝒞 : precategory) :=
 (bottom_cod   : 𝒞.cod ∄ = ∄)
 (dom_comp     : Π a, 𝒞.μ (𝒞.dom a) a = a)
 (cod_comp     : Π a, 𝒞.μ a (𝒞.cod a) = a)
-(dom_dom      : 𝒞.dom ∘ 𝒞.dom ~ 𝒞.dom)
-(cod_cod      : 𝒞.cod ∘ 𝒞.cod ~ 𝒞.cod)
+(mul_dom      : Π a b, 𝒞.dom (𝒞.μ a b) = 𝒞.dom a)
+(mul_cod      : Π a b, 𝒞.cod (𝒞.μ a b) = 𝒞.cod b)
 (dom_cod      : 𝒞.dom ∘ 𝒞.cod ~ 𝒞.cod)
 (cod_dom      : 𝒞.cod ∘ 𝒞.dom ~ 𝒞.dom)
 (mul_assoc    : Π a b c, 𝒞.μ (𝒞.μ a b) c = 𝒞.μ a (𝒞.μ b c))
 
 namespace category
-  variables (𝒞 : precategory) [category 𝒞]
+  variables {𝒞 : precategory} [category 𝒞]
+
+  @[hott] def dom_dom : 𝒞.dom ∘ 𝒞.dom ~ 𝒞.dom :=
+  begin
+    intro x, symmetry, transitivity, apply Id.map 𝒞.dom,
+    symmetry, apply dom_comp, apply mul_dom
+  end
+
+  @[hott] def cod_cod : 𝒞.cod ∘ 𝒞.cod ~ 𝒞.cod :=
+  begin
+    intro x, symmetry, transitivity, apply Id.map 𝒞.cod,
+    symmetry, apply cod_comp, apply mul_cod
+  end
+
+  @[hott] def dom_mul_dom : Π a, 𝒞.μ (𝒞.dom a) (𝒞.dom a) = 𝒞.dom a :=
+  begin
+    intro a, transitivity, apply Id.map (λ b, 𝒞.μ b (𝒞.dom a)),
+    symmetry, apply dom_dom, apply dom_comp
+  end
+
+  @[hott] def cod_mul_cod : Π a, 𝒞.μ (𝒞.cod a) (𝒞.cod a) = 𝒞.cod a :=
+  begin
+    intro a, transitivity, apply Id.map (𝒞.μ (𝒞.cod a)),
+    symmetry, apply cod_cod, apply cod_comp
+  end
 
   @[hott] def dom_endo : Π a, 𝒞.endo (𝒞.dom a) :=
-  λ x, (category.dom_dom x) ⬝ (category.cod_dom x)⁻¹
+  λ x, (dom_dom x) ⬝ (cod_dom x)⁻¹
 
   @[hott] def cod_endo : Π a, 𝒞.endo (𝒞.cod a) :=
-  λ x, (category.dom_cod x) ⬝ (category.cod_cod x)⁻¹
+  λ x, (dom_cod x) ⬝ (cod_cod x)⁻¹
 
   @[hott] def id_endo (a : 𝒞.carrier) : 𝒞.id a → 𝒞.endo a :=
   begin
