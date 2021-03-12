@@ -39,15 +39,15 @@ namespace precategory
   def cod : 𝒞.carrier → 𝒞.carrier :=
   λ x, 𝒞.op arity.right (x, ★)
 
+  def defined (x : 𝒞.carrier) : Type u := x ≠ ∄
+
   def id (x : 𝒞.carrier) :=
   ∥(Σ φ, (𝒞.dom φ = x) + (𝒞.cod φ = x))∥
 
-  def objs := Σ x, id 𝒞 x
+  def objs := Σ x, 𝒞.id x × 𝒞.defined x
 
   def Hom (a b : 𝒞.carrier) :=
   Σ φ, ∥(𝒞.dom φ = a) + (𝒞.cod φ = b)∥
-
-  def defined (x : 𝒞.carrier) : Type u := x ≠ ∄
 
   def monic (a : 𝒞.carrier) :=
   Π b c, 𝒞.μ a b = 𝒞.μ a c → b = c
