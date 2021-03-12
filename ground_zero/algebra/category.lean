@@ -33,29 +33,51 @@ namespace precategory
   def μ : 𝒞.carrier → 𝒞.carrier → 𝒞.carrier :=
   λ x y, 𝒞.op arity.mul (x, y, ★)
 
-  def lid : 𝒞.carrier → 𝒞.carrier :=
+  def dom : 𝒞.carrier → 𝒞.carrier :=
   λ x, 𝒞.op arity.left (x, ★)
 
-  def rid : 𝒞.carrier → 𝒞.carrier :=
+  def cod : 𝒞.carrier → 𝒞.carrier :=
   λ x, 𝒞.op arity.right (x, ★)
 
   def id (x : 𝒞.carrier) :=
-  ∥(Σ φ, (𝒞.lid φ = x) + (𝒞.rid φ = x))∥
+  ∥(Σ φ, (𝒞.dom φ = x) + (𝒞.cod φ = x))∥
 
   def objs := Σ x, id 𝒞 x
 
   def defined (x : 𝒞.carrier) : Type u := x ≠ ∄
+
+  def monic (a : 𝒞.carrier) :=
+  Π b c, 𝒞.μ a b = 𝒞.μ a c → b = c
+
+  def epic (a : 𝒞.carrier) :=
+  Π b c, 𝒞.μ b a = 𝒞.μ c a → b = c
+
+  def bimorphism (a : 𝒞.carrier) :=
+  monic 𝒞 a × epic 𝒞 a
+
+  def endo (a : 𝒞.carrier) :=
+  𝒞.dom a = 𝒞.cod a
 end precategory
 
 class category (𝒞 : precategory) :=
 (bottom_left  : Π a, 𝒞.μ ∄ a = ∄)
 (bottom_right : Π a, 𝒞.μ a ∄ = ∄)
-(lid_comp     : Π a, 𝒞.μ (𝒞.lid a) a = a)
-(rid_comp     : Π a, 𝒞.μ a (𝒞.rid a) = a)
-(lid_lid      : 𝒞.lid ∘ 𝒞.lid ~ 𝒞.lid)
-(rid_rid      : 𝒞.rid ∘ 𝒞.rid ~ 𝒞.rid)
-(lid_rid      : 𝒞.lid ∘ 𝒞.rid ~ 𝒞.rid)
-(rid_lid      : 𝒞.rid ∘ 𝒞.lid ~ 𝒞.lid)
+(dom_comp     : Π a, 𝒞.μ (𝒞.dom a) a = a)
+(cod_comp     : Π a, 𝒞.μ a (𝒞.cod a) = a)
+(dom_dom      : 𝒞.dom ∘ 𝒞.dom ~ 𝒞.dom)
+(cod_cod      : 𝒞.cod ∘ 𝒞.cod ~ 𝒞.cod)
+(dom_cod      : 𝒞.dom ∘ 𝒞.cod ~ 𝒞.cod)
+(cod_dom      : 𝒞.cod ∘ 𝒞.dom ~ 𝒞.dom)
 (mul_assoc    : Π a b c, 𝒞.μ (𝒞.μ a b) c = 𝒞.μ a (𝒞.μ b c))
+
+namespace category
+  variables (𝒞 : precategory) [category 𝒞]
+
+  @[hott] def dom_endo : Π a, 𝒞.endo (𝒞.dom a) :=
+  λ x, (category.dom_dom x) ⬝ (category.cod_dom x)⁻¹
+
+  @[hott] def cod_endo : Π a, 𝒞.endo (𝒞.cod a) :=
+  λ x, (category.dom_cod x) ⬝ (category.cod_cod x)⁻¹
+end category
 
 end ground_zero.algebra
