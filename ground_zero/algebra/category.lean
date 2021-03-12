@@ -83,6 +83,13 @@ namespace category
 
   @[hott] def cod_endo : Π a, 𝒞.endo (𝒞.cod a) :=
   λ x, (category.dom_cod x) ⬝ (category.cod_cod x)⁻¹
+
+  @[hott] def id_endo (a : 𝒞.carrier) : 𝒞.id a → 𝒞.endo a :=
+  begin
+    fapply HITs.merely.rec, { apply 𝒞.hset },
+    { intro φ, induction φ with φ p, change _ = _,
+      induction p; induction p, apply dom_endo, apply cod_endo }
+  end
 end category
 
 end ground_zero.algebra
