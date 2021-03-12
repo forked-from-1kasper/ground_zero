@@ -11,7 +11,8 @@ digraph dependency_map {
   }
 
   subgraph algebra {
-    "algebra/basic" -> { "algebra/monoid", "algebra/group" }
+    "algebra/basic" -> { "algebra/category", "algebra/monoid", "algebra/group" }
+    "algebra/category"
     "algebra/eilenberg_maclane"
     "algebra/finite"
     "algebra/group" -> {
