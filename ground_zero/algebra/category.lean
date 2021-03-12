@@ -1,5 +1,6 @@
 import ground_zero.algebra.basic
 open ground_zero.types
+open ground_zero
 
 hott theory
 
@@ -23,22 +24,27 @@ def precategory : Type (u + 1) :=
 Alg.{0 0 u 0} precategory.signature
 
 namespace precategory
-  def bottom (𝒞 : precategory) : 𝒞.carrier :=
+  variable (𝒞 : precategory.{u})
+
+  def bottom : 𝒞.carrier :=
   𝒞.op arity.bottom ★
+  notation `∄` := bottom _
 
-  abbreviation undefined {𝒞 : precategory} :=
-  𝒞.bottom
-
-  notation `∄` := undefined
-
-  def μ (𝒞 : precategory) : 𝒞.carrier → 𝒞.carrier → 𝒞.carrier :=
+  def μ : 𝒞.carrier → 𝒞.carrier → 𝒞.carrier :=
   λ x y, 𝒞.op arity.mul (x, y, ★)
 
-  def lid (𝒞 : precategory) : 𝒞.carrier → 𝒞.carrier :=
+  def lid : 𝒞.carrier → 𝒞.carrier :=
   λ x, 𝒞.op arity.left (x, ★)
 
-  def rid (𝒞 : precategory) : 𝒞.carrier → 𝒞.carrier :=
+  def rid : 𝒞.carrier → 𝒞.carrier :=
   λ x, 𝒞.op arity.right (x, ★)
+
+  def id (x : 𝒞.carrier) :=
+  ∥(Σ φ, (𝒞.lid φ = x) + (𝒞.rid φ = x))∥
+
+  def objs := Σ x, id 𝒞 x
+
+  def defined (x : 𝒞.carrier) : Type u := x ≠ ∄
 end precategory
 
 class category (𝒞 : precategory) :=
