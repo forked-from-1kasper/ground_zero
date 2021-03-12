@@ -1,4 +1,5 @@
 import ground_zero.algebra.basic
+open ground_zero.types
 
 hott theory
 
@@ -45,6 +46,10 @@ class category (𝒞 : precategory) :=
 (bottom_right : Π a, 𝒞.μ a ∄ = ∄)
 (lid_comp     : Π a, 𝒞.μ (𝒞.lid a) a = a)
 (rid_comp     : Π a, 𝒞.μ a (𝒞.rid a) = a)
+(lid_lid      : 𝒞.lid ∘ 𝒞.lid ~ 𝒞.lid)
+(rid_rid      : 𝒞.rid ∘ 𝒞.rid ~ 𝒞.rid)
+(lid_rid      : 𝒞.lid ∘ 𝒞.rid ~ 𝒞.rid)
+(rid_lid      : 𝒞.rid ∘ 𝒞.lid ~ 𝒞.lid)
 (mul_assoc    : Π a b c, 𝒞.μ (𝒞.μ a b) c = 𝒞.μ a (𝒞.μ b c))
 
 end ground_zero.algebra
