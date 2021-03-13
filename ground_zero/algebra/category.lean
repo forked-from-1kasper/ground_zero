@@ -40,6 +40,7 @@ namespace precategory
   λ x, 𝒞.op arity.right (x, ★)
 
   def defined (x : 𝒞.carrier) : Type u := x ≠ ∄
+  prefix `∃` := defined _
 
   def id (x : 𝒞.carrier) :=
   ∥(Σ φ, (𝒞.dom φ = x) + (𝒞.cod φ = x))∥
@@ -81,8 +82,7 @@ class category (𝒞 : precategory) :=
 (dom_cod      : 𝒞.dom ∘ 𝒞.cod ~ 𝒞.cod)
 (cod_dom      : 𝒞.cod ∘ 𝒞.dom ~ 𝒞.dom)
 (mul_assoc    : Π a b c, 𝒞.μ (𝒞.μ a b) c = 𝒞.μ a (𝒞.μ b c))
-(mul_def      : Π a b, 𝒞.defined a → 𝒞.defined b →
-                       𝒞.defined (𝒞.μ a b) = 𝒞.following a b)
+(mul_def      : Π a b, ∃a → ∃b → ∃(𝒞.μ a b) = 𝒞.following a b)
 
 namespace category
   variables {𝒞 : precategory} [category 𝒞]
