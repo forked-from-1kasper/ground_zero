@@ -74,7 +74,6 @@ class category (𝒞 : precategory) :=
 (bottom_right : Π a, 𝒞.μ a ∄ = ∄)
 (bottom_dom   : 𝒞.dom ∄ = ∄)
 (bottom_cod   : 𝒞.cod ∄ = ∄)
-(mul_def      : Π a b, 𝒞.defined a → 𝒞.defined b → 𝒞.defined (𝒞.μ a b) = 𝒞.following a b)
 (dom_comp     : Π a, 𝒞.μ a (𝒞.dom a) = a)
 (cod_comp     : Π a, 𝒞.μ (𝒞.cod a) a = a)
 (mul_dom      : Π a b, 𝒞.dom (𝒞.μ a b) = 𝒞.dom b)
@@ -82,6 +81,8 @@ class category (𝒞 : precategory) :=
 (dom_cod      : 𝒞.dom ∘ 𝒞.cod ~ 𝒞.cod)
 (cod_dom      : 𝒞.cod ∘ 𝒞.dom ~ 𝒞.dom)
 (mul_assoc    : Π a b c, 𝒞.μ (𝒞.μ a b) c = 𝒞.μ a (𝒞.μ b c))
+(mul_def      : Π a b, 𝒞.defined a → 𝒞.defined b →
+                       𝒞.defined (𝒞.μ a b) = 𝒞.following a b)
 
 namespace category
   variables {𝒞 : precategory} [category 𝒞]
