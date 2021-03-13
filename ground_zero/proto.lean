@@ -10,6 +10,13 @@ structure iff (α : Sort u) (β : Sort v) :=
 
 infix ↔ := iff
 
+@[symm] def iff.symm {α : Sort u} {β : Sort v} : (α ↔ β) → (β ↔ α) :=
+λ p, ⟨p.right, p.left⟩
+
+@[trans] def iff.comp {α : Sort u} {β : Sort v} {γ : Sort w} :
+  (α ↔ β) → (β ↔ γ) → (α ↔ γ) :=
+λ p q, ⟨q.left ∘ p.left, p.right ∘ q.right⟩
+
 notation `𝟎` := empty
 notation `𝟐` := bool
 

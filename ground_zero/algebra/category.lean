@@ -1,4 +1,5 @@
 import ground_zero.algebra.basic
+open ground_zero.structures (hset)
 open ground_zero.types
 open ground_zero
 
@@ -24,6 +25,14 @@ def precategory : Type (u + 1) :=
 Alg.{0 0 u 0} precategory.signature
 
 namespace precategory
+  @[hott] def intro {α : Type u} (p : hset α) (μ : α → α → α)
+    (dom cod : α → α) (bot : α) : precategory.{u} :=
+  begin
+    existsi zeroeqv (λ _ _, p), split; intro i; induction i,
+    exact λ ⟨a, _⟩, dom a, exact λ ⟨a, _⟩, cod a,
+    exact λ ⟨a, b, _⟩, μ a b, exact λ _, bot
+  end
+
   variable (𝒞 : precategory.{u})
 
   def bottom : 𝒞.carrier :=
@@ -64,6 +73,10 @@ namespace precategory
 
   def endo (a : 𝒞.carrier) :=
   𝒞.following a a
+
+  @[hott] def op : precategory :=
+  intro (λ _ _, 𝒞.hset) (λ a b, 𝒞.μ b a) 𝒞.cod 𝒞.dom ∄
+  postfix `ᵒᵖ`:2000 := op
 end precategory
 
 /-
@@ -82,7 +95,7 @@ class category (𝒞 : precategory) :=
 (dom_cod      : 𝒞.dom ∘ 𝒞.cod ~ 𝒞.cod)
 (cod_dom      : 𝒞.cod ∘ 𝒞.dom ~ 𝒞.dom)
 (mul_assoc    : Π a b c, 𝒞.μ (𝒞.μ a b) c = 𝒞.μ a (𝒞.μ b c))
-(mul_def      : Π a b, ∃a → ∃b → ∃(𝒞.μ a b) = 𝒞.following a b)
+(mul_def      : Π a b, ∃a → ∃b → (∃(𝒞.μ a b) ↔ 𝒞.following a b))
 
 namespace category
   variables {𝒞 : precategory} [category 𝒞]
@@ -122,6 +135,15 @@ namespace category
     fapply HITs.merely.rec, { apply 𝒞.hset },
     { intro φ, induction φ with φ p, change _ = _,
       induction p; induction p, apply dom_endo, apply cod_endo }
+  end
+
+  @[hott] instance dual : category 𝒞ᵒᵖ :=
+  begin
+    split; repeat { intro }, apply bottom_right, apply bottom_left,
+    apply bottom_cod, apply bottom_dom, apply cod_comp, apply dom_comp,
+    apply mul_cod, apply mul_dom, apply cod_dom, apply dom_cod,
+    symmetry, apply mul_assoc, change 𝒞.carrier at a, change 𝒞.carrier at b,
+    transitivity, apply mul_def b a, assumption, assumption, split; apply Id.inv
   end
 end category
 
