@@ -58,8 +58,11 @@ namespace precategory
   def bimorphism (a : 𝒞.carrier) :=
   monic 𝒞 a × epic 𝒞 a
 
+  def following (a b : 𝒞.carrier) :=
+  𝒞.dom a = 𝒞.cod b
+
   def endo (a : 𝒞.carrier) :=
-  𝒞.dom a = 𝒞.cod a
+  𝒞.following a a
 end precategory
 
 /-
@@ -71,7 +74,7 @@ class category (𝒞 : precategory) :=
 (bottom_right : Π a, 𝒞.μ a ∄ = ∄)
 (bottom_dom   : 𝒞.dom ∄ = ∄)
 (bottom_cod   : 𝒞.cod ∄ = ∄)
-(mul_def      : Π a b, 𝒞.defined (𝒞.μ a b) ↔ 𝒞.dom a = 𝒞.cod b)
+(mul_def      : Π a b, 𝒞.defined a → 𝒞.defined b → 𝒞.defined (𝒞.μ a b) = 𝒞.following a b)
 (dom_comp     : Π a, 𝒞.μ a (𝒞.dom a) = a)
 (cod_comp     : Π a, 𝒞.μ (𝒞.cod a) a = a)
 (mul_dom      : Π a b, 𝒞.dom (𝒞.μ a b) = 𝒞.dom b)
