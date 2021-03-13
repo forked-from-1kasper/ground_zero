@@ -62,15 +62,20 @@ namespace precategory
   𝒞.dom a = 𝒞.cod a
 end precategory
 
+/-
+  MacLane, S.: Categories for the Working Mathematician. Springer-Verlag, New York (1971).
+  Similar axioms can be found in XII, 5. Single-Set Categories.
+-/
 class category (𝒞 : precategory) :=
 (bottom_left  : Π a, 𝒞.μ ∄ a = ∄)
 (bottom_right : Π a, 𝒞.μ a ∄ = ∄)
 (bottom_dom   : 𝒞.dom ∄ = ∄)
 (bottom_cod   : 𝒞.cod ∄ = ∄)
-(dom_comp     : Π a, 𝒞.μ (𝒞.dom a) a = a)
-(cod_comp     : Π a, 𝒞.μ a (𝒞.cod a) = a)
-(mul_dom      : Π a b, 𝒞.dom (𝒞.μ a b) = 𝒞.dom a)
-(mul_cod      : Π a b, 𝒞.cod (𝒞.μ a b) = 𝒞.cod b)
+(mul_def      : Π a b, 𝒞.defined (𝒞.μ a b) ↔ 𝒞.dom a = 𝒞.cod b)
+(dom_comp     : Π a, 𝒞.μ a (𝒞.dom a) = a)
+(cod_comp     : Π a, 𝒞.μ (𝒞.cod a) a = a)
+(mul_dom      : Π a b, 𝒞.dom (𝒞.μ a b) = 𝒞.dom b)
+(mul_cod      : Π a b, 𝒞.cod (𝒞.μ a b) = 𝒞.cod a)
 (dom_cod      : 𝒞.dom ∘ 𝒞.cod ~ 𝒞.cod)
 (cod_dom      : 𝒞.cod ∘ 𝒞.dom ~ 𝒞.dom)
 (mul_assoc    : Π a b c, 𝒞.μ (𝒞.μ a b) c = 𝒞.μ a (𝒞.μ b c))
@@ -90,16 +95,16 @@ namespace category
     symmetry, apply cod_comp, apply mul_cod
   end
 
-  @[hott] def dom_mul_dom : Π a, 𝒞.μ (𝒞.dom a) (𝒞.dom a) = 𝒞.dom a :=
-  begin
-    intro a, transitivity, apply Id.map (λ b, 𝒞.μ b (𝒞.dom a)),
-    symmetry, apply dom_dom, apply dom_comp
-  end
-
   @[hott] def cod_mul_cod : Π a, 𝒞.μ (𝒞.cod a) (𝒞.cod a) = 𝒞.cod a :=
   begin
-    intro a, transitivity, apply Id.map (𝒞.μ (𝒞.cod a)),
+    intro a, transitivity, apply Id.map (λ b, 𝒞.μ b (𝒞.cod a)),
     symmetry, apply cod_cod, apply cod_comp
+  end
+
+  @[hott] def dom_mul_dom : Π a, 𝒞.μ (𝒞.dom a) (𝒞.dom a) = 𝒞.dom a :=
+  begin
+    intro a, transitivity, apply Id.map (𝒞.μ (𝒞.dom a)),
+    symmetry, apply dom_dom, apply dom_comp
   end
 
   @[hott] def dom_endo : Π a, 𝒞.endo (𝒞.dom a) :=
