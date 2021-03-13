@@ -51,8 +51,7 @@ namespace precategory
   def defined (x : 𝒞.carrier) : Type u := x ≠ ∄
   prefix `∃` := defined _
 
-  def id (x : 𝒞.carrier) :=
-  ∥(Σ φ, (𝒞.dom φ = x) + (𝒞.cod φ = x))∥
+  def id (x : 𝒞.carrier) := x = 𝒞.dom x
 
   def objs := Σ x, 𝒞.id x × 𝒞.defined x
 
@@ -132,9 +131,15 @@ namespace category
 
   @[hott] def id_endo (a : 𝒞.carrier) : 𝒞.id a → 𝒞.endo a :=
   begin
-    fapply HITs.merely.rec, { apply 𝒞.hset },
-    { intro φ, induction φ with φ p, change _ = _,
-      induction p; induction p, apply dom_endo, apply cod_endo }
+    intro p, change _ = _, symmetry, transitivity,
+    apply Id.map, exact p, apply cod_dom
+  end
+
+  @[hott] def id_iff_eq_cod (a : 𝒞.carrier) : 𝒞.id a ↔ (a = 𝒞.cod a) :=
+  begin
+    split, { intro p, transitivity, exact p, apply id_endo a p },
+    { intro p, change _ = _, transitivity, exact p, symmetry,
+      transitivity, apply Id.map, exact p, apply dom_cod }
   end
 
   @[hott] instance dual : category 𝒞ᵒᵖ :=
