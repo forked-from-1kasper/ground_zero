@@ -1,4 +1,5 @@
 import ground_zero.algebra.basic
+open ground_zero.types.equiv (transport)
 open ground_zero.structures (hset)
 open ground_zero.types
 open ground_zero
@@ -42,10 +43,10 @@ namespace precategory
   def μ : 𝒞.carrier → 𝒞.carrier → 𝒞.carrier :=
   λ x y, 𝒞.op arity.mul (x, y, ★)
 
-  def dom : 𝒞.carrier → 𝒞.carrier :=
+  def dom : 𝒞 →ᴬ 𝒞 :=
   λ x, 𝒞.op arity.left (x, ★)
 
-  def cod : 𝒞.carrier → 𝒞.carrier :=
+  def cod : 𝒞 →ᴬ 𝒞 :=
   λ x, 𝒞.op arity.right (x, ★)
 
   def defined (x : 𝒞.carrier) : Type u := x ≠ ∄
@@ -76,11 +77,27 @@ namespace precategory
   @[hott] def op : precategory :=
   intro (λ _ _, 𝒞.hset) (λ a b, 𝒞.μ b a) 𝒞.cod 𝒞.dom ∄
   postfix `ᵒᵖ`:2000 := op
+
+  -- Homomoprhism of algebras is a functor here
+  variables (𝒟 : precategory) (f : 𝒞 ⤳ 𝒟)
+
+  @[hott] def functor_comp :
+    Π a b, f.ap (𝒞.μ a b) = 𝒟.μ (f.ap a) (f.ap b) :=
+  λ a b, f.snd.fst arity.mul (a, b, ★)
+
+  @[hott] def functor_dom : Π a, f.ap (𝒞.dom a) = 𝒟.dom (f.ap a) :=
+  λ a, f.snd.fst arity.left (a, ★)
+
+  @[hott] def functor_cod : Π a, f.ap (𝒞.cod a) = 𝒟.cod (f.ap a) :=
+  λ a, f.snd.fst arity.right (a, ★)
+
+  @[hott] def functor_bottom : f.ap ∄ = ∄ :=
+  f.snd.fst arity.bottom ★
 end precategory
 
 /-
   MacLane, S.: Categories for the Working Mathematician. Springer-Verlag, New York (1971).
-  Similar axioms can be found in XII, 5. Single-Set Categories.
+  Similar axioms can be found in XII. 5. Single-Set Categories.
 -/
 class category (𝒞 : precategory) :=
 (bottom_left  : Π a, 𝒞.μ ∄ a = ∄)
@@ -123,6 +140,9 @@ namespace category
     symmetry, apply dom_dom, apply dom_comp
   end
 
+  @[hott] def id_mul_id {a : 𝒞.carrier} : 𝒞.id a → 𝒞.μ a a = a :=
+  λ p, @transport _ (λ x, 𝒞.μ x x = x) (𝒞.dom a) a p⁻¹ (dom_mul_dom a)
+
   @[hott] def dom_endo : Π a, 𝒞.endo (𝒞.dom a) :=
   λ x, (dom_dom x) ⬝ (cod_dom x)⁻¹
 
@@ -149,6 +169,33 @@ namespace category
     apply mul_cod, apply mul_dom, apply cod_dom, apply dom_cod,
     symmetry, apply mul_assoc, change 𝒞.carrier at a, change 𝒞.carrier at b,
     transitivity, apply mul_def b a, assumption, assumption, split; apply Id.inv
+  end
+
+  /-
+    https://ncatlab.org/nlab/show/natural+transformation
+    “In terms of morphismwise components”
+
+    “Categories for the Working Mathematician”
+    I. 4. Natural Transformations. Exercise 5.
+  -/
+  @[hott] def natural {𝒜 ℬ : precategory} (F G : 𝒜 ⤳ ℬ) :=
+  Σ (μ : 𝒜.carrier → ℬ.carrier), Π f g, 𝒜.following f g →
+    ℬ.μ (μ f) (F.ap g) = ℬ.μ (G.ap f) (μ g)
+
+  infix ` ⟹ `:25 := natural
+
+  @[hott, refl] def id {𝒜 ℬ : precategory} {F : 𝒜 ⤳ ℬ} : F ⟹ F :=
+  ⟨F.ap, λ _ _ _, Id.refl⟩
+
+  @[hott] def natural.happly {𝒜 ℬ : precategory} {F G : 𝒜 ⤳ ℬ}
+    {μ η : F ⟹ G} (p : μ = η) : μ.fst ~ η.fst :=
+  begin induction p, reflexivity end
+
+  @[hott] def natural.funext {𝒜 ℬ : precategory} {F G : 𝒜 ⤳ ℬ}
+    {μ η : F ⟹ G} (p : μ.fst ~ η.fst) : μ = η :=
+  begin
+    fapply sigma.prod, apply theorems.funext, exact p,
+    repeat { apply structures.pi_prop, intro }, apply ℬ.hset
   end
 end category
 

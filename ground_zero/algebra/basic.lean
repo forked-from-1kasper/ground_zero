@@ -51,19 +51,23 @@ namespace ground_zero.algebra
       λ _ _, zero_eqv_set.forward A.fst.snd
     end
 
+    abbreviation mapping (Γ Λ : Alg deg) :=
+    Γ.carrier → Λ.carrier
+
+    infix ` →ᴬ `:20 := mapping
+
     def respects {Γ Λ : Alg deg} (f : Γ.carrier → Λ.carrier) :=
     (Π i v, f (Γ.op i v) = Λ.op i (v.map f)) ×
     (Π i v, Γ.rel i v = Λ.rel i (v.map f))
 
     @[hott] noncomputable def respects.prop {Γ Λ : Alg deg}
-      (f : Γ.carrier → Λ.carrier) : prop (respects f) :=
+      (f : Γ →ᴬ Λ) : prop (respects f) :=
     begin
       apply product_prop; apply pi_prop; intros i; apply pi_prop; intros v,
       apply Alg.hset, apply ground_zero.theorems.prop.propset_is_set
     end
 
-    @[hott] def respects.comp {Γ Λ Δ : Alg deg}
-      {f : Γ.carrier → Λ.carrier} {g : Λ.carrier → Δ.carrier} :
+    @[hott] def respects.comp {Γ Λ Δ : Alg deg} {f : Γ →ᴬ Λ} {g : Λ →ᴬ Δ} :
       respects g → respects f → respects (g ∘ f) :=
     begin
       intros p q, split; intros i v,
@@ -76,8 +80,10 @@ namespace ground_zero.algebra
     end
 
     def homo (Γ Λ : Alg deg) :=
-    Σ (φ : Γ.carrier → Λ.carrier), respects φ
+    Σ (φ : Γ →ᴬ Λ), respects φ
     infix ` ⤳ `:20 := homo
+
+    abbreviation homo.ap {Γ Λ : Alg deg} : (Γ ⤳ Λ) → (Γ →ᴬ Λ) := sigma.fst
 
     def homo.comp {Γ Λ Δ : Alg deg} (g : Λ ⤳ Δ) (f : Γ ⤳ Λ) : Γ ⤳ Δ :=
     ⟨g.fst ∘ f.fst, respects.comp g.snd f.snd⟩
@@ -92,13 +98,13 @@ namespace ground_zero.algebra
     end
 
     @[hott] noncomputable def homo.funext {Γ Λ : Alg deg}
-      {f g : Γ ⤳ Λ} : f.fst ~ g.fst → f = g :=
+      {f g : Γ ⤳ Λ} : f.ap ~ g.ap → f = g :=
     begin
       intro p, induction f with f F, induction g with g G, fapply sigma.prod,
       apply ground_zero.theorems.funext, exact p, apply respects.prop
     end
 
-    @[hott] def idhomo {Γ Λ : Alg deg} {f g : Γ ⤳ Λ} : f = g → f.fst ~ g.fst :=
+    @[hott] def idhomo {Γ Λ : Alg deg} {f g : Γ ⤳ Λ} : f = g → f.ap ~ g.ap :=
     begin intro p, induction p, reflexivity end
 
     @[hott] noncomputable def homo.hset {Γ Λ : Alg deg} : hset (Γ ⤳ Λ) :=
@@ -109,17 +115,19 @@ namespace ground_zero.algebra
     end
 
     def iso (Γ Λ : Alg deg) :=
-    Σ (φ : Γ.carrier → Λ.carrier), respects φ × biinv φ
+    Σ (φ : Γ →ᴬ Λ), respects φ × biinv φ
     infix ` ≅ `:25 := iso
 
+    abbreviation iso.ap {Γ Λ : Alg deg} : Γ ≅ Λ → (Γ →ᴬ Λ) := sigma.fst
+
     def iso.eqv {Γ Λ : Alg deg} : Γ ≅ Λ → Γ.carrier ≃ Λ.carrier :=
-    λ φ, ⟨φ.fst, φ.snd.snd⟩
+    λ φ, ⟨φ.ap, φ.snd.snd⟩
 
     @[hott] def iso.of_equiv {Γ Λ : Alg deg} :
       Π (φ : Γ.carrier ≃ Λ.carrier), respects φ.fst → Γ ≅ Λ
     | ⟨φ, q⟩ p := ⟨φ, (p, q)⟩
 
-    @[hott] noncomputable def iso.ext {Γ Λ : Alg deg} (φ ψ : Γ ≅ Λ) : φ.fst ~ ψ.fst → φ = ψ :=
+    @[hott] noncomputable def iso.ext {Γ Λ : Alg deg} (φ ψ : Γ ≅ Λ) : φ.ap ~ ψ.ap → φ = ψ :=
     begin
       intro p, fapply sigma.prod, apply ground_zero.theorems.funext p,
       apply product_prop, apply respects.prop,
@@ -127,7 +135,7 @@ namespace ground_zero.algebra
     end
 
     @[hott] def iso.homo {Γ Λ : Alg deg} (φ : Γ ≅ Λ) : Γ ⤳ Λ :=
-    ⟨φ.fst, φ.snd.fst⟩
+    ⟨φ.ap, φ.snd.fst⟩
 
     @[hott] noncomputable def iso.hset {Γ Λ : Alg deg} : hset (Γ ≅ Λ) :=
     begin
@@ -155,14 +163,14 @@ namespace ground_zero.algebra
           apply Id.map (f.eqv.left ∘ Λ.op i), transitivity,
           apply vect.comp, apply vect.idfunc, apply μ },
         { transitivity, apply Id.map (Λ.rel i),
-          transitivity, symmetry, apply vect.idfunc (f.fst ∘ f.eqv.left),
+          transitivity, symmetry, apply vect.idfunc (f.ap ∘ f.eqv.left),
           apply μ, symmetry, apply vect.comp, symmetry, apply f.snd.fst.snd } },
-      { split; existsi f.fst, apply μ, apply f.eqv.left_forward }
+      { split; existsi f.ap, apply μ, apply f.eqv.left_forward }
     end
 
     @[hott, trans] def iso.trans {Γ Λ Δ : Alg deg} : Γ ≅ Λ → Λ ≅ Δ → Γ ≅ Δ :=
     begin
-      intros f g, existsi g.fst ∘ f.fst, split,
+      intros f g, existsi g.ap ∘ f.ap, split,
       { apply respects.comp, exact g.snd.fst, exact f.snd.fst },
       { apply equiv.biinv_trans, exact f.snd.snd, exact g.snd.snd }
     end
@@ -324,7 +332,7 @@ namespace ground_zero.algebra
       def e (G : pregroup) : G.carrier :=
       G.op arity.nullary ★
 
-      def ι (G : pregroup) : G.carrier → G.carrier :=
+      def ι (G : pregroup) : G →ᴬ G :=
       λ x, G.op arity.unary (x, ★)
 
       def φ (G : pregroup) : G.carrier → G.carrier → G.carrier :=
