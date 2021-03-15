@@ -110,7 +110,7 @@ digraph dependency_map {
   }
 
   subgraph theorems {
-    "theorems/classical"
+    "theorems/classical" -> { "algebra/category" }
     "theorems/fibration" -> { "theorems/hopf" }
     "theorems/functions" -> { "HITs/reals", "algebra/group" }
     "theorems/funext" -> { "types/product" }

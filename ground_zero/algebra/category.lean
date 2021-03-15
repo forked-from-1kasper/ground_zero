@@ -1,6 +1,7 @@
-import ground_zero.algebra.basic
+import ground_zero.algebra.basic ground_zero.theorems.classical
 open ground_zero.types.equiv (transport)
-open ground_zero.structures (hset)
+open ground_zero.structures (hset prop)
+open ground_zero.theorems
 open ground_zero.types
 open ground_zero
 
@@ -74,6 +75,24 @@ namespace precategory
   def endo (a : 𝒞.carrier) :=
   𝒞.following a a
 
+  def retraction (a b : 𝒞.carrier) :=
+  𝒞.μ a b = 𝒞.cod a
+
+  def coretraction (a b : 𝒞.carrier) :=
+  𝒞.μ a b = 𝒞.dom a
+
+  def biinv (a b : 𝒞.carrier) :=
+  retraction 𝒞 a b × coretraction 𝒞 a b
+
+  @[hott] def biinv.prop {a b : 𝒞.carrier} : prop (biinv 𝒞 a b) :=
+  begin fapply structures.product_prop; apply 𝒞.hset end
+
+  def iso (a : 𝒞.carrier) :=
+  Σ b, biinv 𝒞 a b
+
+  def auto (a : 𝒞.carrier) :=
+  endo 𝒞 a × iso 𝒞 a
+
   @[hott] def op : precategory :=
   intro (λ _ _, 𝒞.hset) (λ a b, 𝒞.μ b a) 𝒞.cod 𝒞.dom ∄
   postfix `ᵒᵖ`:2000 := op
@@ -138,6 +157,32 @@ namespace category
   begin
     intro a, transitivity, apply Id.map (𝒞.μ (𝒞.dom a)),
     symmetry, apply dom_dom, apply dom_comp
+  end
+
+  @[hott] def undef_dom_impl_undef {a : 𝒞.carrier} : 𝒞.dom a = ∄ → a = ∄ :=
+  begin
+    intro p, transitivity, apply (dom_comp a)⁻¹,
+    transitivity, apply Id.map (𝒞.μ a) p, apply bottom_right
+  end
+
+  @[hott] def undef_cod_impl_undef {a : 𝒞.carrier} : 𝒞.cod a = ∄ → a = ∄ :=
+  begin
+    intro p, transitivity, apply (cod_comp a)⁻¹,
+    transitivity, apply Id.map (λ b, 𝒞.μ b a) p, apply bottom_left
+  end
+
+  @[hott] def dom_def {a : 𝒞.carrier} : ∃a → ∃(𝒞.dom a) :=
+  begin
+    apply classical.contrapos.intro,
+    repeat { apply 𝒞.hset },
+    apply undef_dom_impl_undef
+  end
+
+  @[hott] def cod_def {a : 𝒞.carrier} : ∃a → ∃(𝒞.cod a) :=
+  begin
+    apply classical.contrapos.intro,
+    repeat { apply 𝒞.hset },
+    apply undef_cod_impl_undef
   end
 
   @[hott] def id_mul_id {a : 𝒞.carrier} : 𝒞.id a → 𝒞.μ a a = a :=

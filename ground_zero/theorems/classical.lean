@@ -96,6 +96,30 @@ begin intro p, cases lem H with u v, exact u, cases p v end
 @[hott] noncomputable def dneg {α : Type u} (H : prop α) : α ≃ ¬¬α :=
 prop_equiv_lemma H not_is_prop dneg.encode (dneg.decode H)
 
+section
+  variables {α : Type u} {β : Type v} (H : prop β)
+
+  @[hott] def contrapos.intro : (α → β) → (¬β → ¬α) :=
+  λ f p a, p (f a)
+
+  @[hott] noncomputable def contrapos.elim : (¬β → ¬α) → (α → β) :=
+  λ f p, match lem H with
+  | sum.inl q := q
+  | sum.inr q := proto.empty.elim (f q p)
+  end
+
+  @[hott] noncomputable def contrapos : (α → β) ↔ (¬β → ¬α) :=
+  ⟨contrapos.intro, contrapos.elim H⟩
+
+  @[hott] noncomputable def contrapos.eq (H : prop β) : (α → β) = (¬β → ¬α) :=
+  begin
+    apply ground_zero.ua, apply prop_equiv_lemma,
+    apply pi_prop, intro, assumption,
+    apply pi_prop, intro, apply not_is_prop,
+    apply contrapos.intro, apply contrapos.elim H
+  end
+end
+
 end theorems.classical
 
 end ground_zero
