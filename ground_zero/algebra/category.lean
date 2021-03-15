@@ -172,18 +172,10 @@ namespace category
   end
 
   @[hott] def dom_def {a : 𝒞.carrier} : ∃a → ∃(𝒞.dom a) :=
-  begin
-    apply classical.contrapos.intro,
-    repeat { apply 𝒞.hset },
-    apply undef_dom_impl_undef
-  end
+  classical.contrapos.intro undef_dom_impl_undef
 
   @[hott] def cod_def {a : 𝒞.carrier} : ∃a → ∃(𝒞.cod a) :=
-  begin
-    apply classical.contrapos.intro,
-    repeat { apply 𝒞.hset },
-    apply undef_cod_impl_undef
-  end
+  classical.contrapos.intro undef_cod_impl_undef
 
   @[hott] def id_mul_id {a : 𝒞.carrier} : 𝒞.id a → 𝒞.μ a a = a :=
   λ p, @transport _ (λ x, 𝒞.μ x x = x) (𝒞.dom a) a p⁻¹ (dom_mul_dom a)
