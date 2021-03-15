@@ -155,6 +155,14 @@ namespace category
     apply Id.map, exact p, apply cod_dom
   end
 
+  @[hott] def following.comp_left {f g h : 𝒞.carrier} :
+    𝒞.following g h → 𝒞.following (𝒞.μ f g) h :=
+  begin intros p, apply Id.trans, apply mul_dom, exact p end
+
+  @[hott] def following.comp_right {f g h : 𝒞.carrier} :
+    𝒞.following f g → 𝒞.following f (𝒞.μ g h) :=
+  begin intros p, apply Id.trans, exact p, exact (mul_cod g h)⁻¹ end
+
   @[hott] def id_iff_eq_cod (a : 𝒞.carrier) : 𝒞.id a ↔ (a = 𝒞.cod a) :=
   begin
     split, { intro p, transitivity, exact p, apply id_endo a p },
