@@ -295,6 +295,14 @@ namespace category
     exact q, apply dom_hetero_comp p
   end
 
+  @[hott] def id_eq_iff_comm {a b : 𝒞.carrier} (p : ∃a) (q : ∃b) :
+    𝒞.id a → 𝒞.id b → 𝒞.μ a b = 𝒞.μ b a → a = b :=
+  begin
+    intros r s t,
+    transitivity, symmetry, apply id_comp q s,
+    transitivity, apply t⁻¹, apply id_comp p r
+  end
+
   @[hott] def coretraction_impl_monic {a : 𝒞.carrier} : ∃a → 𝒞.coretraction a → 𝒞.monic a :=
   begin
     intros p q x y r, induction q with b q,
