@@ -75,17 +75,23 @@ namespace precategory
   def endo (a : 𝒞.carrier) :=
   𝒞.following a a
 
-  def retraction (a b : 𝒞.carrier) :=
+  def rinv (a b : 𝒞.carrier) :=
   𝒞.μ a b = 𝒞.cod a
 
-  def coretraction (a b : 𝒞.carrier) :=
+  def linv (a b : 𝒞.carrier) :=
   𝒞.μ a b = 𝒞.dom a
 
   def biinv (a b : 𝒞.carrier) :=
-  retraction 𝒞 a b × coretraction 𝒞 a b
+  linv 𝒞 a b × rinv 𝒞 a b
 
   @[hott] def biinv.prop {a b : 𝒞.carrier} : prop (biinv 𝒞 a b) :=
   begin fapply structures.product_prop; apply 𝒞.hset end
+
+  def coretraction (a : 𝒞.carrier) :=
+  Σ b, linv 𝒞 a b
+
+  def retraction (a : 𝒞.carrier) :=
+  Σ b, rinv 𝒞 a b
 
   def iso (a : 𝒞.carrier) :=
   Σ b, biinv 𝒞 a b
