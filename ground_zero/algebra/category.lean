@@ -1,6 +1,6 @@
 import ground_zero.algebra.basic ground_zero.theorems.classical
+open ground_zero.structures (hset prop dec)
 open ground_zero.types.equiv (transport)
-open ground_zero.structures (hset prop)
 open ground_zero.theorems
 open ground_zero.types
 open ground_zero
@@ -125,7 +125,7 @@ end precategory
   Similar axioms can be found in XII. 5. Single-Set Categories.
 -/
 class category (𝒞 : precategory) :=
-(def_dec      : Π (a : 𝒞.carrier), (a = ∄) + ∃a)
+(def_dec      : Π (a : 𝒞.carrier), dec (a = ∄))
 (bottom_left  : Π a, 𝒞.μ ∄ a = ∄)
 (bottom_right : Π a, 𝒞.μ a ∄ = ∄)
 (bottom_dom   : 𝒞.dom ∄ = ∄)
