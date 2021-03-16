@@ -61,10 +61,10 @@ namespace precategory
   Σ φ, ∥(𝒞.dom φ = a) + (𝒞.cod φ = b)∥
 
   def monic (a : 𝒞.carrier) :=
-  Π b c, 𝒞.μ a b = 𝒞.μ a c → b = c
+  Π b c, ∃(𝒞.μ a b) → 𝒞.μ a b = 𝒞.μ a c → b = c
 
   def epic (a : 𝒞.carrier) :=
-  Π b c, 𝒞.μ b a = 𝒞.μ c a → b = c
+  Π b c, ∃(𝒞.μ b a) → 𝒞.μ b a = 𝒞.μ c a → b = c
 
   def bimorphism (a : 𝒞.carrier) :=
   monic 𝒞 a × epic 𝒞 a
@@ -132,8 +132,8 @@ class category (𝒞 : precategory) :=
 (bottom_cod   : 𝒞.cod ∄ = ∄)
 (dom_comp     : Π a, 𝒞.μ a (𝒞.dom a) = a)
 (cod_comp     : Π a, 𝒞.μ (𝒞.cod a) a = a)
-(mul_dom      : Π a b, ∃a → 𝒞.dom (𝒞.μ a b) = 𝒞.dom b)
-(mul_cod      : Π a b, ∃b → 𝒞.cod (𝒞.μ a b) = 𝒞.cod a)
+(mul_dom      : Π a b, ∃(𝒞.μ a b) → 𝒞.dom (𝒞.μ a b) = 𝒞.dom b)
+(mul_cod      : Π a b, ∃(𝒞.μ a b) → 𝒞.cod (𝒞.μ a b) = 𝒞.cod a)
 (dom_cod      : 𝒞.dom ∘ 𝒞.cod ~ 𝒞.cod)
 (cod_dom      : 𝒞.cod ∘ 𝒞.dom ~ 𝒞.dom)
 (mul_assoc    : Π a b c, 𝒞.μ (𝒞.μ a b) c = 𝒞.μ a (𝒞.μ b c))
@@ -149,7 +149,8 @@ namespace category
       transitivity, apply Id.map 𝒞.dom, apply bottom_dom,
       apply Id.map, symmetry, assumption },
     { symmetry, transitivity, apply Id.map 𝒞.dom,
-      symmetry, apply dom_comp, apply mul_dom, exact q }
+      symmetry, apply dom_comp, apply mul_dom,
+      apply transport 𝒞.defined (dom_comp x)⁻¹ q }
   end
 
   @[hott] def cod_cod : 𝒞.cod ∘ 𝒞.cod ~ 𝒞.cod :=
@@ -159,7 +160,8 @@ namespace category
       transitivity, apply Id.map 𝒞.cod, apply bottom_cod,
       apply Id.map, symmetry, assumption },
     { symmetry, transitivity, apply Id.map 𝒞.cod,
-      symmetry, apply cod_comp, apply mul_cod, exact q }
+      symmetry, apply cod_comp, apply mul_cod,
+      apply transport 𝒞.defined (cod_comp x)⁻¹ q }
   end
 
   @[hott] def cod_mul_cod : Π a, 𝒞.μ (𝒞.cod a) (𝒞.cod a) = 𝒞.cod a :=
@@ -234,11 +236,11 @@ namespace category
   λ p, p ⬝ cod_cod g
 
   @[hott] def following.comp_left {f g h : 𝒞.carrier} :
-    ∃f → 𝒞.following g h → 𝒞.following (𝒞.μ f g) h :=
+    ∃(𝒞.μ f g) → 𝒞.following g h → 𝒞.following (𝒞.μ f g) h :=
   begin intros p q, apply Id.trans, apply mul_dom f g p, exact q end
 
   @[hott] def following.comp_right {f g h : 𝒞.carrier} :
-    ∃h → 𝒞.following f g → 𝒞.following f (𝒞.μ g h) :=
+    ∃(𝒞.μ g h) → 𝒞.following f g → 𝒞.following f (𝒞.μ g h) :=
   begin intros p q, apply Id.trans, exact q, exact (mul_cod g h p)⁻¹ end
 
   @[hott] def id_iff_eq_cod (a : 𝒞.carrier) : 𝒞.id a ↔ (a = 𝒞.cod a) :=
@@ -277,41 +279,37 @@ namespace category
     apply mul_def_impl_right_def p
   end
 
-  @[hott] def dom_hetero_comp {a b : 𝒞.carrier} : ∃a → 𝒞.μ (𝒞.dom a) b = b :=
+  @[hott] def def_impl_dom_comp_def {a b : 𝒞.carrier} : ∃(𝒞.μ a b) → ∃(𝒞.μ (𝒞.dom a) b) :=
   begin
-    intro r, cases def_dec (𝒞.μ (𝒞.dom a) b) with p q,
-    { transitivity, exact p, symmetry, apply undef_dom_impl_undef,
-      symmetry, transitivity, exact bottom_dom⁻¹,
-      transitivity, exact 𝒞.dom # p⁻¹, apply mul_dom,
-      apply def_impl_dom_def, exact r },
-    { transitivity, apply Id.map (λ h, 𝒞.μ h b),
-      transitivity, apply (dom_dom a)⁻¹,
-      apply def_impl_following q, apply cod_comp }
+    intro p, fapply (mul_def (𝒞.dom a) b _ _).right,
+    apply Id.trans, apply dom_dom, apply def_impl_following p,
+    apply def_impl_dom_def, apply mul_def_impl_left_def p,
+    apply mul_def_impl_right_def p
   end
 
-  @[hott] def id_comp {a b : 𝒞.carrier} : ∃a → 𝒞.id a → 𝒞.μ a b = b :=
+  @[hott] def dom_hetero_comp {a b : 𝒞.carrier} : ∃(𝒞.μ (𝒞.dom a) b) → 𝒞.μ (𝒞.dom a) b = b :=
+  begin
+    intro p, transitivity, apply Id.map (λ h, 𝒞.μ h b),
+    transitivity, apply (dom_dom a)⁻¹,
+    apply def_impl_following p, apply cod_comp
+  end
+
+  @[hott] def id_comp {a b : 𝒞.carrier} : ∃(𝒞.μ a b) → 𝒞.id a → 𝒞.μ a b = b :=
   begin
     intros p q, transitivity, apply Id.map (λ h, 𝒞.μ h b),
-    exact q, apply dom_hetero_comp p
+    exact q, apply dom_hetero_comp,
+    apply def_impl_dom_comp_def p
   end
 
-  @[hott] def id_eq_iff_comm {a b : 𝒞.carrier} (p : ∃a) (q : ∃b) :
-    𝒞.id a → 𝒞.id b → 𝒞.μ a b = 𝒞.μ b a → a = b :=
+  @[hott] def coretraction_impl_monic {a : 𝒞.carrier} : 𝒞.coretraction a → 𝒞.monic a :=
   begin
-    intros r s t,
-    transitivity, symmetry, apply id_comp q s,
-    transitivity, apply t⁻¹, apply id_comp p r
-  end
-
-  @[hott] def coretraction_impl_monic {a : 𝒞.carrier} : ∃a → 𝒞.coretraction a → 𝒞.monic a :=
-  begin
-    intros p q x y r, induction q with b q,
-    transitivity, symmetry, apply dom_hetero_comp p,
-    symmetry, transitivity, symmetry, apply dom_hetero_comp p,
-    apply transport (λ z, 𝒞.μ z y = 𝒞.μ z x), exact q,
-    transitivity, apply mul_assoc,
-    symmetry, transitivity, apply mul_assoc,
-    apply Id.map, exact r
+    intros p x y q r, induction p with b p,
+    transitivity, symmetry, apply dom_hetero_comp (def_impl_dom_comp_def q),
+    symmetry, transitivity, symmetry, apply dom_hetero_comp,
+    apply def_impl_dom_comp_def, apply equiv.subst r q,
+    apply transport (λ z, 𝒞.μ z y = 𝒞.μ z x), exact p,
+    transitivity, apply mul_assoc, symmetry,
+    transitivity, apply mul_assoc, apply Id.map, exact r
   end
 
   @[hott] instance dual : category 𝒞ᵒᵖ :=
