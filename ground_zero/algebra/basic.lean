@@ -179,18 +179,37 @@ namespace ground_zero.algebra
       { apply equiv.biinv_trans, exact f.snd.snd, exact g.snd.snd }
     end
 
-    @[hott] def Alg.ext : Π {Γ Λ : Alg deg},
-      Π (p : Γ.carrier = Λ.carrier),
+    @[hott] def algebra.ext {α β : Type w}
+      (p : α = β) (Γ : algebra deg α) (Λ : algebra deg β)
+      (ε : Π i, Γ.fst i =[p] Λ.fst i) (δ : Π i, Γ.snd i =[p] Λ.snd i) : 
+      Γ =[p] Λ :=
+    begin
+      induction Γ with Γ₁ Γ₂, induction Λ with Λ₁ Λ₂,
+      induction p, apply product.prod;
+      apply ground_zero.theorems.funext;
+      intro x, apply ε, apply δ
+    end
+
+    @[hott] def transport_over_zero_path {α β : 0-Type} (π : Type u → Type v)
+      (p : α.fst = β.fst) (u : π α.fst) :
+       transport (π ∘ sigma.fst) (zero_path p) u =
+      @transport (Type u) π α.fst β.fst p u :=
+    begin
+      induction α with α f, induction β with β g, change α = β at p, induction p,
+      have ρ : f = g := ntype_is_prop 0 f g, induction ρ,
+      transitivity, apply equiv.transport_to_transportconst, transitivity,
+      apply Id.map (λ p, transportconst (Id.map (π ∘ sigma.fst) p) u),
+      apply zero_path_refl, reflexivity
+    end
+
+    @[hott] def Alg.ext : Π {Γ Λ : Alg deg} (p : Γ.carrier = Λ.carrier),
       (Π i, Γ.op i  =[algop  (deg (sum.inl i)), p] Λ.op i) →
       (Π i, Γ.rel i =[algrel (deg (sum.inr i)), p] Λ.rel i) → Γ = Λ
     | ⟨⟨α, f⟩, (Γ₁, Γ₂)⟩ ⟨⟨β, g⟩, (Λ₁, Λ₂)⟩ :=
     begin
-      intros p μ η, fapply sigma.prod, apply zero_path, exact p,
-      change α = β at p, induction p, have ρ : f = g := ntype_is_prop 0 f g,
-      induction ρ, transitivity, apply equiv.transport_to_transportconst, transitivity,
-      apply Id.map (λ p, transportconst (Id.map (λ (α : 0-Type), algebra deg α.fst) p) (Γ₁, Γ₂)),
-      apply zero_path_refl, apply product.prod;
-      apply ground_zero.theorems.funext; intro x, apply μ, apply η
+      intros p μ η, fapply sigma.prod, apply zero_path,
+      exact p, transitivity, apply transport_over_zero_path,
+      apply algebra.ext; assumption
     end
 
     @[hott] noncomputable def equiv_comp_subst {α β : Type u} (φ : α ≃ β) :
@@ -235,10 +254,7 @@ namespace ground_zero.algebra
     end
 
     @[hott] noncomputable def Alg.ua {Γ Λ : Alg deg} (φ : Γ ≅ Λ) : Γ = Λ :=
-    begin
-      fapply Alg.ext, apply ua φ.eqv,
-      apply ua_preserves_op, apply ua_preserves_rel
-    end
+    Alg.ext (ua φ.eqv) (ua_preserves_op φ) (ua_preserves_rel φ)
 
     @[hott] def Alg.eqcar {Γ Λ : Alg deg} : Γ = Λ → Γ.carrier = Λ.carrier :=
     λ p, @Id.map (0-Type) (Type _) _ _ sigma.fst (sigma.fst # p)
