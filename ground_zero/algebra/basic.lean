@@ -1,6 +1,7 @@
 import ground_zero.types.ens
+open ground_zero.HITs.interval (happly)
 open ground_zero.types ground_zero.structures
-open ground_zero.types.equiv (biinv transport)
+open ground_zero.types.equiv (biinv transport transportconst)
 open ground_zero (ua vect vect.id vect.idfunc vect.map vect.subst vect.comp)
 
 hott theory
@@ -134,6 +135,9 @@ namespace ground_zero.algebra
       apply ground_zero.theorems.prop.biinv_prop
     end
 
+    @[hott] noncomputable def iso.eq_iff_eq_eqv {Γ Λ : Alg deg} (φ ψ : Γ ≅ Λ) : φ.eqv = ψ.eqv → φ = ψ :=
+    begin intro p, apply iso.ext, apply happly, apply sigma.fst # p end
+
     @[hott] def iso.homo {Γ Λ : Alg deg} (φ : Γ ≅ Λ) : Γ ⤳ Λ :=
     ⟨φ.ap, φ.snd.fst⟩
 
@@ -181,37 +185,12 @@ namespace ground_zero.algebra
       (Π i, Γ.rel i =[algrel (deg (sum.inr i)), p] Λ.rel i) → Γ = Λ
     | ⟨⟨α, f⟩, (Γ₁, Γ₂)⟩ ⟨⟨β, g⟩, (Λ₁, Λ₂)⟩ :=
     begin
-      intros p μ η, change α = β at p, induction p,
-      have ρ : f = g := ntype_is_prop 0 f g, induction ρ,
-      apply Id.map, apply product.prod;
-      apply ground_zero.theorems.funext; intro x,
-      apply μ, apply η
-    end
-
-    @[hott] noncomputable def Alg.extβrule :
-      Π Γ, @Alg.ext ι υ deg Γ Γ Id.refl (λ _, Id.refl) (λ _, Id.refl) = Id.refl :=
-    λ ⟨⟨α, f⟩, (Γ₁, Γ₂)⟩,
-    begin
-      apply @transport (f = f)
-        (λ p, @Id.rec _ f
-          (λ g (ρ : f = g),
-            Π (Λ₁ : Π i, algop (deg (sum.inl i)) α)
-              (Λ₂ : Π i, algrel (deg (sum.inr i)) α),
-            (Π i, Γ₁ i = Λ₁ i) → (Π i, Γ₂ i = Λ₂ i) →
-            @Id (Alg deg) ⟨⟨α, f⟩, (Γ₁, Γ₂)⟩ ⟨⟨α, g⟩, (Λ₁, Λ₂)⟩)
-          (λ Λ₁ Λ₂ μ η, Id.map (λ (Γ : algebra deg α), ⟨⟨α, f⟩, Γ⟩)
-            (product.prod (ground_zero.theorems.funext μ)
-                          (ground_zero.theorems.funext η)))
-          f p Γ₁ Γ₂ (λ _, Id.refl) (λ _, Id.refl) = Id.refl)
-        Id.refl (ntype_is_prop 0 f f),
-      apply prop_is_set, apply ntype_is_prop 0,
-      change Id.map _ _ = _, transitivity, apply Id.map,
-      change _ = product.prod Id.refl Id.refl, apply equiv.bimap,
-      { apply pi_hset, intro i, apply pi_hset, intro v,
-        apply zero_eqv_set.forward, exact f },
-      { apply pi_hset, intro i, apply pi_hset, intro v,
-        apply ground_zero.theorems.prop.propset_is_set },
-      reflexivity
+      intros p μ η, fapply sigma.prod, apply zero_path, exact p,
+      change α = β at p, induction p, have ρ : f = g := ntype_is_prop 0 f g,
+      induction ρ, transitivity, apply equiv.transport_to_transportconst, transitivity,
+      apply Id.map (λ p, transportconst (Id.map (λ (α : 0-Type), algebra deg α.fst) p) (Γ₁, Γ₂)),
+      apply zero_path_refl, apply product.prod;
+      apply ground_zero.theorems.funext; intro x, apply μ, apply η
     end
 
     @[hott] noncomputable def equiv_comp_subst {α β : Type u} (φ : α ≃ β) :
@@ -259,6 +238,26 @@ namespace ground_zero.algebra
     begin
       fapply Alg.ext, apply ua φ.eqv,
       apply ua_preserves_op, apply ua_preserves_rel
+    end
+
+    @[hott] def Alg.eqcar {Γ Λ : Alg deg} : Γ = Λ → Γ.carrier = Λ.carrier :=
+    λ p, @Id.map (0-Type) (Type _) _ _ sigma.fst (sigma.fst # p)
+
+    @[hott] noncomputable def Alg.uaext :
+      Π {Γ Λ : Alg deg} (φ : Γ ≅ Λ), ua φ.eqv = Alg.eqcar (Alg.ua φ)
+    | ⟨⟨α, f⟩, (Γ₁, Γ₂)⟩ ⟨⟨β, g⟩, (Λ₁, Λ₂)⟩ := begin
+      intro φ, symmetry, transitivity, change Id.map _ _ = _, apply Id.map,
+      apply sigma.map_fst_over_prod, apply sigma.map_fst_over_prod
+    end
+
+    @[hott] noncomputable def Alg.inj {Γ Λ : Alg deg} {φ ψ : Γ ≅ Λ}
+      (p : Alg.ua φ = Alg.ua ψ) : φ = ψ :=
+    begin
+      apply iso.eq_iff_eq_eqv, transitivity, symmetry, apply ground_zero.ua.uaβrule,
+      transitivity, apply Id.map, apply Alg.uaext,
+      transitivity, apply Id.map (equiv.idtoeqv ∘ Alg.eqcar),
+      exact p, transitivity, apply Id.map equiv.idtoeqv,
+      symmetry, apply Alg.uaext, apply ground_zero.ua.uaβrule
     end
 
     @[hott] def Alg.id {Γ Λ : Alg deg} (p : Γ = Λ) : Γ ≅ Λ :=
