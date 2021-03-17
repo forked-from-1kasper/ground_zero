@@ -1773,7 +1773,7 @@ namespace group
 
   @[hott] def prod (G H : pregroup) : pregroup :=
   @pregroup.intro (G.carrier × H.carrier)
-    (λ _ _, prod_hset (λ _ _, G.hset) (λ _ _, H.hset))
+    (λ _ _, ground_zero.structures.prod_hset (λ _ _, G.hset) (λ _ _, H.hset))
     (λ ⟨a₁, b₁⟩ ⟨a₂, b₂⟩, (G.φ a₁ a₂, H.φ b₁ b₂))
     (λ ⟨a, b⟩, (G.ι a, H.ι b)) (G.e, H.e)
   notation G × H := prod G H
