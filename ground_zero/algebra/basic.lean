@@ -308,8 +308,15 @@ namespace ground_zero.algebra
       apply sigma.prod_refl
     end
 
-    @[hott] noncomputable def Alg.surj {Γ Λ : Alg deg} (p : Γ = Λ) : fib Alg.ua p :=
-    begin induction p, existsi iso.refl Γ, apply Alg.uaβrefl end
+    @[hott] noncomputable def Alg.rinv {Γ Λ : Alg deg} (p : Γ = Λ) : Alg.ua (Alg.id p) = p :=
+    begin induction p, apply Alg.uaβrefl end
+
+    @[hott] noncomputable def Alg.linv {Γ Λ : Alg deg} {φ : Γ ≅ Λ} :
+      Alg.id (Alg.ua φ) = φ :=
+    begin apply Alg.inj, apply Alg.rinv end
+
+    @[hott] noncomputable def Alg.univalence {Γ Λ : Alg deg} : (Γ ≅ Λ) ≃ (Γ = Λ) :=
+    begin existsi Alg.ua, split; existsi Alg.id, apply Alg.linv, apply Alg.rinv end
 
     def magma : Type (u + 1) :=
     @Alg.{0 0 u 0} (𝟏 : Type) ⊥ (λ _, 2)
