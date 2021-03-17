@@ -144,7 +144,7 @@ namespace ground_zero.algebra
           { fapply product.prod,
             apply Id.map sigma.fst ((L.full g₁ x.fst).intro ⟨p₁, Id.map prod.fst v⟩),
             apply Id.map sigma.fst ((K.full g₂ x.snd).intro ⟨p₂, Id.map prod.snd v⟩) },
-          { apply group.prod_hset; intros p q,
+          { apply ground_zero.structures.prod_hset; intros p q,
             apply G.hset, apply H.hset } } }
     end
     notation L × K := prod L K
