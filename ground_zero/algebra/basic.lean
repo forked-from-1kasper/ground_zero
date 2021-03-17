@@ -34,6 +34,14 @@ namespace ground_zero.algebra
     (Π i, algrel (deg (sum.inr i)) α)   -- relations
 
     def Alg := Σ (α : 0-Type), algebra deg α.fst
+
+    @[hott] noncomputable def algebra.hset {α : Type w} (H : hset α) : hset (algebra deg α) :=
+    begin
+      apply prod_hset,
+      { apply pi_hset, intro, apply pi_hset, intro, intros a b, apply H },
+      { apply pi_hset, intro, apply pi_hset,
+        intro, apply ground_zero.theorems.prop.propset_is_set },
+    end
   end
 
   section
@@ -202,13 +210,12 @@ namespace ground_zero.algebra
       apply zero_path_refl, reflexivity
     end
 
-    @[hott] def Alg.ext : Π {Γ Λ : Alg deg} (p : Γ.carrier = Λ.carrier),
-      (Π i, Γ.op i  =[algop  (deg (sum.inl i)), p] Λ.op i) →
-      (Π i, Γ.rel i =[algrel (deg (sum.inr i)), p] Λ.rel i) → Γ = Λ
-    | ⟨⟨α, f⟩, (Γ₁, Γ₂)⟩ ⟨⟨β, g⟩, (Λ₁, Λ₂)⟩ :=
+    @[hott] def Alg.ext {Γ Λ : Alg deg} (p : Γ.carrier = Λ.carrier)
+      (μ : Π i, Γ.op i  =[algop  (deg (sum.inl i)), p] Λ.op i)
+      (η : Π i, Γ.rel i =[algrel (deg (sum.inr i)), p] Λ.rel i) : Γ = Λ :=
     begin
-      intros p μ η, fapply sigma.prod, apply zero_path,
-      exact p, transitivity, apply transport_over_zero_path,
+      fapply sigma.prod, apply zero_path, exact p,
+      transitivity, apply transport_over_zero_path,
       apply algebra.ext; assumption
     end
 
@@ -278,6 +285,31 @@ namespace ground_zero.algebra
 
     @[hott] def Alg.id {Γ Λ : Alg deg} (p : Γ = Λ) : Γ ≅ Λ :=
     begin induction p, reflexivity end
+
+    @[hott] def transport_over_prod {α : Type u} {β : α → Type v} {u v : sigma β}
+      (p₁ p₂ : u.fst = v.fst) (q : equiv.subst p₁ u.snd = v.snd) (ε : p₁ = p₂) :
+      sigma.prod p₁ q = sigma.prod p₂ (@transport (u.fst = v.fst)
+        (λ p, equiv.subst p u.snd = v.snd) p₁ p₂ ε q) :=
+    begin induction ε, reflexivity end
+
+    @[hott] noncomputable def Alg.uaβrefl {Γ : Alg deg} : Alg.ua (iso.refl Γ) = Id.refl :=
+    begin
+      change Alg.ext _ _ _ = _, change sigma.prod _ _ = _,
+      transitivity, apply transport_over_prod,
+      transitivity, change sigma.prod _ _ = _,
+      transitivity, apply transport_over_prod,
+      apply ground_zero.ua.refl_on_ua,
+      apply Id.map (sigma.prod Id.refl),
+      change _ = Id.refl, apply prop_is_set,
+      apply ntype_is_prop, apply sigma.prod_refl,
+      transitivity, apply Id.map (sigma.prod Id.refl),
+      change _ = Id.refl, apply algebra.hset,
+      intros a b, apply zero_eqv_set.forward Γ.fst.snd,
+      apply sigma.prod_refl
+    end
+
+    @[hott] noncomputable def Alg.surj {Γ Λ : Alg deg} (p : Γ = Λ) : fib Alg.ua p :=
+    begin induction p, existsi iso.refl Γ, apply Alg.uaβrefl end
 
     def magma : Type (u + 1) :=
     @Alg.{0 0 u 0} (𝟏 : Type) ⊥ (λ _, 2)

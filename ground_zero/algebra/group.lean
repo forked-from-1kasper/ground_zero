@@ -1771,16 +1771,6 @@ namespace group
   @[hott] def P₂.periodic (x : P₂.carrier) : P.mul x x = P.one :=
   begin apply P.unit_sqr, intro b, induction b; trivial end
 
-  @[hott] def prod_hset {α : Type u} {β : Type v}
-    (p : hset α) (q : hset β) : hset (α × β) :=
-  begin
-    apply hset_respects_equiv,
-    apply sigma.const,
-    apply hset_respects_sigma,
-    intros a b, apply p,
-    intro x, intros a b, exact q
-  end
-
   @[hott] def prod (G H : pregroup) : pregroup :=
   @pregroup.intro (G.carrier × H.carrier)
     (λ _ _, prod_hset (λ _ _, G.hset) (λ _ _, H.hset))

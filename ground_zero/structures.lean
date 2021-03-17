@@ -409,6 +409,16 @@ begin
   induction p, induction q, reflexivity
 end
 
+@[hott] def prod_hset {α : Type u} {β : Type v}
+  (p : hset α) (q : hset β) : hset (α × β) :=
+begin
+  apply hset_respects_equiv,
+  apply types.sigma.const,
+  apply hset_respects_sigma,
+  intros a b, apply p,
+  intro x, intros a b, exact q
+end
+
 @[hott] def pi_prop {α : Type u} {β : α → Type v}
   (h : Π x, prop (β x)) : prop (Π x, β x) :=
 λ f g, HITs.interval.funext (λ x, h x (f x) (g x))
