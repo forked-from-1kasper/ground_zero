@@ -55,7 +55,7 @@ namespace precategory
 
   def id (x : 𝒞.carrier) := x = 𝒞.dom x
 
-  def objs := Σ x, 𝒞.id x × 𝒞.defined x
+  def Obj := Σ x, 𝒞.id x × 𝒞.defined x
 
   def Hom (a b : 𝒞.carrier) :=
   Σ φ, ∥(𝒞.dom φ = a) + (𝒞.cod φ = b)∥
