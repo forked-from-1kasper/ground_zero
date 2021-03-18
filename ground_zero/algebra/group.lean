@@ -702,23 +702,23 @@ namespace group
     iterate 2 { apply HITs.interval.happly }, exact p
   end
 
-  -- This statement in fact says that two groups are equal
-  -- if their multiplication tables are equal
-  /-
-  @[hott] def table {G H : pregroup} (φ : G.carrier = H.carrier)
-    (p : G.φ =[λ G, G → G → G, φ] H.φ) : G = H :=
+  @[hott] def iso.of_path {G H : pregroup} [group G] [group H]
+    (φ : G.carrier = H.carrier) (p : G.φ =[λ G, G → G → G, φ] H.φ) : G ≅ H :=
   begin
-    fapply group.ext, exact φ, exact p,
-    { apply homo_saves_unit (homo.of_path φ p) },
-    { apply theorems.funext, intro x,
-      transitivity, apply equiv.transport_over_morphism_pointwise,
-      transitivity, apply homo_respects_inv (homo.of_path φ p),
-      apply Id.map, apply @equiv.transport_back_and_forward _ (λ G, G) _ _ φ }
+    fapply iso.of_homo, apply homo.of_path φ p,
+    split; existsi @transport _ (λ G, G) H.carrier G.carrier (Id.inv φ); intro x,
+    { apply types.equiv.transport_forward_and_back },
+    { apply @types.equiv.transport_back_and_forward _ (λ G, G) _ _ φ },
   end
-  -/
 
   @[hott] noncomputable def iso.ua {G H : pregroup} : G ≅ H → G = H :=
   @Alg.ua.{0 0 0} pregroup.arity ⊥ pregroup.signature G H
+
+  -- This statement in fact says that two groups are equal
+  -- if their multiplication tables are equal
+  @[hott] noncomputable def table {G H : pregroup} [group G] [group H]
+    (φ : G.carrier = H.carrier) (p : G.φ =[λ G, G → G → G, φ] H.φ) : G = H :=
+  iso.ua (iso.of_path φ p)
 
   @[hott] def factor.lift {H : pregroup} [group H] (f : G ⤳ H) {φ : G.subgroup} [G ⊵ φ]
     (p : Π x, x ∈ φ → f.fst x = H.e) : factor_left G φ → H.carrier :=

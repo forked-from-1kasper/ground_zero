@@ -136,6 +136,10 @@ namespace ground_zero.algebra
       Π (φ : Γ.carrier ≃ Λ.carrier), respects φ.fst → Γ ≅ Λ
     | ⟨φ, q⟩ p := ⟨φ, (p, q)⟩
 
+    @[hott] def iso.of_homo {Γ Λ : Alg deg} :
+      Π (φ : Γ ⤳ Λ), biinv φ.ap → Γ ≅ Λ
+    | ⟨φ, p⟩ q := ⟨φ, (p, q)⟩
+
     @[hott] noncomputable def iso.ext {Γ Λ : Alg deg} (φ ψ : Γ ≅ Λ) : φ.ap ~ ψ.ap → φ = ψ :=
     begin
       intro p, fapply sigma.prod, apply ground_zero.theorems.funext p,
