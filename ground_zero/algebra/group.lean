@@ -1275,7 +1275,7 @@ namespace group
     factor.incl
 
     @[hott] noncomputable def ker.decode_sigma {φ : G ⤳ H} :
-      Π (x : im.carrier φ), (Σ (y : factor_left G (ker φ)), ker.encode y = x) :=
+      Π (x : im.carrier φ), fib ker.encode x :=
     begin
       intro x, induction x with x p,
       fapply ground_zero.HITs.merely.ind _ _ p; intro z,
