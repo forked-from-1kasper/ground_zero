@@ -319,6 +319,30 @@ namespace ground_zero.algebra
       Alg.id (Alg.ua φ) = φ :=
     begin apply Alg.inj, apply Alg.rinv end
 
+    /--
+      Related:
+
+      “Universal Algebra in HoTT”
+      Andreas Lynge and Bas Spitters
+      * https://github.com/andreaslyn/hott-classes
+      * http://www.ii.uib.no/~bezem/abstracts/TYPES_2019_paper_7
+
+      “Isomorphism is equality”
+      Thierry Coquand, Nils Anders Danielsson
+      * https://www.sciencedirect.com/science/article/pii/S0019357713000694
+
+      “Universal Algebra in UniMath”
+      Gianluca Amato, Marco Maggesi, Maurizio Parton, Cosimo Perini Brogi
+      * https://hott-uf.github.io/2020/HoTTUF_2020_paper_13.pdf
+
+      “Formalization of universal algebra in Agda”
+      Emmanuel Gunther, Alejandro Gadea, and Miguel Pagano
+      * https://www.sciencedirect.com/science/article/pii/S1571066118300768
+
+      “Universal algebra in type theory”
+      Venanzio Capretta
+      * https://link.springer.com/chapter/10.1007/3-540-48256-3_10
+    -/
     @[hott] noncomputable def Alg.univalence {Γ Λ : Alg deg} : (Γ ≅ Λ) ≃ (Γ = Λ) :=
     begin existsi Alg.ua, split; existsi Alg.id, apply Alg.linv, apply Alg.rinv end
 
