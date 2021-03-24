@@ -1,8 +1,9 @@
 import ground_zero.HITs.suspension ground_zero.theorems.prop
 import ground_zero.types.integer
+
+open ground_zero.structures (prop hset groupoid)
 open ground_zero.types.equiv (subst transport)
 open ground_zero.HITs.interval (happly)
-open ground_zero.structures (hset)
 open ground_zero.types.Id
 open ground_zero.types
 open combinator (S)
@@ -230,6 +231,9 @@ namespace circle
       symmetry, exact subst seg₁ # (ℓ⁻¹ ⬝ p)
     end)
 
+  @[hott] def indΩ {β : S¹ → Type u} (b : β base) (p : Π x, prop (β x)) : Π x, β x :=
+  begin fapply ind, exact b, apply p end
+
   instance pointed_circle : types.Id.dotted S¹ := ⟨base⟩
 
   @[hott] noncomputable def loop_eq_refl_impls_uip {α : Type u}
@@ -403,6 +407,9 @@ namespace circle
   @[hott] noncomputable def fundamental_group : (Ω¹(S¹)) = ℤ :=
   ua (family base)
 
+  @[hott] noncomputable def loop_hset : hset (base = base) :=
+  transport hset fundamental_group⁻¹ (λ _ _, integer.set)
+
   @[hott] noncomputable def Ωind₁ {π : (Ω¹(S¹)) → Type u}
     (zeroπ : π Id.refl) (succπ : Π x, π x → π (x ⬝ loop))
     (predπ : Π x, π x → π (x ⬝ loop⁻¹)) : Π x, π x :=
@@ -507,8 +514,8 @@ namespace circle
 
   @[hott] noncomputable def unit_right (x : S¹) : μ x base = x :=
   begin
-    fapply circle.ind _ _ x, refl,
-    apply types.Id.trans, apply equiv.transport_over_involution (λ x, μ x base),
+    fapply circle.ind _ _ x, reflexivity, change _ = _,
+    transitivity, apply equiv.transport_over_involution (λ x, μ x base),
     transitivity, apply Id.map (λ p, p ⬝ idp base ⬝ loop),
     transitivity, apply Id.map_inv, apply Id.map,
     apply μ_left, transitivity, apply Id.map (λ p, p ⬝ loop),
@@ -516,7 +523,7 @@ namespace circle
   end
 
   @[hott] noncomputable def unit_comm (x : S¹) : μ base x = μ x base :=
-  unit_left x ⬝ (unit_right x)⁻¹
+  (unit_right x)⁻¹
 
   @[hott] noncomputable def mul_inv (x : S¹) : base = μ x (inv x) :=
   begin
@@ -530,6 +537,42 @@ namespace circle
       symmetry, apply μ_right,
       symmetry, transitivity, symmetry, apply μ_left,
       apply equiv.bimap_comp }
+  end
+
+  -- https://github.com/mortberg/cubicaltt/blob/master/examples/helix.ctt#L207
+  @[hott] def lem_set_torus {π : S¹ → S¹ → Type u} (setπ : hset (π base base))
+    (f : Π y, π base y) (g : Π x, π x base) (p : f base = g base) : Π x y, π x y :=
+  begin
+    intro x, fapply circle.ind _ _ x; clear x, exact f,
+    change _ = _, transitivity, apply types.equiv.transport_over_pi,
+    apply theorems.funext, intro y, fapply circle.ind _ _ y; clear y,
+    change equiv.transport (λ (x : S¹), π x base) loop (f base) = _,
+    transitivity, apply Id.map, exact p,
+    transitivity, apply equiv.apd, exact p⁻¹, apply setπ
+  end
+
+  @[hott] noncomputable def groupoid : groupoid S¹ :=
+  begin
+    intros a b, change hset (a = b), fapply indΩ _ _ a; clear a,
+    { fapply indΩ _ _ b; clear b, apply loop_hset,
+      intro, apply structures.set_is_prop },
+    intro, apply structures.set_is_prop
+  end
+
+  @[hott] noncomputable def mul_comm (x y : S¹) : μ x y = μ y x :=
+  begin
+    fapply @lem_set_torus (λ x y, μ x y = μ y x), apply loop_hset,
+    { intro z, symmetry, apply unit_right },
+    { intro z, apply unit_right }, reflexivity
+  end
+
+  @[hott] noncomputable def mul_assoc : Π x y z, μ x (μ y z) = μ (μ x y) z :=
+  begin
+    intro x, fapply @lem_set_torus (λ y z, μ x (μ y z) = μ (μ x y) z), apply groupoid,
+    { intro z, apply Id.map (λ x, μ x z), exact (unit_right x)⁻¹ },
+    { intro z, transitivity, apply Id.map, apply unit_right,
+      symmetry, apply unit_right },
+    { fapply ind _ _ x, reflexivity, apply groupoid }
   end
 
   def pow' (x : S¹) : ℕ → S¹
