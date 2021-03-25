@@ -169,26 +169,6 @@ namespace circle
   def base : S¹ := base₁
   def loop : base = base := seg₂ ⬝ seg₁⁻¹
 
-  def halfway.φ : I → S¹ :=
-  λ i, interval.elim loop (i ∧ (interval.neg i))
-
-  def halfway : base = base :=
-  interval.lam halfway.φ
-
-  @[hott] def halfway.const : halfway.φ = λ _, base :=
-  begin
-    apply theorems.funext, fapply interval.ind,
-    { reflexivity }, { reflexivity },
-    { change _ = _, transitivity,
-      apply types.equiv.transport_over_contr_map,
-      transitivity, apply Id.refl_right,
-      transitivity, apply Id.map_inv,
-      transitivity, apply map, apply equiv.map_over_comp,
-      transitivity, apply map, apply map, change _ = idp interval.zero,
-      apply structures.prop_is_set, apply interval.interval_prop,
-      reflexivity }
-  end
-
   def rec {β : Type u} (b : β) (ℓ : b = b) : S¹ → β :=
   suspension.rec b b (λ b, bool.cases_on b Id.refl ℓ)
 
@@ -575,24 +555,48 @@ namespace circle
     { fapply ind _ _ x, reflexivity, apply groupoid }
   end
 
+  @[hott] noncomputable def trans_comm {z : S¹} : Π (p q : z = z), p ⬝ q = q ⬝ p :=
+  begin
+    fapply ind _ _ z, { intros p q, apply comm },
+    repeat { apply theorems.funext, intro }, apply groupoid
+  end
+
+  @[hott] noncomputable def transport_over_circle {z : S¹} {f g : S¹ → S¹} {p : f = g}
+    (μ : f z = f z) (η : f z = g z) : @transport (S¹ → S¹) (λ φ, φ z = φ z) f g p μ = η⁻¹ ⬝ μ ⬝ η :=
+  begin induction p, symmetry, apply id_conj_if_comm, apply trans_comm end
+
   open ground_zero.types.equiv (bimap)
   @[hott] noncomputable def mul_trans (p q : Ω¹(S¹)) : bimap μ p q = p ⬝ q :=
   begin
     transitivity, apply equiv.bimap_characterization, apply equiv.bimap,
     { transitivity, apply theorems.map_homotopy,
       intro x, symmetry, apply unit_right,
-      transitivity, apply Id.map, symmetry, apply idmap,
-      transitivity, apply equiv.transport_over_hmtpy,
-      transitivity, apply Id.map (λ r, r ⬝ p ⬝ Id.map (λ (f : S¹ → S¹), f base)
-        (theorems.funext (λ (f : S¹), (unit_right f)⁻¹))),
-      apply Id.map_inv, apply id_conj_if_comm, apply comm },
+      transitivity, fapply transport_over_circle, reflexivity,
+      transitivity, apply Id.refl_right, symmetry, apply idmap },
     { transitivity, apply theorems.map_homotopy,
       intro x, symmetry, apply unit_left,
-      transitivity, apply Id.map, symmetry, apply idmap,
-      transitivity, apply equiv.transport_over_hmtpy,
-      transitivity, apply Id.map (λ r, r ⬝ q ⬝ Id.map (λ (f : S¹ → S¹), f base)
-        (theorems.funext (λ (f : S¹), (unit_left f)⁻¹))),
-      apply Id.map_inv, apply id_conj_if_comm, apply comm }
+      transitivity, fapply transport_over_circle, reflexivity,
+      transitivity, apply Id.refl_right, symmetry, apply idmap }
+  end
+
+  def halfway.φ : I → S¹ :=
+  λ i, interval.elim loop (i ∧ (interval.neg i))
+
+  def halfway : base = base :=
+  interval.lam halfway.φ
+
+  @[hott] def halfway.const : halfway.φ ~ λ _, base :=
+  begin
+    fapply interval.ind,
+    { reflexivity }, { reflexivity },
+    { change _ = _, transitivity,
+      apply types.equiv.transport_over_contr_map,
+      transitivity, apply Id.refl_right,
+      transitivity, apply Id.map_inv,
+      transitivity, apply map, apply equiv.map_over_comp,
+      transitivity, apply map, apply map, change _ = idp interval.zero,
+      apply structures.prop_is_set, apply interval.interval_prop,
+      reflexivity }
   end
 
   def pow' (x : S¹) : ℕ → S¹
