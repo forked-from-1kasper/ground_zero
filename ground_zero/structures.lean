@@ -576,6 +576,19 @@ namespace theorems
     { apply homotopy_ind, change _ = HITs.interval.happly (idp _),
       apply Id.map HITs.interval.happly, apply homotopy_ind_id }
   end
+
+  open ground_zero.types.equiv (transport)
+  @[hott] def map_homotopy {α : Type u} {β : Type v} {a b : α}
+    (f g : α → β) (p : a = b) (q : f ~ g) :
+    g # p = @transport (α → β) (λ h, h a = h b) f g (funext q) (f # p) :=
+  begin
+    induction p, symmetry, transitivity, apply types.equiv.transport_over_hmtpy,
+    transitivity, apply Id.map (⬝ Id.map (λ (h : α → β), h a) (funext q)),
+    apply Id.refl_right, transitivity, symmetry, change _ = _ ⬝ _,
+    apply map_functoriality (λ (h : α → β), h a),
+    transitivity, apply Id.map, apply Id.inv_comp,
+    reflexivity
+  end
 end theorems
 
 @[hott] def structures.pi_respects_ntype (n : ℕ₋₂) :

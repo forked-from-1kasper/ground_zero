@@ -95,6 +95,16 @@ namespace Id
     exact μ⁻¹
   end
 
+  @[hott] def id_conj_if_comm {α : Type u} {a : α}
+    (p q : a = a) : p ⬝ q = q ⬝ p → q⁻¹ ⬝ p ⬝ q = p :=
+  begin
+    intro r, apply trans_cancel_left q,
+    transitivity, apply Id.assoc,
+    transitivity, apply Id.map (⬝ q),
+    transitivity, apply Id.assoc, apply Id.map (⬝ p),
+    apply Id.comp_inv, exact r
+  end
+
   section
     variables {α : Type u} {β : Type v} {a b : α}
               (f : α → β) (p : a = b :> α)
