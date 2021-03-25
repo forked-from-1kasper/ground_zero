@@ -576,7 +576,7 @@ namespace circle
   end
 
   open ground_zero.types.equiv (bimap)
-  @[hott] noncomputable def μtrans (p q : Ω¹(S¹)) : bimap μ p q = p ⬝ q :=
+  @[hott] noncomputable def mul_trans (p q : Ω¹(S¹)) : bimap μ p q = p ⬝ q :=
   begin
     transitivity, apply equiv.bimap_characterization, apply equiv.bimap,
     { transitivity, apply theorems.map_homotopy,
