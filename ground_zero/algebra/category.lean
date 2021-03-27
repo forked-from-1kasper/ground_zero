@@ -96,6 +96,12 @@ namespace precategory
   def iso (a : 𝒞.carrier) :=
   Σ b, biinv 𝒞 a b
 
+  def invertible (a : 𝒞.carrier) :=
+  ∥𝒞.iso a∥
+
+  def groupoid (𝒞 : precategory) :=
+  Π a, 𝒞.invertible a
+
   def auto (a : 𝒞.carrier) :=
   endo 𝒞 a × iso 𝒞 a
 
