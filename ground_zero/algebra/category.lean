@@ -285,6 +285,16 @@ namespace category
     apply mul_def_impl_right_def p
   end
 
+  @[hott] def cod_comp_def_impl_def {a b : 𝒞.carrier} : ∃(𝒞.μ a (𝒞.cod b)) → ∃(𝒞.μ a b) :=
+  begin
+    intro p, fapply (mul_def a b _ _).right,
+    apply following.cod_impl_tootal,
+    apply def_impl_following, exact p,
+    apply mul_def_impl_left_def p,
+    apply cod_def_impl_def,
+    apply mul_def_impl_right_def p,
+  end
+
   @[hott] def def_impl_dom_comp_def {a b : 𝒞.carrier} : ∃(𝒞.μ a b) → ∃(𝒞.μ (𝒞.dom a) b) :=
   begin
     intro p, fapply (mul_def (𝒞.dom a) b _ _).right,
@@ -293,11 +303,26 @@ namespace category
     apply mul_def_impl_right_def p
   end
 
+  @[hott] def def_impl_cod_comp_def {a b : 𝒞.carrier} : ∃(𝒞.μ a b) → ∃(𝒞.μ a (𝒞.cod b)) :=
+  begin
+    intro p, fapply (mul_def a (𝒞.cod b) _ _).right,
+    apply Id.trans, apply def_impl_following p,
+    symmetry, apply cod_cod, apply mul_def_impl_left_def p,
+    apply def_impl_cod_def, apply mul_def_impl_right_def p,
+  end
+
   @[hott] def dom_hetero_comp {a b : 𝒞.carrier} : ∃(𝒞.μ (𝒞.dom a) b) → 𝒞.μ (𝒞.dom a) b = b :=
   begin
     intro p, transitivity, apply Id.map (λ h, 𝒞.μ h b),
     transitivity, apply (dom_dom a)⁻¹,
     apply def_impl_following p, apply cod_comp
+  end
+
+  @[hott] def cod_hetero_comp {a b : 𝒞.carrier} : ∃(𝒞.μ a (𝒞.cod b)) → 𝒞.μ a (𝒞.cod b) = a :=
+  begin
+    intro p, transitivity, apply Id.map (𝒞.μ a),
+    transitivity, apply (cod_cod b)⁻¹,
+    symmetry, apply def_impl_following p, apply dom_comp
   end
 
   @[hott] def id_comp {a b : 𝒞.carrier} : ∃(𝒞.μ a b) → 𝒞.id a → 𝒞.μ a b = b :=
@@ -316,6 +341,18 @@ namespace category
     apply transport (λ z, 𝒞.μ z y = 𝒞.μ z x), exact p,
     transitivity, apply mul_assoc, symmetry,
     transitivity, apply mul_assoc, apply Id.map, exact r
+  end
+
+  @[hott] def retraction_impl_epic {a : 𝒞.carrier} : 𝒞.retraction a → 𝒞.epic a :=
+  begin
+    intros p x y q r, induction p with b p,
+    transitivity, symmetry, apply cod_hetero_comp (def_impl_cod_comp_def q),
+    symmetry, transitivity, symmetry, apply cod_hetero_comp,
+    apply def_impl_cod_comp_def, apply equiv.subst r q,
+    apply transport (λ z, 𝒞.μ y z = 𝒞.μ x z), exact p,
+    transitivity, symmetry, apply mul_assoc,
+    transitivity, apply Id.map (λ z, 𝒞.μ z b),
+    exact Id.inv r, apply mul_assoc
   end
 
   @[hott] instance dual : category 𝒞ᵒᵖ :=
