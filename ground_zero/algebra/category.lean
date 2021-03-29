@@ -1,5 +1,5 @@
 import ground_zero.algebra.basic ground_zero.theorems.classical
-open ground_zero.structures (hset prop dec)
+open ground_zero.structures (hset prop contr dec)
 open ground_zero.types.equiv (transport)
 open ground_zero.theorems
 open ground_zero.types
@@ -101,6 +101,9 @@ namespace precategory
 
   def groupoid (𝒞 : precategory) :=
   Π a, 𝒞.invertible a
+
+  def commutative (𝒞 : precategory) :=
+  Π a b, 𝒞.dom a = 𝒞.dom b → 𝒞.cod a = 𝒞.cod b → a = b
 
   def auto (a : 𝒞.carrier) :=
   endo 𝒞 a × iso 𝒞 a
