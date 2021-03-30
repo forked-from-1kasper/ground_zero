@@ -56,9 +56,13 @@ namespace precategory
   def id (x : 𝒞.carrier) := x = 𝒞.dom x
 
   def Obj := Σ x, 𝒞.id x × 𝒞.defined x
+  def Obj.val {𝒞 : precategory} : Obj 𝒞 → 𝒞.carrier := sigma.fst
 
   def Hom (a b : 𝒞.carrier) :=
-  Σ φ, ∥(𝒞.dom φ = a) + (𝒞.cod φ = b)∥
+  Σ φ, (𝒞.dom φ = a) × (𝒞.cod φ = b)
+
+  @[hott] def homext {a b : 𝒞.carrier} (f g : Hom 𝒞 a b) : f.fst = g.fst → f = g :=
+  begin intro p, apply types.sigma.prod p, apply structures.product_prop; apply 𝒞.hset end
 
   def monic (a : 𝒞.carrier) :=
   Π b c, ∃(𝒞.μ a b) → 𝒞.μ a b = 𝒞.μ a c → b = c
@@ -149,6 +153,8 @@ class category (𝒞 : precategory) :=
 (mul_def      : Π a b, ∃a → ∃b → (∃(𝒞.μ a b) ↔ 𝒞.following a b))
 
 namespace category
+  open precategory (Obj Hom)
+
   variables {𝒞 : precategory} [category 𝒞]
 
   @[hott] def dom_dom : 𝒞.dom ∘ 𝒞.dom ~ 𝒞.dom :=
@@ -394,6 +400,63 @@ namespace category
     fapply sigma.prod, apply theorems.funext, exact p,
     repeat { apply structures.pi_prop, intro }, apply ℬ.hset
   end
+
+  @[hott] def bottom_biinv : 𝒞.biinv ∄ ∄ :=
+  begin
+    split; change _ = _; transitivity; try { apply bottom_left },
+    apply Id.inv bottom_dom, assumption,
+    apply Id.inv bottom_cod, assumption
+  end
+
+  section
+    variables {a b c : Obj 𝒞}
+
+    @[hott] def hom_defined (f : Hom 𝒞 a.val b.val) : ∃f.fst :=
+    begin
+      apply dom_def_impl_def, apply equiv.transport 𝒞.defined,
+      symmetry, exact f.snd.fst, apply a.snd.snd
+    end
+
+    @[hott] def hom_comp_defined (f : Hom 𝒞 b.val c.val) (g : Hom 𝒞 a.val b.val) : ∃(𝒞.μ f.fst g.fst) :=
+    begin
+      apply (mul_def f.fst g.fst _ _).right,
+      { change _ = _, transitivity,
+        exact f.snd.fst, symmetry, exact g.snd.snd },
+      repeat { apply hom_defined }
+    end
+
+    @[hott] def comp (f : Hom 𝒞 b.val c.val) (g : Hom 𝒞 a.val b.val) : Hom 𝒞 a.val c.val :=
+    begin
+      existsi 𝒞.μ f.fst g.fst, split,
+      transitivity, apply mul_dom, apply hom_comp_defined, apply g.snd.fst,
+      transitivity, apply mul_cod, apply hom_comp_defined, apply f.snd.snd
+    end
+  end
+
+  @[hott] def ε (a : Obj 𝒞) : Hom 𝒞 a.val a.val :=
+  begin
+    existsi a.val, split; symmetry,
+    apply a.snd.fst, apply (id_iff_eq_cod _).left,
+    exact a.snd.fst, assumption
+  end
+
+  local infix ` ∘ ` := @comp 𝒞 _ _ _ _
+
+  @[hott] def leftε {a b : Obj 𝒞} (f : Hom 𝒞 a.val b.val) : ε b ∘ f = f :=
+  begin
+    apply 𝒞.homext, transitivity, apply Id.map (λ x, 𝒞.μ x f.fst),
+    symmetry, apply f.snd.snd, apply cod_comp
+  end
+
+  @[hott] def rightε {a b : Obj 𝒞} (f : Hom 𝒞 a.val b.val) : f ∘ ε a = f :=
+  begin
+    apply 𝒞.homext, transitivity, apply Id.map (𝒞.μ f.fst),
+    symmetry, apply f.snd.fst, apply dom_comp
+  end
+
+  @[hott] def comp_assoc {a b c d : Obj 𝒞} (f : Hom 𝒞 c.val d.val)
+    (g : Hom 𝒞 b.val c.val) (h : Hom 𝒞 a.val b.val) : (f ∘ g) ∘ h = f ∘ (g ∘ h) :=
+  begin apply 𝒞.homext, apply mul_assoc end
 end category
 
 end ground_zero.algebra
