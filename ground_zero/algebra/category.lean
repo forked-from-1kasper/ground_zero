@@ -61,7 +61,11 @@ namespace precategory
   def Hom (a b : 𝒞.carrier) :=
   Σ φ, (𝒞.dom φ = a) × (𝒞.cod φ = b)
 
-  @[hott] def homext {a b : 𝒞.carrier} (f g : Hom 𝒞 a b) : f.fst = g.fst → f = g :=
+  def Hom.ap {𝒞 : precategory} {a b : 𝒞.carrier} :
+    Hom 𝒞 a b → 𝒞.carrier :=
+  sigma.fst
+
+  @[hott] def homext {a b : 𝒞.carrier} (f g : Hom 𝒞 a b) : f.ap = g.ap → f = g :=
   begin intro p, apply types.sigma.prod p, apply structures.product_prop; apply 𝒞.hset end
 
   def monic (a : 𝒞.carrier) :=
@@ -102,6 +106,12 @@ namespace precategory
 
   def invertible (a : 𝒞.carrier) :=
   ∥𝒞.iso a∥
+
+  def Iso (a b : Obj 𝒞) :=
+  Σ (f : Hom 𝒞 a.val b.val), 𝒞.invertible f.ap
+
+  def univalent (𝒞 : precategory) :=
+  Π a, 𝒞.endo a ≃ 𝒞.invertible a
 
   def groupoid (𝒞 : precategory) :=
   Π a, 𝒞.invertible a
@@ -411,15 +421,15 @@ namespace category
   section
     variables {a b c : Obj 𝒞}
 
-    @[hott] def hom_defined (f : Hom 𝒞 a.val b.val) : ∃f.fst :=
+    @[hott] def hom_defined (f : Hom 𝒞 a.val b.val) : ∃f.ap :=
     begin
       apply dom_def_impl_def, apply equiv.transport 𝒞.defined,
       symmetry, exact f.snd.fst, apply a.snd.snd
     end
 
-    @[hott] def hom_comp_defined (f : Hom 𝒞 b.val c.val) (g : Hom 𝒞 a.val b.val) : ∃(𝒞.μ f.fst g.fst) :=
+    @[hott] def hom_comp_defined (f : Hom 𝒞 b.val c.val) (g : Hom 𝒞 a.val b.val) : ∃(𝒞.μ f.ap g.ap) :=
     begin
-      apply (mul_def f.fst g.fst _ _).right,
+      apply (mul_def f.ap g.ap _ _).right,
       { change _ = _, transitivity,
         exact f.snd.fst, symmetry, exact g.snd.snd },
       repeat { apply hom_defined }
@@ -427,7 +437,7 @@ namespace category
 
     @[hott] def comp (f : Hom 𝒞 b.val c.val) (g : Hom 𝒞 a.val b.val) : Hom 𝒞 a.val c.val :=
     begin
-      existsi 𝒞.μ f.fst g.fst, split,
+      existsi 𝒞.μ f.ap g.ap, split,
       transitivity, apply mul_dom, apply hom_comp_defined, apply g.snd.fst,
       transitivity, apply mul_cod, apply hom_comp_defined, apply f.snd.snd
     end
@@ -444,13 +454,13 @@ namespace category
 
   @[hott] def leftε {a b : Obj 𝒞} (f : Hom 𝒞 a.val b.val) : ε b ∘ f = f :=
   begin
-    apply 𝒞.homext, transitivity, apply Id.map (λ x, 𝒞.μ x f.fst),
+    apply 𝒞.homext, transitivity, apply Id.map (λ x, 𝒞.μ x f.ap),
     symmetry, apply f.snd.snd, apply cod_comp
   end
 
   @[hott] def rightε {a b : Obj 𝒞} (f : Hom 𝒞 a.val b.val) : f ∘ ε a = f :=
   begin
-    apply 𝒞.homext, transitivity, apply Id.map (𝒞.μ f.fst),
+    apply 𝒞.homext, transitivity, apply Id.map (𝒞.μ f.ap),
     symmetry, apply f.snd.fst, apply dom_comp
   end
 
