@@ -23,7 +23,7 @@ partial def instArgsAux : LocalContext → Expr → MetaM (LocalContext × Expr)
     let varId ← mkFreshId
     let lctx' := lctx.mkLocalDecl varId τ.bindingName! τ.bindingDomain! τ.bindingInfo!
 
-    withReader (fun ctx => { ctx with lctx := lctx' }) do
+    withReader (λ ctx => { ctx with lctx := lctx' }) do
       mkFVar varId
       |> mkApp e
       |> instArgsAux lctx'
@@ -34,7 +34,7 @@ def instArgs (e : Expr) : MetaM (LocalContext × Expr) := do
 
 def isProp : LocalContext → Expr → MetaM Bool :=
 λ lctx e =>
-  withReader (fun ctx => { ctx with lctx := lctx })
+  withReader (λ ctx => { ctx with lctx := lctx })
     (Expr.isProp <$> Meta.inferType e)
 
 def isProof : LocalContext → Expr → MetaM Bool :=
@@ -54,7 +54,7 @@ def const (c : Name) : MetaM Expr := do
     let num := info.levelParams.length;
     let levels ← mkNumMetaUnivs num;
     return mkConst c levels
-  | none => throwError! "unknown identifier “{c}”"
+  | none => throwError "unknown identifier “{c}”"
 
 def uncurry {α : Type u} {β : Type v} {γ : Type w} : (α → β → γ) → (α × β → γ) :=
 λ f (a, b) => f a b
@@ -69,25 +69,36 @@ String.intercalate " <- " ∘ List.map toString
 
 def checkLargeElim (chain : List Name) (name : Name) : MetaM Unit := do
   let largeElim? ← hasLargeElim name;
-  if largeElim? then throwError! "uses large eliminator: {renderChain chain}"
+  if largeElim? then throwError "uses large eliminator: {renderChain chain}"
+
+-- Should be replaced by environment extension in future
+initialize hottDecls : IO.Ref NameSet ← IO.mkRef {}
+
+def checked? (decl : Name) : IO Bool := do
+  let xs ← hottDecls.get
+  pure (xs.contains decl)
 
 partial def checkDeclAux (chain : List Name) (name : Name) : MetaM Unit := do
   let env ← getEnv
-  match env.find? name with
-  | some (ConstantInfo.recInfo v) =>
-    List.forM v.all (checkLargeElim chain)
-  | some info =>
-    match info.value? with
-    | some expr => Array.forM (λ n => checkDeclAux (n :: chain) n)
-                              expr.getUsedConstants
-    | none => return ()
-  | none => throwError! "unknown identifier “{name}”"
+
+  let isHott ← checked? name
+  if ¬isHott then
+    match env.find? name with
+    | some (ConstantInfo.recInfo v) =>
+      List.forM v.all (checkLargeElim chain)
+    | some info =>
+      match info.value? with
+      | some expr => Array.forM (λ n => checkDeclAux (n :: chain) n)
+                                expr.getUsedConstants
+      | none => return ()
+    | none => throwError "unknown identifier “{name}”"
+  else return ()
 
 def checkDecl : Name → MetaM Unit :=
 checkDeclAux []
 
 @[commandParser] def hott :=
-parser! declModifiers false >> "hott " >> («def» <|> «theorem»)
+leading_parser declModifiers false >> "hott " >> («def» <|> «theorem»)
 
 @[commandElab «hott»] def elabHoTT : Elab.Command.CommandElab :=
 λ stx => match stx.getArgs with
@@ -95,22 +106,16 @@ parser! declModifiers false >> "hott " >> («def» <|> «theorem»)
   let declId   := cmd[1]
   let declName := declId[0].getId
 
-  mkNode `Lean.Parser.Command.declaration #[mods, cmd]
-  |> Elab.Command.elabDeclaration
-
   let ns ← getCurrNamespace
-  checkDecl (ns ++ declName)
-  |> Elab.Command.liftTermElabM (some declName)
+  let name := ns ++ declName
+
+  mkNode `Lean.Parser.Command.declaration #[mods, cmd]
+  |> Elab.Command.elabDeclaration 
+
+  checkDecl name
+  |> Elab.Command.liftTermElabM name
+
+  hottDecls.modify (λ xs => xs.insert name)
 | _ => throwError "unknown declaration"
 
 end GroundZero.Meta.HottTheory
-
-inductive Id' {α : Type u} : α → α → Type u
-| refl (a : α) : Id' a a
-
--- throws an error
---hott def K {α : Type u} {a b : α} (p q : Id' a b) : Id' p q :=
---by { cases p; cases q; apply Id'.refl }
-
--- checks
-hott def τ := 42
