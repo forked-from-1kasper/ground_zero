@@ -12,6 +12,7 @@ digraph dependency_map {
 
   subgraph algebra {
     "algebra/basic" -> { "algebra/category", "algebra/monoid", "algebra/group" }
+    "algebra/boolean"
     "algebra/category"
     "algebra/eilenberg_maclane"
     "algebra/finite"
@@ -24,7 +25,7 @@ digraph dependency_map {
     }
     "algebra/homology"
     "algebra/monoid"
-    "algebra/ring"
+    "algebra/ring" -> { "algebra/boolean" }
     "algebra/transformational"
     "algebra/Z" -> { "algebra/homology" }
   }
