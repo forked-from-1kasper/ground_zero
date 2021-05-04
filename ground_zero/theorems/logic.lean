@@ -92,6 +92,17 @@ namespace ground_zero.theorems.logic
     apply impl.comp, apply S5.deriv.as, apply impl.intro, apply S5.deriv.ak
   end
 
+  @[hott] def impl.trans (φ ψ ξ : wff) : ⊢₅ (φ ⇒ ψ) ⇒ (ψ ⇒ ξ) ⇒ (φ ⇒ ξ) :=
+  begin apply S5.deriv.mp, apply impl.symm, apply impl.comp end
+
+  @[hott] def impl.symm₂ (φ ψ ξ ζ : wff) : ⊢₅ (φ ⇒ ψ ⇒ ζ ⇒ ξ) ⇒ (ζ ⇒ ψ ⇒ φ ⇒ ξ) :=
+  begin
+    apply hypsyll, apply impl.symm,
+    fapply hypsyll, exact (ψ ⇒ φ ⇒ ζ ⇒ ξ),
+    apply S5.deriv.mp, apply impl.comp,
+    apply impl.symm, apply impl.symm
+  end
+
   @[hott] def impl.apply (φ ψ : wff) : ⊢₅ φ ⇒ (φ ⇒ ψ) ⇒ ψ :=
   begin apply S5.deriv.mp, apply impl.symm, apply I end
 
@@ -107,12 +118,76 @@ namespace ground_zero.theorems.logic
     apply impl.intro, apply true.intro
   end
 
+  @[hott] def contradiction (φ ψ : wff) : ⊢₅ φ ⇒ ¬φ ⇒ ψ :=
+  begin
+    apply S5.deriv.mp, apply impl.symm,
+    apply AS, apply impl.intro, apply explode
+  end
+
+  @[hott] def contraposition (φ ψ : wff) : ⊢₅ (φ ⇒ ψ) ⇒ (¬ψ ⇒ ¬φ) :=
+  begin apply S5.deriv.mp, apply impl.symm, apply impl.comp end
+
+  @[hott] def contraposition₁ (φ ψ : wff) : ⊢₅ (φ ⇒ ¬ψ) ⇒ ψ ⇒ ¬φ :=
+  begin
+    apply hypsyll, apply S5.deriv.ac,
+    apply S5.deriv.mp, apply impl.trans, apply dneg.elim
+  end
+
+  @[hott] def contraposition₂ (φ ψ : wff) : ⊢₅ (¬φ ⇒ ψ) ⇒ ¬ψ ⇒ φ :=
+  begin
+    apply hypsyll, apply S5.deriv.ac,
+    apply S5.deriv.mp, apply impl.comp, apply dneg.intro
+  end
+
   @[hott] def or.swap (φ ψ : wff) : ⊢₅ φ ∨ ψ ⇒ ψ ∨ φ :=
   begin
     apply hypsyll, apply S5.deriv.ac,
     apply AS, apply impl.intro, apply dneg.intro
   end
 
-  def and (φ ψ : wff) := ¬(¬φ ∨ ¬ψ)
+  @[hott] def or.inl (φ ψ : wff) : ⊢₅ φ ⇒ φ ∨ ψ :=
+  by apply contradiction
+
+  @[hott] def or.inr (φ ψ : wff) : ⊢₅ ψ ⇒ φ ∨ ψ :=
+  begin apply hypsyll, apply or.swap, apply or.inl end
+
+  def and (φ ψ : wff) := ¬(φ ⇒ ¬ψ)
   notation φ ` ∧ ` ψ := and φ ψ
+
+  @[hott] def and.intro (φ ψ : wff) : ⊢₅ φ ⇒ ψ ⇒ φ ∧ ψ :=
+  begin
+    apply S5.deriv.mp, apply impl.symm,
+    apply S5.deriv.mp, apply impl.symm₂, apply I
+  end
+
+  @[hott] def and.symm (φ ψ : wff) : ⊢₅ φ ∧ ψ ⇒ ψ ∧ φ :=
+  begin apply S5.deriv.mp, apply contraposition, apply contraposition₁ end
+
+  @[hott] def and.pr₁ (φ ψ : wff) : ⊢₅ φ ∧ ψ ⇒ φ :=
+  begin
+    apply S5.deriv.mp, apply contraposition₂,
+    apply S5.deriv.mp, apply impl.symm, apply contradiction
+  end
+
+  @[hott] def and.pr₂ (φ ψ : wff) : ⊢₅ φ ∧ ψ ⇒ ψ :=
+  begin apply hypsyll, apply and.pr₁, exact φ, apply and.symm end
+
+  def iff (φ ψ : wff) := (φ ⇒ ψ) ∧ (ψ ⇒ φ)
+  infix ` ⇔ `:20 := iff
+
+  @[hott] def iff.intro (φ ψ : wff) (f : ⊢₅ φ ⇒ ψ) (g : ⊢₅ ψ ⇒ φ) : ⊢₅ φ ⇔ ψ :=
+  begin apply mp₂, apply and.intro, exact f, exact g end
+
+  @[hott] def dneg (φ : wff) : ⊢₅ φ ⇔ ¬¬φ :=
+  begin apply iff.intro, apply dneg.intro, apply dneg.elim end
+
+  @[hott] def dedup (φ ψ : wff) : ⊢₅ (φ ⇒ φ ⇒ ψ) ⇒ (φ ⇒ ψ) :=
+  begin
+    apply S5.deriv.mp,
+    apply S5.deriv.mp, apply impl.symm,
+    apply S5.deriv.as, apply I
+  end
+
+  @[hott] def dup (φ ψ : wff) : ⊢₅ (φ ⇒ ψ) ⇒ (φ ⇒ φ ⇒ ψ) :=
+  by apply S5.deriv.ak
 end ground_zero.theorems.logic
