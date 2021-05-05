@@ -22,20 +22,18 @@ namespace ground_zero.theorems.logic
   def diam (φ : wff) := ¬□¬φ
   prefix `◇`:90 := diam
 
-  namespace S5
-    inductive deriv : wff → Type
-    | mp  : Π φ ψ, deriv (φ ⇒ ψ) → deriv φ → deriv ψ
-    | nec : Π φ, deriv φ → deriv □φ
-    | ak  : Π φ ψ, deriv (φ ⇒ ψ ⇒ φ)
-    | as  : Π φ ψ ξ, deriv ((φ ⇒ ψ ⇒ ξ) ⇒ (φ ⇒ ψ) ⇒ (φ ⇒ ξ))
-    | ac  : Π φ ψ, deriv ((¬φ ⇒ ¬ψ) ⇒ (ψ ⇒ φ))
-    | K   : Π φ ψ, deriv (□(φ ⇒ ψ) ⇒ □φ ⇒ □ψ)
-    | T   : Π φ, deriv (□φ ⇒ φ)
-    | «5» : Π φ, deriv (◇φ ⇒ □◇φ)
-  end S5
-  open S5.deriv
+  inductive deriv : wff → Type
+  | mp  : Π φ ψ, deriv (φ ⇒ ψ) → deriv φ → deriv ψ
+  | nec : Π φ, deriv φ → deriv □φ
+  | ak  : Π φ ψ, deriv (φ ⇒ ψ ⇒ φ)
+  | as  : Π φ ψ ξ, deriv ((φ ⇒ ψ ⇒ ξ) ⇒ (φ ⇒ ψ) ⇒ (φ ⇒ ξ))
+  | ac  : Π φ ψ, deriv ((¬φ ⇒ ¬ψ) ⇒ (ψ ⇒ φ))
+  | K   : Π φ ψ, deriv (□(φ ⇒ ψ) ⇒ □φ ⇒ □ψ)
+  | T   : Π φ, deriv (□φ ⇒ φ)
+  | «5» : Π φ, deriv (◇φ ⇒ □◇φ)
+  open deriv
 
-  prefix `⊢₅ `:10 := S5.deriv
+  prefix `⊢₅ `:10 := deriv
 
   @[hott] def I (φ : wff) : ⊢₅ φ ⇒ φ :=
   begin
