@@ -178,6 +178,18 @@ namespace ground_zero.theorems.logic
   @[hott] def iff.intro (φ ψ : wff) (f : ⊢₅ φ ⇒ ψ) (g : ⊢₅ ψ ⇒ φ) : ⊢₅ φ ⇔ ψ :=
   begin apply mp₂, apply and.intro, exact f, exact g end
 
+  @[hott] def iff.left {φ ψ : wff} (H : ⊢₅ φ ⇔ ψ) : ⊢₅ φ ⇒ ψ :=
+  begin apply S5.deriv.mp, apply and.pr₁, exact (ψ ⇒ φ), exact H end
+
+  @[hott] def iff.right {φ ψ : wff} (H : ⊢₅ φ ⇔ ψ) : ⊢₅ ψ ⇒ φ :=
+  begin apply S5.deriv.mp, apply and.pr₂, exact (φ ⇒ ψ), exact H end
+
+  @[hott] def iff.antcdtsubst {φ ψ ξ : wff} (f : ⊢₅ φ ⇔ ψ) (g : ⊢₅ ξ ⇒ φ) : ⊢₅ ξ ⇒ ψ :=
+  begin apply hypsyll, apply iff.left f, exact g end
+
+  @[hott] def iff.consqsubst {φ ψ ξ : wff} (f : ⊢₅ φ ⇔ ψ) (g : ⊢₅ φ ⇒ ξ) : ⊢₅ ψ ⇒ ξ :=
+  begin apply hypsyll, exact g, apply iff.right f end
+
   @[hott] def dneg (φ : wff) : ⊢₅ φ ⇔ ¬¬φ :=
   begin apply iff.intro, apply dneg.intro, apply dneg.elim end
 
@@ -190,4 +202,38 @@ namespace ground_zero.theorems.logic
 
   @[hott] def dup (φ ψ : wff) : ⊢₅ (φ ⇒ ψ) ⇒ (φ ⇒ φ ⇒ ψ) :=
   by apply S5.deriv.ak
+
+  @[hott] def impl.negdef₁ (φ ψ : wff) : ⊢₅ ¬(φ ⇒ ψ) ⇒ (φ ∧ ¬ψ) :=
+  begin
+    apply S5.deriv.mp, apply contraposition,
+    apply S5.deriv.mp, apply impl.comp, apply dneg.elim
+  end
+
+  @[hott] def impl.negdef₂ (φ ψ : wff) : ⊢₅ (φ ∧ ¬ψ) ⇒ ¬(φ ⇒ ψ) :=
+  begin
+    apply S5.deriv.mp, apply contraposition,
+    apply S5.deriv.mp, apply impl.comp, apply dneg.intro
+  end
+
+  @[hott] def impl.negdef (φ ψ : wff) : ⊢₅ ¬(φ ⇒ ψ) ⇔ (φ ∧ ¬ψ) :=
+  begin apply iff.intro, apply impl.negdef₁, apply impl.negdef₂ end
+
+  @[hott] def rot₁ (φ ψ ξ : wff) : ⊢₅ (¬ξ ⇒ φ ⇒ ¬ψ) ⇒ (φ ⇒ ψ ⇒ ξ) :=
+  begin
+    apply hypsyll, apply S5.deriv.mp, apply impl.comp,
+    exact (¬ξ ⇒ ¬ψ), apply S5.deriv.ac, apply impl.symm
+  end
+
+  @[hott] def rot₂ (φ ψ ξ : wff) : ⊢₅ (φ ⇒ ψ ⇒ ξ) ⇒ (¬ξ ⇒ φ ⇒ ¬ψ) :=
+  begin
+    apply hypsyll, apply impl.symm,
+    apply S5.deriv.mp, apply impl.comp,
+    apply contraposition
+  end
+
+  @[hott] def curry (φ ψ ξ : wff) : ⊢₅ (φ ∧ ψ ⇒ ξ) ⇒ (φ ⇒ ψ ⇒ ξ) :=
+  begin apply hypsyll, apply rot₁, apply contraposition₂ end
+
+  @[hott] def uncurry (φ ψ ξ : wff) : ⊢₅ (φ ⇒ ψ ⇒ ξ) ⇒ (φ ∧ ψ ⇒ ξ) :=
+  begin apply hypsyll, apply contraposition₂, apply rot₂ end
 end ground_zero.theorems.logic
