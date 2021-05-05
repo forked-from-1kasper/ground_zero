@@ -61,6 +61,7 @@ namespace ground_zero.theorems.logic
   | as  : Π φ ψ ξ, deriv ((φ ⇒ ψ ⇒ ξ) ⇒ (φ ⇒ ψ) ⇒ (φ ⇒ ξ))
   | ac  : Π φ ψ, deriv ((¬φ ⇒ ¬ψ) ⇒ (ψ ⇒ φ))
   -- classical predicate logic
+  | us  : Π x y (φ : prop ι), deriv (φ x) → deriv (φ y)
   | ap  : Π x (φ : prop ι), deriv ((⋀ y, φ y) ⇒ φ x)
   | dis : Π (φ ψ : prop ι), deriv ((⋀ x, φ x ⇒ ψ x) ⇒ (⋀ x, φ x) ⇒ (⋀ y, ψ y))
   | gen : Π (x φ : wff ι), deriv (φ ⇒ ⋀ x, φ)
