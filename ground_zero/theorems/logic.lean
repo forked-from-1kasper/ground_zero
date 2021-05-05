@@ -63,6 +63,7 @@ namespace ground_zero.theorems.logic
   -- classical predicate logic
   | ap  : Π x (φ : prop ι), deriv ((⋀ y, φ y) ⇒ φ x)
   | dis : Π (φ ψ : prop ι), deriv ((⋀ x, φ x ⇒ ψ x) ⇒ (⋀ x, φ x) ⇒ (⋀ y, ψ y))
+  | gen : Π (x φ : wff ι), deriv (φ ⇒ ⋀ x, φ)
   -- S5 modal logic
   | K   : Π φ ψ, deriv (□(φ ⇒ ψ) ⇒ □φ ⇒ □ψ)
   | T   : Π φ, deriv (□φ ⇒ φ)
