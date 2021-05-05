@@ -50,6 +50,10 @@ namespace ground_zero.theorems.logic
   ⋀ x, φ x ⇒ ψ x
   infix ⊆ := subset
 
+  def equal (φ ψ : prop ι) :=
+  ⋀ x, φ x ⇔ ψ x
+  infix ` ≡ ` := equal
+
   def compl (φ : prop ι) : prop ι := λ x, ¬φ x
   prefix `¬` := compl
 
@@ -70,6 +74,7 @@ namespace ground_zero.theorems.logic
   | T   : Π φ, deriv (□φ ⇒ φ)
   | «5» : Π φ, deriv (◇φ ⇒ □◇φ)
   -- ontological logic
+  | wkc : Π (φ ψ : prop ι), deriv (□(φ ≡ ψ) ⇒ P φ ⇔ P ψ)
   | ps  : Π (φ ψ : prop ι), deriv (P φ ∧ □(φ ⊆ ψ) ⇒ ¬(P ¬ψ))
   | gp  : deriv (P G)
   open deriv
