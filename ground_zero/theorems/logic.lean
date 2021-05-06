@@ -11,6 +11,11 @@ hott theory
   * https://www.jstor.org/stable/20016426
 
   Gödel’s ontological proof is formalized here using 𝒜𝒪′₀ system (see last paper).
+  Since only FOL used in this formalization, the definition of a god-like
+  is encoded as an inference rule (gd₁) and an axiom (gd₂).
+  Moreover, it is interesting that positivity of a property can be viewed
+  as a quantifier of a special kind, because its type is the same
+  as the type of the universal quantifier: (ι → wff) → wff.
 -/
 
 namespace ground_zero.theorems.logic
