@@ -59,23 +59,24 @@ namespace ground_zero.theorems.logic
 
   inductive deriv : wff ι → Type u
   -- classical propositional calculus
-  | mp  : Π φ ψ, deriv (φ ⇒ ψ) → deriv φ → deriv ψ
-  | nec : Π φ, deriv φ → deriv □φ
-  | ak  : Π φ ψ, deriv (φ ⇒ ψ ⇒ φ)
-  | as  : Π φ ψ ξ, deriv ((φ ⇒ ψ ⇒ ξ) ⇒ (φ ⇒ ψ) ⇒ (φ ⇒ ξ))
-  | ac  : Π φ ψ, deriv ((¬φ ⇒ ¬ψ) ⇒ (ψ ⇒ φ))
+  | mp   : Π φ ψ, deriv (φ ⇒ ψ) → deriv φ → deriv ψ
+  | ak   : Π φ ψ, deriv (φ ⇒ ψ ⇒ φ)
+  | ac   : Π φ ψ, deriv ((¬φ ⇒ ¬ψ) ⇒ (ψ ⇒ φ))
+  | as   : Π φ ψ ξ, deriv ((φ ⇒ ψ ⇒ ξ) ⇒ (φ ⇒ ψ) ⇒ (φ ⇒ ξ))
   -- classical predicate logic
-  | ap  : Π x (φ : prop ι), deriv ((⋀ y, φ y) ⇒ φ x)
-  | dis : Π (φ ψ : prop ι), deriv ((⋀ x, φ x ⇒ ψ x) ⇒ (⋀ x, φ x) ⇒ (⋀ y, ψ y))
-  | gen : Π (x φ : wff ι), deriv (φ ⇒ ⋀ x, φ)
+  | gen  : Π (φ : prop ι), (Π x, deriv (φ x)) → deriv (⋀ x, φ x)
+  | ap   : Π x (φ : prop ι), deriv ((⋀ y, φ y) ⇒ φ x)
+  | dis  : Π (φ ψ : prop ι), deriv ((⋀ x, φ x ⇒ ψ x) ⇒ (⋀ x, φ x) ⇒ (⋀ y, ψ y))
+  | triv : Π (x φ : wff ι), deriv (φ ⇒ ⋀ x, φ)
   -- S5 modal logic
-  | K   : Π φ ψ, deriv (□(φ ⇒ ψ) ⇒ □φ ⇒ □ψ)
-  | T   : Π φ, deriv (□φ ⇒ φ)
-  | «5» : Π φ, deriv (◇φ ⇒ □◇φ)
+  | nec  : Π φ, deriv φ → deriv □φ
+  | K    : Π φ ψ, deriv (□(φ ⇒ ψ) ⇒ □φ ⇒ □ψ)
+  | T    : Π φ, deriv (□φ ⇒ φ)
+  | «5»  : Π φ, deriv (◇φ ⇒ □◇φ)
   -- ontological logic
-  | wkc : Π (φ ψ : prop ι), deriv (□(φ ≡ ψ) ⇒ P φ ⇔ P ψ)
-  | ps  : Π (φ ψ : prop ι), deriv (P φ ∧ □(φ ⊆ ψ) ⇒ ¬(P ¬ψ))
-  | gp  : deriv (P G)
+  | wkc  : Π (φ ψ : prop ι), deriv (□(φ ≡ ψ) ⇒ P φ ⇔ P ψ)
+  | pimp : Π (φ ψ : prop ι), deriv (P φ ⇒ □(φ ⊆ ψ) ⇒ ¬(P ¬ψ))
+  | gp   : deriv (P G)
   open deriv
 
   prefix `⊢ `:10 := deriv
@@ -217,14 +218,35 @@ namespace ground_zero.theorems.logic
   @[hott] def iff.right {φ ψ : wff ι} (H : ⊢ φ ⇔ ψ) : ⊢ ψ ⇒ φ :=
   begin apply mp, apply and.pr₂, exact (φ ⇒ ψ), exact H end
 
+  @[hott] def iff.symm {φ ψ : wff ι} (H : ⊢ φ ⇔ ψ) : ⊢ ψ ⇔ φ :=
+  begin apply mp, apply and.symm, exact H end
+
   @[hott] def iff.antcdtsubst {φ ψ ξ : wff ι} (f : ⊢ φ ⇔ ψ) (g : ⊢ ξ ⇒ φ) : ⊢ ξ ⇒ ψ :=
   begin apply hypsyll, apply iff.left f, exact g end
 
   @[hott] def iff.consqsubst {φ ψ ξ : wff ι} (f : ⊢ φ ⇔ ψ) (g : ⊢ φ ⇒ ξ) : ⊢ ψ ⇒ ξ :=
   begin apply hypsyll, exact g, apply iff.right f end
 
+  @[hott] def iff.antcdtiff {φ ψ ξ : wff ι} (H : ⊢ φ ⇔ ψ) : ⊢ (ξ ⇒ φ) ⇔ (ξ ⇒ ψ) :=
+  begin
+    apply iff.intro, apply mp, apply impl.comp, apply iff.left H,
+    apply mp, apply impl.comp, apply iff.right H
+  end
+
+  @[hott] def iff.consqiff {φ ψ ξ : wff ι} (H : ⊢ φ ⇔ ψ) : ⊢ (φ ⇒ ξ) ⇔ (ψ ⇒ ξ) :=
+  begin
+    apply iff.intro, apply mp, apply impl.trans, apply iff.right H,
+    apply mp, apply impl.trans, apply iff.left H
+  end
+
   @[hott] def dneg (φ : wff ι) : ⊢ φ ⇔ ¬¬φ :=
   begin apply iff.intro, apply dneg.intro, apply dneg.elim end
+
+  @[hott] def contrapos₁ (φ ψ : wff ι) : ⊢ (φ ⇒ ψ) ⇔ (¬ψ ⇒ ¬φ) :=
+  begin apply iff.intro, apply contraposition, apply ac end
+
+  @[hott] def contrapos₂ (φ ψ : wff ι) : ⊢ (φ ⇒ ¬ψ) ⇔ (ψ ⇒ ¬φ) :=
+  begin apply iff.intro; apply contraposition₁ end
 
   @[hott] def dedup (φ ψ : wff ι) : ⊢ (φ ⇒ φ ⇒ ψ) ⇒ (φ ⇒ ψ) :=
   begin apply mp, apply mp, apply impl.symm, apply as, apply I end
@@ -265,4 +287,56 @@ namespace ground_zero.theorems.logic
 
   @[hott] def uncurry (φ ψ ξ : wff ι) : ⊢ (φ ⇒ ψ ⇒ ξ) ⇒ (φ ∧ ψ ⇒ ξ) :=
   begin apply hypsyll, apply contraposition₂, apply rot₂ end
+
+  @[hott] def boximpl (φ ψ : wff ι) (H : ⊢ φ ⇒ ψ) : ⊢ □φ ⇒ □ψ :=
+  begin apply mp, apply K, apply nec, exact H end
+
+  @[hott] def boxcongr (φ ψ : wff ι) (H : ⊢ φ ⇔ ψ) : ⊢ □φ ⇔ □ψ :=
+  begin apply iff.intro; apply boximpl, apply iff.left H, apply iff.right H end
+
+  @[hott] def negiff (φ ψ : wff ι) (H : ⊢ φ ⇔ ψ) : ⊢ ¬φ ⇔ ¬ψ :=
+  begin
+    apply iff.intro, apply mp, apply contraposition, apply iff.right H,
+    apply mp, apply contraposition, apply iff.left H
+  end
+
+  @[hott] def impl.comp₃ (φ ψ ξ θ : wff ι) : ⊢ (φ ⇒ ψ ⇒ ξ) ⇒ (θ ⇒ φ) ⇒ (θ ⇒ ψ) ⇒ (θ ⇒ ξ) :=
+  begin
+    apply mp, apply impl.symm, apply mp, apply curry,
+    apply hypsyll, apply as, apply mp, apply uncurry, apply impl.trans
+  end
+
+  @[hott] def prodimpl (φ ψ ξ : wff ι) : ⊢ (φ ⇒ ψ) ⇒ (φ ⇒ ξ) ⇒ (φ ⇒ ψ ∧ ξ) :=
+  begin apply mp, apply impl.comp₃, apply and.intro end
+
+  @[hott] def prodpimp (φ ψ : prop ι) : ⊢ P φ ∧ □(φ ⊆ ψ) ⇒ ¬(P ¬ψ) :=
+  begin apply mp, apply uncurry, apply pimp end
+
+  @[hott] def subset.refl (φ : prop ι) : ⊢ φ ⊆ φ :=
+  begin apply gen, intro x, apply I end
+
+  @[hott] def prop.dneg (φ : prop ι) : ⊢ (¬¬φ) ≡ φ :=
+  begin apply gen, intro x, apply iff.symm, apply dneg end
+
+  @[hott] def thm1 (φ : prop ι) : ⊢ P φ ⇒ ◇ ⋁ x, φ x :=
+  begin
+    apply mp, apply ac, apply iff.consqsubst, apply dneg,
+    apply iff.consqsubst, apply boxcongr, apply dneg,
+    apply iff.antcdtsubst, apply negiff, apply mp, apply wkc,
+    exact ¬¬φ, apply nec, apply prop.dneg,
+    apply hypsyll, apply prodpimp, exact G,
+    apply mp₂, apply prodimpl, apply impl.intro, apply gp,
+    apply mp, apply K, apply nec,
+    apply mp, apply dis, apply gen, intro x, apply ak
+  end
+
+  @[hott] def perfneg (φ : prop ι) : ⊢ P φ ⇒ ¬(P ¬φ) :=
+  begin
+    apply hypsyll, apply prodpimp φ φ,
+    apply mp, apply mp, apply impl.symm, apply and.intro,
+    apply nec, apply subset.refl
+  end
+
+  @[hott] def thm2 : ⊢ ◇ ⋁ x, G x :=
+  begin apply mp, apply thm1, apply gp end
 end ground_zero.theorems.logic
