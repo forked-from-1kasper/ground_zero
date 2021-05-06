@@ -446,6 +446,6 @@ namespace ground_zero.theorems.logic
     apply diamimpl, apply exdis, apply thm3
   end
 
-  @[hott] def «Gödel» : ⊢ ⋁ x, G x :=
-  begin apply mp, apply T, apply mp, apply thm4, apply thm2 end
+  @[hott] def «Gödel» : ⊢ □ ⋁ x, G x :=
+  begin apply mp, apply thm4, apply thm2 end
 end ground_zero.theorems.logic
