@@ -65,7 +65,7 @@ namespace ground_zero.theorems.logic
   | as   : Π φ ψ ξ, deriv ((φ ⇒ ψ ⇒ ξ) ⇒ (φ ⇒ ψ) ⇒ (φ ⇒ ξ))
   -- classical predicate logic
   | gen  : Π (φ : prop ι), (Π x, deriv (φ x)) → deriv (⋀ x, φ x)
-  | ap   : Π x (φ : prop ι), deriv ((⋀ y, φ y) ⇒ φ x)
+  | ap   : Π (x : ι) (φ : prop ι), deriv ((⋀ y, φ y) ⇒ φ x)
   | dis  : Π (φ ψ : prop ι), deriv ((⋀ x, φ x ⇒ ψ x) ⇒ (⋀ x, φ x) ⇒ (⋀ y, ψ y))
   | triv : Π (x φ : wff ι), deriv (φ ⇒ ⋀ x, φ)
   -- S5 modal logic
@@ -74,6 +74,8 @@ namespace ground_zero.theorems.logic
   | T    : Π φ, deriv (□φ ⇒ φ)
   | «5»  : Π φ, deriv (◇φ ⇒ □◇φ)
   -- ontological logic
+  | gd₁  : Π x, (Π (φ : prop ι), deriv (□(φ x) ⇔ P φ)) → deriv (G x)
+  | gd₂  : Π (x : ι) (φ : prop ι), deriv (G x ⇒ P φ ⇔ □(φ x))
   | wkc  : Π (φ ψ : prop ι), deriv (□(φ ≡ ψ) ⇒ P φ ⇔ P ψ)
   | pimp : Π (φ ψ : prop ι), deriv (P φ ⇒ □(φ ⊆ ψ) ⇒ ¬(P ¬ψ))
   | gp   : deriv (P G)
@@ -306,11 +308,17 @@ namespace ground_zero.theorems.logic
     apply hypsyll, apply as, apply mp, apply uncurry, apply impl.trans
   end
 
-  @[hott] def prodimpl (φ ψ ξ : wff ι) : ⊢ (φ ⇒ ψ) ⇒ (φ ⇒ ξ) ⇒ (φ ⇒ ψ ∧ ξ) :=
+  @[hott] def and.impl (φ ψ ξ : wff ι) : ⊢ (φ ⇒ ψ) ⇒ (φ ⇒ ξ) ⇒ (φ ⇒ ψ ∧ ξ) :=
   begin apply mp, apply impl.comp₃, apply and.intro end
 
   @[hott] def prodpimp (φ ψ : prop ι) : ⊢ P φ ∧ □(φ ⊆ ψ) ⇒ ¬(P ¬ψ) :=
   begin apply mp, apply uncurry, apply pimp end
+
+  @[hott] def impl.pr₁ (φ ψ ξ : wff ι) : ⊢ (φ ⇒ ψ ∧ ξ) ⇒ (φ ⇒ ψ) :=
+  begin apply mp, apply impl.comp, apply and.pr₁ end
+
+  @[hott] def impl.pr₂ (φ ψ ξ : wff ι) : ⊢ (φ ⇒ ψ ∧ ξ) ⇒ (φ ⇒ ξ) :=
+  begin apply mp, apply impl.comp, apply and.pr₂ end
 
   @[hott] def subset.refl (φ : prop ι) : ⊢ φ ⊆ φ :=
   begin apply gen, intro x, apply I end
@@ -325,7 +333,7 @@ namespace ground_zero.theorems.logic
     apply iff.antcdtsubst, apply negiff, apply mp, apply wkc,
     exact ¬¬φ, apply nec, apply prop.dneg,
     apply hypsyll, apply prodpimp, exact G,
-    apply mp₂, apply prodimpl, apply impl.intro, apply gp,
+    apply mp₂, apply and.impl, apply impl.intro, apply gp,
     apply mp, apply K, apply nec,
     apply mp, apply dis, apply gen, intro x, apply ak
   end
@@ -339,4 +347,11 @@ namespace ground_zero.theorems.logic
 
   @[hott] def thm2 : ⊢ ◇ ⋁ x, G x :=
   begin apply mp, apply thm1, apply gp end
+
+  @[hott] def thm3 (x : ι) : ⊢ G x ⇒ □G x :=
+  begin
+    apply mp₂, apply as, exact P G,
+    apply mp, apply impl.pr₁, exact (□G x ⇒ P G),
+    apply gd₂, apply impl.intro, apply gp
+  end
 end ground_zero.theorems.logic
