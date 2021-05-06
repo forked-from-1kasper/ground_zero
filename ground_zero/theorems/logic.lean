@@ -293,6 +293,12 @@ namespace ground_zero.theorems.logic
   @[hott] def boximpl (φ ψ : wff ι) (H : ⊢ φ ⇒ ψ) : ⊢ □φ ⇒ □ψ :=
   begin apply mp, apply K, apply nec, exact H end
 
+  @[hott] def diamimpl (φ ψ : wff ι) (H : ⊢ φ ⇒ ψ) : ⊢ ◇φ ⇒ ◇ψ :=
+  begin
+    apply mp, apply contraposition, apply boximpl,
+    apply mp, apply contraposition, exact H
+  end
+
   @[hott] def boxcongr (φ ψ : wff ι) (H : ⊢ φ ⇔ ψ) : ⊢ □φ ⇔ □ψ :=
   begin apply iff.intro; apply boximpl, apply iff.left H, apply iff.right H end
 
@@ -418,4 +424,28 @@ namespace ground_zero.theorems.logic
     apply mp, apply dis, apply gen,
     { intro x, apply dneg.elim }
   end
+
+  @[hott] def exdis (φ ψ : prop ι) (H : Π x, ⊢ φ x ⇒ ψ x) : ⊢ (⋁ x, φ x) ⇒ (⋁ x, ψ x) :=
+  begin
+    apply mp, apply contraposition, apply mp, apply dis,
+    apply gen, intro x, apply mp, apply contraposition, apply H
+  end
+
+  @[hott] def excbf (φ : prop ι) : ⊢ (⋁ x, □ φ x) ⇒ (□ ⋁ x, φ x) :=
+  begin
+    apply dr, apply mp₂, apply impl.trans, exact (⋁ x, ◇□ φ x),
+    apply cbfdiam, apply exdis, intro x, apply diambox
+  end
+
+  @[hott] def thm4 : ⊢ (◇ ⋁ x, G x) ⇒ (□ ⋁ x, G x) :=
+  begin
+    apply hypsyll, apply excbf, fapply hypsyll, exact ◇ ⋁ x, □ G x,
+    apply mp₂, apply impl.trans, exact ⋁ (x : ι), ◇□ G x,
+    apply cbfdiam, apply exdis, intro x,
+    apply hypsyll, apply thm3, apply diambox,
+    apply diamimpl, apply exdis, apply thm3
+  end
+
+  @[hott] def «Gödel» : ⊢ ⋁ x, G x :=
+  begin apply mp, apply T, apply mp, apply thm4, apply thm2 end
 end ground_zero.theorems.logic
