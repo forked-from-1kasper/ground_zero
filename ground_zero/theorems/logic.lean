@@ -3,6 +3,16 @@ open ground_zero.types
 
 hott theory
 
+/-
+  Some emendations of Gödel’s ontological proof.
+  * https://appearedtoblogly.files.wordpress.com/2011/05/anderson-anthony-c-22some-emendations-of-gc3b6dels-ontological-proof22.pdf
+
+  A New Small Emendation of Gödel’s Ontological Proof.
+  * https://www.jstor.org/stable/20016426
+
+  Gödel’s ontological proof is formalized here using 𝒜𝒪′₀ system (see last paper).
+-/
+
 namespace ground_zero.theorems.logic
   universe u
 
