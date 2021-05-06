@@ -348,10 +348,74 @@ namespace ground_zero.theorems.logic
   @[hott] def thm2 : ⊢ ◇ ⋁ x, G x :=
   begin apply mp, apply thm1, apply gp end
 
-  @[hott] def thm3 (x : ι) : ⊢ G x ⇒ □G x :=
+  -- Anselm’s principle
+  @[hott] def thm3 (x : ι) : ⊢ G x ⇒ □ G x :=
   begin
     apply mp₂, apply as, exact P G,
-    apply mp, apply impl.pr₁, exact (□G x ⇒ P G),
+    apply mp, apply impl.pr₁, exact (□ G x ⇒ P G),
     apply gd₂, apply impl.intro, apply gp
+  end
+
+  -- https://plato.stanford.edu/entries/actualism/proofBF.html
+  @[hott] def boxdiam (φ : wff ι) : ⊢ φ ⇒ □◇φ :=
+  begin
+    fapply hypsyll, exact ◇φ, apply «5»,
+    fapply hypsyll, exact ¬□¬φ,
+    apply mp, apply contraposition, apply I,
+    apply mp, apply contraposition₁, apply T
+  end
+
+  @[hott] def diambox (φ : wff ι) : ⊢ ◇□φ ⇒ φ :=
+  begin
+    apply mp, apply contraposition₂, apply iff.antcdtsubst,
+    apply boxcongr, apply negiff, apply boxcongr,
+    apply iff.symm, apply dneg, apply boxdiam
+  end
+
+  @[hott] def dr (φ ψ : wff ι) (H : ⊢ ◇φ ⇒ ψ) : ⊢ φ ⇒ □ψ :=
+  begin apply hypsyll, apply boximpl, exact H, apply boxdiam end
+
+  @[hott] def kdiam (φ ψ : wff ι) : ⊢ □(φ ⇒ ψ) ⇒ ◇φ ⇒ ◇ψ :=
+  begin
+    apply iff.antcdtsubst, apply contrapos₁,
+    apply hypsyll, apply K, apply mp, apply K,
+    apply nec, apply contraposition
+  end
+
+  @[hott] def barcan (φ : prop ι) : ⊢ (⋀ x, □ φ x) ⇒ □ ⋀ x, φ x :=
+  begin
+    apply dr, fapply mp, exact ⋀ x, (◇ (⋀ x, □ φ x) ⇒ φ x),
+    apply mp₂, apply impl.trans, exact (⋀ x, ◇ ⋀ y, □φ y) ⇒ ⋀ x, φ x,
+    apply dis, apply mp, apply impl.trans, apply triv, exact ◇ ⋀ x, □φ x,
+    apply gen, intro x, apply hypsyll, apply diambox,
+    fapply mp, exact □ ((⋀ y, □ φ y) ⇒ □ φ x),
+    apply kdiam, apply nec, apply ap,
+  end
+
+  -- https://plato.stanford.edu/entries/actualism/proofCBF.html
+  @[hott] def cbf (φ : prop ι) : ⊢ (□ ⋀ x, φ x) ⇒ ⋀ x, □ φ x :=
+  begin
+    fapply mp, exact ⋀ x, □ (⋀ y, φ y) ⇒ □ φ x,
+    fapply hypsyll, exact ((⋀ x, (□ ⋀ y, φ y)) ⇒ ⋀ x, □ φ x),
+    apply mp, apply impl.trans, apply triv, exact □ ⋀ x, φ x,
+    apply dis, apply gen, intro x, apply mp, apply K, apply nec, apply ap
+  end
+
+  @[hott] def bfdiam (φ : prop ι) : ⊢ (⋁ x, ◇ φ x) ⇒ ◇ ⋁ x, φ x :=
+  begin
+    apply mp, apply contraposition,
+    apply iff.consqsubst, apply boxcongr, apply dneg,
+    fapply hypsyll, exact (⋀ (x : ι), □¬φ x),
+    apply mp, apply dis, apply gen,
+    { intro x, apply dneg.intro }, apply cbf
+  end
+
+  @[hott] def cbfdiam (φ : prop ι) : ⊢ (◇ ⋁ x, φ x) ⇒ ⋁ x, ◇ φ x :=
+  begin
+    apply mp, apply contraposition,
+    apply iff.antcdtsubst, apply boxcongr, apply dneg,
+    apply hypsyll, apply barcan,
+    apply mp, apply dis, apply gen,
+    { intro x, apply dneg.elim }
   end
 end ground_zero.theorems.logic
