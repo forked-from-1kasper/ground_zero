@@ -463,4 +463,14 @@ namespace ground_zero.theorems.logic
 
   @[hott] def «Gödel» : ⊢ □ ⋁ x, G x :=
   begin apply mp, apply thm4, apply thm2 end
+
+  @[hott] def univ : prop ι := λ _, ⊤
+  notation `𝒰` := univ
+
+  @[hott] def univ.poscompl : ⊢ ¬(P ¬𝒰) :=
+  begin
+    apply mp₂, apply pimp, exact G,
+    apply gp, apply nec, apply gen,
+    intro x, apply impl.intro, apply true.intro
+  end
 end ground_zero.theorems.logic
