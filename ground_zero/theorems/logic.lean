@@ -265,6 +265,9 @@ namespace ground_zero.theorems.logic
   @[hott] def contrapos₂ (φ ψ : wff ι) : ⊢ (φ ⇒ ¬ψ) ⇔ (ψ ⇒ ¬φ) :=
   begin apply iff.intro; apply contraposition₁ end
 
+  @[hott] def contrapos₃ (φ ψ : wff ι) : ⊢ (¬φ ⇒ ψ) ⇔ (¬ψ ⇒ φ) :=
+  begin apply iff.intro; apply contraposition₂ end
+
   @[hott] def dedup (φ ψ : wff ι) : ⊢ (φ ⇒ φ ⇒ ψ) ⇒ (φ ⇒ ψ) :=
   begin apply mp, apply mp, apply impl.symm, apply as, apply I end
 
@@ -304,6 +307,40 @@ namespace ground_zero.theorems.logic
 
   @[hott] def uncurry (φ ψ ξ : wff ι) : ⊢ (φ ⇒ ψ ⇒ ξ) ⇒ (φ ∧ ψ ⇒ ξ) :=
   begin apply hypsyll, apply contraposition₂, apply rot₂ end
+
+  @[hott] def or.neg (φ ψ : wff ι) : ⊢ ¬(φ ∨ ψ) ⇔ (¬φ ∧ ¬ψ) :=
+  begin
+    apply iff.intro,
+    { apply mp, apply contraposition,
+      apply mp, apply impl.comp, apply dneg.elim },
+    { apply mp, apply contraposition,
+      apply mp, apply impl.comp, apply dneg.intro }
+  end
+
+  @[hott] def or.triv (φ : wff ι) : ⊢ φ ∨ φ ⇒ φ :=
+  begin
+    apply mp, apply ac, apply iff.antcdtsubst,
+    apply iff.symm, apply or.neg,
+    apply mp, apply dedup, apply and.intro
+  end
+
+  @[hott] def absurd (φ : wff ι) : ⊢ (¬φ ⇒ φ) ⇒ φ :=
+  by apply or.triv
+
+  @[hott] def indep (φ ψ : wff ι) : ⊢ (¬φ ⇒ ψ) ⇒ (φ ⇒ ψ) ⇒ ψ :=
+  begin
+    apply iff.consqsubst, apply contrapos₃,
+    apply mp, apply curry, apply mp₂, apply impl.trans,
+    exact (¬ψ ⇒ ψ), apply mp, apply uncurry,
+    apply impl.trans, apply absurd
+  end
+
+  @[hott] def or.elim (φ ψ ξ : wff ι) : ⊢ (φ ⇒ ξ) ⇒ (ψ ⇒ ξ) ⇒ (φ ∨ ψ ⇒ ξ) :=
+  begin
+    apply mp, apply impl.symm₂, apply mp, apply curry,
+    apply mp₂, apply impl.trans, exact (¬φ ⇒ ξ),
+    apply mp, apply uncurry, apply impl.trans, apply indep
+  end
 
   @[hott] def boximpl (φ ψ : wff ι) (H : ⊢ φ ⇒ ψ) : ⊢ □φ ⇒ □ψ :=
   begin apply mp, apply K, apply nec, exact H end
