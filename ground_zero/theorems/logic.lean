@@ -510,4 +510,17 @@ namespace ground_zero.theorems.logic
     apply gp, apply nec, apply gen,
     intro x, apply impl.intro, apply true.intro
   end
+
+  @[hott] def gnecimpl {a b : ι} (f : ⊢ G a) (g : ⊢ G b) (φ : prop ι) : ⊢ □ φ a ⇒ φ b :=
+  begin
+    apply mp₂, fapply impl.apply (P φ ∨ ¬P φ),
+    apply lem, apply mp₂, apply or.elim,
+    { apply mp, apply curry, apply hypsyll, apply T,
+      apply hypsyll, apply iff.left,
+      apply mp, apply gd₂, exact g, apply and.pr₁ },
+    { apply mp, apply curry, apply hypsyll,
+      apply explode, apply mp, apply uncurry,
+      apply mp, apply contraposition, apply iff.right,
+      apply mp, apply gd₂, exact f }
+  end
 end ground_zero.theorems.logic
