@@ -82,7 +82,7 @@ digraph dependency_map {
     }
     "HITs/join"
     "HITs/merely" -> {
-      "theorems/logic",
+      "theorems/ontological",
       "theorems/prop",
       "HITs/simplicial",
       "theorems/functions"
@@ -117,7 +117,7 @@ digraph dependency_map {
     "theorems/functions" -> { "HITs/reals", "algebra/group" }
     "theorems/funext" -> { "types/product" }
     "theorems/hopf"
-    "theorems/logic"
+    "theorems/ontological"
     "theorems/nat" -> { "HITs/int", "types/integer" }
     "theorems/prop" -> {
       "algebra/eilenberg_maclane",
