@@ -18,7 +18,7 @@ hott theory
   as the type of the universal quantifier: (ι → wff) → wff.
 -/
 
-namespace ground_zero.theorems.logic
+namespace ground_zero.theorems.ontological
   universe u
 
   -- individuals
@@ -563,4 +563,4 @@ namespace ground_zero.theorems.logic
       apply mp, apply contraposition, apply iff.right,
       apply mp, apply gd₂, exact f }
   end
-end ground_zero.theorems.logic
+end ground_zero.theorems.ontological
