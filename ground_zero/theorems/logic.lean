@@ -369,6 +369,46 @@ namespace ground_zero.theorems.logic
   @[hott] def and.impl (φ ψ ξ : wff ι) : ⊢ (φ ⇒ ψ) ⇒ (φ ⇒ ξ) ⇒ (φ ⇒ ψ ∧ ξ) :=
   begin apply mp, apply impl.comp₃, apply and.intro end
 
+  @[hott] def or.assoc₁ (φ ψ ξ : wff ι) : ⊢ (φ ∨ ψ) ∨ ξ ⇒ φ ∨ (ψ ∨ ξ) :=
+  begin
+    apply mp₂, apply or.elim,
+    { apply mp₂, apply or.elim, { apply or.inl },
+      { apply hypsyll, apply or.inr, apply or.inl } },
+    { apply hypsyll, apply or.inr, apply or.inr }
+  end
+
+  @[hott] def or.assoc₂ (φ ψ ξ : wff ι) : ⊢ φ ∨ (ψ ∨ ξ) ⇒ (φ ∨ ψ) ∨ ξ :=
+  begin
+    apply mp₂, apply or.elim,
+    { apply hypsyll, apply or.inl, apply or.inl },
+    { apply mp₂, apply or.elim,
+      { apply hypsyll, apply or.inl, apply or.inr },
+      { apply or.inr } }
+  end
+
+  @[hott] def or.assoc (φ ψ ξ : wff ι) : ⊢ (φ ∨ ψ) ∨ ξ ⇔ φ ∨ (ψ ∨ ξ) :=
+  begin apply iff.intro, apply or.assoc₁, apply or.assoc₂ end
+
+  @[hott] def and.assoc₁ (φ ψ ξ : wff ι) : ⊢ (φ ∧ ψ) ∧ ξ ⇒ φ ∧ (ψ ∧ ξ) :=
+  begin
+    apply mp₂, apply and.impl,
+    { apply hypsyll, apply and.pr₁, exact ψ, apply and.pr₁ },
+    { apply mp₂, apply and.impl,
+      { apply hypsyll, apply and.pr₂, exact φ, apply and.pr₁ },
+      { apply and.pr₂ } }
+  end
+
+  @[hott] def and.assoc₂ (φ ψ ξ : wff ι) : ⊢ φ ∧ (ψ ∧ ξ) ⇒ (φ ∧ ψ) ∧ ξ :=
+  begin
+    apply mp₂, apply and.impl,
+    { apply mp₂, apply and.impl, { apply and.pr₁ },
+      { apply hypsyll, apply and.pr₁, exact ξ, apply and.pr₂ } },
+    { apply hypsyll, apply and.pr₂, exact ψ, apply and.pr₂ }
+  end
+
+  @[hott] def and.assoc (φ ψ ξ : wff ι) : ⊢ (φ ∧ ψ) ∧ ξ ⇔ φ ∧ (ψ ∧ ξ) :=
+  begin apply iff.intro, apply and.assoc₁, apply and.assoc₂ end
+
   @[hott] def prodpimp (φ ψ : prop ι) : ⊢ P φ ∧ □(φ ⊆ ψ) ⇒ ¬(P ¬ψ) :=
   begin apply mp, apply uncurry, apply pimp end
 
