@@ -463,12 +463,16 @@ namespace ground_zero.theorems.ontological
     apply mp, apply contraposition₁, apply T
   end
 
-  @[hott] def diambox (φ : wff ι) : ⊢ ◇□φ ⇒ φ :=
+  @[hott] def diamboximplbox (φ : wff ι) : ⊢ ◇□φ ⇒ □φ :=
   begin
     apply mp, apply contraposition₂, apply iff.antcdtsubst,
-    apply boxcongr, apply negiff, apply boxcongr,
-    apply iff.symm, apply dneg, apply boxdiam
+    apply boxcongr, apply negiff, apply boxcongr, apply iff.symm, apply dneg,
+    apply iff.consqsubst, apply negiff, apply boxcongr,
+    apply iff.symm, apply dneg, apply «5»
   end
+
+  @[hott] def diambox (φ : wff ι) : ⊢ ◇□φ ⇒ φ :=
+  begin apply hypsyll, apply T, apply diamboximplbox end
 
   @[hott] def dr (φ ψ : wff ι) (H : ⊢ ◇φ ⇒ ψ) : ⊢ φ ⇒ □ψ :=
   begin apply hypsyll, apply boximpl, exact H, apply boxdiam end
@@ -562,5 +566,16 @@ namespace ground_zero.theorems.ontological
       apply explode, apply mp, apply uncurry,
       apply mp, apply contraposition, apply iff.right,
       apply mp, apply gd₂, exact f }
+  end
+
+  @[hott] def boxbox (φ : wff ι) : ⊢ □φ ⇒ □□φ :=
+  begin apply dr, apply diamboximplbox end
+
+  @[hott] def perfectivebox (φ : prop ι) (x : ι) (H : ⊢ G x) : ⊢ P φ ⇒ □P φ :=
+  begin
+    apply mp₂, apply impl.trans, exact □φ x, apply iff.left,
+    apply mp, apply gd₂, exact H, apply mp₂, apply impl.trans,
+    exact □□φ x, apply boxbox, apply mp, apply K,
+    apply nec, apply iff.right, apply mp, apply gd₂, exact H
   end
 end ground_zero.theorems.ontological
