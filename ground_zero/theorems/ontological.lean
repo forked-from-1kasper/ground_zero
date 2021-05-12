@@ -82,7 +82,7 @@ namespace ground_zero.theorems.ontological
   | gen  : Π (φ : prop ι), (Π x, deriv (φ x)) → deriv (⋀ x, φ x)
   | ap   : Π (x : ι) (φ : prop ι), deriv ((⋀ y, φ y) ⇒ φ x)
   | dis  : Π (φ ψ : prop ι), deriv ((⋀ x, φ x ⇒ ψ x) ⇒ (⋀ x, φ x) ⇒ (⋀ y, ψ y))
-  | triv : Π (x φ : wff ι), deriv (φ ⇒ ⋀ x, φ)
+  | triv : Π (φ : wff ι), deriv (φ ⇒ ⋀ x, φ)
   -- S5 modal logic
   | nec  : Π φ, deriv φ → deriv □φ
   | K    : Π φ ψ, deriv (□(φ ⇒ ψ) ⇒ □φ ⇒ □ψ)
@@ -488,7 +488,7 @@ namespace ground_zero.theorems.ontological
   begin
     apply dr, fapply mp, exact ⋀ x, (◇ (⋀ x, □ φ x) ⇒ φ x),
     apply mp₂, apply impl.trans, exact (⋀ x, ◇ ⋀ y, □φ y) ⇒ ⋀ x, φ x,
-    apply dis, apply mp, apply impl.trans, apply triv, exact ◇ ⋀ x, □φ x,
+    apply dis, apply mp, apply impl.trans, apply triv,
     apply gen, intro x, apply hypsyll, apply diambox,
     fapply mp, exact □ ((⋀ y, □ φ y) ⇒ □ φ x),
     apply kdiam, apply nec, apply ap,
@@ -499,7 +499,7 @@ namespace ground_zero.theorems.ontological
   begin
     fapply mp, exact ⋀ x, □ (⋀ y, φ y) ⇒ □ φ x,
     fapply hypsyll, exact ((⋀ x, (□ ⋀ y, φ y)) ⇒ ⋀ x, □ φ x),
-    apply mp, apply impl.trans, apply triv, exact □ ⋀ x, φ x,
+    apply mp, apply impl.trans, apply triv,
     apply dis, apply gen, intro x, apply mp, apply K, apply nec, apply ap
   end
 
@@ -571,11 +571,32 @@ namespace ground_zero.theorems.ontological
   @[hott] def boxbox (φ : wff ι) : ⊢ □φ ⇒ □□φ :=
   begin apply dr, apply diamboximplbox end
 
-  @[hott] def perfectivebox (φ : prop ι) (x : ι) (H : ⊢ G x) : ⊢ P φ ⇒ □P φ :=
+  @[hott] def gimplperfbox (φ : prop ι) (x : ι) : ⊢ G x ⇒ P φ ⇒ □P φ :=
   begin
-    apply mp₂, apply impl.trans, exact □φ x, apply iff.left,
-    apply mp, apply gd₂, exact H, apply mp₂, apply impl.trans,
-    exact □□φ x, apply boxbox, apply mp, apply K,
-    apply nec, apply iff.right, apply mp, apply gd₂, exact H
+    apply mp, apply curry, apply mp₂,
+    apply impl.trans, exact G x ∧ □φ x,
+    apply mp₂, apply and.impl, apply and.pr₁,
+    apply mp, apply uncurry, apply hypsyll,
+    apply and.pr₁, exact □(φ x) ⇒ P φ, apply gd₂,
+    apply mp₂, apply impl.trans,
+    exact □G x ∧ □□φ x, apply mp₂, apply and.impl,
+    { apply hypsyll, apply thm3, apply and.pr₁ },
+    { apply hypsyll, apply boxbox, apply and.pr₂ },
+    apply mp, apply uncurry, apply hypsyll, apply K,
+    apply mp, apply K, apply nec,
+    apply hypsyll, apply and.pr₂, exact P φ ⇒ □(φ x), apply gd₂
+  end
+
+  @[hott] def extriv (φ : wff ι) : ⊢ (⋁ x, φ) ⇒ φ :=
+  begin
+    apply mp, apply ac, apply mp₂, apply impl.trans,
+    exact (⋀ x, ¬φ), apply triv, apply hypsyll, apply dneg.intro,
+    apply mp, apply dis, apply gen, intro x, apply I
+  end
+
+  @[hott] def perfectivebox (φ : prop ι) : ⊢ P φ ⇒ □P φ :=
+  begin
+    fapply mp, exact (⋁ x, G x), apply hypsyll, apply extriv, apply exdis,
+    intro x, apply gimplperfbox, apply mp, apply T, exact «Gödel»
   end
 end ground_zero.theorems.ontological
