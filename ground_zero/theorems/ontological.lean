@@ -599,4 +599,7 @@ namespace ground_zero.theorems.ontological
     fapply mp, exact (⋁ x, G x), apply hypsyll, apply extriv, apply exdis,
     intro x, apply gimplperfbox, apply mp, apply T, exact «Gödel»
   end
+
+  @[hott] def tautbox {φ : wff ι} (H : ⊢ φ) : ⊢ φ ⇒ □φ :=
+  begin apply impl.intro, apply nec, exact H end
 end ground_zero.theorems.ontological
