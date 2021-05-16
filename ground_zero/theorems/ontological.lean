@@ -447,7 +447,7 @@ namespace ground_zero.theorems.ontological
   begin apply mp, apply thm1, apply gp end
 
   -- Anselm’s principle
-  @[hott] def thm3 (x : ι) : ⊢ G x ⇒ □ G x :=
+  @[hott] def anselm (x : ι) : ⊢ G x ⇒ □ G x :=
   begin
     apply mp₂, apply as, exact P G,
     apply mp, apply impl.pr₁, exact (□ G x ⇒ P G),
@@ -533,17 +533,17 @@ namespace ground_zero.theorems.ontological
     apply cbfdiam, apply exdis, intro x, apply diambox
   end
 
-  @[hott] def thm4 : ⊢ (◇ ⋁ x, G x) ⇒ (□ ⋁ x, G x) :=
+  @[hott] def thm3 : ⊢ (◇ ⋁ x, G x) ⇒ (□ ⋁ x, G x) :=
   begin
     apply hypsyll, apply excbf, fapply hypsyll, exact ◇ ⋁ x, □ G x,
     apply mp₂, apply impl.trans, exact ⋁ (x : ι), ◇□ G x,
     apply cbfdiam, apply exdis, intro x,
-    apply hypsyll, apply thm3, apply diambox,
-    apply diamimpl, apply exdis, apply thm3
+    apply hypsyll, apply anselm, apply diambox,
+    apply diamimpl, apply exdis, apply anselm
   end
 
   @[hott] def «Gödel» : ⊢ □ ⋁ x, G x :=
-  begin apply mp, apply thm4, apply thm2 end
+  begin apply mp, apply thm3, apply thm2 end
 
   @[hott] def univ : prop ι := λ _, ⊤
   notation `𝒰` := univ
@@ -580,7 +580,7 @@ namespace ground_zero.theorems.ontological
     apply and.pr₁, exact □(φ x) ⇒ P φ, apply gd₂,
     apply mp₂, apply impl.trans,
     exact □G x ∧ □□φ x, apply mp₂, apply and.impl,
-    { apply hypsyll, apply thm3, apply and.pr₁ },
+    { apply hypsyll, apply anselm, apply and.pr₁ },
     { apply hypsyll, apply boxbox, apply and.pr₂ },
     apply mp, apply uncurry, apply hypsyll, apply K,
     apply mp, apply K, apply nec,
