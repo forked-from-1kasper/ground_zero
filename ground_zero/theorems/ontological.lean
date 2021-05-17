@@ -89,8 +89,8 @@ namespace ground_zero.theorems.ontological
   | T    : Π φ, deriv (□φ ⇒ φ)
   | «5»  : Π φ, deriv (◇φ ⇒ □◇φ)
   -- ontological logic
-  | gd₁  : Π x, (Π (φ : prop ι), deriv (□(φ x) ⇔ P φ)) → deriv (G x)
-  | gd₂  : Π (x : ι) (φ : prop ι), deriv (G x ⇒ P φ ⇔ □(φ x))
+  | gd₁  : Π x, (Π (φ : prop ι), deriv (P φ ⇔ □φ x)) → deriv (G x)
+  | gd₂  : Π (x : ι) (φ : prop ι), deriv (G x ⇒ P φ ⇔ □φ x)
   | wkc  : Π (φ ψ : prop ι), deriv (□(φ ≡ ψ) ⇒ P φ ⇔ P ψ)
   | pimp : Π (φ ψ : prop ι), deriv (P φ ⇒ □(φ ⊆ ψ) ⇒ ¬(P ¬ψ))
   | gp   : deriv (P G)
