@@ -347,11 +347,6 @@ namespace circle
   @[hott] noncomputable def power_of_winding : power ∘ winding ~ id :=
   decode_encode base
 
-  @[hott] noncomputable def comm (x y : Ω¹(S¹)) : x ⬝ y = y ⬝ x :=
-    equiv.bimap Id.trans (power_of_winding x)⁻¹ (power_of_winding y)⁻¹
-  ⬝ loop.power_comm circle.loop (winding x) (winding y)
-  ⬝ equiv.bimap Id.trans (power_of_winding y) (power_of_winding x)
-
   @[hott] noncomputable def encode_decode (x : S¹) (c : helix x) :
     encode x (decode x c) = c :=
   @ind (λ x, Π c, encode x (decode x c) = c)
@@ -389,29 +384,6 @@ namespace circle
 
   @[hott] noncomputable def loop_hset : hset (base = base) :=
   transport hset fundamental_group⁻¹ (λ _ _, integer.set)
-
-  @[hott] noncomputable def Ωind₁ {π : (Ω¹(S¹)) → Type u}
-    (zeroπ : π Id.refl) (succπ : Π x, π x → π (x ⬝ loop))
-    (predπ : Π x, π x → π (x ⬝ loop⁻¹)) : Π x, π x :=
-  begin
-    intro x, apply transport π, apply power_of_winding,
-    fapply @types.integer.indsp (π ∘ power) _ _ _ (winding x),
-    { exact zeroπ },
-    { intros x ih, apply transport π,
-      apply HITs.loop.power_comp circle.loop,
-      apply succπ, exact ih },
-    { intros x ih, apply transport π,
-      apply HITs.loop.power_comp_pred,
-      apply predπ, exact ih }
-  end
-
-  @[hott] noncomputable def Ωind₂ {π : (Ω¹(S¹)) → Type u}
-    (zeroπ : π Id.refl) (succπ : Π x, π x → π (loop ⬝ x))
-    (predπ : Π x, π x → π (loop⁻¹ ⬝ x)) : Π x, π x :=
-  begin
-    fapply Ωind₁, exact zeroπ, repeat { intros x ih, apply transport π, apply comm },
-    apply succπ x ih, apply predπ x ih
-  end
 
   @[hott] noncomputable example : winding (loop ⬝ loop) = integer.pos 2 :=
   encode_decode base (integer.pos 2)
@@ -502,6 +474,17 @@ namespace circle
     apply Id.refl_right, apply Id.inv_comp
   end
 
+
+  @[hott] def μ_left_ap_lem {x : S¹} (p : base = x) :
+    (λ x, μ x base) # p = transport (λ y, base = y) (unit_right x)⁻¹ p :=
+  begin induction p, reflexivity end
+
+  @[hott] noncomputable def μ_left_ap (p : Ω¹(S¹)) : (λ x, μ x base) # p = p :=
+  begin transitivity, apply μ_left_ap_lem, reflexivity end
+
+  @[hott] def μ_right_ap (p : Ω¹(S¹)) : μ base # p = p :=
+  by apply equiv.idmap
+
   @[hott] noncomputable def unit_comm (x : S¹) : μ base x = μ x base :=
   (unit_right x)⁻¹
 
@@ -555,6 +538,50 @@ namespace circle
     { fapply ind _ _ x, reflexivity, apply groupoid }
   end
 
+  open ground_zero.types.equiv (bimap)
+  @[hott] noncomputable def mul_trans (p q : Ω¹(S¹)) : bimap μ p q = p ⬝ q :=
+  begin
+    transitivity, apply equiv.bimap_characterization,
+    apply equiv.bimap, apply μ_left_ap, apply μ_right_ap
+  end
+
+  @[hott] noncomputable def mul_trans' (p q : Ω¹(S¹)) : bimap μ p q = q ⬝ p :=
+  begin
+    transitivity, apply equiv.bimap_characterization',
+    apply equiv.bimap, apply μ_right_ap, apply μ_left_ap
+  end
+
+  @[hott] noncomputable def comm (x y : Ω¹(S¹)) : x ⬝ y = y ⬝ x :=
+  (mul_trans x y)⁻¹ ⬝ (mul_trans' x y)
+
+  @[hott] noncomputable def comm' (x y : Ω¹(S¹)) : x ⬝ y = y ⬝ x :=
+    equiv.bimap Id.trans (power_of_winding x)⁻¹ (power_of_winding y)⁻¹
+  ⬝ loop.power_comm circle.loop (winding x) (winding y)
+  ⬝ equiv.bimap Id.trans (power_of_winding y) (power_of_winding x)
+
+  @[hott] noncomputable def Ωind₁ {π : (Ω¹(S¹)) → Type u}
+    (zeroπ : π Id.refl) (succπ : Π x, π x → π (x ⬝ loop))
+    (predπ : Π x, π x → π (x ⬝ loop⁻¹)) : Π x, π x :=
+  begin
+    intro x, apply transport π, apply power_of_winding,
+    fapply @types.integer.indsp (π ∘ power) _ _ _ (winding x),
+    { exact zeroπ },
+    { intros x ih, apply transport π,
+      apply HITs.loop.power_comp circle.loop,
+      apply succπ, exact ih },
+    { intros x ih, apply transport π,
+      apply HITs.loop.power_comp_pred,
+      apply predπ, exact ih }
+  end
+
+  @[hott] noncomputable def Ωind₂ {π : (Ω¹(S¹)) → Type u}
+    (zeroπ : π Id.refl) (succπ : Π x, π x → π (loop ⬝ x))
+    (predπ : Π x, π x → π (loop⁻¹ ⬝ x)) : Π x, π x :=
+  begin
+    fapply Ωind₁, exact zeroπ, repeat { intros x ih, apply transport π, apply comm },
+    apply succπ x ih, apply predπ x ih
+  end
+
   @[hott] noncomputable def trans_comm {z : S¹} : Π (p q : z = z), p ⬝ q = q ⬝ p :=
   begin
     fapply ind _ _ z, { intros p q, apply comm },
@@ -564,20 +591,6 @@ namespace circle
   @[hott] noncomputable def transport_over_circle {z : S¹} {f g : S¹ → S¹} {p : f = g}
     (μ : f z = f z) (η : f z = g z) : @transport (S¹ → S¹) (λ φ, φ z = φ z) f g p μ = η⁻¹ ⬝ μ ⬝ η :=
   begin induction p, symmetry, apply id_conj_if_comm, apply trans_comm end
-
-  open ground_zero.types.equiv (bimap)
-  @[hott] noncomputable def mul_trans (p q : Ω¹(S¹)) : bimap μ p q = p ⬝ q :=
-  begin
-    transitivity, apply equiv.bimap_characterization, apply equiv.bimap,
-    { transitivity, apply theorems.map_homotopy,
-      intro x, symmetry, apply unit_right,
-      transitivity, fapply transport_over_circle, reflexivity,
-      transitivity, apply Id.refl_right, symmetry, apply idmap },
-    { transitivity, apply theorems.map_homotopy,
-      intro x, symmetry, apply unit_left,
-      transitivity, fapply transport_over_circle, reflexivity,
-      transitivity, apply Id.refl_right, symmetry, apply idmap }
-  end
 
   def halfway.φ : I → S¹ :=
   λ i, interval.elim loop (i ∧ (interval.neg i))

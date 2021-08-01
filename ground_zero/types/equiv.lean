@@ -439,6 +439,12 @@ namespace equiv
     bimap f p q = @Id.map α γ a b (λ x, f x a') p ⬝ f b # q :=
   begin induction p, trivial end
 
+  @[hott] def bimap_characterization' {α : Type u} {β : Type v} {γ : Type w}
+    {a b : α} {a' b' : β} (f : α → β → γ)
+    (p : a = b) (q : a' = b') :
+    bimap f p q = f a # q ⬝ @Id.map α γ a b (λ x, f x b') p :=
+  begin induction p, induction q, trivial end
+
   @[hott] def bimap_inv {α : Type u} {β : Type v} {γ : Type w}
     {a b : α} {a' b' : β} (f : α → β → γ)
     (p : a = b) (q : a' = b') : (bimap f p q)⁻¹ = bimap f p⁻¹ q⁻¹ :=
