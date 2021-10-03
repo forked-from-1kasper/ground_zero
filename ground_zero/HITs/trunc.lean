@@ -34,6 +34,7 @@ namespace trunc
   notation `∥` α `∥₋₁` := trunc −1 α
   notation `∥` α `∥₀`  := trunc  0 α
   notation `∥` α `∥₁`  := trunc  1 α
+  notation `∥` α `∥₂`  := trunc  2 α
 
   @[hott] def elem_close {β : Type v} (G : is-n-type β)
     (f g : trunc n α → β) (H : f ∘ elem = g ∘ elem) : f = g :=
