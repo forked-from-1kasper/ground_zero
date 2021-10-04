@@ -347,7 +347,7 @@ namespace ground_zero.algebra
     begin existsi Alg.ua, split; existsi Alg.id, apply Alg.linv, apply Alg.rinv end
 
     def magma : Type (u + 1) :=
-    @Alg.{0 0 u 0} (𝟏 : Type) ⊥ (λ _, 2)
+    @Alg.{0 0 u 0} 𝟏 ⊥ (λ _, 2)
 
     namespace magma
       def φ (M : magma) : M.carrier → M.carrier → M.carrier :=

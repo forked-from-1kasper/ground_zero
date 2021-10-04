@@ -9,7 +9,7 @@ open ground_zero
 hott theory
 
 namespace ground_zero.algebra
-universe u
+universes u v
 
 namespace prering
   inductive arity : Type
@@ -25,6 +25,15 @@ end prering
 
 def prering : Type (u + 1) :=
 Alg.{0 0 u 0} prering.signature
+
+namespace overring
+  def signature : prering.arity + 𝟏 → ℕ
+  | (sum.inl v) := prering.signature (sum.inl v)
+  | (sum.inr _) := 2
+end overring
+
+def overring : Type (max u v + 1) :=
+Alg.{0 0 u v} overring.signature
 
 namespace prering
   @[hott] def intro {α : Type u} (H : hset α)
@@ -52,6 +61,24 @@ namespace prering
 
   abbreviation additive := pregroup
 end prering
+
+namespace overring
+  @[hott] def intro {α : Type u} (H : hset α) (φ ψ : α → α → α)
+    (ι : α → α) (e : α) (ρ : α → α → Ω) : overring :=
+  begin
+    existsi zeroeqv (λ _ _, H), split; intro i; induction i,
+    exact (λ _, e), exact (λ ⟨a, _⟩, ι a),
+    exact (λ ⟨a, b, _⟩, φ a b),
+    exact (λ ⟨a, b, _⟩, ψ a b),
+    exact (λ ⟨a, b, _⟩, ρ a b)
+  end
+
+  def rel (T : overring) (x y : T.carrier) : Ω := T.rel ★ (x, y, ★)
+  def ρ (T : overring) (x y : T.carrier) := (T.rel x y).1
+
+  @[hott] def τ (T : overring) : prering :=
+  ⟨T.1, (T.2.1, by intro i; induction i)⟩
+end overring
 
 class ring (T : prering) :=
 (abgroup       : abelian T.pregroup)
@@ -82,6 +109,20 @@ section
   instance : has_mul T.carrier := ⟨T.ψ⟩
 
   instance : has_zero T.carrier := ⟨T.zero⟩
+end
+
+section
+  variable (T : overring)
+  instance : has_add T.carrier := ⟨T.τ.φ⟩
+  instance : has_sub T.carrier := ⟨T.τ.sub⟩
+  instance : has_neg T.carrier := ⟨T.τ.neg⟩
+
+  instance : has_mul T.carrier := ⟨T.τ.ψ⟩
+
+  instance : has_zero T.carrier := ⟨T.τ.zero⟩
+
+  infix <= := overring.ρ _
+  infix ≤  := overring.ρ _
 end
 
 namespace prering
