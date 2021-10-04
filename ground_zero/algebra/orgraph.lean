@@ -49,34 +49,34 @@ namespace ground_zero.algebra
   (le_over_add : Π (x y z : T.carrier), x ≤ y → x + z ≤ y + z)
   (le_over_mul : Π (x y : T.carrier), 0 ≤ x → 0 ≤ y → 0 ≤ x * y)
 
-  def majorant {T : overring} (φ : T.subset) (M : T.carrier) :=
-  Π x, x ∈ φ → x ≤ M
+  def majorant {Γ : orgraph} (φ : Γ.subset) (M : Γ.carrier) :=
+  Π x, x ∈ φ → Γ.ρ x M
 
-  def minorant {T : overring} (φ : T.subset) (m : T.carrier) :=
-  Π x, x ∈ φ → m ≤ x
+  def minorant {Γ : orgraph} (φ : Γ.subset) (m : Γ.carrier) :=
+  Π x, x ∈ φ → Γ.ρ m x
 
-  def majorized {T : overring} (φ : T.subset) :=
+  def majorized {Γ : orgraph} (φ : Γ.subset) :=
   ∥(Σ M, majorant φ M)∥
 
-  def minorized {T : overring} (φ : T.subset) :=
-  ∥(Σ M, majorant φ M)∥
+  def minorized {Γ : orgraph} (φ : Γ.subset) :=
+  ∥(Σ m, majorant φ m)∥
 
-  def Majorant {T : overring} (φ : T.subset) : T.subset :=
+  def Majorant {Γ : orgraph} (φ : Γ.subset) : Γ.subset :=
   ⟨majorant φ, begin
     intro x, apply ground_zero.structures.pi_prop,
     intro y, apply ground_zero.structures.pi_prop,
-    intro H, apply T.κ.prop
+    intro H, apply Γ.prop
   end⟩
 
-  def Minorant {T : overring} (φ : T.subset) : T.subset :=
+  def Minorant {Γ : orgraph} (φ : Γ.subset) : Γ.subset :=
   ⟨minorant φ, begin
     intro x, apply ground_zero.structures.pi_prop,
     intro y, apply ground_zero.structures.pi_prop,
-    intro H, apply T.κ.prop
+    intro H, apply Γ.prop
   end⟩
 
-  class complete (T : overring) :=
-  (sup : Π (φ : T.subset), φ.inh → majorized φ → minorized (Majorant φ))
+  class complete (Γ : orgraph) :=
+  (sup : Π (φ : Γ.subset), φ.inh → majorized φ → minorized (Majorant φ))
 
-  class dedekind (T : overring) extends orfield T, complete T
+  class dedekind (T : overring) extends orfield T, complete T.κ
 end ground_zero.algebra
