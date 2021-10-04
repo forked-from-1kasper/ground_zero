@@ -76,7 +76,7 @@ namespace ground_zero.algebra
   end⟩
 
   class complete (T : overring) :=
-  (sup : Π (φ : T.subset), majorized φ → minorized (Majorant φ))
+  (sup : Π (φ : T.subset), φ.inh → majorized φ → minorized (Majorant φ))
 
   class dedekind (T : overring) extends orfield T, complete T
 end ground_zero.algebra
