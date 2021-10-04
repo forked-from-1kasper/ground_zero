@@ -75,8 +75,13 @@ namespace ground_zero.algebra
     intro H, apply Γ.prop
   end⟩
 
+  -- or complete at top
   class complete (Γ : orgraph) :=
   (sup : Π (φ : Γ.subset), φ.inh → majorized φ → minorized (Majorant φ))
+
+  -- or complete at bottom
+  class cocomplete (Γ : orgraph) :=
+  (inf : Π (φ : Γ.subset), φ.inh → minorized φ → majorized (Majorant φ))
 
   class dedekind (T : overring) extends orfield T, complete T.κ
 end ground_zero.algebra
