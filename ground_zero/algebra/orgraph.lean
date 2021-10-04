@@ -7,7 +7,7 @@ namespace ground_zero.algebra
 
   -- this is exactly directed graph
   def orgraph : Type (u + 1) :=
-  @Alg.{0 0 0 u} ⊥ (𝟏 : Type) (λ _, 2)
+  @Alg.{0 0 u 0} ⊥ (𝟏 : Type) (λ _, 2)
 
   def orgraph.rel (Γ : orgraph) (x y : Γ.carrier) : Ω := Γ.rel ★ (x, y, ★)
   def orgraph.ρ (Γ : orgraph.{u}) (x y : Γ.carrier) : Type u := (Γ.rel x y).1
