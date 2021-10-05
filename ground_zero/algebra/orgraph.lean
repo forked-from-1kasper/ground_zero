@@ -65,7 +65,7 @@ namespace ground_zero.algebra
   x ∈ φ × majorant φ x
 
   def majorized {Γ : orgraph} (φ : Γ.subset) := merely (Σ M, majorant φ M)
-  def minorized {Γ : orgraph} (φ : Γ.subset) := merely (Σ m, majorant φ m)
+  def minorized {Γ : orgraph} (φ : Γ.subset) := merely (Σ m, minorant φ m)
 
   def exactness {Γ : orgraph} (φ : Γ.subset) := merely (Σ M, exact φ M)
   def coexactness {Γ : orgraph} (φ : Γ.subset) := merely (Σ M, coexact φ M)
@@ -161,6 +161,9 @@ namespace ground_zero.algebra
     apply_instance
   end
 
+  @[hott] noncomputable def inv_minus_sign (T : overring) [orfield T] (a b : T.carrier) (p : -a ≤ -b) : a ≥ b :=
+  begin apply equiv.transportconst, apply equiv.bimap; apply @group.inv_inv T.τ⁺, apply minus_inv_sign, assumption end
+
   -- or complete at top
   class complete (Γ : orgraph) :=
   (sup : Π (φ : Γ.subset), φ.inh → majorized φ → exactness (Majorant φ))
@@ -168,6 +171,21 @@ namespace ground_zero.algebra
   -- or complete at bottom
   class cocomplete (Γ : orgraph) :=
   (inf : Π (φ : Γ.subset), φ.inh → minorized φ → coexactness (Minorant φ))
+
+  def Neg {T : prering} (φ : T.subset) : T.subset :=
+  ⟨λ a, T.neg a ∈ φ, λ a, ens.prop (T.neg a) φ⟩
+
+  @[hott] noncomputable def Neg.majorized {T : overring} [orfield T] {φ : T.subset} : @minorized T.κ φ → @majorized T.κ (@Neg T.τ φ) :=
+  begin
+    apply ground_zero.HITs.merely.lift, intro H, existsi T.τ.neg H.1, intros x p, apply inv_minus_sign,
+    apply equiv.transport (λ y, T.ρ y (-x)), symmetry, apply @group.inv_inv T.τ⁺, apply H.2, exact p
+  end
+
+  @[hott] noncomputable def Neg.minorized {T : overring} [orfield T] {φ : T.subset} : @majorized T.κ φ → @minorized T.κ (@Neg T.τ φ) :=
+  begin
+    apply ground_zero.HITs.merely.lift, intro H, existsi T.τ.neg H.1, intros x p, apply inv_minus_sign,
+    apply equiv.transport (T.ρ (-x)), symmetry, apply @group.inv_inv T.τ⁺, apply H.2, exact p
+  end
 
   class dedekind (T : overring) extends orfield T, complete T.κ
 end ground_zero.algebra
