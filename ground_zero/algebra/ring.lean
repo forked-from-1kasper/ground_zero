@@ -123,6 +123,8 @@ section
 
   infix <= := overring.ρ _
   infix ≤  := overring.ρ _
+  infix >= := λ x y, overring.ρ _ y x
+  infix ≥  := λ x y, overring.ρ _ y x
 end
 
 namespace prering

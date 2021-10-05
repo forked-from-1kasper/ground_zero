@@ -31,12 +31,6 @@ namespace ground_zero.algebra
 
   class order (Γ : orgraph) extends reflexive Γ, antisymmetric Γ, transitive Γ
 
-  def exact (Γ : orgraph) (φ : Γ.carrier → Ω) (x : Γ.carrier) :=
-  (φ x).1 × (Π y, (φ y).1 → Γ.ρ x y)
-
-  def coexact (Γ : orgraph) (φ : Γ.carrier → Ω) (x : Γ.carrier) :=
-  (φ x).1 × (Π y, (φ y).1 → Γ.ρ y x)
-
   def overring.κ (T : overring) : orgraph :=
   ⟨T.1, (by intro i; induction i, T.2.2)⟩
 
@@ -55,11 +49,20 @@ namespace ground_zero.algebra
   def minorant {Γ : orgraph} (φ : Γ.subset) (m : Γ.carrier) :=
   Π x, x ∈ φ → Γ.ρ m x
 
-  def majorized {Γ : orgraph} (φ : Γ.subset) :=
-  ∥(Σ M, majorant φ M)∥
+  def exact {Γ : orgraph} (φ : Γ.subset) (x : Γ.carrier) :=
+  x ∈ φ × minorant φ x
 
-  def minorized {Γ : orgraph} (φ : Γ.subset) :=
-  ∥(Σ m, majorant φ m)∥
+  def coexact {Γ : orgraph} (φ : Γ.subset) (x : Γ.carrier) :=
+  x ∈ φ × majorant φ x
+
+  def majorized {Γ : orgraph} (φ : Γ.subset) := ∥(Σ M, majorant φ M)∥
+  def minorized {Γ : orgraph} (φ : Γ.subset) := ∥(Σ m, majorant φ m)∥
+
+  def exactness {Γ : orgraph} (φ : Γ.subset) := ∥(Σ M, exact φ M)∥
+  def coexactness {Γ : orgraph} (φ : Γ.subset) := ∥(Σ M, coexact φ M)∥
+
+  def bounded {Γ : orgraph} (φ : Γ.subset) :=
+  majorized φ × minorized φ
 
   def Majorant {Γ : orgraph} (φ : Γ.subset) : Γ.subset :=
   ⟨majorant φ, begin
@@ -77,11 +80,11 @@ namespace ground_zero.algebra
 
   -- or complete at top
   class complete (Γ : orgraph) :=
-  (sup : Π (φ : Γ.subset), φ.inh → majorized φ → minorized (Majorant φ))
+  (sup : Π (φ : Γ.subset), φ.inh → majorized φ → exactness (Majorant φ))
 
   -- or complete at bottom
   class cocomplete (Γ : orgraph) :=
-  (inf : Π (φ : Γ.subset), φ.inh → minorized φ → majorized (Minorant φ))
+  (inf : Π (φ : Γ.subset), φ.inh → minorized φ → coexactness (Minorant φ))
 
   class dedekind (T : overring) extends orfield T, complete T.κ
 end ground_zero.algebra
