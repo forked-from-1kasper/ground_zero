@@ -175,16 +175,114 @@ namespace ground_zero.algebra
   def Neg {T : prering} (φ : T.subset) : T.subset :=
   ⟨λ a, T.neg a ∈ φ, λ a, ens.prop (T.neg a) φ⟩
 
-  @[hott] noncomputable def Neg.majorized {T : overring} [orfield T] {φ : T.subset} : @minorized T.κ φ → @majorized T.κ (@Neg T.τ φ) :=
+  @[hott] def Neg.inh {T : prering} [ring T] {φ : T.subset} : φ.inh → (Neg φ).inh :=
   begin
-    apply ground_zero.HITs.merely.lift, intro H, existsi T.τ.neg H.1, intros x p, apply inv_minus_sign,
-    apply equiv.transport (λ y, T.ρ y (-x)), symmetry, apply @group.inv_inv T.τ⁺, apply H.2, exact p
+    apply ground_zero.HITs.merely.lift, intro x, cases x with x H,
+    existsi T.neg x, apply equiv.transport (∈ φ),
+    symmetry, apply @group.inv_inv T⁺, assumption
   end
 
-  @[hott] noncomputable def Neg.minorized {T : overring} [orfield T] {φ : T.subset} : @majorized T.κ φ → @minorized T.κ (@Neg T.τ φ) :=
+  @[hott] def Neg.neg_inh {T : prering} {φ : T.subset} : (Neg φ).inh → φ.inh :=
+  begin apply ground_zero.HITs.merely.lift, intro x, cases x with x H, existsi T.neg x, apply H end
+
+  @[hott] noncomputable def Neg.majorant {T : overring} [orfield T] {φ : T.subset} (x : T.carrier) :
+    @minorant T.κ φ x → @majorant T.κ (@Neg T.τ φ) (T.τ.neg x) :=
   begin
-    apply ground_zero.HITs.merely.lift, intro H, existsi T.τ.neg H.1, intros x p, apply inv_minus_sign,
-    apply equiv.transport (T.ρ (-x)), symmetry, apply @group.inv_inv T.τ⁺, apply H.2, exact p
+    intro H, intros x p, apply inv_minus_sign,
+    apply equiv.transport (λ y, T.ρ y (-x)), symmetry,
+    apply @group.inv_inv T.τ⁺, apply H, exact p
+  end
+
+  @[hott] noncomputable def Neg.neg_majorant {T : overring} [orfield T] {φ : T.subset} (x : T.carrier) :
+    @minorant T.κ (@Neg T.τ φ) x → @majorant T.κ φ (T.τ.neg x) :=
+  begin
+    intro H, intros x p, apply inv_minus_sign,
+    apply equiv.transport (λ y, T.ρ y (-x)), symmetry,
+    apply @group.inv_inv T.τ⁺, apply H, apply equiv.transport (∈ φ),
+    symmetry, apply @group.inv_inv T.τ⁺, exact p
+  end
+
+  @[hott] noncomputable def Neg.minorant {T : overring} [orfield T] {φ : T.subset} (x : T.carrier) :
+    @majorant T.κ φ x → @minorant T.κ (@Neg T.τ φ) (T.τ.neg x) :=
+  begin
+    intro H, intros x p, apply inv_minus_sign,
+    apply equiv.transport (T.ρ (-x)), symmetry,
+    apply @group.inv_inv T.τ⁺, apply H, exact p
+  end
+
+  @[hott] noncomputable def Neg.neg_minorant {T : overring} [orfield T] {φ : T.subset} (x : T.carrier) :
+    @majorant T.κ (@Neg T.τ φ) x → @minorant T.κ φ (T.τ.neg x) :=
+  begin
+    intro H, intros x p, apply inv_minus_sign,
+    apply equiv.transport (T.ρ (-x)), symmetry,
+    apply @group.inv_inv T.τ⁺, apply H, apply equiv.transport (∈ φ),
+    symmetry, apply @group.inv_inv T.τ⁺, exact p
+  end
+
+  @[hott] noncomputable def Neg.majorized {T : overring} [orfield T] {φ : T.subset} : @minorized T.κ φ → @majorized T.κ (@Neg T.τ φ) :=
+  begin apply ground_zero.HITs.merely.lift, intro H, existsi T.τ.neg H.1, apply Neg.majorant, exact H.2 end
+
+  @[hott] noncomputable def Neg.minorized {T : overring} [orfield T] {φ : T.subset} : @majorized T.κ φ → @minorized T.κ (@Neg T.τ φ) :=
+  begin apply ground_zero.HITs.merely.lift, intro H, existsi T.τ.neg H.1, apply Neg.minorant, exact H.2 end
+
+  section
+    variables {T : overring} [orfield T] (φ : T.subset)
+
+    @[hott] noncomputable def neg_minorant_eq_majorant_neg.forward : @Neg T.τ (@Minorant T.κ φ) ⊆ @Majorant T.κ (@Neg T.τ φ) :=
+    begin intros x H y G, apply inv_minus_sign, apply H, assumption end
+
+    @[hott] noncomputable def neg_minorant_eq_majorant_neg.backward : @Majorant T.κ (@Neg T.τ φ) ⊆ @Neg T.τ (@Minorant T.κ φ) :=
+    begin
+      intros x H y G, apply inv_minus_sign, apply equiv.transport,
+      symmetry, apply @group.inv_inv T.τ⁺, apply H, apply equiv.transport (∈ φ),
+      symmetry, apply @group.inv_inv T.τ⁺, assumption
+    end
+
+    @[hott] noncomputable def neg_minorant_eq_majorant_neg : @Neg T.τ (@Minorant T.κ φ) = @Majorant T.κ (@Neg T.τ φ) :=
+    begin
+      apply ens.ssubset.asymm; intros x H,
+      apply neg_minorant_eq_majorant_neg.forward, assumption,
+      apply neg_minorant_eq_majorant_neg.backward, assumption
+    end
+
+    @[hott] noncomputable def neg_majorant_eq_minorant_neg.forward : @Neg T.τ (@Majorant T.κ φ) ⊆ @Minorant T.κ (@Neg T.τ φ) :=
+    begin intros x H y G, apply inv_minus_sign, apply H, assumption end
+
+    @[hott] noncomputable def neg_majorant_eq_minorant_neg.backward : @Minorant T.κ (@Neg T.τ φ) ⊆ @Neg T.τ (@Majorant T.κ φ) :=
+    begin
+      intros x H y G, apply inv_minus_sign, apply equiv.transport (λ z, z ≤ T.τ.neg y),
+      symmetry, apply @group.inv_inv T.τ⁺, apply H, apply equiv.transport (∈ φ),
+      symmetry, apply @group.inv_inv T.τ⁺, assumption
+    end
+
+    @[hott] noncomputable def neg_majorant_eq_minorant_neg : @Neg T.τ (@Majorant T.κ φ) = @Minorant T.κ (@Neg T.τ φ) :=
+    begin
+      apply ens.ssubset.asymm; intros x H,
+      apply neg_majorant_eq_minorant_neg.forward, assumption,
+      apply neg_majorant_eq_minorant_neg.backward, assumption
+    end
+  end
+
+  @[hott] noncomputable def orfield_cocomplete_if_complete {T : overring} [orfield T] (H : complete T.κ) : cocomplete T.κ :=
+  begin
+    split, intros φ p q, fapply ground_zero.HITs.merely.rec _ _ (complete.sup _ _ _),
+    exact T.κ, change T.τ.subset, exact Neg φ, apply ground_zero.HITs.merely.uniq,
+    intro r, apply ground_zero.HITs.merely.elem, existsi T.τ.neg r.1, split,
+    apply neg_minorant_eq_majorant_neg.backward, exact r.2.1,
+    apply Neg.neg_majorant, apply equiv.transport (λ φ, minorant φ r.1),
+    symmetry, apply neg_minorant_eq_majorant_neg, exact r.2.2,
+    apply_instance, apply Neg.inh, assumption, apply Neg.majorized, assumption
+  end
+
+  @[hott] noncomputable def orfield_complete_if_cocomplete {T : overring} [orfield T] (H : cocomplete T.κ) : complete T.κ :=
+  begin
+    split, intros φ p q, fapply ground_zero.HITs.merely.rec _ _ (cocomplete.inf _ _ _),
+    exact T.κ, change T.τ.subset, exact Neg φ, apply ground_zero.HITs.merely.uniq,
+    intro r, apply ground_zero.HITs.merely.elem, existsi T.τ.neg r.1, split,
+    apply neg_majorant_eq_minorant_neg.backward, exact r.2.1,
+    apply Neg.neg_minorant, apply equiv.transport (λ φ, majorant φ r.1),
+    symmetry, apply neg_majorant_eq_minorant_neg, exact r.2.2,
+    apply_instance, apply Neg.inh, assumption, apply Neg.minorized, assumption
   end
 
   class dedekind (T : overring) extends orfield T, complete T.κ
