@@ -211,6 +211,15 @@ class ring.divisible (T : prering) extends has_inv T.carrier, ring.monoid T :=
 class field (T : prering) extends ring T, ring.assoc T, ring.divisible T, ring.comm T :=
 (nontrivial : T.isproper 1)
 
+@[hott] def ring.minus_one_sqr (T : prering) [ring T] [ring.monoid T] :
+  (-1) * (-1) = 1 :> T.carrier :=
+begin
+  transitivity, apply ring.mul_neg,
+  transitivity, apply Id.map T.neg,
+  apply ring.monoid.mul_one,
+  apply @group.inv_inv T⁺
+end
+
 @[hott] def field.proper_mul {T : prering} [field T] {a b : T.carrier} :
   T.isproper a → T.isproper b → T.isproper (a * b) :=
 begin
