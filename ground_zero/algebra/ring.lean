@@ -76,6 +76,8 @@ namespace overring
   def rel (T : overring) (x y : T.carrier) : Ω := T.rel ★ (x, y, ★)
   def ρ (T : overring) (x y : T.carrier) := (T.rel x y).1
 
+  def σ (T : overring) (x y : T.carrier) := ¬(x = y) × T.ρ x y
+
   @[hott] def τ (T : overring) : prering :=
   ⟨T.1, (T.2.1, by intro i; induction i)⟩
 end overring
@@ -125,6 +127,9 @@ section
   infix ≤  := overring.ρ _
   infix >= := λ x y, overring.ρ _ y x
   infix ≥  := λ x y, overring.ρ _ y x
+
+  infix < := overring.σ _
+  infix > := λ x y, overring.σ _ y x
 end
 
 namespace prering

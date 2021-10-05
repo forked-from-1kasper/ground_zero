@@ -1,7 +1,9 @@
+import ground_zero.theorems.classical
 import ground_zero.algebra.ring
 open ground_zero.structures (prop pi_prop)
-open ground_zero.types
-open ground_zero.proto
+open ground_zero.types ground_zero.proto
+open ground_zero.HITs (merely)
+open ground_zero.theorems
 
 hott theory
 
@@ -20,6 +22,9 @@ namespace ground_zero.algebra
   class reflexive (Γ : orgraph) :=
   (refl : Π x, Γ.ρ x x)
 
+  @[hott] def eq_impl_refl_rel (Γ : orgraph) [reflexive Γ] (a b : Γ.carrier) : a = b → Γ.ρ a b :=
+  begin intro p, induction p, apply reflexive.refl end
+
   class symmetric (Γ : orgraph) :=
   (symm : Π x y, Γ.ρ x y → Γ.ρ y x)
 
@@ -37,7 +42,7 @@ namespace ground_zero.algebra
   ⟨T.1, (by intro i; induction i, T.2.2)⟩
 
   class connected (Γ : orgraph) :=
-  (total : Π x y, ∥Γ.ρ x y + Γ.ρ y x∥)
+  (total : Π x y, merely (Γ.ρ x y + Γ.ρ y x))
 
   class total (Γ : orgraph) extends order Γ, connected Γ
 
@@ -59,11 +64,11 @@ namespace ground_zero.algebra
   def coexact {Γ : orgraph} (φ : Γ.subset) (x : Γ.carrier) :=
   x ∈ φ × majorant φ x
 
-  def majorized {Γ : orgraph} (φ : Γ.subset) := ∥(Σ M, majorant φ M)∥
-  def minorized {Γ : orgraph} (φ : Γ.subset) := ∥(Σ m, majorant φ m)∥
+  def majorized {Γ : orgraph} (φ : Γ.subset) := merely (Σ M, majorant φ M)
+  def minorized {Γ : orgraph} (φ : Γ.subset) := merely (Σ m, majorant φ m)
 
-  def exactness {Γ : orgraph} (φ : Γ.subset) := ∥(Σ M, exact φ M)∥
-  def coexactness {Γ : orgraph} (φ : Γ.subset) := ∥(Σ M, coexact φ M)∥
+  def exactness {Γ : orgraph} (φ : Γ.subset) := merely (Σ M, exact φ M)
+  def coexactness {Γ : orgraph} (φ : Γ.subset) := merely (Σ M, coexact φ M)
 
   def bounded {Γ : orgraph} (φ : Γ.subset) :=
   majorized φ × minorized φ
@@ -94,6 +99,65 @@ namespace ground_zero.algebra
         apply @group.mul_right_inv T.τ⁺, change T.carrier, exact 1,
         apply equiv.transport, apply T.τ⁺.one_mul,
         apply orfield.le_over_add, exact q } },
+    apply_instance
+  end
+
+  @[hott] def le_over_add_left (T : overring) [orfield T] (a b c : T.carrier) (p : a ≤ b) : c + a ≤ c + b :=
+  begin apply equiv.transportconst, apply equiv.bimap; apply T.τ⁺.mul_comm, apply orfield.le_over_add, exact p end
+
+  @[hott] def ineq_add (T : overring) [orfield T] {a b c d : T.carrier} (p : a ≤ b) (q : c ≤ d) : a + c ≤ b + d :=
+  begin apply @transitive.trans T.κ, apply orfield.le_over_add, exact p, apply le_over_add_left, exact q end
+
+  @[hott] def lt_over_add (T : overring) [orfield T] (a b c : T.carrier) (p : a < b) : a + c < b + c :=
+  begin
+    split, intro q, apply p.1,
+    apply equiv.transportconst, apply equiv.bimap,
+    symmetry, apply @group.cancel_right T.τ⁺ _ a c,
+    symmetry, apply @group.cancel_right T.τ⁺ _ b c,
+    apply Id.map (λ x, x - c) q, apply orfield.le_over_add, exact p.2
+  end
+
+  @[hott] def lt_over_add_left (T : overring) [orfield T] (a b c : T.carrier) (p : a < b) : c + a < c + b :=
+  begin apply equiv.transportconst, apply equiv.bimap; apply T.τ⁺.mul_comm, apply lt_over_add, exact p end
+
+  @[hott] def strict_ineq_trans_right (T : overring) [orfield T] {a b c : T.carrier} (p : a < b) (q : b ≤ c) : a < c :=
+  begin
+    split, intro r, apply p.1, apply @antisymmetric.asymm T.κ, apply p.2,
+    apply equiv.transport (T.ρ b), exact r⁻¹, assumption,
+    apply @transitive.trans T.κ, exact p.2, exact q
+  end
+
+  @[hott] def strict_ineq_trans_left (T : overring) [orfield T] {a b c : T.carrier} (p : a ≤ b) (q : b < c) : a < c :=
+  begin
+    split, intro r, apply q.1, apply @antisymmetric.asymm T.κ, apply q.2,
+    apply equiv.transport (λ x, T.ρ x b), exact r, assumption,
+    apply @transitive.trans T.κ, exact p, exact q.2
+  end
+
+  @[hott] def strict_ineq_trans (T : overring) [orfield T] {a b c : T.carrier} (p : a < b) (q : b < c) : a < c :=
+  strict_ineq_trans_left T p.2 q
+
+  @[hott] def strict_ineq_add (T : overring) [orfield T] {a b c d : T.carrier} (p : a < b) (q : c < d) : a + c < b + d :=
+  begin apply strict_ineq_trans, apply lt_over_add, exact p, apply lt_over_add_left, exact q end
+
+  @[hott] def strict_ineq_add_left (T : overring) [orfield T] {a b c d : T.carrier} (p : a ≤ b) (q : c < d) : a + c < b + d :=
+  begin apply strict_ineq_trans_left, apply orfield.le_over_add, exact p, apply lt_over_add_left, exact q end
+
+  @[hott] def strict_ineq_add_right (T : overring) [orfield T] {a b c d : T.carrier} (p : a < b) (q : c ≤ d) : a + c < b + d :=
+  begin apply strict_ineq_trans_right, apply lt_over_add, exact p, apply le_over_add_left, exact q end
+
+  @[hott] noncomputable def minus_inv_sign (T : overring) [orfield T] (a b : T.carrier) (p : a ≤ b) : -a ≥ -b :=
+  begin
+    fapply ground_zero.HITs.merely.rec _ _ (connected.total _ _), exact T.κ,
+    change T.carrier, exact -b, change T.carrier, exact -a, apply T.κ.prop,
+    { intro ih, induction ih with p q, exact p,
+      cases @classical.lem (a = b) T.hset with r₁ r₂,
+      apply eq_impl_refl_rel T.κ, symmetry, apply Id.map T.τ.neg r₁,
+      apply empty.elim, apply (_ : T.σ 0 0).1, reflexivity,
+      apply equiv.transportconst, apply equiv.bimap,
+      apply @group.mul_right_inv T.τ⁺, exact a,
+      apply @group.mul_right_inv T.τ⁺, exact b,
+      apply strict_ineq_add_right, exact (r₂, p), exact q },
     apply_instance
   end
 
