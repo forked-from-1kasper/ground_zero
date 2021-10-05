@@ -321,6 +321,27 @@ namespace nat
       { apply τ n m, apply ih, apply le.neq_succ, exact q₂,
         exact p, apply succρ } }
   end
+
+  def dist : ℕ → ℕ → ℕ
+  |    0       0    := 0
+  | (n + 1)    0    := n + 1
+  |    0    (m + 1) := m + 1
+  | (n + 1) (m + 1) := dist n m
+
+  @[hott] def dist.refl (n : ℕ) : dist n n = 0 :=
+  begin induction n with n ih, reflexivity, exact ih end
+
+  @[hott] def dist.identity : Π (n m : ℕ) (p : dist n m = 0), n = m
+  |    0       0    p := idp 0
+  | (n + 1)    0    p := p
+  |    0    (m + 1) p := p⁻¹
+  | (n + 1) (m + 1) p := nat.succ # (dist.identity n m p)
+
+  @[hott] def dist.symm : Π (n m : ℕ), dist n m = dist m n
+  |    0       0    := idp 0
+  | (n + 1)    0    := idp (n + 1)
+  |    0    (m + 1) := idp (m + 1)
+  | (n + 1) (m + 1) := dist.symm n m
 end nat
 
 namespace unit_list
