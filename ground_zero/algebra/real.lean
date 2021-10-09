@@ -1,5 +1,6 @@
 import ground_zero.algebra.orgraph
 open ground_zero.structures (zero_eqv_set hset)
+open ground_zero.HITs (merely)
 open ground_zero.types (idp)
 
 hott theory
@@ -11,7 +12,7 @@ namespace ground_zero.algebra
   @[instance] axiom R.dedekind : dedekind R
 
   notation `ℝ` := Alg.carrier R
-  noncomputable instance R.has_one : has_one ℝ := R.dedekind.to_has_one
+  noncomputable instance R.has_one : has_one ℝ := R.dedekind.{0}.to_has_one
 
   def metric {α : Type u} (ρ : α → α → ℝ) :=
     (Π x y, ρ x y = 0 ↔ x = y)
@@ -41,4 +42,11 @@ namespace ground_zero.algebra
     def Metric.triangle (x y z : M.carrier) : M.ρ x z ≤ M.ρ x y + M.ρ y z :=
     M.2.2.2.2 x y z
   end
+
+  def tendsto {M₁ M₂ : Metric} (f : M₁.carrier → M₂.carrier) :=
+  λ x₀ L, ∀ (ε : ℝ), 0 < ε → merely (Σ (δ : ℝ), (0 < δ) ×
+    (Π x, 0 < M₁.ρ x x₀ → M₁.ρ x x₀ < δ → M₂.ρ (f x) L < ε))
+
+  def continuous {M₁ M₂ : Metric} (f : M₁.carrier → M₂.carrier) :=
+  λ x, tendsto f x (f x)
 end ground_zero.algebra
