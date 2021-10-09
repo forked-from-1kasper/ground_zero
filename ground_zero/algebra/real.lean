@@ -10,8 +10,8 @@ namespace ground_zero.algebra
   axiom R : overring.{0 0}
   @[instance] axiom R.dedekind : dedekind R
 
-  notation `ℝ` := R.carrier
-  noncomputable instance : has_one ℝ := R.dedekind.to_has_one
+  notation `ℝ` := Alg.carrier R
+  noncomputable instance R.has_one : has_one ℝ := R.dedekind.to_has_one
 
   def metric {α : Type u} (ρ : α → α → ℝ) :=
     (Π x y, ρ x y = 0 ↔ x = y)

@@ -26,7 +26,7 @@ namespace equiv
   def homotopy {α : Type u} {π : α → Type v}
     (f g : Π (x : α), π x) :=
   Π (x : α), f x = g x :> π x
-  infix ` ~ ` := homotopy
+  infix ` ~ `:80 := homotopy
 
   @[hott, refl] def homotopy.id {α : Type u} {π : α → Type v}
     (f : Π (x : α), π x) : f ~ f :=

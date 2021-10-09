@@ -33,7 +33,7 @@ namespace Id
 
   abbreviation inv {α : Type u} {a b : α} (p : a = b :> α) := symm p
 
-  infixr ` ⬝ ` := trans
+  infixl ` ⬝ `:99 := trans
   postfix ⁻¹ := symm
 
   @[hott] def comp_inv {α : Type u} {a b : α} (p : a = b :> α) :
