@@ -185,10 +185,10 @@ namespace nat
   end
 
   def le (n m : ℕ) := max n m = m
-  infix ≤ := le
+  infix ` ≤ ` := le
 
   def ge (n m : ℕ) : Type := m ≤ n
-  infix ≥ := ge
+  infix ` ≥ ` := ge
 
   @[hott] def max.zero_left (n : ℕ) : max 0 n = n :=
   begin induction n; reflexivity end

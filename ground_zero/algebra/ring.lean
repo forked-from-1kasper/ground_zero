@@ -123,13 +123,13 @@ section
 
   instance : has_zero T.carrier := ⟨T.τ.zero⟩
 
-  infix <= := overring.ρ _
-  infix ≤  := overring.ρ _
-  infix >= := λ x y, overring.ρ _ y x
-  infix ≥  := λ x y, overring.ρ _ y x
+  infix ` <= ` := overring.ρ _
+  infix ` ≤ `  := overring.ρ _
+  infix ` >= ` := λ x y, overring.ρ _ y x
+  infix ` ≥ `  := λ x y, overring.ρ _ y x
 
-  infix < := overring.σ _
-  infix > := λ x y, overring.σ _ y x
+  infix ` < ` := overring.σ _
+  infix ` > ` := λ x y, overring.σ _ y x
 end
 
 namespace prering
