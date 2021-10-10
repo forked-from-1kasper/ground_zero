@@ -308,6 +308,9 @@ namespace nat
     apply proto.empty.elim, apply p, apply le.asymm; assumption
   end
 
+  @[hott] def le.n_le_succ_n (n : ℕ) : le n (n + 1) :=
+  begin induction n with n ih, change _ = _, reflexivity, apply Id.map nat.succ, exact ih end
+
   @[hott] def le.elim (ρ : ℕ → ℕ → Type u)
     (τ : Π n m k, ρ n m → ρ m k → ρ n k)
     (reflρ : Π n, ρ n n) (succρ : Π n, ρ n (n + 1))
@@ -342,6 +345,42 @@ namespace nat
   | (n + 1)    0    := idp (n + 1)
   |    0    (m + 1) := idp (m + 1)
   | (n + 1) (m + 1) := dist.symm n m
+
+  @[hott] def dist.zero_left (n : ℕ) : dist n 0 = n :=
+  begin induction n; reflexivity end
+
+  @[hott] def dist.zero_right (n : ℕ) : dist 0 n = n :=
+  begin induction n; reflexivity end
+
+  @[hott] def dist.succ_left : Π (n m : ℕ), le (dist (n + 1) m) (dist n m + 1)
+  |    0       0    := idp 1
+  | (n + 1)    0    := max.refl (n + 2)
+  |    0    (m + 1) := @equiv.transport ℕ (λ k, le k (m + 2)) m (dist 0 m)
+    (Id.symm (dist.zero_right m)) (le.trans m (m + 1) (m + 2) (le.n_le_succ_n m) (le.n_le_succ_n (m + 1)))
+  | (n + 1) (m + 1) := dist.succ_left n m
+
+  @[hott] def max.le_add : Π (n m : ℕ), le (max n m) (n + m)
+  |    0       0    := idp 0
+  | (n + 1)    0    := max.refl (n + 1)
+  |    0    (m + 1) := @equiv.transport ℕ (le (m + 1)) (m + 1) (0 + (m + 1))
+    (Id.symm (zero_plus_i (m + 1))) (max.refl (m + 1))
+  | (n + 1) (m + 1) := le.trans (max n m + 1) ((n + m) + 1) ((n + 1) + (m + 1))
+    (le.map (max n m) (n + m) (max.le_add n m)) (begin
+      apply equiv.transport (le (n + m + 1)), symmetry,
+      transitivity, apply nat.assoc, transitivity, transitivity, apply Id.map,
+      symmetry, apply nat.assoc, symmetry, apply nat.assoc,
+      apply Id.map (λ k, n + k + 1), apply nat.comm, apply le.n_le_succ_n
+    end)
+
+  -- ℕ-specific property
+  @[hott] def dist.max : Π (n m : ℕ), le (dist n m) (max n m)
+  |    0       0    := idp 0
+  | (n + 1)    0    := max.refl (n + 1)
+  |    0    (m + 1) := max.refl (m + 1)
+  | (n + 1) (m + 1) := le.trans (dist n m) (max n m) (max n m + 1) (dist.max n m) (le.n_le_succ_n (max n m))
+
+  @[hott] def dist.le (n m : ℕ) : le (dist n m) (n + m) :=
+  le.trans (dist n m) (max n m) (n + m) (dist.max n m) (max.le_add n m)
 end nat
 
 namespace unit_list
