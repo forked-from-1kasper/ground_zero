@@ -1,12 +1,12 @@
 # Ground Zero
 
-[![Build Status](https://travis-ci.com/groupoid/lean.svg?branch=master)](https://travis-ci.com/groupoid/lean)
+[![Build Status](https://travis-ci.com/groupoid/ground.zero.svg?branch=master)](https://travis-ci.com/groupoid/ground.zero)
 
 This library provides computable HITs, variation of Cubical Type Theory using them, and some other math.
 
 ## HITs
 
-[Most HITs in the library](https://github.com/groupoid/lean/tree/master/ground_zero/HITs) (except n-truncation) constructed using [quotients](https://leanprover.github.io/theorem_proving_in_lean/axioms_and_computation.html#quotients). Quotients in Lean have good computational properties (`quot.ind` computes), so we can define HITs with them without any other changes in Lean’s kernel.
+[Most HITs in the library](https://github.com/groupoid/lean/tree/master/ground.zero/HITs) (except n-truncation) constructed using [quotients](https://leanprover.github.io/theorem_proving_in_lean/axioms_and_computation.html#quotients). Quotients in Lean have good computational properties (`quot.ind` computes), so we can define HITs with them without any other changes in Lean’s kernel.
 
 There are:
 
@@ -26,7 +26,7 @@ There are:
 * Sphere ![S²](pictures/s2.svg) is the suspension of the circle ![S¹](pictures/s1.svg).
 * Join ![join α β](pictures/join.svg).
 
-## Cubical Type Theory ([cubical/](https://github.com/groupoid/lean/blob/master/ground_zero/cubical/path.lean) directory)
+## Cubical Type Theory ([cubical/](https://github.com/groupoid/lean/blob/master/ground.zero/cubical/path.lean) directory)
 
 In the topology functions from the interval to some type is a paths in this type. In HoTT book path type is defined as a classical inductive type with one constructor:
 
