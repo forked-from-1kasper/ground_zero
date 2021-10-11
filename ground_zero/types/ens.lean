@@ -12,7 +12,7 @@ def ens (α : Type u) : Type (max u (v + 1)) :=
 Σ (φ : α → Type v), Π x, prop (φ x)
 
 def ens.contains {α : Type u} (x : α) (s : ens α) : Type v := s.fst x
-infix ∈ := ens.contains
+infix ` ∈ ` := ens.contains
 
 def ens.prop {α : Type u} (x : α) (s : ens α) : prop (x ∈ s) := s.snd x
 def ens.subtype {α : Type u} (s : ens α) := Σ x, s.fst x

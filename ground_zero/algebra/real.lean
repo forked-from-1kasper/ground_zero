@@ -1,6 +1,7 @@
 import ground_zero.algebra.orgraph
 open ground_zero.structures (zero_eqv_set hset)
-open ground_zero.HITs (merely)
+open ground_zero.algebra.group (S S.carrier Subgroup)
+open ground_zero.HITs (merely merely.uniq merely.elem)
 open ground_zero.theorems
 open ground_zero.types
 
@@ -75,4 +76,26 @@ namespace ground_zero.algebra
     (N.incl.lt 0 m (nat.max.zero_left m)) (le_add_one (N.incl m))
   | (n + 1)    0    := λ p, ground_zero.proto.empty.elim (nat.max.ne_zero p)
   | (n + 1) (m + 1) := λ p, orfield.le_over_add (N.incl n) (N.incl m) 1 (N.incl.lt n m (nat.pred # p))
+
+  def limited {M : Metric} (φ : S.carrier M.1) :=
+  merely (Σ m, Π x, M.ρ x (φ.1 x) ≤ m)
+
+  @[hott] noncomputable def lim (M : Metric) : (S M.1).subgroup :=
+  begin
+    fapply sigma.mk, existsi @limited M, intro, apply merely.uniq, split,
+    { apply merely.elem, existsi R.τ.zero, intro x,
+      apply equiv.transport (λ y, y ≤ R.τ.zero), symmetry,
+      apply M.refl, apply @reflexive.refl R.κ }, split,
+    { intros a b, apply ground_zero.HITs.merely.lift₂,
+      intros p q, existsi q.1 + p.1, intro x,
+      apply @transitive.trans R.κ, apply M.triangle,
+      exact b.1 x, apply ineq_add, apply q.2, apply p.2 },
+    { intro a, apply ground_zero.HITs.merely.lift, intro p, existsi p.1,
+      intro x, apply equiv.transport (λ y, y ≤ p.1),
+      symmetry, transitivity, apply M.symm, apply Id.map (M.ρ _),
+      symmetry, apply equiv.forward_right a, apply p.2 }
+  end
+
+  @[hott] noncomputable def Lim (M : Metric) : pregroup :=
+  Subgroup (S M.1) (lim M)
 end ground_zero.algebra

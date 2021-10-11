@@ -381,6 +381,9 @@ namespace nat
 
   @[hott] def dist.le (n m : ℕ) : le (dist n m) (n + m) :=
   le.trans (dist n m) (max n m) (n + m) (dist.max n m) (max.le_add n m)
+
+  @[hott] def dist.translation (n m k : ℕ) : dist n m = dist (n + k) (m + k) :=
+  begin induction k with k ih, reflexivity, exact ih end
 end nat
 
 namespace unit_list

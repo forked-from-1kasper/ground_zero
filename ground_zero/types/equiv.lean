@@ -74,19 +74,11 @@ namespace equiv
 
   @[hott] def forward {α : Type u} {β : Type v} (e : α ≃ β) : α → β := e.fst
 
-  @[hott] def left {α : Type u} {β : Type v} : α ≃ β → β → α
-  | ⟨_, (⟨g, _⟩, _)⟩ := g
+  @[hott] def left {α : Type u} {β : Type v} (e : α ≃ β) : β → α := e.2.1.1
+  @[hott] def right {α : Type u} {β : Type v} (e : α ≃ β) : β → α := e.2.2.1
 
-  @[hott] def right {α : Type u} {β : Type v} : α ≃ β → β → α
-  | ⟨_, (_, ⟨g, _⟩)⟩ := g
-
-  @[hott] def left_forward {α : Type u} {β : Type v} :
-    Π (e : α ≃ β), e.left ∘ e.forward ~ id
-  | ⟨_, (⟨_, G⟩, _)⟩ := G
-
-  @[hott] def forward_right {α : Type u} {β : Type v} :
-    Π (e : α ≃ β), e.forward ∘ e.right ~ id
-  | ⟨_, (_, ⟨_, G⟩)⟩ := G
+  @[hott] def left_forward {α : Type u} {β : Type v} (e : α ≃ β) : e.left ∘ e.forward ~ id := e.2.1.2
+  @[hott] def forward_right {α : Type u} {β : Type v} (e : α ≃ β) : e.forward ∘ e.right ~ id := e.2.2.2
 
   @[hott, refl] def id (α : Type u) : α ≃ α :=
   begin existsi id, split; { existsi id, intro, reflexivity } end
@@ -105,9 +97,9 @@ namespace equiv
       apply Id.map g, apply H₁, exact H₂ x }
   end
 
-  @[hott, trans] def trans {α : Type u} {β : Type v} {γ : Type w} :
-    α ≃ β → β ≃ γ → α ≃ γ
-  | ⟨f, F⟩ ⟨g, G⟩ := ⟨g ∘ f, biinv_trans F G⟩
+  @[hott, trans] def trans {α : Type u} {β : Type v} {γ : Type w}
+    (f : α ≃ β) (g : β ≃ γ) : α ≃ γ :=
+  ⟨g.1 ∘ f.1, biinv_trans f.2 g.2⟩
 
   @[hott] def idtoeqv {α β : Type u} (p : α = β :> Type u) : α ≃ β :=
   begin induction p, apply id end
@@ -496,14 +488,8 @@ namespace qinv
   def eqv (α : Type u) (β : Type v) :=
   Σ (f : α → β), qinv f
 
-  @[hott] def to_biinv {α : Type u} {β : Type v} (f : α → β) (q : qinv f) :
-    equiv.biinv f :=
-  begin
-    cases q with g H,
-    cases H with α β,
-    split; existsi g,
-    exact β, exact α
-  end
+  @[hott] def to_biinv {α : Type u} {β : Type v} (f : α → β) (q : qinv f) : equiv.biinv f :=
+  (⟨q.1, q.2.2⟩, ⟨q.1, q.2.1⟩)
 
   @[hott] def linv_inv {α : Type u} {β : Type v}
     (f : α → β) (g : β → α) (h : β → α)
@@ -519,15 +505,14 @@ namespace qinv
   let F₂ := λ x, f # (H (g x)) in
   λ x, (F₁ x)⁻¹ ⬝ F₂ x ⬝ G x
 
-  @[hott] def of_biinv {α : Type u} {β : Type v} (f : α → β) :
-    equiv.biinv f → qinv f
-  | (⟨h, H⟩, ⟨g, G⟩) := ⟨g, (G, linv_inv f g h G H)⟩
+  @[hott] def of_biinv {α : Type u} {β : Type v} (f : α → β) (F : equiv.biinv f) : qinv f :=
+  ⟨F.2.1, (F.2.2, linv_inv f F.2.1 F.1.1 F.2.2 F.1.2)⟩
 
-  @[hott] def inv {α : Type u} {β : Type v} : eqv α β → eqv β α
-  | ⟨f, ⟨g, (G, H)⟩⟩ := ⟨g, ⟨f, (H, G)⟩⟩
+  @[hott] def inv {α : Type u} {β : Type v} (e : eqv α β) : eqv β α :=
+  ⟨e.2.1, ⟨e.1, (e.2.2.2, e.2.2.1)⟩⟩
 
-  @[hott] def to_equiv {α : Type u} {β : Type v} : eqv α β → α ≃ β
-  | ⟨f, ⟨g, (G, H)⟩⟩ := ⟨f, (⟨g, H⟩, ⟨g, G⟩)⟩
+  @[hott] def to_equiv {α : Type u} {β : Type v} (e : eqv α β) : α ≃ β :=
+  ⟨e.1, (⟨e.2.1, e.2.2.2⟩, ⟨e.2.1, e.2.2.1⟩)⟩
 end qinv
 
 @[hott] def equiv.forward_left {α : Type u} {β : Type v}
@@ -539,8 +524,8 @@ begin apply qinv.rinv_inv, apply e.forward_right, apply e.left_forward end
 begin apply qinv.linv_inv, apply e.forward_right, apply e.left_forward end
 
 namespace equiv
-  @[hott, symm] def symm {α : Type u} {β : Type v} : α ≃ β → β ≃ α
-  | ⟨f, F⟩ := qinv.to_equiv (qinv.inv ⟨f, qinv.of_biinv f F⟩)
+  @[hott, symm] def symm {α : Type u} {β : Type v} (f : α ≃ β) : β ≃ α :=
+  qinv.to_equiv (qinv.inv ⟨f.1, qinv.of_biinv f.1 f.2⟩)
 end equiv
 
 -- half adjoint equivalence
