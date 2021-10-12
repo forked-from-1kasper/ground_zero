@@ -74,6 +74,9 @@ section
   variables {μ : Type u} {η : Type v} (φ : μ → η)
   def im.aux := ground_zero.theorems.functions.fib_inh φ
   def im : ens η := ⟨im.aux φ, λ _, HITs.merely.uniq⟩
+
+  def im.inh (m : μ) : (im φ).inh :=
+  begin apply HITs.merely.elem, existsi φ m, apply HITs.merely.elem, existsi m, reflexivity end
 end
 
 namespace pregroup

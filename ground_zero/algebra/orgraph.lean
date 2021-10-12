@@ -172,6 +172,20 @@ namespace ground_zero.algebra
   class cocomplete (Γ : orgraph) :=
   (inf : Π (φ : Γ.subset), φ.inh → minorized φ → coexactness (Minorant φ))
 
+  @[hott] def supremum_uniqueness {Γ : orgraph} [total Γ] (φ : Γ.subset) : prop (Σ M, exact (Majorant φ) M) :=
+  begin
+    intros p q, apply sigma.prod, apply ground_zero.structures.product_prop,
+    apply ens.prop, iterate 2 { apply pi_prop, intro }, apply Γ.prop, apply antisymmetric.asymm,
+    { apply p.2.2, apply q.2.1 }, { apply q.2.2, apply p.2.1 }
+  end
+
+  @[hott] def infimum_uniqueness {Γ : orgraph} [total Γ] (φ : Γ.subset) : prop (Σ M, coexact (Minorant φ) M) :=
+  begin
+    intros p q, apply sigma.prod, apply ground_zero.structures.product_prop,
+    apply ens.prop, iterate 2 { apply pi_prop, intro }, apply Γ.prop, apply antisymmetric.asymm,
+    { apply q.2.2, apply p.2.1 }, { apply p.2.2, apply q.2.1 }
+  end
+
   def Neg {T : prering} (φ : T.subset) : T.subset :=
   ⟨λ a, T.neg a ∈ φ, λ a, ens.prop (T.neg a) φ⟩
 

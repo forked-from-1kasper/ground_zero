@@ -1,7 +1,7 @@
 import ground_zero.algebra.orgraph
-open ground_zero.structures (zero_eqv_set hset)
+open ground_zero.HITs (merely merely.uniq merely.elem merely.rec merely.lift)
+open ground_zero.structures (zero_eqv_set hset prop pi_prop)
 open ground_zero.algebra.group (S S.carrier Subgroup)
-open ground_zero.HITs (merely merely.uniq merely.elem)
 open ground_zero.theorems
 open ground_zero.types
 
@@ -77,8 +77,42 @@ namespace ground_zero.algebra
   | (n + 1)    0    := λ p, ground_zero.proto.empty.elim (nat.max.ne_zero p)
   | (n + 1) (m + 1) := λ p, orfield.le_over_add (N.incl n) (N.incl m) 1 (N.incl.lt n m (nat.pred # p))
 
+  @[hott] noncomputable def R.complete (φ : R.subset) (H : φ.inh) (G : @majorized R.κ φ) :
+    Σ M, exact (@Majorant R.κ φ) M :=
+  ((ground_zero.theorems.prop.prop_equiv (@supremum_uniqueness R.κ _ φ)).left
+    (@complete.sup R.κ R.dedekind.to_complete φ H G))
+
+  @[hott] noncomputable def R.cocomplete (φ : R.subset) (H : φ.inh) (G : @minorized R.κ φ) :
+    Σ m, coexact (@Minorant R.κ φ) m :=
+  ((ground_zero.theorems.prop.prop_equiv (@infimum_uniqueness R.κ _ φ)).left
+    (@cocomplete.inf R.κ (orfield_cocomplete_if_complete R.dedekind.to_complete) φ H G))
+
+  @[hott] noncomputable def sup (φ : R.subset) (H : φ.inh) (G : @majorized R.κ φ) : ℝ :=
+  (R.complete φ H G).1
+
+  @[hott] noncomputable def sup.lawful (φ : R.subset) (H : φ.inh) (G : @majorized R.κ φ) :
+    Π x, x ∈ φ → x ≤ sup φ H G :=
+  (R.complete φ H G).2.1
+
+  @[hott] noncomputable def inf (φ : R.subset) (H : φ.inh) (G : @minorized R.κ φ) : ℝ :=
+  (R.cocomplete φ H G).1
+
+  @[hott] noncomputable def inf.lawful (φ : R.subset) (H : φ.inh) (G : @minorized R.κ φ) :
+    Π x, x ∈ φ → inf φ H G ≤ x :=
+  (R.cocomplete φ H G).2.1
+
+  def diameter {M : Metric} (φ : S.carrier M.1) :=
+  im (λ x, M.ρ x (φ.1 x))
+
   def limited {M : Metric} (φ : S.carrier M.1) :=
   merely (Σ m, Π x, M.ρ x (φ.1 x) ≤ m)
+
+  @[hott] noncomputable def diameter.majorized_if_limited {M : Metric}
+    (φ : S.carrier M.1) : limited φ → @majorized R.κ (diameter φ) :=
+  begin
+    apply merely.lift, intro H, existsi H.1, intro x, apply merely.rec, apply R.κ.prop,
+    intro p, apply equiv.transport (λ y, y ≤ H.1), apply p.2, apply H.2
+  end
 
   @[hott] noncomputable def lim (M : Metric) : (S M.1).subgroup :=
   begin
@@ -98,4 +132,7 @@ namespace ground_zero.algebra
 
   @[hott] noncomputable def Lim (M : Metric) : pregroup :=
   Subgroup (S M.1) (lim M)
+
+  @[hott] noncomputable def ω (M : Metric) (m : M.carrier) (φ : (Lim M).carrier) : ℝ :=
+  sup (diameter φ.1) (im.inh _ m) (diameter.majorized_if_limited φ.1 φ.2)
 end ground_zero.algebra
