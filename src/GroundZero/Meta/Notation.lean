@@ -21,7 +21,7 @@ macro_rules | `(Π $xs*, $y) => `(∀ $xs*, $y)
 
 notation x "↦" f => fun x => f
 
-macro "begin " ts:sepBy(tactic, ";") "end"%i : term => do
+macro "begin " ts:tactic,*,? i:"end" : term => do
   `(by { $[$ts:tactic]* }%$i)
 
 section

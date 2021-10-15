@@ -1,7 +1,7 @@
 import GroundZero.Meta.Notation
 
 namespace GroundZero.Proto
-universes u v w
+universe u v w
 
 def idfun {α : Sort u} : α → α :=
 (a ↦ a)
@@ -11,7 +11,7 @@ inductive Empty : Type u
 structure Iff (α : Sort u) (β : Sort v) :=
 (left : α → β) (right : β → α)
 
-infix "↔" => iff
+infix:30 " ↔ " => Iff
 
 notation "𝟎" => Empty
 notation "𝟐" => Bool

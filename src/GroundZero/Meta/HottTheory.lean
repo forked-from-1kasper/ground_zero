@@ -20,7 +20,7 @@ partial def instArgsAux : LocalContext → Expr → MetaM (LocalContext × Expr)
 | lctx, e => do
   let τ ← Meta.inferType e >>= Meta.whnf;
   if τ.isForall then do
-    let varId ← mkFreshId
+    let varId ← mkFreshFVarId
     let lctx' := lctx.mkLocalDecl varId τ.bindingName! τ.bindingDomain! τ.bindingInfo!
 
     withReader (λ ctx => { ctx with lctx := lctx' }) do
@@ -43,7 +43,7 @@ def isProof : LocalContext → Expr → MetaM Bool :=
 def mkNumMetaUnivs : Nat → MetaM (List Level)
 | 0     => return []
 | n + 1 => do
-  let id ← mkFreshId;
+  let id ← mkFreshMVarId;
   let xs ← mkNumMetaUnivs n;
   return (mkLevelMVar id :: xs)
 
