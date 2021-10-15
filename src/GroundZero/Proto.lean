@@ -1,9 +1,10 @@
+import GroundZero.Meta.HottTheory
 import GroundZero.Meta.Notation
 
 namespace GroundZero.Proto
 universe u v w
 
-def idfun {α : Sort u} : α → α :=
+hott def idfun {α : Sort u} : α → α :=
 (a ↦ a)
 
 inductive Empty : Type u

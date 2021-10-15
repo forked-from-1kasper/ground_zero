@@ -71,11 +71,15 @@ def checkLargeElim (chain : List Name) (name : Name) : MetaM Unit := do
   let largeElim? ← hasLargeElim name;
   if largeElim? then throwError "uses large eliminator: {renderChain chain}"
 
--- Should be replaced by environment extension in future
-initialize hottDecls : IO.Ref NameSet ← IO.mkRef {}
+initialize hottDecls : SimplePersistentEnvExtension Name NameSet ←
+  registerSimplePersistentEnvExtension {
+    name          := `hottDecls
+    addEntryFn    := NameSet.insert
+    addImportedFn := fun es => mkStateFromImportedEntries NameSet.insert {} es
+  }
 
-def checked? (decl : Name) : IO Bool := do
-  let xs ← hottDecls.get
+def checked? (decl : Name) : MetaM Bool := do
+  let xs ← hottDecls.getState (← getEnv)
   pure (xs.contains decl)
 
 partial def checkDeclAux (chain : List Name) (name : Name) : MetaM Unit := do
@@ -115,7 +119,7 @@ leading_parser declModifiers false >> "hott " >> («def» <|> «theorem»)
   checkDecl name
   |> Elab.Command.liftTermElabM name
 
-  hottDecls.modify (λ xs => xs.insert name)
+  modifyEnv λ env => hottDecls.addEntry env name
 | _ => throwError "unknown declaration"
 
 end GroundZero.Meta.HottTheory
