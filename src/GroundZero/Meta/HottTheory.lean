@@ -41,7 +41,7 @@ def isProof : LocalContext → Expr → MetaM Bool :=
 λ lctx e => Meta.inferType e >>= isProp lctx
 
 def mkNumMetaUnivs : Nat → MetaM (List Level)
-| 0     => return []
+|   0   => return []
 | n + 1 => do
   let id ← mkFreshMVarId;
   let xs ← mkNumMetaUnivs n;
@@ -78,15 +78,26 @@ initialize hottDecls : SimplePersistentEnvExtension Name NameSet ←
     addImportedFn := fun es => mkStateFromImportedEntries NameSet.insert {} es
   }
 
+initialize nothott : TagAttribute ← registerTagAttribute `nothott "Marks a defintion as unsafe for HoTT"
+initialize hottAxiom : TagAttribute ← registerTagAttribute `hottAxiom "Unsafely marks a definition as safe for HoTT"
+
 def checked? (decl : Name) : MetaM Bool := do
-  let xs ← hottDecls.getState (← getEnv)
-  pure (xs.contains decl)
+  let env ← getEnv
+  let checked ← (← hottDecls.getState env).contains decl
+  let isSafe ← hottAxiom.hasTag env decl
+
+  pure (checked ∨ isSafe)
+
+def checkNotNotHoTT (env : Environment) (decl : Name) : MetaM Unit := do
+  if nothott.hasTag env decl then
+    throwError "marked as [nothott]: {decl}"
+  else return ()
 
 partial def checkDeclAux (chain : List Name) (name : Name) : MetaM Unit := do
   let env ← getEnv
 
-  let isHott ← checked? name
-  if ¬isHott then
+  if ¬(← checked? name) then
+    checkNotNotHoTT env name
     match env.find? name with
     | some (ConstantInfo.recInfo v) =>
       List.forM v.all (checkLargeElim chain)
@@ -114,7 +125,7 @@ leading_parser declModifiers false >> "hott " >> («def» <|> «theorem»)
   let name := ns ++ declName
 
   mkNode `Lean.Parser.Command.declaration #[mods, cmd]
-  |> Elab.Command.elabDeclaration 
+  |> Elab.Command.elabDeclaration
 
   checkDecl name
   |> Elab.Command.liftTermElabM name
