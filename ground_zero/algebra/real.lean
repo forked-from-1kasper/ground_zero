@@ -133,6 +133,16 @@ namespace ground_zero.algebra
   @[hott] noncomputable def Lim (M : Metric) : pregroup :=
   Subgroup (S M.1) (lim M)
 
-  @[hott] noncomputable def ω (M : Metric) (m : M.carrier) (φ : (Lim M).carrier) : ℝ :=
-  sup (diameter φ.1) (im.inh _ m) (diameter.majorized_if_limited φ.1 φ.2)
+  noncomputable abbreviation Lim.φ {M : Metric} := (Lim M).φ
+  noncomputable abbreviation Lim.ι {M : Metric} := (Lim M).ι
+
+  def Metric.pointed := Σ (M : Metric), M.carrier
+  notation `Metric⁎` := Metric.pointed
+
+  @[hott] noncomputable def ω (M : Metric⁎) (φ : (Lim M.1).carrier) : ℝ :=
+  sup (diameter φ.1) (im.inh _ M.2) (diameter.majorized_if_limited φ.1 φ.2)
+
+  @[hott] noncomputable def sup.eqv {φ ψ : R.subset} {H₁ : φ.inh} {H₂ : ψ.inh}
+    {G₁ : @majorized R.κ φ} {G₂ : @majorized R.κ ψ} (p : φ = ψ) : sup φ H₁ G₁ = sup ψ H₂ G₂ :=
+  begin induction p, apply equiv.bimap; apply merely.uniq end
 end ground_zero.algebra

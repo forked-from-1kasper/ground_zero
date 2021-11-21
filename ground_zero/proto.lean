@@ -8,7 +8,7 @@ inductive empty : Sort u
 structure iff (α : Sort u) (β : Sort v) :=
 (left : α → β) (right : β → α)
 
-infix ↔ := iff
+infix ` ↔ ` := iff
 
 @[symm] def iff.symm {α : Sort u} {β : Sort v} : (α ↔ β) → (β ↔ α) :=
 λ p, ⟨p.right, p.left⟩
