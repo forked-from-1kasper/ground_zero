@@ -179,11 +179,10 @@ namespace ground_zero.algebra
 
   @[hott] noncomputable def ω.inv_le (M : Metric⁎) (φ : (Lim M.1).carrier) : ω M (Lim.ι φ) ≤ ω M φ :=
   begin
-    apply sup.ssubset, intro x, apply merely.lift, intro p, induction p with y p,
-    existsi (Lim.ι φ).1.1 y, symmetry, transitivity, apply Id.symm p,
-    transitivity, apply M.1.symm, apply Id.map, symmetry,
-    apply @ground_zero.HITs.interval.happly _ _ (Lim.φ φ (Lim.ι φ)).1.1 (Lim M.1).e.1.1,
-    apply Id.map (λ (φ : (Lim M.1).carrier), φ.1.1), apply @group.mul_right_inv (Lim M.1) _ φ
+    apply sup.ssubset, intro x, apply merely.lift, intro p,
+    induction p with y p, induction p, existsi (Lim.ι φ).1.1 y,
+    symmetry, transitivity, apply M.1.symm,
+    apply Id.map, symmetry, apply φ.1.forward_right
   end
 
   @[hott] noncomputable def ω.inv (M : Metric⁎) (φ : (Lim M.1).carrier) : ω M (Lim.ι φ) = ω M φ :=
@@ -192,4 +191,17 @@ namespace ground_zero.algebra
     apply equiv.transport (λ ψ, ω M ψ ≤ ω M (Lim.ι φ)),
     apply @group.inv_inv (Lim M.1), apply ω.inv_le
   end
+
+  @[hott] noncomputable def ω.mul_rev (M : Metric⁎) (φ ψ : (Lim M.1).carrier) :
+    ω M (Lim.φ φ ψ) ≤ ω M ψ + ω M φ :=
+  begin
+    apply sup.exact, intro x, apply merely.rec, apply R.κ.prop,
+    intro p, induction p with y p, induction p, apply @transitive.trans R.κ,
+    apply M.1.triangle, exact ψ.1.1 y, apply ineq_add;
+    { apply sup.lawful, apply im.intro }
+  end
+
+  @[hott] noncomputable def ω.mul (M : Metric⁎) (φ ψ : (Lim M.1).carrier) :
+    ω M (Lim.φ φ ψ) ≤ ω M φ + ω M ψ :=
+  begin apply equiv.transport (λ y, ω M (Lim.φ φ ψ) ≤ y), apply R.τ⁺.mul_comm, apply ω.mul_rev end
 end ground_zero.algebra

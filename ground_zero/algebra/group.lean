@@ -75,8 +75,11 @@ section
   def im.aux := ground_zero.theorems.functions.fib_inh φ
   def im : ens η := ⟨im.aux φ, λ _, HITs.merely.uniq⟩
 
+  def im.intro (m : μ): φ m ∈ im φ :=
+  begin apply HITs.merely.elem, existsi m, reflexivity end
+
   def im.inh (m : μ) : (im φ).inh :=
-  begin apply HITs.merely.elem, existsi φ m, apply HITs.merely.elem, existsi m, reflexivity end
+  begin apply HITs.merely.elem, existsi φ m, apply im.intro end
 end
 
 namespace pregroup
