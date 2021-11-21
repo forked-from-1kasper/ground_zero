@@ -94,12 +94,20 @@ namespace ground_zero.algebra
     Π x, x ∈ φ → x ≤ sup φ H G :=
   (R.complete φ H G).2.1
 
+  @[hott] noncomputable def sup.exact (φ : R.subset) (H : φ.inh) (G : @majorized R.κ φ)
+    (x : ℝ) (p : Π y, y ∈ φ → y ≤ x) : sup φ H G ≤ x :=
+  begin apply (R.complete φ H G).2.2, apply p end
+
   @[hott] noncomputable def inf (φ : R.subset) (H : φ.inh) (G : @minorized R.κ φ) : ℝ :=
   (R.cocomplete φ H G).1
 
   @[hott] noncomputable def inf.lawful (φ : R.subset) (H : φ.inh) (G : @minorized R.κ φ) :
     Π x, x ∈ φ → inf φ H G ≤ x :=
   (R.cocomplete φ H G).2.1
+
+  @[hott] noncomputable def inf.exact (φ : R.subset) (H : φ.inh) (G : @minorized R.κ φ)
+    (x : ℝ) (p : Π y, y ∈ φ → x ≤ y) : x ≤ inf φ H G :=
+  begin apply (R.cocomplete φ H G).2.2, apply p end
 
   def diameter {M : Metric} (φ : S.carrier M.1) :=
   im (λ x, M.ρ x (φ.1 x))
@@ -133,6 +141,9 @@ namespace ground_zero.algebra
   @[hott] noncomputable def Lim (M : Metric) : pregroup :=
   Subgroup (S M.1) (lim M)
 
+  noncomputable instance Lim.group (M : Metric) : group (Lim M) :=
+  group.subgroup.group
+
   noncomputable abbreviation Lim.φ {M : Metric} := (Lim M).φ
   noncomputable abbreviation Lim.ι {M : Metric} := (Lim M).ι
 
@@ -145,4 +156,40 @@ namespace ground_zero.algebra
   @[hott] noncomputable def sup.eqv {φ ψ : R.subset} {H₁ : φ.inh} {H₂ : ψ.inh}
     {G₁ : @majorized R.κ φ} {G₂ : @majorized R.κ ψ} (p : φ = ψ) : sup φ H₁ G₁ = sup ψ H₂ G₂ :=
   begin induction p, apply equiv.bimap; apply merely.uniq end
+
+  @[hott] noncomputable def sup.le {φ ψ : R.subset} {H₁ : φ.inh} {H₂ : ψ.inh}
+    {G₁ : @majorized R.κ φ} {G₂ : @majorized R.κ ψ} (y : ℝ) (p : y ∈ ψ)
+    (r : Π x, x ∈ φ → x ≤ y) : sup φ H₁ G₁ ≤ sup ψ H₂ G₂ :=
+  begin
+    apply sup.exact, intros x q, apply @transitive.trans R.κ _,
+    apply r, exact q, apply sup.lawful, exact p
+  end
+
+  @[hott] noncomputable def sup.sep {φ ψ : R.subset} {H₁ : φ.inh} {H₂ : ψ.inh}
+    {G₁ : @majorized R.κ φ} {G₂ : @majorized R.κ ψ} (r : Π x y, x ∈ φ → y ∈ ψ → x ≤ y) :
+      sup φ H₁ G₁ ≤ sup ψ H₂ G₂ :=
+  begin
+    apply merely.rec _ _ H₂, apply R.κ.prop, intro p, induction p with y p,
+    apply sup.le, apply p, intros x q, apply r; assumption
+  end
+
+  @[hott] noncomputable def sup.ssubset {φ ψ : R.subset} {H₁ : φ.inh} {H₂ : ψ.inh}
+    {G₁ : @majorized R.κ φ} {G₂ : @majorized R.κ ψ} (r : φ ⊆ ψ) : sup φ H₁ G₁ ≤ sup ψ H₂ G₂ :=
+  begin apply sup.exact, intros y p, apply sup.lawful, apply r, assumption end
+
+  @[hott] noncomputable def ω.inv_le (M : Metric⁎) (φ : (Lim M.1).carrier) : ω M (Lim.ι φ) ≤ ω M φ :=
+  begin
+    apply sup.ssubset, intro x, apply merely.lift, intro p, induction p with y p,
+    existsi (Lim.ι φ).1.1 y, symmetry, transitivity, apply Id.symm p,
+    transitivity, apply M.1.symm, apply Id.map, symmetry,
+    apply @ground_zero.HITs.interval.happly _ _ (Lim.φ φ (Lim.ι φ)).1.1 (Lim M.1).e.1.1,
+    apply Id.map (λ (φ : (Lim M.1).carrier), φ.1.1), apply @group.mul_right_inv (Lim M.1) _ φ
+  end
+
+  @[hott] noncomputable def ω.inv (M : Metric⁎) (φ : (Lim M.1).carrier) : ω M (Lim.ι φ) = ω M φ :=
+  begin
+    apply @antisymmetric.asymm R.κ, apply ω.inv_le,
+    apply equiv.transport (λ ψ, ω M ψ ≤ ω M (Lim.ι φ)),
+    apply @group.inv_inv (Lim M.1), apply ω.inv_le
+  end
 end ground_zero.algebra

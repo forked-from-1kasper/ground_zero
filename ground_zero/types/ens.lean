@@ -49,7 +49,7 @@ def ens.inf_inter {α : Type u} (φ : ens (ens α)) : ens α := ens.smallest φ.
 
 def ens.ssubset {α : Type u} (φ : ens.{u v} α) (ψ : ens.{u w} α) :=
 Π x, x ∈ φ → x ∈ ψ
-infix ⊆ := ens.ssubset
+infix ` ⊆ ` := ens.ssubset
 
 @[hott] def ens.ssubset.prop {α : Type u}
   (φ : ens.{u v} α) (ψ : ens.{u w} α) : prop (φ ⊆ ψ) :=

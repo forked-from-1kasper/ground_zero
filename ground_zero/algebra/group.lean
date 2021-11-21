@@ -741,17 +741,11 @@ namespace group
     include H
 
     @[hott] def subgroup.mul (x y : φ.subtype) : φ.subtype :=
-    begin
-      induction x with x p, induction y with y q,
-      existsi (H.φ x y), apply φ.mul; assumption
-    end
+    begin existsi H.φ x.1 y.1, apply φ.mul, apply x.2, apply y.2 end
     local infix ` ∗ `:70 := @subgroup.mul H φ
 
     @[hott] def subgroup.inv (x : φ.subtype) : φ.subtype :=
-    begin
-      induction x with x p, existsi (H.ι x),
-      apply φ.inv, assumption
-    end
+    begin existsi H.ι x.1, apply φ.inv, apply x.2 end
 
     @[hott] def subgroup.unit : φ.subtype := ⟨H.e, φ.unit⟩
 
@@ -1620,7 +1614,8 @@ namespace group
   @[hott] def homo.id.iso : G ≅ Im (homo.id G) :=
   begin
     fapply mkiso, exact homo.id.encode,
-    { intros a b, reflexivity },
+    { intros a b, fapply sigma.prod,
+      reflexivity, apply ens.prop },
     split; existsi homo.id.decode,
     { intro x, reflexivity }, assumption,
     { intro x, induction x with x H,

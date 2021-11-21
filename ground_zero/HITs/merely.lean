@@ -143,14 +143,17 @@ namespace merely
   @[hott] def lift {α : Type u} {β : Type v} (f : α → β) : ∥α∥ → ∥β∥ :=
   rec uniq (elem ∘ f)
 
+  @[hott] def rec₂ {α : Type u} {β : Type v} {γ : Type w} (h : prop γ)
+    (f : α → β → γ) : ∥α∥ → ∥β∥ → γ :=
+  begin
+    fapply @rec α (∥β∥ → γ),
+    { apply ground_zero.structures.impl_prop, apply h },
+    { intro a, fapply rec h, exact f a }
+  end
+
   @[hott] def lift₂ {α : Type u} {β : Type v} {γ : Type w}
     (f : α → β → γ) : ∥α∥ → ∥β∥ → ∥γ∥ :=
-  begin
-    fapply @rec α (∥β∥ → ∥γ∥),
-    { apply ground_zero.structures.impl_prop, apply uniq },
-    { intro a, fapply rec, apply uniq,
-      intro b, apply elem, exact f a b }
-  end
+  begin apply rec₂, apply uniq, intros a b, apply elem (f a b) end
 
   @[hott] theorem equiv_iff_trunc {α β : Type u}
     (f : α → β) (g : β → α) : ∥α∥ ≃ ∥β∥ :=
