@@ -347,4 +347,44 @@ namespace ground_zero.algebra
       apply ineq_add; apply abs.le },
     { apply ineq_add; apply abs.ge }
   end
+
+  @[hott] noncomputable def triangle_sub (x y z : ℝ) : abs (x - z) ≤ abs (x - y) + abs (y - z) :=
+  begin
+    apply equiv.transport (λ w, w ≤ abs (x - y) + abs (y - z)),
+    apply Id.map abs, apply @group.chain_rdiv R.τ⁺ _ x y z, apply triangle
+  end
+
+  @[hott] noncomputable def abs.zero : abs 0 = 0 :=
+  begin apply abs.pos, apply @reflexive.refl R.κ end
+
+  @[hott] noncomputable def R.le_if_eq {x y : ℝ} (p : x = y) : x ≤ y :=
+  begin induction p, apply @reflexive.refl R.κ end
+
+  @[hott] noncomputable def R.ge_if_eq {x y : ℝ} (p : x = y) : x ≤ y :=
+  begin induction p, apply @reflexive.refl R.κ end
+
+  @[hott] noncomputable def abs.zero_if (x : ℝ) (p : abs x = 0) : x = 0 :=
+  begin
+    apply @antisymmetric.asymm R.κ, { induction p, apply abs.ge },
+    { apply equiv.transport (λ y, y ≤ x), symmetry, apply @group.unit_inv R.τ⁺,
+      apply @transitive.trans R.κ, apply minus_inv_sign,
+      apply R.le_if_eq p, apply abs.le }
+  end
+
+  @[hott] noncomputable def R.metrizable : metric (λ x y, abs (x - y)) :=
+  begin
+    apply (_, (_, _)),
+    { intros x y, split; intro p,
+      { apply @group.eq_of_rdiv_eq R.τ⁺,
+        apply abs.zero_if, assumption },
+      { induction p, change abs (x - x) = _, transitivity,
+        apply Id.map, apply @group.mul_right_inv R.τ⁺, apply abs.zero } },
+    { intros x y, transitivity, apply abs.even, apply Id.map,
+      transitivity, apply @group.inv_explode R.τ⁺,
+      apply Id.map (λ z, z - x), apply @group.inv_inv R.τ⁺ },
+    { apply triangle_sub }
+  end
+
+  @[hott] noncomputable def Rₘ : Metric :=
+  ⟨R.1, ⟨λ x y, abs (x - y), R.metrizable⟩⟩
 end ground_zero.algebra

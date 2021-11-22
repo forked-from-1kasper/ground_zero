@@ -237,6 +237,9 @@ namespace group
     (h : @left_div G x y = e) : x = y :=
   Id.inv (inv_inv x) ⬝ (inv_eq_of_mul_eq_one h)
 
+  @[hott] def eq_of_rdiv_eq {x y : G.carrier} (h : x / y = e) : x = y :=
+  inv_inj (inv_eq_of_mul_eq_one h)
+
   section
     variables {H K : pregroup}
 
