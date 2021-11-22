@@ -164,6 +164,18 @@ namespace ground_zero.algebra
   @[hott] noncomputable def inv_minus_sign (T : overring) [orfield T] (a b : T.carrier) (p : -a ≤ -b) : a ≥ b :=
   begin apply equiv.transportconst, apply equiv.bimap; apply @group.inv_inv T.τ⁺, apply minus_inv_sign, assumption end
 
+  @[hott] noncomputable def ge_if_minus_le (T : overring) [orfield T] (a b : T.carrier) (p : -a ≤ b) : a ≥ -b :=
+  begin
+    apply inv_minus_sign, apply equiv.transport (λ c, -a ≤ c),
+    symmetry, apply @group.inv_inv T.τ⁺, assumption
+  end
+
+  @[hott] noncomputable def ge_minus_if_le (T : overring) [orfield T] (a b : T.carrier) (p : a ≤ -b) : -a ≥ b :=
+  begin
+    apply inv_minus_sign, apply equiv.transport (λ c, c ≤ -b),
+    symmetry, apply @group.inv_inv T.τ⁺, assumption
+  end
+
   -- or complete at top
   class complete (Γ : orgraph) :=
   (sup : Π (φ : Γ.subset), φ.inh → majorized φ → exactness (Majorant φ))

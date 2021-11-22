@@ -321,6 +321,24 @@ namespace ground_zero.algebra
       apply @group.inv_inv R.τ⁺, assumption }
   end
 
+  @[hott] noncomputable def abs.ge_zero (x : ℝ) : 0 ≤ abs x :=
+  begin
+    cases (R.total 0 x) with p q,
+    { apply equiv.transport (λ (y : ℝ), 0 ≤ y),
+      symmetry, apply abs.pos p, assumption },
+    { apply equiv.transport (λ (y : ℝ), 0 ≤ y), symmetry, apply abs.neg q.2,
+      apply R.zero_ge_impl_zero_le_minus, exact q.2, }
+  end
+
+  @[hott] noncomputable def abs.le_if_abs_le (x y : ℝ) (r : abs y ≤ x) : y ≤ x :=
+  begin apply @transitive.trans R.κ, apply abs.ge, assumption end
+
+  @[hott] noncomputable def abs.ge_if_abs_le (x y : ℝ) (r : abs y ≤ x) : -x ≤ y :=
+  begin
+    apply ge_if_minus_le, apply @transitive.trans R.κ,
+    apply ge_if_minus_le, apply abs.le, assumption
+  end
+
   @[hott] noncomputable def triangle (x y : ℝ) : abs (x + y) ≤ abs x + abs y :=
   begin
     apply abs.le_if_minus_le_and_le,
