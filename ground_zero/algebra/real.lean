@@ -230,5 +230,5 @@ namespace ground_zero.algebra
   end
 
   @[hott] noncomputable def abs (x : ℝ) : ℝ :=
-  coproduct.elim (λ _, x) (λ _, -x) (R.total x 0)
+  coproduct.elim (λ _, x) (λ _, -x) (R.total 0 x)
 end ground_zero.algebra
