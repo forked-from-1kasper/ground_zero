@@ -204,4 +204,31 @@ namespace ground_zero.algebra
   @[hott] noncomputable def ω.mul (M : Metric⁎) (φ ψ : (Lim M.1).carrier) :
     ω M (Lim.φ φ ψ) ≤ ω M φ + ω M ψ :=
   begin apply equiv.transport (λ y, ω M (Lim.φ φ ψ) ≤ y), apply R.τ⁺.mul_comm, apply ω.mul_rev end
+
+  @[hott] noncomputable def R.total_is_prop (x y : ℝ) : prop ((x ≤ y) + (x > y)) :=
+  begin
+    intros p q, induction p with p₁ p₂; induction q with q₁ q₂,
+    { apply Id.map, apply R.κ.prop },
+    { apply ground_zero.proto.empty.elim, apply q₂.1,
+      apply @antisymmetric.asymm R.κ, apply q₂.2, apply p₁ },
+    { apply ground_zero.proto.empty.elim, apply p₂.1,
+      apply @antisymmetric.asymm R.κ, apply p₂.2, apply q₁ },
+    { apply Id.map, induction p₂ with p p', induction q₂ with q q',
+      apply product.prod, apply ground_zero.structures.not_is_prop, apply R.κ.prop }
+  end
+
+  @[hott] noncomputable def R.total (x y : ℝ) : (x ≤ y) + (x > y) :=
+  begin
+    apply (ground_zero.theorems.prop.prop_equiv _).left,
+    apply merely.lift _ (@connected.total R.κ _ x y),
+    { intro H, induction H with p q, left, assumption,
+      cases @classical.lem (x = y) _ with p₁ p₂,
+      left, induction p₁, apply @reflexive.refl R.κ,
+      right, split, intro r, apply p₂,
+      exact Id.symm r, exact q, apply R.hset },
+    { apply R.total_is_prop }
+  end
+
+  @[hott] noncomputable def abs (x : ℝ) : ℝ :=
+  coproduct.elim (λ _, x) (λ _, -x) (R.total x 0)
 end ground_zero.algebra
