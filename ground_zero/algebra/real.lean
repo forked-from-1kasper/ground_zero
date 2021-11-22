@@ -288,4 +288,45 @@ namespace ground_zero.algebra
     { transitivity, apply abs.neg q.2, symmetry, apply abs.pos,
       apply R.zero_ge_impl_zero_le_minus q.2 }
   end
+
+  @[hott] noncomputable def abs.ge (x : ℝ) : x ≤ abs x :=
+  begin
+    cases (R.total 0 x) with p q,
+    { apply equiv.transport (λ y, x ≤ y), symmetry,
+      apply abs.pos p, apply @reflexive.refl R.κ },
+    { apply equiv.transport (λ y, x ≤ y), symmetry,
+      apply abs.neg q.2, apply @transitive.trans R.κ,
+      apply q.2, apply R.zero_ge_impl_zero_le_minus q.2 }
+  end
+
+  @[hott] noncomputable def abs.le (x : ℝ) : -(abs x) ≤ x :=
+  begin
+    cases (R.total 0 x) with p q,
+    { apply equiv.transport (λ (y : ℝ), y ≤ x), symmetry,
+      apply Id.map, apply abs.pos p, apply @transitive.trans R.κ,
+      apply R.zero_le_impl_zero_ge_minus p, assumption },
+    { apply equiv.transport (λ (y : ℝ), y ≤ x), symmetry,
+      transitivity, apply Id.map, apply abs.neg q.2,
+      apply @group.inv_inv R.τ⁺, apply @reflexive.refl R.κ }
+  end
+
+  @[hott] noncomputable def abs.le_if_minus_le_and_le (x y : ℝ) (r₁ : -x ≤ y) (r₂ : y ≤ x) : abs y ≤ x :=
+  begin
+    cases (R.total 0 y) with p q,
+    { apply equiv.transport (λ z, z ≤ x), symmetry,
+      apply abs.pos p, assumption },
+    { apply equiv.transport (λ z, z ≤ x), symmetry,
+      apply abs.neg q.2, apply inv_minus_sign,
+      apply equiv.transport (λ z, -x ≤ z), symmetry,
+      apply @group.inv_inv R.τ⁺, assumption }
+  end
+
+  @[hott] noncomputable def triangle (x y : ℝ) : abs (x + y) ≤ abs x + abs y :=
+  begin
+    apply abs.le_if_minus_le_and_le,
+    { apply equiv.transport (λ z, z ≤ x + y), symmetry, transitivity,
+      apply @group.inv_explode R.τ⁺, apply R.τ⁺.mul_comm,
+      apply ineq_add; apply abs.le },
+    { apply ineq_add; apply abs.ge }
+  end
 end ground_zero.algebra
