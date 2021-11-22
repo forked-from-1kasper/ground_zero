@@ -205,14 +205,15 @@ namespace ground_zero.algebra
     ω M (Lim.φ φ ψ) ≤ ω M φ + ω M ψ :=
   begin apply equiv.transport (λ y, ω M (Lim.φ φ ψ) ≤ y), apply R.τ⁺.mul_comm, apply ω.mul_rev end
 
+  @[hott] noncomputable def R.not_not_total (x y : ℝ) : (x ≤ y) → (x > y) → 𝟎 :=
+  begin intros p q, apply q.1, apply @antisymmetric.asymm R.κ, exact q.2, exact p end
+
   @[hott] noncomputable def R.total_is_prop (x y : ℝ) : prop ((x ≤ y) + (x > y)) :=
   begin
     intros p q, induction p with p₁ p₂; induction q with q₁ q₂,
     { apply Id.map, apply R.κ.prop },
-    { apply ground_zero.proto.empty.elim, apply q₂.1,
-      apply @antisymmetric.asymm R.κ, apply q₂.2, apply p₁ },
-    { apply ground_zero.proto.empty.elim, apply p₂.1,
-      apply @antisymmetric.asymm R.κ, apply p₂.2, apply q₁ },
+    { apply ground_zero.proto.empty.elim, apply R.not_not_total x y; assumption },
+    { apply ground_zero.proto.empty.elim, apply R.not_not_total x y; assumption },
     { apply Id.map, induction p₂ with p p', induction q₂ with q q',
       apply product.prod, apply ground_zero.structures.not_is_prop, apply R.κ.prop }
   end
@@ -231,4 +232,60 @@ namespace ground_zero.algebra
 
   @[hott] noncomputable def abs (x : ℝ) : ℝ :=
   coproduct.elim (λ _, x) (λ _, -x) (R.total 0 x)
+
+  @[hott] noncomputable def abs.pos {x : ℝ} (p : 0 ≤ x) : abs x = x :=
+  begin
+    change coproduct.elim _ _ _ = _, cases R.total 0 x with q₁ q₂,
+    reflexivity, apply ground_zero.proto.empty.elim,
+    apply R.not_not_total 0 x; assumption
+  end
+
+  @[hott] noncomputable def R.zero_eq_minus_zero {x : ℝ} (p : x = 0) : x = -x :=
+  begin
+    transitivity, exact p, symmetry,
+    transitivity, apply Id.map, exact p,
+    symmetry, apply @group.unit_inv R.τ⁺
+  end
+
+  @[hott] noncomputable def abs.neg {x : ℝ} (p : x ≤ 0) : abs x = -x :=
+  begin
+    change coproduct.elim _ _ _ = _, cases R.total 0 x with q₁ q₂,
+    change x = -x, apply R.zero_eq_minus_zero,
+    apply @antisymmetric.asymm R.κ; assumption, reflexivity
+  end
+
+  @[hott] noncomputable def R.zero_le_impl_zero_ge_minus {x : ℝ} (p : 0 ≤ x) : -x ≤ 0 :=
+  begin
+    apply equiv.transport (λ y, -x ≤ y), symmetry,
+    apply @group.unit_inv R.τ⁺, apply minus_inv_sign, exact p
+  end
+
+  @[hott] noncomputable def R.zero_le_minus_impl_zero_ge {x : ℝ} (p : 0 ≤ -x) : x ≤ 0 :=
+  begin
+    apply equiv.transport (λ (y : ℝ), y ≤ 0), apply @group.inv_inv R.τ⁺,
+    apply R.zero_le_impl_zero_ge_minus, assumption
+  end
+
+  @[hott] noncomputable def R.zero_ge_minus_impl_zero_le {x : ℝ} (p : -x ≤ 0) : 0 ≤ x :=
+  begin
+    apply inv_minus_sign, apply equiv.transport (λ y, -x ≤ y),
+    apply @group.unit_inv R.τ⁺, exact p
+  end
+
+  @[hott] noncomputable def R.zero_ge_impl_zero_le_minus {x : ℝ} (p : x ≤ 0) : 0 ≤ -x :=
+  begin
+    apply R.zero_ge_minus_impl_zero_le, apply equiv.transport (λ (y : ℝ), y ≤ 0),
+    symmetry, apply @group.inv_inv R.τ⁺, assumption
+  end
+
+  @[hott] noncomputable def abs.even (x : ℝ) : abs x = abs (-x) :=
+  begin
+    cases (R.total 0 x) with p q,
+    { transitivity, apply abs.pos p, symmetry,
+      transitivity, apply abs.neg,
+      apply R.zero_le_impl_zero_ge_minus p,
+      apply @group.inv_inv R.τ⁺ },
+    { transitivity, apply abs.neg q.2, symmetry, apply abs.pos,
+      apply R.zero_ge_impl_zero_le_minus q.2 }
+  end
 end ground_zero.algebra
