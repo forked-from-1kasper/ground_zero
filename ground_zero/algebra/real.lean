@@ -144,13 +144,14 @@ namespace ground_zero.algebra
   noncomputable instance Lim.group (M : Metric) : group (Lim M) :=
   group.subgroup.group
 
+  abbreviation Lim.carrier (M : Metric) := (Lim M).carrier
   noncomputable abbreviation Lim.φ {M : Metric} := (Lim M).φ
   noncomputable abbreviation Lim.ι {M : Metric} := (Lim M).ι
 
   def Metric.pointed := Σ (M : Metric), M.carrier
   notation `Metric⁎` := Metric.pointed
 
-  @[hott] noncomputable def ω (M : Metric⁎) (φ : (Lim M.1).carrier) : ℝ :=
+  @[hott] noncomputable def ω (M : Metric⁎) (φ : Lim.carrier M.1) : ℝ :=
   sup (diameter φ.1) (im.inh _ M.2) (diameter.majorized_if_limited φ.1 φ.2)
 
   @[hott] noncomputable def sup.eqv {φ ψ : R.subset} {H₁ : φ.inh} {H₂ : ψ.inh}
@@ -177,7 +178,7 @@ namespace ground_zero.algebra
     {G₁ : @majorized R.κ φ} {G₂ : @majorized R.κ ψ} (r : φ ⊆ ψ) : sup φ H₁ G₁ ≤ sup ψ H₂ G₂ :=
   begin apply sup.exact, intros y p, apply sup.lawful, apply r, assumption end
 
-  @[hott] noncomputable def ω.inv_le (M : Metric⁎) (φ : (Lim M.1).carrier) : ω M (Lim.ι φ) ≤ ω M φ :=
+  @[hott] noncomputable def ω.inv_le (M : Metric⁎) (φ : Lim.carrier M.1) : ω M (Lim.ι φ) ≤ ω M φ :=
   begin
     apply sup.ssubset, intro x, apply merely.lift, intro p,
     induction p with y p, induction p, existsi (Lim.ι φ).1.1 y,
@@ -185,14 +186,14 @@ namespace ground_zero.algebra
     apply Id.map, symmetry, apply φ.1.forward_right
   end
 
-  @[hott] noncomputable def ω.inv (M : Metric⁎) (φ : (Lim M.1).carrier) : ω M (Lim.ι φ) = ω M φ :=
+  @[hott] noncomputable def ω.inv (M : Metric⁎) (φ : Lim.carrier M.1) : ω M (Lim.ι φ) = ω M φ :=
   begin
     apply @antisymmetric.asymm R.κ, apply ω.inv_le,
     apply equiv.transport (λ ψ, ω M ψ ≤ ω M (Lim.ι φ)),
     apply @group.inv_inv (Lim M.1), apply ω.inv_le
   end
 
-  @[hott] noncomputable def ω.mul_rev (M : Metric⁎) (φ ψ : (Lim M.1).carrier) :
+  @[hott] noncomputable def ω.mul_rev (M : Metric⁎) (φ ψ : Lim.carrier M.1) :
     ω M (Lim.φ φ ψ) ≤ ω M ψ + ω M φ :=
   begin
     apply sup.exact, intro x, apply merely.rec, apply R.κ.prop,
@@ -201,7 +202,7 @@ namespace ground_zero.algebra
     { apply sup.lawful, apply im.intro }
   end
 
-  @[hott] noncomputable def ω.mul (M : Metric⁎) (φ ψ : (Lim M.1).carrier) :
+  @[hott] noncomputable def ω.mul (M : Metric⁎) (φ ψ : Lim.carrier M.1) :
     ω M (Lim.φ φ ψ) ≤ ω M φ + ω M ψ :=
   begin apply equiv.transport (λ y, ω M (Lim.φ φ ψ) ≤ y), apply R.τ⁺.mul_comm, apply ω.mul_rev end
 
@@ -387,4 +388,88 @@ namespace ground_zero.algebra
 
   @[hott] noncomputable def Rₘ : Metric :=
   ⟨R.1, ⟨λ x y, abs (x - y), R.metrizable⟩⟩
+
+  noncomputable def Lim.ρ {M : Metric⁎} (g h : Lim.carrier M.1) :=
+  ω M (Lim.φ g (Lim.ι h))
+
+  noncomputable def R.singleton : ℝ → ens ℝ :=
+  ens.singleton (λ _ _, R.hset)
+
+  noncomputable def R.singl_inh : Π x, (R.singleton x).inh :=
+  ens.singleton_inh (λ _ _, R.hset)
+
+  noncomputable def R.singl_majorized (x : ℝ) : @majorized R.κ (R.singleton x) :=
+  begin apply merely.elem, existsi x, intros y p, induction p, apply @reflexive.refl R.κ end
+
+  @[hott] noncomputable def sup.singleton (x : ℝ) :
+    sup (R.singleton x) (R.singl_inh x) (R.singl_majorized x) = x :=
+  begin
+    apply @antisymmetric.asymm R.κ,
+    { apply sup.exact, intros y p, induction p, apply @reflexive.refl R.κ },
+    { apply sup.lawful, change _ = _, reflexivity }
+  end
+
+  @[hott] noncomputable def double_ge_zero_impl_ge_zero {x : ℝ} : 0 ≤ x + x → 0 ≤ x :=
+  begin
+    intro p, cases R.total 0 x with q₁ q₂, assumption, apply ground_zero.proto.empty.elim,
+    apply (strict_ineq_add R q₂ q₂).1, apply @antisymmetric.asymm R.κ,
+    apply ineq_add; exact q₂.2, apply equiv.transport (λ y, y ≤ x + x),
+    symmetry, apply R.τ⁺.mul_one, exact p
+  end
+
+  @[hott] noncomputable def Metric.positive (M : Metric) (x y : M.carrier) : 0 ≤ M.ρ x y :=
+  begin
+    apply double_ge_zero_impl_ge_zero, apply equiv.transport (λ z, z ≤ M.ρ x y + M.ρ x y),
+    apply M.refl x, apply equiv.transport (λ z, M.ρ x x ≤ M.ρ x y + z),
+    apply M.symm, apply M.triangle
+  end
+
+  @[hott] noncomputable def ω.ge_zero (M : Metric⁎) (g : Lim.carrier M.1) : 0 ≤ ω M g :=
+  begin
+    apply equiv.transport (λ y, y ≤ ω M g), apply sup.singleton, apply sup.sep,
+    intros x y p, apply merely.rec, apply R.κ.prop, intro q,
+    induction p, induction q with z q, induction q, apply M.1.positive
+  end
+
+  @[hott] noncomputable def Metric.eq_if_le_zero (M : Metric) {x y : M.carrier} :
+    M.ρ x y ≤ 0 → x = y :=
+  begin intro p, apply M.eqv, apply @antisymmetric.asymm R.κ, exact p, apply M.positive end
+
+  @[hott] noncomputable def ω.eq_zero_if_less {M : Metric⁎}
+    {g : Lim.carrier M.1} : ω M g ≤ 0 → ω M g = 0 :=
+  begin intro p, apply @antisymmetric.asymm R.κ, exact p, apply ω.ge_zero end
+
+  @[hott] noncomputable def ω.unit (M : Metric⁎) : ω M (Lim M.1).e = 0 :=
+  begin
+    apply @antisymmetric.asymm R.κ, apply sup.exact,
+    { intro y, apply merely.rec, apply R.κ.prop, intro p,
+      induction p with x p, induction p, apply R.le_if_eq, apply M.1.refl },
+    { apply ω.ge_zero }
+  end
+
+  @[hott] noncomputable def ω.unit_if_zero (M : Metric⁎)
+    (φ : Lim.carrier M.1) (p : ω M φ = 0) : φ = (Lim M.1).e :=
+  begin
+    apply sigma.prod, apply ens.prop, apply ground_zero.theorems.prop.equiv_hmtpy_lem,
+    intro x, apply M.1.eq_if_le_zero, apply equiv.transport (λ y, M.1.ρ (φ.1.1 x) x ≤ y),
+    exact p, apply sup.lawful, apply merely.elem, existsi x, apply M.1.symm
+  end
+
+  @[hott] noncomputable def Lim.metrizable (M : Metric⁎) : metric (@Lim.ρ M) :=
+  begin
+    apply (_, (_, _)),
+    { intros x y, split; intro p,
+      { apply group.eq_of_rdiv_eq, apply ω.unit_if_zero,
+        change ω _ _ = _ at p, exact p },
+      { induction p, transitivity, apply Id.map (ω M),
+        apply group.mul_right_inv, apply ω.unit } },
+    { intros x y, transitivity, symmetry, apply ω.inv,
+      apply Id.map (ω M), transitivity, apply group.inv_explode,
+      apply Id.map (λ z, Lim.φ z (Lim.ι x)), apply group.inv_inv },
+    { intros x y z, apply equiv.transport (λ w, w ≤ Lim.ρ x y + Lim.ρ y z),
+      apply Id.map (ω M), apply group.chain_rdiv x y z, apply ω.mul }
+  end
+
+  @[hott] noncomputable def Limₘ : Metric⁎ → Metric⁎ :=
+  λ M, ⟨⟨(Lim M.1).1, ⟨Lim.ρ, Lim.metrizable M⟩⟩, (Lim M.1).e⟩
 end ground_zero.algebra

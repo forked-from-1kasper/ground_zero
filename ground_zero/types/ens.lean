@@ -107,5 +107,11 @@ end
 
 @[hott] def ens.inh {α : Type u} (φ : ens α) := ∥φ.subtype∥
 
+@[hott] def ens.singleton {α : Type u} (H : hset α) (x : α) : ens α :=
+⟨λ y, x = y, @H x⟩
+
+@[hott] def ens.singleton_inh {α : Type u} (H : hset α) (x : α) : ens.inh (ens.singleton @H x) :=
+HITs.merely.elem ⟨x, Id.refl⟩
+
 end types
 end ground_zero
