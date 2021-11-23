@@ -344,6 +344,16 @@ namespace group
     ... = a * (b * b⁻¹) : (G.φ a) # (Id.inv $ mul_right_inv b)
     ... = (a * b) * b⁻¹ : Id.inv (G.mul_assoc a b b⁻¹)
 
+  @[hott] def rev_cancel_left (a b : G.carrier) := calc
+      b = e * b         : Id.inv (G.one_mul b)
+    ... = (a⁻¹ * a) * b : (λ c, G.φ c b) # (Id.inv $ G.mul_left_inv a)
+    ... = a⁻¹ * (a * b) : G.mul_assoc a⁻¹ a b
+
+  @[hott] def rev_cancel_right (a b : G.carrier) := calc
+      b = e * b         : Id.inv (G.one_mul b)
+    ... = (a * a⁻¹) * b : (λ c, G.φ c b) # (Id.inv $ mul_right_inv a)
+    ... = a * (a⁻¹ * b) : G.mul_assoc a a⁻¹ b
+
   @[hott] def comm_impl_conj {x y : G.carrier} (p : x * y = y * x) : x = x ^ y := calc
       x = e * x         : Id.inv (G.one_mul x)
     ... = (y⁻¹ * y) * x : (* x) # (Id.inv $ G.mul_left_inv y)

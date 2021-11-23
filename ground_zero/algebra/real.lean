@@ -389,16 +389,19 @@ namespace ground_zero.algebra
   @[hott] noncomputable def Rₘ : Metric :=
   ⟨R.1, ⟨λ x y, abs (x - y), R.metrizable⟩⟩
 
-  noncomputable def Lim.ρ {M : Metric⁎} (g h : Lim.carrier M.1) :=
+  @[hott] noncomputable def R.pointed : Metric⁎ := ⟨Rₘ, R.τ⁺.e⟩
+  notation `R⁎` := R.pointed
+
+  @[hott] noncomputable def Lim.ρ {M : Metric⁎} (g h : Lim.carrier M.1) :=
   ω M (Lim.φ g (Lim.ι h))
 
-  noncomputable def R.singleton : ℝ → ens ℝ :=
+  @[hott] noncomputable def R.singleton : ℝ → ens ℝ :=
   ens.singleton (λ _ _, R.hset)
 
-  noncomputable def R.singl_inh : Π x, (R.singleton x).inh :=
+  @[hott] noncomputable def R.singl_inh : Π x, (R.singleton x).inh :=
   ens.singleton_inh (λ _ _, R.hset)
 
-  noncomputable def R.singl_majorized (x : ℝ) : @majorized R.κ (R.singleton x) :=
+  @[hott] noncomputable def R.singl_majorized (x : ℝ) : @majorized R.κ (R.singleton x) :=
   begin apply merely.elem, existsi x, intros y p, induction p, apply @reflexive.refl R.κ end
 
   @[hott] noncomputable def sup.singleton (x : ℝ) :
@@ -470,6 +473,23 @@ namespace ground_zero.algebra
       apply Id.map (ω M), apply group.chain_rdiv x y z, apply ω.mul }
   end
 
-  @[hott] noncomputable def Limₘ : Metric⁎ → Metric⁎ :=
-  λ M, ⟨⟨(Lim M.1).1, ⟨Lim.ρ, Lim.metrizable M⟩⟩, (Lim M.1).e⟩
+  @[hott] noncomputable def Limₘ : Metric⁎ → Metric :=
+  λ M, ⟨(Lim M.1).1, ⟨Lim.ρ, Lim.metrizable M⟩⟩
+
+  @[hott] noncomputable def Lim.pointed : Metric⁎ → Metric⁎ := λ M, ⟨Limₘ M, (Lim M.1).e⟩
+  notation `Lim⁎` := Lim.pointed
+
+  @[hott] noncomputable def ω.mul_inv (M : Metric⁎) (φ ψ : Lim.carrier M.1) :
+    abs (ω M φ - ω M ψ) ≤ ω M (Lim.φ φ ψ) :=
+  begin
+    apply abs.le_if_minus_le_and_le,
+    { apply ge_if_minus_le, apply equiv.transport (λ y, y ≤ ω M (Lim.φ φ ψ)),
+      symmetry, apply @group.x_mul_inv_y_inv R.τ⁺, apply sub_le_if_add_ge_rev,
+      apply equiv.transport (λ w, ω M ψ ≤ w + ω M (Lim.φ φ ψ)), apply ω.inv,
+      apply equiv.transport (λ w, w ≤ ω M (Lim.ι φ) + ω M (Lim.φ φ ψ)),
+      apply Id.map (ω M), symmetry, apply group.rev_cancel_left φ ψ, apply ω.mul },
+    { apply sub_le_if_add_ge, apply equiv.transport (λ w, ω M φ ≤ ω M (Lim.φ φ ψ) + w),
+      apply ω.inv, apply equiv.transport (λ w, w ≤ ω M (Lim.φ φ ψ) + ω M (Lim.ι ψ)),
+      apply Id.map (ω M), symmetry, apply group.cancel_right φ ψ, apply ω.mul }
+  end
 end ground_zero.algebra
