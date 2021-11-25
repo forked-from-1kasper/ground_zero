@@ -47,13 +47,6 @@ namespace ground_zero.algebra
     M.2.2.2.2 x y z
   end
 
-  def tendsto {M₁ M₂ : Metric} (f : M₁.carrier → M₂.carrier) :=
-  λ x₀ L, ∀ (ε : ℝ), 0 < ε → merely (Σ (δ : ℝ), (0 < δ) ×
-    (Π x, 0 < M₁.ρ x x₀ → M₁.ρ x x₀ < δ → M₂.ρ (f x) L < ε))
-
-  def continuous {M₁ M₂ : Metric} (f : M₁.carrier → M₂.carrier) :=
-  λ x, tendsto f x (f x)
-
   noncomputable def N.incl : ℕ → ℝ :=
   @nat.rec (λ _, ℝ) 0 (λ _ x, x + 1)
 
@@ -491,5 +484,23 @@ namespace ground_zero.algebra
     { apply sub_le_if_add_ge, apply equiv.transport (λ w, ω M φ ≤ ω M (Lim.φ φ ψ) + w),
       apply ω.inv, apply equiv.transport (λ w, w ≤ ω M (Lim.φ φ ψ) + ω M (Lim.ι ψ)),
       apply Id.map (ω M), symmetry, apply group.cancel_right φ ψ, apply ω.mul }
+  end
+
+  def tendsto {M₁ M₂ : Metric} (f : M₁.carrier → M₂.carrier) :=
+  λ x₀ L, ∀ (ε : ℝ), 0 < ε → merely (Σ (δ : ℝ), (0 < δ) ×
+    (Π x, 0 < M₁.ρ x x₀ → M₁.ρ x x₀ < δ → M₂.ρ (f x) L < ε))
+
+  def continuous {M₁ M₂ : Metric} (f : M₁.carrier → M₂.carrier) :=
+  λ x, tendsto f x (f x)
+
+  def continuous.pointed (M₁ M₂ : Metric⁎) := @continuous M₁.1 M₂.1
+  notation `continuous⁎` := continuous.pointed
+
+  @[hott] noncomputable def ω.continuous (M : Metric⁎) :
+    Π m, continuous⁎ (Lim⁎ M) R⁎ (ω M) m :=
+  begin
+    intros x ε H, apply merely.elem, existsi ε, split, exact H,
+    intros y G₁ G₂, apply equiv.transport (λ w, abs (ω M y - w) < ε),
+    apply ω.inv, apply strict_ineq_trans_left, apply ω.mul_inv, exact G₂
   end
 end ground_zero.algebra
