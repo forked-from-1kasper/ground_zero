@@ -67,7 +67,7 @@ namespace ground_zero.theorems.ontological
 
   def equal (φ ψ : prop ι) :=
   ⋀ x, φ x ⇔ ψ x
-  infix ` ≡ ` := equal
+  infix ` ≡ `:50 := equal
 
   def compl (φ : prop ι) : prop ι := λ x, ¬φ x
   prefix `¬` := compl
