@@ -22,6 +22,9 @@ notation `𝟐` := bool
 
 def empty.elim {α : Sort u} : empty → α.
 
+def bool.elim {α : Sort u} : α → α → 𝟐 → α :=
+@bool.rec (λ _, α)
+
 def bottom := empty.{1}
 notation `⊥` := bottom
 

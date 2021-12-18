@@ -557,10 +557,8 @@ namespace theorems
       transitivity, apply Id.map
         (λ p, @transport (Σ g, f ~ g) (λ p, π p.fst p.snd)
            ⟨f, equiv.homotopy.id f⟩ ⟨f, equiv.homotopy.id f⟩ p r),
-      change _ = idp _,
-      apply prop_is_set, apply contr_impl_prop,
-      apply is_contr_sigma_homotopy,
-      trivial
+      change _ = idp _, apply prop_is_set, apply contr_impl_prop,
+      apply is_contr_sigma_homotopy, trivial
     end
   end
 
@@ -576,6 +574,10 @@ namespace theorems
     { apply homotopy_ind, change _ = HITs.interval.happly (idp _),
       apply Id.map HITs.interval.happly, apply homotopy_ind_id }
   end
+
+  @[hott] def funext_id {α : Type u} {β : α → Type v}
+    {f : Π x, β x} : funext (homotopy.id f) = idp f :=
+  by apply homotopy_ind_id
 
   open ground_zero.types.equiv (transport)
   @[hott] def map_homotopy {α : Type u} {β : Type v} {a b : α}

@@ -18,6 +18,9 @@ namespace sigma
     Π (x : sigma β), π x
   | ⟨a, b⟩ := g a b
 
+  def uniq : Π (x : Σ x, β x), ⟨pr₁ x, pr₂ x⟩ = x :> Σ x, β x
+  | ⟨a, b⟩ := idp ⟨a, b⟩
+
   @[hott] def prod {α : Type u} {β : α → Type v} {u v : sigma β}
     (p : u.fst = v.fst) (q : equiv.subst p u.snd = v.snd) : u = v :=
   begin
