@@ -249,3 +249,10 @@ namespace nat'
                         ... = add (mult n m) (mult (mult n m) k) : (add (mult n m)) # p
                         ... = mult (mult n m) (k + 1)            : idp _)
 end nat'
+
+-- exercise 1.9
+
+def Fin (n : ℕ) : Type := Σ m, m + 1 ≤ n
+
+@[hott] def Fin.fmax (n : ℕ) : Fin (n + 1) :=
+⟨n, theorems.nat.max.refl (n + 1)⟩
