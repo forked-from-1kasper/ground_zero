@@ -67,3 +67,14 @@ section
   @[hott] example (p : a = b) (q : b = c) : p ⬝₁ q = p ⬝₄ q :=
   begin induction p, induction q, reflexivity end
 end
+
+-- exercise 2.4
+
+@[hott] def n_path (α : Type u) : ℕ → Type u
+|    0    := α
+| (n + 1) := Σ (a b : n_path n), a = b
+
+notation n `-Path` := λ α, n_path α n
+
+@[hott] def boundary {α : Type u} {n : ℕ} : (n + 1)-Path α → (n-Path α) × (n-Path α) :=
+λ ⟨a, b, _⟩, (a, b)
