@@ -126,5 +126,4 @@ namespace «2.7»
     change u = v at q, induction q,
     reflexivity
   end
-
 end «2.7»
