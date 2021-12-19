@@ -125,7 +125,8 @@ namespace equiv
   -- subst with explicit π
   abbreviation transport {α : Type u}
     (π : α → Type v) {a b : α}
-    (p : a = b :> α) : π a → π b := subst p
+    (p : a = b :> α) : π a → π b :=
+  subst p
 
   def dep_path {α : Type u} (π : α → Type v) {a b : α} (p : a = b :> α)
     (u : π a) (v : π b) :=
@@ -214,7 +215,8 @@ namespace equiv
 
   abbreviation transport_inv {α : Type u}
     (π : α → Type v) {a b : α}
-    (p : a = b :> α) : π b → π a := subst_inv p
+    (p : a = b :> α) : π b → π a :=
+  subst_inv p
 
   abbreviation transport_sqr {α : Type u} (π : α → Type v) {a b : α}
     {p q : a = b :> α} (r : p = q :> a = b :> α) (u : π a) :
@@ -240,7 +242,7 @@ namespace equiv
 
   @[hott] def transport_composition {α : Type u} {a x₁ x₂ : α}
     (p : x₁ = x₂ :> α) (q : a = x₁ :> α) :
-    transport (ground_zero.types.Id a) p q = q ⬝ p :=
+    transport (Id a) p q = q ⬝ p :=
   begin
     induction p, symmetry, transitivity,
     apply Id.refl_right, trivial

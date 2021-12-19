@@ -35,3 +35,14 @@ section
   @[hott] example (p : a = b) (q : b = c) : p ⬝₂ q = p ⬝₃ q :=
   begin induction p, induction q, reflexivity end
 end
+
+-- exercise 2.2
+
+section
+  variables {A : Type u} {a b c : A} {p : a = b} {q : b = c}
+
+  @[hott] example (α : p ⬝₁ q = p ⬝₂ q) (β : p ⬝₂ q = p ⬝₃ q) (γ : p ⬝₁ q = p ⬝₃ q) : α ⬝ β = γ :=
+  begin
+    
+  end
+end
