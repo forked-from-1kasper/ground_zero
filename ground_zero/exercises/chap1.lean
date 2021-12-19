@@ -296,3 +296,10 @@ example (α : Type u) (β : Type v) : (¬α) + (¬β) → ¬(α × β) :=
 
 example (α : Type u) : ¬¬(α + ¬α) :=
 λ φ, φ (coproduct.inr (λ a, φ (coproduct.inl a)))
+
+-- exercise 1.14
+
+/-
+def f {α : Type u} (x : α) (p : x = x) : p = idp x :=
+@Id.rec α x (λ y p, ???) (idp (idp x)) x p
+-/
