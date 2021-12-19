@@ -17,15 +17,21 @@ section
   @[hott] def trans₁ (p : a = b) (q : b = c) : a = c :=
   begin induction p, induction q, reflexivity end
 
+  infixl ` ⬝₁ `:99 := trans₁
+
   @[hott] def trans₂ (p : a = b) (q : b = c) : a = c :=
   begin induction p, exact q end
+
+  infixl ` ⬝₂ `:99 := trans₂
 
   @[hott] def trans₃ (p : a = b) (q : b = c) : a = c :=
   begin induction q, exact p end
 
-  @[hott] example (p : a = b) (q : b = c) : trans₁ p q = trans₂ p q :=
+  infixl ` ⬝₃ `:99 := trans₃
+
+  @[hott] example (p : a = b) (q : b = c) : p ⬝₁ q = p ⬝₂ q :=
   begin induction p, induction q, reflexivity end
 
-  @[hott] example (p : a = b) (q : b = c) : trans₂ p q = trans₃ p q :=
+  @[hott] example (p : a = b) (q : b = c) : p ⬝₂ q = p ⬝₃ q :=
   begin induction p, induction q, reflexivity end
 end
