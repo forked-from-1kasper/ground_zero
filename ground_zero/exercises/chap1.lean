@@ -256,3 +256,22 @@ def Fin (n : ℕ) : Type := Σ m, m + 1 ≤ n
 
 @[hott] def Fin.fmax (n : ℕ) : Fin (n + 1) :=
 ⟨n, theorems.nat.max.refl (n + 1)⟩
+
+-- exercise 1.10
+
+namespace nat'
+  @[hott] def iterate {α : Type u} (f : α → α) : ℕ → (α → α) :=
+  @rec (α → α) idfun (λ _ g, f ∘ g)
+
+  @[hott] def ack : ℕ → ℕ → ℕ :=
+  rec nat.succ (λ m φ n, iterate φ (n + 1) 1)
+
+  example (n : ℕ) : ack 0 n = n + 1 :=
+  by reflexivity
+
+  example (m : ℕ) : ack (m + 1) 0 = ack m 1 :=
+  by reflexivity
+
+  example (m n : ℕ) : ack (m + 1) (n + 1) = ack m (ack (m + 1) n) :=
+  by reflexivity
+end nat'
