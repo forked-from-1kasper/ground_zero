@@ -275,3 +275,8 @@ namespace nat'
   example (m n : ℕ) : ack (m + 1) (n + 1) = ack m (ack (m + 1) n) :=
   by reflexivity
 end nat'
+
+-- exercise 1.11
+
+example (α : Type u) : ¬¬¬α → ¬α :=
+λ φ x, φ (λ ψ, ψ x)
