@@ -171,3 +171,81 @@ end product'
 @[hott] def Ind.based (φ : Ind.{u u}) : Ind'.{u u} :=
 λ A a C c x p, by apply Ind.transport φ (singl a) (λ d, C d.1 d.2)
   ⟨a, idp a⟩ ⟨x, p⟩ (Ind.singl_contr φ A a x p) c
+
+-- exercise 1.8
+
+namespace nat'
+  def ind (C : ℕ → Type u) (c₀ : C 0) (cₛ : Π n, C n → C (n + 1)) : Π n, C n
+  |    0    := c₀
+  | (n + 1) := cₛ n (ind n)
+
+  def rec {C : Type u} (c₀ : C) (cₛ : ℕ → C → C) : ℕ → C :=
+  ind (λ _, C) c₀ cₛ
+
+  def add : ℕ → ℕ → ℕ :=
+  λ n, rec n (λ _, nat.succ)
+
+  def mult : ℕ → ℕ → ℕ :=
+  λ n, rec 0 (λ _, add n)
+
+  def exp : ℕ → ℕ → ℕ :=
+  λ n, rec 1 (λ _, mult n)
+
+  @[hott] def add_zero : Π n, add n 0 = n := idp
+
+  @[hott] def zero_add : Π n, add 0 n = n :=
+  ind (λ n, add 0 n = n) (idp 0) (λ n p, nat.succ # p)
+
+  @[hott] def succ_add : Π n m, add (n + 1) m = add n m + 1 :=
+  λ n, ind (λ m, add (n + 1) m = add n m + 1) (idp (n + 1)) (λ m p, nat.succ # p)
+
+  @[hott] def add_comm : Π n m, add n m = add m n :=
+  λ n, ind (λ m, add n m = add m n) (zero_add n)⁻¹
+    (λ m p, by apply (nat.succ # p) ⬝ (succ_add m n)⁻¹)
+
+  @[hott] def add_assoc : Π n m k, add n (add m k) = add (add n m) k :=
+  λ n m, ind (λ k, add n (add m k) = add (add n m) k) (idp (add n m)) (λ k p, nat.succ # p)
+
+  @[hott] def one_mul : Π n, mult 1 n = n :=
+  ind (λ n, mult 1 n = n) (idp 0) (λ n p, (add_comm 1 (mult 1 n)) ⬝ (nat.succ # p))
+
+  @[hott] def succ_mul : Π n m, mult (n + 1) m = add m (mult n m) :=
+  λ n, ind (λ m, mult (n + 1) m = add m (mult n m)) (idp 0) (λ m p, calc
+    mult (n + 1) (m + 1) = add n (mult (n + 1) m) + 1   : succ_add n (mult (n + 1) m)
+                     ... = add n (add m (mult n m)) + 1 : (λ k, add n k + 1) # p
+                     ... = add (add n m) (mult n m) + 1 : nat.succ # (add_assoc n m (mult n m))
+                     ... = add (add m n) (mult n m) + 1 : (λ k, add k (mult n m) + 1) # (add_comm n m)
+                     ... = add m (add n (mult n m)) + 1 : nat.succ # (add_assoc m n (mult n m))⁻¹
+                     ... = add (m + 1) (mult n (m + 1)) : (succ_add m (mult n (m + 1)))⁻¹)
+
+  @[hott] def mul_one : Π n, mult n 1 = n :=
+  ind (λ n, mult n 1 = n) (idp 0) (λ n p,
+    (succ_mul n 1) ⬝ (add_comm 1 (mult n 1)) ⬝ (nat.succ # p))
+
+  @[hott] def mul_zero : Π n, mult n 0 = 0 := λ _, idp 0
+
+  @[hott] def zero_mul : Π n, mult 0 n = 0 :=
+  ind (λ n, mult 0 n = 0) (idp 0) (λ n p, zero_add (mult 0 n) ⬝ p)
+
+  @[hott] def mul_comm : Π n m, mult n m = mult m n :=
+  λ n, ind (λ m, mult n m = mult m n) (zero_mul n)⁻¹
+    (λ m p, by apply (add n) # p ⬝ (succ_mul m n)⁻¹)
+
+  @[hott] def mul_distr_left : Π n m k, mult n (add m k) = add (mult n m) (mult n k) :=
+  λ n m, ind (λ k, mult n (add m k) = add (mult n m) (mult n k)) (idp (mult n m)) (λ k p, calc
+      mult n (add m (k + 1)) = add n (add (mult n m) (mult n k)) : (add n) # p
+                         ... = add (add (mult n m) (mult n k)) n : add_comm _ _
+                         ... = add (mult n m) (add (mult n k) n) : (add_assoc _ _ _)⁻¹
+                         ... = add (mult n m) (mult n (k + 1))   : (add (mult n m)) # (add_comm _ _))
+
+  @[hott] def mul_distr_right : Π n m k, mult (add n m) k = add (mult n k) (mult m k) :=
+  λ n m k, calc mult (add n m) k = mult k (add n m)          : mul_comm _ _
+                             ... = add (mult k n) (mult k m) : mul_distr_left _ _ _
+                             ... = add (mult n k) (mult m k) : bimap add (mul_comm _ _) (mul_comm _ _)
+
+  @[hott] def mul_assoc : Π n m k, mult n (mult m k) = mult (mult n m) k :=
+  λ n m, ind (λ k, mult n (mult m k) = mult (mult n m) k) (idp 0) (λ k p, calc
+    mult n (mult m (k + 1)) = add (mult n m) (mult n (mult m k)) : mul_distr_left _ _ _
+                        ... = add (mult n m) (mult (mult n m) k) : (add (mult n m)) # p
+                        ... = mult (mult n m) (k + 1)            : idp _)
+end nat'
