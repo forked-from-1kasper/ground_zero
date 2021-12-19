@@ -29,9 +29,21 @@ section
 
   infixl ` ⬝₃ `:99 := trans₃
 
-  @[hott] example (p : a = b) (q : b = c) : p ⬝₁ q = p ⬝₂ q :=
+  @[hott] def eq₁₂ (p : a = b) (q : b = c) : p ⬝₁ q = p ⬝₂ q :=
   begin induction p, induction q, reflexivity end
 
-  @[hott] example (p : a = b) (q : b = c) : p ⬝₂ q = p ⬝₃ q :=
+  @[hott] def eq₂₃ (p : a = b) (q : b = c) : p ⬝₂ q = p ⬝₃ q :=
+  begin induction p, induction q, reflexivity end
+
+  @[hott] def eq₁₃ (p : a = b) (q : b = c) : p ⬝₁ q = p ⬝₃ q :=
+  begin induction p, induction q, reflexivity end
+end
+
+-- exercise 2.2
+
+section
+  variables {A : Type u} {a b c : A} (p : a = b) (q : b = c)
+
+  @[hott] example : eq₁₂ p q ⬝ eq₂₃ p q = eq₁₃ p q :=
   begin induction p, induction q, reflexivity end
 end
