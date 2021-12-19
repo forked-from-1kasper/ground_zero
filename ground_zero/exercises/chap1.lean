@@ -278,5 +278,16 @@ end nat'
 
 -- exercise 1.11
 
-example (α : Type u) : ¬¬¬α → ¬α :=
+example (α : Type u) : (¬¬¬α) → (¬α) :=
 λ φ x, φ (λ ψ, ψ x)
+
+-- example 1.12
+
+example (α : Type u) (β : Type v) : α → (β → α) :=
+λ a b, a
+
+example (α : Type u) : α → ¬¬α :=
+λ a φ, φ a
+
+example (α : Type u) (β : Type v) : (¬α) + (¬β) → ¬(α × β) :=
+λ φ w, @coproduct.elim (¬α) (¬β) 𝟎 (λ ψ, ψ w.1) (λ ψ, ψ w.2) φ
