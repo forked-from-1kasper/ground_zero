@@ -1,3 +1,4 @@
+import ground_zero.types.sigma
 import ground_zero.structures
 
 open ground_zero ground_zero.types
@@ -6,7 +7,7 @@ open ground_zero.proto
 
 open ground_zero.structures (prop contr)
 
-universes u v w k
+universes u v u' v' w k
 hott theory
 
 -- exercise 2.1
@@ -81,7 +82,7 @@ notation n `-Path` := λ α, n_path α n
 
 -- exercise 2.5
 
-section
+namespace «2.5»
   variables {α : Type u} {β : Type v} {x y : α} (p : x = y)
 
   @[hott] def transconst (b : β) : transport (λ _, β) p b = b :=
@@ -100,9 +101,30 @@ section
 
   @[hott] example (φ : α → β) : g p φ ∘ f p φ ~ id :=
   begin induction p, reflexivity end
-end
+end «2.5»
 
 -- exercise 2.6
 
 @[hott] example {α : Type u} {x y z : α} (p : x = y) : biinv (@Id.trans α x y z p) :=
 begin split; existsi (Id.trans p⁻¹); intro q; induction p; induction q; reflexivity end
+
+-- exercise 2.7
+
+namespace «2.7»
+  variables {α : Type u} {α' : Type u'} {β : α → Type v} {β' : α' → Type v'}
+            (g : α → α') (h : Π a, β a → β' (g a))
+
+  def φ (x : Σ a, β a) : Σ a', β' a' := ⟨g x.1, h x.1 x.2⟩
+
+  @[hott] example (x y : Σ a, β a) (p : x.1 = y.1) (q : x.2 =[p] y.2) :
+      Id.map (φ g h) (sigma.prod p q)
+    = @sigma.prod α' β' (φ g h x) (φ g h y)
+        (@Id.map α α' x.1 y.1 g p) (dep_path_map' g h q) :=
+  begin
+    induction x with x u, induction y with y v,
+    change x = y at p, induction p,
+    change u = v at q, induction q,
+    reflexivity
+  end
+
+end «2.7»

@@ -17,7 +17,7 @@ section
 end
 
 namespace ground_zero.types
-universes u v w
+universes u v w k
 
 hott theory
 
@@ -205,13 +205,14 @@ namespace equiv
   begin induction r, reflexivity end
   notation `subst²` := subst_sqr
 
-  @[hott] lemma dep_path_map {α : Type u}
-    {π : α → Type v} {δ : α → Type w}
-    {a b : α}
-    {p : a = b :> α} {u : π a} {v : π b} (q : u =[p] v)
-    (g : Π {x : α}, π x → δ x) :
-    g u =[p] g v :=
-  begin induction q, induction p, reflexivity end
+  @[hott] def dep_path_map {α : Type u} {π : α → Type v} {δ : α → Type w} {a b : α}
+    {p : a = b :> α} {u : π a} {v : π b} (g : Π x, π x → δ x) (q : u =[p] v) : g a u =[p] g b v :=
+  begin induction p, change u = v at q, induction q, reflexivity end
+
+  @[hott] def dep_path_map' {α : Type u} {β : Type v} {π : α → Type w} {δ : β → Type k}
+    {a b : α} {p : a = b :> α} {u : π a} {v : π b} (f : α → β)
+      (g : Π x, π x → δ (f x)) (q : u =[p] v) : g a u =[f # p] g b v :=
+  begin induction p, change u = v at q, induction q, reflexivity end
 
   abbreviation transport_inv {α : Type u}
     (π : α → Type v) {a b : α}
