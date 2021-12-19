@@ -78,3 +78,26 @@ notation n `-Path` := λ α, n_path α n
 
 @[hott] def boundary {α : Type u} {n : ℕ} : (n + 1)-Path α → (n-Path α) × (n-Path α) :=
 λ ⟨a, b, _⟩, (a, b)
+
+-- exercise 2.5
+
+section
+  variables {α : Type u} {β : Type v} {x y : α} (p : x = y)
+
+  @[hott] def transconst (b : β) : transport (λ _, β) p b = b :=
+  begin induction p, reflexivity end
+
+  @[hott] def f (φ : α → β) :
+    φ x = φ y → transport (λ _, β) p (φ x) = φ y :=
+  λ q, transconst p (φ x) ⬝ q
+
+  @[hott] def g (φ : α → β) :
+    transport (λ _, β) p (φ x) = φ y → φ x = φ y :=
+  λ q, (transconst p (φ x))⁻¹ ⬝ q
+
+  @[hott] example (φ : α → β) : f p φ ∘ g p φ ~ id :=
+  begin induction p, reflexivity end
+
+  @[hott] example (φ : α → β) : g p φ ∘ f p φ ~ id :=
+  begin induction p, reflexivity end
+end
