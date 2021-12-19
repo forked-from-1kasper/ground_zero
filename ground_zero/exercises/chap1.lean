@@ -306,6 +306,11 @@ def f {α : Type u} (x : α) (p : x = x) : p = idp x :=
 
 -- exercise 1.15
 
-def «Indiscernibility of Identicals» {A : Type u} (C : A → Type v) {a b : A}
-  (p : a = b) : C a → C b :=
+@[hott] def «Indiscernibility of Identicals» {A : Type u} (C : A → Type v)
+  {a b : A} (p : a = b) : C a → C b :=
 @Id.rec A a (λ x p, C a → C x) idfun b p
+
+-- exercise 1.16
+
+@[hott] example : Π (i j : ℕ), i + j = j + i :=
+theorems.nat.comm
