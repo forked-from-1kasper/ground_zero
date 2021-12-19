@@ -6,6 +6,8 @@ open ground_zero ground_zero.types
 open ground_zero.types.equiv
 open ground_zero.proto
 
+open ground_zero.structures (prop contr)
+
 universes u v w k
 hott theory
 
@@ -136,3 +138,36 @@ namespace product'
     apply theorems.funext_id, reflexivity
   end
 end product'
+
+-- exercise 1.7
+
+@[hott] def Ind :=
+Π (A : Type u) (C : Π x y, x = y → Type v),
+  (Π x, C x x (idp x)) → Π (x y : A) (p : x = y), C x y p
+
+@[hott] def Ind' :=
+Π (A : Type u) (a : A) (C : Π x, a = x → Type v),
+  C a (idp a) → Π (x : A) (p : a = x), C x p
+
+-- note that φ involves “max u (v + 1)”
+@[hott] example (φ : Ind.{u (max u (v + 1))}) : Ind'.{u v} :=
+λ A a C c x p, φ A (λ x y p, Π (C : Π z, x = z → Type v), C x (idp x) → C y p)
+  (λ x C d, d) a x p C c
+
+-- lemma 2.3.1
+@[hott] def Transport :=
+Π (A : Type u) (P : A → Type v) (a b : A) (p : a = b), P a → P b
+
+-- lemma 3.11.8
+@[hott] def SinglContr :=
+Π (A : Type u) (a b : A) (p : a = b), ⟨a, idp a⟩ = ⟨b, p⟩ :> singl a
+
+@[hott] def Ind.transport (φ : Ind.{u v}) : Transport.{u v} :=
+λ A P, φ A (λ x y p, P x → P y) (λ x d, d)
+
+@[hott] def Ind.singl_contr (φ : Ind.{u u}) : SinglContr.{u} :=
+λ A a b p, φ A (λ x y p, ⟨x, idp x⟩ = ⟨y, p⟩ :> singl x) (λ x, idp ⟨x, idp x⟩) a b p
+
+@[hott] def Ind.based (φ : Ind.{u u}) : Ind'.{u u} :=
+λ A a C c x p, by apply Ind.transport φ (singl a) (λ d, C d.1 d.2)
+  ⟨a, idp a⟩ ⟨x, p⟩ (Ind.singl_contr φ A a x p) c
