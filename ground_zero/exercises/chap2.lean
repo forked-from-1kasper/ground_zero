@@ -101,3 +101,8 @@ section
   @[hott] example (φ : α → β) : g p φ ∘ f p φ ~ id :=
   begin induction p, reflexivity end
 end
+
+-- exercise 2.6
+
+@[hott] example {α : Type u} {x y z : α} (p : x = y) : biinv (@Id.trans α x y z p) :=
+begin split; existsi (Id.trans p⁻¹); intro q; induction p; induction q; reflexivity end
