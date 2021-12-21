@@ -78,6 +78,12 @@ namespace Id
   begin induction p, reflexivity end
   infix [parsing_only] ` # ` := map
 
+  @[hott] def cancel_comp_inv {α : Type u} {a b c : α} (p : a = b) (q : b = c) : (p ⬝ q) ⬝ q⁻¹ = p :=
+  (assoc p q q⁻¹)⁻¹ ⬝ (trans p) # (comp_inv q) ⬝ (refl_right p)
+
+  @[hott] def cancel_inv_comp {α : Type u} {a b c : α} (p : a = b) (q : c = b) : (p ⬝ q⁻¹) ⬝ q = p :=
+  (assoc p q⁻¹ q)⁻¹ ⬝ (trans p) # (inv_comp q) ⬝ (refl_right p)
+
   @[hott] def map_inv {α : Type u} {β : Type v} {a b : α}
     (f : α → β) (p : a = b :> α) : (f # p⁻¹) = (f # p)⁻¹ :=
   begin induction p, reflexivity end

@@ -127,3 +127,20 @@ namespace «2.7»
     reflexivity
   end
 end «2.7»
+
+-- exercise 2.8
+
+namespace «2.8»
+  variables {α α' β β' : Type u} (g : α → α') (h : β → β')
+
+  def φ : α + β → α' + β' :=
+  coproduct.elim (coproduct.inl ∘ g) (coproduct.inr ∘ h)
+
+  @[hott] def ρ {x y : α + β} (p : coproduct.code x y) : coproduct.code (φ g h x) (φ g h y) :=
+  begin induction x; induction y; try { { apply Id.map, exact p } <|> induction p } end
+
+  @[hott] example (x y : α + β) (p : coproduct.code x y) :
+      Id.map (φ g h) (coproduct.path_sum x y p)
+    = coproduct.path_sum (φ g h x) (φ g h y) (ρ g h p) :=
+  begin induction x; induction y; { induction p, try { reflexivity } } end
+end «2.8»

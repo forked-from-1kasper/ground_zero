@@ -108,6 +108,13 @@ namespace coproduct
     @[hott] def inr_inl (x : β) (y : α) : (inr x = inl y :> α + β) ≃ 𝟎 :=
     recognize x (inl y)
   end inr
+
+  @[hott] def code {α β : Type u} : α + β → α + β → Type u
+  | (inl a) := inl.code a
+  | (inr b) := inr.code b
+
+  @[hott] def path_sum {α β : Type u} (z₁ z₂ : α + β) (p : code z₁ z₂) : z₁ = z₂ :=
+  begin induction z₁; induction z₂; try { { apply Id.map, exact p } <|> induction p } end
 end coproduct
 
 end ground_zero.types
