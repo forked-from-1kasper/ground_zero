@@ -69,6 +69,13 @@ begin
                     (λ x, ε (f x)) (g (f x)) x (η x)
 end
 
+@[hott] def respects_equiv_over_fst {α : Type u} {β : Type v}
+  (φ : α ≃ β) (C : α → Type w) : (Σ x, C x) ≃ (Σ x, C (φ.left x)) :=
+begin
+  fapply sigma.replace_ishae, apply qinv_impls_ishae,
+  existsi φ.1, split, apply φ.left_forward, apply φ.forward_left
+end
+
 @[hott] def fib_eq {α : Type u} {β : Type v} (f : α → β) {y : β}
   {a b : α} (p : f a = y) (q : f b = y) (H : Σ (γ : a = b), f # γ ⬝ q = p) :
   ⟨a, p⟩ = ⟨b, q⟩ :> fib f y :=
@@ -160,7 +167,7 @@ end
 @[hott] def prop_equiv_prop {α β : Type u} (G : prop β) : prop (α ≃ β) :=
 begin intros f g, apply theorems.prop.equiv_hmtpy_lem, intro x, apply G end
 
-@[hott] theorem prop_exercise (π : Type u) : (prop π) ≃ (π ≃ ∥π∥) :=
+@[hott] def prop_exercise (π : Type u) : (prop π) ≃ (π ≃ ∥π∥) :=
 begin
   existsi @prop_equiv π, split; existsi prop_from_equiv,
   { intro x, apply structures.prop_is_prop },

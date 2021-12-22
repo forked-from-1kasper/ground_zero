@@ -1,4 +1,4 @@
-import ground_zero.types.sigma
+import ground_zero.theorems.prop
 import ground_zero.structures
 
 open ground_zero ground_zero.types
@@ -162,7 +162,7 @@ coproduct.dep_univ_property A B (λ _, X)
 
 -- exercise 2.10
 
-@[hott] def sigma.assoc {A : Type u} (B : A → Type v) (C : (Σ x, B x) → Type w) :
+@[hott] def sigma.assoc (A : Type u) (B : A → Type v) (C : (Σ x, B x) → Type w) :
   (Σ x, Σ y, C ⟨x, y⟩) ≃ (Σ p, C p) :=
 begin
   fapply sigma.mk, { intro w, existsi (⟨w.1, w.2.1⟩ : Σ x, B x), exact w.2.2 },
@@ -172,3 +172,22 @@ begin
   { induction w with w c, induction w with a b, reflexivity },
   { induction w with a w, induction w with b c, reflexivity }
 end
+
+-- exercise 2.11
+
+namespace «2.11»
+  variables {P : Type k} {A : Type u} {B : Type v} {C : Type w}
+            (η : pullback_square P A B C)
+
+  @[hott] example : P ≃ pullback C η.1.right η.1.bot :=
+  begin
+    transitivity, symmetry, apply structures.cozero_morphism_eqv,
+    transitivity, fapply sigma.mk, exact η.1.induced 𝟏, apply η.2,
+    transitivity, apply theorems.prop.respects_equiv_over_fst,
+    apply ua.product_equiv₃; apply structures.cozero_morphism_eqv,
+    apply sigma.respects_equiv, intro w,
+    transitivity, apply theorems.full,
+    transitivity, apply structures.family_over_unit,
+    induction w with a b, reflexivity
+  end
+end «2.11»

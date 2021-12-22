@@ -143,7 +143,7 @@ begin existsi bnot, split; existsi bnot; intro x; induction x; trivial end
 | (coproduct.inr x) (coproduct.inr y) :=
   transport structures.prop (ua $ @coproduct.inr.inj' α β x y)⁻¹ g
 
-@[hott] noncomputable theorem universe_not_a_set : ¬(hset Type) :=
+@[hott] noncomputable def universe_not_a_set : ¬(hset Type) :=
 begin
   intro error,
   let p : bool = bool := ua neg_bool_equiv,
@@ -157,14 +157,14 @@ begin
 end
 
 -- exercise 2.17 (i) in HoTT book
-@[hott] noncomputable theorem product_equiv₁ {α α' β β' : Type u}
+@[hott] noncomputable def product_equiv₁ {α α' β β' : Type u}
   (e₁ : α ≃ α') (e₂ : β ≃ β') : (α × β) ≃ (α' × β') :=
 begin
   have p := ua e₁, have q := ua e₂,
   induction p, induction q, reflexivity
 end
 
-@[hott] noncomputable theorem product_equiv₂ {α α' β β' : Type u}
+@[hott] noncomputable def product_equiv₂ {α α' β β' : Type u}
   (e₁ : α ≃ α') (e₂ : β ≃ β') : (α × β) ≃ (α' × β') :=
 begin
   refine J _ e₁, intro A,
@@ -174,28 +174,20 @@ end
 
 section
   open ground_zero.types.product
-  @[hott] theorem product_equiv₃ {α : Type u} {α' : Type v} {β : Type u'} {β' : Type v'}
+  @[hott] def product_equiv₃ {α : Type u} {α' : Type v} {β : Type u'} {β' : Type v'}
     (e₁ : α ≃ α') (e₂ : β ≃ β') : (α × β) ≃ (α' × β') :=
   begin
-    cases e₁ with f H, induction H with linv rinv,
-    cases linv with g α₁, induction rinv with h β₁,
-  
-    cases e₂ with f' H, induction H with linv' rinv',
-    cases linv' with g' α₂, induction rinv' with h' β₂,
-  
-    existsi (bimap f f'), split,
-    { existsi (bimap g g'), intro x,
-      induction x with u v,
-      apply construction,
-      exact α₁ u, exact α₂ v },
-    { existsi (bimap h h'), intro x,
-      induction x with u v,
-      apply construction,
-      exact β₁ u, exact β₂ v }
+    existsi (bimap e₁.forward e₂.forward), split,
+    { existsi (bimap e₁.left e₂.left), intro x,
+      induction x with a b, apply construction,
+      apply e₁.left_forward, apply e₂.left_forward },
+    { existsi (bimap e₁.right e₂.right), intro x,
+      induction x with a b, apply construction,
+      apply e₁.forward_right, apply e₂.forward_right }
   end
 end
 
-@[hott] theorem family_on_bool {π : bool → Type u} :
+@[hott] def family_on_bool {π : bool → Type u} :
   (π ff × π tt) ≃ Π (b : bool), π b := begin
   let construct : (π ff × π tt) → Π (b : bool), π b :=
   begin

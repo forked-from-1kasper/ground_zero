@@ -2,11 +2,12 @@ import ground_zero.types.unit ground_zero.types.coproduct
 import ground_zero.types.product ground_zero.types.sigma
 open ground_zero.types.unit ground_zero.types.Id (map)
 open ground_zero.types (coproduct idp)
+open ground_zero.types.equiv (biinv)
 
 hott theory
 
 namespace ground_zero
-universes u v w
+universes u v w k r
 
 namespace structures
 def is_loop {α : Type u} {a : α} (p : a = a) := ¬(p = idp a)
@@ -127,6 +128,16 @@ end
 @[hott] def zero_morphism_eqv {α : Type u} : (α → 𝟏) ≃ 𝟏 :=
 contr_equiv_unit zero_morphism_contr
 
+@[hott] def family_over_unit (C : 𝟏 → Type u) : (Π x, C x) ≃ (C ★) :=
+begin
+  fapply sigma.mk, { intro φ, apply φ }, apply types.qinv.to_biinv,
+  fapply sigma.mk, { intros c x, induction x, exact c }, split, { intro x, reflexivity },
+  { intro ψ, apply HITs.interval.funext, intro x, induction x, reflexivity }
+end
+
+@[hott] def cozero_morphism_eqv {α : Type u} : (𝟏 → α) ≃ α :=
+by apply family_over_unit
+
 @[hott] def contr_type_equiv {α : Type u} {β : Type v}
   (p : contr α) (q : contr β) : α ≃ β := calc
       α ≃ 𝟏 : contr_equiv_unit p
@@ -148,10 +159,10 @@ def bool_to_universe : bool → Type
 @[hott] def ff_neq_tt : ¬(ff = tt) :=
 λ h, ground_zero.types.equiv.transport bool_to_universe h⁻¹ ★
 
-@[hott] theorem function_space : ¬(Π {α β : Type}, prop (α → β)) :=
+@[hott] def function_space : ¬(Π {α β : Type}, prop (α → β)) :=
 λ h, ff_neq_tt (types.equiv.homotopy.Id (h id bnot) ff)
 
-@[hott] theorem auto_contr {α : Type u} (x : α)
+@[hott] def auto_contr {α : Type u} (x : α)
   (h : prop (α → α)) : prop α :=
 begin
   apply contr_impl_prop, existsi x,
@@ -301,7 +312,7 @@ lift.elem ∘ squash.prop (squash'.elem ∘ f)
 def K (α : Type u) :=
 Π (a : α) (p : a = a :> α), p = idp a :> a = a :> α
 
-@[hott] theorem K_iff_set (α : Type u) : K α ↔ hset α :=
+@[hott] def K_iff_set (α : Type u) : K α ↔ hset α :=
 begin
   split,
   { intro h, intros x y p q,
@@ -566,13 +577,22 @@ namespace theorems
     {f g : Π x, β x} : (f ~ g) → (f = g) :=
   @homotopy_ind _ _ f (λ g x, f = g) (idp _) g
 
+  @[hott] def funext_happly {α : Type u} {β : α → Type v}
+    {f g : Π x, β x} : funext ∘ @HITs.interval.happly α β f g ~ id :=
+  begin intro p, induction p, apply homotopy_ind_id end
+
+  @[hott] def happly_funext {α : Type u} {β : α → Type v}
+    (f g : Π x, β x) : HITs.interval.happly ∘ @funext α β f g ~ id :=
+  begin
+    apply homotopy_ind, change _ = HITs.interval.happly (idp _),
+    apply Id.map HITs.interval.happly, apply homotopy_ind_id
+  end
+
   @[hott] def full {α : Type u} {β : α → Type v}
     {f g : Π x, β x} : (f = g) ≃ (f ~ g) :=
   begin
     existsi HITs.interval.happly, split; existsi funext,
-    { intro x, induction x, apply homotopy_ind_id },
-    { apply homotopy_ind, change _ = HITs.interval.happly (idp _),
-      apply Id.map HITs.interval.happly, apply homotopy_ind_id }
+    apply funext_happly, apply happly_funext
   end
 
   @[hott] def funext_id {α : Type u} {β : α → Type v}
@@ -732,5 +752,30 @@ end
 
 @[hott] def eqrel.eq {α : Type u} {x y : eqrel α} (p : x.rel = y.rel) : x = y :=
 begin apply types.sigma.prod p, apply iseqrel.prop end
+
+@[hott] def hcomm_square (P : Type k) (A : Type u) (B : Type v) (C : Type w) :=
+Σ (f : A → C) (g : B → C) (h : P → A) (k : P → B), f ∘ h = g ∘ k :> P → C
+
+@[hott] def pullback {A : Type u} {B : Type v}
+  (C : Type w) (f : A → C) (g : B → C) :=
+Σ (p : A × B), f p.1 = g p.2
+
+namespace hcomm_square
+  variables {P : Type k} {A : Type u} {B : Type v} {C : Type w}
+
+  def top   (η : hcomm_square P A B C) : P → A := η.2.2.1
+  def bot   (η : hcomm_square P A B C) : B → C := η.2.1
+  def left  (η : hcomm_square P A B C) : P → B := η.2.2.2.1
+  def right (η : hcomm_square P A B C) : A → C := η.1
+
+  def naturality (η : hcomm_square P A B C) : η.right ∘ η.top = η.bot ∘ η.left := η.2.2.2.2
+
+  @[hott] def induced (η : hcomm_square P A B C) (X : Type r) :
+    (X → P) → @pullback (X → A) (X → B) (X → C) (λ f, right η ∘ f) (λ g, bot η ∘ g) :=
+  λ φ, ⟨(top η ∘ φ, left η ∘ φ), @map (P → C) (X → C) (right η ∘ top η) (bot η ∘ left η) (∘ φ) η.naturality⟩
+end hcomm_square
+
+@[hott] def pullback_square (P : Type k) (A : Type u) (B : Type v) (C : Type w) :=
+Σ (η : hcomm_square P A B C), Π X, biinv (η.induced X)
 
 end ground_zero

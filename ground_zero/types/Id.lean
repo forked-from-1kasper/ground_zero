@@ -111,6 +111,9 @@ namespace Id
     apply Id.comp_inv, exact r
   end
 
+  @[hott] def comp_refl_if_eq {α : Type u} {a b : α} (p q : a = b) : p = q → p⁻¹ ⬝ q = idp b :=
+  begin intro α, induction α, apply inv_comp end
+
   section
     variables {α : Type u} {β : Type v} {a b : α}
               (f : α → β) (p : a = b :> α)
@@ -200,14 +203,14 @@ namespace whiskering
   (p ⬝ₗ κ) ⬝ (ν ⬝ᵣ s)
   infix ` ⋆′ `:65 := horizontal_comp₂
 
-  @[hott] lemma comp_uniq : ν ⋆ κ = ν ⋆′ κ :=
+  @[hott] def comp_uniq : ν ⋆ κ = ν ⋆′ κ :=
   begin
     induction p, induction r,
     induction ν, induction κ,
     reflexivity
   end
 
-  @[hott] lemma loop₁ {α : Type u} {a : α}
+  @[hott] def loop₁ {α : Type u} {a : α}
     {ν κ : idp a = idp a} : ν ⬝ κ = ν ⋆ κ :=
   begin
     symmetry, transitivity,
@@ -216,7 +219,7 @@ namespace whiskering
     apply Id.map (λ p, ν ⬝ p), apply Id.refl_twice
   end
 
-  @[hott] lemma loop₂ {α : Type u} {a : α}
+  @[hott] def loop₂ {α : Type u} {a : α}
     {ν κ : idp a = idp a} : ν ⋆′ κ = κ ⬝ ν :=
   begin
     transitivity,
@@ -225,7 +228,7 @@ namespace whiskering
     apply Id.map (λ p, κ ⬝ p), apply Id.refl_twice
   end
 
-  @[hott] theorem «Eckmann–Hilton argument» {α : Type u} {a : α}
+  @[hott] def «Eckmann–Hilton argument» {α : Type u} {a : α}
     (ν κ : idp a = idp a) : ν ⬝ κ = κ ⬝ ν :=
   loop₁ ⬝ comp_uniq ⬝ loop₂
 end whiskering

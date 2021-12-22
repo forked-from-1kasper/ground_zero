@@ -22,7 +22,7 @@ namespace sigma
   | ⟨a, b⟩ := idp ⟨a, b⟩
 
   @[hott] def prod {α : Type u} {β : α → Type v} {u v : sigma β}
-    (p : u.fst = v.fst) (q : equiv.subst p u.snd = v.snd) : u = v :=
+    (p : u.1 = v.1) (q : equiv.subst p u.2 = v.2) : u = v :=
   begin
     cases u with x u, cases v with y v,
     change x = y at p, induction p,
@@ -85,22 +85,37 @@ namespace sigma
     (Σ x, f x = g x) → (Σ x, g x = f x)
   | ⟨x, h⟩ := ⟨x, h⁻¹⟩
 
-  @[hott] def map {α : Type v} {η ε : α → Type u}
+  @[hott] def map {α : Type v} {η : α → Type u} {ε : α → Type w}
     (f : Π x, η x → ε x) : (Σ x, η x) → (Σ x, ε x)
   | ⟨x, p⟩ := ⟨x, f x p⟩
 
-  @[hott] def respects_equiv {α : Type v} {η ε : α → Type u}
+  @[hott] def respects_equiv {α : Type v} {η : α → Type u} {ε : α → Type w}
     (e : Π x, η x ≃ ε x) : (Σ x, η x) ≃ (Σ x, ε x) :=
   begin
     existsi map (λ x, (e x).forward), split,
     { existsi map (λ x, (e x).left), intro x,
-      induction x with x p, fapply prod,
-      { trivial },
+      induction x with x p, fapply prod, { trivial },
       { transitivity, apply (e x).left_forward, trivial } },
     { existsi map (λ x, (e x).right), intro x,
-      induction x with x p, fapply prod,
-      { trivial },
+      induction x with x p, fapply prod, { trivial },
       { transitivity, apply (e x).forward_right, trivial } }
+  end
+
+  @[hott] def replace_ishae {A : Type u} {B : Type v} {C : A → Type w}
+    (g : B → A) (ρ : ishae g) : (Σ x, C x) ≃ (Σ x, C (g x)) :=
+  begin
+    fapply sigma.mk,
+    { intro w, existsi ρ.1 w.1, apply equiv.transport C,
+      symmetry, apply ρ.2.2.1, exact w.2 },
+    apply qinv.to_biinv, fapply sigma.mk,
+    { intro w, existsi g w.1, exact w.2 }, split;
+    intro w; induction w with b w,
+    { fapply prod, apply ρ.2.1,
+      transitivity, apply equiv.transport_comp,
+      transitivity, symmetry, apply equiv.subst_comp,
+      transitivity, apply Id.map (λ p, equiv.subst p w),
+      apply Id.comp_refl_if_eq, symmetry, apply ρ.2.2.2, reflexivity },
+    { fapply prod, apply ρ.2.2.1, apply equiv.transport_back_and_forward }
   end
 
   @[hott] def hmtpy_inv_eqv {α : Type v} {β : Type u} (f g : α → β) :

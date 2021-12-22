@@ -255,7 +255,7 @@ namespace equiv
     subst p f = transport γ p ∘ f ∘ transport β p⁻¹ :=
   begin induction p, reflexivity end
 
-  @[hott] lemma transport_over_family {α : Type u}
+  @[hott] def transport_over_family {α : Type u}
     {x y : α} {π δ : α → Type v}
     (f : Π (x : α), π x → δ x)
     (p : x = y :> α) (u : π x) :

@@ -4,7 +4,7 @@ namespace ground_zero.types
 
 universe u
 
-@[hott] lemma uninhabited_type {α : Type u} (f : α → empty) : α ≃ empty :=
+@[hott] def uninhabited_type {α : Type u} (f : α → empty) : α ≃ empty :=
 begin
   have g : empty → α := begin intro e, induction e end,
   existsi f, split; existsi g,
@@ -18,7 +18,7 @@ inductive lost (α : Type u)
 @[hott] def code {α : Type u} : lost α → empty
 | (lost.cons head tail) := code tail
 
-@[hott] theorem is_zero {α : Type u} : lost α ≃ empty :=
+@[hott] def is_zero {α : Type u} : lost α ≃ empty :=
 uninhabited_type code
 
 namespace lost
