@@ -159,3 +159,16 @@ end
 @[hott] def coproduct.univ_property (A : Type u) (B : Type v) (X : Type w) :
   (A + B → X) ≃ (A → X) × (B → X) :=
 coproduct.dep_univ_property A B (λ _, X)
+
+-- exercise 2.10
+
+@[hott] def sigma.assoc {A : Type u} (B : A → Type v) (C : (Σ x, B x) → Type w) :
+  (Σ x, Σ y, C ⟨x, y⟩) ≃ (Σ p, C p) :=
+begin
+  fapply sigma.mk, { intro w, existsi (⟨w.1, w.2.1⟩ : Σ x, B x), exact w.2.2 },
+  apply qinv.to_biinv, fapply sigma.mk,
+  { intro w, existsi w.1.1, existsi w.1.2, apply transport C,
+    symmetry, exact sigma.uniq w.1, exact w.2 }, split; intro w,
+  { induction w with w c, induction w with a b, reflexivity },
+  { induction w with a w, induction w with b c, reflexivity }
+end
