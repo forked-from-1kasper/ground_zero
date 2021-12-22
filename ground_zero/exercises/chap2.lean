@@ -220,6 +220,13 @@ end «2.12»
 
 example : (𝟐 ≃ 𝟐) ≃ 𝟐 := theorems.prop.bool_equiv_eqv_bool
 
+-- exercise 2.14
+
+-- Assume Γ, p : x = y ⊢ x ≡ y, let Γ = A : U, a : A. Then Γ, b : A, p : a = b ⊢ p = idp a : U,
+-- because in this context we have p : a = b, so a ≡ b, so p : a = a.
+-- “@Id.rec A a (λ b, p = idp a) (λ x, idp a) a” is then well-typed.
+-- This means that we have a proof of “Π (p : a = a) → p = idp a” leading to contradiction.
+
 -- exercise 2.15
 
 @[hott] example {A : Type u} {B : A → Type v} {x y : A} (p : x = y) :
