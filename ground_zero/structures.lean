@@ -753,6 +753,10 @@ end
 @[hott] def eqrel.eq {α : Type u} {x y : eqrel α} (p : x.rel = y.rel) : x = y :=
 begin apply types.sigma.prod p, apply iseqrel.prop end
 
+@[hott] def iff_over_pi {α : Type u} {β : α → Type v} {β' : α → Type w}
+  (φ : Π x, β x ↔ β' x) : (Π x, β x) ↔ (Π x, β' x) :=
+begin split, { intros f x, apply (φ x).left, apply f }, { intros g x, apply (φ x).right, apply g } end
+
 @[hott] def hcomm_square (P : Type k) (A : Type u) (B : Type v) (C : Type w) :=
 Σ (f : A → C) (g : B → C) (h : P → A) (k : P → B), f ∘ h = g ∘ k :> P → C
 
@@ -773,9 +777,12 @@ namespace hcomm_square
   @[hott] def induced (η : hcomm_square P A B C) (X : Type r) :
     (X → P) → @pullback (X → A) (X → B) (X → C) (λ f, right η ∘ f) (λ g, bot η ∘ g) :=
   λ φ, ⟨(top η ∘ φ, left η ∘ φ), @map (P → C) (X → C) (right η ∘ top η) (bot η ∘ left η) (∘ φ) η.naturality⟩
+
+  @[hott] def is_pullback (η : hcomm_square P A B C) :=
+  Π X, biinv (η.induced X)
 end hcomm_square
 
 @[hott] def pullback_square (P : Type k) (A : Type u) (B : Type v) (C : Type w) :=
-Σ (η : hcomm_square P A B C), Π X, biinv (η.induced X)
+Σ (η : hcomm_square P A B C), η.is_pullback
 
 end ground_zero

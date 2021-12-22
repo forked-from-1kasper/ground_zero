@@ -101,8 +101,11 @@ namespace equiv
     (f : α ≃ β) (g : β ≃ γ) : α ≃ γ :=
   ⟨g.1 ∘ f.1, biinv_trans f.2 g.2⟩
 
-  @[hott] def idtoeqv {α β : Type u} (p : α = β :> Type u) : α ≃ β :=
+  @[hott] def idtoeqv {α β : Type u} (p : α = β) : α ≃ β :=
   begin induction p, apply id end
+
+  @[hott] def idtoiff {α β : Type u} (p : α = β) : α ↔ β :=
+  begin induction p, reflexivity end
 
   @[hott] def transportconst {α β : Type u} : α = β → α → β :=
   forward ∘ idtoeqv

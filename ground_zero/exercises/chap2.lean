@@ -7,7 +7,7 @@ open ground_zero.proto
 
 open ground_zero.structures (prop contr)
 
-universes u v u' v' w k
+universes u v u' v' w w' k k'
 hott theory
 
 -- exercise 2.1
@@ -191,3 +191,44 @@ namespace «2.11»
     induction w with a b, reflexivity
   end
 end «2.11»
+
+-- exercise 2.12
+
+namespace «2.12»
+  variables {A : Type u} {B : Type u'}
+            {C : Type v} {D : Type v'}
+            {E : Type w} {F : Type w'}
+            {f : A → C} {g : C → E}
+            {i : A → B} {j : C → D} {k : E → F}
+            {h : B → D} {s : D → F}
+            (α : j ∘ f = h ∘ i :> A → D)
+            (β : k ∘ g = s ∘ j :> C → F)
+
+  include α β
+
+  def left  : hcomm_square A C B D := ⟨j, h, f, i, α⟩
+  def right : hcomm_square C E D F := ⟨k, s, g, j, β⟩
+
+  def outer : hcomm_square A E B F :=
+  ⟨k, s ∘ h, g ∘ f, i, @Id.map (C → F) (A → F) _ _ (∘ f) β
+                     ⬝ @Id.map _ (A → F) _ _ (λ φ, s ∘ φ) α⟩
+
+  -- ???
+end «2.12»
+
+-- exercise 2.13
+
+example : (𝟐 ≃ 𝟐) ≃ 𝟐 := theorems.prop.bool_equiv_eqv_bool
+
+-- exercise 2.15
+
+@[hott] example {A : Type u} {B : A → Type v} {x y : A} (p : x = y) :
+  transport B p = idtoeqv (B # p) :=
+begin induction p, reflexivity end
+
+-- exercise 2.18
+
+@[hott] example {A : Type u} {B : A → Type v} {f g : Π x, B x}
+  (H : f ~ g) {x y : A} (p : x = y) :
+    (transport B p) # (H x) ⬝ apd g p = apd f p ⬝ H y :=
+begin induction p, transitivity, apply Id.refl_right, apply equiv.idmap end
