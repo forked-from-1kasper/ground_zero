@@ -144,3 +144,18 @@ namespace «2.8»
     = coproduct.path_sum (φ g h x) (φ g h y) (ρ g h p) :=
   begin induction x; induction y; { induction p, try { reflexivity } } end
 end «2.8»
+
+-- exercise 2.9
+
+@[hott] def coproduct.dep_univ_property (A : Type u) (B : Type v) (X : A + B → Type w) :
+  (Π x, X x) ≃ (Π a, X (coproduct.inl a)) × (Π b, X (coproduct.inr b)) :=
+begin
+  fapply sigma.mk, { intro φ, exact (λ a, φ (coproduct.inl a), λ b, φ (coproduct.inr b)) },
+  apply qinv.to_biinv, fapply sigma.mk, { intros φ x, induction x, apply φ.1, apply φ.2 },
+  split, { intro x, induction x with φ ψ,  reflexivity },
+  { intro f, apply theorems.funext, intro y, induction y; reflexivity }
+end
+
+@[hott] def coproduct.univ_property (A : Type u) (B : Type v) (X : Type w) :
+  (A + B → X) ≃ (A → X) × (B → X) :=
+coproduct.dep_univ_property A B (λ _, X)
