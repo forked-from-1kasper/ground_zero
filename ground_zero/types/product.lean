@@ -1,5 +1,7 @@
 import ground_zero.theorems.funext
 
+hott theory
+
 namespace ground_zero.types
 
 universes u v u' v' w
@@ -22,6 +24,9 @@ namespace product
     (p : a = b :> α) (q : c = d :> β) :
     (a, c) = (b, d) :> α × β :=
   construction a b c d p q
+
+  @[hott] def prod' {α : Type u} {β : Type v} (x y : α × β) (p : x.1 = y.1) (q : x.2 = y.2) : x = y :=
+  begin induction x, induction y, apply prod; assumption end
 
   def ind {π : α × β → Type w} (g : Π x y, π (x, y)) :
     Π (x : α × β), π x

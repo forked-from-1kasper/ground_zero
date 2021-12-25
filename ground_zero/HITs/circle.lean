@@ -619,6 +619,46 @@ namespace circle
   def pow (x : S¹) : ℤ → S¹
   | (integer.pos n) := pow' x n
   | (integer.neg n) := pow' (inv x) (n + 1)
+
+  def uarec {A : Type u} (φ : A ≃ A) : S¹ → Type u := rec A (ua φ)
+
+  @[hott] def Ωrec {A : Type u} (zero : A) (succ pred : A → A)
+    (p : succ ∘ pred ~ id) (q : pred ∘ succ ~ id) : base = base → A :=
+  λ r, @transport S¹ (uarec ⟨succ, (⟨pred, q⟩, ⟨pred, p⟩)⟩) base base r zero
+
+  section
+    variables {A : Type u} (zero : A) (succ pred : A → A)
+              (p : succ ∘ pred ~ id) (q : pred ∘ succ ~ id)
+
+    @[hott] def Ωrecβ₁ : Ωrec zero succ pred p q (idp base) = zero :=
+    by reflexivity
+
+    @[hott] noncomputable def Ωrecβ₂ (r : base = base) :
+        Ωrec zero succ pred p q (r ⬝ loop)
+      = succ (Ωrec zero succ pred p q r) :=
+    begin
+      transitivity, apply types.equiv.transport_to_transportconst,
+      transitivity, apply Id.map (λ s, equiv.transportconst s zero),
+      transitivity, apply types.equiv.map_functoriality, apply Id.map, apply recβrule₂,
+      transitivity, apply types.equiv.transportconst_over_composition,
+      transitivity, apply ua.transportconst_rule, apply Id.map succ,
+      symmetry, apply types.equiv.transport_to_transportconst
+    end
+
+    @[hott] noncomputable def Ωrecβ₃ (r : base = base) :
+        Ωrec zero succ pred p q (r ⬝ loop⁻¹)
+      = pred (Ωrec zero succ pred p q r) :=
+    begin
+      transitivity, apply types.equiv.transport_to_transportconst,
+      transitivity, apply Id.map (λ s, equiv.transportconst s zero),
+      transitivity, apply types.equiv.map_functoriality, apply Id.map,
+      transitivity, apply types.Id.map_inv, apply Id.map Id.symm, apply recβrule₂,
+      transitivity, apply types.equiv.transportconst_over_composition,
+      transitivity, apply types.equiv.transportconst_over_inv,
+      transitivity, apply ua.transportconst_inv_rule, apply Id.map pred,
+      symmetry, apply types.equiv.transport_to_transportconst
+    end
+  end
 end circle
 
 namespace ncircle
