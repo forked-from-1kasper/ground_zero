@@ -388,8 +388,11 @@ namespace ground_zero.algebra
     (A : Absolute G) : Π x, A.1 x ≤ 0 → A.1 x = 0 :=
   begin intros x p, apply @antisymmetric.asymm R.κ, exact p, apply Absolute.ge_zero end
 
+  @[hott] def Absolute.metric (G : pregroup) [group G] (A : Absolute G) :=
+  λ x y, A.1 (G.φ x (G.ι y))
+
   @[hott] def Absolute.metrizable (G : pregroup) [group G] (A : Absolute G) :
-    metric (λ x y, A.1 (G.φ x (G.ι y))) :=
+    metric (Absolute.metric G A) :=
   begin
     apply (_, (_, _)),
     { intros x y, split; intro p,
@@ -404,6 +407,19 @@ namespace ground_zero.algebra
       apply Id.map A.1, apply group.chain_rdiv x y z, apply A.2.2.2 }
   end
 
+  @[hott] def Absolute.space (G : pregroup) [group G] (A : Absolute G) : Metric :=
+  ⟨G.1, ⟨Absolute.metric G A, Absolute.metrizable G A⟩⟩
+
+  def tendsto {M₁ M₂ : Metric} (f : M₁.carrier → M₂.carrier) :=
+  λ x₀ L, ∀ (ε : ℝ), 0 < ε → merely (Σ (δ : ℝ), (0 < δ) ×
+    (Π x, 0 < M₁.ρ x x₀ → M₁.ρ x x₀ < δ → M₂.ρ (f x) L < ε))
+
+  def continuous {M₁ M₂ : Metric} (f : M₁.carrier → M₂.carrier) :=
+  λ x, tendsto f x (f x)
+
+  def continuous.pointed (M₁ M₂ : Metric⁎) := @continuous M₁.1 M₂.1
+  notation `continuous⁎` := continuous.pointed
+
   @[hott] noncomputable def R.absolute : absolute R.τ⁺ abs :=
   begin
     apply (_, (_, _)), intro x, split, apply abs.zero_if,
@@ -416,6 +432,29 @@ namespace ground_zero.algebra
 
   @[hott] noncomputable def Rₘ : Metric :=
   ⟨R.1, ⟨λ x y, abs (x - y), R.metrizable⟩⟩
+
+  @[hott] noncomputable def Absolute.mul_inv (G : pregroup) [group G] (A : Absolute G)
+    (x y : G.carrier) : abs (A.1 x - A.1 y) ≤ A.1 (G.φ x y) :=
+  begin
+    apply abs.le_if_minus_le_and_le,
+    { apply ge_if_minus_le, apply equiv.transport (λ w, w ≤ A.1 (G.φ x y)),
+      symmetry, apply @group.x_mul_inv_y_inv R.τ⁺, apply sub_le_if_add_ge_rev,
+      apply equiv.transport (λ w, A.1 y ≤ w + A.1 (G.φ x y)), symmetry, apply A.2.2.1,
+      apply equiv.transport (λ w, w ≤ A.1 (G.ι x) + A.1 (G.φ x y)),
+      apply Id.map A.1, symmetry, apply group.rev_cancel_left x y, apply A.2.2.2 },
+    { apply sub_le_if_add_ge, apply equiv.transport (λ w, A.1 x ≤ A.1 (G.φ x y) + w),
+      symmetry, apply A.2.2.1, apply equiv.transport (λ w, w ≤ A.1 (G.φ x y) + A.1 (G.ι y)),
+      apply Id.map A.1, symmetry, apply group.cancel_right x y, apply A.2.2.2 }
+  end
+
+  @[hott] noncomputable def Absolute.continuous (G : pregroup) [group G]
+    (A : Absolute G) : Π m, @continuous (Absolute.space G A) Rₘ A.1 m :=
+  begin
+    intros x ε H, apply merely.elem, existsi ε, split, exact H,
+    intros y G₁ G₂, apply equiv.transport (λ w, abs (A.1 y - w) < ε),
+    symmetry, apply A.2.2.1, apply strict_ineq_trans_left,
+    apply Absolute.mul_inv, exact G₂
+  end
 
   @[hott] noncomputable def triangle_sub (x y z : ℝ) : abs (x - z) ≤ abs (x - y) + abs (y - z) :=
   Rₘ.triangle x y z
@@ -497,20 +536,6 @@ namespace ground_zero.algebra
   @[hott] noncomputable def Lim.pointed : Metric⁎ → Metric⁎ := λ M, ⟨Limₘ M, (Lim M.1).e⟩
   notation `Lim⁎` := Lim.pointed
 
-  @[hott] noncomputable def Absolute.mul_inv (G : pregroup) [group G] (A : Absolute G)
-    (x y : G.carrier) : abs (A.1 x - A.1 y) ≤ A.1 (G.φ x y) :=
-  begin
-    apply abs.le_if_minus_le_and_le,
-    { apply ge_if_minus_le, apply equiv.transport (λ w, w ≤ A.1 (G.φ x y)),
-      symmetry, apply @group.x_mul_inv_y_inv R.τ⁺, apply sub_le_if_add_ge_rev,
-      apply equiv.transport (λ w, A.1 y ≤ w + A.1 (G.φ x y)), symmetry, apply A.2.2.1,
-      apply equiv.transport (λ w, w ≤ A.1 (G.ι x) + A.1 (G.φ x y)),
-      apply Id.map A.1, symmetry, apply group.rev_cancel_left x y, apply A.2.2.2 },
-    { apply sub_le_if_add_ge, apply equiv.transport (λ w, A.1 x ≤ A.1 (G.φ x y) + w),
-      symmetry, apply A.2.2.1, apply equiv.transport (λ w, w ≤ A.1 (G.φ x y) + A.1 (G.ι y)),
-      apply Id.map A.1, symmetry, apply group.cancel_right x y, apply A.2.2.2 }
-  end
-
   @[hott] noncomputable def ω.mul_inv (M : Metric⁎) (φ ψ : Lim.carrier M.1) :
     abs (ω M φ - ω M ψ) ≤ ω M (Lim.φ φ ψ) :=
   Absolute.mul_inv (Lim M.1) ⟨ω M, Lim.absolute M⟩ φ ψ
@@ -518,21 +543,7 @@ namespace ground_zero.algebra
   @[hott] noncomputable def R.rev_triangle_ineq (x y : ℝ) : abs (abs x - abs y) ≤ abs (x + y) :=
   Absolute.mul_inv R.τ⁺ ⟨abs, R.absolute⟩ x y
 
-  def tendsto {M₁ M₂ : Metric} (f : M₁.carrier → M₂.carrier) :=
-  λ x₀ L, ∀ (ε : ℝ), 0 < ε → merely (Σ (δ : ℝ), (0 < δ) ×
-    (Π x, 0 < M₁.ρ x x₀ → M₁.ρ x x₀ < δ → M₂.ρ (f x) L < ε))
-
-  def continuous {M₁ M₂ : Metric} (f : M₁.carrier → M₂.carrier) :=
-  λ x, tendsto f x (f x)
-
-  def continuous.pointed (M₁ M₂ : Metric⁎) := @continuous M₁.1 M₂.1
-  notation `continuous⁎` := continuous.pointed
-
   @[hott] noncomputable def ω.continuous (M : Metric⁎) :
     Π m, continuous⁎ (Lim⁎ M) R⁎ (ω M) m :=
-  begin
-    intros x ε H, apply merely.elem, existsi ε, split, exact H,
-    intros y G₁ G₂, apply equiv.transport (λ w, abs (ω M y - w) < ε),
-    apply ω.inv, apply strict_ineq_trans_left, apply ω.mul_inv, exact G₂
-  end
+  Absolute.continuous (Lim M.1) ⟨ω M, Lim.absolute M⟩
 end ground_zero.algebra
