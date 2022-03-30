@@ -24,9 +24,10 @@ digraph dependency_map {
       "algebra/Z"
     }
     "algebra/homology"
+    "algebra/limited"
     "algebra/monoid"
-    "algebra/orgraph" -> { "algebra/real" }
-    "algebra/real"
+    "algebra/orgraph" -> { "algebra/reals" }
+    "algebra/reals" -> { "algebra/limited" }
     "algebra/ring" -> { "algebra/boolean", "algebra/orgraph" }
     "algebra/transformational"
     "algebra/Z" -> { "algebra/homology" }
