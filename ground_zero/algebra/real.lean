@@ -546,4 +546,10 @@ namespace ground_zero.algebra
   @[hott] noncomputable def ω.continuous (M : Metric⁎) :
     Π m, continuous⁎ (Lim⁎ M) R⁎ (ω M) m :=
   Absolute.continuous (Lim M.1) ⟨ω M, Lim.absolute M⟩
+
+  @[hott] noncomputable def R.closed (a b : ℝ) : ens ℝ :=
+  ⟨λ x, a ≤ x × x ≤ b, λ x, begin apply ground_zero.structures.product_prop; apply R.κ.prop end⟩
+
+  @[hott] def Closed (a b : ℝ) := (R.closed a b).subtype
+  @[hott] def I := Closed 0 1
 end ground_zero.algebra
