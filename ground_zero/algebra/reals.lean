@@ -65,6 +65,9 @@ namespace ground_zero.algebra
     apply le_over_add_left, apply one_gt_zero
   end
 
+  @[hott] noncomputable def zero_le_one : (0 : ℝ) ≤ 1 :=
+  begin apply equiv.transport (λ c, (0 : ℝ) ≤ c), apply R.τ⁺.one_mul, apply le_add_one end
+
   @[hott] noncomputable def N.incl.lt : Π (n m : ℕ), (n ≤ m : Type) → N.incl n ≤ N.incl m
   |    0       0    := λ _, @reflexive.refl R.κ _ (N.incl 0)
   |    0    (m + 1) := λ _, @transitive.trans R.κ _ (N.incl 0) (N.incl m) (N.incl (m + 1))
@@ -427,5 +430,15 @@ namespace ground_zero.algebra
   begin intro p, apply M.eqv, apply @antisymmetric.asymm R.κ, exact p, apply M.positive end
 
   @[hott] def Closed (a b : ℝ) := (R.closed a b).subtype
+
   @[hott] def I := Closed 0 1
+
+  @[hott] noncomputable def I.zero : I :=
+  ⟨0, (@reflexive.refl R.κ _ _, zero_le_one)⟩
+
+  @[hott] noncomputable def I.one : I :=
+  ⟨1, (zero_le_one, @reflexive.refl R.κ _ _)⟩
+
+  @[hott] noncomputable instance : has_zero I := ⟨I.zero⟩
+  @[hott] noncomputable instance : has_one  I := ⟨I.one⟩
 end ground_zero.algebra
