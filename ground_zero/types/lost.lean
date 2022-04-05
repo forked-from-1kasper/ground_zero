@@ -15,13 +15,14 @@ end
 inductive lost (α : Type u)
 | cons {} : α → lost → lost
 
+namespace lost
+
 @[hott] def code {α : Type u} : lost α → empty
 | (lost.cons head tail) := code tail
 
 @[hott] def is_zero {α : Type u} : lost α ≃ empty :=
 uninhabited_type code
 
-namespace lost
 end lost
 
 end ground_zero.types
