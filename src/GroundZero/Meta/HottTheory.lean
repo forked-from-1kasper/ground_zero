@@ -83,8 +83,8 @@ initialize hottAxiom : TagAttribute ← registerTagAttribute `hottAxiom "Unsafel
 
 def checked? (decl : Name) : MetaM Bool := do
   let env ← getEnv
-  let checked ← (← hottDecls.getState env).contains decl
-  let isSafe ← hottAxiom.hasTag env decl
+  let checked := (hottDecls.getState env).contains decl
+  let isSafe := hottAxiom.hasTag env decl
 
   pure (checked ∨ isSafe)
 

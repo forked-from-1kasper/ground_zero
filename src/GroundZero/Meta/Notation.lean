@@ -1,5 +1,5 @@
-import Lean.Parser
-open Lean.Parser.Term
+import Lean.Parser import Lean.Elab.Command
+open Lean.Parser Lean.Parser.Term Lean.Elab.Command
 
 section
   variable {α : Type u} (ρ : α → α → Type v)
