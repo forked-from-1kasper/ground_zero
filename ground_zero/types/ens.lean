@@ -20,6 +20,11 @@ def ens.subtype {α : Type u} (s : ens α) := Σ x, s.fst x
 @[hott] def ens.univ (α : Type u) : ens α :=
 ⟨λ _, 𝟏, λ _, unit_is_prop⟩
 
+@[hott] def ens.empty (α : Type u) : ens α :=
+⟨λ _, 𝟎, λ _, empty_is_prop⟩
+
+instance {α : Type u} : has_emptyc (ens α) := ⟨ens.empty α⟩
+
 @[hott] def ens.union {α : Type u} (a b : ens α) : ens α :=
 ⟨λ x, ∥(x ∈ a) + (x ∈ b)∥, λ _, HITs.merely.uniq⟩
 
@@ -61,6 +66,8 @@ begin intros x, apply id end
 @[hott, trans] def ens.ssubset.trans {α : Type u} {a b c : ens α} :
   a ⊆ b → b ⊆ c → a ⊆ c :=
 λ G H x p, H x (G x p)
+
+@[hott] def ens.parallel {α : Type u} (a b : ens α) := a ∩ b ⊆ ∅
 
 @[hott] def ens.image {α : Type u} {β : Type v} (φ : ens α) (f : α → β) : ens β :=
 ⟨λ y, ∥(Σ x, f x = y × x ∈ φ)∥, λ _, HITs.merely.uniq⟩
