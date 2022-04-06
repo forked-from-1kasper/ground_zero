@@ -50,6 +50,6 @@ namespace ground_zero.algebra
 
   class continuous (G : pregeometry) :=
   (cut (φ ψ : G.carrier → propset) :
-    Π a, (Π x y, (φ x).1 → (ψ y).1 → G.between a x y) →
+    merely (Σ a, Π x y, (φ x).1 → (ψ y).1 → G.between a x y) →
     merely (Σ b, Π x y, (φ x).1 → (ψ y).1 → G.between x b y))
 end ground_zero.algebra
