@@ -77,5 +77,8 @@ namespace ground_zero.algebra
   ⟨λ c, merely (G.between a c b + G.between a b c), λ _, merely.uniq⟩
 
   class euclidean (G : pregeometry) extends absolute G :=
-  (fifth : Π a b c, ¬(G.collinear a b c) → contr (Σ z, ens.parallel (geodesic G a b) (geodesic G c z)))
+  (fifth : Π a₁ b₁ a₂ b₂ a₃ b₃,
+    ens.parallel (geodesic G a₁ b₁) (geodesic G a₃ b₃) →
+    ens.parallel (geodesic G a₂ b₂) (geodesic G a₃ b₃) →
+    ens.parallel (geodesic G a₁ b₁) (geodesic G a₂ b₂))
 end ground_zero.algebra
