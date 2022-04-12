@@ -432,6 +432,7 @@ namespace ground_zero.algebra
   @[hott] def Closed (a b : ℝ) := (R.closed a b).subtype
 
   @[hott] def I := Closed 0 1
+  notation `𝕀` := I
 
   @[hott] noncomputable def I.zero : I :=
   ⟨0, (@reflexive.refl R.κ _ _, zero_le_one)⟩
