@@ -28,7 +28,7 @@ digraph dependency_map {
     "algebra/limited"
     "algebra/monoid"
     "algebra/orgraph" -> { "algebra/reals" }
-    "algebra/reals" -> { "algebra/limited" }
+    "algebra/reals" -> { "algebra/limited", "HITs/topologization" }
     "algebra/ring" -> { "algebra/boolean", "algebra/orgraph" }
     "algebra/transformational"
     "algebra/Z" -> { "algebra/homology" }
@@ -99,6 +99,7 @@ digraph dependency_map {
     "HITs/reals"
     "HITs/simplicial"
     "HITs/suspension" -> { "HITs/circle", "HITs/join" }
+    "HITs/topologization"
     "HITs/trunc" -> { "algebra/monoid", "HITs/quotient" }
   }
 
