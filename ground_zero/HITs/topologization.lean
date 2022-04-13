@@ -6,7 +6,7 @@ open ground_zero.types
 hott theory
 
 namespace ground_zero.HITs
-  universes u v
+  universes u v w
 
   inductive D.core (α : Type u)
   | ε : α → D.core
@@ -24,6 +24,9 @@ namespace ground_zero.HITs
   noncomputable def D.η₀ {α : Type u} (φ : I → α) : D.ρ φ 0 = D.ε (φ 0) := trunc.elem # (graph.line (D.rel.η₀ φ))
   noncomputable def D.η₁ {α : Type u} (φ : I → α) : D.ρ φ 1 = D.ε (φ 1) := trunc.elem # (graph.line (D.rel.η₁ φ))
 
+  @[hott] noncomputable def D.hset (α : Type u) : hset (D α) :=
+  λ _ _, zero_eqv_set.forward (trunc.uniq 0)
+
   @[hott] noncomputable def D.ind {α : Type u} {β : D α → Type v}
     (ε : Π x, β (D.ε x)) (ρ : Π (φ : I → α) (r : 𝕀), β (D.ρ φ r))
     (η₀ : Π (φ : I → α), ρ φ 0 =[D.η₀ φ] ε (φ 0))
@@ -36,6 +39,18 @@ namespace ground_zero.HITs
       transitivity, apply equiv.transport_comp, apply η₀,
       transitivity, apply equiv.transport_comp, apply η₁ },
     { intro x, apply zero_eqv_set.right, apply H }
+  end
+
+  @[hott] noncomputable def D.rec {α : Type u} {β : Type v}
+    (ε : α → β) (ρ : (I → α) → 𝕀 → β)
+    (η₀ : Π (φ : I → α), ρ φ 0 = ε (φ 0))
+    (η₁ : Π (φ : I → α), ρ φ 1 = ε (φ 1))
+    (H : hset β) : D α → β :=
+  begin
+    apply @D.ind α (λ _, β) ε ρ,
+    intro φ, apply equiv.pathover_of_eq, exact η₀ φ,
+    intro ψ, apply equiv.pathover_of_eq, exact η₁ ψ,
+    intros x y z, apply H
   end
 
 end ground_zero.HITs
