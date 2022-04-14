@@ -442,4 +442,11 @@ namespace ground_zero.algebra
 
   @[hott] noncomputable instance : has_zero I := ⟨I.zero⟩
   @[hott] noncomputable instance : has_one  I := ⟨I.one⟩
+
+  @[hott] noncomputable def I.neg : 𝕀 → 𝕀 :=
+  λ ⟨i, p, q⟩, begin
+    existsi (1 - i), split, apply sub_ge_zero_if_le, exact q,
+    apply sub_le_if_add_ge, apply equiv.transport (λ w, w ≤ 1 + i),
+    apply R.τ⁺.mul_one, apply le_over_add_left, exact p
+  end
 end ground_zero.algebra

@@ -130,6 +130,30 @@ namespace ground_zero.algebra
   @[hott] def sub_le_if_add_ge_rev (T : overring) [orfield T] {a b c : T.carrier} (p : a ≤ b + c) : a - b ≤ c :=
   begin apply sub_le_if_add_ge, apply equiv.transport (λ w, a ≤ w), apply T.τ⁺.mul_comm, assumption end
 
+  @[hott] def add_le_if_sub_ge (T : overring) [orfield T] {a b c : T.carrier} (p : a ≤ b - c) : a + c ≤ b :=
+  begin
+    apply le_over_sub_right T (a + c) b (-c), apply equiv.transport (λ w, w ≤ b - c),
+    apply @group.cancel_right T.τ⁺, assumption
+  end
+
+  @[hott] def sub_ge_if_add_le (T : overring) [orfield T] {a b c : T.carrier} (p : a + c ≤ b) : a ≤ b - c :=
+  begin
+    apply le_over_sub_right T a (b - c) c, apply equiv.transport (λ w, a + c ≤ w),
+    apply @group.cancel_left T.τ⁺, assumption
+  end
+
+  @[hott] def sub_ge_if_add_le_rev (T : overring) [orfield T] {a b c : T.carrier} (p : c + a ≤ b) : a ≤ b - c :=
+  begin apply sub_ge_if_add_le, apply equiv.transport (λ w, w ≤ b), apply T.τ⁺.mul_comm, assumption end
+
+  @[hott] def add_le_if_sub_ge_rev (T : overring) [orfield T] {a b c : T.carrier} (p : a ≤ b - c) : c + a ≤ b :=
+  begin apply equiv.transport (λ w, w ≤ b), apply T.τ⁺.mul_comm, apply add_le_if_sub_ge, assumption end
+
+  @[hott] def sub_ge_zero_if_le (T : overring) [orfield T] {a b : T.carrier} (p : a ≤ b) : 0 ≤ b - a :=
+  begin apply sub_ge_if_add_le, apply equiv.transport (λ w, w ≤ b), symmetry, apply T.τ⁺.one_mul, assumption end
+
+  @[hott] def le_if_sub_ge_zero (T : overring) [orfield T] {a b : T.carrier} (p : 0 ≤ b - a) : a ≤ b :=
+  begin apply equiv.transport (λ w, w ≤ b), apply T.τ⁺.one_mul, apply add_le_if_sub_ge T p end
+
   @[hott] def lt_over_add (T : overring) [orfield T] (a b c : T.carrier) (p : a < b) : a + c < b + c :=
   begin
     split, intro q, apply p.1,
@@ -334,4 +358,7 @@ namespace ground_zero.algebra
   end
 
   class dedekind (T : overring) extends orfield T, complete T.κ
+
+  @[hott] def gt_if_gt_zero (T : overring) [orfield T] {a b : T.carrier} (H : 0 ≤ b - a) : a ≤ b :=
+  begin apply equiv.transport (λ c, c ≤ b), apply T.τ⁺.one_mul, apply add_le_if_sub_ge, exact H end
 end ground_zero.algebra
