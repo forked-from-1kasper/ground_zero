@@ -785,4 +785,12 @@ end hcomm_square
 @[hott] def pullback_square (P : Type k) (A : Type u) (B : Type v) (C : Type w) :=
 Σ (η : hcomm_square P A B C), η.is_pullback
 
+namespace types.equiv
+  open ground_zero.structures
+
+  -- 1-1 correspondence
+  def corr (α : Type u) (β : Type v) :=
+  Σ (R : α → β → Type w), (Π a, contr (Σ b, R a b)) × (Π b, contr (Σ a, R a b))
+end types.equiv
+
 end ground_zero

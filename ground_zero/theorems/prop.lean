@@ -269,5 +269,28 @@ begin
       exact p₁ <|> exact q₁, symmetry, cases x; assumption } }
 end
 
+@[hott] def corr_of_qinv {α : Type u} {β : Type v} : qinv.eqv α β → corr α β :=
+begin
+  intro w, existsi (λ a b, b = w.1 a), split; intros,
+  fapply structures.contr.mk,
+  { existsi w.1 a, apply idp },
+  { intro w', fapply sigma.prod, exact w'.2⁻¹, transitivity,
+    change equiv.transport _ _ _ = _, apply types.equiv.transport_over_hmtpy,
+    transitivity, apply Id.map, apply equiv.constmap,
+    iterate 2 { transitivity, apply Id.refl_right },
+    transitivity, apply equiv.idmap, apply Id.inv_inv },
+  { apply structures.contr_respects_equiv,
+    apply respects_equiv_over_fst (qinv.to_equiv (qinv.inv w)) (Id b),
+    apply singl.contr }
+end
+
+@[hott] def qinv_of_corr {α : Type u} {β : Type v} : corr α β → qinv.eqv α β :=
+begin
+  intro w, fapply sigma.mk, intro a, apply (w.2.1 a).point.1,
+  fapply sigma.mk, intro b, apply (w.2.2 b).point.1, split,
+  { intro b, apply sigma.fst # ((w.2.1 (w.2.2 b).point.1).intro ⟨b, (w.2.2 b).point.2⟩) },
+  { intro a, apply sigma.fst # ((w.2.2 (w.2.1 a).point.1).intro ⟨a, (w.2.1 a).point.2⟩) }
+end
+
 end theorems.prop
 end ground_zero
