@@ -272,13 +272,8 @@ end
 @[hott] def corr_of_qinv {α : Type u} {β : Type v} : qinv.eqv α β → corr α β :=
 begin
   intro w, existsi (λ a b, b = w.1 a), split; intros,
-  fapply structures.contr.mk,
-  { existsi w.1 a, apply idp },
-  { intro w', fapply sigma.prod, exact w'.2⁻¹, transitivity,
-    change equiv.transport _ _ _ = _, apply types.equiv.transport_over_hmtpy,
-    transitivity, apply Id.map, apply equiv.constmap,
-    iterate 2 { transitivity, apply Id.refl_right },
-    transitivity, apply equiv.idmap, apply Id.inv_inv },
+  { apply structures.contr_respects_equiv,
+    apply sigma.hmtpy_inv_eqv, apply singl.contr },
   { apply structures.contr_respects_equiv,
     apply respects_equiv_over_fst (qinv.to_equiv (qinv.inv w)) (Id b),
     apply singl.contr }
