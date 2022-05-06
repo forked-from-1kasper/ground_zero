@@ -287,11 +287,12 @@ begin
   { intro a, apply sigma.fst # ((w.2.2 (w.2.1 a).point.1).intro ⟨a, (w.2.1 a).point.2⟩) }
 end
 
-@[hott] example {α : Type u} {β : Type v} (e : qinv.eqv α β) : (qinv_of_corr (corr_of_qinv e)).1 = e.1 :=
-by reflexivity
+section
+  variables {α : Type u} {β : Type v} (e : qinv.eqv α β)
 
-@[hott] example {α : Type u} {β : Type v} (e : qinv.eqv α β) : (qinv_of_corr (corr_of_qinv e)).2.1 = e.2.1 :=
-by reflexivity
+  @[hott] example : (qinv_of_corr (corr_of_qinv e)).1 = e.1     := by reflexivity
+  @[hott] example : (qinv_of_corr (corr_of_qinv e)).2.1 = e.2.1 := by reflexivity
+end
 
 end theorems.prop
 end ground_zero
