@@ -2,6 +2,7 @@ import ground_zero.HITs.interval ground_zero.HITs.merely
 import ground_zero.theorems.ua
 open ground_zero.structures (prop contr hset propset prop_is_set)
 open ground_zero.HITs.interval
+open ground_zero.proto (idfun)
 open ground_zero.types.equiv
 open ground_zero.types
 
@@ -269,14 +270,25 @@ begin
       exact p₁ <|> exact q₁, symmetry, cases x; assumption } }
 end
 
+@[hott] def contr_qinv_fib {α : Type u} {β : Type v} (w : qinv.eqv α β) (b : β) : contr (Σ (a : α), b = w.1 a) :=
+begin
+  apply structures.contr_respects_equiv,
+  apply respects_equiv_over_fst (qinv.to_equiv (qinv.inv w)) (Id b),
+  apply singl.contr
+end
+
+@[hott] def prop_qinv_fib {α : Type u} {β : Type v} (w : qinv.eqv α β) (b : β) : prop (Σ (a : α), b = w.1 a) :=
+structures.contr_impl_prop (contr_qinv_fib w b)
+
+@[hott] def corr_rev {α : Type u} {β : Type v} : corr α β → corr β α :=
+λ w, ⟨λ a b, w.1 b a, (w.2.2, w.2.1)⟩
+
 @[hott] def corr_of_qinv {α : Type u} {β : Type v} : qinv.eqv α β → corr α β :=
 begin
   intro w, existsi (λ a b, b = w.1 a), split; intros,
   { apply structures.contr_respects_equiv,
     apply sigma.hmtpy_inv_eqv, apply singl.contr },
-  { apply structures.contr_respects_equiv,
-    apply respects_equiv_over_fst (qinv.to_equiv (qinv.inv w)) (Id b),
-    apply singl.contr }
+  apply contr_qinv_fib
 end
 
 @[hott] def qinv_of_corr {α : Type u} {β : Type v} : corr α β → qinv.eqv α β :=
@@ -292,6 +304,16 @@ section
 
   @[hott] example : (qinv_of_corr (corr_of_qinv e)).1 = e.1     := by reflexivity
   @[hott] example : (qinv_of_corr (corr_of_qinv e)).2.1 = e.2.1 := by reflexivity
+end
+
+section
+  variables {α : Type u} {β : Type v}
+
+  @[hott] def corr_of_biinv : α ≃ β → corr α β :=
+  λ e, @corr_of_qinv α β ⟨e.1, qinv.of_biinv e.1 e.2⟩
+
+  @[hott] def biinv_of_corr : corr α β → α ≃ β :=
+  qinv.to_equiv ∘ qinv_of_corr
 end
 
 end theorems.prop

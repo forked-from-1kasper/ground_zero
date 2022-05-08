@@ -136,18 +136,16 @@ namespace sigma
     (p : Σ (p : a.fst = b.fst), equiv.subst p a.snd = b.snd) : (a = b) :=
   sigma.prod p.fst p.snd
 
+  @[hott] def prod_repr {α : Type u} {β : α → Type v} {a b : Σ x, β x} :
+    @eq_of_sigma_eq α β a b ∘ @sigma_eq_of_eq α β a b ~ id :=
+  begin intro p, induction p, induction a, induction b, reflexivity end
+
   @[hott] def sigma_path {α : Type u} {β : α → Type v} {a b : Σ x, β x} :
     (a = b) ≃ (Σ (p : a.fst = b.fst), equiv.subst p a.snd = b.snd) :=
   begin
-    existsi sigma_eq_of_eq, split; existsi eq_of_sigma_eq,
-    { intro p, induction p, induction a, induction b, reflexivity },
-    { intro p,
-      induction a with a u,
-      induction b with b v,
-      induction p with p q,
-      change a = b at p, induction p,
-      change u = v at q, induction q,
-      reflexivity }
+    existsi sigma_eq_of_eq, split; existsi eq_of_sigma_eq, apply prod_repr,
+    { intro p, induction a with a u, induction b with b v, induction p with p q,
+      change a = b at p, induction p, change u = v at q, induction q, reflexivity }
   end
 end sigma
 

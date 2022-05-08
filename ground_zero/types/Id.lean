@@ -65,6 +65,12 @@ namespace Id
     (p : a = b :> α) : (p⁻¹)⁻¹ = p :> a = b :> α :=
   begin induction p, trivial end
 
+  @[hott] def inv_eq_if_eq_inv {α : Type u} {a b : α} {p : a = b} {q : b = a} : p⁻¹ = q → p = q⁻¹ :=
+  begin induction p, intro η, induction η, reflexivity end
+
+  @[hott] def eq_inv_if_inv_eq {α : Type u} {a b : α} {p : a = b} {q : b = a} : p = q⁻¹ → p⁻¹ = q :=
+  λ η, @inv_eq_if_eq_inv α b a p⁻¹ q⁻¹ (inv_inv p ⬝ η) ⬝ inv_inv q
+
   @[hott] def assoc {α : Type u} {a b c d : α}
     (p : a = b :> α) (q : b = c :> α) (r : c = d :> α) :
     p ⬝ (q ⬝ r) = (p ⬝ q) ⬝ r :=
