@@ -623,7 +623,7 @@ namespace circle
   def uarec {A : Type u} (φ : A ≃ A) : S¹ → Type u := rec A (ua φ)
 
   @[hott] def Ωrec {A : Type u} (zero : A) (succ pred : A → A)
-    (p : succ ∘ pred ~ id) (q : pred ∘ succ ~ id) : base = base → A :=
+    (p : succ ∘ pred ~ id) (q : pred ∘ succ ~ id) : (Ω¹(S¹)) → A :=
   λ r, @transport S¹ (uarec ⟨succ, (⟨pred, q⟩, ⟨pred, p⟩)⟩) base base r zero
 
   section
@@ -633,7 +633,7 @@ namespace circle
     @[hott] def Ωrecβ₁ : Ωrec zero succ pred p q (idp base) = zero :=
     by reflexivity
 
-    @[hott] noncomputable def Ωrecβ₂ (r : base = base) :
+    @[hott] noncomputable def Ωrecβ₂ (r : Ω¹(S¹)) :
         Ωrec zero succ pred p q (r ⬝ loop)
       = succ (Ωrec zero succ pred p q r) :=
     begin
@@ -645,7 +645,7 @@ namespace circle
       symmetry, apply types.equiv.transport_to_transportconst
     end
 
-    @[hott] noncomputable def Ωrecβ₃ (r : base = base) :
+    @[hott] noncomputable def Ωrecβ₃ (r : Ω¹(S¹)) :
         Ωrec zero succ pred p q (r ⬝ loop⁻¹)
       = pred (Ωrec zero succ pred p q r) :=
     begin
