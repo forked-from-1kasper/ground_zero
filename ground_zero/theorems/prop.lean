@@ -314,6 +314,42 @@ section
 
   @[hott] def biinv_of_corr : corr α β → α ≃ β :=
   qinv.to_equiv ∘ qinv_of_corr
+
+  @[hott] def corr_lem (R : α → β → Type w) (φ : α → β) (ρ : Π x, R x (φ x))
+    (H : Π x y, R x y → φ x = y) (c : Π (x : α) (y : β) (w : R x y), ρ x =[H x y w] w)
+    (x : α) (y : β) : (φ x = y) ≃ (R x y) :=
+  begin
+    fapply sigma.mk, { intro p, apply transport (R x) p, apply ρ }, fapply qinv.to_biinv,
+    fapply sigma.mk, intro r, exact (H x (φ x) (ρ x))⁻¹ ⬝ H x y r, split,
+    { intro r, dsimp, transitivity, apply Id.map, symmetry, apply c x (φ x) (ρ x),
+      transitivity, apply subst_comp, transitivity, apply Id.map (subst (H x y r)),
+      apply transport_forward_and_back, apply c },
+    { intro p, induction p, apply Id.inv_comp }
+  end
+
+  @[hott] noncomputable def corr_biinv_idfun : corr_of_biinv ∘ @biinv_of_corr α β ~ idfun :=
+  begin
+    intro w, fapply sigma.prod,
+    { apply theorems.funext, intro x, apply theorems.funext, intro y,
+      change (y = (w.2.1 x).point.1) = (w.1 x y), apply ua, transitivity,
+      apply inveqv, fapply corr_lem w.1 (λ x, (w.2.1 x).point.1) (λ x, (w.2.1 x).point.2)
+        (λ x y ρ, sigma.fst # ((w.2.1 x).intro ⟨y, ρ⟩)),
+      { intros x y ρ, change _ = _, transitivity, symmetry,
+        apply transport_comp (w.1 x) sigma.fst ((w.snd.fst x).intro ⟨y, ρ⟩),
+        apply apd sigma.snd } },
+    apply structures.product_prop;
+    { apply structures.pi_prop, intros,
+      apply structures.contr_is_prop }
+  end
+
+  @[hott] def biinv_corr_idfun : biinv_of_corr ∘ @corr_of_biinv α β ~ idfun :=
+  begin intro e, fapply equiv_hmtpy_lem, intro x, reflexivity end
+
+  @[hott] noncomputable def biinv_equiv_corr : (corr α β) ≃ (α ≃ β) :=
+  begin
+    existsi biinv_of_corr, fapply qinv.to_biinv, existsi corr_of_biinv,
+    split, apply biinv_corr_idfun, apply corr_biinv_idfun
+  end
 end
 
 end theorems.prop
