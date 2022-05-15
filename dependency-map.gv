@@ -70,8 +70,9 @@ digraph dependency_map {
       "HITs/moebius",
       "HITs/reals"
     }
-    "HITs/coequalizer"
+    "HITs/coequalizer" -> { "HITs/flattening" }
     "HITs/colimit" -> { "HITs/merely", "types/nat" }
+    "HITs/flattening"
     "HITs/generalized" -> "HITs/merely"
     "HITs/graph" -> {
       "HITs/coequalizer",
@@ -134,6 +135,7 @@ digraph dependency_map {
       "theorems/classical"
     }
     "theorems/ua" -> {
+      "HITs/flattening",
       "theorems/nat",
       "theorems/prop",
       "cubical/V"

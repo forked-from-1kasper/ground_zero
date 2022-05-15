@@ -383,6 +383,11 @@ namespace equiv
     symmetry, exact refl_pathover # H
   end
 
+  @[hott] def transport_impl {α : Type u} (μ : α → Type v)
+    (η : α → Type w) {a b : α} (p : a = b) (φ : μ a → η a) :
+    transport (λ x, μ x → η x) p φ = λ x, subst p (φ (subst p⁻¹ x)) :=
+  begin induction p, reflexivity end
+
   @[hott] def transport_over_pi {α : Type u} {a b : α} {β : Type v}
     (π : α → β → Type w) (p : a = b) (u : Π (y : β), π a y) :
     transport (λ x, Π y, π x y) p u =
