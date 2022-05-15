@@ -70,9 +70,11 @@ digraph dependency_map {
       "HITs/moebius",
       "HITs/reals"
     }
+    "HITs/coequalizer"
     "HITs/colimit" -> { "HITs/merely", "types/nat" }
     "HITs/generalized" -> "HITs/merely"
     "HITs/graph" -> {
+      "HITs/coequalizer",
       "HITs/colimit",
       "HITs/generalized",
       "HITs/pushout",
