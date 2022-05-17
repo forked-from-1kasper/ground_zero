@@ -1,4 +1,4 @@
-import ground_zero.algebra.group ground_zero.theorems.prop
+import ground_zero.algebra.group.basic ground_zero.theorems.prop
 open ground_zero.theorems.functions ground_zero.theorems.prop
 open ground_zero.types.equiv (idtoeqv)
 open ground_zero.types.Id (dotted)

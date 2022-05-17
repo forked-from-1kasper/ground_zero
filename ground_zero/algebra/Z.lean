@@ -1,4 +1,4 @@
-import ground_zero.algebra.group ground_zero.HITs.circle
+import ground_zero.algebra.group.symmetric ground_zero.HITs.circle
 open ground_zero.structures ground_zero.types.equiv
 open ground_zero.types ground_zero.HITs
 open ground_zero.algebra.group (S)

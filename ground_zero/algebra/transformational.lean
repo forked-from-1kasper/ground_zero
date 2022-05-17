@@ -1,4 +1,6 @@
-import ground_zero.algebra.group
+import ground_zero.algebra.group.product
+import ground_zero.algebra.group.action
+
 open ground_zero.algebra.group
 open ground_zero.types.equiv
 open ground_zero.structures
@@ -565,7 +567,7 @@ namespace ground_zero.algebra
   def M (α : 0-Type) := L (P α)
 
   def Tr (α : 0-Type) :=
-  zeroeqv (λ _ _, zeroequiv.hset α α)
+  zeroeqv (λ _ _, theorems.prop.zeroequiv.hset α α)
 
   -- Set of *all* tone row transformations
   abbreviation T (α : 0-Type) := S (Tr α)

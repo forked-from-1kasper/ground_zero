@@ -11,19 +11,17 @@ digraph dependency_map {
   }
 
   subgraph algebra {
-    "algebra/basic" -> { "algebra/category", "algebra/monoid", "algebra/geometry", "algebra/group" }
+    "algebra/basic" -> {
+      "algebra/category",
+      "algebra/monoid",
+      "algebra/geometry",
+      "algebra/group/basic"
+    }
     "algebra/boolean"
     "algebra/category"
     "algebra/eilenberg_maclane"
     "algebra/finite"
     "algebra/geometry"
-    "algebra/group" -> {
-      "algebra/eilenberg_maclane",
-      "algebra/finite",
-      "algebra/ring",
-      "algebra/transformational",
-      "algebra/Z"
-    }
     "algebra/homology"
     "algebra/limited"
     "algebra/monoid"
@@ -32,6 +30,49 @@ digraph dependency_map {
     "algebra/ring" -> { "algebra/boolean", "algebra/orgraph" }
     "algebra/transformational"
     "algebra/Z" -> { "algebra/homology" }
+  }
+
+  subgraph "algebra/group" {
+    "algebra/group/absolutizer"
+    "algebra/group/action" -> "algebra/transformational"
+    "algebra/group/alternating"
+    "algebra/group/automorphism" -> "algebra/group/semidirect"
+    "algebra/group/basic" -> {
+      "algebra/eilenberg_maclane",
+      "algebra/finite",
+      "algebra/group/absolutizer",
+      "algebra/group/automorphism",
+      "algebra/group/free",
+      "algebra/group/periodic",
+      "algebra/group/product",
+      "algebra/group/subgroup"
+    }
+    "algebra/group/differential"
+    "algebra/group/factor" -> {
+      "algebra/homology",
+      "algebra/ring",
+      "algebra/group/alternating",
+      "algebra/group/isomorphism"
+    }
+    "algebra/group/free" -> "algebra/group/presentation"
+    "algebra/group/isomorphism" -> "algebra/group/presentation"
+    "algebra/group/lemmas"
+    "algebra/group/periodic"
+    "algebra/group/presentation"
+    "algebra/group/product" -> { "algebra/homology", "algebra/transformational" }
+    "algebra/group/semidirect"
+    "algebra/group/subgroup" -> {
+      "algebra/group/differential",
+      "algebra/group/factor",
+      "algebra/group/lemmas",
+      "algebra/group/symmetric"
+    }
+    "algebra/group/symmetric" -> {
+      "algebra/limited",
+      "algebra/Z",
+      "algebra/group/action",
+      "algebra/group/isomorphism"
+    }
   }
 
   subgraph types {
@@ -50,10 +91,7 @@ digraph dependency_map {
     "types/heq" -> {
       "HITs/graph", "theorems/funext"
     }
-    "types/integer" -> {
-      "algebra/group",
-      "HITs/circle"
-    }
+    "types/integer" -> "HITs/circle"
     "types/lost"
     "types/nat" -> { "theorems/nat" }
     "types/precategory" -> { "types/category" }
@@ -98,7 +136,11 @@ digraph dependency_map {
     "HITs/pushout" -> {
       "HITs/suspension"
     }
-    "HITs/quotient" -> { "algebra/group" }
+    "HITs/quotient" -> {
+      "algebra/group/absolutizer",
+      "algebra/group/action",
+      "algebra/group/factor"
+    }
     "HITs/reals"
     "HITs/simplicial"
     "HITs/suspension" -> { "HITs/circle", "HITs/join" }
@@ -122,11 +164,17 @@ digraph dependency_map {
   subgraph theorems {
     "theorems/classical" -> { "algebra/category", "algebra/orgraph" }
     "theorems/fibration" -> { "theorems/hopf" }
-    "theorems/functions" -> { "HITs/reals", "algebra/group" }
+    "theorems/functions" -> { "HITs/reals", "algebra/group/basic" }
     "theorems/funext" -> { "types/product" }
     "theorems/hopf"
     "theorems/ontological"
-    "theorems/nat" -> { "HITs/int", "types/integer" }
+    "theorems/nat" -> {
+      "algebra/finite",
+      "algebra/reals",
+      "HITs/int",
+      "types/integer",
+      "algebra/group/lemmas"
+    }
     "theorems/prop" -> {
       "algebra/eilenberg_maclane",
       "HITs/circle",

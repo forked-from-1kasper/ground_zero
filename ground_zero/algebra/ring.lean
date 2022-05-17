@@ -1,4 +1,4 @@
-import ground_zero.algebra.group
+import ground_zero.algebra.group.factor
 open ground_zero.algebra.group (factor_left)
 open ground_zero.types.equiv (transport)
 open ground_zero.types.Id (map)

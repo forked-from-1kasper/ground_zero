@@ -1,4 +1,4 @@
-import ground_zero.algebra.orgraph
+import ground_zero.algebra.orgraph ground_zero.theorems.nat
 open ground_zero.HITs (merely merely.elem merely.uniq merely.rec merely.lift)
 open ground_zero.structures (zero_eqv_set hset prop pi_prop)
 open ground_zero.theorems

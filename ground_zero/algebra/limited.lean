@@ -1,4 +1,4 @@
-import ground_zero.algebra.reals
+import ground_zero.algebra.reals ground_zero.algebra.group.symmetric
 open ground_zero.HITs (merely merely.uniq merely.elem merely.rec merely.lift)
 open ground_zero.algebra.group (S S.carrier Subgroup)
 open ground_zero.structures (prop)

@@ -499,6 +499,12 @@ section
   end
 end
 
+@[hott] def identity.ens {α : Type u} (H : hset α) : hset (proto.identity α) :=
+begin apply hset_respects_equiv, apply types.equiv.identity_eqv, assumption end
+
+@[hott] def zeroequiv (α β : 0-Type) := α.fst ≃ β.fst
+infix ` ≃₀ `:25 := zeroequiv
+
 end structures
 
 -- http://www.cs.bham.ac.uk/~mhe/truncation-and-extensionality/tiny-library.html

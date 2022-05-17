@@ -256,6 +256,9 @@ begin
   apply e.left_forward
 end
 
+@[hott] def zeroequiv.hset (α β : 0-Type) : hset (α ≃₀ β) :=
+begin apply hset_equiv, apply structures.zero_eqv_set.forward, exact β.snd end
+
 @[hott] def bool_equiv_eqv_bool : (𝟐 ≃ 𝟐) ≃ 𝟐 :=
 begin
   fapply sigma.mk, exact bool.decode, fapply qinv.to_biinv,
