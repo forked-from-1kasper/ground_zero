@@ -66,10 +66,6 @@ universes u v u' v' w
 
 hott theory
 
-@[hott] def mul_uniq {α : Type u} {a b c d : α}
-  (h : a = b) (g : c = d) {φ : α → α → α} : φ a c = φ b d :=
-begin induction h, induction g, reflexivity end
-
 section
   variables {μ : Type u} {η : Type v} (φ : μ → η)
   def im.aux := ground_zero.theorems.functions.fib_inh φ
@@ -641,7 +637,7 @@ namespace group
         intros a b h g, change _ = _,
         transitivity, { apply homo_mul }, symmetry,
         transitivity, { apply unit_sqr },
-        apply mul_uniq, exact Id.inv h, exact Id.inv g
+        apply equiv.bimap H.φ (Id.inv h) (Id.inv g)
       end)
       (begin
         intros x h, change _ = _,
