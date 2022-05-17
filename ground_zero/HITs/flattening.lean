@@ -45,6 +45,19 @@ namespace flattening
 
   @[hott] noncomputable def sec : flattening f g C D → Σ x, P f g C D x :=
   begin fapply coeq.rec, intro w, apply iotaφ w.1 w.2, intro w, apply respφ w.1 w.2 end
+
+  @[hott] def ret : Π x, P f g C D x → flattening f g C D :=
+  begin
+    fapply coeq.ind (λ x, P f g C D x → flattening f g C D), apply iota,
+    intro x, change _ = _, transitivity, apply transport_impl (P f g C D) (λ _, flattening f g C D),
+    apply ground_zero.theorems.funext, intro ω, transitivity, apply transport_over_const_family,
+    
+  end
+
+  @[hott] def lem : (Σ x, P f g C D x) ≃ flattening f g C D :=
+  begin
+    fapply sigma.mk,
+  end
 end flattening
 
 end ground_zero.HITs

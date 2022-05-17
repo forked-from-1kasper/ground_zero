@@ -1,5 +1,4 @@
 import ground_zero.theorems.prop
-import ground_zero.structures
 
 open ground_zero ground_zero.types
 open ground_zero.types.equiv
@@ -213,7 +212,14 @@ namespace «2.12»
   ⟨k, s ∘ h, g ∘ f, i, @Id.map (C → F) (A → F) _ _ (∘ f) β
                      ⬝ @Id.map _ (A → F) _ _ (λ φ, s ∘ φ) α⟩
 
-  -- ???
+  @[hott] example (H : (right α β).is_pullback) :
+    (left α β).is_pullback ↔ (outer α β).is_pullback :=
+  begin
+    apply iff_over_pi, intro X, split; intro G; apply qinv.to_biinv,
+    { fapply sigma.mk, intro w, apply G.2.1, fapply sigma.mk, split,
+      apply (H X).1.1, fapply sigma.mk, split, exact w.1.1, exact h ∘ w.1.2, apply w.2,
+      exact w.1.2,  }
+  end
 end «2.12»
 
 -- exercise 2.13
