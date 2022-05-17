@@ -1,5 +1,6 @@
-import ground_zero.algebra.group.factor ground_zero.algebra.group.product
-import ground_zero.algebra.Z
+import ground_zero.algebra.group.product
+import ground_zero.algebra.group.factor
+import ground_zero.algebra.group.Z
 
 open ground_zero.HITs ground_zero.algebra.group
 open ground_zero ground_zero.types
