@@ -426,6 +426,35 @@ namespace group
     instance : has_zero (G ⤳ H) := ⟨homo.zero⟩
   end
 
+  -- Of course, this can be done by induction
+  @[hott] def homo.of_path {G H : pregroup} [group G] [group H]
+    (φ : G.carrier = H.carrier) (p : G.φ =[λ G, G → G → G, φ] H.φ) : G ⤳ H :=
+  begin
+    fapply mkhomo, exact @transport _ (λ G, G) G.carrier H.carrier φ,
+    intros a b, transitivity, apply Id.map, apply equiv.bimap,
+    iterate 2 { symmetry, apply @equiv.transport_forward_and_back _ (λ G, G) _ _ φ },
+    transitivity, symmetry, apply equiv.transport_over_operation_pointwise G.φ,
+    iterate 2 { apply HITs.interval.happly }, exact p
+  end
+
+  @[hott] def iso.of_path {G H : pregroup} [group G] [group H]
+    (φ : G.carrier = H.carrier) (p : G.φ =[λ G, G → G → G, φ] H.φ) : G ≅ H :=
+  begin
+    fapply iso.of_homo, apply homo.of_path φ p,
+    split; existsi @transport _ (λ G, G) H.carrier G.carrier (Id.inv φ); intro x,
+    { apply types.equiv.transport_forward_and_back },
+    { apply @types.equiv.transport_back_and_forward _ (λ G, G) _ _ φ },
+  end
+
+  @[hott] noncomputable def iso.ua {G H : pregroup} : G ≅ H → G = H :=
+  @Alg.ua.{0 0 0} pregroup.arity ⊥ pregroup.signature G H
+
+  -- This statement in fact says that two groups are equal
+  -- if their multiplication tables are equal
+  @[hott] noncomputable def table {G H : pregroup} [group G] [group H]
+    (φ : G.carrier = H.carrier) (p : G.φ =[λ G, G → G → G, φ] H.φ) : G = H :=
+  iso.ua (iso.of_path φ p)
+
   def normal (G : pregroup) (φ : G.subset) :=
   Π g h, G.φ g h ∈ φ → G.φ h g ∈ φ
 
@@ -499,6 +528,165 @@ namespace group
     apply ground_zero.ua.propext,
     repeat { apply ens.prop },
     apply normal_subgroup_cosets
+  end
+
+  section
+    variables {H : pregroup} {φ : H.subgroup}
+    include H
+
+    @[hott] def subgroup.mul (x y : φ.subtype) : φ.subtype :=
+    begin existsi H.φ x.1 y.1, apply φ.mul, apply x.2, apply y.2 end
+    local infix ` ∗ `:70 := @subgroup.mul H φ
+
+    @[hott] def subgroup.inv (x : φ.subtype) : φ.subtype :=
+    begin existsi H.ι x.1, apply φ.inv, apply x.2 end
+
+    @[hott] def subgroup.unit : φ.subtype := ⟨H.e, φ.unit⟩
+
+    @[hott] def subgroup.ens : hset φ.subtype :=
+    begin apply ens.hset, intros a b, apply Alg.hset end
+
+    @[hott] def subgroup.mul_assoc [group H] (x y z : φ.subtype) : x ∗ y ∗ z = x ∗ (y ∗ z) :=
+    begin
+      induction x with x A, induction y with y B, induction z with z C,
+      fapply ground_zero.types.sigma.prod,
+      apply H.mul_assoc, apply ens.prop
+    end
+
+    @[hott] def subgroup.one_mul [group H] (x : φ.subtype) : subgroup.unit ∗ x = x :=
+    begin
+      induction x with x p,
+      fapply ground_zero.types.sigma.prod,
+      apply H.one_mul, apply ens.prop
+    end
+
+    @[hott] def subgroup.mul_one [group H] (x : φ.subtype) : x ∗ subgroup.unit = x :=
+    begin
+      induction x with x p,
+      fapply ground_zero.types.sigma.prod,
+      apply H.mul_one, apply ens.prop
+    end
+
+    @[hott] def subgroup.mul_left_inv [group H] (x : φ.subtype) :
+      subgroup.inv x ∗ x = subgroup.unit :=
+    begin
+      induction x with x p,
+      fapply ground_zero.types.sigma.prod,
+      apply group.mul_left_inv, apply ens.prop
+    end
+
+    @[hott] def Subgroup (H : pregroup) (φ : H.subgroup) : pregroup :=
+    @pregroup.intro φ.subtype (λ _ _, subgroup.ens)
+      subgroup.mul subgroup.inv subgroup.unit
+
+    @[hott] instance subgroup.semigroup [group H] : semigroup (Subgroup H φ).magma :=
+    ⟨subgroup.mul_assoc⟩
+
+    @[hott] instance subgroup.monoid [group H] : monoid (Subgroup H φ).premonoid :=
+    ⟨subgroup.semigroup, subgroup.one_mul, subgroup.mul_one⟩
+
+    @[hott] instance subgroup.group [group H] : group (Subgroup H φ) :=
+    ⟨subgroup.monoid, subgroup.mul_left_inv⟩
+  end
+
+  @[hott] def Subgroup.ext (φ ψ : G.subgroup) :
+    φ.set = ψ.set → Subgroup G φ = Subgroup G ψ :=
+  begin
+    cases φ with φ p, cases ψ with ψ q, intro r,
+    apply Id.map (Subgroup G), apply subgroup.ext r
+  end
+
+  @[hott] def inter (φ ψ : G.subgroup) : subgroup (Subgroup G ψ) :=
+  begin
+    fapply pregroup.subgroup.mk,
+    exact ⟨λ x, x.fst ∈ φ, λ x, ens.prop x.fst φ.set⟩,
+    { change e ∈ φ, apply φ.unit },
+    { intros a b G H, induction a with a g,
+      induction b with b h, change _ ∈ φ,
+      apply φ.mul; assumption },
+    { intros a G, induction a with a g,
+      change _ ∈ φ, apply φ.inv,
+      assumption }
+  end
+
+  @[hott] instance abelian_subgroup_is_normal (G : pregroup) [abelian G]
+    (φ : G.subgroup) : G ⊵ φ :=
+  begin
+    split, intros g h p, apply transport (∈ φ),
+    apply pregroup.mul_comm, assumption
+  end
+
+  @[hott] instance abelian_subgroup_is_abelian (G : pregroup) [abelian G]
+    (φ : G.subgroup) : abelian (Subgroup G φ) :=
+  begin
+    split, intros a b, induction a with a p, induction b with b q,
+    fapply sigma.prod, apply pregroup.mul_comm G, apply ens.prop
+  end
+
+  @[hott] def homo.surj (φ : G.subgroup) : Subgroup G φ ⤳ G :=
+  mkhomo sigma.fst (λ ⟨a, _⟩ ⟨b, _⟩, idp (a * b))
+
+  section
+    variables {H : pregroup} [group H] (φ : G ⤳ H)
+    local infix × : 70 := H.φ
+
+    def ker.aux := λ g, φ.fst g = H.e
+    @[hott] def ker_is_prop (x : G.carrier) : prop (ker.aux φ x) :=
+    begin intros f g, apply H.hset end
+
+    @[hott] def ker : G.subgroup :=
+    pregroup.subgroup.mk ⟨ker.aux φ, ker_is_prop φ⟩
+      (homo_unit φ)
+      (begin
+        intros a b h g, change _ = _,
+        transitivity, { apply homo_mul }, symmetry,
+        transitivity, { apply unit_sqr },
+        apply mul_uniq, exact Id.inv h, exact Id.inv g
+      end)
+      (begin
+        intros x h, change _ = _,
+        cases φ with φ p, calc
+          φ x⁻¹ = H.ι (φ x) : homo_inv ⟨φ, p⟩ x
+            ... = H.ι H.e   : H.ι # h
+            ... = H.e       : Id.inv unit_inv
+      end)
+
+    def Ker := (ker φ).set.subtype
+
+    @[hott] instance ker_is_normal_subgroup : G ⊵ ker φ :=
+    begin
+      apply is_normal_subgroup.mk, intros n g p, cases φ with φ q,
+      change _ = _ at p, have r := Id.inv (homo_mul ⟨φ, q⟩ n g) ⬝ p, calc
+        φ (g * n) = φ g × φ n       : homo_mul ⟨φ, q⟩ g n
+              ... = φ g × H.ι (φ g) : (λ y, φ g × y) # (eq_inv_of_mul_eq_one r)
+              ... = H.e             : group.mul_right_inv _
+    end
+
+    def im.carrier := (im φ.fst).subtype
+
+    @[hott] def im : H.subgroup :=
+    pregroup.subgroup.mk (im φ.fst)
+      (HITs.merely.elem ⟨e, homo_unit φ⟩)
+      (begin
+        intros a b p q, fapply HITs.merely.rec _ _ p,
+        { apply HITs.merely.uniq },
+        { intro r,
+          { fapply HITs.merely.rec _ _ q,
+            { apply HITs.merely.uniq },
+            { intro s, induction r with x r,
+              induction s with y s,
+              apply HITs.merely.elem,
+              existsi (x * y), transitivity, apply homo_mul,
+              induction r, induction s, trivial } } }
+      end)
+      (begin
+        intros x p, fapply HITs.merely.rec _ _ p,
+        { apply HITs.merely.uniq },
+        { intro q, apply HITs.merely.elem,
+          induction q with y q, existsi y⁻¹,
+          transitivity, apply homo_inv,
+          apply map, assumption }
+      end)
   end
 
   @[hott] def factor_left_rel (φ : G.subgroup) :
@@ -690,98 +878,6 @@ namespace group
     apply φ.inv, assumption
   end
 
-  section
-    variables {H : pregroup} [group H] (φ : G ⤳ H)
-    local infix × : 70 := H.φ
-
-    def ker.aux := λ g, φ.fst g = H.e
-    @[hott] def ker_is_prop (x : G.carrier) : prop (ker.aux φ x) :=
-    begin intros f g, apply H.hset end
-
-    @[hott] def ker : G.subgroup :=
-    pregroup.subgroup.mk ⟨ker.aux φ, ker_is_prop φ⟩
-      (homo_unit φ)
-      (begin
-        intros a b h g, change _ = _,
-        transitivity, { apply homo_mul }, symmetry,
-        transitivity, { apply unit_sqr },
-        apply mul_uniq, exact Id.inv h, exact Id.inv g
-      end)
-      (begin
-        intros x h, change _ = _,
-        cases φ with φ p, calc
-          φ x⁻¹ = H.ι (φ x) : homo_inv ⟨φ, p⟩ x
-            ... = H.ι H.e   : H.ι # h
-            ... = H.e       : Id.inv unit_inv
-      end)
-
-    def Ker := (ker φ).set.subtype
-
-    @[hott] instance ker_is_normal_subgroup : G ⊵ ker φ :=
-    begin
-      apply is_normal_subgroup.mk, intros n g p, cases φ with φ q,
-      change _ = _ at p, have r := Id.inv (homo_mul ⟨φ, q⟩ n g) ⬝ p, calc
-        φ (g * n) = φ g × φ n       : homo_mul ⟨φ, q⟩ g n
-              ... = φ g × H.ι (φ g) : (λ y, φ g × y) # (eq_inv_of_mul_eq_one r)
-              ... = H.e             : group.mul_right_inv _
-    end
-
-    def im.carrier := (im φ.fst).subtype
-
-    @[hott] def im : H.subgroup :=
-    pregroup.subgroup.mk (im φ.fst)
-      (HITs.merely.elem ⟨e, homo_unit φ⟩)
-      (begin
-        intros a b p q, fapply HITs.merely.rec _ _ p,
-        { apply HITs.merely.uniq },
-        { intro r,
-          { fapply HITs.merely.rec _ _ q,
-            { apply HITs.merely.uniq },
-            { intro s, induction r with x r,
-              induction s with y s,
-              apply HITs.merely.elem,
-              existsi (x * y), transitivity, apply homo_mul,
-              induction r, induction s, trivial } } }
-      end)
-      (begin
-        intros x p, fapply HITs.merely.rec _ _ p,
-        { apply HITs.merely.uniq },
-        { intro q, apply HITs.merely.elem,
-          induction q with y q, existsi y⁻¹,
-          transitivity, apply homo_inv,
-          apply map, assumption }
-      end)
-  end
-
-  -- Of course, this can be done by induction
-  @[hott] def homo.of_path {G H : pregroup} [group G] [group H]
-    (φ : G.carrier = H.carrier) (p : G.φ =[λ G, G → G → G, φ] H.φ) : G ⤳ H :=
-  begin
-    fapply mkhomo, exact @transport _ (λ G, G) G.carrier H.carrier φ,
-    intros a b, transitivity, apply Id.map, apply equiv.bimap,
-    iterate 2 { symmetry, apply @equiv.transport_forward_and_back _ (λ G, G) _ _ φ },
-    transitivity, symmetry, apply equiv.transport_over_operation_pointwise G.φ,
-    iterate 2 { apply HITs.interval.happly }, exact p
-  end
-
-  @[hott] def iso.of_path {G H : pregroup} [group G] [group H]
-    (φ : G.carrier = H.carrier) (p : G.φ =[λ G, G → G → G, φ] H.φ) : G ≅ H :=
-  begin
-    fapply iso.of_homo, apply homo.of_path φ p,
-    split; existsi @transport _ (λ G, G) H.carrier G.carrier (Id.inv φ); intro x,
-    { apply types.equiv.transport_forward_and_back },
-    { apply @types.equiv.transport_back_and_forward _ (λ G, G) _ _ φ },
-  end
-
-  @[hott] noncomputable def iso.ua {G H : pregroup} : G ≅ H → G = H :=
-  @Alg.ua.{0 0 0} pregroup.arity ⊥ pregroup.signature G H
-
-  -- This statement in fact says that two groups are equal
-  -- if their multiplication tables are equal
-  @[hott] noncomputable def table {G H : pregroup} [group G] [group H]
-    (φ : G.carrier = H.carrier) (p : G.φ =[λ G, G → G → G, φ] H.φ) : G = H :=
-  iso.ua (iso.of_path φ p)
-
   @[hott] def factor.lift {H : pregroup} [group H] (f : G ⤳ H) {φ : G.subgroup} [G ⊵ φ]
     (p : Π x, x ∈ φ → f.fst x = H.e) : factor_left G φ → H.carrier :=
   begin
@@ -794,102 +890,6 @@ namespace group
       apply p, apply q },
     { intros a b, apply Alg.hset }
   end
-
-  section
-    variables {H : pregroup} {φ : H.subgroup}
-    include H
-
-    @[hott] def subgroup.mul (x y : φ.subtype) : φ.subtype :=
-    begin existsi H.φ x.1 y.1, apply φ.mul, apply x.2, apply y.2 end
-    local infix ` ∗ `:70 := @subgroup.mul H φ
-
-    @[hott] def subgroup.inv (x : φ.subtype) : φ.subtype :=
-    begin existsi H.ι x.1, apply φ.inv, apply x.2 end
-
-    @[hott] def subgroup.unit : φ.subtype := ⟨H.e, φ.unit⟩
-
-    @[hott] def subgroup.ens : hset φ.subtype :=
-    begin apply ens.hset, intros a b, apply Alg.hset end
-
-    @[hott] def subgroup.mul_assoc [group H] (x y z : φ.subtype) : x ∗ y ∗ z = x ∗ (y ∗ z) :=
-    begin
-      induction x with x A, induction y with y B, induction z with z C,
-      fapply ground_zero.types.sigma.prod,
-      apply H.mul_assoc, apply ens.prop
-    end
-
-    @[hott] def subgroup.one_mul [group H] (x : φ.subtype) : subgroup.unit ∗ x = x :=
-    begin
-      induction x with x p,
-      fapply ground_zero.types.sigma.prod,
-      apply H.one_mul, apply ens.prop
-    end
-
-    @[hott] def subgroup.mul_one [group H] (x : φ.subtype) : x ∗ subgroup.unit = x :=
-    begin
-      induction x with x p,
-      fapply ground_zero.types.sigma.prod,
-      apply H.mul_one, apply ens.prop
-    end
-
-    @[hott] def subgroup.mul_left_inv [group H] (x : φ.subtype) :
-      subgroup.inv x ∗ x = subgroup.unit :=
-    begin
-      induction x with x p,
-      fapply ground_zero.types.sigma.prod,
-      apply group.mul_left_inv, apply ens.prop
-    end
-
-    @[hott] def Subgroup (H : pregroup) (φ : H.subgroup) : pregroup :=
-    @pregroup.intro φ.subtype (λ _ _, subgroup.ens)
-      subgroup.mul subgroup.inv subgroup.unit
-
-    @[hott] instance subgroup.semigroup [group H] : semigroup (Subgroup H φ).magma :=
-    ⟨subgroup.mul_assoc⟩
-
-    @[hott] instance subgroup.monoid [group H] : monoid (Subgroup H φ).premonoid :=
-    ⟨subgroup.semigroup, subgroup.one_mul, subgroup.mul_one⟩
-
-    @[hott] instance subgroup.group [group H] : group (Subgroup H φ) :=
-    ⟨subgroup.monoid, subgroup.mul_left_inv⟩
-  end
-
-  @[hott] def Subgroup.ext (φ ψ : G.subgroup) :
-    φ.set = ψ.set → Subgroup G φ = Subgroup G ψ :=
-  begin
-    cases φ with φ p, cases ψ with ψ q, intro r,
-    apply Id.map (Subgroup G), apply subgroup.ext r
-  end
-
-  @[hott] def inter (φ ψ : G.subgroup) : subgroup (Subgroup G ψ) :=
-  begin
-    fapply pregroup.subgroup.mk,
-    exact ⟨λ x, x.fst ∈ φ, λ x, ens.prop x.fst φ.set⟩,
-    { change e ∈ φ, apply φ.unit },
-    { intros a b G H, induction a with a g,
-      induction b with b h, change _ ∈ φ,
-      apply φ.mul; assumption },
-    { intros a G, induction a with a g,
-      change _ ∈ φ, apply φ.inv,
-      assumption }
-  end
-
-  @[hott] instance abelian_subgroup_is_normal (G : pregroup) [abelian G]
-    (φ : G.subgroup) : G ⊵ φ :=
-  begin
-    split, intros g h p, apply transport (∈ φ),
-    apply pregroup.mul_comm, assumption
-  end
-
-  @[hott] instance abelian_subgroup_is_abelian (G : pregroup) [abelian G]
-    (φ : G.subgroup) : abelian (Subgroup G φ) :=
-  begin
-    split, intros a b, induction a with a p, induction b with b q,
-    fapply sigma.prod, apply pregroup.mul_comm G, apply ens.prop
-  end
-
-  @[hott] def homo.surj (φ : G.subgroup) : Subgroup G φ ⤳ G :=
-  mkhomo sigma.fst (λ ⟨a, _⟩ ⟨b, _⟩, idp (a * b))
 
   inductive D₃.carrier
   | R₀ | R₁ | R₂
