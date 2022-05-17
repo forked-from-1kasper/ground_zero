@@ -240,6 +240,121 @@ namespace group
   @[hott] def eq_of_rdiv_eq {x y : G.carrier} (h : x / y = e) : x = y :=
   inv_inj (inv_eq_of_mul_eq_one h)
 
+  @[hott] def cancel_left (a b : G.carrier) := calc
+      a = a * e         : Id.inv (G.mul_one a)
+    ... = a * (b⁻¹ * b) : (G.φ a) # (Id.inv $ G.mul_left_inv b)
+    ... = (a * b⁻¹) * b : Id.inv (G.mul_assoc a b⁻¹ b)
+
+  @[hott] def cancel_right (a b : G.carrier) := calc
+      a = a * e         : Id.inv (G.mul_one a)
+    ... = a * (b * b⁻¹) : (G.φ a) # (Id.inv $ mul_right_inv b)
+    ... = (a * b) * b⁻¹ : Id.inv (G.mul_assoc a b b⁻¹)
+
+  @[hott] def rev_cancel_left (a b : G.carrier) := calc
+      b = e * b         : Id.inv (G.one_mul b)
+    ... = (a⁻¹ * a) * b : (λ c, G.φ c b) # (Id.inv $ G.mul_left_inv a)
+    ... = a⁻¹ * (a * b) : G.mul_assoc a⁻¹ a b
+
+  @[hott] def rev_cancel_right (a b : G.carrier) := calc
+      b = e * b         : Id.inv (G.one_mul b)
+    ... = (a * a⁻¹) * b : (λ c, G.φ c b) # (Id.inv $ mul_right_inv a)
+    ... = a * (a⁻¹ * b) : G.mul_assoc a a⁻¹ b
+
+  @[hott] def comm_impl_conj {x y : G.carrier} (p : x * y = y * x) : x = x ^ y := calc
+      x = e * x         : Id.inv (G.one_mul x)
+    ... = (y⁻¹ * y) * x : (* x) # (Id.inv $ G.mul_left_inv y)
+    ... = y⁻¹ * (y * x) : G.mul_assoc y⁻¹ y x
+    ... = y⁻¹ * (x * y) : G.φ y⁻¹ # (Id.inv p)
+    ... = (y⁻¹ * x) * y : Id.inv (G.mul_assoc y⁻¹ x y)
+    ... = x ^ y         : by reflexivity
+
+  @[hott] def commutator (x y : G.carrier) := (x * y) * (x⁻¹ * y⁻¹)
+
+  @[hott] def commutes {x y : G.carrier}
+    (p : commutator x y = e) : x * y = y * x :=
+  begin
+    symmetry, transitivity, { symmetry, apply inv_inv },
+    transitivity, apply Id.map, apply inv_explode,
+    symmetry, apply eq_inv_of_mul_eq_one, exact p
+  end
+
+  @[hott] def commutator_over_inv (x y : G.carrier) :
+    (commutator x y)⁻¹ = commutator y x :=
+  begin
+    transitivity, apply inv_explode,
+    transitivity, apply Id.map, apply inv_explode,
+    apply Id.map (* y⁻¹ * x⁻¹), transitivity, apply inv_explode,
+    transitivity, apply Id.map, apply inv_inv,
+    apply Id.map (* x), apply inv_inv
+  end
+
+  def ldiv (φ : G.subgroup) := λ x y, @left_div G x y ∈ φ
+  def rdiv (φ : G.subgroup) := λ x y, x / y ∈ φ
+
+  @[hott] def inv_x_mul_y_inv (x y : G.carrier) := calc
+    (x⁻¹ * y)⁻¹ = y⁻¹ * x⁻¹⁻¹ : by apply inv_explode
+            ... = y⁻¹ * x     : (G.φ y⁻¹) # (inv_inv x)
+
+  @[hott] def x_mul_inv_y_inv (x y : G.carrier) := calc
+    (x * y⁻¹)⁻¹ = y⁻¹⁻¹ * x⁻¹ : by apply inv_explode
+            ... = y * x⁻¹     : (* x⁻¹) # (inv_inv y)
+
+  @[hott] def div_by_unit (x : G.carrier) : x / e = x :=
+  begin
+    change _ * _ = _,
+    transitivity, { apply Id.map, symmetry, apply unit_inv },
+    apply G.mul_one
+  end
+
+  @[hott] def ldiv_by_unit (x : G.carrier) : left_div x e = x⁻¹ :=
+  by apply G.mul_one
+
+  @[hott] def chain_ldiv (x y z : G.carrier) := calc
+          (left_div x y) * (left_div y z)
+        = (x⁻¹ * y) * (y⁻¹ * z) : Id.refl
+    ... = x⁻¹ * (y * (y⁻¹ * z)) : (G.mul_assoc x⁻¹ y (y⁻¹ * z))
+    ... = x⁻¹ * ((y * y⁻¹) * z) : (G.φ x⁻¹) # (Id.inv $ G.mul_assoc y y⁻¹ z)
+    ... = x⁻¹ * (e * z)         :
+          begin
+            apply map, apply map (* z),
+            apply group.mul_right_inv
+          end
+    ... = left_div x z : (λ y, x⁻¹ * y) # (G.one_mul z)
+
+  @[hott] def chain_rdiv (x y z : G.carrier) := calc
+    (x / y) * (y / z) = (x * y⁻¹) * (y * z⁻¹) : Id.refl
+                  ... = x * (y⁻¹ * (y * z⁻¹)) : (G.mul_assoc x y⁻¹ (y * z⁻¹))
+                  ... = x * ((y⁻¹ * y) * z⁻¹) : (G.φ x) # (Id.inv $ G.mul_assoc y⁻¹ y z⁻¹)
+                  ... = x * (e * z⁻¹)         :
+                        begin
+                          apply map, apply map (* z⁻¹),
+                          apply G.mul_left_inv
+                        end
+                  ... = x / z : (λ y, x * y) # (G.one_mul z⁻¹)
+
+  @[hott] def conjugate.idem (x : G.carrier) := calc
+    conjugate x x = G.φ G.e x : (λ y, G.φ y x) # (G.mul_left_inv x)
+              ... = x         : G.one_mul x
+
+  @[hott] def conjugate.eq {x y : G.carrier}
+    (p : conjugate x y = y) : x = y :=
+  begin
+    symmetry, apply eq_of_div_eq, fapply mul_cancel_right, exact y,
+    transitivity, exact p, symmetry, apply G.one_mul
+  end
+
+  @[hott] def conjugate.comm {x y : G.carrier}
+    (p : conjugate x y = x) : G.φ x y = G.φ y x :=
+  begin
+    fapply mul_cancel_left, exact G.ι y,
+    transitivity, { symmetry, apply G.mul_assoc },
+    transitivity, exact p, transitivity,
+    { transitivity, symmetry, apply G.one_mul,
+      apply Id.map (λ y, G.φ y x),
+      symmetry, apply G.mul_left_inv y },
+    apply G.mul_assoc
+  end
+
   section
     variables {H K : pregroup}
 
@@ -334,34 +449,6 @@ namespace group
     apply Id.map, apply is_subgroup.prop
   end
 
-  @[hott] def cancel_left (a b : G.carrier) := calc
-      a = a * e         : Id.inv (G.mul_one a)
-    ... = a * (b⁻¹ * b) : (G.φ a) # (Id.inv $ G.mul_left_inv b)
-    ... = (a * b⁻¹) * b : Id.inv (G.mul_assoc a b⁻¹ b)
-
-  @[hott] def cancel_right (a b : G.carrier) := calc
-      a = a * e         : Id.inv (G.mul_one a)
-    ... = a * (b * b⁻¹) : (G.φ a) # (Id.inv $ mul_right_inv b)
-    ... = (a * b) * b⁻¹ : Id.inv (G.mul_assoc a b b⁻¹)
-
-  @[hott] def rev_cancel_left (a b : G.carrier) := calc
-      b = e * b         : Id.inv (G.one_mul b)
-    ... = (a⁻¹ * a) * b : (λ c, G.φ c b) # (Id.inv $ G.mul_left_inv a)
-    ... = a⁻¹ * (a * b) : G.mul_assoc a⁻¹ a b
-
-  @[hott] def rev_cancel_right (a b : G.carrier) := calc
-      b = e * b         : Id.inv (G.one_mul b)
-    ... = (a * a⁻¹) * b : (λ c, G.φ c b) # (Id.inv $ mul_right_inv a)
-    ... = a * (a⁻¹ * b) : G.mul_assoc a a⁻¹ b
-
-  @[hott] def comm_impl_conj {x y : G.carrier} (p : x * y = y * x) : x = x ^ y := calc
-      x = e * x         : Id.inv (G.one_mul x)
-    ... = (y⁻¹ * y) * x : (* x) # (Id.inv $ G.mul_left_inv y)
-    ... = y⁻¹ * (y * x) : G.mul_assoc y⁻¹ y x
-    ... = y⁻¹ * (x * y) : G.φ y⁻¹ # (Id.inv p)
-    ... = (y⁻¹ * x) * y : Id.inv (G.mul_assoc y⁻¹ x y)
-    ... = x ^ y         : by reflexivity
-
   @[hott] def is_normal_subgroup.conj (φ : G.subgroup)
     [G ⊵ φ] (n g : G.carrier) : n ∈ φ → n ^ g ∈ φ :=
   begin
@@ -384,27 +471,6 @@ namespace group
                    ... = g⁻¹ * (g * n) : G.mul_assoc g⁻¹ g n,
     apply is_normal_subgroup.cosets_eqv, assumption
   end
-
-  def ldiv (φ : G.subgroup) := λ x y, @left_div G x y ∈ φ
-  def rdiv (φ : G.subgroup) := λ x y, x / y ∈ φ
-
-  @[hott] def inv_x_mul_y_inv (x y : G.carrier) := calc
-    (x⁻¹ * y)⁻¹ = y⁻¹ * x⁻¹⁻¹ : by apply inv_explode
-            ... = y⁻¹ * x     : (G.φ y⁻¹) # (inv_inv x)
-
-  @[hott] def x_mul_inv_y_inv (x y : G.carrier) := calc
-    (x * y⁻¹)⁻¹ = y⁻¹⁻¹ * x⁻¹ : by apply inv_explode
-            ... = y * x⁻¹     : (* x⁻¹) # (inv_inv y)
-
-  @[hott] def div_by_unit (x : G.carrier) : x / e = x :=
-  begin
-    change _ * _ = _,
-    transitivity, { apply Id.map, symmetry, apply unit_inv },
-    apply G.mul_one
-  end
-
-  @[hott] def ldiv_by_unit (x : G.carrier) : left_div x e = x⁻¹ :=
-  by apply G.mul_one
 
   @[hott] def normal_subgroup_cosets (φ : G.subgroup) [G ⊵ φ] :
     Π {x y : G.carrier}, ldiv φ x y ↔ rdiv φ x y :=
@@ -434,29 +500,6 @@ namespace group
     repeat { apply ens.prop },
     apply normal_subgroup_cosets
   end
-
-  @[hott] def chain_ldiv (x y z : G.carrier) := calc
-          (left_div x y) * (left_div y z)
-        = (x⁻¹ * y) * (y⁻¹ * z) : Id.refl
-    ... = x⁻¹ * (y * (y⁻¹ * z)) : (G.mul_assoc x⁻¹ y (y⁻¹ * z))
-    ... = x⁻¹ * ((y * y⁻¹) * z) : (G.φ x⁻¹) # (Id.inv $ G.mul_assoc y y⁻¹ z)
-    ... = x⁻¹ * (e * z)         :
-          begin
-            apply map, apply map (* z),
-            apply group.mul_right_inv
-          end
-    ... = left_div x z : (λ y, x⁻¹ * y) # (G.one_mul z)
-
-  @[hott] def chain_rdiv (x y z : G.carrier) := calc
-    (x / y) * (y / z) = (x * y⁻¹) * (y * z⁻¹) : Id.refl
-                  ... = x * (y⁻¹ * (y * z⁻¹)) : (G.mul_assoc x y⁻¹ (y * z⁻¹))
-                  ... = x * ((y⁻¹ * y) * z⁻¹) : (G.φ x) # (Id.inv $ G.mul_assoc y⁻¹ y z⁻¹)
-                  ... = x * (e * z⁻¹)         :
-                        begin
-                          apply map, apply map (* z⁻¹),
-                          apply G.mul_left_inv
-                        end
-                  ... = x / z : (λ y, x * y) # (G.one_mul z⁻¹)
 
   @[hott] def factor_left_rel (φ : G.subgroup) :
     G.carrier → G.carrier → Ω :=
@@ -1506,8 +1549,6 @@ namespace group
       factor.incl x = presentation.one R :> (presentation R).carrier :=
   begin apply factor.sound, apply closure.sub, assumption end
 
-  @[hott] def commutator (x y : G.carrier) := (x * y) * (x⁻¹ * y⁻¹)
-
   @[hott] def commutators (G : pregroup) [group G] : G.subset :=
   ground_zero.algebra.im (function.uncurry commutator)
 
@@ -1517,24 +1558,6 @@ namespace group
 
   @[hott] def abelianization.elem : G.carrier → (abelianization G).carrier :=
   factor.incl
-
-  @[hott] def commutes {x y : G.carrier}
-    (p : commutator x y = e) : x * y = y * x :=
-  begin
-    symmetry, transitivity, { symmetry, apply inv_inv },
-    transitivity, apply Id.map, apply inv_explode,
-    symmetry, apply eq_inv_of_mul_eq_one, exact p
-  end
-
-  @[hott] def commutator_over_inv (x y : G.carrier) :
-    (commutator x y)⁻¹ = commutator y x :=
-  begin
-    transitivity, apply inv_explode,
-    transitivity, apply Id.map, apply inv_explode,
-    apply Id.map (* y⁻¹ * x⁻¹), transitivity, apply inv_explode,
-    transitivity, apply Id.map, apply inv_inv,
-    apply Id.map (* x), apply inv_inv
-  end
 
   @[hott] noncomputable instance abelianization.group :
     group (abelianization G) :=
@@ -1860,29 +1883,6 @@ namespace group
   ⟨Aut.monoid, λ ⟨f, ⟨(η₁, η₂), (⟨g, μ₁⟩, μ₂)⟩⟩, begin
     apply iso.ext, apply μ₁
   end⟩
-
-  @[hott] def conjugate.idem (x : G.carrier) := calc
-    conjugate x x = G.φ G.e x : (λ y, G.φ y x) # (G.mul_left_inv x)
-              ... = x         : G.one_mul x
-
-  @[hott] def conjugate.eq {x y : G.carrier}
-    (p : conjugate x y = y) : x = y :=
-  begin
-    symmetry, apply eq_of_div_eq, fapply mul_cancel_right, exact y,
-    transitivity, exact p, symmetry, apply G.one_mul
-  end
-
-  @[hott] def conjugate.comm {x y : G.carrier}
-    (p : conjugate x y = x) : G.φ x y = G.φ y x :=
-  begin
-    fapply mul_cancel_left, exact G.ι y,
-    transitivity, { symmetry, apply G.mul_assoc },
-    transitivity, exact p, transitivity,
-    { transitivity, symmetry, apply G.one_mul,
-      apply Id.map (λ y, G.φ y x),
-      symmetry, apply G.mul_left_inv y },
-    apply G.mul_assoc
-  end
 
   -- Outer semidirect product
   @[hott] def semidirect {N H : pregroup}
@@ -2232,7 +2232,7 @@ def diff.grp (G : diff) := G.fst
 instance diff.abelian (G : diff) : abelian G.grp := G.snd.fst
 
 def diff.δ   (G : diff) : G.grp ⤳ G.grp := G.snd.snd.fst
-def diff.sqr (G : diff) : G.δ ⋅ G.δ = 0  := G.snd.snd.snd
+def diff.sqr (G : diff) : G.δ ⋅ G.δ = 0 := G.snd.snd.snd
 
 namespace diff
   open ground_zero.algebra.group (im ker)
