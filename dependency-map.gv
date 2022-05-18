@@ -123,6 +123,7 @@ digraph dependency_map {
     "HITs/infinitesimal"
     "HITs/interval" -> {
       "cubical/cubes",
+      "cubical/path",
       "theorems/prop",
       "theorems/fibration"
     }
@@ -151,7 +152,7 @@ digraph dependency_map {
 
   subgraph cubical {
     "cubical/connection"
-    "cubical/cubes" -> "cubical/path"
+    "cubical/cubes" -> "cubical/square"
     "cubical/example"
     "cubical/path" -> {
       "cubical/square",
