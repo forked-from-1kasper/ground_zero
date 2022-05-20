@@ -20,6 +20,7 @@ notation "𝟐" => Bool
 def Empty.elim {α : Sort u} (xs : Empty) : α :=
 nomatch xs
 
+/-
 inductive Identity (α : Type u)
 | elem {} : α → Identity α
 
@@ -33,5 +34,6 @@ def Identity.lift {α : Type u} {β : Type v}
 def Identity.lift₂ {α : Type u} {β : Type v} {γ : Type w}
   (f : α → β → γ) : Identity α → Identity β → Identity γ
 | Identity.elem a, Identity.elem b => Identity.elem (f a b)
+-/
 
 end GroundZero.Proto
