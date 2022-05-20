@@ -28,7 +28,7 @@ macro "begin " ts:sepBy1(tactic, ";", "; ", allowTrailingSep) i:"end" : term =>
 section
   macro "reflexivity" : tactic => `(apply Reflexive.intro)
   macro "symmetry"    : tactic => `(apply Symmetric.intro)
-  macro "transtivity" : tactic => `(apply Transitive.intro)
+  macro "transitivity" : tactic => `(apply Transitive.intro)
 end
 
 end GroundZero.Meta.Notation
