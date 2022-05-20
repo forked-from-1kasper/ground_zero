@@ -19,7 +19,8 @@ namespace GroundZero.Meta.Notation
 syntax "Π" many1(simpleBinder <|> bracketedBinder) ", " term : term
 macro_rules | `(Π $xs*, $y) => `(∀ $xs*, $y)
 
-notation x "↦" f => fun x => f
+macro "λ " xs:many1(funBinder) ", " f:term : term => `(fun $xs* => $f)
+macro xs:many1(funBinder) " ↦ " f:term : term => `(fun $xs* => $f)
 
 macro "begin " ts:sepBy1(tactic, ";", "; ", allowTrailingSep) i:"end" : term =>
   `(by { $[($ts:tactic)]* }%$i)
