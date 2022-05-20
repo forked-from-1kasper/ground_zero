@@ -14,13 +14,13 @@ structure Iff (α : Sort u) (β : Sort v) :=
 
 infix:30 (priority := high) " ↔ " => Iff
 
-hott def iff.refl {α : Sort u} : α ↔ α :=
+hott def Iff.refl {α : Sort u} : α ↔ α :=
 ⟨idfun, idfun⟩
 
-hott def iff.symm {α : Sort u} {β : Sort v} : (α ↔ β) → (β ↔ α) :=
+hott def Iff.symm {α : Sort u} {β : Sort v} : (α ↔ β) → (β ↔ α) :=
 λ p, ⟨p.right, p.left⟩
 
-hott def iff.comp {α : Sort u} {β : Sort v} {γ : Sort w} :
+hott def Iff.comp {α : Sort u} {β : Sort v} {γ : Sort w} :
   (α ↔ β) → (β ↔ γ) → (α ↔ γ) :=
 λ p q, ⟨q.left ∘ p.left, p.right ∘ q.right⟩
 
