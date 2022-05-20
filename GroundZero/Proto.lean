@@ -26,6 +26,7 @@ hott def Iff.comp {α : Sort u} {β : Sort v} {γ : Sort w} :
 
 notation "𝟎" => Empty
 notation "𝟐" => Bool
+notation "ℕ" => Nat
 
 def Empty.elim {α : Sort u} (xs : Empty) : α :=
 nomatch xs
@@ -34,7 +35,7 @@ def Bool.elim {α : Sort u} : α → α → 𝟐 → α :=
 λ b₁ b₂ b, @Bool.casesOn (λ _, α) b b₁ b₂
 
 def Bottom := Empty.{0}
-notation "⊥" => Bottom
+notation (priority := low) "⊥" => Bottom
 
 inductive Identity (α : Type u)
 | elem : α → Identity α
