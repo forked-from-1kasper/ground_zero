@@ -1,10 +1,4 @@
-import Lean.Util.FoldConsts
-import Lean.Elab.Command
-import Lean.Environment
-import Lean.Parser
-import Lean.Meta
 import Lean.Elab
-import Std.Data
 
 open Lean.Parser.Command
 open Lean Std

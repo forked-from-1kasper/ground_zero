@@ -21,8 +21,8 @@ macro_rules | `(Π $xs*, $y) => `(∀ $xs*, $y)
 
 notation x "↦" f => fun x => f
 
-macro "begin " ts:tactic,*,? i:"end" : term => do
-  `(by { $[$ts:tactic]* }%$i)
+macro "begin " ts:sepBy1(tactic, ";", "; ", allowTrailingSep) i:"end" : term =>
+  `(by { $[($ts:tactic)]* }%$i)
 
 section
   macro "reflexivity" : tactic => `(apply Reflexive.intro)
