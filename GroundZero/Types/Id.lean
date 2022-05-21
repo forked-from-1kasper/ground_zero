@@ -10,8 +10,6 @@ begin rfl end
 inductive Id {α : Type u} : α → α → Type u
 | refl {a : α} : Id a a
 
-def Eq (α : Type u) (a b : α) := Id a b
-
 infix:50 (priority := high) " = " => Id
 
 /- fails!
@@ -31,9 +29,9 @@ namespace Id
     (p : a = b) (q : b = c) : a = c :=
   begin induction p; apply q end
 
-  instance : Reflexive  (Eq α) := ⟨Id.refl⟩
-  instance : Symmetric  (Eq α) := ⟨symm⟩
-  instance : Transitive (Eq α) := ⟨trans⟩
+  instance : Reflexive  (@Id α) := ⟨Id.refl⟩
+  instance : Symmetric  (@Id α) := ⟨symm⟩
+  instance : Transitive (@Id α) := ⟨trans⟩
 
   instance {α : Type u} : @Reflexive α  (· = ·) := ⟨Id.refl⟩
   instance {α : Type u} : @Symmetric α  (· = ·) := ⟨symm⟩
