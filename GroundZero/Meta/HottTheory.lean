@@ -75,6 +75,9 @@ initialize hottDecls : SimplePersistentEnvExtension Name NameSet ←
 initialize nothott : TagAttribute ← registerTagAttribute `nothott "Marks a defintion as unsafe for HoTT"
 initialize hottAxiom : TagAttribute ← registerTagAttribute `hottAxiom "Unsafely marks a definition as safe for HoTT"
 
+def unsafeDecls :=
+[`Quot.lift, `Quot.ind, `Quot.rec, `Classical.choice]
+
 def checked? (decl : Name) : MetaM Bool := do
   let env ← getEnv
   let checked := (hottDecls.getState env).contains decl
@@ -83,7 +86,7 @@ def checked? (decl : Name) : MetaM Bool := do
   pure (checked ∨ isSafe)
 
 def checkNotNotHoTT (env : Environment) (decl : Name) : MetaM Unit := do
-  if nothott.hasTag env decl then
+  if nothott.hasTag env decl ∨ unsafeDecls.contains decl then
     throwError "marked as [nothott]: {decl}"
   else return ()
 
