@@ -43,6 +43,8 @@ notation (priority := low) "⊥" => Bottom
 inductive Identity (α : Type u)
 | elem : α → Identity α
 
+attribute [eliminator] Identity.casesOn
+
 def Identity.elim {α : Type u} : Identity α → α
 | Identity.elem a => a
 
