@@ -8,5 +8,5 @@ namespace GroundZero.Support
   begin induction p; reflexivity end
 
   hott def truncation {α : Type u} {a b : α} (p : a = b) : Eq a b :=
-  begin induction p; apply Eq.refl end
+  begin induction p; reflexivity end
 end GroundZero.Support

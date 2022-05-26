@@ -1,4 +1,3 @@
-import GroundZero.Meta.HottTheory
 import GroundZero.Proto
 
 namespace GroundZero.Types
@@ -6,6 +5,14 @@ universe u v
 
 theorem UIP {α : Type u} {a b : α} (p q : a = b) : p = q :=
 begin rfl end
+
+section
+  variable (α : Sort u)
+
+  instance : @Reflexive α Eq  := ⟨@Eq.refl α⟩
+  instance : @Symmetric α Eq  := ⟨@Eq.symm α⟩
+  instance : @Transitive α Eq := ⟨@Eq.trans α⟩
+end
 
 inductive Id {α : Type u} : α → α → Type u
 | refl {a : α} : Id a a
@@ -29,13 +36,9 @@ namespace Id
     (p : a = b) (q : b = c) : a = c :=
   begin induction p; apply q end
 
-  instance : Reflexive  (@Id α) := ⟨Id.refl⟩
-  instance : Symmetric  (@Id α) := ⟨symm⟩
-  instance : Transitive (@Id α) := ⟨trans⟩
-
-  instance {α : Type u} : @Reflexive α  (· = ·) := ⟨Id.refl⟩
-  instance {α : Type u} : @Symmetric α  (· = ·) := ⟨symm⟩
-  instance {α : Type u} : @Transitive α (· = ·) := ⟨trans⟩
+  instance : Reflexive  (@Id α) := ⟨@Id.refl α⟩
+  instance : Symmetric  (@Id α) := ⟨@symm α⟩
+  instance : Transitive (@Id α) := ⟨@trans α⟩
 
   hott def inv {α : Type u} {a b : α} (p : a = b) : b = a := symm p
 

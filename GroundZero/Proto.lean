@@ -1,5 +1,4 @@
-import GroundZero.Meta.HottTheory
-import GroundZero.Meta.Notation
+import GroundZero.Meta.Basic
 
 namespace GroundZero.Proto
 universe u v w
@@ -23,6 +22,10 @@ hott def Iff.symm {α : Sort u} {β : Sort v} : (α ↔ β) → (β ↔ α) :=
 hott def Iff.comp {α : Sort u} {β : Sort v} {γ : Sort w} :
   (α ↔ β) → (β ↔ γ) → (α ↔ γ) :=
 λ p q, ⟨q.left ∘ p.left, p.right ∘ q.right⟩
+
+instance : @Reflexive  (Sort u) Iff := ⟨@Iff.refl⟩
+instance : @Symmetric  (Sort u) Iff := ⟨@Iff.symm⟩
+instance : @Transitive (Sort u) Iff := ⟨@Iff.comp⟩
 
 notation "𝟎" => Empty
 notation "𝟐" => Bool
