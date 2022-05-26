@@ -8,6 +8,8 @@ hott def idfun {α : Sort u} : α → α :=
 
 inductive Empty : Type u
 
+attribute [eliminator] Empty.casesOn
+
 structure Iff (α : Sort u) (β : Sort v) :=
 (left : α → β) (right : β → α)
 
