@@ -24,7 +24,7 @@ hott theorem Id.UIP {α : Type u} {a b : α} (p q : a = b) : p = q :=
 begin cases p; cases q; apply Id.refl end
 -/
 
-abbrev idp {α : Type u} (a : α) : a = a := Id.refl
+@[matchPattern] abbrev idp {α : Type u} (a : α) : a = a := Id.refl
 
 namespace Id
   attribute [eliminator] Id.casesOn

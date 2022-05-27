@@ -1,4 +1,6 @@
+import Lean.Elab.Tactic.ElabTerm
 import Lean.Elab.Command
+
 open Lean
 
 section
@@ -50,5 +52,21 @@ section
   elab "symmetry"     : tactic => applyOnBinRel `Symmetric.intro
   elab "transitivity" : tactic => applyOnBinRel `Transitive.intro
 end
+
+-- https://github.com/leanprover-community/mathlib4/blob/master/Mathlib/Tactic/Basic.lean
+-- Author: Mario Carneiro
+syntax "iterate" (ppSpace num)? ppSpace tacticSeq : tactic
+macro_rules
+  | `(tactic|iterate $seq:tacticSeq) =>
+    `(tactic|try ($seq:tacticSeq); iterate $seq:tacticSeq)
+  | `(tactic|iterate $n $seq:tacticSeq) =>
+    match n.toNat with
+    |   0   => `(tactic| skip)
+    | n + 1 => `(tactic|($seq:tacticSeq); iterate $(quote n) $seq:tacticSeq)
+
+elab "fapply " e:term : tactic =>
+  Elab.Tactic.evalApplyLikeTactic (Meta.apply (cfg := {newGoals := Meta.ApplyNewGoals.all})) e
+
+macro_rules | `(tactic| change $e:term) => `(tactic| show $e)
 
 end GroundZero.Meta.Tactic
