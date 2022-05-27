@@ -25,11 +25,11 @@ namespace Graph
     apply h; assumption
   end
 
-  @[hottAxiom] def ind {α : Type u} {R : α → α → Type w} {β : Graph R → Type v}
-    (f : Π x, β (elem x)) (h : Π x y (H : R x y), f x =[line H] f y) : Π x, β x :=
+  @[hottAxiom, eliminator] def ind {α : Type u} {R : α → α → Type w} {β : Graph R → Type v}
+    (elemβ : Π x, β (elem x)) (lineβ : Π x y (H : R x y), elemβ x =[line H] elemβ y) : Π x, β x :=
   begin
-    intro x; apply Quot.hrecOn x f; intros a b H; induction H;
-    apply HEq.fromPathover (line _) (h a b _); assumption
+    intro x; apply Quot.hrecOn x elemβ; intros a b H; induction H;
+    apply HEq.fromPathover (line _) (lineβ a b _); assumption
   end
 
   axiom recβrule {α : Type u} {β : Type v} {R : α → α → Type w}
