@@ -26,8 +26,8 @@ namespace product
     λ f, (Prod.pr₁ ∘ f, Prod.pr₂ ∘ f);
     let e₂ : (ν → α) × (ν → β) → (ν → α × β) :=
     λ f x, (f.pr₁ x, f.pr₂ x);
-    apply Sigma.mk e₁; apply Qinv.toBiinv;
-    apply Sigma.mk e₂; apply Prod.mk <;> reflexivity
+    existsi e₁; apply Qinv.toBiinv;
+    existsi e₂; apply Prod.mk <;> reflexivity
   end
 
   hott def bimap {γ : Type u'} {δ : Type v'} (f : α → γ) (g : β → δ) (w : α × β) : γ × δ := (f w.1, g w.2)

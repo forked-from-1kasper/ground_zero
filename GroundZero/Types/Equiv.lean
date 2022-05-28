@@ -400,7 +400,7 @@ namespace Equiv
 
   hott def identityEqv {α : Type u} : α ≃ Identity α :=
   begin
-    apply Sigma.mk Identity.elem; apply Prod.mk <;> apply Sigma.mk Identity.elim <;> intro x;
+    existsi Identity.elem; apply Prod.mk <;> existsi Identity.elim <;> intro x;
     { reflexivity }; { induction x; reflexivity }
   end
 

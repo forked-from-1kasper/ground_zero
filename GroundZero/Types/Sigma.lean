@@ -69,18 +69,18 @@ namespace Sigma
   hott def respectsEquiv {α : Type v} {η : α → Type u} {ε : α → Type w}
     (e : Π x, η x ≃ ε x) : (Σ x, η x) ≃ (Σ x, ε x) :=
   begin
-    apply Sigma.mk (map (λ x, (e x).forward)); apply Prod.mk;
-    { apply Sigma.mk (map (λ x, (e x).left)); intro w;
+    existsi (map (λ x, (e x).forward)); apply Prod.mk;
+    { existsi (map (λ x, (e x).left)); intro w;
       apply Id.map (Sigma.mk w.1); apply (e w.1).leftForward };
-    { apply Sigma.mk (map (λ x, (e x).right)); intro w;
+    { existsi (map (λ x, (e x).right)); intro w;
       apply Id.map (Sigma.mk w.1); apply (e w.1).forwardRight }
   end
 
   hott def replaceIshae {A : Type u} {B : Type v} {C : A → Type w}
     (g : B → A) (ρ : Ishae g) : (Σ x, C x) ≃ (Σ x, C (g x)) :=
   begin
-    apply Sigma.mk (λ w, ⟨ρ.1 w.1, Equiv.transport C (ρ.2.2.1 w.1)⁻¹ w.2⟩);
-    apply Qinv.toBiinv; apply Sigma.mk (λ w, ⟨g w.1, w.2⟩); apply Prod.mk <;> intro w;
+    existsi (λ w, ⟨ρ.1 w.1, Equiv.transport C (ρ.2.2.1 w.1)⁻¹ w.2⟩);
+    apply Qinv.toBiinv; existsi (λ w, ⟨g w.1, w.2⟩); apply Prod.mk <;> intro w;
     { apply @prod B (C ∘ g) ⟨ρ.1 (g w.1), _⟩ w (ρ.2.1 w.1);
       transitivity; apply Equiv.transportComp;
       transitivity; symmetry; apply Equiv.substComp;
@@ -92,14 +92,14 @@ namespace Sigma
   hott def hmtpy_inv_eqv {α : Type v} {β : Type u} (f g : α → β) :
     (Σ x, f x = g x) ≃ (Σ x, g x = f x) :=
   begin
-    apply Sigma.mk (hmtpyInv f g); apply Qinv.toBiinv;
-    apply Sigma.mk (hmtpyInv g f); apply Prod.mk <;>
+    existsi hmtpyInv f g; apply Qinv.toBiinv;
+    existsi hmtpyInv g f; apply Prod.mk <;>
     { intro w; apply Id.map (Sigma.mk w.1); apply Id.invInv }
   end
 
   hott def sigmaEqOfEq {α : Type u} {β : α → Type v} {a b : Σ x, β x}
     (p : a = b) : (Σ (p : a.1 = b.1), Equiv.subst p a.2 = b.2) :=
-  begin induction p; apply Sigma.mk (idp a.1); reflexivity end
+  begin induction p; existsi idp a.1; reflexivity end
 
   hott def eqOfSigmaEq {α : Type u} {β : α → Type v} {a b : Σ x, β x}
     (p : Σ (p : a.1 = b.1), Equiv.subst p a.2 = b.2) : (a = b) :=
@@ -116,8 +116,8 @@ namespace Sigma
   hott def sigmaPath {α : Type u} {β : α → Type v} {a b : Σ x, β x} :
     (a = b) ≃ (Σ (p : a.1 = b.1), Equiv.subst p a.2 = b.2) :=
   begin
-    apply Sigma.mk sigmaEqOfEq; apply Qinv.toBiinv;
-    apply Sigma.mk eqOfSigmaEq; apply Prod.mk; apply reprProd; apply prodRepr
+    existsi sigmaEqOfEq; apply Qinv.toBiinv;
+    existsi eqOfSigmaEq; apply Prod.mk; apply reprProd; apply prodRepr
   end
 end Sigma
 

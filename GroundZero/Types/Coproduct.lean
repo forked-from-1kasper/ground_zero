@@ -24,7 +24,7 @@ namespace Coproduct
 
   hott def symm : α + β ≃ β + α :=
   begin
-    apply Sigma.mk inv; apply Qinv.toBiinv; apply Sigma.mk inv;
+    existsi inv; apply Qinv.toBiinv; existsi inv;
     apply Prod.mk <;> { intro x; induction x using Sum.casesOn <;> reflexivity }
   end
 
@@ -52,7 +52,7 @@ namespace Coproduct
 
     hott def recognize (a₀ : α) (x : α + β) : (inl a₀ = x) ≃ code a₀ x :=
     begin
-      apply Sigma.mk encode; apply Qinv.toBiinv; apply Sigma.mk decode;
+      existsi encode; apply Qinv.toBiinv; existsi decode;
       apply Prod.mk; apply encodeDecode; apply decodeEncode
     end
 
@@ -87,7 +87,7 @@ namespace Coproduct
 
     hott def recognize (b₀ : β) (x : α + β) : (inr b₀ = x) ≃ code b₀ x :=
     begin
-      apply Sigma.mk encode; apply Qinv.toBiinv; apply Sigma.mk decode;
+      existsi encode; apply Qinv.toBiinv; existsi decode;
       apply Prod.mk; apply encodeDecode; apply decodeEncode
     end
 
