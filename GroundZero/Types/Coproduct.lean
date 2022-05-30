@@ -94,7 +94,7 @@ namespace Coproduct
     hott def inj' (x y : β) : @Id (α + β) (inr x) (inr y) ≃ (x = y) :=
     recognize x (inr y)
 
-    hott def inr_inl (x : β) (y : α) : @Id (α + β) (inr x) (inl y) ≃ 𝟎 :=
+    hott def inrInl (x : β) (y : α) : @Id (α + β) (inr x) (inl y) ≃ 𝟎 :=
     recognize x (inl y)
   end inr
 

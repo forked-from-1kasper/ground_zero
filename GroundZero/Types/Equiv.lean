@@ -75,10 +75,10 @@ namespace Equiv
   hott def leftForward {α : Type u} {β : Type v} (e : α ≃ β) : e.left ∘ e.forward ~ id := e.2.1.2
   hott def forwardRight {α : Type u} {β : Type v} (e : α ≃ β) : e.forward ∘ e.right ~ id := e.2.2.2
 
-  hott def id (α : Type u) : α ≃ α :=
+  hott def ideqv (α : Type u) : α ≃ α :=
   ⟨idfun, (⟨idfun, idp⟩, ⟨idfun, idp⟩)⟩
 
-  instance : @Reflexive (Type u) (· ≃ ·) := ⟨id⟩
+  instance : @Reflexive (Type u) (· ≃ ·) := ⟨ideqv⟩
 
   hott def inveqv {α : Type u} {a b : α} : (a = b) ≃ (b = a) :=
   ⟨Id.inv, (⟨Id.inv, Id.invInv⟩, ⟨Id.inv, Id.invInv⟩)⟩
@@ -100,26 +100,28 @@ namespace Equiv
   hott def idtoiff {α β : Type u} (p : α = β) : α ↔ β :=
   begin induction p; reflexivity end
 
+  def transport {α : Type u} (π : α → Type v) {a b : α} (p : a = b) : π a → π b :=
+  begin induction p; apply idfun end
+
+  hott def subst {α : Type u} {π : α → Type v} {a b : α} (p : a = b) : π a → π b :=
+  transport π p
+
+  hott def substInv {α : Type u} {π : α → Type v} {a b : α} (p : a = b) : π b → π a :=
+  subst p⁻¹
+
   hott def transportconst {α β : Type u} : α = β → α → β :=
-  forward ∘ idtoeqv
+  transport idfun
 
   def transportconstInv {α β : Type u} : α = β → β → α :=
-  left ∘ idtoeqv
+  transportconst ∘ Id.symm
 
   hott def transportconstOverInv {α β : Type u} (p : α = β) :
     Π x, transportconst p⁻¹ x = transportconstInv p x :=
-  begin intro x; induction p; reflexivity end
-
-  hott def subst {α : Type u} {π : α → Type v} {a b : α} (p : a = b) : π a → π b :=
-  begin induction p; apply idfun end
+  begin intro x; reflexivity end
 
   hott def happly {α : Type u} {β : Type v} {f g : α ≃ β}
     (p : f = g) : f.forward ~ g.forward :=
   begin induction p; reflexivity end
-
-  -- subst with explicit π
-  def transport {α : Type u} (π : α → Type v) {a b : α} (p : a = b) : π a → π b :=
-  subst p
 
   instance {α : Type u} {β : Type v} (ρ : α → β → Type w) : Rewrite ρ Id ρ :=
   ⟨λ a b c R p => transport (ρ a) p R⟩
@@ -168,16 +170,13 @@ namespace Equiv
   begin induction r using Id.casesOn; induction s using Id.casesOn; apply substComp end
   infix:40 " ⬝′ " => depTrans
 
-  hott def substInv {α : Type u} {π : α → Type v} {a b : α} (p : a = b) : π b → π a :=
-  begin induction p; exact idfun end
-
   hott def substOverPathComp {α : Type u} {π : α → Type v} {a b c : α}
     (p : a = b) (q : b = c) (x : π a) : subst (p ⬝ q) x = subst q (subst p x) :=
   begin induction p; reflexivity end
 
   hott def substOverInvPath {α : Type u} {π : α → Type v} {a b : α}
     (p : a = b) (x : π b) : subst p⁻¹ x = substInv p x :=
-  begin induction p; reflexivity end
+  by reflexivity
 
   hott def apd {α : Type u} {β : α → Type v} {a b : α}
     (f : Π (x : α), β x) (p : a = b) : subst p (f a) = f b :=
@@ -223,7 +222,7 @@ namespace Equiv
 
   hott def transportconstOverComposition {α β γ : Type u} (p : α = β) (q : β = γ)
     (x : α) : transportconst (p ⬝ q) x = transportconst q (transportconst p x) :=
-  begin induction p; induction q; reflexivity end
+  by apply substOverPathComp
 
   hott def transportComposition {α : Type u} {a x₁ x₂ : α}
     (p : x₁ = x₂) (q : a = x₁) : transport (Id a) p q = q ⬝ p :=

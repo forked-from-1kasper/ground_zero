@@ -171,19 +171,19 @@ namespace Id
     `((iteratedLoopSpace $τ $(Lean.mkIdent (Meta.Notation.parseIdent i))).point)
 end Id
 
-def not (α : Type u) : Type u := α → (𝟎 : Type)
-def neq {α : Type u} (a b : α) := not (Id a b)
+def Not (α : Type u) : Type u := α → (𝟎 : Type)
+def Neq {α : Type u} (a b : α) := Not (Id a b)
 
-namespace not
-  prefix:90 (priority := high) "¬" => not
-  infix:50 (priority := high) " ≠ " => neq
+namespace Not
+  prefix:90 (priority := high) "¬" => Not
+  infix:50 (priority := high) " ≠ " => Neq
 
   def absurd {α : Type u} {β : Type v} (h : α) (g : ¬α) : β :=
   GroundZero.Proto.Empty.casesOn (λ _, β) (g h)
 
   def univ : (𝟎 : Type u) → (𝟎 : Type v) :=
   λ e, nomatch e
-end not
+end Not
 
 namespace whiskering
   variable {α : Type u} {a b c : α}
