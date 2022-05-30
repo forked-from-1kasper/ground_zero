@@ -121,6 +121,14 @@ namespace Equiv
   def transport {α : Type u} (π : α → Type v) {a b : α} (p : a = b) : π a → π b :=
   subst p
 
+  instance {α : Type u} {β : Type v} (ρ : α → β → Type w) : Rewrite ρ Id ρ :=
+  ⟨λ a b c R p => transport (ρ a) p R⟩
+
+  instance {α : Type u} {β : Type v} (ρ : α → β → Type w) : Rewrite Id ρ ρ :=
+  ⟨λ a b c p R => transport (ρ · c) p⁻¹ R⟩
+
+  instance : Rewrite Equiv.{u, v} Equiv.{v, w} Equiv.{u, w} := ⟨@trans⟩
+
   def depPath {α : Type u} (π : α → Type v) {a b : α} (p : a = b) (u : π a) (v : π b) :=
   Equiv.subst p u = v
 

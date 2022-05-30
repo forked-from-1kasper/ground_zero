@@ -1,3 +1,4 @@
+import Lean.PrettyPrinter.Delaborator.Basic
 import Lean.Elab.Tactic.ElabTerm
 import Lean.Elab.Command
 
@@ -16,6 +17,17 @@ section
   (intro (a b c : α) : ρ a b → ρ b c → ρ a c)
 end
 
+section
+  variable {α : Sort u} {β : Sort v} {γ : Sort w}
+
+  variable (ρ : α → β → Sort u')
+  variable (η : β → γ → Sort v')
+  variable (μ : outParam (α → γ → Sort w'))
+
+  class Rewrite :=
+  (intro (a : α) (b : β) (c : γ) : ρ a b → η b c → μ a c)
+end
+
 -- https://github.com/leanprover-community/mathlib4/blob/master/Mathlib/Lean/Expr/Basic.lean#L100-L109
 def Lean.Expr.constName (e : Expr) : Name :=
 e.constName?.getD Name.anonymous
@@ -32,11 +44,11 @@ def applyOnBinRel (name : Name) (ctor : Name) : Elab.Tactic.TacticM Unit := do
     ε.withApp λ e es => do
       unless (es.size > 1) do Meta.throwTacticEx name mvar "expected binary relation"
 
+      let e₃ := es.back; let es := es.pop;
       let e₂ := es.back; let es := es.pop;
-      let e₁ := es.back; let es := es.pop;
 
-      let ty  ← Meta.inferType e₁
-      let ty' ← Meta.inferType e₂
+      let ty  ← Meta.inferType e₂
+      let ty' ← Meta.inferType e₃
 
       unless (← Meta.isDefEq ty ty') do Meta.throwTacticEx name mvar s!"{ty} ≠ {ty'}"
 
@@ -103,5 +115,65 @@ elab "existsi" e:term : tactic => do
   let ctor ← Elab.Tactic.liftMetaMAtMain getExistsiCtor
   let ε := Syntax.mkApp (mkIdent ctor) #[e]
   Elab.Tactic.evalTactic (← `(tactic| apply $ε))
+
+-- https://leanprover.zulipchat.com/#narrow/stream/270676-lean4/topic/How.20to.20use.20hand.20written.20parsers/near/245760023
+-- Author: Mario Carneiro
+def calcLHS : Parser.Parser :=
+{ fn := λ c s =>
+    let s := Parser.symbolFn "..." c s
+    if s.hasError then s else
+    let tables := (Parser.getCategory (Parser.parserExtension.getState c.env).categories `term).get!.tables
+    Parser.trailingLoop tables c s
+  info := ("..." >> Parser.termParser).info }
+
+open PrettyPrinter Elab.Term
+
+@[combinatorFormatter GroundZero.Meta.Tactic.calcLHS] def calcLHS.formatter : Formatter := pure ()
+@[combinatorParenthesizer GroundZero.Meta.Tactic.calcLHS] def calcLHS.parenthesizer : Parenthesizer := pure ()
+
+def extRelation (e : Expr) : TermElabM (Expr × Expr) :=
+  e.withApp λ e es => do
+    unless (es.size > 1) do throwError "expected binary relation"
+    return (es.back, mkAppN e es.pop.pop)
+
+def getEqn (e : Syntax) : TermElabM (Syntax × Syntax) := do
+  unless (e.getArgs.size > 2) do throwError "expected binary relation"
+  return (e.getArgs.get! 0, e.getArgs.get! 2)
+
+elab "calc " ε:term " : " τ:term σ:(calcLHS " : " term)* : term => do
+  let σ ← Array.mapM getEqn σ
+  let ε ← Elab.Term.elabTerm ε none
+
+  let e₁ := ε.withApp (λ e es => es.pop.back)
+  let ty₁ ← Meta.inferType e₁
+  let u₁  ← Meta.getLevel ty₁
+
+  let mut (e₂, ρ₁) ← extRelation ε
+  let mut η ← Elab.Term.elabTermEnsuringType τ ε
+
+  let mut ty₂ ← Meta.inferType e₂
+  let mut u₂  ← Meta.getLevel ty₂
+
+  let mut v₁ ← Meta.getLevel ε
+
+  for (e, τ) in σ do
+    let ε ← Elab.Term.elabTerm (e.setArg 0 (← PrettyPrinter.delab e₂)) none
+    let τ ← Elab.Term.elabTermEnsuringType τ ε
+    let mut v₂ ← Meta.getLevel ε
+
+    let (e₃, ρ₂) ← extRelation ε
+
+    let ty₃ ← Meta.inferType e₃
+    let u₃  ← Meta.getLevel ty₃
+
+    let v₃ ← Meta.mkFreshLevelMVar
+    let ρ₃ ← Meta.mkFreshExprMVar none
+
+    let ι ← Meta.synthInstance (mkApp6 (Lean.mkConst `Rewrite [u₁, u₂, u₃, v₁, v₂, v₃]) ty₁ ty₂ ty₃ ρ₁ ρ₂ ρ₃)
+    η := mkAppN (Lean.mkConst `Rewrite.intro [u₁, u₂, u₃, v₁, v₂, v₃]) #[ty₁, ty₂, ty₃, ρ₁, ρ₂, ρ₃, ι, e₁, e₂, e₃, η, τ]
+
+    (ty₂, u₂, e₂, v₁, ρ₁) := (ty₃, u₃, e₃, v₃, ρ₃)
+
+  return η
 
 end GroundZero.Meta.Tactic
