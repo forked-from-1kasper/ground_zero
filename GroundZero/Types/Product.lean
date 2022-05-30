@@ -4,7 +4,7 @@ namespace GroundZero.Types
 
 universe u v u' v' w
 
-namespace product
+namespace Product
   variable {α : Type u} {β : Type v}
 
   def elim {γ : Type w} (g : α → β → γ) (x : α × β) : γ :=
@@ -12,7 +12,7 @@ namespace product
 
   def uniq : Π (x : α × β), (x.pr₁, x.pr₂) = x := idp
 
-  def prod (a b : α) (c d : β) (p : a = b) (q : c = d) : (a, c) = (b, d) :=
+  def prod {a b : α} {c d : β} (p : a = b) (q : c = d) : (a, c) = (b, d) :=
   begin induction p; induction q; reflexivity end
 
   hott def prod' {α : Type u} {β : Type v} (x y : α × β) (p : x.1 = y.1) (q : x.2 = y.2) : x = y :=
@@ -40,6 +40,6 @@ namespace product
     [OfNat α 1] [OfNat β 1] :
     OfNat (α × β) (Nat.succ Nat.zero) :=
   ⟨(1, 1)⟩
-end product
+end Product
 
 end GroundZero.Types

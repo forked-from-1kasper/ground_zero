@@ -55,7 +55,7 @@ namespace Equiv
   def biinv {α : Type u} {β : Type v} (f : α → β) :=
   linv f × rinv f
 
-  hott def homotopy_square {α : Type u} {β : Type v}
+  hott def homotopySquare {α : Type u} {β : Type v}
     {f g : α → β} (H : f ~ g) {x y : α} (p : x = y) :
     H x ⬝ Id.map g p = Id.map f p ⬝ H y :=
   begin induction p; transitivity; apply Id.reflRight; apply Id.reflLeft end

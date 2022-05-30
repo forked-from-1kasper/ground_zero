@@ -3,8 +3,7 @@ import GroundZero.Types.Equiv
 namespace GroundZero.Types
 universe u
 
--- TODO: fix universe level
-inductive Unit : Type
+inductive Unit : Type u
 | star : Unit
 
 attribute [eliminator] Unit.casesOn

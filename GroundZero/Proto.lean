@@ -10,24 +10,27 @@ inductive Empty : Type u
 
 attribute [eliminator] Empty.casesOn
 
-structure Iff (α : Sort u) (β : Sort v) :=
-(left : α → β) (right : β → α)
+def Iff (α : Type u) (β : Type v) :=
+(α → β) × (β → α)
 
 infix:30 (priority := high) " ↔ " => Iff
 
-hott def Iff.refl {α : Sort u} : α ↔ α :=
+hott def Iff.left  {α : Type u} {β : Type v} (w : α ↔ β) : α → β := w.1
+hott def Iff.right {α : Type u} {β : Type v} (w : α ↔ β) : β → α := w.2
+
+hott def Iff.refl {α : Type u} : α ↔ α :=
 ⟨idfun, idfun⟩
 
-hott def Iff.symm {α : Sort u} {β : Sort v} : (α ↔ β) → (β ↔ α) :=
+hott def Iff.symm {α : Type u} {β : Type v} : (α ↔ β) → (β ↔ α) :=
 λ p, ⟨p.right, p.left⟩
 
-hott def Iff.comp {α : Sort u} {β : Sort v} {γ : Sort w} :
+hott def Iff.comp {α : Type u} {β : Type v} {γ : Type w} :
   (α ↔ β) → (β ↔ γ) → (α ↔ γ) :=
 λ p q, ⟨q.left ∘ p.left, p.right ∘ q.right⟩
 
-instance : @Reflexive  (Sort u) Iff := ⟨@Iff.refl⟩
-instance : @Symmetric  (Sort u) Iff := ⟨@Iff.symm⟩
-instance : @Transitive (Sort u) Iff := ⟨@Iff.comp⟩
+instance : @Reflexive  (Type u) Iff := ⟨@Iff.refl⟩
+instance : @Symmetric  (Type u) Iff := ⟨@Iff.symm⟩
+instance : @Transitive (Type u) Iff := ⟨@Iff.comp⟩
 
 notation "𝟎" => Empty
 notation "𝟐" => Bool
