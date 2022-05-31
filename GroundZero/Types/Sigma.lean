@@ -89,7 +89,7 @@ namespace Sigma
     { apply prod; apply Equiv.transportBackAndForward }
   end
 
-  hott def hmtpy_inv_eqv {α : Type v} {β : Type u} (f g : α → β) :
+  hott def hmtpyInvEqv {α : Type v} {β : Type u} (f g : α → β) :
     (Σ x, f x = g x) ≃ (Σ x, g x = f x) :=
   begin
     existsi hmtpyInv f g; apply Qinv.toBiinv;

@@ -723,7 +723,7 @@ namespace Types.Equiv
   open GroundZero.Structures
 
   -- 1-1 correspondence
-  def corr (α : Type u) (β : Type v) :=
+  def Corr (α : Type u) (β : Type v) :=
   Σ (R : α → β → Type w), (Π a, contr (Σ b, R a b)) × (Π b, contr (Σ a, R a b))
 end Types.Equiv
 

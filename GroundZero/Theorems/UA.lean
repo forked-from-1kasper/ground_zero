@@ -100,7 +100,6 @@ hott def negNeg : Π x, not (not x) = x
 hott def negBoolEquiv : 𝟐 ≃ 𝟐 :=
 ⟨not, (⟨not, negNeg⟩, ⟨not, negNeg⟩)⟩
 
-
 noncomputable hott def universeNotASet : ¬(hset Type) :=
 begin
   let p : 𝟐 = 𝟐 := ua negBoolEquiv; let h := transportconst p true;
