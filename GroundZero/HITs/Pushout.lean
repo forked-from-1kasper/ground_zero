@@ -51,7 +51,7 @@ namespace Pushout
     (inlπ : Π x, π (inl x)) (inrπ : Π x, π (inr x))
     (glueπ : Π x, inlπ (f x) =[glue x] inrπ (g x)) (x : σ) :
     apd (ind inlπ inrπ glueπ) (glue x) = glueπ x :=
-  @Graph.indβrule _ (Pushout.rel f g) _ _ _ _ _ (Pushout.rel.mk x)
+  @Graph.indβrule _ (rel f g) _ _ _ _ _ (rel.mk x)
 
   noncomputable hott def recβrule {π : Type w} (inlπ : α → π) (inrπ : β → π)
     (glueπ : Π x, inlπ (f x) = inrπ (g x)) (x : σ) :
