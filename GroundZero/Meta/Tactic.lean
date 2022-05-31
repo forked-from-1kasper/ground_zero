@@ -170,8 +170,9 @@ elab "calc " ε:term " : " τ:term σ:(calcLHS " : " term)* : term => do
     let ρ₃ ← Meta.mkFreshExprMVar none
 
     let ι ← Meta.synthInstance (mkApp6 (Lean.mkConst `Rewrite [u₁, u₂, u₃, v₁, v₂, v₃]) ty₁ ty₂ ty₃ ρ₁ ρ₂ ρ₃)
-    η := mkAppN (Lean.mkConst `Rewrite.intro [u₁, u₂, u₃, v₁, v₂, v₃]) #[ty₁, ty₂, ty₃, ρ₁, ρ₂, ρ₃, ι, e₁, e₂, e₃, η, τ]
+    let φ := (← Meta.reduceProj? (mkProj `Rewrite 0 ι)).getD ι
 
+    η := mkAppN φ #[e₁, e₂, e₃, η, τ]
     (ty₂, u₂, e₂, v₁, ρ₁) := (ty₃, u₃, e₃, v₃, ρ₃)
 
   return η

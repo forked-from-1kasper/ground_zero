@@ -123,6 +123,8 @@ namespace Equiv
     (p : f = g) : f.forward ~ g.forward :=
   begin induction p; reflexivity end
 
+  instance {α : Type u} : @Rewrite α α α Id Id Id := ⟨@Id.trans α⟩
+
   instance {α : Type u} {β : Type v} (ρ : α → β → Type w) : Rewrite ρ Id ρ :=
   ⟨λ a b c R p => transport (ρ a) p R⟩
 

@@ -36,7 +36,7 @@ namespace Generalized
   | Nat.zero   => α
   | Nat.succ n => {rep α n}
 
-  example (α : Type u) (n : ℕ) : rep α n → rep α (n + 1) := incl
+  hott def dep (α : Type u) (n : ℕ) : rep α n → rep α (n + 1) := incl
 end Generalized
 
 end GroundZero.HITs
