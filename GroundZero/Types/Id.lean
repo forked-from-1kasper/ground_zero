@@ -159,16 +159,16 @@ namespace Id
   iteratedLoopSpace ⟨α, dotted.point⟩
 
   macro "Ω" n:many1(superscriptNumeral) τ:term : term =>
-    `((iteratedLoopSpace $τ $(Meta.Notation.parseNumber n)).space)
+    `((iteratedLoopSpace $τ $(Meta.Notation.parseSupNumber n)).space)
 
   macro "Ω" i:many1(superscriptChar) τ:term : term =>
-    `((iteratedLoopSpace $τ $(Lean.mkIdent (Meta.Notation.parseIdent i))).space)
+    `((iteratedLoopSpace $τ $(Lean.mkIdent (Meta.Notation.parseSupIdent i))).space)
 
   macro "Θ" n:many1(superscriptNumeral) τ:term : term =>
-    `((iteratedLoopSpace $τ $(Meta.Notation.parseNumber n)).point)
+    `((iteratedLoopSpace $τ $(Meta.Notation.parseSupNumber n)).point)
 
   macro "Θ" i:many1(superscriptChar) τ:term : term =>
-    `((iteratedLoopSpace $τ $(Lean.mkIdent (Meta.Notation.parseIdent i))).point)
+    `((iteratedLoopSpace $τ $(Lean.mkIdent (Meta.Notation.parseSupIdent i))).point)
 end Id
 
 def Not (α : Type u) : Type u := α → (𝟎 : Type)

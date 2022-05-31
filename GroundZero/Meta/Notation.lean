@@ -24,7 +24,7 @@ syntax "⁷" : superscriptNumeral
 syntax "⁸" : superscriptNumeral
 syntax "⁹" : superscriptNumeral
 
-def parseNumeral : Lean.Syntax → Nat
+def parseSupNumeral : Lean.Syntax → Nat
 | `(superscriptNumeral| ⁰) => 0
 | `(superscriptNumeral| ¹) => 1
 | `(superscriptNumeral| ²) => 2
@@ -37,10 +37,38 @@ def parseNumeral : Lean.Syntax → Nat
 | `(superscriptNumeral| ⁹) => 9
 | _                        => 0
 
-def parseNumber (stx : Array Lean.Syntax) :=
-let ns := Array.mapIdx stx.reverse (fun i s => parseNumeral s * 10 ^ i.val)
+declare_syntax_cat subscriptNumeral
+syntax "₀" : subscriptNumeral
+syntax "₁" : subscriptNumeral
+syntax "₂" : subscriptNumeral
+syntax "₃" : subscriptNumeral
+syntax "₄" : subscriptNumeral
+syntax "₅" : subscriptNumeral
+syntax "₆" : subscriptNumeral
+syntax "₇" : subscriptNumeral
+syntax "₈" : subscriptNumeral
+syntax "₉" : subscriptNumeral
+
+def parseSubNumeral : Lean.Syntax → Nat
+| `(subscriptNumeral| ₀) => 0
+| `(subscriptNumeral| ₁) => 1
+| `(subscriptNumeral| ₂) => 2
+| `(subscriptNumeral| ₃) => 3
+| `(subscriptNumeral| ₄) => 4
+| `(subscriptNumeral| ₅) => 5
+| `(subscriptNumeral| ₆) => 6
+| `(subscriptNumeral| ₇) => 7
+| `(subscriptNumeral| ₈) => 8
+| `(subscriptNumeral| ₉) => 9
+| _                      => 0
+
+def parseNumber (φ : Lean.Syntax → Nat) (stx : Array Lean.Syntax) :=
+let ns := Array.mapIdx stx.reverse (fun i s => φ s * 10 ^ i.val)
 let n  := Array.foldl (· + ·) 0 ns
 Lean.Syntax.mkNumLit (toString n)
+
+def parseSupNumber := parseNumber parseSupNumeral
+def parseSubNumber := parseNumber parseSubNumeral
 
 declare_syntax_cat superscriptChar
 
@@ -68,7 +96,7 @@ syntax "ᴿ" : superscriptChar syntax "ᵀ" : superscriptChar
 syntax "ᵁ" : superscriptChar syntax "ⱽ" : superscriptChar
 syntax "ᵂ" : superscriptChar
 
-def parseChar : Lean.Syntax → Char
+def parseSupChar : Lean.Syntax → Char
 | `(superscriptChar| ᵃ) => 'a' | `(superscriptChar| ᵇ) => 'b'
 | `(superscriptChar| ᶜ) => 'c' | `(superscriptChar| ᵈ) => 'd'
 | `(superscriptChar| ᵉ) => 'e' | `(superscriptChar| ᶠ) => 'f'
@@ -92,7 +120,33 @@ def parseChar : Lean.Syntax → Char
 | `(superscriptChar| ᵁ) => 'U' | `(superscriptChar| ⱽ) => 'V'
 | `(superscriptChar| ᵂ) => 'W' | _                     => 'A'
 
-def parseIdent (stx : Array Lean.Syntax) :=
-String.mk (Array.map parseChar stx).toList
+declare_syntax_cat subscriptChar
+
+syntax "ₐ" : subscriptChar syntax "ₑ" : subscriptChar
+syntax "ₕ" : subscriptChar syntax "ᵢ" : subscriptChar
+syntax "ⱼ" : subscriptChar syntax "ₖ" : subscriptChar
+syntax "ₗ" : subscriptChar syntax "ₘ" : subscriptChar
+syntax "ₙ" : subscriptChar syntax "ₒ" : subscriptChar
+syntax "ₚ" : subscriptChar syntax "ᵣ" : subscriptChar
+syntax "ₛ" : subscriptChar syntax "ₜ" : subscriptChar
+syntax "ᵤ" : subscriptChar syntax "ᵥ" : subscriptChar
+syntax "ₓ" : subscriptChar
+
+def parseSubChar : Lean.Syntax → Char
+| `(subscriptChar| ₐ) => 'a' | `(subscriptChar| ₑ) => 'e'
+| `(subscriptChar| ₕ) => 'h' | `(subscriptChar| ᵢ) => 'i'
+| `(subscriptChar| ⱼ) => 'j' | `(subscriptChar| ₖ) => 'k'
+| `(subscriptChar| ₗ) => 'l' | `(subscriptChar| ₘ) => 'm'
+| `(subscriptChar| ₙ) => 'n' | `(subscriptChar| ₒ) => 'o'
+| `(subscriptChar| ₚ) => 'p' | `(subscriptChar| ᵣ) => 'r'
+| `(subscriptChar| ₛ) => 's' | `(subscriptChar| ₜ) => 't'
+| `(subscriptChar| ᵤ) => 'u' | `(subscriptChar| ᵥ) => 'v'
+| `(subscriptChar| ₓ) => 'x' | _                   => 'a'
+
+def parseIdent (φ : Lean.Syntax → Char) (stx : Array Lean.Syntax) :=
+String.mk (Array.map φ stx).toList
+
+def parseSubIdent := parseIdent parseSubChar
+def parseSupIdent := parseIdent parseSupChar
 
 end GroundZero.Meta.Notation
