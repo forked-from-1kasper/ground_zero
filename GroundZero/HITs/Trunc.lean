@@ -40,7 +40,7 @@ namespace Trunc
   begin intro x; induction x using Trunc.aux.casesOn; apply elemπ end
   attribute [irreducible] Trunc
 
-  hott def rec {π : Type v} (elemπ : α → π) (uniqπ : is-n-type π) : Trunc n α → π :=
+  hott def rec {π : Type v} (elemπ : α → π) (uniqπ : is-n-type π) : ∥α∥ₙ → π :=
   @ind α n (λ _, π) elemπ (λ _, uniqπ)
 
   hott def elemClose {β : Type v} (G : is-n-type β)
