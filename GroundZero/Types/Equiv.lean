@@ -329,9 +329,14 @@ namespace Equiv
     {a b : α} (p : a = b) (b : β) : transport (λ _, β) p b = b :=
   begin induction p; reflexivity end
 
-  hott def transportOverPi {α : Type u} {a b : α} {β : Type v}
-    (π : α → β → Type w) (p : a = b) (u : Π y, π a y) :
+  hott def transportOverPi {α : Type u} {β : Type v}
+    (π : α → β → Type w) {a b : α} (p : a = b) (u : Π y, π a y) :
     transport (λ x, Π y, π x y) p u = (λ y, @transport α (λ x, π x y) a b p (u y)) :=
+  begin induction p; reflexivity end
+
+  hott def transportOverSig {α : Type u} {β : Type v}
+    (π : α → β → Type w) {a b : α} (p : a = b) (u : Σ y, π a y) :
+    transport (λ x, Σ y, π x y) p u = ⟨u.1, transport (π · u.1) p u.2⟩ :=
   begin induction p; reflexivity end
 
   hott def transportOverFunction {α : Type u} {β : Type v}
