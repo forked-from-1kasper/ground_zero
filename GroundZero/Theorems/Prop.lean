@@ -48,7 +48,7 @@ hott def respectsEquivOverFst {α : Type u} {β : Type v}
   (φ : α ≃ β) (C : α → Type w) : (Σ x, C x) ≃ (Σ x, C (φ.left x)) :=
 begin
   fapply Sigma.replaceIshae; apply qinvImplsIshae; existsi φ.1;
-  apply Prod.mk; apply φ.leftForward; apply φ.forwardFeft
+  apply Prod.mk; apply φ.leftForward; apply φ.forwardLeft
 end
 
 hott def fibEq {α : Type u} {β : Type v} (f : α → β) {y : β} {a b : α}
@@ -190,14 +190,6 @@ hott def bool.decode : 𝟐 ≃ 𝟐 → 𝟐 :=
 hott def bool.encode : 𝟐 → 𝟐 ≃ 𝟐
 | false => ideqv 𝟐
 | true  => ua.negBoolEquiv
-
-hott def eqvInj {α : Type u} {β : Type v} (e : α ≃ β) (x y : α)
-  (p : e.forward x = e.forward y) : x = y :=
-begin
-  transitivity; symmetry; apply e.leftForward;
-  transitivity; apply Id.map e.left; exact p;
-  apply e.leftForward
-end
 
 hott def zeroEquiv.hset (α β : 0-Type) : hset (α ≃₀ β) :=
 begin apply hsetEquiv; apply zeroEqvSet.forward; exact β.2 end

@@ -454,16 +454,42 @@ namespace Qinv
   ⟨e.1, (⟨e.2.1, e.2.2.2⟩, ⟨e.2.1, e.2.2.1⟩)⟩
 end Qinv
 
-hott def Equiv.forwardFeft {α : Type u} {β : Type v} (e : α ≃ β) : e.forward ∘ e.left ~ idfun :=
-begin apply Qinv.rinvInv; apply e.forwardRight; apply e.leftForward end
+namespace Equiv
+  hott def forwardLeft {α : Type u} {β : Type v} (e : α ≃ β) : e.forward ∘ e.left ~ idfun :=
+  begin apply Qinv.rinvInv; apply e.forwardRight; apply e.leftForward end
 
-hott def Equiv.rightForward {α : Type u} {β : Type v} (e : α ≃ β) : e.right ∘ e.forward ~ idfun :=
-begin apply Qinv.linvInv; apply e.forwardRight; apply e.leftForward end
+  hott def rightForward {α : Type u} {β : Type v} (e : α ≃ β) : e.right ∘ e.forward ~ idfun :=
+  begin apply Qinv.linvInv; apply e.forwardRight; apply e.leftForward end
 
-hott def Equiv.symm {α : Type u} {β : Type v} (f : α ≃ β) : β ≃ α :=
-Qinv.toEquiv (Qinv.inv ⟨f.1, Qinv.ofBiinv f.1 f.2⟩)
+  hott def symm {α : Type u} {β : Type v} (f : α ≃ β) : β ≃ α :=
+  Qinv.toEquiv (Qinv.inv ⟨f.1, Qinv.ofBiinv f.1 f.2⟩)
 
-instance : @Symmetric (Type u) (· ≃ ·) := ⟨@Equiv.symm⟩
+  instance : @Symmetric (Type u) (· ≃ ·) := ⟨@Equiv.symm⟩
+
+  hott def eqvInj {α : Type u} {β : Type v} (e : α ≃ β)
+    (x y : α) (p : e.forward x = e.forward y) : x = y :=
+  begin
+    transitivity; symmetry; apply e.leftForward;
+    transitivity; apply Id.map e.left;
+    exact p; apply e.leftForward
+  end
+
+  hott def eqvLeftInj {α : Type u} {β : Type v} (e : α ≃ β)
+    (x y : β) (p : e.left x = e.left y) : x = y :=
+  begin
+    transitivity; symmetry; apply e.forwardLeft;
+    transitivity; apply Id.map e.forward;
+    exact p; apply e.forwardLeft
+  end
+
+  hott def eqvRightInj {α : Type u} {β : Type v} (e : α ≃ β)
+    (x y : β) (p : e.right x = e.right y) : x = y :=
+  begin
+    transitivity; symmetry; apply e.forwardRight;
+    transitivity; apply Id.map e.forward;
+    exact p; apply e.forwardRight
+  end
+end Equiv
 
 -- half adjoint equivalence
 def Ishae {α : Type u} {β : Type v} (f : α → β) :=
