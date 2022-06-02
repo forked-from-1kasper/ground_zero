@@ -124,10 +124,10 @@ leading_parser declModifiers false >> "hott " >> («def» <|> «theorem»)
   mkNode `Lean.Parser.Command.declaration #[mods, cmd]
   |> Elab.Command.elabDeclaration
 
-  checkDecl name
-  |> Elab.Command.liftTermElabM name
-
-  modifyEnv λ env => hottDecls.addEntry env name
-| _ => throwError "unknown declaration"
+  if (← getEnv).contains name then do {
+    Elab.Command.liftTermElabM name (checkDecl name);
+    modifyEnv (λ env => hottDecls.addEntry env name)
+  }
+| _ => throwError "invalid declaration"
 
 end GroundZero.Meta.HottTheory

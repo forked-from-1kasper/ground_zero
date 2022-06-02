@@ -4,7 +4,7 @@ namespace GroundZero.Types
 universe u v w
 
 def Coproduct (α : Type u) (β : Type v) := Sum α β
-infix:50 " + " => Coproduct
+infix:65 " + " => Coproduct
 
 attribute [eliminator] Sum.casesOn
 
