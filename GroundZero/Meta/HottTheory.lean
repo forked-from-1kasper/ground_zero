@@ -61,9 +61,9 @@ def hasLargeElim (type : Name) : MetaM Bool := do
 def renderChain : List Name → String :=
 String.intercalate " <- " ∘ List.map toString
 
-def checkLargeElim (chain : List Name) (name : Name) : MetaM Unit := do
+def checkLargeElim (tag : Syntax) (chain : List Name) (name : Name) : MetaM Unit := do
   let largeElim? ← hasLargeElim name;
-  if largeElim? then throwError "uses large eliminator: {renderChain chain}"
+  if largeElim? then throwErrorAt tag "uses large eliminator: {renderChain chain}"
 
 initialize hottDecls : SimplePersistentEnvExtension Name NameSet ←
   registerSimplePersistentEnvExtension {
@@ -85,29 +85,28 @@ def checked? (decl : Name) : MetaM Bool := do
 
   pure (checked ∨ isSafe)
 
-def checkNotNotHoTT (env : Environment) (decl : Name) : MetaM Unit := do
+def checkNotNotHoTT (tag : Syntax) (env : Environment) (decl : Name) : MetaM Unit := do
   if nothott.hasTag env decl ∨ unsafeDecls.contains decl then
-    throwError "marked as [nothott]: {decl}"
+    throwErrorAt tag "marked as [nothott]: {decl}"
   else return ()
 
-partial def checkDeclAux (chain : List Name) (name : Name) : MetaM Unit := do
+partial def checkDeclAux (chain : List Name) (tag : Syntax) (name : Name) : MetaM Unit := do
   let env ← getEnv
 
   if ¬(← checked? name) then
-    checkNotNotHoTT env name
+    checkNotNotHoTT tag env name
     match env.find? name with
     | some (ConstantInfo.recInfo v) =>
-      List.forM v.all (checkLargeElim chain)
+      List.forM v.all (checkLargeElim tag chain)
     | some info =>
       match info.value? with
-      | some expr => Array.forM (λ n => checkDeclAux (n :: chain) n)
+      | some expr => Array.forM (λ n => checkDeclAux (n :: chain) tag n)
                                 expr.getUsedConstants
       | none => return ()
     | none => throwError "unknown identifier “{name}”"
   else return ()
 
-def checkDecl : Name → MetaM Unit :=
-checkDeclAux []
+def checkDecl := checkDeclAux []
 
 @[commandParser] def hott :=
 leading_parser declModifiers false >> "hott " >> («def» <|> «theorem»)
@@ -125,7 +124,7 @@ leading_parser declModifiers false >> "hott " >> («def» <|> «theorem»)
   |> Elab.Command.elabDeclaration
 
   if (← getEnv).contains name then do {
-    Elab.Command.liftTermElabM name (checkDecl name);
+    Elab.Command.liftTermElabM name (checkDecl declId name);
     modifyEnv (λ env => hottDecls.addEntry env name)
   }
 | _ => throwError "invalid declaration"
