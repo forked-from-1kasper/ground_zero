@@ -184,6 +184,10 @@ namespace Equiv
     (f : Π (x : α), β x) (p : a = b) : subst p (f a) = f b :=
   begin induction p; reflexivity end
 
+  hott def apdInv {α : Type u} {β : α → Type v} {a b : α}
+    (f : Π (x : α), β x) (p : a = b) : apd f p⁻¹ = depPath.symm p (apd f p) :=
+  begin induction p; reflexivity end
+
   hott def apdFunctoriality {α : Type u} {β : α → Type v} {a b c : α}
     (f : Π x, β x) (p : a = b) (q : b = c) :
     @apd α β a c f (p ⬝ q) = depTrans (apd f p) (apd f q) :=

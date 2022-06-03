@@ -38,11 +38,11 @@ withApp e λ e a => (e.constName, a)
 namespace GroundZero.Meta.Tactic
 
 -- https://github.com/leanprover-community/mathlib4/blob/master/Mathlib/Tactic/Ring.lean#L411-L419
-def applyOnBinRel (name : Name) (ctor : Name) : Elab.Tactic.TacticM Unit := do
+def applyOnBinRel (name : Name) (rel : Name) : Elab.Tactic.TacticM Unit := do
   let mvars ← Elab.Tactic.liftMetaMAtMain (λ mvar => do
     let ε ← Meta.instantiateMVars (← Meta.getMVarDecl mvar).type
-    ε.withApp λ e es => do
-      unless (es.size > 1) do Meta.throwTacticEx name mvar "expected binary relation"
+    ε.consumeMData.withApp λ e es => do
+      unless (es.size > 1) do Meta.throwTacticEx name mvar s!"expected binary relation, got “{e} {es}”"
 
       let e₃ := es.back; let es := es.pop;
       let e₂ := es.back; let es := es.pop;
@@ -55,14 +55,16 @@ def applyOnBinRel (name : Name) (ctor : Name) : Elab.Tactic.TacticM Unit := do
       let u ← Meta.getLevel ty
       let v ← Meta.getLevel ε
 
-      mkApp2 (mkConst ctor [u, v]) ty (mkAppN e es)
-      |> Meta.apply mvar)
+      let ι ← Meta.synthInstance (mkApp2 (Lean.mkConst rel [u, v]) ty (mkAppN e es))
+      let φ := (← Meta.reduceProj? (mkProj rel 0 ι)).getD ι
+
+      Meta.apply mvar φ)
   Elab.Tactic.replaceMainGoal mvars
 
 section
-  elab "reflexivity"  : tactic => applyOnBinRel `reflexivity  `Reflexive.intro
-  elab "symmetry"     : tactic => applyOnBinRel `symmetry     `Symmetric.intro
-  elab "transitivity" : tactic => applyOnBinRel `transitivity `Transitive.intro
+  elab "reflexivity"  : tactic => applyOnBinRel `reflexivity  `Reflexive
+  elab "symmetry"     : tactic => applyOnBinRel `symmetry     `Symmetric
+  elab "transitivity" : tactic => applyOnBinRel `transitivity `Transitive
 end
 
 -- https://github.com/leanprover-community/mathlib4/blob/master/Mathlib/Tactic/Basic.lean

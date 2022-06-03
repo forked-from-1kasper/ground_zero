@@ -149,4 +149,22 @@ String.mk (Array.map φ stx).toList
 def parseSubIdent := parseIdent parseSubChar
 def parseSupIdent := parseIdent parseSupChar
 
+declare_syntax_cat superscript
+syntax (name := superscriptNumber) many1(superscriptNumeral) : superscript
+syntax (name := superscriptIdent)  many1(superscriptChar)    : superscript
+
+def parseSuperscript : Lean.Syntax → Lean.MacroM Lean.Syntax
+| `(superscriptNumber| $stx*) => return parseSupNumber stx
+| `(superscriptIdent| $stx*) => return Lean.mkIdent (parseSupIdent stx)
+| stx => Lean.Macro.throwError "invalid superscript"
+
+declare_syntax_cat subscript
+syntax (name := subscriptNumber) many1(subscriptNumeral) : subscript
+syntax (name := subscriptIdent)  many1(subscriptChar)    : subscript
+
+def parseSubscript : Lean.Syntax → Lean.MacroM Lean.Syntax
+| `(subscriptNumber| $stx*) => return parseSubNumber stx
+| `(subscriptIdent| $stx*) => return Lean.mkIdent (parseSubIdent stx)
+| stx => Lean.Macro.throwError "invalid subscript"
+
 end GroundZero.Meta.Notation

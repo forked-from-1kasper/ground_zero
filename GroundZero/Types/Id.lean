@@ -158,17 +158,11 @@ namespace Id
   def loopPointedSpace (α : Type u) [dotted α] :=
   iteratedLoopSpace ⟨α, dotted.point⟩
 
-  macro "Ω" n:many1(superscriptNumeral) τ:term : term =>
-    `((iteratedLoopSpace $τ $(Meta.Notation.parseSupNumber n)).space)
+  macro "Ω" n:superscript τ:term : term => do
+    `((iteratedLoopSpace $τ $(← Meta.Notation.parseSuperscript n)).space)
 
-  macro "Ω" i:many1(superscriptChar) τ:term : term =>
-    `((iteratedLoopSpace $τ $(Lean.mkIdent (Meta.Notation.parseSupIdent i))).space)
-
-  macro "Θ" n:many1(superscriptNumeral) τ:term : term =>
-    `((iteratedLoopSpace $τ $(Meta.Notation.parseSupNumber n)).point)
-
-  macro "Θ" i:many1(superscriptChar) τ:term : term =>
-    `((iteratedLoopSpace $τ $(Lean.mkIdent (Meta.Notation.parseSupIdent i))).point)
+  macro "Θ" n:superscript τ:term : term => do
+    `((iteratedLoopSpace $τ $(← Meta.Notation.parseSuperscript n)).point)
 end Id
 
 def Not (α : Type u) : Type u := α → (𝟎 : Type)

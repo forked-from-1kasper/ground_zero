@@ -136,7 +136,7 @@ hott def contrTypeEquiv {α : Type u} {β : Type v}
 hott def prodUnitEquiv (α : Type u) : 𝟏 × α ≃ α :=
 begin
   existsi Prod.snd; apply Prod.mk <;> existsi Prod.mk ★;
-  { intro ⟨x, y⟩; induction x; apply idp };
+  { intro ⟨x, y⟩; induction x; reflexivity };
   { intro x; reflexivity }
 end
 
@@ -371,7 +371,7 @@ hott def productProp {α : Type u} {β : Type v}
 begin
   intro ⟨x₁, y₁⟩ ⟨x₂, y₂⟩;
   have p := h x₁ x₂; have q := g y₁ y₂;
-  induction p; induction q; apply idp
+  induction p; induction q; reflexivity
 end
 
 hott def prodHset {α : Type u} {β : Type v}

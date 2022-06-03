@@ -19,20 +19,11 @@ namespace Trunc
   notation "∥" α "∥₋₂" => Trunc −2 α
   notation "∥" α "∥₋₁" => Trunc −1 α
 
-  notation "|" x "|₋₂" => elem x −2
-  notation "|" x "|₋₁" => elem x −1
+  macro "∥" α:term "∥" n:subscript : term => do
+    `(Trunc $(← Meta.Notation.parseSubscript n) $α)
 
-  macro "∥" α:term "∥" n:many1(subscriptNumeral) : term =>
-    `(Trunc $(Meta.Notation.parseSubNumber n) $α)
-
-  macro "∥" α:term "∥" i:many1(subscriptChar) : term =>
-    `(Trunc $(Lean.mkIdent (Meta.Notation.parseSubIdent i)) $α)
-
-  macro "|" x:term "|" n:many1(subscriptNumeral) : term =>
-    `(@Trunc.elem _ $(Meta.Notation.parseSubNumber n) $x)
-
-  macro "|" x:term "|" i:many1(subscriptChar) : term =>
-    `(@Trunc.elem _ $(Lean.mkIdent (Meta.Notation.parseSubIdent i)) $x)
+  macro "|" x:term "|" n:subscript : term => do
+    `(@Trunc.elem _ $(← Meta.Notation.parseSubscript n) $x)
 
   @[hottAxiom, eliminator] def ind {π : Trunc n α → Type v}
     (elemπ : Π x, π (elem x))
