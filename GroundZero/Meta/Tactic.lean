@@ -144,7 +144,9 @@ def getEqn (e : Syntax) : TermElabM (Syntax × Syntax) := do
 
 elab "calc " ε:term " : " τ:term σ:(calcLHS " : " term)* : term => do
   let σ ← Array.mapM getEqn σ
+
   let ε ← Elab.Term.elabTerm ε none
+  let ε ← Meta.instantiateMVars ε
 
   let e₁ := ε.withApp (λ e es => es.pop.back)
   let ty₁ ← Meta.inferType e₁
@@ -160,6 +162,8 @@ elab "calc " ε:term " : " τ:term σ:(calcLHS " : " term)* : term => do
 
   for (e, τ) in σ do
     let ε ← Elab.Term.elabTerm (e.setArg 0 (← PrettyPrinter.delab e₂)) none
+    let ε ← Meta.instantiateMVars ε
+
     let τ ← Elab.Term.elabTermEnsuringType τ ε
     let mut v₂ ← Meta.getLevel ε
 
