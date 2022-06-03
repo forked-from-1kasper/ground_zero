@@ -1,7 +1,7 @@
 import GroundZero.Support
 open GroundZero.Proto (idfun Identity Identity.elem Identity.elim)
 
-def S (x : α → β → γ) (y : α → β) (z : α) := x z (y z)
+def AS (x : α → β → γ) (y : α → β) (z : α) := x z (y z)
 
 section
   universe u v
@@ -119,7 +119,7 @@ namespace Equiv
     Π x, transportconst p⁻¹ x = transportconstInv p x :=
   begin intro x; reflexivity end
 
-  hott def happly {α : Type u} {β : Type v} {f g : α ≃ β}
+  hott def happlyEqv {α : Type u} {β : Type v} {f g : α ≃ β}
     (p : f = g) : f.forward ~ g.forward :=
   begin induction p; reflexivity end
 
@@ -158,19 +158,27 @@ namespace Equiv
     {x y : α} (p : x = y) (u : β y) : subst p (subst p⁻¹ u) = u :=
   begin induction p; reflexivity end
 
-  hott def depPath.symm {α : Type u} {β : α → Type v} {a b : α}
-    (p : a = b) {u : β a} {v : β b} (q : u =[p] v) : v =[p⁻¹] u :=
-  begin induction q using Id.casesOn; apply transportForwardAndBack end
-
   hott def substComp {α : Type u} {π : α → Type v} {a b c : α}
     (p : a = b) (q : b = c) (x : π a) : subst (p ⬝ q) x = subst q (subst p x) :=
   begin induction p; induction q; reflexivity end
+
+  hott def depSymm {α : Type u} {β : α → Type v} {a b : α}
+    (p : a = b) {u : β a} {v : β b} (q : u =[p] v) : v =[p⁻¹] u :=
+  begin induction q using Id.casesOn; apply transportForwardAndBack end
 
   hott def depTrans {α : Type u} {π : α → Type v}
     {a b c : α} {p : a = b} {q : b = c} {u : π a} {v : π b} {w : π c}
     (r : u =[p] v) (s : v =[q] w): u =[p ⬝ q] w :=
   begin induction r using Id.casesOn; induction s using Id.casesOn; apply substComp end
-  infix:40 " ⬝′ " => depTrans
+  infix:60 " ⬝′ " => depTrans
+
+  hott def depPathTransSymm {α : Type u} {β : α → Type v} {a b c : α} {p : a = b} {q : c = b}
+    {x : β a} {y : β c} (η : x =[p ⬝ q⁻¹] y) : x =[p] subst q y :=
+  begin induction p; induction q; exact η end
+
+  hott def depPathTransSymmCoh {α : Type u} {β : α → Type v} {a b c : α} {p : a = b} {q : c = b}
+    {x : β a} {y : β c} : Π (η : x =[p ⬝ q⁻¹] y), depPathTransSymm η ⬝′ depSymm q (idp _) = η :=
+  begin induction p; induction q; intro (η : x = y); induction η; apply idp end
 
   hott def substOverPathComp {α : Type u} {π : α → Type v} {a b c : α}
     (p : a = b) (q : b = c) (x : π a) : subst (p ⬝ q) x = subst q (subst p x) :=
@@ -185,12 +193,12 @@ namespace Equiv
   begin induction p; reflexivity end
 
   hott def apdInv {α : Type u} {β : α → Type v} {a b : α}
-    (f : Π (x : α), β x) (p : a = b) : apd f p⁻¹ = depPath.symm p (apd f p) :=
+    (f : Π (x : α), β x) (p : a = b) : apd f p⁻¹ = depSymm p (apd f p) :=
   begin induction p; reflexivity end
 
   hott def apdFunctoriality {α : Type u} {β : α → Type v} {a b c : α}
     (f : Π x, β x) (p : a = b) (q : b = c) :
-    @apd α β a c f (p ⬝ q) = depTrans (apd f p) (apd f q) :=
+    @apd α β a c f (p ⬝ q) = apd f p ⬝′ apd f q :=
   begin induction p; induction q; reflexivity end
 
   hott def substSquare {α : Type u} {π : α → Type v} {a b : α}
@@ -406,8 +414,8 @@ namespace Equiv
     apply bimapReflLeft; apply Id.mapInv; apply Id.compInv
   end
 
-  hott def mapOverS {α : Type u} {a b : α} (f : α → α → α) (g : α → α) (p : a = b) :
-    Id.map (S f g) p = @bimap α α α a b (g a) (g b) f p (Id.map g p) :=
+  hott def mapOverAS {α : Type u} {a b : α} (f : α → α → α) (g : α → α) (p : a = b) :
+    Id.map (AS f g) p = @bimap α α α a b (g a) (g b) f p (Id.map g p) :=
   begin induction p; reflexivity end
 
   hott def liftedHapply {α : Type u} (μ : α → Type v) (η : α → Type w)

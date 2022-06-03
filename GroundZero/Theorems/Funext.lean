@@ -72,7 +72,7 @@ namespace Interval
     {f g : Π x, β x} (p : f = g) : f ~ g :=
   Equiv.transport (λ g, f ~ g) p (Equiv.Homotopy.id f)
 
-  hott def map_happly {α β γ : Type u} {a b : α} {c : β} (f : α → β → γ)
+  hott def mapHapply {α β γ : Type u} {a b : α} {c : β} (f : α → β → γ)
     (p : a = b) : Id.map (f · c) p = happly (Id.map f p) c :=
   begin induction p; reflexivity end
 end Interval

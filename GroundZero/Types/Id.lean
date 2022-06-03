@@ -158,10 +158,10 @@ namespace Id
   def loopPointedSpace (α : Type u) [dotted α] :=
   iteratedLoopSpace ⟨α, dotted.point⟩
 
-  macro "Ω" n:superscript τ:term : term => do
-    `((iteratedLoopSpace $τ $(← Meta.Notation.parseSuperscript n)).space)
+  macro:max "Ω" n:superscript "(" τ:term ")" : term => do
+    `((loopPointedSpace $τ $(← Meta.Notation.parseSuperscript n)).space)
 
-  macro "Θ" n:superscript τ:term : term => do
+  macro:max "Θ" n:superscript "(" τ:term ")" : term => do
     `((iteratedLoopSpace $τ $(← Meta.Notation.parseSuperscript n)).point)
 end Id
 
