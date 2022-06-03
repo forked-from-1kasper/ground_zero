@@ -1,5 +1,6 @@
-import GroundZero.HITs.Circle
 import GroundZero.Theorems.Fibration
+import GroundZero.HITs.Circle
+
 open GroundZero GroundZero.HITs GroundZero.Types.Equiv
 open GroundZero.Structures GroundZero.Types
 

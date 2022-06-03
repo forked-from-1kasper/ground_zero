@@ -134,11 +134,10 @@ hott def contrTypeEquiv {α : Type u} {β : Type v}
     ... ≃ β : Types.Equiv.symm (contrEquivUnit q)
 
 hott def prodUnitEquiv (α : Type u) : 𝟏 × α ≃ α :=
-begin
-  existsi Prod.snd; apply Prod.mk <;> existsi Prod.mk ★;
-  { intro ⟨x, y⟩; induction x; reflexivity };
-  { intro x; reflexivity }
-end
+begin existsi Prod.snd; apply Prod.mk <;> existsi Prod.mk ★ <;> { intro; reflexivity } end
+
+hott def unitProdEquiv : α × 𝟏 ≃ α :=
+begin existsi Prod.fst; apply Prod.mk <;> existsi (Prod.mk · ★) <;> { intro x; reflexivity } end
 
 def boolToUniverse : 𝟐 → Type
 | true  => 𝟏
