@@ -173,7 +173,7 @@ namespace Group
 
   section
     variable {H : Pregroup} [group H] (φ : G ⤳ H)
-    local infixl:70 " × " => H.φ
+    local infixl:70 " ∗ " => H.φ
 
     hott def ker.aux := λ g, φ.fst g = H.e
     hott def kerIsProp (x : G.carrier) : prop (ker.aux φ x) := H.hset _ _
@@ -200,8 +200,8 @@ namespace Group
     instance kerIsNormalSubgroup : G ⊵ ker φ :=
     begin
       constructor; intro n g p; have r := Id.inv (homoMul φ n g) ⬝ p; apply calc
-        φ.1 (g * n) = φ.1 g × φ.1 n       : homoMul φ g n
-                ... = φ.1 g × H.ι (φ.1 g) : Id.map (H.φ (φ.1 g)) (eqInvOfMulEqOne r)
+        φ.1 (g * n) = φ.1 g ∗ φ.1 n       : homoMul φ g n
+                ... = φ.1 g ∗ H.ι (φ.1 g) : Id.map (H.φ (φ.1 g)) (eqInvOfMulEqOne r)
                 ... = H.e                 : Group.mulRightInv _
     end
 

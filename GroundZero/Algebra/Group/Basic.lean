@@ -304,10 +304,10 @@ namespace Group
 
   section
     variable {H : Pregroup} [group H]
-    local infixl:70 " × " => H.φ
+    local infixl:70 " ∗ " => H.φ
 
     hott def homoRespectsUnit {φ : G.carrier → H.carrier}
-      (p : Π a b, φ (a * b) = φ a × φ b) : φ G.e = H.e :=
+      (p : Π a b, φ (a * b) = φ a ∗ φ b) : φ G.e = H.e :=
     begin
       apply unitOfSqr; apply calc
         H.φ (φ e) (φ e) = φ (G.e * G.e) : Id.inv (p G.e G.e)
@@ -315,24 +315,24 @@ namespace Group
     end
 
     hott def homoRespectsInv {φ : G.carrier → H.carrier}
-      (p : Π a b, φ (a * b) = φ a × φ b) (x : G.carrier) : φ x⁻¹ = H.ι (φ x) := calc
-        φ x⁻¹ = φ x⁻¹ × H.e               : Id.inv (H.mulOne (φ x⁻¹))
-          ... = φ x⁻¹ × (φ x × H.ι (φ x)) : Id.map (H.φ (φ x⁻¹)) (Id.inv (mulRightInv (φ x)))
-          ... = φ x⁻¹ × φ x × H.ι (φ x)   : Id.inv (H.mulAssoc _ _ _)
-          ... = φ (x⁻¹ * x) × H.ι (φ x)   : Id.map (H.φ · (H.ι (φ x))) (Id.inv (p x⁻¹ x))
-          ... = φ G.e × H.ι (φ x)         : Id.map (λ y, φ y × H.ι (φ x)) (G.mulLeftInv x)
-          ... = H.e × H.ι (φ x)           : Id.map (H.φ · (H.ι (φ x))) (homoRespectsUnit p)
+      (p : Π a b, φ (a * b) = φ a ∗ φ b) (x : G.carrier) : φ x⁻¹ = H.ι (φ x) := calc
+        φ x⁻¹ = φ x⁻¹ ∗ H.e               : Id.inv (H.mulOne (φ x⁻¹))
+          ... = φ x⁻¹ ∗ (φ x ∗ H.ι (φ x)) : Id.map (H.φ (φ x⁻¹)) (Id.inv (mulRightInv (φ x)))
+          ... = φ x⁻¹ ∗ φ x ∗ H.ι (φ x)   : Id.inv (H.mulAssoc _ _ _)
+          ... = φ (x⁻¹ * x) ∗ H.ι (φ x)   : Id.map (H.φ · (H.ι (φ x))) (Id.inv (p x⁻¹ x))
+          ... = φ G.e ∗ H.ι (φ x)         : Id.map (λ y, φ y ∗ H.ι (φ x)) (G.mulLeftInv x)
+          ... = H.e ∗ H.ι (φ x)           : Id.map (H.φ · (H.ι (φ x))) (homoRespectsUnit p)
           ... = H.ι (φ x)                 : H.oneMul (H.ι (φ x))
 
     hott def mkhomo (φ : G.carrier → H.carrier)
-      (p : Π a b, φ (a * b) = φ a × φ b) : G ⤳ H :=
+      (p : Π a b, φ (a * b) = φ a ∗ φ b) : G ⤳ H :=
     ⟨φ, (λ | Pregroup.Arity.nullary => λ _, homoRespectsUnit p
            | Pregroup.Arity.unary   => λ (x, _), homoRespectsInv p x
            | Pregroup.Arity.binary  => λ (x, y, _), p x y,
          λ z, Proto.Empty.elim z)⟩
 
     hott def mkiso (φ : G.carrier → H.carrier)
-      (p : Π a b, φ (a * b) = φ a × φ b) (q : biinv φ) : G ≅ H :=
+      (p : Π a b, φ (a * b) = φ a ∗ φ b) (q : biinv φ) : G ≅ H :=
     ⟨φ, ((mkhomo φ p).snd, q)⟩
 
     hott def isoUnit (φ : G ≅ H) : φ.fst G.e = H.e :=
@@ -342,13 +342,13 @@ namespace Group
     homoInv φ.homo
 
     hott def isoMul (φ : G ≅ H) :
-      Π x y, φ.fst (x * y) = φ.fst x × φ.fst y :=
+      Π x y, φ.fst (x * y) = φ.fst x ∗ φ.fst y :=
     homoMul φ.homo
 
     hott def homoRespectsDiv (φ : G ⤳ H) (x y : G.carrier) :
       φ.1 (x / y) = rightDiv (φ.1 x) (φ.1 y) := calc
-      φ.1 (x / y) = φ.1 x × φ.1 y⁻¹     : homoMul φ x y⁻¹
-              ... = φ.1 x × H.ι (φ.1 y) : Id.map (H.φ (φ.1 x)) (homoInv φ y)
+      φ.1 (x / y) = φ.1 x ∗ φ.1 y⁻¹     : homoMul φ x y⁻¹
+              ... = φ.1 x ∗ H.ι (φ.1 y) : Id.map (H.φ (φ.1 x)) (homoInv φ y)
 
     hott def Homo.zero : G ⤳ H :=
     mkhomo (λ _, H.e) (λ _ _, Id.inv (H.oneMul H.e))

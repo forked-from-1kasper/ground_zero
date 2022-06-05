@@ -10,7 +10,7 @@ namespace Group
     (λ w₁ w₂, (G.φ w₁.1 w₂.1, H.φ w₁.2 w₂.2))
     (λ w, (G.ι w.1, H.ι w.2))
     (G.e, H.e)
-  infix:70 " × " => Prod
+  infixl:70 " × " => Prod
 
   section
     variable {G H : Pregroup} [group G] [group H]
