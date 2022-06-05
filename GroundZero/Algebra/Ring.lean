@@ -336,11 +336,6 @@ namespace Ring
         apply Id.map (λ z, T.φ z (T.ψ b₁ b₂));
         apply ring.negMul; apply ideal.right; exact p } }
   end
---  meta def πprop :=
---  `[ repeat { intros, apply Structures.pi_prop <|> apply HITs.Quotient.set } ]
---
---  meta def quotΩind :=
---  `[ intro x, fapply HITs.Quotient.ind_prop _ _ x; clear x ]
 
   noncomputable hott def Factor : Prering :=
   Prering.intro (T⁺\φ).hset (T⁺\φ).φ (Factor.mul T φ) (T⁺\φ).ι (T⁺\φ).e
