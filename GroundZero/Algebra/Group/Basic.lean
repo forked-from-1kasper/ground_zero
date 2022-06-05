@@ -63,7 +63,6 @@ namespace Pregroup
 
   def subgroup.ssubset (φ ψ : G.subgroup) :=
   Ens.ssubset φ.set ψ.set
-  infix:60 " ⊆ " => subgroup.ssubset
 
   def subgroup.unit (φ : G.subgroup) := φ.2.1
   def subgroup.mul  (φ : G.subgroup) := φ.2.2.1
