@@ -251,7 +251,7 @@ namespace Equiv
   begin induction p; reflexivity end
 
   hott def apdSqr {A : Type u} {B C : A → Type v} {a b : A} {u : B a} {v : B b} {p : a = b}
-    (f : Π {x : A} (u : B x), C x) (q : u =[p] v) : f u =[p] f v :=
+    (f : Π {x : A}, B x → C x) (q : u =[p] v) : f u =[p] f v :=
   begin induction p; induction q using Id.casesOn; reflexivity end
 
   hott def apd₂ {A : Type u} {B : A → Type v} {a b : A} {p q : a = b}
