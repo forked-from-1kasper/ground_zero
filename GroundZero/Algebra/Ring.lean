@@ -124,13 +124,13 @@ section
 
   instance : OfNat T.carrier Nat.zero := ⟨T.τ.zero⟩
 
-  infix:70 " <= " => Overring.ρ _
-  infix:70 " ≤ "  => Overring.ρ _
-  infix:70 " >= " => λ x y, Overring.ρ _ y x
-  infix:70 " ≥ "  => λ x y, Overring.ρ _ y x
+  infix:60 " <= " => Overring.ρ _
+  infix:60 " ≤ "  => Overring.ρ _
+  infix:60 " >= " => λ x y, Overring.ρ _ y x
+  infix:60 " ≥ "  => λ x y, Overring.ρ _ y x
 
-  infix:70 " < " => Overring.σ _
-  infix:70 " > " => λ x y, Overring.σ _ y x
+  infix:60 " < " => Overring.σ _
+  infix:60 " > " => λ x y, Overring.σ _ y x
 end
 
 namespace Prering
