@@ -1,0 +1,242 @@
+import GroundZero.Algebra.Group.Basic
+import GroundZero.Theorems.Nat
+
+open GroundZero.Types.Equiv (transport)
+open GroundZero.Types.Qinv (eqv)
+open GroundZero.Types.Id (map)
+open GroundZero.Types
+
+namespace GroundZero
+universe u v w
+
+variable {α : Type u} {β : Type v} {γ : Type w}
+
+namespace Types.Coproduct
+  hott def respectsEquivLeft (e : α ≃ β) : γ + α ≃ γ + β := begin
+    apply Equiv.trans; apply Types.Coproduct.symm;
+    apply Equiv.trans; apply Types.Nat.equivAddition;
+    assumption; apply Types.Coproduct.symm
+  end 
+
+  hott def eqvVariants (e : γ + α ≃ γ + β) (x : α) :
+    (Σ y, e (Sum.inr x) = Sum.inr y) +
+    (Σ y, e (Sum.inr x) = Sum.inl y) :=
+  match e (Sum.inr x) with
+  | Sum.inr a => Sum.inl ⟨a, Id.refl⟩
+  | Sum.inl b => Sum.inr ⟨b, Id.refl⟩
+
+  hott def Diff (f : β → α) : Type (max u v) :=
+  Σ (x : α), Π y, ¬(x = f y)
+
+  hott def Diff.inl : Diff (@Sum.inl α β) → β :=
+  λ | ⟨Sum.inl x, p⟩ => Proto.Empty.elim (p x Id.refl)
+    | ⟨Sum.inr x, p⟩ => x
+
+  hott def Empty.lift : Proto.Empty.{u} → Proto.Empty.{v} :=
+  λ z, nomatch z
+
+  hott def Diff.inr : β → Diff (@Sum.inl α β) :=
+  λ x, ⟨Sum.inr x, λ y p, nomatch (@Types.Coproduct.inr.encode.{u, v} α β x (Sum.inl y) p)⟩
+
+  hott def ldiff : Diff (@Sum.inl α β) ≃ β :=
+  begin
+    existsi Diff.inl; apply Prod.mk <;> existsi Diff.inr;
+    { intro ⟨x, p⟩; induction x using Sum.casesOn;
+      { apply Proto.Empty.elim; fapply p; assumption; reflexivity };
+      { fapply Types.Sigma.prod; reflexivity;
+        { apply Structures.piProp; intro;
+          apply Structures.notIsProp } } };
+    { intro; reflexivity }
+  end
+
+  hott def left : (α + β) + γ → α + (β + γ)
+  | Sum.inl (Sum.inl a) => Sum.inl a
+  | Sum.inl (Sum.inr b) => Sum.inr (Sum.inl b)
+  | Sum.inr c           => Sum.inr (Sum.inr c)
+
+  hott def right : α + (β + γ) → (α + β) + γ
+  | Sum.inl a           => Sum.inl (Sum.inl a)
+  | Sum.inr (Sum.inl b) => Sum.inl (Sum.inr b)
+  | Sum.inr (Sum.inr c) => Sum.inr c
+
+  hott def rightLeft : right ∘ left ~ @id ((α + β) + γ)
+  | Sum.inl (Sum.inl a) => Id.refl
+  | Sum.inl (Sum.inr b) => Id.refl
+  | Sum.inr c           => Id.refl
+
+  hott def leftRight : left ∘ right ~ @id (α + (β + γ))
+  | Sum.inl a           => Id.refl
+  | Sum.inr (Sum.inl b) => Id.refl
+  | Sum.inr (Sum.inr c) => Id.refl
+
+  hott def assoc : (α + β) + γ ≃ α + (β + γ) :=
+  ⟨left, (⟨right, rightLeft⟩, ⟨right, leftRight⟩)⟩
+
+  hott def zero : 𝟎 + α → α
+  | Sum.inr x => x
+
+  hott def empty : 𝟎 + α ≃ α :=
+  begin
+    existsi zero; apply Prod.mk <;> existsi Sum.inr <;> intro x;
+    { induction x using Sum.casesOn;
+      apply Proto.Empty.elim; assumption;
+      reflexivity };
+    { reflexivity }
+  end
+end Types.Coproduct
+
+namespace Types.Product
+  hott def destroy : 𝟎 × α ≃ 𝟎 := begin
+    existsi Prod.fst; apply Prod.mk <;>
+    existsi Proto.Empty.elim <;> intro x;
+    apply Proto.Empty.elim x.1;
+    apply Proto.Empty.elim x
+  end
+
+  hott def split : (α + β) × γ → (α × γ) + (β × γ)
+  | (Sum.inl a, c) => Sum.inl (a, c)
+  | (Sum.inr b, c) => Sum.inr (b, c)
+
+  hott def join : (α × γ) + (β × γ) → (α + β) × γ
+  | Sum.inl (a, c) => (Sum.inl a, c)
+  | Sum.inr (b, c) => (Sum.inr b, c)
+
+  hott def splitJoin : split ∘ join ~ @id ((α × γ) + (β × γ))
+  | Sum.inl (a, c) => Id.refl
+  | Sum.inr (b, c) => Id.refl
+
+  hott def joinSplit : join ∘ split ~ @id ((α + β) × γ)
+  | (Sum.inl a, c) => Id.refl
+  | (Sum.inr b, c) => Id.refl
+
+  hott def distribRight : (α + β) × γ ≃ (α × γ) + (β × γ) :=
+  ⟨split, (⟨join, joinSplit⟩, ⟨join, splitJoin⟩)⟩
+
+  hott def distribLeft : α × (β + γ) ≃ (α × β) + (α × γ) :=
+  begin
+    apply Equiv.trans; apply Types.Product.comm;
+    apply Equiv.trans; apply distribRight;
+    apply Equiv.trans; apply Types.Nat.equivAddition; apply comm;
+    apply Types.Coproduct.respectsEquivLeft; apply comm
+  end
+
+  hott def left  (w : (α × β) × γ) : α × (β × γ) := (w.1.1, (w.1.2, w.2))
+  hott def right (w : α × (β × γ)) : (α × β) × γ := ((w.1, w.2.1), w.2.2)
+
+  hott def assoc : (α × β) × γ ≃ α × (β × γ) :=
+  begin existsi left; apply Prod.mk <;> existsi right <;> apply idp end
+end Types.Product
+
+namespace Algebra
+
+namespace Finite
+  hott def plus : Π (n m : ℕ), Finite n + Finite m ≃ Finite (n + m)
+  | Nat.zero,   m => Equiv.trans Types.Coproduct.empty (Equiv.idtoeqv (map Finite (Theorems.Nat.zeroPlus m)⁻¹))
+  | Nat.succ n, m => calc
+    Finite (Nat.succ n) + Finite m ≃ Finite n + (𝟏 + Finite m) : Types.Coproduct.assoc
+                               ... ≃ Finite n + (Finite m + 𝟏) : Types.Coproduct.respectsEquivLeft Types.Coproduct.symm
+                               ... ≃ (Finite n + Finite m) + 𝟏 : Equiv.symm Types.Coproduct.assoc
+                               ... ≃ Finite (n + m) + 𝟏        : Types.Nat.equivAddition 𝟏 (plus n m)
+                               ... ≃ Finite (Nat.succ (n + m)) : Equiv.ideqv _
+                               ... ≃ Finite (Nat.succ n + m)   : Equiv.idtoeqv (map Finite (Theorems.Nat.succPlus n m)⁻¹)
+
+  hott def mul : Π (n m : ℕ), Finite n × Finite m ≃ Finite (n * m)
+  | Nat.zero,   m => Equiv.trans Types.Product.destroy (Equiv.idtoeqv (map Finite (Theorems.Nat.zeroMul m)⁻¹))
+  | Nat.succ n, m => calc
+    Finite (Nat.succ n) × Finite m ≃ (Finite n × Finite m) + (𝟏 × Finite m) : Types.Product.distribRight
+                               ... ≃ Finite (n * m) + (𝟏 × Finite m)        : Types.Nat.equivAddition _ (mul n m)
+                               ... ≃ Finite (n * m) + Finite m              : Types.Coproduct.respectsEquivLeft (Structures.prodUnitEquiv _)
+                               ... ≃ Finite (n * m + m)                     : plus _ _
+                               ... ≃ Finite (Nat.succ n * m)                : Equiv.idtoeqv (map Finite (Theorems.Nat.mulSucc n m)⁻¹)
+end Finite
+
+namespace Group
+  class fin (G : Pregroup) :=
+  (eqv : Σ n, G.carrier ≃ Finite n)
+
+  def ord (G : Pregroup) [fin G] := (@fin.eqv G _).1
+
+  hott def coset {G : Pregroup} [group G]
+    (h : G.carrier) (φ : G.subset) : Ens G.carrier :=
+  ⟨λ x, Σ y, (y ∈ φ) × (x = G.φ h y), begin
+    intro x ⟨a, p⟩ ⟨b, q⟩; fapply Types.Sigma.prod;
+    fapply mulCancelLeft; exact h;
+    transitivity; exact p.2⁻¹; exact q.2;
+    apply Structures.productProp;
+    apply Ens.prop; apply G.hset
+  end⟩
+
+  hott def coset.intro {G : Pregroup} [group G] {a b : G.carrier}
+    {φ : G.subset} : b ∈ φ → G.φ a b ∈ coset a φ :=
+  begin intro p; existsi b; apply Prod.mk; assumption; reflexivity end
+
+  hott def coset.triv {G : Pregroup} [group G]
+    (h : G.carrier) (φ : G.subgroup) : h ∈ coset h φ.set :=
+  begin existsi G.e; apply Prod.mk; apply φ.unit; symmetry; apply G.mulOne end
+
+  noncomputable hott def coset.assoc {G : Pregroup} [group G] {a b : G.carrier}
+    (φ : G.subgroup) : coset a (coset b φ.set) = coset (G.φ a b) φ.set :=
+  begin
+    apply Ens.ext; intro x; apply Prod.mk;
+    { intro ⟨y, ⟨⟨z, ⟨p, q⟩⟩, r⟩⟩; apply transport (· ∈ coset (G.φ a b) φ.set);
+      symmetry; transitivity; { transitivity; exact r; apply map (G.φ a); exact q };
+      symmetry; apply G.mulAssoc; apply coset.intro p };
+    { intro ⟨y, p⟩; apply transport (· ∈ coset a (coset b φ.set));
+      symmetry; transitivity; exact p.2; apply G.mulAssoc;
+      apply coset.intro; apply coset.intro; exact p.1 }
+  end
+
+  section
+    variable {G : Pregroup.{u}} [group G] (φ : Pregroup.subgroup.{u, max u v} G)
+
+    noncomputable hott def coset.idem {x : G.carrier} : x ∈ φ.set → coset x φ.set = φ.set :=
+    begin
+      intro p; apply Ens.ext; intro y; apply Prod.mk;
+      { intro ⟨z, q⟩; apply transport (· ∈ φ.set); exact q.2⁻¹;
+        apply φ.mul; exact p; exact q.1 };
+      { intro q; existsi G.φ (G.ι x) y; apply Prod.mk;
+        { apply φ.mul; { apply φ.inv; exact p }; exact q };
+        { transitivity; { symmetry; apply G.oneMul };
+          symmetry; transitivity; { symmetry; apply G.mulAssoc };
+          apply map (G.φ · y); apply mulRightInv } }
+    end
+
+    noncomputable hott def coset.uniq : x ∈ coset g₁ φ.set → x ∈ coset g₂ φ.set → coset g₁ φ.set = coset g₂ φ.set :=
+    begin
+      intro ⟨x₁, p⟩ ⟨x₂, q⟩; transitivity;
+      apply map (coset · φ.set); apply calc
+         g₁ = G.φ g₁ G.e               : (G.mulOne g₁)⁻¹
+        ... = G.φ g₁ (G.φ x₁ (G.ι x₁)) : Id.map (G.φ g₁) (mulRightInv x₁)⁻¹
+        ... = G.φ (G.φ g₁ x₁) (G.ι x₁) : (G.mulAssoc _ _ _)⁻¹
+        ... = G.φ (G.φ g₂ x₂) (G.ι x₁) : Id.map (G.φ · (G.ι x₁)) (p.2⁻¹ ⬝ q.2)
+        ... = G.φ g₂ (G.φ x₂ (G.ι x₁)) : G.mulAssoc _ _ _;
+      transitivity; { symmetry; apply coset.assoc };
+      apply map; apply @coset.idem.{u, v} G _ φ;
+      apply φ.mul; exact q.1; apply φ.inv; exact p.1
+    end
+  end
+
+  hott def coset.all {G : Pregroup} [group G] (φ : G.subgroup) : G.subset :=
+  Ens.sunion (λ s, Σ y, s = coset y φ.set)
+
+  hott def coset.total {G : Pregroup} [group G] (φ : G.subgroup) :
+    G.carrier → (coset.all φ).subtype :=
+  begin
+    intro x; existsi x; apply HITs.Merely.elem;
+    existsi coset x φ.fst; apply Prod.mk;
+    apply coset.triv; existsi x; reflexivity
+  end
+
+  def coset.repr (G : Pregroup) [group G] (φ : G.subgroup) :
+    G.carrier ≃ (coset.all φ).subtype :=
+  begin
+    existsi coset.total φ; apply Prod.mk <;> existsi Sigma.fst;
+    { intro; reflexivity };
+    { intro ⟨x, p⟩; fapply Types.Sigma.prod;
+      reflexivity; apply Ens.prop }
+  end
+end Group
+
+end Algebra
+
+end GroundZero

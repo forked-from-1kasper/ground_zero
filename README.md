@@ -1,5 +1,7 @@
 # Ground Zero
 
+**Lean 4 in-development version**
+
 This library provides computable HITs, variation of Cubical Type Theory using them, and some other math.
 
 ## HITs
