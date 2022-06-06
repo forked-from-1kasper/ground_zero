@@ -3,29 +3,29 @@ import GroundZero.Meta.Basic
 namespace GroundZero.Proto
 universe u v w
 
-hott def idfun {α : Sort u} : α → α :=
+hott def idfun {A : Sort u} : A → A :=
 (a ↦ a)
 
 inductive Empty : Type u
 
 attribute [eliminator] Empty.casesOn
 
-def Iff (α : Type u) (β : Type v) :=
-(α → β) × (β → α)
+def Iff (A : Type u) (B : Type v) :=
+(A → B) × (B → A)
 
 infix:30 (priority := high) " ↔ " => Iff
 
-hott def Iff.left  {α : Type u} {β : Type v} (w : α ↔ β) : α → β := w.1
-hott def Iff.right {α : Type u} {β : Type v} (w : α ↔ β) : β → α := w.2
+hott def Iff.left  {A : Type u} {B : Type v} (w : A ↔ B) : A → B := w.1
+hott def Iff.right {A : Type u} {B : Type v} (w : A ↔ B) : B → A := w.2
 
-hott def Iff.refl {α : Type u} : α ↔ α :=
+hott def Iff.refl {A : Type u} : A ↔ A :=
 ⟨idfun, idfun⟩
 
-hott def Iff.symm {α : Type u} {β : Type v} : (α ↔ β) → (β ↔ α) :=
+hott def Iff.symm {A : Type u} {B : Type v} : (A ↔ B) → (B ↔ A) :=
 λ p, ⟨p.right, p.left⟩
 
-hott def Iff.comp {α : Type u} {β : Type v} {γ : Type w} :
-  (α ↔ β) → (β ↔ γ) → (α ↔ γ) :=
+hott def Iff.comp {A : Type u} {B : Type v} {C : Type w} :
+  (A ↔ B) → (B ↔ C) → (A ↔ C) :=
 λ p q, ⟨q.left ∘ p.left, p.right ∘ q.right⟩
 
 instance : @Reflexive  (Type u) Iff := ⟨@Iff.refl⟩
@@ -36,29 +36,29 @@ notation "𝟎" => Empty
 notation "𝟐" => Bool
 notation "ℕ" => Nat
 
-def Empty.elim {α : Sort u} (xs : Empty) : α :=
+def Empty.elim {A : Sort u} (xs : Empty) : A :=
 nomatch xs
 
-def Bool.elim {α : Sort u} : α → α → 𝟐 → α :=
-λ b₁ b₂ b, @Bool.casesOn (λ _, α) b b₁ b₂
+def Bool.elim {A : Sort u} : A → A → 𝟐 → A :=
+λ b₁ b₂ b, @Bool.casesOn (λ _, A) b b₁ b₂
 
 def Bottom := Empty.{0}
 notation (priority := low) "⊥" => Bottom
 
-inductive Identity (α : Type u)
-| elem : α → Identity α
+inductive Identity (A : Type u)
+| elem : A → Identity A
 
 attribute [eliminator] Identity.casesOn
 
-def Identity.elim {α : Type u} : Identity α → α
+def Identity.elim {A : Type u} : Identity A → A
 | Identity.elem a => a
 
-def Identity.lift {α : Type u} {β : Type v}
-  (f : α → β) : Identity α → Identity β
+def Identity.lift {A : Type u} {B : Type v}
+  (f : A → B) : Identity A → Identity B
 | Identity.elem a => Identity.elem (f a)
 
-def Identity.lift₂ {α : Type u} {β : Type v} {γ : Type w}
-  (f : α → β → γ) : Identity α → Identity β → Identity γ
+def Identity.lift₂ {A : Type u} {B : Type v} {C : Type w}
+  (f : A → B → C) : Identity A → Identity B → Identity C
 | Identity.elem a, Identity.elem b => Identity.elem (f a b)
 
 end GroundZero.Proto

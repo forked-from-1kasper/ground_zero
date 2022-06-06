@@ -50,7 +50,7 @@ def const (c : Name) : MetaM Expr := do
     return mkConst c levels
   | none => throwError "unknown identifier “{c}”"
 
-def uncurry {α : Type u} {β : Type v} {γ : Type w} : (α → β → γ) → (α × β → γ) :=
+def uncurry {A : Type u} {B : Type v} {C : Type w} : (A → B → C) → (A × B → C) :=
 λ f (a, b) => f a b
 
 def hasLargeElim (type : Name) : MetaM Bool := do

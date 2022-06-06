@@ -5,27 +5,27 @@ import Lean.Elab.Command
 open Lean
 
 section
-  variable {α : Sort u} (ρ : α → α → Sort v)
+  variable {A : Sort u} (ρ : A → A → Sort v)
 
   class Reflexive :=
-  (intro (a : α) : ρ a a)
+  (intro (a : A) : ρ a a)
 
   class Symmetric :=
-  (intro (a b : α) : ρ a b → ρ b a)
+  (intro (a b : A) : ρ a b → ρ b a)
 
   class Transitive :=
-  (intro (a b c : α) : ρ a b → ρ b c → ρ a c)
+  (intro (a b c : A) : ρ a b → ρ b c → ρ a c)
 end
 
 section
-  variable {α : Sort u} {β : Sort v} {γ : Sort w}
+  variable {A : Sort u} {B : Sort v} {C : Sort w}
 
-  variable (ρ : α → β → Sort u')
-  variable (η : β → γ → Sort v')
-  variable (μ : outParam (α → γ → Sort w'))
+  variable (ρ : A → B → Sort u')
+  variable (η : B → C → Sort v')
+  variable (μ : outParam (A → C → Sort w'))
 
   class Rewrite :=
-  (intro (a : α) (b : β) (c : γ) : ρ a b → η b c → μ a c)
+  (intro (a : A) (b : B) (c : C) : ρ a b → η b c → μ a c)
 end
 
 -- https://github.com/leanprover-community/mathlib4/blob/master/Mathlib/Lean/Expr/Basic.lean#L100-L109
@@ -148,7 +148,7 @@ elab "calc " ε:term " : " τ:term σ:(calcLHS " : " term)* : term => do
   let ε ← Elab.Term.elabTerm ε none
   let ε ← Meta.instantiateMVars ε
 
-  let e₁ := ε.withApp (λ e es => es.pop.back)
+  let e₁ := ε.withApp (λ _ es => es.pop.back)
   let ty₁ ← Meta.inferType e₁
   let u₁  ← Meta.getLevel ty₁
 
