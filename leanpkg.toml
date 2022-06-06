@@ -1,6 +1,0 @@
-[package]
-name = "ground_zero"
-version = "1.0"
-path = "."
-
-[dependencies]
