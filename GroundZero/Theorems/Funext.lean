@@ -37,42 +37,42 @@ namespace Interval
   def zero := i₀
   def one := i₁
 
-  @[hottAxiom, eliminator] def ind {π : I → Type u} (b₀ : π i₀) (b₁ : π i₁) (s : b₀ =[seg] b₁) (x : I) : π x :=
+  @[hottAxiom, eliminator] def ind {B : I → Type u} (b₀ : B i₀) (b₁ : B i₁) (s : b₀ =[seg] b₁) (x : I) : B x :=
   begin
-    refine Quot.hrecOn x ?_ ?_; apply λ x, @Bool.casesOn (π ∘ discrete) x b₀ b₁;
+    refine Quot.hrecOn x ?_ ?_; apply λ x, @Bool.casesOn (B ∘ discrete) x b₀ b₁;
     { intros a b; induction a <;> induction b <;> intro H;
       { apply HEq.refl };
-      { apply @HEq.fromPathover I π _ _ seg _ _ s };
-      { apply HEq.symm; apply @HEq.fromPathover I π _ _ seg _ _ s };
+      { apply @HEq.fromPathover I B _ _ seg _ _ s };
+      { apply HEq.symm; apply @HEq.fromPathover I B _ _ seg _ _ s };
       { apply HEq.refl } }
   end
 
-  @[inline] hott def rec {β : Type u} (b₀ : β) (b₁ : β) (s : b₀ = b₁) : I → β :=
+  @[inline] hott def rec {B : Type u} (b₀ : B) (b₁ : B) (s : b₀ = b₁) : I → B :=
   ind b₀ b₁ (Equiv.pathoverOfEq seg s)
 
-  axiom indβrule {π : I → Type u} (b₀ : π i₀) (b₁ : π i₁)
+  axiom indβrule {B : I → Type u} (b₀ : B i₀) (b₁ : B i₁)
     (s : b₀ =[seg] b₁) : Equiv.apd (ind b₀ b₁ s) seg = s
 
-  noncomputable hott def recβrule {π : Type u} (b₀ b₁ : π)
+  noncomputable hott def recβrule {B : Type u} (b₀ b₁ : B)
     (s : b₀ = b₁) : Id.map (rec b₀ b₁ s) seg = s :=
   begin
     apply Equiv.pathoverOfEqInj seg; transitivity;
     symmetry; apply Equiv.apdOverConstantFamily; apply indβrule
   end
 
-  hott def homotopy {α : Type u} {β : α → Type v} {f g : Π x, β x}
-    (p : f ~ g) (x : α) : I → β x :=
+  hott def homotopy {A : Type u} {B : A → Type v} {f g : Π x, B x}
+    (p : f ~ g) (x : A) : I → B x :=
   Interval.rec (f x) (g x) (p x)
 
-  hott def funext {α : Type u} {β : α → Type v}
-    {f g : Π x, β x} (p : f ~ g) : f = g :=
-  @Id.map I (Π x, β x) 0 1 (λ i x, homotopy p x i) seg
+  hott def funext {A : Type u} {B : A → Type v}
+    {f g : Π x, B x} (p : f ~ g) : f = g :=
+  @Id.map I (Π x, B x) 0 1 (λ i x, homotopy p x i) seg
 
-  hott def happly {α : Type u} {β : α → Type v}
-    {f g : Π x, β x} (p : f = g) : f ~ g :=
+  hott def happly {A : Type u} {B : A → Type v}
+    {f g : Π x, B x} (p : f = g) : f ~ g :=
   Equiv.transport (λ g, f ~ g) p (Equiv.Homotopy.id f)
 
-  hott def mapHapply {α β γ : Type u} {a b : α} {c : β} (f : α → β → γ)
+  hott def mapHapply {A B C : Type u} {a b : A} {c : B} (f : A → B → C)
     (p : a = b) : Id.map (f · c) p = happly (Id.map f p) c :=
   begin induction p; reflexivity end
 end Interval

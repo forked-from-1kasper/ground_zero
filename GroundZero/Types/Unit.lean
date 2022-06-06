@@ -12,8 +12,8 @@ notation "𝟏" => Unit
 notation "★" => Unit.star
 
 namespace Unit
-  hott def elim {α : Type u} (a : α) : 𝟏 → α := λ ★, a
-  hott def ind {π : 𝟏 → Type u} (g : π ★) : Π x, π x := λ ★, g
+  hott def elim {A : Type u} (a : A) : 𝟏 → A := λ ★, a
+  hott def ind {B : 𝟏 → Type u} (g : B ★) : Π x, B x := λ ★, g
   hott def uniq : Π x, x = ★ := λ ★, idp ★
 end Unit
 

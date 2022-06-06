@@ -10,33 +10,33 @@ open GroundZero.Types.Equiv (pathoverOfEq)
 namespace GroundZero.HITs
 universe u v
 
-inductive Generalized.rel (α : Type u) : α → α → Type u
-| mk : Π (a b : α), rel α a b
+inductive Generalized.rel (A : Type u) : A → A → Type u
+| mk : Π (a b : A), rel A a b
 
-def Generalized (α : Type u) := Graph (Generalized.rel α)
-notation "{" α "}" => Generalized α
+def Generalized (A : Type u) := Graph (Generalized.rel A)
+notation "{" A "}" => Generalized A
 
 namespace Generalized
-  def incl {α : Type u} : α → {α} := Graph.elem
+  def incl {A : Type u} : A → {A} := Graph.elem
 
-  hott def glue {α : Type u} (a b : α) : incl a = incl b :=
+  hott def glue {A : Type u} (a b : A) : incl a = incl b :=
   Graph.line (Generalized.rel.mk a b)
 
-  hott def ind {α : Type u} {π : {α} → Type v} (inclπ : Π a, π (incl a))
-    (glueπ : Π a b, inclπ a =[glue a b] inclπ b) : Π x, π x :=
+  hott def ind {A : Type u} {B : {A} → Type v} (inclπ : Π a, B (incl a))
+    (glueπ : Π a b, inclπ a =[glue a b] inclπ b) : Π x, B x :=
   begin fapply Graph.ind; exact inclπ; { intros u v H; induction H; apply glueπ } end
 
   attribute [eliminator] ind
 
-  hott def rec {α : Type u} {π : Type v} (inclπ : α → π)
-    (glueπ : Π a b, inclπ a = inclπ b) : {α} → π :=
+  hott def rec {A : Type u} {B : Type v} (inclπ : A → B)
+    (glueπ : Π a b, inclπ a = inclπ b) : {A} → B :=
   ind inclπ (λ a b, pathoverOfEq (glue a b) (glueπ a b))
 
-  hott def rep (α : Type u) : ℕ → Type u
-  | Nat.zero   => α
-  | Nat.succ n => {rep α n}
+  hott def rep (A : Type u) : ℕ → Type u
+  | Nat.zero   => A
+  | Nat.succ n => {rep A n}
 
-  hott def dep (α : Type u) (n : ℕ) : rep α n → rep α (n + 1) := incl
+  hott def dep (A : Type u) (n : ℕ) : rep A n → rep A (n + 1) := incl
 end Generalized
 
 end GroundZero.HITs

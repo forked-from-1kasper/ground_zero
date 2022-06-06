@@ -9,30 +9,30 @@ open GroundZero.Types.Equiv (pathoverOfEq)
 namespace GroundZero.HITs
 universe u v
 
-inductive Colimit.core (α : ℕ → Type u)
-  (f : Π (n : ℕ), α n → α (n + 1))
-| incl {n : ℕ} : α n → core α f
+inductive Colimit.core (A : ℕ → Type u)
+  (f : Π (n : ℕ), A n → A (n + 1))
+| incl {n : ℕ} : A n → core A f
 
-inductive Colimit.rel (α : ℕ → Type u) (f : Π (n : ℕ), α n → α (n + 1)) :
-  Colimit.core α f → Colimit.core α f → Type u
-| glue (n : ℕ) (x : α n) : rel α f (core.incl (f n x)) (core.incl x)
+inductive Colimit.rel (A : ℕ → Type u) (f : Π (n : ℕ), A n → A (n + 1)) :
+  Colimit.core A f → Colimit.core A f → Type u
+| glue (n : ℕ) (x : A n) : rel A f (core.incl (f n x)) (core.incl x)
 
-hott def Colimit (α : ℕ → Type u) (f : Π (n : ℕ), α n → α (n + 1)) :=
-Graph (Colimit.rel α f)
+hott def Colimit (A : ℕ → Type u) (f : Π (n : ℕ), A n → A (n + 1)) :=
+Graph (Colimit.rel A f)
 
 namespace Colimit
-  variable {α : ℕ → Type u} {f : Π (n : ℕ), α n → α (n + 1)}
+  variable {A : ℕ → Type u} {f : Π (n : ℕ), A n → A (n + 1)}
 
-  hott def incl {n : ℕ} (x : α n) : Colimit α f :=
+  hott def incl {n : ℕ} (x : A n) : Colimit A f :=
   Graph.elem (core.incl x)
 
-  hott def inclusion (n : ℕ) : α n → Colimit α f := incl
+  hott def inclusion (n : ℕ) : A n → Colimit A f := incl
 
-  hott def glue {n : ℕ} (x : α n) : incl (f n x) = @incl α f n x :=
+  hott def glue {n : ℕ} (x : A n) : incl (f n x) = @incl A f n x :=
   Graph.line (Colimit.rel.glue n x)
 
-  hott def ind {π : Colimit α f → Type v} (inclπ : Π (n : ℕ) (x : α n), π (incl x))
-    (glueπ : Π (n : ℕ) (x : α n), inclπ (n + 1) (f n x) =[glue x] inclπ n x) : Π x, π x :=
+  hott def ind {B : Colimit A f → Type v} (inclπ : Π (n : ℕ) (x : A n), B (incl x))
+    (glueπ : Π (n : ℕ) (x : A n), inclπ (n + 1) (f n x) =[glue x] inclπ n x) : Π x, B x :=
   begin
     intro x; fapply Graph.ind;
     { intro (core.incl x); apply inclπ };
@@ -41,8 +41,8 @@ namespace Colimit
 
   attribute [eliminator] ind
 
-  hott def rec {π : Type v} (inclπ : Π (n : ℕ) (x : α n), π)
-    (glueπ : Π (n : ℕ) (x : α n), inclπ (n + 1) (f n x) = inclπ n x) : Colimit α f → π :=
+  hott def rec {B : Type v} (inclπ : Π (n : ℕ), A n → B)
+    (glueπ : Π (n : ℕ) (x : A n), inclπ (n + 1) (f n x) = inclπ n x) : Colimit A f → B :=
   ind @inclπ (λ n x, pathoverOfEq (glue x) (glueπ n x))
 end Colimit
 
