@@ -11,46 +11,46 @@ open GroundZero.Structures (prop contr)
 universe u v w k
 
 -- exercise 1.1
-hott def compAssoc {α : Type u} {β : Type v} {γ : Type w} {δ : Type k}
-  (f : α → β) (g : β → γ) (h : γ → δ) : h ∘ (g ∘ f) = (h ∘ g) ∘ f :=
+hott def compAssoc {A : Type u} {B : Type v} {C : Type w} {D : Type k}
+  (f : A → B) (g : B → C) (h : C → D) : h ∘ (g ∘ f) = (h ∘ g) ∘ f :=
 by reflexivity
 
 -- exercise 1.2
 
-hott def Product.rec' {α : Type u} {β : Type v} {γ : Type w}
-  (φ : α → β → γ) : α × β → γ :=
+hott def Product.rec' {A : Type u} {B : Type v} {C : Type w}
+  (φ : A → B → C) : A × B → C :=
 λ u, φ u.1 u.2
 
-example {α : Type u} {β : Type v} {γ : Type w}
-  (φ : α → β → γ) (a : α) (b : β) :
+example {A : Type u} {B : Type v} {C : Type w}
+  (φ : A → B → C) (a : A) (b : B) :
   Product.rec' φ (a, b) = φ a b :=
 by reflexivity
 
-hott def Sigma.rec' {α : Type u} {β : α → Type v} {γ : Type w}
-  (φ : Π x, β x → γ) : (Σ x, β x) → γ :=
+hott def Sigma.rec' {A : Type u} {B : A → Type v} {C : Type w}
+  (φ : Π x, B x → C) : (Σ x, B x) → C :=
 λ u, φ u.1 u.2
 
-example {α : Type u} {β : α → Type v} {γ : Type w}
-  (φ : Π x, β x → γ) (a : α) (b : β a) :
+example {A : Type u} {B : A → Type v} {C : Type w}
+  (φ : Π x, B x → C) (a : A) (b : B a) :
   Sigma.rec' φ ⟨a, b⟩ = φ a b :=
 by reflexivity
 
 -- exercise 1.3
 
-hott def Product.ind' {α : Type u} {β : Type v} {π : α × β → Type w}
-  (φ : Π a b, π (a, b)) : Π x, π x :=
-λ u, transport π (Product.uniq u) (φ u.1 u.2)
+hott def Product.ind' {A : Type u} {B : Type v} {C : A × B → Type w}
+  (φ : Π a b, C (a, b)) : Π x, C x :=
+λ u, transport C (Product.uniq u) (φ u.1 u.2)
 
-example {α : Type u} {β : Type v} {π : α × β → Type w}
-  (φ : Π a b, π (a, b)) (a : α) (b : β) : Product.ind' φ (a, b) = φ a b :=
+example {A : Type u} {B : Type v} {C : A × B → Type w}
+  (φ : Π a b, C (a, b)) (a : A) (b : B) : Product.ind' φ (a, b) = φ a b :=
 by reflexivity
 
-hott def Sigma.ind' {α : Type u} {β : α → Type v} {π : (Σ x, β x) → Type w}
-  (φ : Π a b, π ⟨a, b⟩) : Π x, π x :=
-λ u, transport π (Sigma.uniq u) (φ u.1 u.2)
+hott def Sigma.ind' {A : Type u} {B : A → Type v} {C : (Σ x, B x) → Type w}
+  (φ : Π a b, C ⟨a, b⟩) : Π x, C x :=
+λ u, transport C (Sigma.uniq u) (φ u.1 u.2)
 
-example {α : Type u} {β : α → Type v} {π : (Σ x, β x) → Type w}
-  (φ : Π a b, π ⟨a, b⟩) (a : α) (b : β a) : Sigma.ind' φ ⟨a, b⟩ = φ a b :=
+example {A : Type u} {B : A → Type v} {C : (Σ x, B x) → Type w}
+  (φ : Π a b, C ⟨a, b⟩) (a : A) (b : B a) : Sigma.ind' φ ⟨a, b⟩ = φ a b :=
 by reflexivity
 
 -- exercise 1.4
@@ -72,59 +72,59 @@ section
 
   hott def Nat.rec' : ℕ → C := Prod.pr₂ ∘ grec c₀ cₛ
 
-  hott def Nat.iterβ₁ : Nat.rec' c₀ cₛ 0 = c₀ :=
+  hott def Nat.iterB₁ : Nat.rec' c₀ cₛ 0 = c₀ :=
   by reflexivity
 
-  hott def Nat.iterβ₂ (n : ℕ) : Nat.rec' c₀ cₛ (n + 1) = cₛ n (Nat.rec' c₀ cₛ n) :=
+  hott def Nat.iterB₂ (n : ℕ) : Nat.rec' c₀ cₛ (n + 1) = cₛ n (Nat.rec' c₀ cₛ n) :=
   Id.map (λ m, cₛ m (Nat.rec' c₀ cₛ n)) (grec.stable c₀ cₛ n)
 end
 
 -- exercise 1.5
 
-hott def Coproduct' (α β : Type u) :=
-Σ (x : 𝟐), Bool.elim α β x
+hott def Coproduct' (A B : Type u) :=
+Σ (x : 𝟐), Bool.elim A B x
 
 namespace Coproduct'
-  variable {α β : Type u}
+  variable {A B : Type u}
 
-  def inl {α β : Type u} (a : α) : Coproduct' α β := ⟨false, a⟩
-  def inr {α β : Type u} (b : β) : Coproduct' α β := ⟨true,  b⟩
+  def inl {A B : Type u} (a : A) : Coproduct' A B := ⟨false, a⟩
+  def inr {A B : Type u} (b : B) : Coproduct' A B := ⟨true,  b⟩
 
-  variable (π : Coproduct' α β → Type v) (u : Π a, π (inl a)) (v : Π b, π (inr b))
+  variable (C : Coproduct' A B → Type v) (u : Π a, C (inl a)) (v : Π b, C (inr b))
 
-  hott def ind : Π x, π x
+  hott def ind : Π x, C x
   | ⟨false, a⟩ => u a | ⟨true, b⟩ => v b
 
-  hott def indβ₁ (a : α) : ind π u v (inl a) = u a :=
+  hott def indB₁ (a : A) : ind C u v (inl a) = u a :=
   by reflexivity
 
-  hott def indβ₂ (b : β) : ind π u v (inr b) = v b :=
+  hott def indB₂ (b : B) : ind C u v (inr b) = v b :=
   by reflexivity
 end Coproduct'
 
 -- exercise 1.6
 
-hott def Product' (α β : Type u) :=
-Π (x : 𝟐), Bool.elim α β x
+hott def Product' (A B : Type u) :=
+Π (x : 𝟐), Bool.elim A B x
 
 namespace Product'
-  variable {α β : Type u}
+  variable {A B : Type u}
 
-  def mk (a : α) (b : β) : Product' α β :=
-  (@Bool.casesOn (Bool.elim α β) · a b)
+  def mk (a : A) (b : B) : Product' A B :=
+  (@Bool.casesOn (Bool.elim A B) · a b)
 
-  def pr₁ : Product' α β → α := λ u, u false
-  def pr₂ : Product' α β → β := λ u, u true
+  def pr₁ : Product' A B → A := λ u, u false
+  def pr₂ : Product' A B → B := λ u, u true
 
-  def η (x : Product' α β) : mk (pr₁ x) (pr₂ x) = x :=
+  def η (x : Product' A B) : mk (pr₁ x) (pr₂ x) = x :=
   begin apply Theorems.funext; intro b; induction b using Bool.casesOn <;> reflexivity end
 
-  variable (π : Product' α β → Type v) (φ : Π a b, π (mk a b))
+  variable (π : Product' A B → Type v) (φ : Π a b, π (mk a b))
 
   hott def ind : Π x, π x :=
   λ x, transport π (η x) (φ (pr₁ x) (pr₂ x))
 
-  hott def indβ (a : α) (b : β) : ind π φ (mk a b) = φ a b :=
+  hott def indB (a : A) (b : B) : ind π φ (mk a b) = φ a b :=
   begin
     transitivity; apply Id.map (transport π · (φ a b));
     transitivity; apply Id.map Theorems.funext; change _ = (λ x, idp (mk a b x));
@@ -254,8 +254,8 @@ hott def vin.fmax (n : ℕ) : fin (n + 1) :=
 -- exercise 1.10
 
 namespace Nat'
-  hott def iterate {α : Type u} (f : α → α) : ℕ → (α → α) :=
-  @rec (α → α) idfun (λ _ g, f ∘ g)
+  hott def iterate {A : Type u} (f : A → A) : ℕ → (A → A) :=
+  @rec (A → A) idfun (λ _ g, f ∘ g)
 
   hott def ack : ℕ → ℕ → ℕ :=
   rec Nat.succ (λ m φ n, iterate φ (n + 1) 1)
@@ -272,30 +272,30 @@ end Nat'
 
 -- exercise 1.11
 
-example (α : Type u) : (¬¬¬α) → (¬α) :=
+example (A : Type u) : (¬¬¬A) → (¬A) :=
 λ φ x, φ (λ ψ, ψ x)
 
 -- exercise 1.12
 
-example (α : Type u) (β : Type v) : α → (β → α) :=
+example (A : Type u) (B : Type v) : A → (B → A) :=
 λ a b, a
 
-example (α : Type u) : α → ¬¬α :=
+example (A : Type u) : A → ¬¬A :=
 λ a φ, φ a
 
-example (α : Type u) (β : Type v) : (¬α) + (¬β) → ¬(α × β) :=
-λ φ w, @Coproduct.elim (¬α) (¬β) 𝟎 (λ ψ, ψ w.1) (λ ψ, ψ w.2) φ
+example (A : Type u) (B : Type v) : (¬A) + (¬B) → ¬(A × B) :=
+λ φ w, @Coproduct.elim (¬A) (¬B) 𝟎 (λ ψ, ψ w.1) (λ ψ, ψ w.2) φ
 
 -- exercise 1.13
 
-example (α : Type u) : ¬¬(α + ¬α) :=
+example (A : Type u) : ¬¬(A + ¬A) :=
 λ φ, φ (Coproduct.inr (λ a, φ (Coproduct.inl a)))
 
 -- exercise 1.14
 
 /-
-def f {α : Type u} (x : α) (p : x = x) : p = idp x :=
-@Id.casesOn α x (λ y p, ???) x p (idp (idp x))
+def f {A : Type u} (x : A) (p : x = x) : p = idp x :=
+@Id.casesOn A x (λ y p, ???) x p (idp (idp x))
 -/
 
 -- exercise 1.15

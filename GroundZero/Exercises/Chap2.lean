@@ -11,20 +11,20 @@ universe u v u' v' w w' k k'
 -- exercise 2.1
 
 section
-  variable {α : Type u} {a b c : α}
+  variable {A : Type u} {a b c : A}
 
   hott def trans₁ (p : a = b) (q : b = c) : a = c :=
-  @Id.casesOn α a (λ x _, x = c → a = c) b p (@Id.casesOn α a (λ x _, a = x) c · (idp a)) q
+  @Id.casesOn A a (λ x _, x = c → a = c) b p (@Id.casesOn A a (λ x _, a = x) c · (idp a)) q
 
   infixl:99 " ⬝₁ " => trans₁
 
   hott def trans₂ (p : a = b) (q : b = c) : a = c :=
-  @Id.casesOn α a (λ x _, x = c → a = c) b p idfun q
+  @Id.casesOn A a (λ x _, x = c → a = c) b p idfun q
 
   infixl:99 " ⬝₂ " => trans₂
 
   hott def trans₃ (p : a = b) (q : b = c) : a = c :=
-  @Id.casesOn α b (λ x _, a = b → a = x) c q idfun p
+  @Id.casesOn A b (λ x _, a = b → a = x) c q idfun p
 
   infixl:99 " ⬝₃ " => trans₃
 
@@ -41,7 +41,7 @@ end
 -- exercise 2.2
 
 section
-  variable {α : Type u} {a b c : α} (p : a = b) (q : b = c)
+  variable {A : Type u} {a b c : A} (p : a = b) (q : b = c)
 
   example : eq₁₂ p q ⬝ eq₂₃ p q = eq₁₃ p q :=
   begin induction p; induction q; reflexivity end
@@ -50,10 +50,10 @@ end
 -- exercise 2.3
 
 section
-  variable {α : Type u} {a b c : α}
+  variable {A : Type u} {a b c : A}
 
   hott def trans₄ (p : a = b) (q : b = c) : a = c :=
-  @Id.casesOn α b (λ x _, a = b → a = x) c q (@Id.casesOn α a (λ x _, a = x) b · (idp a)) p
+  @Id.casesOn A b (λ x _, a = b → a = x) c q (@Id.casesOn A a (λ x _, a = x) b · (idp a)) p
 
   infixl:99 " ⬝₄ " => trans₄
 
@@ -69,52 +69,52 @@ end
 
 -- exercise 2.4
 
-hott def nPath (α : Type u) : ℕ → Type u
-| Nat.zero   => α
-| Nat.succ n => Σ (a b : nPath α n), a = b
+hott def nPath (A : Type u) : ℕ → Type u
+| Nat.zero   => A
+| Nat.succ n => Σ (a b : nPath A n), a = b
 
-hott def boundary {α : Type u} {n : ℕ} :
-  nPath α (n + 1) → (nPath α n) × (nPath α n) :=
+hott def boundary {A : Type u} {n : ℕ} :
+  nPath A (n + 1) → (nPath A n) × (nPath A n) :=
 λ ⟨a, b, _⟩, (a, b)
 
 -- exercise 2.5
 
 namespace «2.5»
-  variable {α : Type u} {β : Type v} {x y : α} (p : x = y)
+  variable {A : Type u} {B : Type v} {x y : A} (p : x = y)
 
-  hott def transconst (b : β) : transport (λ _, β) p b = b :=
+  hott def transconst (b : B) : transport (λ _, B) p b = b :=
   begin induction p; reflexivity end
 
-  hott def f (φ : α → β) : φ x = φ y → transport (λ _, β) p (φ x) = φ y :=
+  hott def f (φ : A → B) : φ x = φ y → transport (λ _, B) p (φ x) = φ y :=
   λ q, transconst p (φ x) ⬝ q
 
-  hott def g (φ : α → β) : transport (λ _, β) p (φ x) = φ y → φ x = φ y :=
+  hott def g (φ : A → B) : transport (λ _, B) p (φ x) = φ y → φ x = φ y :=
   λ q, (transconst p (φ x))⁻¹ ⬝ q
 
-  example (φ : α → β) : f p φ ∘ g p φ ~ id :=
+  example (φ : A → B) : f p φ ∘ g p φ ~ id :=
   begin induction p; reflexivity end
 
-  example (φ : α → β) : g p φ ∘ f p φ ~ id :=
+  example (φ : A → B) : g p φ ∘ f p φ ~ id :=
   begin induction p; reflexivity end
 end «2.5»
 
 -- exercise 2.6
 
-example {α : Type u} {x y z : α} (p : x = y) : biinv (@Id.trans α x y z p) :=
+example {A : Type u} {x y z : A} (p : x = y) : biinv (@Id.trans A x y z p) :=
 begin apply Prod.mk <;> existsi Id.trans p⁻¹ <;> intro q <;> induction p <;> induction q <;> reflexivity end
 
 -- exercise 2.7
 
 namespace «2.7»
-  variable {α : Type u} {α' : Type u'} {β : α → Type v} {β' : α' → Type v'}
-           (g : α → α') (h : Π a, β a → β' (g a))
+  variable {A : Type u} {A' : Type u'} {B : A → Type v} {B' : A' → Type v'}
+           (g : A → A') (h : Π a, B a → B' (g a))
 
-  def φ (x : Σ a, β a) : Σ a', β' a' := ⟨g x.1, h x.1 x.2⟩
+  def φ (x : Σ a, B a) : Σ a', B' a' := ⟨g x.1, h x.1 x.2⟩
 
-  hott def prodMap : Π (x y : Σ a, β a) (p : x.1 = y.1) (q : x.2 =[p] y.2),
+  hott def prodMap : Π (x y : Σ a, B a) (p : x.1 = y.1) (q : x.2 =[p] y.2),
       Id.map (φ g h) (Sigma.prod p q)
-    = @Sigma.prod α' β' (φ g h x) (φ g h y)
-        (@Id.map α α' x.1 y.1 g p) (depPathMap' g h q) :=
+    = @Sigma.prod A' B' (φ g h x) (φ g h y)
+        (@Id.map A A' x.1 y.1 g p) (depPathMap' g h q) :=
   begin
     intro ⟨x, H⟩ ⟨y, G⟩ (p : x = y); induction p;
     intro (q : H = G); induction q; reflexivity
@@ -124,18 +124,18 @@ end «2.7»
 -- exercise 2.8
 
 namespace «2.8»
-  variable {α α' β β' : Type u} (g : α → α') (h : β → β')
+  variable {A A' B B' : Type u} (g : A → A') (h : B → B')
 
-  def φ : α + β → α' + β' :=
+  def φ : A + B → A' + B' :=
   Coproduct.elim (Coproduct.inl ∘ g) (Coproduct.inr ∘ h)
 
-  hott def ρ : Π {x y : α + β} (p : Coproduct.code x y), Coproduct.code (φ g h x) (φ g h y)
+  hott def ρ : Π {x y : A + B} (p : Coproduct.code x y), Coproduct.code (φ g h x) (φ g h y)
   | Sum.inl _, Sum.inl _, p => Id.map _ p
   | Sum.inr _, Sum.inl _, p => Empty.elim p
   | Sum.inl _, Sum.inr _, p => Empty.elim p
   | Sum.inr _, Sum.inr _, p => Id.map _ p
 
-  hott def mapPathSum (x y : α + β) : Π p,
+  hott def mapPathSum (x y : A + B) : Π p,
       Id.map (φ g h) (Coproduct.pathSum x y p)
     = Coproduct.pathSum (φ g h x) (φ g h y) (ρ g h p) :=
   begin
