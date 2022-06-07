@@ -129,7 +129,7 @@ namespace «2.8»
   def φ : A + B → A' + B' :=
   Coproduct.elim (Coproduct.inl ∘ g) (Coproduct.inr ∘ h)
 
-  hott def ρ : Π {x y : A + B} (p : Coproduct.code x y), Coproduct.code (φ g h x) (φ g h y)
+  hott def ρ : Π {x y : A + B}, Coproduct.code x y → Coproduct.code (φ g h x) (φ g h y)
   | Sum.inl _, Sum.inl _, p => Id.map _ p
   | Sum.inr _, Sum.inl _, p => Empty.elim p
   | Sum.inl _, Sum.inr _, p => Empty.elim p
