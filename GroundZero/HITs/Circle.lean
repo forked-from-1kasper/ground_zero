@@ -540,14 +540,6 @@ namespace Circle
   end
 end Circle
 
-namespace Sphere
-  hott def rec {B : Type u} (b : B) (s : idp b = idp b) : S² → B :=
-  Suspension.rec b b (Circle.rec (idp b) s)
-end Sphere
-
-namespace Glome
-end Glome
-
 def Torus := S¹ × S¹
 notation "T²" => Torus
 
@@ -571,6 +563,12 @@ namespace Torus
   hott def t : p ⬝ q = q ⬝ p :=
   Φ Circle.loop Circle.loop
 end Torus
+
+namespace Sphere
+end Sphere
+
+namespace Glome
+end Glome
 
 end HITs
 

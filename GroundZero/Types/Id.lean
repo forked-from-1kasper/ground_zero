@@ -125,9 +125,9 @@ namespace Id
     def ap   := map f p
   end
 
-  hott def ap₂ {A : Type u} {B : Type v} {a b : A}
-    {p q : a = b} (f : A → B) (r : p = q) : ap f p = ap f q :=
-  begin induction r; reflexivity end
+  hott def ap₂ {A : Type u} {B : Type v} {a b : A} {p q : a = b}
+    (f : A → B) (r : p = q) : ap f p = ap f q :=
+  ap (ap f) r
 
   class dotted (space : Type u) :=
   (point : space)
