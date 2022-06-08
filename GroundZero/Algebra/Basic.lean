@@ -13,28 +13,28 @@ open GroundZero
 namespace GroundZero.Algebra
   universe u v u' v' w
 
-  hott def zeroeqv {α : Type u} (H : hset α) : 0-Type :=
-  ⟨α, zeroEqvSet.left H⟩
+  hott def zeroeqv {A : Type u} (H : hset A) : 0-Type :=
+  ⟨A, zeroEqvSet.left H⟩
 
   macro "propauto" : tactic =>
     `(repeat { apply piProp; intro }; apply p)
 
-  def algop (deg : ℕ) (α : Type u) :=
-  vect α deg → α
+  def algop (deg : ℕ) (A : Type u) :=
+  vect A deg → A
 
-  def algrel (deg : ℕ) (α : Type u) :=
-  vect α deg → Ω
+  def algrel (deg : ℕ) (A : Type u) :=
+  vect A deg → Ω
 
   section
     variable {ι : Type u} {υ : Type v} (deg : ι + υ → ℕ)
 
-    def Algebra (α : Type w) :=
-    (Π i, algop  (deg (Sum.inl i)) α) × -- Algebraic operations
-    (Π i, algrel (deg (Sum.inr i)) α)   -- relations
+    def Algebra (A : Type w) :=
+    (Π i, algop  (deg (Sum.inl i)) A) × -- Algebraic operations
+    (Π i, algrel (deg (Sum.inr i)) A)   -- relations
 
-    def Alg := Σ (α : 0-Type), Algebra deg α.1
+    def Alg := Σ (A : 0-Type), Algebra deg A.1
 
-    noncomputable hott def Algebra.hset {α : Type w} (H : hset α) : hset (Algebra deg α) :=
+    noncomputable hott def Algebra.hset {A : Type w} (H : hset A) : hset (Algebra deg A) :=
     begin
       apply prodHset;
       { apply piHset; intro; apply piHset; intro; apply H };
@@ -191,8 +191,8 @@ namespace GroundZero.Algebra
     instance : @Symmetric  (Alg deg) (· ≅ ·) := ⟨@Iso.symm _ _ _⟩
     instance : @Transitive (Alg deg) (· ≅ ·) := ⟨@Iso.trans _ _ _⟩
 
-    hott def Algebra.ext {α β : Type w} (p : α = β) :
-      Π (Γ : Algebra deg α) (Λ : Algebra deg β)
+    hott def Algebra.ext {A B : Type w} (p : A = B) :
+      Π (Γ : Algebra deg A) (Λ : Algebra deg B)
         (ε : Π i, Γ.1 i =[p] Λ.1 i) (δ : Π i, Γ.2 i =[p] Λ.2 i), Γ =[p] Λ :=
     begin
       intro ⟨Γ₁, Γ₂⟩ ⟨Λ₁, Λ₂⟩ ε δ; induction p;
@@ -200,13 +200,13 @@ namespace GroundZero.Algebra
       intro; apply ε; apply δ
     end
 
-    hott def transportOverZeroPath : Π {α β : 0-Type} (π : Type u → Type v) (p : α.1 = β.1) (u : π α.1),
-      transport (π ∘ Sigma.fst) (zeroPath p) u = @transport (Type u) π α.1 β.1 p u :=
+    hott def transportOverZeroPath : Π {A B : 0-Type} (C : Type u → Type v) (p : A.1 = B.1) (u : C A.1),
+      transport (C ∘ Sigma.fst) (zeroPath p) u = @transport (Type u) C A.1 B.1 p u :=
     begin
-      intro ⟨α, F⟩ ⟨β, G⟩ π (p : α = β) u; induction p;
+      intro ⟨A, F⟩ ⟨B, G⟩ C (p : A = B) u; induction p;
       have ρ : F = G := ntypeIsProp 0 F G; induction ρ;
       transitivity; apply Equiv.transportToTransportconst; transitivity;
-      apply Id.map (λ p, transportconst (Id.map (π ∘ Sigma.fst) p) u);
+      apply Id.map (λ p, transportconst (Id.map (C ∘ Sigma.fst) p) u);
       apply zeroPathRefl; reflexivity
     end
 
@@ -219,7 +219,7 @@ namespace GroundZero.Algebra
       apply Algebra.ext <;> assumption
     end
 
-    noncomputable hott def equivCompSubst {α β : Type u} (φ : α ≃ β) :
+    noncomputable hott def equivCompSubst {A B : Type u} (φ : A ≃ B) :
       φ.1 ∘ transportconst (ua φ)⁻¹ = id :=
     begin
       apply Theorems.funext; intro x;
@@ -233,7 +233,7 @@ namespace GroundZero.Algebra
       Π (φ : Γ ≅ Λ) (i : ι), Γ.op i =[ua φ.eqv] Λ.op i :=
     begin
       intro ⟨φ, (p, q)⟩ i; apply Id.trans;
-      apply transportOverFunctor (λ α, vect α (deg (Sum.inl i))) id;
+      apply transportOverFunctor (λ A, vect A (deg (Sum.inl i))) id;
       apply Theorems.funext; intro v;
       transitivity; apply ua.transportRule;
       transitivity; apply p.1; apply Id.map;
@@ -246,7 +246,7 @@ namespace GroundZero.Algebra
       Π (φ : Γ ≅ Λ) (i : υ), Γ.rel i =[algrel (deg (Sum.inr i)), ua φ.eqv] Λ.rel i :=
     begin
       intro ⟨φ, (p, q)⟩ i; apply Id.trans;
-      apply transportOverFunctor (λ α, vect α (deg (Sum.inr i))) (λ _, Ω);
+      apply transportOverFunctor (λ A, vect A (deg (Sum.inr i))) (λ _, Ω);
       apply Theorems.funext; intro v;
       transitivity; apply Id.map (subst (ua ⟨φ, q⟩));
       transitivity; apply p.2; apply Id.map (Λ.rel i);
@@ -266,7 +266,7 @@ namespace GroundZero.Algebra
 
     noncomputable hott def Alg.uaext : Π {Γ Λ : Alg deg} (φ : Γ ≅ Λ), GroundZero.ua φ.eqv = Alg.eqcar (Alg.ua φ) :=
     begin
-      intro ⟨⟨α, f⟩, (Γ₁, Γ₂)⟩ ⟨⟨β, g⟩, (Λ₁, Λ₂)⟩ φ;
+      intro ⟨⟨A, f⟩, (Γ₁, Γ₂)⟩ ⟨⟨B, g⟩, (Λ₁, Λ₂)⟩ φ;
       symmetry; change Id.map _ _ = _; transitivity; apply Id.map;
       apply Sigma.mapFstOverProd; apply Sigma.mapFstOverProd
     end
@@ -283,13 +283,13 @@ namespace GroundZero.Algebra
     hott def Alg.id {Γ Λ : Alg deg} (p : Γ = Λ) : Γ ≅ Λ :=
     begin induction p; reflexivity end
 
-    hott def transportOverProd {α : Type u} {β : α → Type v} {u v : Sigma β}
+    hott def transportOverProd {A : Type u} {B : A → Type v} {u v : Sigma B}
       (p₁ p₂ : u.1 = v.1) (q : Equiv.subst p₁ u.2 = v.2) (ε : p₁ = p₂) :
       Sigma.prod p₁ q = Sigma.prod p₂ (@transport (u.1 = v.1)
         (λ p, Equiv.subst p u.2 = v.2) p₁ p₂ ε q) :=
     begin induction ε; reflexivity end
 
-    noncomputable hott def Alg.uaβrefl {Γ : Alg deg} : Alg.ua (Iso.refl Γ) = Id.refl :=
+    noncomputable hott def Alg.uaBrefl {Γ : Alg deg} : Alg.ua (Iso.refl Γ) = Id.refl :=
     begin
       change Alg.ext _ _ _ = _;
       change Sigma.prod _ _ = _;
@@ -305,7 +305,7 @@ namespace GroundZero.Algebra
     end
 
     noncomputable hott def Alg.rinv {Γ Λ : Alg deg} (p : Γ = Λ) : Alg.ua (Alg.id p) = p :=
-    begin induction p; apply Alg.uaβrefl end
+    begin induction p; apply Alg.uaBrefl end
 
     noncomputable hott def Alg.linv {Γ Λ : Alg deg} {φ : Γ ≅ Λ} : Alg.id (Alg.ua φ) = φ :=
     begin apply Alg.inj; apply Alg.rinv end
@@ -396,8 +396,8 @@ namespace GroundZero.Algebra
   Alg.{0, 0, u, 0} Pregroup.signature
 
   namespace Pregroup
-    hott def intro {α : Type u} (H : hset α)
-      (φ : α → α → α) (ι : α → α) (e : α) : Pregroup :=
+    hott def intro {A : Type u} (H : hset A)
+      (φ : A → A → A) (ι : A → A) (e : A) : Pregroup :=
     ⟨zeroeqv H, (λ | Arity.nullary => λ _, e
                    | Arity.unary   => λ (a, _), ι a
                    | Arity.binary  => λ (a, b, _), φ a b,
