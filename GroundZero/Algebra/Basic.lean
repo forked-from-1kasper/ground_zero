@@ -289,7 +289,7 @@ namespace GroundZero.Algebra
         (λ p, Equiv.subst p u.2 = v.2) p₁ p₂ ε q) :=
     begin induction ε; reflexivity end
 
-    noncomputable hott def Alg.uaBrefl {Γ : Alg deg} : Alg.ua (Iso.refl Γ) = Id.refl :=
+    noncomputable hott def Alg.uaβrefl {Γ : Alg deg} : Alg.ua (Iso.refl Γ) = Id.refl :=
     begin
       change Alg.ext _ _ _ = _;
       change Sigma.prod _ _ = _;
@@ -305,7 +305,7 @@ namespace GroundZero.Algebra
     end
 
     noncomputable hott def Alg.rinv {Γ Λ : Alg deg} (p : Γ = Λ) : Alg.ua (Alg.id p) = p :=
-    begin induction p; apply Alg.uaBrefl end
+    begin induction p; apply Alg.uaβrefl end
 
     noncomputable hott def Alg.linv {Γ Λ : Alg deg} {φ : Γ ≅ Λ} : Alg.id (Alg.ua φ) = φ :=
     begin apply Alg.inj; apply Alg.rinv end
