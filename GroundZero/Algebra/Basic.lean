@@ -192,8 +192,8 @@ namespace GroundZero.Algebra
     instance : @Transitive (Alg deg) (· ≅ ·) := ⟨@Iso.trans _ _ _⟩
 
     hott def Algebra.ext {A B : Type w} (p : A = B) :
-      Π (Γ : Algebra deg A) (Λ : Algebra deg B)
-        (ε : Π i, Γ.1 i =[p] Λ.1 i) (δ : Π i, Γ.2 i =[p] Λ.2 i), Γ =[p] Λ :=
+      Π (Γ : Algebra deg A) (Λ : Algebra deg B),
+        (Π i, Γ.1 i =[p] Λ.1 i) → (Π i, Γ.2 i =[p] Λ.2 i) → Γ =[p] Λ :=
     begin
       intro ⟨Γ₁, Γ₂⟩ ⟨Λ₁, Λ₂⟩ ε δ; induction p;
       apply Product.prod <;> apply Theorems.funext <;>
@@ -371,8 +371,8 @@ namespace GroundZero.Algebra
     hott def magma (M : Premonoid) : Magma :=
     begin
       existsi M.1; apply Prod.mk;
-      { intro b; exact M.op true };
-      { intro x; apply Proto.Empty.elim x }
+      { intro; exact M.op true };
+      { intro x; apply nomatch x }
     end
   end Premonoid
 
@@ -401,7 +401,7 @@ namespace GroundZero.Algebra
     ⟨zeroeqv H, (λ | Arity.nullary => λ _, e
                    | Arity.unary   => λ (a, _), ι a
                    | Arity.binary  => λ (a, b, _), φ a b,
-                 λ i, Proto.Empty.elim i)⟩
+                 λ i, nomatch i)⟩
 
     def e (G : Pregroup) : G.carrier :=
     G.op Arity.nullary ★
@@ -415,8 +415,8 @@ namespace GroundZero.Algebra
     hott def magma (G : Pregroup) : Magma :=
     begin
       existsi G.1; apply Prod.mk;
-      { intro b; exact G.op Arity.binary };
-      { intro x; apply Proto.Empty.elim x }
+      { intro; exact G.op Arity.binary };
+      { intro x; apply nomatch x }
     end
 
     hott def premonoid (G : Pregroup) : Premonoid :=
@@ -424,7 +424,7 @@ namespace GroundZero.Algebra
       existsi G.1; apply Prod.mk;
       { exact λ | false => G.op Arity.nullary
                 | true  => G.op Arity.binary };
-      { intro x; apply Proto.Empty.elim x }
+      { intro x; apply nomatch x }
     end
   end Pregroup
 
