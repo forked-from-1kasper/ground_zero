@@ -35,7 +35,7 @@ begin
 end
 
 namespace Loop
-  variable {α : Type u} {a : α}
+  variable {A : Type u} {a : A}
 
   def pos (p : a = a) : ℕ → a = a
   | Nat.zero   => idp a
@@ -129,7 +129,7 @@ instance (n : ℕ) : Id.dotted Sⁿ :=
  | Nat.zero   => false
  | Nat.succ _ => Suspension.north⟩
 
-macro:max "S" "(" e:term ")" : term => `(GroundZero.HITs.S $e)
+macro:max "S" : term => `(GroundZero.HITs.S)
 
 def Circle := S¹
 
@@ -142,37 +142,37 @@ namespace Circle
   def seg₁ : base₁ = base₂ := Suspension.merid false
   def seg₂ : base₁ = base₂ := Suspension.merid true
 
-  hott def ind₂ {β : S¹ → Type u} (b₁ : β base₁) (b₂ : β base₂)
-    (ℓ₁ : b₁ =[seg₁] b₂) (ℓ₂ : b₁ =[seg₂] b₂) : Π x, β x :=
+  hott def ind₂ {B : S¹ → Type u} (b₁ : B base₁) (b₂ : B base₂)
+    (ℓ₁ : b₁ =[seg₁] b₂) (ℓ₂ : b₁ =[seg₂] b₂) : Π x, B x :=
   Suspension.ind b₁ b₂ (λ | false => ℓ₁ | true => ℓ₂)
 
   def base : S¹ := base₁
   def loop : base = base := seg₂ ⬝ seg₁⁻¹
 
-  hott def rec {β : Type u} (b : β) (ℓ : b = b) : S¹ → β :=
+  hott def rec {B : Type u} (b : B) (ℓ : b = b) : S¹ → B :=
   Suspension.rec b b (λ | false => idp b | true => ℓ)
 
-  hott def recβrule₁ {β : Type u} (b : β) (ℓ : b = b) : rec b ℓ base = b :=
+  hott def recβrule₁ {B : Type u} (b : B) (ℓ : b = b) : rec b ℓ base = b :=
   idp b
 
   -- why this doesn’t require “noncomputable” attribute as it was in Lean 3?
   -- looks pretty strange
-  hott def recβrule₂ {β : Type u} (b : β) (ℓ : b = b) := calc
+  hott def recβrule₂ {B : Type u} (b : B) (ℓ : b = b) := calc
           Id.map (rec b ℓ) loop
         = Id.map (rec b ℓ) seg₂ ⬝ Id.map (rec b ℓ) seg₁⁻¹   : Equiv.mapFunctoriality _
     ... = Id.map (rec b ℓ) seg₂ ⬝ (Id.map (rec b ℓ) seg₁)⁻¹ : Id.map (_ ⬝ ·) (Id.mapInv _ _)
     ... = ℓ ⬝ Id.refl⁻¹                                     : bimap (· ⬝ ·⁻¹) (Suspension.recβrule _ _ _ _) (Suspension.recβrule _ _ _ _)
     ... = ℓ                                                 : Id.reflRight _
 
-  hott def ind {β : S¹ → Type u} (b : β base) (ℓ : b =[loop] b) : Π (x : S¹), β x :=
+  hott def ind {B : S¹ → Type u} (b : B base) (ℓ : b =[loop] b) : Π (x : S¹), B x :=
   ind₂ b (Equiv.subst seg₁ b) Id.refl (depPathTransSymm ℓ)
 
   attribute [eliminator] ind
 
-  hott def indβrule₁ {β : S¹ → Type u} (b : β base) (ℓ : b =[loop] b) : ind b ℓ base = b :=
+  hott def indβrule₁ {B : S¹ → Type u} (b : B base) (ℓ : b =[loop] b) : ind b ℓ base = b :=
   idp b
 
-  hott def indβrule₂ {β : S¹ → Type u} (b : β base) (ℓ : b =[loop] b) : apd (ind b ℓ) loop = ℓ :=
+  hott def indβrule₂ {B : S¹ → Type u} (b : B base) (ℓ : b =[loop] b) : apd (ind b ℓ) loop = ℓ :=
   begin
     transitivity; apply apdFunctoriality;
     transitivity; apply bimap depTrans; apply Suspension.indβrule;
@@ -180,10 +180,10 @@ namespace Circle
     apply Suspension.indβrule; apply depPathTransSymmCoh
   end
 
-  hott def indΩ {β : S¹ → Type u} (b : β base) (H : Π x, prop (β x)) : Π x, β x :=
+  hott def indΩ {B : S¹ → Type u} (b : B base) (H : Π x, prop (B x)) : Π x, B x :=
   begin fapply ind; exact b; apply H end
 
-  noncomputable hott def loopEqReflImplsUip {α : Type u} (H : loop = idp base) : K α :=
+  noncomputable hott def loopEqReflImplsUip {A : Type u} (H : loop = idp base) : K A :=
   begin
     intros a p; transitivity;
     symmetry; apply Circle.recβrule₂ a p;
@@ -194,7 +194,7 @@ namespace Circle
   noncomputable hott def loopNeqRefl : ¬(loop = idp base) :=
   begin
     intro H; apply ua.universeNotASet;
-    intros α β p q; apply (KIffSet Type).left;
+    intros A B p q; apply (KIffSet Type).left;
     apply loopEqReflImplsUip; assumption
   end
 
@@ -541,7 +541,7 @@ namespace Circle
 end Circle
 
 namespace Sphere
-  hott def rec {β : Type u} (b : β) (s : idp b = idp b) : S² → β :=
+  hott def rec {B : Type u} (b : B) (s : idp b = idp b) : S² → B :=
   Suspension.rec b b (Circle.rec (idp b) s)
 end Sphere
 
