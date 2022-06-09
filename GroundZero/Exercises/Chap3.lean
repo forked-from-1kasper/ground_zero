@@ -1,4 +1,4 @@
-import GroundZero.Theorems.Prop
+import GroundZero.Theorems.Equiv
 import GroundZero.Theorems.Nat
 
 open GroundZero GroundZero.Types

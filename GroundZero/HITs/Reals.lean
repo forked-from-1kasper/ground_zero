@@ -198,14 +198,4 @@ namespace Reals
   end
 end Reals
 
-hott def Complex := R × R
-hott def C := Complex
-
-namespace Complex
-  def inj (x : R) : C := ⟨x, 0⟩
-
-  def Re : C → R := Prod.pr₁
-  def Im : C → R := Prod.pr₂
-end Complex
-
 end GroundZero.HITs

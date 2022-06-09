@@ -174,6 +174,7 @@ namespace Circle
 
   hott def indβrule₂ {B : S¹ → Type u} (b : B base) (ℓ : b =[loop] b) : apd (ind b ℓ) loop = ℓ :=
   begin
+    dsimp [ind, ind₂];
     transitivity; apply apdFunctoriality;
     transitivity; apply bimap depTrans; apply Suspension.indβrule;
     transitivity; apply apdInv; apply Id.map;

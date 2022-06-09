@@ -1,8 +1,10 @@
 import GroundZero.Proto
 import GroundZero.Structures
 import GroundZero.Support
+
+/-
 import GroundZero.Algebra.Basic
-import GroundZero.Algebra.Bo
+import GroundZero.Algebra.Boolean
 import GroundZero.Algebra.Category
 import GroundZero.Algebra.EilenbergMacLane
 import GroundZero.Algebra.Geometry
@@ -31,6 +33,8 @@ import GroundZero.Algebra.Group.Semidirect
 import GroundZero.Algebra.Group.Subgroup
 import GroundZero.Algebra.Group.Symmetric
 import GroundZero.Algebra.Group.Z
+-/
+
 import GroundZero.Cubical.Connection
 import GroundZero.Cubical.Cubes
 import GroundZero.Cubical.Example
@@ -74,7 +78,7 @@ import GroundZero.HITs.Quotient
 import GroundZero.HITs.Reals
 import GroundZero.HITs.Simplicial
 import GroundZero.HITs.Suspension
-import GroundZero.HITs.Topologization
+--import GroundZero.HITs.Topologization
 import GroundZero.HITs.Trunc
 import GroundZero.Theorems.Classical
 import GroundZero.Theorems.Equiv
