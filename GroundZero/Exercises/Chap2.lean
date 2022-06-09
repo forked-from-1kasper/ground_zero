@@ -1,4 +1,4 @@
-import GroundZero.Theorems.Prop
+import GroundZero.Theorems.Equiv
 
 open GroundZero GroundZero.Types
 open GroundZero.Types.Equiv
@@ -191,7 +191,7 @@ namespace «2.11»
   begin
     apply Equiv.trans; apply Equiv.symm; apply Structures.cozeroMorphismEqv;
     apply Equiv.trans; fapply Sigma.mk; exact η.1.induced 𝟏; apply η.2;
-    apply Equiv.trans; apply Theorems.Prop.respectsEquivOverFst;
+    apply Equiv.trans; apply Theorems.Equiv.respectsEquivOverFst;
     apply ua.productEquiv₃ <;> apply Structures.cozeroMorphismEqv;
     apply Sigma.respectsEquiv; intro ⟨a, b⟩;
     apply Equiv.trans; apply Theorems.full;
@@ -225,7 +225,7 @@ end «2.12»
 
 -- exercise 2.13
 
-example : (𝟐 ≃ 𝟐) ≃ 𝟐 := Theorems.Prop.boolEquivEqvBool
+example : (𝟐 ≃ 𝟐) ≃ 𝟐 := Theorems.Equiv.boolEquivEqvBool
 
 -- exercise 2.14
 
