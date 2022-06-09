@@ -18,8 +18,8 @@ inductive Path (A : Type u) : A → A → Type u
 | lam (f : I → A) : Path A (f 0) (f 1)
 
 def LineP (σ : I → Type u) := Π (i : I), σ i
-def Line (α : Type u) := I → α
-def Line.refl {α : Type u} (a : α) : Line α := λ _, a
+def Line (A : Type u) := I → A
+def Line.refl {A : Type u} (a : A) : Line A := λ _, a
 
 hott def decode {A : Type u} {a b : A} (p : a = b) : Path A a b :=
 Path.lam (Interval.elim p)
@@ -43,21 +43,21 @@ macro "<" is:Lean.Parser.Term.binderIdent+ ">" e:term : term =>
 
 namespace Path
 
-hott def coe.forward (π : I → Type u) (i : I) (x : π i₀) : π i :=
+hott def coe.forward (B : I → Type u) (i : I) (x : B i₀) : B i :=
 Interval.ind x (Equiv.subst Interval.seg x) Id.refl i
 
-hott def coe.back (π : I → Type u) (i : I) (x : π i₁) : π i :=
+hott def coe.back (B : I → Type u) (i : I) (x : B i₁) : B i :=
 Interval.ind (Equiv.subst Interval.seg⁻¹ x) x (begin
   apply Id.trans; symmetry; apply Equiv.substComp;
   transitivity; apply Id.map (Equiv.subst · x);
   apply Id.invComp; reflexivity
 end) i
 
-hott def coe (i k : I) (π : I → Type u) : π i → π k :=
-coe.forward (λ i, π i → π k) i (coe.forward π k)
+hott def coe (i k : I) (B : I → Type u) : B i → B k :=
+coe.forward (λ i, B i → B k) i (coe.forward B k)
 
-hott def coeInv (i k : I) (π : I → Type u) : π i → π k :=
-coe.back (λ i, π i → π k) i (coe.back π k)
+hott def coeInv (i k : I) (B : I → Type u) : B i → B k :=
+coe.back (λ i, B i → B k) i (coe.back B k)
 
 notation "coe⁻¹" => coeInv
 
@@ -83,8 +83,8 @@ hott def homotopy {A : Type u} {B : A → Type v} (f g : Π x, B x) :=
 Π x, Path (B x) (f x) (g x)
 infix:50 " ~′ " => homotopy
 
-hott def homotopyEquality {α : Type u} {π : α → Type v}
-  {f g : Π x, π x} (p : f ~′ g) : f ~ g :=
+hott def homotopyEquality {A : Type u} {B : A → Type v}
+  {f g : Π x, B x} (p : f ~′ g) : f ~ g :=
 λ x, encode (p x)
 
 hott def funext {A : Type u} {B : A → Type v}
@@ -169,13 +169,13 @@ end)
 /-
 This doesn’t pass typechecking.
 
-def J {α : Type u} {a : α} {π : Π (b : α), a ⇝ b → Type u}
-  (h : π a (refl a)) (b : α) (p : a ⇝ b) : π b (<i> p @ i) :=
-coe (λ i, π (p # i) (connAnd p i)) h i₁
+def J {A : Type u} {a : A} {C : Π (b : A), a ⇝ b → Type u}
+  (h : C a (refl a)) (b : A) (p : a ⇝ b) : C b (<i> p @ i) :=
+coe (λ i, C (p # i) (connAnd p i)) h i₁
 
-def J {α : Type u} {a : α} {π : Π (b : α), a ⇝ b → Type u}
-  (h : π a (refl a)) (b : α) (p : a ⇝ b) : π b (<i> p @ i) :=
-transport (<i> π (p @ i) (<j> p @ i ∧ j)) h
+def J {A : Type u} {a : A} {C : Π (b : A), a ⇝ b → Type u}
+  (h : C a (refl a)) (b : A) (p : a ⇝ b) : C b (<i> p @ i) :=
+transport (<i> C (p @ i) (<j> p @ i ∧ j)) h
 -/
 
 hott def J {A : Type u} {a : A} (C : Π b, Path A a b → Type v)

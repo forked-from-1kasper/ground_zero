@@ -29,27 +29,27 @@ namespace Reals
   hott def glue (z : ℤ) : elem z = elem (Integer.succ z) :=
   Graph.line (rel.glue z)
 
-  hott def indρ {π : R → Type u} (cz : Π x, π (elem x))
+  hott def indρ {C : R → Type u} (cz : Π x, C (elem x))
     (sz : Π z, cz z =[glue z] cz (Integer.succ z))
     (x y : ℤ) (ρ : rel x y) : cz x =[Graph.line ρ] cz y :=
   begin induction ρ using rel.casesOn; apply sz end
 
-  hott def ind {π : R → Type u} (cz : Π x, π (elem x))
-    (sz : Π z, cz z =[glue z] cz (Integer.succ z)) (u : R) : π u :=
+  hott def ind {C : R → Type u} (cz : Π x, C (elem x))
+    (sz : Π z, cz z =[glue z] cz (Integer.succ z)) (u : R) : C u :=
   Graph.ind cz (indρ cz sz) u
 
   attribute [eliminator] ind
 
-  noncomputable hott def indβrule {π : R → Type u}
-    (cz : Π x, π (elem x)) (sz : Π z, cz z =[glue z] cz (Integer.succ z))
+  noncomputable hott def indβrule {C : R → Type u}
+    (cz : Π x, C (elem x)) (sz : Π z, cz z =[glue z] cz (Integer.succ z))
     (z : ℤ) : Equiv.apd (ind cz sz) (glue z) = sz z :=
-  @Graph.indβrule _ _ π cz (indρ cz sz) _ _ (rel.glue z)
+  @Graph.indβrule _ _ C cz (indρ cz sz) _ _ (rel.glue z)
 
-  hott def rec {π : Type u} (cz : ℤ → π)
-    (sz : Π z, cz z = cz (Integer.succ z)) : R → π :=
+  hott def rec {A : Type u} (cz : ℤ → A)
+    (sz : Π z, cz z = cz (Integer.succ z)) : R → A :=
   ind cz (λ x, Equiv.pathoverOfEq (glue x) (sz x))
 
-  noncomputable hott def recβrule {π : Type u} (cz : ℤ → π)
+  noncomputable hott def recβrule {A : Type u} (cz : ℤ → A)
     (sz : Π z, cz z = cz (Integer.succ z)) (z : ℤ) :
     Id.map (rec cz sz) (glue z) = sz z := 
   begin
@@ -97,23 +97,23 @@ namespace Reals
   instance (n : ℕ) : OfNat R n := ⟨elem (Integer.pos n)⟩
 
   section
-    variable {α : Type⁎} (H : prop α.space)
-    variable (φ : Map⁎ α ⟨S¹, base⟩)
+    variable {A : Type⁎} (H : prop A.space)
+    variable (φ : Map⁎ A ⟨S¹, base⟩)
 
-    hott def helixOverHomo (x : α.1) : helix (φ.ap x) = ℤ :=
+    hott def helixOverHomo (x : A.1) : helix (φ.ap x) = ℤ :=
     begin
       transitivity; apply map (helix ∘ φ.ap);
-      apply H x α.point; change _ = helix base;
+      apply H x A.point; change _ = helix base;
       apply map helix; apply φ.id
     end
 
     noncomputable hott def fibOfHomo (x : S¹) := calc
-      fib φ.ap x ≃ Σ (z : α.1), φ.ap z = x       : Equiv.ideqv (fib φ.ap x)
-             ... = Σ (z : α.1), φ.ap α.point = x : Id.map Sigma (funext (λ z, Id.map (φ.ap · = x) (H z α.point)))
-             ... = Σ (z : α.1), base = x         : Id.map Sigma (funext (λ _, Id.map (· = x) φ.id))
-             ... = Σ (z : α.1), helix x          : Id.map Sigma (funext (λ _, GroundZero.ua (Circle.family x)))
-             ... ≃ α.1 × (helix x)               : Sigma.const α.1 (helix x)
-             ... ≃ 𝟏 × (helix x)                 : ua.productEquiv₃ (contrEquivUnit ⟨α.point, H α.point⟩) (Equiv.ideqv (helix x))
+      fib φ.ap x ≃ Σ (z : A.1), φ.ap z = x       : Equiv.ideqv (fib φ.ap x)
+             ... = Σ (z : A.1), φ.ap A.point = x : Id.map Sigma (funext (λ z, Id.map (φ.ap · = x) (H z A.point)))
+             ... = Σ (z : A.1), base = x         : Id.map Sigma (funext (λ _, Id.map (· = x) φ.id))
+             ... = Σ (z : A.1), helix x          : Id.map Sigma (funext (λ _, GroundZero.ua (Circle.family x)))
+             ... ≃ A.1 × (helix x)               : Sigma.const A.1 (helix x)
+             ... ≃ 𝟏 × (helix x)                 : ua.productEquiv₃ (contrEquivUnit.{_, 0} ⟨A.point, H A.point⟩) (Equiv.ideqv (helix x))
              ... ≃ helix x                       : prodUnitEquiv (helix x)
 
     noncomputable hott def kerOfHomo : fib φ.ap base ≃ ℤ :=
@@ -158,15 +158,15 @@ namespace Reals
     }
   end
 
-  hott def phiEqvBaseImplContr {α : Type u} {x : α}
-    (H : Π (φ : α → S¹), φ x = base) : contr S¹ :=
+  hott def phiEqvBaseImplContr {A : Type u} {x : A}
+    (H : Π (φ : A → S¹), φ x = base) : contr S¹ :=
   ⟨base, λ y, (H (λ _, y))⁻¹⟩
 
-  hott def phiNeqBaseImplFalse {α : Type u} {x : α} (φ : α → S¹) : ¬¬(φ x = base) :=
+  hott def phiNeqBaseImplFalse {A : Type u} {x : A} (φ : A → S¹) : ¬¬(φ x = base) :=
   begin induction φ x; intro p; apply p; reflexivity; apply implProp; apply emptyIsProp end
 
-  hott def lemInfImplDnegInf (H : LEM∞) {α : Type u} (G : ¬¬α) : α :=
-  match H α with
+  hott def lemInfImplDnegInf (H : LEM∞) {A : Type u} (G : ¬¬A) : A :=
+  match H A with
   | Sum.inl x => x
   | Sum.inr y => Proto.Empty.elim (G y)
 
@@ -181,11 +181,11 @@ namespace Reals
   end
 
   noncomputable hott def cisFamily : (R → S¹) ≃ S¹ :=
-  @transport Type (λ α, (α → S¹) ≃ S¹) 𝟏 R
+  @transport Type (λ A, (A → S¹) ≃ S¹) 𝟏 R
     (ua (contrEquivUnit contractible))⁻¹ cozeroMorphismEqv
 
-  hott def countable (α : Type u) :=
-  ∥(Σ (f : α → ℕ), injective f)∥
+  hott def countable (A : Type u) :=
+  ∥(Σ (f : A → ℕ), injective f)∥
 
   noncomputable hott def circleUncountable : ¬(countable S¹) :=
   begin

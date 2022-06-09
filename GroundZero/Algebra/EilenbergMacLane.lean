@@ -49,32 +49,32 @@ namespace K1
   axiom loop     : G.carrier → @Id (K1 G) base base
   axiom loop.mul : Π (x y : G.carrier), loop (x * y) = loop x ⬝ loop y
 
-  @[hottAxiom] def ind {π : K1 G → Type v}
-    (baseπ : π base) (loopπ : Π (x : G.carrier), baseπ =[loop x] baseπ)
+  @[hottAxiom] def ind {C : K1 G → Type v}
+    (baseπ : C base) (loopπ : Π (x : G.carrier), baseπ =[loop x] baseπ)
     (mulπ : Π (x y : G.carrier),
       loopπ (x * y) =[λ p, baseπ =[p] baseπ, loop.mul x y]
         loopπ x ⬝′ loopπ y)
-    (groupoidπ : Π x, groupoid (π x)) : Π x, π x
+    (groupoidπ : Π x, groupoid (C x)) : Π x, C x
   | ⟨★⟩ => baseπ
 
   attribute [eliminator] ind
 
-  @[hottAxiom] def rec {π : Type v} (baseπ : π)
+  @[hottAxiom] def rec {C : Type v} (baseπ : C)
     (loopπ : G.carrier → baseπ = baseπ)
     (mulπ : Π x y, loopπ (x * y) = loopπ x ⬝ loopπ y)
-    (groupoidπ : groupoid π) : K1 G → π
+    (groupoidπ : groupoid C) : K1 G → C
   | ⟨★⟩ => baseπ
 
-  axiom indβrule {π : K1 G → Type v}
-    (baseπ : π base) (loopπ : Π (x : G.carrier), baseπ =[loop x] baseπ)
+  axiom indβrule {C : K1 G → Type v}
+    (baseπ : C base) (loopπ : Π (x : G.carrier), baseπ =[loop x] baseπ)
     (mulπ : Π (x y : G.carrier),
       loopπ (x * y) =[λ p, baseπ =[p] baseπ, loop.mul x y]
         loopπ x ⬝′ loopπ y)
-    (groupoidπ : Π x, groupoid (π x)) :
+    (groupoidπ : Π x, groupoid (C x)) :
     Π x, Equiv.apd (ind baseπ loopπ mulπ groupoidπ) (loop x) = loopπ x
 
-  axiom recβrule {π : Type v} (baseπ : π) (loopπ : G.carrier → baseπ = baseπ)
-    (mulπ : Π x y, loopπ (x * y) = loopπ x ⬝ loopπ y) (groupoidπ : groupoid π) :
+  axiom recβrule {C : Type v} (baseπ : C) (loopπ : G.carrier → baseπ = baseπ)
+    (mulπ : Π x y, loopπ (x * y) = loopπ x ⬝ loopπ y) (groupoidπ : groupoid C) :
     Π x, Id.map (rec baseπ loopπ mulπ groupoidπ) (loop x) = loopπ x
 
   attribute [irreducible] K1

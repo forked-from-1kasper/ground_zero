@@ -10,14 +10,14 @@ namespace HITs
 namespace Interval
   @[hottAxiom] def segInv : i₁ = i₀ := Support.inclusion (Quot.sound (I.rel.mk true false))
 
-  /- β i₀ and β i₁ are Prop’s, so s : b₀ = b₁ is trivial -/
-  def propRec {β : I → Prop} (b₀ : β i₀) (b₁ : β i₁) : Π x, β x :=
+  /- B i₀ and B i₁ are Prop’s, so s : b₀ = b₁ is trivial -/
+  def propRec {B : I → Prop} (b₀ : B i₀) (b₁ : B i₁) : Π x, B x :=
   begin
     intro x; refine Quot.ind ?_ x; intro b;
     induction b using Bool.casesOn; exact b₀; exact b₁
   end
 
-  def hrec (β : I → Type u) (b₀ : β 0) (b₁ : β 1) (s : HEq b₀ b₁) (x : I) : β x :=
+  def hrec (B : I → Type u) (b₀ : B 0) (b₁ : B 1) (s : HEq b₀ b₁) (x : I) : B x :=
   begin
     fapply Quot.hrecOn x;
     { intro b; induction b using Bool.casesOn; exact b₀; exact b₁ };
@@ -25,7 +25,7 @@ namespace Interval
       { apply HEq.refl }; { exact s }; { exact HEq.symm s }; { apply HEq.refl } }
   end
 
-  hott def lift {β : Type u} (φ : 𝟐 → β) (H : prop β) : I → β :=
+  hott def lift {B : Type u} (φ : 𝟐 → B) (H : prop B) : I → B :=
   rec (φ false) (φ true) (H _ _)
 
   hott def contrLeft : Π i, i₀ = i :=
@@ -39,10 +39,10 @@ namespace Interval
   hott def intervalProp : prop I :=
   contrImplProp intervalContr
 
-  hott def transportOverHmtpy {α : Type u} {β : Type v} {γ : Type w}
-    (f : α → β) (g₁ g₂ : β → γ) (h : α → γ) (p : g₁ = g₂) (H : g₁ ∘ f ~ h) (x : α) :
-       transport (λ (g : β → γ), g ∘ f ~ h) p H x
-    = @transport (β → γ) (λ (g : β → γ), g (f x) = h x) g₁ g₂ p (H x) :=
+  hott def transportOverHmtpy {A : Type u} {B : Type v} {C : Type w}
+    (f : A → B) (g₁ g₂ : B → C) (h : A → C) (p : g₁ = g₂) (H : g₁ ∘ f ~ h) (x : A) :
+       transport (λ (g : B → C), g ∘ f ~ h) p H x
+    = @transport (B → C) (λ (g : B → C), g (f x) = h x) g₁ g₂ p (H x) :=
   happly (transportOverPi _ _ _) x
 
   hott def boolToInterval (φ : 𝟐 → 𝟐 → 𝟐) (a b : I) : I :=
@@ -60,27 +60,27 @@ namespace Interval
   infix:70 " ∧ " => min
   infix:70 " ∨ " => max
 
-  hott def elim {α : Type u} {a b : α} (p : a = b) : I → α := rec a b p
-  hott def lam  {α : Type u} (f : I → α) : f 0 = f 1 := Id.map f seg
+  hott def elim {A : Type u} {a b : A} (p : a = b) : I → A := rec a b p
+  hott def lam  {A : Type u} (f : I → A) : f 0 = f 1 := Id.map f seg
 
-  hott def connAnd {α : Type u} {a b : α}
+  hott def connAnd {A : Type u} {a b : A}
     (p : a = b) : Π i, a = elim p i :=
   λ i, lam (λ j, elim p (i ∧ j))
 
-  hott def cong {α : Type u} {β : Type v} {a b : α}
-    (f : α → β) (p : a = b) : f a = f b :=
+  hott def cong {A : Type u} {B : Type v} {a b : A}
+    (f : A → B) (p : a = b) : f a = f b :=
   lam (λ i, f (elim p i))
 
-  noncomputable hott def congRefl {α : Type u} {β : Type v}
-    {a : α} (f : α → β) : cong f (idp a) = idp (f a) :=
+  noncomputable hott def congRefl {A : Type u} {B : Type v}
+    {a : A} (f : A → B) : cong f (idp a) = idp (f a) :=
   begin
     transitivity; apply mapOverComp;
     transitivity; apply Id.map;
     apply recβrule; reflexivity
   end
 
-  noncomputable hott def mapEqCong {α : Type u} {β : Type v} {a b : α}
-    (f : α → β) (p : a = b) : Id.map f p = cong f p :=
+  noncomputable hott def mapEqCong {A : Type u} {B : Type v} {a b : A}
+    (f : A → B) (p : a = b) : Id.map f p = cong f p :=
   begin induction p; symmetry; apply congRefl end
 
   noncomputable hott def negNeg : Π x, neg (neg x) = x :=
@@ -115,7 +115,7 @@ namespace Interval
   noncomputable hott def twist : I ≃ I :=
   ⟨neg, ⟨⟨neg, negNeg'⟩, ⟨neg, negNeg'⟩⟩⟩
 
-  noncomputable hott def lineRec {α : Type u} (p : I → α) :
+  noncomputable hott def lineRec {A : Type u} (p : I → A) :
     rec (p 0) (p 1) (Id.map p seg) = p :=
   begin
     apply Theorems.funext; intro x; induction x;
@@ -127,8 +127,8 @@ namespace Interval
     apply recβrule; apply Id.invComp
   end
 
-  noncomputable hott def transportOverSeg {α : Type u}
-    (π : α → Type v) {a b : α} (p : a = b) (u : π a) :
+  noncomputable hott def transportOverSeg {A : Type u}
+    (π : A → Type v) {a b : A} (p : a = b) (u : π a) :
     @transport I (λ i, π (elim p i)) 0 1 Interval.seg u = subst p u :=
   begin
     transitivity; apply transportComp;
@@ -136,7 +136,7 @@ namespace Interval
     apply recβrule; reflexivity
   end
 
-  noncomputable hott def transportconstWithSeg {α β : Type u} (p : α = β) (x : α) :
+  noncomputable hott def transportconstWithSeg {A B : Type u} (p : A = B) (x : A) :
     @transport I (elim p) 0 1 seg x = transportconst p x :=
   by apply transportOverSeg id
 end Interval

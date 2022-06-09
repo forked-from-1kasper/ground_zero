@@ -24,12 +24,12 @@ begin
   { induction n using Sum.casesOn <;> reflexivity }
 end
 
-hott def equivAddition {α : Type u} {β : Type v} (γ : Type w) (e : α ≃ β) : α + γ ≃ β + γ :=
+hott def equivAddition {A : Type u} {B : Type v} (C : Type w) (e : A ≃ B) : A + C ≃ B + C :=
 begin
-  let f : α + γ → β + γ := λ x, match x with
+  let f : A + C → B + C := λ x, match x with
   | Coproduct.inl a => Coproduct.inl (e a)
   | Coproduct.inr c => Coproduct.inr c;
-  let g : β + γ → α + γ := λ x, match x with
+  let g : B + C → A + C := λ x, match x with
   | Coproduct.inl b => Coproduct.inl (e.left b)
   | Coproduct.inr c => Coproduct.inr c;
 

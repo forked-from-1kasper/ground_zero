@@ -6,69 +6,69 @@ namespace GroundZero
 namespace Types
 universe u v w
 
-def Ens (α : Type u) : Type (max u (v + 1)) :=
-Σ (φ : α → Type v), Π x, prop (φ x)
+def Ens (A : Type u) : Type (max u (v + 1)) :=
+Σ (φ : A → Type v), Π x, prop (φ x)
 
-def Ens.contains {α : Type u} (x : α) (s : Ens α) : Type v := s.1 x
+def Ens.contains {A : Type u} (x : A) (s : Ens A) : Type v := s.1 x
 infix:80 (priority := high) " ∈ " => Ens.contains
 
-def Ens.prop {α : Type u} (x : α) (s : Ens α) : prop (x ∈ s) := s.2 x
-def Ens.subtype {α : Type u} (s : Ens α) := Σ x, s.1 x
+def Ens.prop {A : Type u} (x : A) (s : Ens A) : prop (x ∈ s) := s.2 x
+def Ens.subtype {A : Type u} (s : Ens A) := Σ x, s.1 x
 
-hott def Ens.univ (α : Type u) : Ens α :=
+hott def Ens.univ (A : Type u) : Ens A :=
 ⟨λ _, 𝟏, λ _, unitIsProp⟩
 
-hott def Ens.empty (α : Type u) : Ens α :=
+hott def Ens.empty (A : Type u) : Ens A :=
 ⟨λ _, 𝟎, λ _, emptyIsProp⟩
 
 notation "∅" => Ens.empty _
 
-hott def Ens.union {α : Type u} (a b : Ens α) : Ens α :=
+hott def Ens.union {A : Type u} (a b : Ens A) : Ens A :=
 ⟨λ x, ∥(x ∈ a) + (x ∈ b)∥, λ _, HITs.Merely.uniq⟩
 infixl:60 " ∪ " => Ens.union
 
-hott def Ens.sunion {α : Type u} (φ : Ens.{u, v} α → Type w) : Ens α :=
-⟨λ x, ∥(Σ (s : Ens.{u, v} α), x ∈ s × φ s)∥, λ _, HITs.Merely.uniq⟩
+hott def Ens.sunion {A : Type u} (φ : Ens.{u, v} A → Type w) : Ens A :=
+⟨λ x, ∥(Σ (s : Ens.{u, v} A), x ∈ s × φ s)∥, λ _, HITs.Merely.uniq⟩
 
-hott def Ens.iunion {α : Type u} {β : Type v} (φ : α → Ens β) : Ens β :=
+hott def Ens.iunion {A : Type u} {β : Type v} (φ : A → Ens β) : Ens β :=
 ⟨λ x, ∥(Σ y, x ∈ φ y)∥, λ _, HITs.Merely.uniq⟩
 prefix:110 "⋃" => Ens.iunion
 
-hott def Ens.inter {α : Type u} (a b : Ens α) : Ens α :=
+hott def Ens.inter {A : Type u} (a b : Ens A) : Ens A :=
 ⟨λ x, x ∈ a × x ∈ b, begin intro; apply Structures.productProp <;> apply Ens.prop end⟩
 infixl:60 " ∩ " => Ens.inter
 
-hott def Ens.smallest {α : Type u} (φ : Ens.{u, v} α → Type w) : Ens α :=
-⟨λ x, ∀ (s : Ens.{u, v} α), φ s → x ∈ s, λ y, begin
+hott def Ens.smallest {A : Type u} (φ : Ens.{u, v} A → Type w) : Ens A :=
+⟨λ x, ∀ (s : Ens.{u, v} A), φ s → x ∈ s, λ y, begin
   apply Structures.piProp; intro;
   apply Structures.implProp; apply Ens.prop
 end⟩
 
-hott def Ens.infInter {α : Type u} (φ : Ens (Ens α)) : Ens α := Ens.smallest φ.1
+hott def Ens.infInter {A : Type u} (φ : Ens (Ens A)) : Ens A := Ens.smallest φ.1
 
-hott def Ens.ssubset {α : Type u} (φ : Ens.{u, v} α) (ψ : Ens.{u, w} α) :=
+hott def Ens.ssubset {A : Type u} (φ : Ens.{u, v} A) (ψ : Ens.{u, w} A) :=
 Π x, x ∈ φ → x ∈ ψ
 
 infix:50 " ⊆ " => Ens.ssubset
 
-hott def Ens.ssubset.prop {α : Type u} (φ : Ens.{u, v} α) (ψ : Ens.{u, w} α) : Structures.prop (φ ⊆ ψ) :=
+hott def Ens.ssubset.prop {A : Type u} (φ : Ens.{u, v} A) (ψ : Ens.{u, w} A) : Structures.prop (φ ⊆ ψ) :=
 begin apply piProp; intro; apply implProp; apply Ens.prop end
 
-hott def Ens.ssubset.refl {α : Type u} (φ : Ens α) : φ ⊆ φ :=
+hott def Ens.ssubset.refl {A : Type u} (φ : Ens A) : φ ⊆ φ :=
 begin intro; apply id end
 
-hott def Ens.ssubset.trans {α : Type u} {a b c : Ens α} : a ⊆ b → b ⊆ c → a ⊆ c :=
+hott def Ens.ssubset.trans {A : Type u} {a b c : Ens A} : a ⊆ b → b ⊆ c → a ⊆ c :=
 λ G H x p, H x (G x p)
 
-instance {α : Type u} : @Reflexive  (Ens α) (· ⊆ ·) := ⟨Ens.ssubset.refl⟩
-instance {α : Type u} : @Transitive (Ens α) (· ⊆ ·) := ⟨@Ens.ssubset.trans α⟩
+instance {A : Type u} : @Reflexive  (Ens A) (· ⊆ ·) := ⟨Ens.ssubset.refl⟩
+instance {A : Type u} : @Transitive (Ens A) (· ⊆ ·) := ⟨@Ens.ssubset.trans A⟩
 
-hott def Ens.parallel {α : Type u} (a b : Ens α) := a ∩ b ⊆ ∅
+hott def Ens.parallel {A : Type u} (a b : Ens A) := a ∩ b ⊆ ∅
 
-hott def Ens.image {α : Type u} {β : Type v} (φ : Ens α) (f : α → β) : Ens β :=
+hott def Ens.image {A : Type u} {β : Type v} (φ : Ens A) (f : A → β) : Ens β :=
 ⟨λ y, ∥(Σ x, f x = y × x ∈ φ)∥, λ _, HITs.Merely.uniq⟩
 
-noncomputable hott def Ens.ext {α : Type u} {φ ψ : Ens α}
+noncomputable hott def Ens.ext {A : Type u} {φ ψ : Ens A}
   (H : Π x, x ∈ φ ↔ x ∈ ψ) : φ = ψ :=
 begin
   fapply Sigma.prod; apply Theorems.funext; intro x;
@@ -77,19 +77,19 @@ begin
   { apply piProp; intro; apply propIsProp }
 end
 
-noncomputable hott def Ens.ssubset.asymm {α : Type u} {φ ψ : Ens α}
+noncomputable hott def Ens.ssubset.asymm {A : Type u} {φ ψ : Ens A}
   (f : φ ⊆ ψ) (g : ψ ⊆ φ) : φ = ψ :=
 Ens.ext (λ x, ⟨f x, g x⟩)
 
-hott def Ens.hset {α : Type u} (s : Ens α) (H : hset α) : hset s.subtype :=
+hott def Ens.hset {A : Type u} (s : Ens A) (H : hset A) : hset s.subtype :=
 begin
   apply hsetRespectsSigma; apply H;
   { intro; apply propIsSet; apply s.2 }
 end
 
-hott def predicate (α : Type u) := α → propset.{v}
+hott def predicate (A : Type u) := A → propset.{v}
 
-hott def Ens.eqvPredicate {α : Type u} : Ens α ≃ predicate α :=
+hott def Ens.eqvPredicate {A : Type u} : Ens A ≃ predicate A :=
 begin
   fapply Sigma.mk; { intros φ x; existsi φ.1 x; apply φ.2 }; apply Qinv.toBiinv; fapply Sigma.mk;
   { intro φ; existsi (λ x, (φ x).1); intro x; apply (φ x).2 }; fapply Prod.mk <;> intro φ;
@@ -97,18 +97,18 @@ begin
   { fapply Sigma.prod <;> apply Theorems.funext <;> intro x; reflexivity; apply propIsProp }
 end
 
-noncomputable hott def Ens.isset {α : Type u} : Structures.hset (Ens α) :=
+noncomputable hott def Ens.isset {A : Type u} : Structures.hset (Ens A) :=
 begin
   apply hsetRespectsEquiv; symmetry; apply Ens.eqvPredicate;
   apply piHset; intro; apply Theorems.Prop.propsetIsSet
 end
 
-hott def Ens.inh {α : Type u} (φ : Ens α) := ∥φ.subtype∥
+hott def Ens.inh {A : Type u} (φ : Ens A) := ∥φ.subtype∥
 
-hott def Ens.singleton {α : Type u} (H : Structures.hset α) (x : α) : Ens α :=
+hott def Ens.singleton {A : Type u} (H : Structures.hset A) (x : A) : Ens A :=
 ⟨λ y, x = y, @H x⟩
 
-hott def Ens.singletonInh {α : Type u} (H : Structures.hset α) (x : α) : Ens.inh (Ens.singleton @H x) :=
+hott def Ens.singletonInh {A : Type u} (H : Structures.hset A) (x : A) : Ens.inh (Ens.singleton @H x) :=
 HITs.Merely.elem ⟨x, Id.refl⟩
 
 end Types

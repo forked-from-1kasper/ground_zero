@@ -4,45 +4,45 @@ open GroundZero.Structures
 namespace GroundZero.HITs
 universe u v w
 
-private structure Trunc.aux (n : ℕ₋₂) (α : Type u) :=
-(val : α)
+private structure Trunc.aux (n : ℕ₋₂) (A : Type u) :=
+(val : A)
 
-def Trunc (n : ℕ₋₂) (α : Type u) := Trunc.aux n α
+def Trunc (n : ℕ₋₂) (A : Type u) := Trunc.aux n A
 
 namespace Trunc
-  variable {α : Type u} {n : ℕ₋₂}
+  variable {A : Type u} {n : ℕ₋₂}
   attribute [nothott] Trunc.aux.recOn Trunc.aux.rec aux.val
 
-  hott def elem (x : α) : Trunc n α := aux.mk x
-  axiom uniq (n : ℕ₋₂) : is-n-type (Trunc n α)
+  hott def elem (x : A) : Trunc n A := aux.mk x
+  axiom uniq (n : ℕ₋₂) : is-n-type (Trunc n A)
 
-  notation "∥" α "∥₋₂" => Trunc −2 α
-  notation "∥" α "∥₋₁" => Trunc −1 α
+  notation "∥" A "∥₋₂" => Trunc −2 A
+  notation "∥" A "∥₋₁" => Trunc −1 A
 
-  macro "∥" α:term "∥" n:subscript : term => do
-    `(Trunc $(← Meta.Notation.parseSubscript n) $α)
+  macro "∥" A:term "∥" n:subscript : term => do
+    `(Trunc $(← Meta.Notation.parseSubscript n) $A)
 
   macro "|" x:term "|" n:subscript : term => do
     `(@Trunc.elem _ $(← Meta.Notation.parseSubscript n) $x)
 
-  @[hottAxiom, eliminator] def ind {π : Trunc n α → Type v}
-    (elemπ : Π x, π (elem x))
-    (uniqπ : Π x, is-n-type (π x)) : Π x, π x :=
+  @[hottAxiom, eliminator] def ind {B : Trunc n A → Type v}
+    (elemπ : Π x, B (elem x)) (uniqπ : Π x, is-n-type (B x)) : Π x, B x :=
   begin intro x; induction x using Trunc.aux.casesOn; apply elemπ end
+
   attribute [irreducible] Trunc
 
-  hott def rec {π : Type v} (elemπ : α → π) (uniqπ : is-n-type π) : ∥α∥ₙ → π :=
-  @ind α n (λ _, π) elemπ (λ _, uniqπ)
+  hott def rec {B : Type v} (elemπ : A → B) (uniqπ : is-n-type B) : ∥A∥ₙ → B :=
+  @ind A n (λ _, B) elemπ (λ _, uniqπ)
 
-  hott def elemClose {β : Type v} (G : is-n-type β)
-    (f g : ∥α∥ₙ → β) (H : f ∘ elem = g ∘ elem) : f = g :=
+  hott def elemClose {B : Type v} (G : is-n-type B)
+    (f g : ∥A∥ₙ → B) (H : f ∘ elem = g ∘ elem) : f = g :=
   begin
     apply GroundZero.Theorems.funext; fapply ind <;> intro x;
-    { exact Types.Id.map (λ (f : α → β), f x) H };
+    { exact Types.Id.map (λ (f : A → B), f x) H };
     { apply hlevel.cumulative; assumption }
   end
 
-  noncomputable hott def nthTrunc (H : is-n-type α) : α ≃ ∥α∥ₙ :=
+  noncomputable hott def nthTrunc (H : is-n-type A) : A ≃ ∥A∥ₙ :=
   begin
     existsi elem; apply Prod.mk <;> existsi rec id H;
     { intro x; reflexivity };
@@ -52,14 +52,14 @@ namespace Trunc
       intro x; reflexivity }
   end
 
-  noncomputable hott def setEquiv {α : Type u} (H : hset α) : α ≃ ∥α∥₀ :=
+  noncomputable hott def setEquiv {A : Type u} (H : hset A) : A ≃ ∥A∥₀ :=
   begin apply nthTrunc; apply zeroEqvSet.left; assumption end
 
-  noncomputable hott def lift {α : Type u} {β : Type v} {n : ℕ₋₂} (f : α → β) : ∥α∥ₙ → ∥β∥ₙ :=
+  noncomputable hott def lift {A : Type u} {B : Type v} {n : ℕ₋₂} (f : A → B) : ∥A∥ₙ → ∥B∥ₙ :=
   rec (elem ∘ f) (uniq n)
 
-  noncomputable hott def lift₂ {α : Type u} {β : Type v} {γ : Type w} {n : ℕ₋₂}
-    (f : α → β → γ) : ∥α∥ₙ → ∥β∥ₙ → ∥γ∥ₙ :=
+  noncomputable hott def lift₂ {A : Type u} {B : Type v} {C : Type w} {n : ℕ₋₂}
+    (f : A → B → C) : ∥A∥ₙ → ∥B∥ₙ → ∥C∥ₙ :=
   rec (lift ∘ f) (piRespectsNType n (λ _, uniq n))
 end Trunc
 

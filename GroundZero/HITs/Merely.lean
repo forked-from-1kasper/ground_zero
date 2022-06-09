@@ -12,7 +12,7 @@ universe u v w
 
 /-
   Propositional truncation is colimit of a following sequence:
-    α → {α} → {{α}} → ...
+    A → {A} → {{A}} → ...
 
   * https://github.com/fpvandoorn/leansnippets/blob/master/truncation.hlean
   * https://github.com/fpvandoorn/leansnippets/blob/master/cpp.hlean (we use this proof here)
@@ -21,94 +21,94 @@ universe u v w
   * https://arxiv.org/pdf/1512.02274
 -/
 
-def Merely (α : Type u) :=
-Colimit (Generalized.rep α) (Generalized.dep α)
+def Merely (A : Type u) :=
+Colimit (Generalized.rep A) (Generalized.dep A)
 
-notation "∥" α "∥" => Merely α
+notation "∥" A "∥" => Merely A
 
 namespace Merely
-  def elem {α : Type u} (x : α) : ∥α∥ :=
+  def elem {A : Type u} (x : A) : ∥A∥ :=
   Colimit.inclusion 0 x
 
   section
-    variable {α : Type u} {π : ∥α∥ → Type v} (elemπ : Π x, π (elem x)) (uniqπ : Π x, prop (π x))
+    variable {A : Type u} {B : ∥A∥ → Type v} (elemπ : Π x, B (elem x)) (uniqπ : Π x, prop (B x))
 
-    hott def resp : Π (n : ℕ) (x : Generalized.rep α n), π (Colimit.incl x)
+    hott def resp : Π (n : ℕ) (x : Generalized.rep A n), B (Colimit.incl x)
     | Nat.zero,   x => elemπ x
-    | Nat.succ n, w => @Generalized.ind _ (λ x, π (Colimit.inclusion (n + 1) x))
+    | Nat.succ n, w => @Generalized.ind _ (λ x, B (Colimit.inclusion (n + 1) x))
                          (λ x, subst (Colimit.glue x)⁻¹ (resp n x))
                          (λ a b, uniqπ _ _ _) w
 
-    hott def ind : Π x, π x :=
+    hott def ind : Π x, B x :=
     begin intro x; fapply Colimit.ind; apply resp elemπ uniqπ; intros; apply uniqπ end
   end
 
   attribute [eliminator] ind
 
-  hott def rec {α : Type u} {β : Type v} (H : prop β) (f : α → β) : ∥α∥ → β :=
+  hott def rec {A : Type u} {B : Type v} (H : prop B) (f : A → B) : ∥A∥ → B :=
   ind f (λ _, H)
 
-  hott def weakUniq {α : Type u} (x y : α) : @Types.Id ∥α∥ (elem x) (elem y) :=
+  hott def weakUniq {A : Type u} (x y : A) : @Types.Id ∥A∥ (elem x) (elem y) :=
   begin
     transitivity; { symmetry; apply Colimit.glue }; symmetry;
     transitivity; { symmetry; apply Colimit.glue };
     apply map; apply Generalized.glue
   end
 
-  hott def incl {α : Type u} {n : ℕ} :=
-  @Colimit.incl (Generalized.rep α) (Generalized.dep α) n
+  hott def incl {A : Type u} {n : ℕ} :=
+  @Colimit.incl (Generalized.rep A) (Generalized.dep A) n
 
-  hott def glue {α : Type u} {n : ℕ} {x : Generalized.rep α n} :
-    incl (Generalized.dep α n x) = incl x :=
+  hott def glue {A : Type u} {n : ℕ} {x : Generalized.rep A n} :
+    incl (Generalized.dep A n x) = incl x :=
   Colimit.glue x
 
-  hott def exactNth {α : Type u} (a : α) : Π n, Generalized.rep α n
+  hott def exactNth {A : Type u} (a : A) : Π n, Generalized.rep A n
   | Nat.zero   => a
-  | Nat.succ n => Generalized.dep α n (exactNth a n)
+  | Nat.succ n => Generalized.dep A n (exactNth a n)
 
-  hott def nthGlue {α : Type u} (a : α) : Π n, incl (exactNth a n) = @incl α 0 a
+  hott def nthGlue {A : Type u} (a : A) : Π n, incl (exactNth a n) = @incl A 0 a
   | Nat.zero   => idp _
   | Nat.succ n => Colimit.glue (exactNth a n) ⬝ nthGlue a n
 
-  hott def inclUniq {α : Type u} {n : ℕ} (a b : Generalized.rep α n) : incl a = incl b :=
-  calc incl a = incl (Generalized.dep α n a) : glue⁻¹
-          ... = incl (Generalized.dep α n b) : Id.map incl (Generalized.glue a b)
+  hott def inclUniq {A : Type u} {n : ℕ} (a b : Generalized.rep A n) : incl a = incl b :=
+  calc incl a = incl (Generalized.dep A n a) : glue⁻¹
+          ... = incl (Generalized.dep A n b) : Id.map incl (Generalized.glue a b)
           ... = incl b                       : glue
 
-  hott def inclZeroEqIncl {α : Type u} {n : ℕ} (x : α)
-    (y : Generalized.rep α n) : @incl α 0 x = incl y :=
-  calc @incl α 0 x = incl (exactNth x n) : (nthGlue x n)⁻¹
+  hott def inclZeroEqIncl {A : Type u} {n : ℕ} (x : A)
+    (y : Generalized.rep A n) : @incl A 0 x = incl y :=
+  calc @incl A 0 x = incl (exactNth x n) : (nthGlue x n)⁻¹
                ... = incl y              : inclUniq (exactNth x n) y
 
-  hott def weaklyConstantAp {α : Type u} {β : Type v} (f : α → β)
-    {a b : α} (p q : a = b) (H : Π a b, f a = f b) : Id.map f p = Id.map f q :=
-  let L : Π {u v : α} (r : u = v), (H a u)⁻¹ ⬝ H a v = Id.map f r :=
+  hott def weaklyConstantAp {A : Type u} {B : Type v} (f : A → B)
+    {a b : A} (p q : a = b) (H : Π a b, f a = f b) : Id.map f p = Id.map f q :=
+  let L : Π {u v : A} (r : u = v), (H a u)⁻¹ ⬝ H a v = Id.map f r :=
   begin intros u v r; induction r; apply Types.Id.invComp end; (L p)⁻¹ ⬝ L q
 
-  hott def congClose {α : Type u} {n : ℕ} {a b : Generalized.rep α n} (p : a = b) :
-    glue⁻¹ ⬝ Id.map incl (Id.map (Generalized.dep α n) p) ⬝ glue = Id.map incl p :=
+  hott def congClose {A : Type u} {n : ℕ} {a b : Generalized.rep A n} (p : a = b) :
+    glue⁻¹ ⬝ Id.map incl (Id.map (Generalized.dep A n) p) ⬝ glue = Id.map incl p :=
   begin
     induction p; transitivity; { symmetry; apply Id.assoc };
     apply Equiv.rewriteComp; symmetry; apply Id.reflRight
   end
 
-  hott def congOverPath {α : Type u} {n : ℕ} {a b : Generalized.rep α n}
+  hott def congOverPath {A : Type u} {n : ℕ} {a b : Generalized.rep A n}
     (p q : a = b) : Id.map incl p = Id.map incl q :=
   weaklyConstantAp incl p q inclUniq
 
-  hott def glueClose {α : Type u} {n : ℕ} {a b : Generalized.rep α n} :
-      glue⁻¹ ⬝ Id.map incl (Generalized.glue (Generalized.dep α n a) (Generalized.dep α n b)) ⬝ glue
+  hott def glueClose {A : Type u} {n : ℕ} {a b : Generalized.rep A n} :
+      glue⁻¹ ⬝ Id.map incl (Generalized.glue (Generalized.dep A n a) (Generalized.dep A n b)) ⬝ glue
     = Id.map incl (Generalized.glue a b) :=
   begin
-    symmetry; transitivity; { symmetry; apply @congClose α (n + 1) _ _ (Generalized.glue a b) };
+    symmetry; transitivity; { symmetry; apply @congClose A (n + 1) _ _ (Generalized.glue a b) };
     apply map (· ⬝ glue); apply map; apply congOverPath
   end
 
-  hott def inclUniqClose {α : Type u} {n : ℕ} (a b : Generalized.rep α n) :
-    glue⁻¹ ⬝ inclUniq (Generalized.dep α n a) (Generalized.dep α n b) ⬝ glue = inclUniq a b :=
+  hott def inclUniqClose {A : Type u} {n : ℕ} (a b : Generalized.rep A n) :
+    glue⁻¹ ⬝ inclUniq (Generalized.dep A n a) (Generalized.dep A n b) ⬝ glue = inclUniq a b :=
   Id.map (· ⬝ glue) (Id.map _ glueClose)
 
-  hott def uniq {α : Type u} : prop ∥α∥ :=
+  hott def uniq {A : Type u} : prop ∥A∥ :=
   begin
     apply lemContr; fapply ind;
     { intro x; existsi elem x; fapply Colimit.ind <;> intros n y;
@@ -123,27 +123,27 @@ namespace Merely
     { intro x; apply Structures.contrIsProp }
   end
 
-  hott def lift {α : Type u} {β : Type v} (f : α → β) : ∥α∥ → ∥β∥ :=
+  hott def lift {A : Type u} {B : Type v} (f : A → B) : ∥A∥ → ∥B∥ :=
   rec uniq (elem ∘ f)
 
-  hott def rec₂ {α : Type u} {β : Type v} {γ : Type w} (H : prop γ)
-    (φ : α → β → γ) : ∥α∥ → ∥β∥ → γ :=
-  @rec α (∥β∥ → γ) (Structures.implProp H) (rec H ∘ φ)
+  hott def rec₂ {A : Type u} {B : Type v} {γ : Type w} (H : prop γ)
+    (φ : A → B → γ) : ∥A∥ → ∥B∥ → γ :=
+  @rec A (∥B∥ → γ) (Structures.implProp H) (rec H ∘ φ)
 
-  hott def lift₂ {α : Type u} {β : Type v} {γ : Type w}
-    (φ : α → β → γ) : ∥α∥ → ∥β∥ → ∥γ∥ :=
+  hott def lift₂ {A : Type u} {B : Type v} {γ : Type w}
+    (φ : A → B → γ) : ∥A∥ → ∥B∥ → ∥γ∥ :=
   rec₂ uniq (λ a b, elem (φ a b))
 
-  hott def equivIffTrunc {α β : Type u}
-    (f : α → β) (g : β → α) : ∥α∥ ≃ ∥β∥ :=
+  hott def equivIffTrunc {A B : Type u}
+    (f : A → B) (g : B → A) : ∥A∥ ≃ ∥B∥ :=
   ⟨lift f, (⟨lift g, λ _, uniq _ _⟩, ⟨lift g, λ _, uniq _ _⟩)⟩
 
-  def diag {α : Type u} (a : α) : α × α := ⟨a, a⟩
+  def diag {A : Type u} (a : A) : A × A := ⟨a, a⟩
 
-  hott def productIdentity {α : Type u} : ∥α∥ ≃ ∥α × α∥ :=
+  hott def productIdentity {A : Type u} : ∥A∥ ≃ ∥A × A∥ :=
   equivIffTrunc diag Prod.fst
 
-  hott def uninhabitedImpliesTruncUninhabited {α : Type u} : ¬α → ¬∥α∥ :=
+  hott def uninhabitedImpliesTruncUninhabited {A : Type u} : ¬A → ¬∥A∥ :=
   rec Structures.emptyIsProp
 end Merely
 

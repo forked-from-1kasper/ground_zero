@@ -9,8 +9,8 @@ namespace GroundZero.HITs
 universe u v w
 
 section
-  variable {α : Type u} {β : Type v} (f g : α → β)
-           (C : β → Type w) (D : Π x, C (f x) ≃ C (g x))
+  variable {A : Type u} {B : Type v} (f g : A → B)
+           (C : B → Type w) (D : Π x, C (f x) ≃ C (g x))
 
   def Flattening := @Coeq (Σ x, C (f x)) (Σ x, C x)
     (λ w, ⟨f w.1, w.2⟩) (λ w, ⟨g w.1, (D w.1).1 w.2⟩)
@@ -20,19 +20,19 @@ section
 end
 
 namespace Flattening
-  variable {α : Type u} {β : Type v} {f g : α → β}
-           {C : β → Type w} {D : Π x, C (f x) ≃ C (g x)}
+  variable {A : Type u} {B : Type v} {f g : A → B}
+           {C : B → Type w} {D : Π x, C (f x) ≃ C (g x)}
 
-  hott def iota (x : β) (c : C x) : Flattening f g C D :=
+  hott def iota (x : B) (c : C x) : Flattening f g C D :=
   Coeq.iota ⟨x, c⟩
 
-  hott def resp (x : α) (y : C (f x)) : @Id (Flattening f g C D) (iota (f x) y) (iota (g x) ((D x).1 y)) :=
+  hott def resp (x : A) (y : C (f x)) : @Id (Flattening f g C D) (iota (f x) y) (iota (g x) ((D x).1 y)) :=
   @Coeq.resp (Σ x, C (f x)) (Σ x, C x) (λ w, ⟨f w.1, w.2⟩) (λ w, ⟨g w.1, (D w.1).1 w.2⟩) ⟨x, y⟩
 
   hott def iotaφ : Π x, C x → Σ x, P f g C D x :=
   λ x y, ⟨Coeq.iota x, y⟩
 
-  noncomputable hott def respφ (x : α) (y : C (f x)) :
+  noncomputable hott def respφ (x : A) (y : C (f x)) :
     @Id (Σ x, P f g C D x) (iotaφ (f x) y) (iotaφ (g x) ((D x).1 y)) :=
   begin
     fapply Sigma.prod; apply Coeq.resp;

@@ -226,7 +226,7 @@ namespace Group
   noncomputable hott def univContr :
     contr (factorLeft G (univ G)) :=
   begin
-    existsi univ.decode ★;
+    existsi univ.decode.{_, 1, 1} ★;
     fapply HITs.Quotient.indProp <;> intro;
     { apply HITs.Quotient.sound; apply ★ };
     { apply HITs.Quotient.set }

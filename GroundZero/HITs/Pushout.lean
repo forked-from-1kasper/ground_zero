@@ -13,29 +13,29 @@ namespace HITs
 universe u v w k
 
 section
-  variable {α : Type u} {β : Type v} {σ : Type k} (f : σ → α) (g : σ → β)
+  variable {A : Type u} {B : Type v} {C : Type k} (f : C → A) (g : C → B)
 
-  inductive Pushout.rel : (α ⊕ β) → (α ⊕ β) → Type k
-  | mk : Π (x : σ), rel (Sum.inl (f x)) (Sum.inr (g x))
+  inductive Pushout.rel : (A ⊕ B) → (A ⊕ B) → Type k
+  | mk : Π (x : C), rel (Sum.inl (f x)) (Sum.inr (g x))
 
   def Pushout := Graph (Pushout.rel f g)
 end
 
 namespace Pushout
   -- https://github.com/leanprover/lean2/blob/master/hott/hit/Pushout.hlean
-  variable {α : Type u} {β : Type v} {σ : Type k} {f : σ → α} {g : σ → β}
+  variable {A : Type u} {B : Type v} {C : Type k} {f : C → A} {g : C → B}
 
-  hott def inl (x : α) : Pushout f g :=
+  hott def inl (x : A) : Pushout f g :=
   Graph.elem (Sum.inl x)
 
-  hott def inr (x : β) : Pushout f g :=
+  hott def inr (x : B) : Pushout f g :=
   Graph.elem (Sum.inr x)
 
-  hott def glue (x : σ) : @inl _ _ _ f g (f x) = inr (g x) :=
+  hott def glue (x : C) : @inl _ _ _ f g (f x) = inr (g x) :=
   Graph.line (Pushout.rel.mk x)
 
-  hott def ind {π : Pushout f g → Type w} (inlπ : Π x, π (inl x)) (inrπ : Π x, π (inr x))
-    (glueπ : Π x, inlπ (f x) =[glue x] inrπ (g x)) : Π x, π x :=
+  hott def ind {P : Pushout f g → Type w} (inlπ : Π x, P (inl x)) (inrπ : Π x, P (inr x))
+    (glueπ : Π x, inlπ (f x) =[glue x] inrπ (g x)) : Π x, P x :=
   begin
     fapply Graph.ind; { intro x; induction x using Sum.casesOn; apply inlπ; apply inrπ };
     { intros u v H; induction H; apply glueπ }
@@ -43,18 +43,18 @@ namespace Pushout
 
   attribute [eliminator] ind
 
-  hott def rec {π : Type w} (inlπ : α → π) (inrπ : β → π)
-    (glueπ : Π x, inlπ (f x) = inrπ (g x)) : Pushout f g → π :=
+  hott def rec {D : Type w} (inlπ : A → D) (inrπ : B → D)
+    (glueπ : Π x, inlπ (f x) = inrπ (g x)) : Pushout f g → D :=
   ind inlπ inrπ (λ x, pathoverOfEq (glue x) (glueπ x))
 
-  noncomputable hott def indβrule {π : Pushout f g → Type w}
-    (inlπ : Π x, π (inl x)) (inrπ : Π x, π (inr x))
-    (glueπ : Π x, inlπ (f x) =[glue x] inrπ (g x)) (x : σ) :
+  noncomputable hott def indβrule {P : Pushout f g → Type w}
+    (inlπ : Π x, P (inl x)) (inrπ : Π x, P (inr x))
+    (glueπ : Π x, inlπ (f x) =[glue x] inrπ (g x)) (x : C) :
     apd (ind inlπ inrπ glueπ) (glue x) = glueπ x :=
   @Graph.indβrule _ (rel f g) _ _ _ _ _ (rel.mk x)
 
-  noncomputable hott def recβrule {π : Type w} (inlπ : α → π) (inrπ : β → π)
-    (glueπ : Π x, inlπ (f x) = inrπ (g x)) (x : σ) :
+  noncomputable hott def recβrule {D : Type w} (inlπ : A → D) (inrπ : B → D)
+    (glueπ : Π x, inlπ (f x) = inrπ (g x)) (x : C) :
     Id.map (rec inlπ inrπ glueπ) (glue x) = glueπ x :=
   begin
     apply pathoverOfEqInj (glue x); transitivity;

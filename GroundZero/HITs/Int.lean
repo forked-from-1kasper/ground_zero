@@ -41,14 +41,14 @@ namespace Int
   hott def glue {a b c d : ℕ} (H : a + d = b + c) : mk (a, b) = mk (c, d) :=
   Graph.line H
 
-  hott def ind {π : ℤ → Type u} (mkπ : Π x, π (mk x))
+  hott def ind {C : ℤ → Type u} (mkπ : Π x, C (mk x))
     (glueπ : Π {a b c d : ℕ} (H : a + d = b + c),
-      mkπ (a, b) =[glue H] mkπ (c, d)) (x : ℤ) : π x :=
+      mkπ (a, b) =[glue H] mkπ (c, d)) (x : ℤ) : C x :=
   begin fapply Graph.ind; exact mkπ; intros x y H; apply glueπ end
 
-  hott def rec {π : Type u} (mkπ : ℕ × ℕ → π)
+  hott def rec {C : Type u} (mkπ : ℕ × ℕ → C)
     (glueπ : Π {a b c d : ℕ} (H : a + d = b + c),
-      mkπ (a, b) = mkπ (c, d)) : ℤ → π :=
+      mkπ (a, b) = mkπ (c, d)) : ℤ → C :=
   begin fapply Graph.rec; exact mkπ; intros x y H; apply glueπ H end
 
   instance : Neg Int :=
