@@ -1,4 +1,4 @@
-import GroundZero.Theorems.Prop
+import GroundZero.Theorems.Equiv
 open GroundZero.Structures
 
 namespace GroundZero
@@ -93,14 +93,14 @@ hott def Ens.eqvPredicate {A : Type u} : Ens A ≃ predicate A :=
 begin
   fapply Sigma.mk; { intros φ x; existsi φ.1 x; apply φ.2 }; apply Qinv.toBiinv; fapply Sigma.mk;
   { intro φ; existsi (λ x, (φ x).1); intro x; apply (φ x).2 }; fapply Prod.mk <;> intro φ;
-  { apply Theorems.funext; intro; apply Theorems.Prop.propset.Id; reflexivity };
+  { apply Theorems.funext; intro; apply Theorems.Equiv.propset.Id; reflexivity };
   { fapply Sigma.prod <;> apply Theorems.funext <;> intro x; reflexivity; apply propIsProp }
 end
 
 noncomputable hott def Ens.isset {A : Type u} : Structures.hset (Ens A) :=
 begin
   apply hsetRespectsEquiv; symmetry; apply Ens.eqvPredicate;
-  apply piHset; intro; apply Theorems.Prop.propsetIsSet
+  apply piHset; intro; apply Theorems.Equiv.propsetIsSet
 end
 
 hott def Ens.inh {A : Type u} (φ : Ens A) := ∥φ.subtype∥

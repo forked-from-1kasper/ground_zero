@@ -1,6 +1,6 @@
-import GroundZero.Theorems.Prop
-open GroundZero.Theorems
+import GroundZero.Theorems.Equiv
 open GroundZero.Structures
+open GroundZero.Theorems
 
 namespace GroundZero.Types
 universe u v

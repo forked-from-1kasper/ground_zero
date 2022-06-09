@@ -1,5 +1,5 @@
 import GroundZero.HITs.Suspension
-import GroundZero.Theorems.Prop
+import GroundZero.Theorems.Equiv
 import GroundZero.Types.Integer
 
 open GroundZero.HITs.Interval
@@ -315,7 +315,7 @@ namespace Circle
   end)
 
   def μₑ : S¹ → S¹ ≃ S¹ :=
-  Circle.rec (ideqv S¹) (Sigma.prod (Theorems.funext rot) (Theorems.Prop.biinvProp _ _ _))
+  Circle.rec (ideqv S¹) (Sigma.prod (Theorems.funext rot) (Theorems.Equiv.biinvProp _ _ _))
 
   def μ (x : S¹) : S¹ → S¹ := (μₑ x).forward
 

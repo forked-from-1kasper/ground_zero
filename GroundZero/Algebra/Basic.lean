@@ -38,7 +38,7 @@ namespace GroundZero.Algebra
     begin
       apply prodHset;
       { apply piHset; intro; apply piHset; intro; apply H };
-      { apply piHset; intro; apply piHset; intro; apply Theorems.Prop.propsetIsSet }
+      { apply piHset; intro; apply piHset; intro; apply Theorems.Equiv.propsetIsSet }
     end
   end
 
@@ -71,7 +71,7 @@ namespace GroundZero.Algebra
       (f : Γ →ᴬ Λ) : prop (respects f) :=
     begin
       apply productProp <;> apply piProp <;> intro <;> apply piProp <;> intro;
-      apply Alg.hset; apply Theorems.Prop.propsetIsSet
+      apply Alg.hset; apply Theorems.Equiv.propsetIsSet
     end
 
     hott def respects.comp {Γ Λ Δ : Alg deg} {f : Γ →ᴬ Λ} {g : Λ →ᴬ Δ} :
@@ -140,7 +140,7 @@ namespace GroundZero.Algebra
     begin
       intro p; fapply Sigma.prod; apply Theorems.funext p;
       apply productProp; apply respects.prop;
-      apply Theorems.Prop.biinvProp
+      apply Theorems.Equiv.biinvProp
     end
 
     noncomputable hott def Iso.eqIffEqEqv {Γ Λ : Alg deg} (φ ψ : Γ ≅ Λ) : φ.eqv = ψ.eqv → φ = ψ :=
@@ -155,7 +155,7 @@ namespace GroundZero.Algebra
       { apply piHset; intro; apply Λ.hset };
       { intro x; apply propIsSet;
         apply productProp; apply respects.prop;
-        apply Theorems.Prop.biinvProp }
+        apply Theorems.Equiv.biinvProp }
     end
 
     hott def Iso.refl (Γ : Alg deg) : Γ ≅ Γ :=

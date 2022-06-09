@@ -1,7 +1,5 @@
 import GroundZero.Algebra.Group.Basic
-import GroundZero.Theorems.Prop
-
-open GroundZero.Theorems.Functions GroundZero.Theorems.Prop
+open GroundZero.Theorems.Functions GroundZero.Theorems.Equiv
 open GroundZero.Types.Equiv (idtoeqv)
 open GroundZero.Types.Id (dotted)
 open GroundZero.ua (uaβrule)

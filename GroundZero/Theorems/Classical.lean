@@ -1,4 +1,4 @@
-import GroundZero.Theorems.Prop
+import GroundZero.Theorems.Equiv
 open GroundZero.Types.Equiv (transport)
 open GroundZero.Types.Id (map)
 open GroundZero.Structures
@@ -58,7 +58,7 @@ section
   noncomputable hott def inh.hset : hset inh :=
   begin
     apply hsetRespectsSigma; apply piHset;
-    intro x; apply Theorems.Prop.propsetIsSet;
+    intro x; apply Theorems.Equiv.propsetIsSet;
     intro φ; apply propIsSet; apply HITs.Merely.uniq
   end
 
@@ -81,7 +81,7 @@ section
             { right; intro z; apply ffNeqTt;
               transitivity; exact s'⁻¹; symmetry; transitivity; exact r'⁻¹;
               apply map; fapply Types.Sigma.prod; apply Theorems.funext;
-              intro x; apply Theorems.Prop.propset.Id; apply GroundZero.ua.propext;
+              intro x; apply Theorems.Equiv.propset.Id; apply GroundZero.ua.propext;
               apply HITs.Merely.uniq; apply HITs.Merely.uniq; apply Prod.mk <;>
               intro <;> apply HITs.Merely.elem <;> right <;> exact z; apply HITs.Merely.uniq };
             case inr => { left; assumption } };

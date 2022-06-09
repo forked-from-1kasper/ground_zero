@@ -73,12 +73,12 @@ namespace GroundZero.Algebra
 
   noncomputable hott def R.complete (φ : R.subset) (H : φ.inh) (G : @majorized R.κ φ) :
     Σ M, exact (@Majorant R.κ φ) M :=
-  ((Prop.propEquiv (@supremumUniqueness R.κ _ φ)).left
+  ((Equiv.propEquiv (@supremumUniqueness R.κ _ φ)).left
     (@complete.sup R.κ R.dedekind.tocomplete φ H G))
 
   noncomputable hott def R.cocomplete (φ : R.subset) (H : φ.inh) (G : @minorized R.κ φ) :
     Σ m, coexact (@Minorant R.κ φ) m :=
-  ((Prop.propEquiv (@infimumUniqueness R.κ _ φ)).left
+  ((Equiv.propEquiv (@infimumUniqueness R.κ _ φ)).left
     (@cocomplete.inf R.κ (orfieldCocompleteIfComplete R.dedekind.tocomplete) φ H G))
 
   noncomputable hott def sup (φ : R.subset) (H : φ.inh) (G : @majorized R.κ φ) : ℝ :=
@@ -144,7 +144,7 @@ namespace GroundZero.Algebra
 
   noncomputable hott def R.total (x y : ℝ) : R.ρ x y + (x > y) :=
   begin
-    apply (Theorems.Prop.propEquiv _).left;
+    apply (Theorems.Equiv.propEquiv _).left;
     apply Merely.lift _ (@connected.total R.κ _ x y);
     { intro H; induction H; left; assumption;
       match @Classical.lem (x = y) (R.hset _ _) with

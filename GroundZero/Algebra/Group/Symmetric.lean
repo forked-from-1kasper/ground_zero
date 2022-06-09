@@ -32,19 +32,19 @@ namespace Group
 
     section
       hott def S (ε : nType.{u} 0) : Pregroup.{u} :=
-      @Pregroup.intro (ε ≃₀ ε) (Theorems.Prop.zeroEquiv.hset ε ε) S.mul S.inv S.one
+      @Pregroup.intro (ε ≃₀ ε) (Theorems.Equiv.zeroEquiv.hset ε ε) S.mul S.inv S.one
 
       instance S.semigroup : semigroup (S ε).magma :=
-      ⟨begin intros; fapply Theorems.Prop.equivHmtpyLem; intro x; reflexivity end⟩
+      ⟨begin intros; fapply Theorems.Equiv.equivHmtpyLem; intro x; reflexivity end⟩
 
       instance S.monoid : monoid (S ε).premonoid :=
       ⟨@S.semigroup ε,
-       begin intro; fapply Theorems.Prop.equivHmtpyLem; intro; reflexivity end,
-       begin intro; fapply Theorems.Prop.equivHmtpyLem; intro; reflexivity end⟩
+       begin intro; fapply Theorems.Equiv.equivHmtpyLem; intro; reflexivity end,
+       begin intro; fapply Theorems.Equiv.equivHmtpyLem; intro; reflexivity end⟩
 
       instance S.group : group (S ε) :=
       ⟨S.monoid, begin
-        intro ⟨f, (⟨g, G⟩, ⟨h, H⟩)⟩; fapply Theorems.Prop.equivHmtpyLem;
+        intro ⟨f, (⟨g, G⟩, ⟨h, H⟩)⟩; fapply Theorems.Equiv.equivHmtpyLem;
         intro x; change h (f x) = x; apply Qinv.linvInv; exact H; exact G
       end⟩
     end
@@ -63,7 +63,7 @@ namespace Group
     hott def S.univ (G : Pregroup.{u}) [Algebra.group G] : G ⤳ S G.zero :=
     mkhomo (left G)
       (begin
-        intros x y; fapply Theorems.Prop.equivHmtpyLem;
+        intros x y; fapply Theorems.Equiv.equivHmtpyLem;
         intro; apply G.mulAssoc
       end)
 
@@ -75,7 +75,7 @@ namespace Group
 
     hott def S.univ.ker.decode : (triv G).set ⊆ (ker (S.univ G)).set :=
     begin
-      intros x H; apply Theorems.Prop.equivHmtpyLem;
+      intros x H; apply Theorems.Equiv.equivHmtpyLem;
       intro y; induction H using Id.casesOn; apply G.oneMul
     end
 

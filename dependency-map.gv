@@ -122,12 +122,12 @@ digraph dependency_map {
     "HITs/Interval" -> {
       "Cubical/Cubes",
       "Cubical/Path",
-      "Theorems/Prop",
+      "Theorems/Equiv",
       "Theorems/Fibration"
     }
     "HITs/Join"
     "HITs/Merely" -> {
-      "Theorems/Prop",
+      "Theorems/Equiv",
       "HITs/Simplicial",
       "Theorems/Functions"
     }
@@ -181,8 +181,7 @@ digraph dependency_map {
       "Types/Integer",
       "Algebra/Group/Lemmas"
     }
-    "Theorems/Prop" -> {
-      "Algebra/EilenbergMacLane",
+    "Theorems/Equiv" -> {
       "HITs/Circle",
       "Types/Ens",
       "Types/Precategory",
@@ -191,7 +190,7 @@ digraph dependency_map {
     "Theorems/UA" -> {
       "HITs/Flattening",
       "Theorems/Nat",
-      "Theorems/Prop",
+      "Theorems/Equiv",
       "Cubical/V"
     }
   }

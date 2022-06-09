@@ -9,7 +9,7 @@ open GroundZero.Structures
 open GroundZero.Types
 
 namespace GroundZero
-namespace Theorems.Prop
+namespace Theorems.Equiv
 
 universe u v w
 
@@ -290,5 +290,5 @@ section
   end
 end
 
-end Theorems.Prop
+end Theorems.Equiv
 end GroundZero

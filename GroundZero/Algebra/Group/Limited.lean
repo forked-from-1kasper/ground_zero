@@ -104,7 +104,7 @@ namespace GroundZero.Algebra
   noncomputable hott def ω.unitIfZero (M : Metric⁎)
     (φ : Lim.carrier M.1) (p : ω M φ = 0) : φ = (Lim M.1).e :=
   begin
-    apply Sigma.prod; apply Ens.prop; apply GroundZero.Theorems.Prop.equivHmtpyLem;
+    apply Sigma.prod; apply Ens.prop; apply GroundZero.Theorems.Equiv.equivHmtpyLem;
     intro x; apply M.1.eqIfLeZero; apply Equiv.transport (R.ρ (M.1.ρ (φ.1.1 x) x);
     exact p; apply sup.lawful; apply Merely.elem; existsi x; apply M.1.symm
   end

@@ -548,7 +548,7 @@ namespace GroundZero.Algebra
   def M (α : 0-Type) := L (P α)
 
   def Tr (α : 0-Type) :=
-  zeroeqv (Theorems.Prop.zeroEquiv.hset α α)
+  zeroeqv (Theorems.Equiv.zeroEquiv.hset α α)
 
   -- Set of *all* tone row transformations
   abbrev T (α : 0-Type) := S (Tr α)
@@ -569,14 +569,14 @@ namespace GroundZero.Algebra
     begin
       fapply HITs.Quotient.rec _ _ _ r;
       { exact M.dodecaphonic φ xs };
-      { intros x y p; fapply Theorems.Prop.propset.Id;
+      { intros x y p; fapply Theorems.Equiv.propset.Id;
         apply GroundZero.ua; apply equivFunext;
         intro z; apply propEquivLemma;
         change prop (_ ∈ orbit (tr φ) x); apply Ens.prop;
         change prop (_ ∈ orbit (tr φ) y); apply Ens.prop;
         apply orbit.subset; exact p;
         apply orbit.subset; apply leftAction.symm; exact p };
-      { apply Theorems.Prop.propsetIsSet }
+      { apply Theorems.Equiv.propsetIsSet }
     end
   end
 end GroundZero.Algebra
