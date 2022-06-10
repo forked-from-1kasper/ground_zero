@@ -20,7 +20,6 @@ digraph dependency_map {
     "Algebra/Category"
     "Algebra/EilenbergMacLane"
     "Algebra/Geometry"
-    "Algebra/Homology"
     "Algebra/Monoid"
     "Algebra/Orgraph" -> { "Algebra/Reals" }
     "Algebra/Reals" -> { "Algebra/Group/Limited", "HITs/Topologization" }
@@ -45,7 +44,6 @@ digraph dependency_map {
     }
     "Algebra/Group/Differential"
     "Algebra/Group/Factor" -> {
-      "Algebra/Homology",
       "Algebra/Ring",
       "Algebra/Group/Alternating",
       "Algebra/Group/Isomorphism"
@@ -57,7 +55,7 @@ digraph dependency_map {
     "Algebra/Group/Limited"
     "Algebra/Group/Periodic"
     "Algebra/Group/Presentation"
-    "Algebra/Group/Product" -> { "Algebra/Homology", "Algebra/Transformational" }
+    "Algebra/Group/Product" -> { "Algebra/Transformational" }
     "Algebra/Group/Semidirect"
     "Algebra/Group/Subgroup" -> {
       "Algebra/Group/Differential",
@@ -71,7 +69,7 @@ digraph dependency_map {
       "Algebra/Group/Action",
       "Algebra/Group/Isomorphism"
     }
-    "Algebra/Group/Z" -> { "Algebra/Homology" }
+    "Algebra/Group/Z"
   }
 
   subgraph Types {
