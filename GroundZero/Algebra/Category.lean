@@ -127,7 +127,7 @@ namespace Precategory
   postfix:max "ᵒᵖ" => op
 
   -- Homomoprhism of algebras is a functor here
-  variable (𝒟 : Precategory) (f : 𝒞 ⤳ 𝒟)
+  variable (𝒟 : Precategory) (f : Algebra.Hom 𝒞 𝒟)
 
   hott def functorComp :
     Π a b, f.ap (𝒞.μ a b) = 𝒟.μ (f.ap a) (f.ap b) :=
@@ -401,20 +401,20 @@ namespace Category
     “Categories for the Working Mathematician”
     I. 4. Natural Transformations. Exercise 5.
   -/
-  hott def Natural {𝒜 ℬ : Precategory} (F G : 𝒜 ⤳ ℬ) :=
+  hott def Natural {𝒜 ℬ : Precategory} (F G : Algebra.Hom 𝒜 ℬ) :=
   Σ (μ : 𝒜.carrier → ℬ.carrier), Π f g, 𝒜.following f g →
     ℬ.μ (μ f) (F.ap g) = ℬ.μ (G.ap f) (μ g)
 
   infix:75 " ⟹ " => Natural
 
-  hott def id {𝒜 ℬ : Precategory} {F : 𝒜 ⤳ ℬ} : F ⟹ F :=
+  hott def id {𝒜 ℬ : Precategory} {F : Algebra.Hom 𝒜 ℬ} : F ⟹ F :=
   ⟨F.ap, λ _ _ _, Id.refl⟩
 
-  hott def Natural.happly {𝒜 ℬ : Precategory} {F G : 𝒜 ⤳ ℬ}
+  hott def Natural.happly {𝒜 ℬ : Precategory} {F G : Algebra.Hom 𝒜 ℬ}
     {μ η : F ⟹ G} (p : μ = η) : μ.1 ~ η.1 :=
   begin induction p; reflexivity end
 
-  hott def Natural.funext {𝒜 ℬ : Precategory} {F G : 𝒜 ⤳ ℬ}
+  hott def Natural.funext {𝒜 ℬ : Precategory} {F G : Algebra.Hom 𝒜 ℬ}
     {μ η : F ⟹ G} (p : μ.1 ~ η.1) : μ = η :=
   begin
     fapply Sigma.prod; apply Theorems.funext; exact p;
@@ -434,13 +434,13 @@ namespace Category
   section
     variable {a b c : Obj 𝒞}
 
-    hott def homDefined (f : Hom 𝒞 a.val b.val) : ∃f.ap :=
+    hott def homDefined (f : 𝒞.Hom a.val b.val) : ∃f.ap :=
     begin
       apply domDefImplDef; apply Equiv.transport 𝒞.defined;
       symmetry; exact f.2.1; apply a.2.2
     end
 
-    hott def homCompDefined (f : Hom 𝒞 b.val c.val) (g : Hom 𝒞 a.val b.val) : ∃(𝒞.μ f.ap g.ap) :=
+    hott def homCompDefined (f : 𝒞.Hom b.val c.val) (g : 𝒞.Hom a.val b.val) : ∃(𝒞.μ f.ap g.ap) :=
     begin
       apply (mulDef f.ap g.ap _ _).right;
       { change _ = _; transitivity; exact f.2.1;
@@ -448,7 +448,7 @@ namespace Category
       repeat { apply homDefined }
     end
 
-    hott def comp (f : Hom 𝒞 b.val c.val) (g : Hom 𝒞 a.val b.val) : Hom 𝒞 a.val c.val :=
+    hott def comp (f : 𝒞.Hom b.val c.val) (g : 𝒞.Hom a.val b.val) : 𝒞.Hom a.val c.val :=
     begin
       existsi 𝒞.μ f.ap g.ap; apply Prod.mk;
       transitivity; apply mulDom; apply homCompDefined; apply g.2.1;
@@ -456,7 +456,7 @@ namespace Category
     end
   end
 
-  hott def ε (a : Obj 𝒞) : Hom 𝒞 a.val a.val :=
+  hott def ε (a : Obj 𝒞) : 𝒞.Hom a.val a.val :=
   begin
     existsi a.val; apply Prod.mk <;> symmetry;
     apply a.2.1; apply (idIffEqCod _).left; exact a.2.1
@@ -464,20 +464,20 @@ namespace Category
 
   local infix:60 " ∘ " => comp
 
-  hott def leftε {a b : Obj 𝒞} (f : Hom 𝒞 a.val b.val) : ε b ∘ f = f :=
+  hott def leftε {a b : Obj 𝒞} (f : 𝒞.Hom a.val b.val) : ε b ∘ f = f :=
   begin
     apply 𝒞.homext; transitivity; apply Id.map (𝒞.μ · f.ap);
     symmetry; apply f.2.2; apply codComp
   end
 
-  hott def rightε {a b : Obj 𝒞} (f : Hom 𝒞 a.val b.val) : f ∘ ε a = f :=
+  hott def rightε {a b : Obj 𝒞} (f : 𝒞.Hom a.val b.val) : f ∘ ε a = f :=
   begin
     apply 𝒞.homext; transitivity; apply Id.map (𝒞.μ f.ap);
     symmetry; apply f.2.1; apply domComp
   end
 
-  hott def compAssoc {a b c d : Obj 𝒞} (f : Hom 𝒞 c.val d.val)
-    (g : Hom 𝒞 b.val c.val) (h : Hom 𝒞 a.val b.val) : (f ∘ g) ∘ h = f ∘ (g ∘ h) :=
+  hott def compAssoc {a b c d : Obj 𝒞} (f : 𝒞.Hom c.val d.val)
+    (g : 𝒞.Hom b.val c.val) (h : 𝒞.Hom a.val b.val) : (f ∘ g) ∘ h = f ∘ (g ∘ h) :=
   begin apply 𝒞.homext; apply mulAssoc end
 end Category
 
