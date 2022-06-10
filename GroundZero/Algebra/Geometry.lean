@@ -29,36 +29,36 @@ namespace GroundZero.Algebra
 
     hott def collinear (G : Pregeometry) (a b c : G.carrier) :=
     ∥G.between a b c + G.between c a b + G.between b c a∥
+
+    class geometry (G : Pregeometry) :=
+    (refl  : Π a b, G.congruent a b b a)
+    (trans : Π a₁ b₁ a₂ b₂ a₃ b₃, G.congruent a₁ b₁ a₂ b₂ → G.congruent a₁ b₁ a₃ b₃ → G.congruent a₂ b₂ a₃ b₃)
+    (idp₁  : Π a b c, G.congruent a b c c → a = b)
+    (idp₂  : Π a b, G.between a b a → a = b)
+    (pasch : Π a b c u v, G.between a u c → G.between b v c → ∥Σ x, G.between u x b × G.between v x a∥)
+
+    class nonlinear (G : Pregeometry) :=
+    (lower : ∥Σ a b c, (¬G.between a b c) × (¬G.between b c a) × (¬G.between c a b)∥)
+
+    class planar (G : Pregeometry) :=
+    (upper : Π a b c u v, G.congruent a u a v → G.congruent b u b v → G.congruent c u c v → ¬(u = v) → G.collinear a b c)
+
+    class planimetry (G : Pregeometry) extends geometry G, nonlinear G, planar G
+
+    class isotropic (G : Pregeometry) :=
+    (construct : Π a b x y, ∥Σ z, G.between x y z × G.congruent y z a b∥)
+
+    class continuous (G : Pregeometry) :=
+    (cut (φ ψ : G.carrier → Ω) :
+      ∥Σ a, Π x y, (φ x).1 → (ψ y).1 → G.between a x y∥ →
+      ∥Σ b, Π x y, (φ x).1 → (ψ y).1 → G.between x b y∥)
+
+    class absolute (G : Pregeometry) extends geometry G, isotropic G :=
+    (five : Π x₁ y₁ z₁ u₁ x₂ y₂ z₂ u₂, ¬(x₁ = y₁) → G.between x₁ y₁ z₁ → G.between x₂ y₂ z₂ →
+      G.congruent x₁ y₁ x₂ y₂ → G.congruent y₁ z₁ y₂ z₂ →
+      G.congruent x₁ u₁ x₂ u₂ → G.congruent y₁ u₁ y₂ u₂ →
+      G.congruent z₁ u₁ z₂ u₂)
   end Pregeometry
-
-  class geometry (G : Pregeometry) :=
-  (refl  : Π a b, G.congruent a b b a)
-  (trans : Π a₁ b₁ a₂ b₂ a₃ b₃, G.congruent a₁ b₁ a₂ b₂ → G.congruent a₁ b₁ a₃ b₃ → G.congruent a₂ b₂ a₃ b₃)
-  (idp₁  : Π a b c, G.congruent a b c c → a = b)
-  (idp₂  : Π a b, G.between a b a → a = b)
-  (pasch : Π a b c u v, G.between a u c → G.between b v c → ∥Σ x, G.between u x b × G.between v x a∥)
-
-  class nonlinear (G : Pregeometry) :=
-  (lower : ∥Σ a b c, (¬G.between a b c) × (¬G.between b c a) × (¬G.between c a b)∥)
-
-  class planar (G : Pregeometry) :=
-  (upper : Π a b c u v, G.congruent a u a v → G.congruent b u b v → G.congruent c u c v → ¬(u = v) → G.collinear a b c)
-
-  class planimetry (G : Pregeometry) extends geometry G, nonlinear G, planar G
-
-  class isotropic (G : Pregeometry) :=
-  (construct : Π a b x y, ∥Σ z, G.between x y z × G.congruent y z a b∥)
-
-  class continuous (G : Pregeometry) :=
-  (cut (φ ψ : G.carrier → Ω) :
-    ∥Σ a, Π x y, (φ x).1 → (ψ y).1 → G.between a x y∥ →
-    ∥Σ b, Π x y, (φ x).1 → (ψ y).1 → G.between x b y∥)
-
-  class absolute (G : Pregeometry) extends geometry G, isotropic G :=
-  (five : Π x₁ y₁ z₁ u₁ x₂ y₂ z₂ u₂, ¬(x₁ = y₁) → G.between x₁ y₁ z₁ → G.between x₂ y₂ z₂ →
-    G.congruent x₁ y₁ x₂ y₂ → G.congruent y₁ z₁ y₂ z₂ →
-    G.congruent x₁ u₁ x₂ u₂ → G.congruent y₁ u₁ y₂ u₂ →
-    G.congruent z₁ u₁ z₂ u₂)
 
   hott def segment (G : Pregeometry) (a b : G.carrier) : Ens G.carrier :=
   ⟨λ c, G.between a c b, λ _, G.prop₁⟩
@@ -75,10 +75,9 @@ namespace GroundZero.Algebra
   hott def ray (G : Pregeometry) (a b : G.carrier) : Ens G.carrier :=
   ⟨λ c, ∥G.between a c b + G.between a b c∥, λ _, Merely.uniq⟩
 
-  class euclidean (G : Pregeometry) extends absolute G :=
+  class Pregeometry.euclidean (G : Pregeometry) extends Pregeometry.absolute G :=
   (fifth : Π a₁ b₁ a₂ b₂ a₃ b₃,
     Ens.parallel (geodesic G a₁ b₁) (geodesic G a₃ b₃) →
     Ens.parallel (geodesic G a₂ b₂) (geodesic G a₃ b₃) →
     Ens.parallel (geodesic G a₁ b₁) (geodesic G a₂ b₂))
-
 end GroundZero.Algebra
