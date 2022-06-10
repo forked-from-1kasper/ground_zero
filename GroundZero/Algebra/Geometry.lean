@@ -12,9 +12,6 @@ namespace GroundZero.Algebra
   @Alg.{0, 0, u, v} 𝟎 𝟐 (Coproduct.elim Empty.elim (Bool.rec 3 4))
 
   namespace Pregeometry
-    def segment (G : Pregeometry) :=
-    G.carrier × G.carrier
-
     def between (G : Pregeometry) (a b c : G.carrier) :=
     (G.rel false (a, b, c, ★)).1
 
@@ -58,26 +55,26 @@ namespace GroundZero.Algebra
       G.congruent x₁ y₁ x₂ y₂ → G.congruent y₁ z₁ y₂ z₂ →
       G.congruent x₁ u₁ x₂ u₂ → G.congruent y₁ u₁ y₂ u₂ →
       G.congruent z₁ u₁ z₂ u₂)
+
+    hott def segment (G : Pregeometry) (a b : G.carrier) : Ens G.carrier :=
+    ⟨λ c, G.between a c b, λ _, G.prop₁⟩
+
+    hott def geodesic (G : Pregeometry) (a b : G.carrier) : Ens G.carrier :=
+    ⟨G.collinear a b, λ _, Merely.uniq⟩
+
+    hott def circle (G : Pregeometry) (a b : G.carrier) : Ens G.carrier :=
+    ⟨λ c, G.congruent a b a c, λ _, G.prop₂⟩
+
+    hott def triangle (G : Pregeometry) (a b c : G.carrier) : Ens G.carrier :=
+    ⟨λ z, ∥G.between a z b + G.between b z c + G.between a z c∥, λ _, Merely.uniq⟩
+
+    hott def ray (G : Pregeometry) (a b : G.carrier) : Ens G.carrier :=
+    ⟨λ c, ∥G.between a c b + G.between a b c∥, λ _, Merely.uniq⟩
+
+    class euclidean (G : Pregeometry) extends absolute G :=
+    (fifth : Π a₁ b₁ a₂ b₂ a₃ b₃,
+      Ens.parallel (geodesic G a₁ b₁) (geodesic G a₃ b₃) →
+      Ens.parallel (geodesic G a₂ b₂) (geodesic G a₃ b₃) →
+      Ens.parallel (geodesic G a₁ b₁) (geodesic G a₂ b₂))
   end Pregeometry
-
-  hott def segment (G : Pregeometry) (a b : G.carrier) : Ens G.carrier :=
-  ⟨λ c, G.between a c b, λ _, G.prop₁⟩
-
-  hott def geodesic (G : Pregeometry) (a b : G.carrier) : Ens G.carrier :=
-  ⟨G.collinear a b, λ _, Merely.uniq⟩
-
-  hott def circle (G : Pregeometry) (a b : G.carrier) : Ens G.carrier :=
-  ⟨λ c, G.congruent a b a c, λ _, G.prop₂⟩
-
-  hott def triangle (G : Pregeometry) (a b c : G.carrier) : Ens G.carrier :=
-  ⟨λ z, ∥G.between a z b + G.between b z c + G.between a z c∥, λ _, Merely.uniq⟩
-
-  hott def ray (G : Pregeometry) (a b : G.carrier) : Ens G.carrier :=
-  ⟨λ c, ∥G.between a c b + G.between a b c∥, λ _, Merely.uniq⟩
-
-  class Pregeometry.euclidean (G : Pregeometry) extends Pregeometry.absolute G :=
-  (fifth : Π a₁ b₁ a₂ b₂ a₃ b₃,
-    Ens.parallel (geodesic G a₁ b₁) (geodesic G a₃ b₃) →
-    Ens.parallel (geodesic G a₂ b₂) (geodesic G a₃ b₃) →
-    Ens.parallel (geodesic G a₁ b₁) (geodesic G a₂ b₂))
 end GroundZero.Algebra
