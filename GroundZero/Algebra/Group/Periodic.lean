@@ -7,19 +7,19 @@ namespace GroundZero.Algebra
 universe u v u' v' w
 
 namespace Group
-  variable {G : Pregroup} [Algebra.group G]
+  variable {G : Group}
 
   local infixl:70 (priority := high) " * " => G.φ
   local postfix:max (priority := high) "⁻¹" => G.ι
   local notation "e" => G.e
 
-  def P.carrier (G : Pregroup) := ℕ → G.carrier
+  def P.carrier (G : Group) := ℕ → G.carrier
 
-  hott def P.hset (G : Pregroup) : hset (P.carrier G) :=
+  hott def P.hset (G : Group) : Structures.hset (P.carrier G) :=
   begin apply piHset; intro; apply G.hset end
 
   section
-    variable {H : Pregroup}
+    variable {H : Group}
 
     def P.mul : P.carrier H → P.carrier H → P.carrier H :=
     λ f g n, H.φ (f n) (g n)
@@ -29,24 +29,15 @@ namespace Group
     λ f n, H.ι (f n)
   end
 
-  hott def P (G : Pregroup) : Pregroup :=
-  @Pregroup.intro (P.carrier G) (P.hset G) P.mul P.inv P.one
+  hott def P (G : Group) : Group :=
+  @Group.intro (P.carrier G) (P.hset G) P.mul P.inv P.one
+    (λ _ _ _, Theorems.funext (λ _, G.mulAssoc _ _ _))
+    (λ _, Theorems.funext (λ _, G.oneMul _))
+    (λ _, Theorems.funext (λ _, G.mulOne _))
+    (λ _, Theorems.funext (λ _, G.mulLeftInv _))
 
-  instance P.semigroup : semigroup (P G).magma :=
-  ⟨begin intros a b c; apply Theorems.funext; intro; apply G.mulAssoc end⟩
-
-  instance P.monoid : monoid (P G).premonoid :=
-  begin
-    apply monoid.mk; exact P.semigroup;
-    { intro; apply Theorems.funext; intro; apply G.oneMul };
-    { intro; apply Theorems.funext; intro; apply G.mulOne }
-  end
-
-  instance P.group : Algebra.group (P G) :=
-  ⟨P.monoid, begin intro; fapply Theorems.funext; intro; apply G.mulLeftInv end⟩
-
-  instance P.abelian (G : Pregroup) [abelian G] : abelian (P G) :=
-  ⟨begin intros f g; fapply Theorems.funext; intro; fapply abelian.mulComm end⟩
+  instance P.abelian (G : Group) (ρ : G.isCommutative) : (P G).isCommutative :=
+  begin intros f g; fapply Theorems.funext; intro; apply ρ end
 
   hott def P.unitSqr (H : Π x, x * x = e) (x : P.carrier G) : P.mul x x = P.one :=
   begin fapply Theorems.funext; intro; apply H end

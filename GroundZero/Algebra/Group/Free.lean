@@ -22,7 +22,7 @@ namespace Group
   | inv  : Exp α → Exp α
 
   namespace Exp
-    variable {α : Type u} (G : Pregroup) (f : α → G.carrier)
+    variable {α : Type u} (G : Group) (f : α → G.carrier)
 
     hott def eval : Exp α → G.carrier
     | unit    => G.e
@@ -54,14 +54,14 @@ namespace Group
     axiom mulOne       (a : F.carrier ε) : mul a unit = a
     axiom mulLeftInv   (a : F.carrier ε) : mul (inv a) a = unit
 
-    axiom ens : hset (F.carrier ε)
+    axiom ens : Structures.hset (F.carrier ε)
 
-    @[hottAxiom] def rec (G : Pregroup) [group G] (f : ε → G.carrier) (x : F.carrier ε) :=
+    @[hottAxiom] def rec (G : Group) (f : ε → G.carrier) (x : F.carrier ε) :=
     Exp.eval G f x.val
 
     @[hottAxiom, eliminator] noncomputable def ind
       {π : F.carrier ε → Type v}
-      (setπ : Π x, hset (π x))
+      (setπ : Π x, Structures.hset (π x))
       (u : π unit) (η : Π {x}, π (elem x))
       (m : Π {x y}, π x → π y → π (mul x y))
       (i : Π {x}, π x → π (inv x))
@@ -79,26 +79,13 @@ namespace Group
 
   end F
 
-  noncomputable def F (ε : Type u) : Pregroup :=
-  @Pregroup.intro (F.carrier ε) F.ens F.mul F.inv F.unit
-
-  section
-    variable (ε : Type u)
-
-    noncomputable instance F.semigroup : Algebra.semigroup (F ε).magma :=
-    ⟨F.mulAssoc⟩
-
-    noncomputable instance F.monoid : Algebra.monoid (F ε).premonoid :=
-    ⟨F.semigroup ε, F.oneMul, F.mulOne⟩
-
-    noncomputable instance F.group : Algebra.group (F ε) :=
-    ⟨F.monoid ε, F.mulLeftInv⟩
-  end
+  noncomputable def F (ε : Type u) : Group :=
+  @Group.intro (F.carrier ε) F.ens F.mul F.inv F.unit F.mulAssoc F.oneMul F.mulOne F.mulLeftInv
 
   attribute [irreducible] F.carrier
 
   namespace F
-    variable {G : Pregroup} [Algebra.group G] {ε : Type u}
+    variable {G : Group} {ε : Type u}
 
     local infixl:70 (priority := high) " * " => G.φ
     local postfix:max (priority := high) "⁻¹" => G.ι
@@ -115,7 +102,7 @@ namespace Group
     hott def recOne (f : ε → G.carrier) : rec G f unit = e :=
     by reflexivity
 
-    noncomputable hott def homomorphism (f : ε → G.carrier) : F ε ⤳ G :=
+    noncomputable hott def homomorphism (f : ε → G.carrier) : Hom (F ε) G :=
     mkhomo (rec G f) (recMul f)
 
     noncomputable def recβrule₁ {a b c : F.carrier ε} (f : ε → G.carrier) :

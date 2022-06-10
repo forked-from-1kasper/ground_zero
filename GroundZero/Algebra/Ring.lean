@@ -55,10 +55,8 @@ namespace Prering
   def ψ (T : Prering) : T.carrier → T.carrier → T.carrier :=
   λ x y, T.op Arity.mul (x, y, ★)
 
-  hott def pregroup (T : Prering) : Pregroup :=
-  Pregroup.intro T.hset T.φ T.neg T.zero
-
-  abbrev additive := pregroup
+  hott def magma (T : Prering) : Magma :=
+  Magma.intro T.hset T.φ
 end Prering
 
 namespace Overring
@@ -83,24 +81,30 @@ namespace Overring
 end Overring
 
 class ring (T : Prering) :=
-(abgroup      : abelian T.pregroup)
+(addAssoc     : Π a b c, T.φ (T.φ a b) c = T.φ a (T.φ b c))
+(zeroAdd      : Π a, T.φ T.zero a = a)
+(addZero      : Π a, T.φ a T.zero = a)
+(addLeftNeg   : Π a, T.φ (T.neg a) a = T.zero)
+(addComm      : Π a b, T.φ a b = T.φ b a)
 (distribLeft  : Π a b c, T.ψ a (T.φ b c) = T.φ (T.ψ a b) (T.ψ a c))
 (distribRight : Π a b c, T.ψ (T.φ a b) c = T.φ (T.ψ a c) (T.ψ b c))
-
-postfix:max "⁺" => Prering.pregroup
-instance abring (T : Prering) [ring T] : abelian T⁺ := ring.abgroup
 
 section
   variable (T : Prering)
   def Prering.sub (x y : T.carrier) := T.φ x (T.neg y)
 
-  def Prering.isproper (x : T.carrier) := T.pregroup.isproper x
-  def Prering.proper := T.pregroup.proper
+  hott def Prering.additive (T : Prering) [ring T] : Group :=
+  Group.intro T.hset T.φ T.neg T.zero ring.addAssoc ring.zeroAdd ring.addZero ring.addLeftNeg
 
-  def Prering.properHset : hset T.proper :=
+  postfix:max "⁺" => Prering.additive
+
+  def Prering.isproper [ring T] (x : T.carrier) := T⁺.isproper x
+  def Prering.proper [ring T] := T⁺.proper
+
+  def Prering.properHset [ring T] : hset T.proper :=
   begin
     apply hsetRespectsSigma;
-    apply T.pregroup.hset; intro;
+    apply T⁺.hset; intro;
     apply propIsSet; apply notIsProp
   end
 
@@ -137,19 +141,19 @@ namespace Prering
   variable (T : Prering) [ring T]
 
   hott def addAssoc (a b c : T.carrier) : (a + b) + c = a + (b + c) :=
-  T.pregroup.mulAssoc a b c
+  ring.addAssoc a b c
 
   hott def zeroAdd (a : T.carrier) : 0 + a = a :=
-  T.pregroup.oneMul a
+  ring.zeroAdd a
 
   hott def addZero (a : T.carrier) : a + 0 = a :=
-  T.pregroup.mulOne a
+  ring.addZero a
 
   hott def addComm (a b : T.carrier) : a + b = b + a :=
-  T.pregroup.mulComm a b
+  ring.addComm a b
 
   hott def addLeftNeg (a : T.carrier) : (-a) + a = 0 :=
-  T.pregroup.mulLeftInv a
+  ring.addLeftNeg a
 
   hott def distribLeft (a b c : T.carrier) : a * (b + c) = a * b + a * c :=
   ring.distribLeft a b c
@@ -219,11 +223,11 @@ class ring.hasInv (T : Prering) :=
 
 postfix:max (priority := high) "⁻¹" => ring.hasInv.inv
 
-class ring.divisible (T : Prering) extends ring.hasInv T, ring.monoid T :=
+class ring.divisible (T : Prering) extends ring T, ring.hasInv T, ring.monoid T :=
 (zero_inv   : inv 0 = 0)
 (mulLeftInv : Π (x : T.carrier), T.isproper x → inv x * x = 1)
 
-class field (T : Prering) extends ring T, ring.assoc T, ring.divisible T, ring.comm T :=
+class field (T : Prering) extends ring.assoc T, ring.divisible T, ring.comm T :=
 (nontrivial : T.isproper 1)
 
 hott def ring.minusOneSqr (T : Prering) [ring T] [ring.monoid T] : @Id T.carrier ((-1) * (-1)) 1 :=
@@ -262,56 +266,43 @@ hott def field.mul (T : Prering) [field T] :
 hott def field.rev (T : Prering) [field T] : T.proper → T.proper :=
 λ ⟨a, p⟩, ⟨a⁻¹, field.propInv p⟩
 
-hott def ring.properEq {T : Prering.{u}}
+hott def ring.properEq {T : Prering.{u}} [ring T]
   {x y : T.proper} (p : x.fst = y.fst) : x = y :=
 begin fapply Sigma.prod; exact p; apply notIsProp end
 
-hott def multiplicative (T : Prering) [field T] : Pregroup :=
-Pregroup.intro T.properHset (field.mul T) (field.rev T) ⟨ring.hasOne.one, field.nontrivial⟩
+hott def multiplicative (T : Prering) [field T] : Group :=
+Group.intro T.properHset (field.mul T) (field.rev T) ⟨ring.hasOne.one, field.nontrivial⟩
+  (λ ⟨a, p⟩ ⟨b, q⟩ ⟨c, r⟩, ring.properEq (ring.assoc.mulAssoc a b c))
+  (λ ⟨a, p⟩, ring.properEq (ring.monoid.oneMul a))
+  (λ ⟨a, p⟩, ring.properEq (ring.monoid.mulOne a))
+  (λ ⟨a, p⟩, ring.properEq (ring.divisible.mulLeftInv a p))
+
 postfix:max "ˣ" => multiplicative
-
-section
-  variable (T : Prering) [field T]
-
-  instance multiplicative.semigroup : semigroup Tˣ.magma :=
-  ⟨λ ⟨a, p⟩ ⟨b, q⟩ ⟨c, r⟩, begin
-    fapply @ring.properEq T;
-    apply @ring.assoc.mulAssoc T
-  end⟩
-
-  instance multiplicative.monoid : monoid Tˣ.premonoid :=
-  ⟨multiplicative.semigroup T,
-  λ ⟨a, p⟩, ring.properEq (ring.monoid.oneMul a),
-  λ ⟨a, p⟩, ring.properEq (ring.monoid.mulOne a)⟩
-
-  instance multiplicative.group : group Tˣ :=
-  ⟨multiplicative.monoid T, λ ⟨a, p⟩, ring.properEq (ring.divisible.mulLeftInv a p)⟩
-end
 
 -- voilà, no need to repeat a bunch of lemmas
 hott def field.mulRightInv (T : Prering) [field T] {x : T.carrier}
   (p : T.isproper x) : x * x⁻¹ = 1 :=
-Id.map Sigma.fst (@Group.mulRightInv Tˣ _ ⟨x, p⟩)
+Id.map Sigma.fst (Tˣ.mulRightInv ⟨x, p⟩)
 
-class lid (T : Prering) (φ : T⁺.subgroup) :=
+class lid (T : Prering) [ring T] (φ : T⁺.subgroup) :=
 (ideal : Π r i, i ∈ φ.set → T.ψ r i ∈ φ.set)
 
-class rid (T : Prering) (φ : T⁺.subgroup) :=
+class rid (T : Prering) [ring T] (φ : T⁺.subgroup) :=
 (ideal : Π i r, i ∈ φ.set → T.ψ i r ∈ φ.set)
 
-class ideal (T : Prering) (φ : T⁺.subgroup) :=
+class ideal (T : Prering) [ring T] (φ : T⁺.subgroup) :=
 (left  : Π r i, i ∈ φ.set → T.ψ r i ∈ φ.set)
 (right : Π i r, i ∈ φ.set → T.ψ i r ∈ φ.set)
 
-instance ideal.auto (T : Prering) (φ : T⁺.subgroup)
-  [lid T φ] [rid T φ] : ideal T φ :=
+instance ideal.auto (T : Prering) [ring T]
+  (φ : T⁺.subgroup) [lid T φ] [rid T φ] : ideal T φ :=
 ⟨lid.ideal, rid.ideal⟩
 
 namespace Ring
   variable (T : Prering) [ring T] (φ : T⁺.subgroup) [ideal T φ]
 
-  instance normal : T⁺ ⊵ φ :=
-  Group.abelianSubgroupIsNormal T⁺ φ
+  hott def normal : T⁺ ⊵ φ :=
+  Group.abelianSubgroupIsNormal T⁺ T.addComm φ
 
   noncomputable def Factor.mul : factorLeft T⁺ φ → factorLeft T⁺ φ → factorLeft T⁺ φ :=
   begin
@@ -319,7 +310,7 @@ namespace Ring
     { intros a b; apply HITs.Quotient.elem; exact T.ψ a b };
     { apply HITs.Quotient.set };
     { intros a₁ a₂ b₁ b₂ p q; apply HITs.Quotient.sound; apply transport (· ∈ φ.set);
-      { let φ' := @Pregroup.leftDiv T⁺;
+      { let φ' := T⁺.leftDiv;
         change T.φ (φ' (T.ψ a₁ a₂) (T.ψ a₁ b₂)) (φ' (T.ψ a₁ b₂) (T.ψ b₁ b₂)) = _;
         transitivity; apply T⁺.mulAssoc;
         transitivity; apply Id.map (T.φ _);
@@ -336,30 +327,6 @@ namespace Ring
         apply Id.map (λ z, T.φ z (T.ψ b₁ b₂));
         apply ring.negMul; apply ideal.right; exact p } }
   end
-
-  noncomputable hott def Factor : Prering :=
-  Prering.intro (T⁺\φ).hset (T⁺\φ).φ (Factor.mul T φ) (T⁺\φ).ι (T⁺\φ).e
-
-  noncomputable instance Factor.abgroup : abelian (T⁺\φ) :=
-  ⟨begin
-    intro (x : HITs.Quotient _) (y : HITs.Quotient _); induction x; induction y;
-    apply Id.map HITs.Quotient.elem; apply T.addComm;
-    apply HITs.Quotient.set; apply propIsSet; apply HITs.Quotient.set;
-    apply HITs.Quotient.set; apply propIsSet; apply HITs.Quotient.set
-  end⟩
-
-  -- how??
-  -- (deterministic) timeout at 'elaborator', maximum number of heartbeats (200000) has been reached (use 'set_option maxHeartbeats <num>' to set the limit)
-
-  /-
-  noncomputable instance Factor.ring : ring (Factor T φ) :=
-  ⟨Factor.abgroup T φ, begin
-    fapply HITs.Quotient.indProp;
-  end, begin
-    skip
-  end⟩
-  -/
-
-  infix:80 " \\ " => Factor
 end Ring
+
 end GroundZero.Algebra

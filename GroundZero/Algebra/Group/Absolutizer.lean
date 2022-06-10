@@ -8,9 +8,9 @@ namespace GroundZero.Algebra
 universe u v u' v' w
 
 namespace Group
-  variable {G : Pregroup} [group G]
+  variable {G : Group}
 
-  hott def «Sosnitsky construction» (G : Pregroup) [group G] :=
+  hott def «Sosnitsky construction» (G : Group) :=
   @HITs.Quotient G.carrier
     ⟨λ g h, ⟨∥(g = h) + (g = G.ι h)∥, HITs.Merely.uniq⟩,
     begin
@@ -31,7 +31,7 @@ namespace Group
 
   notation "⌈" G "⌉" => «Sosnitsky construction» G
 
-  hott def Absolutizer (G : Pregroup.{u}) [group G] :=
+  hott def Absolutizer (G : Group.{u}) :=
   Σ (φ : ⌈G⌉ → G.carrier), φ ∘ HITs.Quotient.elem ∘ φ ~ φ
 
   section

@@ -26,35 +26,36 @@ section
   def im.aux := Theorems.Functions.fibInh φ
   def im : Ens η := ⟨im.aux φ, λ _, HITs.Merely.uniq⟩
 
-  def im.intro (m : μ): φ m ∈ im φ :=
+  def im.intro (m : μ) : φ m ∈ im φ :=
   begin apply HITs.Merely.elem; existsi m; reflexivity end
 
   def im.inh (m : μ) : (im φ).inh :=
   begin apply HITs.Merely.elem; existsi φ m; apply im.intro end
 end
 
-namespace Pregroup
-  variable (G : Pregroup)
+namespace Group
+  variable (G : Group)
   hott def isproper (x : G.carrier) := x ≠ G.e
 
   hott def proper := Σ x, G.isproper x
 
   hott def proper.prop {x : G.carrier} : prop (G.isproper x) :=
   Structures.implProp Structures.emptyIsProp
-end Pregroup
 
-namespace Pregroup
-  variable {G : Pregroup}
+  hott def isSubgroup (φ : G.subset) :=
+  (G.e ∈ φ) × (Π a b, a ∈ φ → b ∈ φ → G.φ a b ∈ φ) × (Π a, a ∈ φ → G.ι a ∈ φ)
+
+  hott def subgroup := Σ φ, isSubgroup G φ
+end Group
+
+namespace Group
+  variable {G : Group}
   def conjugate (a x : G.carrier) := G.φ (G.φ (G.ι x) a) x
 
   def conjugateRev (a x : G.carrier) := G.φ (G.φ x a) (G.ι x)
 
   def rightDiv (x y : G.carrier) := G.φ x (G.ι y)
   def leftDiv  (x y : G.carrier) := G.φ (G.ι x) y
-
-  def isSubgroup (G : Pregroup) (φ : G.subset) :=
-  (G.e ∈ φ) × (Π a b, a ∈ φ → b ∈ φ → G.φ a b ∈ φ) × (Π a, a ∈ φ → G.ι a ∈ φ)
-  def subgroup (G : Pregroup) := Σ φ, isSubgroup G φ
 
   def subgroup.set (φ : G.subgroup) : Ens G.carrier := φ.1
   def subgroup.subtype (φ : G.subgroup) := φ.set.subtype
@@ -72,12 +73,10 @@ namespace Pregroup
     (β : Π a b, a ∈ φ → b ∈ φ → G.φ a b ∈ φ)
     (γ : Π a, a ∈ φ → G.ι a ∈ φ) : subgroup G :=
   ⟨φ, (α, β, γ)⟩
-end Pregroup
+end Group
 
 namespace Group
-  open GroundZero.Algebra.Pregroup (rightDiv leftDiv conjugate conjugateRev subgroup)
-
-  variable {G : Pregroup} [group G]
+  variable {G : Group}
 
   local infixl:70 (priority := high) " * " => G.φ
   local postfix:max (priority := high) "⁻¹" => G.ι
@@ -167,9 +166,9 @@ namespace Group
     ... = e * x⁻¹       : Id.map (G.φ · x⁻¹) p
     ... = x⁻¹           : G.oneMul x⁻¹
 
-  hott def sqrUnitImplsAbelian (H : Π x, x * x = e) : abelian G :=
+  hott def sqrUnitImplsAbelian (H : Π x, x * x = e) : G.isCommutative :=
   begin
-    apply abelian.mk; intros x y; have F := λ x, sqrUnit (H x); apply calc
+    intros x y; have F := λ x, sqrUnit (H x); apply calc
       x * y = x⁻¹ * y⁻¹ : bimap G.φ (F x) (F y)
         ... = (y * x)⁻¹ : Id.inv (invExplode y x)
         ... = y * x     : Id.inv (F _)
@@ -212,6 +211,34 @@ namespace Group
     ... = y⁻¹ * (x * y) : Id.map (G.φ y⁻¹) (Id.inv p)
     ... = (y⁻¹ * x) * y : Id.inv (G.mulAssoc y⁻¹ x y)
     ... = x ^ y         : Id.refl
+
+  hott def invEqOfMulRevEqOne {x y : G.carrier} (h : y * x = e) : x⁻¹ = y :=
+  begin
+    transitivity; apply eqInvOfMulEqOne (y := y⁻¹);
+    transitivity; symmetry; apply invExplode;
+    transitivity; apply Id.map G.ι; exact h;
+    apply Id.inv unitInv; apply invInv
+  end
+
+  hott def isLeftInvertibleProp : prop (G.1.isLeftInvertible G.e) :=
+  begin
+    intro w₁ w₂; fapply Sigma.prod; fapply Theorems.funext; intro x;
+    transitivity; apply eqInvOfMulEqOne; apply w₁.2;
+    apply invEqOfMulRevEqOne; apply w₂.2;
+    apply piProp; intro; apply G.hset
+  end
+
+  hott def isGroupProp : prop G.1.isGroup :=
+  begin
+    apply productProp; apply G.1.assocProp;
+    apply sigProp; apply G.1.unitalProp;
+    intro H; apply transport (λ g, prop (G.1.isLeftInvertible g));
+    symmetry; apply leftUnitUniq; intro; apply (H.2 _).1;
+    apply isLeftInvertibleProp
+  end
+
+  hott def isGroupPropMagma (M : Magma) : prop M.isGroup :=
+  begin apply lemProp; intro H; apply @isGroupProp ⟨M, H⟩ end
 
   hott def commutator (x y : G.carrier) := (x * y) * (x⁻¹ * y⁻¹)
 
@@ -288,22 +315,15 @@ namespace Group
   end
 
   section
-    variable {H K : Pregroup}
+    variable {H K : Group}
 
-    hott def homoUnit (φ : H ⤳ K) : φ.1 H.e = K.e :=
-    φ.2.1 Pregroup.Arity.nullary ★
-
-    hott def homoInv (φ : H ⤳ K) (x : H.carrier) :
-      φ.1 (H.ι x) = K.ι (φ.1 x) :=
-    φ.2.1 Pregroup.Arity.unary (x, ★)
-
-    hott def homoMul (φ : H ⤳ K) (x y : H.carrier) :
+    hott def homoMul (φ : Hom H K) (x y : H.carrier) :
       φ.1 (H.φ x y) = K.φ (φ.1 x) (φ.1 y) :=
-    φ.2.1 Pregroup.Arity.binary (x, y, ★)
+    φ.2.1 ★ (x, y, ★)
   end
 
   section
-    variable {H : Pregroup} [group H]
+    variable {H : Group}
     local infixl:70 " ∗ " => H.φ
 
     hott def homoRespectsUnit {φ : G.carrier → H.carrier}
@@ -325,43 +345,53 @@ namespace Group
           ... = H.ι (φ x)                 : H.oneMul (H.ι (φ x))
 
     hott def mkhomo (φ : G.carrier → H.carrier)
-      (p : Π a b, φ (a * b) = φ a ∗ φ b) : G ⤳ H :=
-    ⟨φ, (λ | Pregroup.Arity.nullary => λ _, homoRespectsUnit p
-           | Pregroup.Arity.unary   => λ (x, _), homoRespectsInv p x
-           | Pregroup.Arity.binary  => λ (x, y, _), p x y,
-         λ z, Proto.Empty.elim z)⟩
+      (p : Π a b, φ (a * b) = φ a ∗ φ b) : Hom G H :=
+    ⟨φ, (λ _ (x, y, _), p x y, λ z, nomatch z)⟩
 
     hott def mkiso (φ : G.carrier → H.carrier)
       (p : Π a b, φ (a * b) = φ a ∗ φ b) (q : biinv φ) : G ≅ H :=
     ⟨φ, ((mkhomo φ p).snd, q)⟩
 
+    hott def homoUnit (φ : Hom G H) : φ.1 G.e = H.e :=
+    homoRespectsUnit (homoMul φ)
+
+    hott def homoInv (φ : Hom G H) : Π x, φ.1 (G.ι x) = H.ι (φ.1 x) :=
+    homoRespectsInv (homoMul φ)
+
     hott def isoUnit (φ : G ≅ H) : φ.fst G.e = H.e :=
-    homoUnit φ.homo
+    homoUnit φ.hom
 
     hott def isoInv (φ : G ≅ H) : Π x, φ.fst x⁻¹ = H.ι (φ.fst x) :=
-    homoInv φ.homo
+    homoInv φ.hom
 
     hott def isoMul (φ : G ≅ H) :
       Π x y, φ.fst (x * y) = φ.fst x ∗ φ.fst y :=
-    homoMul φ.homo
+    homoMul φ.hom
 
-    hott def homoRespectsDiv (φ : G ⤳ H) (x y : G.carrier) :
+    hott def homoRespectsDiv (φ : Hom G H) (x y : G.carrier) :
       φ.1 (x / y) = rightDiv (φ.1 x) (φ.1 y) := calc
       φ.1 (x / y) = φ.1 x ∗ φ.1 y⁻¹     : homoMul φ x y⁻¹
               ... = φ.1 x ∗ H.ι (φ.1 y) : Id.map (H.φ (φ.1 x)) (homoInv φ y)
 
-    hott def Homo.zero : G ⤳ H :=
+    hott def Homo.zero : Hom G H :=
     mkhomo (λ _, H.e) (λ _ _, Id.inv (H.oneMul H.e))
 
-    instance : OfNat (G ⤳ H) Nat.zero := ⟨Homo.zero⟩
+    instance : OfNat (Hom G H) Nat.zero := ⟨Homo.zero⟩
+    instance : OfNat (Algebra.Hom G.1 H.1) Nat.zero := ⟨Homo.zero⟩
   end
 
-  noncomputable hott def Homo.set {G H : Pregroup} : hset (G ⤳ H) :=
-  Algebra.Homo.hset
+  section
+    variable (G H : Abelian)
+
+    instance : OfNat (Abelian.Hom G H) Nat.zero := ⟨@Homo.zero G.group H.group⟩
+    instance : OfNat (Algebra.Hom G.1 H.1) Nat.zero := ⟨@Homo.zero G.group H.group⟩
+  end
+
+  noncomputable hott def Homo.set {G H : Group} : Structures.hset (Hom G H) :=
+  Algebra.Hom.hset
 
   -- Of course, this can be done by induction
-  hott def Homo.ofPath {G H : Pregroup} [group G] [group H]
-    (φ : G.carrier = H.carrier) (p : G.φ =[λ G, G → G → G, φ] H.φ) : G ⤳ H :=
+  hott def Homo.ofPath {G H : Group} (φ : G.carrier = H.carrier) (p : G.φ =[λ G, G → G → G, φ] H.φ) : Hom G H :=
   begin
     fapply mkhomo; exact @transport _ (λ G, G) G.carrier H.carrier φ;
     intros a b; transitivity; apply Id.map; apply bimap;
@@ -370,26 +400,25 @@ namespace Group
     apply HITs.Interval.happly; apply HITs.Interval.happly; exact p
   end
 
-  hott def Iso.ofPath {G H : Pregroup} [group G] [group H]
-    (φ : G.carrier = H.carrier) (p : G.φ =[λ G, G → G → G, φ] H.φ) : G ≅ H :=
+  hott def Iso.ofPath {G H : Group} (φ : G.carrier = H.carrier) (p : G.φ =[λ G, G → G → G, φ] H.φ) : G ≅ H :=
   begin
-    fapply Iso.ofHomo; apply Homo.ofPath φ p;
+    fapply Iso.ofHom; apply Homo.ofPath φ p;
     apply Prod.mk <;> existsi @transport _ (λ G, G) H.carrier G.carrier (Id.inv φ) <;> intro x;
     dsimp; apply Equiv.transportForwardAndBack;
     apply @Equiv.transportBackAndForward _ (λ G, G) _ _ φ
   end
 
-  noncomputable hott def Iso.ua {G H : Pregroup} : G ≅ H → G = H :=
-  @Alg.ua.{0, 0, 0} Pregroup.Arity ⊥ Pregroup.signature G H
+  noncomputable hott def Iso.ua {G H : Group} : (G ≅ H) → G = H :=
+  begin intro φ; fapply Sigma.prod; apply Alg.ua φ; apply isGroupProp end
 
   -- This statement in fact says that two groups are equal
   -- if their multiplication tables are equal
-  noncomputable hott def table {G H : Pregroup} [group G] [group H]
-    (φ : G.carrier = H.carrier) (p : G.φ =[λ G, G → G → G, φ] H.φ) : G = H :=
+  noncomputable hott def table {G H : Group} (φ : G.carrier = H.carrier)
+    (p : G.φ =[λ G, G → G → G, φ] H.φ) : G = H :=
   Iso.ua (Iso.ofPath φ p)
 
   section
-    variable {H : Pregroup}
+    variable {H : Group}
     hott def Op.mul := λ x y, H.φ y x
     hott def Op.inv := H.ι
     hott def Op.one := H.e
@@ -397,28 +426,23 @@ namespace Group
 end Group
 
 namespace Group
-  hott def Op (G : Pregroup) : Pregroup :=
-  @Pregroup.intro G.carrier G.hset Op.mul Op.inv Op.one
+  hott def Op (G : Group) : Group :=
+  @Group.intro G.carrier G.hset Op.mul Op.inv Op.one
+    (λ a b c, Id.inv (G.mulAssoc c b a))
+    G.mulOne G.oneMul G.mulRightInv
+
   postfix:max "ᵒᵖ" => Op
 
-  variable {G : Pregroup}
+  variable {G : Group}
 
-  instance Op.semigroup [group G] : semigroup Gᵒᵖ.magma :=
-  ⟨λ a b c, Id.inv (G.mulAssoc c b a)⟩
-
-  instance Op.monoid [group G] : monoid Gᵒᵖ.premonoid :=
-  ⟨Op.semigroup, G.mulOne, G.oneMul⟩
-
-  instance Op.group [group G] : group Gᵒᵖ :=
-  ⟨Op.monoid, @mulRightInv G _⟩
-
-  hott def Op.univ [Algebra.group G] : G ⤳ Gᵒᵖ :=
+  hott def Op.univ : Hom G Gᵒᵖ :=
   mkhomo G.ι invExplode
 
-  hott def Op.iso [Algebra.group G] : G ≅ Gᵒᵖ :=
+  hott def Op.iso : G ≅ Gᵒᵖ :=
   begin
     fapply mkiso; exact G.ι; apply invExplode;
-    apply Prod.mk <;> existsi G.ι <;> intro x <;> apply invInv
+    apply Prod.mk <;> existsi G.ι <;>
+    intro <;> apply invInv
   end
 end Group
 
@@ -428,22 +452,9 @@ namespace Group
 
   instance Z₁.Mul : Mul 𝟏 := ⟨Z₁.mul⟩
 
-  hott def Z₁ : Pregroup :=
-  @Pregroup.intro 𝟏 unitIsSet Z₁.mul Z₁.inv ★
-
-  instance Z₁.semigroup : semigroup Z₁.magma :=
-  ⟨begin intros; reflexivity end⟩
-
-  instance Z₁.monoid : monoid Z₁.premonoid :=
-  ⟨Z₁.semigroup,
-    begin intro ★; reflexivity end,
-    begin intro ★; reflexivity end⟩
-
-  instance Z₁.group : group Z₁ :=
-  ⟨Z₁.monoid, begin intro ★; reflexivity end⟩
-
-  instance Z₁.abelian : abelian Z₁ :=
-  ⟨begin intros; reflexivity end⟩
+  hott def Z₁ : Group :=
+  @Group.intro 𝟏 unitIsSet Z₁.mul Z₁.inv ★ (λ _ _ _, idp _)
+    (λ _, idp _) (λ _, idp _) (λ _, idp _)
 
   hott def Z₂.carrier := 𝟐
 
@@ -453,31 +464,24 @@ namespace Group
 
   hott def Z₂.inv := @idfun Z₂.carrier
 
-  hott def Z₂.set : hset Z₂.carrier :=
+  hott def Z₂.set : Structures.hset Z₂.carrier :=
   Structures.Hedberg (λ | false, false => Sum.inl Id.refl
                         | true,  false => Sum.inr (ffNeqTt ∘ Id.inv)
                         | false, true  => Sum.inr ffNeqTt
                         | true,  true  => Sum.inl Id.refl)
 
-  hott def Z₂ : Pregroup :=
-  @Pregroup.intro Z₂.carrier Z₂.set Z₂.mul Z₂.inv false
-
-  instance Z₂.semigroup : semigroup Z₂.magma :=
-  ⟨begin
-    intros a b c;
-    induction a using Bool.casesOn <;>
-    induction b using Bool.casesOn <;>
-    induction c using Bool.casesOn <;>
-    reflexivity
-  end⟩
-
-  instance Z₂.monoid : monoid Z₂.premonoid :=
-  ⟨Z₂.semigroup,
-    begin intro b; induction b using Bool.casesOn <;> reflexivity end,
-    begin intro b; induction b using Bool.casesOn <;> reflexivity end⟩
-
-  instance Z₂.group : group Z₂ :=
-  ⟨Z₂.monoid, begin intro b; induction b using Bool.casesOn <;> reflexivity end⟩
+  hott def Z₂ : Group :=
+  @Group.intro Z₂.carrier Z₂.set Z₂.mul Z₂.inv false
+    (begin
+      intros a b c;
+      induction a using Bool.casesOn <;>
+      induction b using Bool.casesOn <;>
+      induction c using Bool.casesOn <;>
+      reflexivity
+    end)
+    (begin intro b; induction b using Bool.casesOn <;> reflexivity end)
+    (begin intro b; induction b using Bool.casesOn <;> reflexivity end)
+    (begin intro b; induction b using Bool.casesOn <;> reflexivity end)
 end Group
 
 end GroundZero.Algebra

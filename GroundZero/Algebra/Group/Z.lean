@@ -6,30 +6,20 @@ open GroundZero.Types GroundZero.HITs
 
 namespace GroundZero.Algebra
 
-noncomputable def ZΩ : Pregroup :=
-Pregroup.intro (Circle.isGroupoid Circle.base Circle.base) Id.trans Id.inv Id.refl
+noncomputable def ZΩ : Group :=
+Group.intro (Circle.isGroupoid Circle.base Circle.base) Id.trans Id.inv Id.refl
+  (λ a b c, (Id.assoc a b c)⁻¹) Id.reflLeft Id.reflRight Id.invComp
 
-noncomputable instance ZΩ.semigroup : semigroup ZΩ.magma :=
-⟨λ a b c, (Id.assoc a b c)⁻¹⟩
+noncomputable def ZΩ.abelian : ZΩ.isCommutative := Circle.comm
 
-noncomputable instance ZΩ.monoid : monoid ZΩ.premonoid :=
-⟨ZΩ.semigroup, Id.reflLeft, Id.reflRight⟩
-
-noncomputable instance ZΩ.group : group ZΩ :=
-⟨ZΩ.monoid, Id.invComp⟩
-
-noncomputable instance ZΩ.abelian : abelian ZΩ :=
-⟨Circle.comm⟩
-
-hott def helix {G : Pregroup} [group G] (z : G.carrier) : S¹ → Type :=
+hott def helix {G : Group} (z : G.carrier) : S¹ → Type :=
 Circle.rec G.carrier (GroundZero.ua (Group.left G z))
 
-hott def power {G : Pregroup} [group G]
-  (z : G.carrier) (p : ZΩ.carrier) : G.carrier :=
+hott def power {G : Group} (z : G.carrier) (p : ZΩ.carrier) : G.carrier :=
 @transport S¹ (helix z) Circle.base Circle.base p G.e
 
 -- In cubicaltt these two lemmas will just compute
-noncomputable hott def helix.loop {G : Pregroup} [group G] (z x : G.carrier) :
+noncomputable hott def helix.loop {G : Group} (z x : G.carrier) :
   transport (helix z) Circle.loop x = G.φ z x :=
 begin
   transitivity; apply Equiv.transportToTransportconst;
@@ -37,7 +27,7 @@ begin
   apply Circle.recβrule₂; apply ua.transportRule
 end
 
-noncomputable hott def helix.loopInv {G : Pregroup} [group G] (z x : G.carrier) :
+noncomputable hott def helix.loopInv {G : Group} (z x : G.carrier) :
   transport (helix z) Circle.loop⁻¹ x = G.φ (G.ι z) x :=
 begin
   transitivity; apply Equiv.transportToTransportconst;
@@ -46,15 +36,15 @@ begin
   apply Circle.recβrule₂; apply ua.transportInvRule
 end
 
-noncomputable hott def power.succ {G : Pregroup} [group G] (z : G.carrier) :
+noncomputable hott def power.succ {G : Group} (z : G.carrier) :
   Π p, power z (Circle.succ p) = G.φ z (power z p) :=
 begin intro p; transitivity; apply Equiv.substComp; apply helix.loop end
 
-noncomputable hott def power.pred {G : Pregroup} [group G] (z : G.carrier) :
+noncomputable hott def power.pred {G : Group} (z : G.carrier) :
   Π p, power z (Circle.pred p) = G.φ (G.ι z) (power z p) :=
 begin intro p; transitivity; apply Equiv.substComp; apply helix.loopInv end
 
-noncomputable hott def power.mul {G : Pregroup} [group G] (z : G.carrier) :
+noncomputable hott def power.mul {G : Group} (z : G.carrier) :
   Π (p q : ZΩ.carrier), power z (p ⬝ q) = G.φ (power z p) (power z q) :=
 begin
   intro p q; fapply @Circle.Ωind₁ (λ p, power z (p ⬝ q) = G.φ (power z p) (power z q)) <;> clear p;
@@ -73,13 +63,13 @@ begin
     apply Id.map (G.φ · _); symmetry; apply power.pred }
 end
 
-noncomputable hott def ZΩ.rec {G : Pregroup} [Algebra.group G] (z : G.carrier) : ZΩ ⤳ G :=
+noncomputable hott def ZΩ.rec {G : Group} (z : G.carrier) : Group.Hom ZΩ G :=
 Group.mkhomo (power z) (power.mul z)
 
 noncomputable hott def ZΩ.mul (p q : ZΩ.carrier) : ZΩ.carrier :=
-(@power (Group.S ZΩ.zero) _ (Group.left ZΩ p) q).1 Id.refl
+(@power (Group.S ZΩ.1.zero) (Group.left ZΩ p) q).1 Id.refl
 
-noncomputable hott def power.one {G : Pregroup} [group G] : Π p, power G.e p = G.e :=
+noncomputable hott def power.one {G : Group} : Π p, power G.e p = G.e :=
 begin
   fapply Circle.Ωind₁; reflexivity;
   { intros p ih; transitivity; apply power.succ;
@@ -90,8 +80,7 @@ begin
     transitivity; apply G.oneMul; exact ih }
 end
 
-hott def power.zero {G : Pregroup} [group G]
-  (x : G.carrier) : power x Id.refl = G.e :=
+hott def power.zero {G : Group} (x : G.carrier) : power x Id.refl = G.e :=
 by reflexivity
 
 noncomputable hott def ZΩ.mulZero (p : ZΩ.carrier) :
@@ -100,6 +89,6 @@ by reflexivity
 
 -- something is really wrong with this thing
 --noncomputable hott def ZΩ.zeroMul (p : ZΩ.carrier) : ZΩ.mul Id.refl p = Id.refl :=
---@Id.map (Group.S ZΩ.zero).carrier ZΩ.carrier _ _ (λ e, e.1 Id.refl) (power.one p)
+--@Id.map (Group.S ZΩ.1.zero).carrier ZΩ.carrier _ _ (λ e, e.1 Id.refl) (power.one p)
 
 end GroundZero.Algebra

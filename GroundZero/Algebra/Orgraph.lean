@@ -101,22 +101,22 @@ namespace GroundZero.Algebra
   end
 
   hott def leOverAddLeft (T : Overring) [orfield T] (a b c : T.carrier) (p : a ≤ b) : c + a ≤ c + b :=
-  begin apply Equiv.transportconst; apply Equiv.bimap <;> apply T.τ⁺.mulComm; apply orfield.leOverAdd; exact p end
+  begin apply Equiv.transportconst; apply Equiv.bimap <;> apply T.τ.addComm; apply orfield.leOverAdd; exact p end
 
   hott def ineqAdd (T : Overring) [orfield T] {a b c d : T.carrier} (p : a ≤ b) (q : c ≤ d) : a + c ≤ b + d :=
   begin apply @transitive.trans T.κ; apply orfield.leOverAdd; exact p; apply leOverAddLeft; exact q end
 
   hott def leOverSubRight (T : Overring) [orfield T] (a b c : T.carrier) (p : a + c ≤ b + c) : a ≤ b :=
   begin
-    apply Equiv.transport (λ w, w ≤ b); symmetry; apply @Group.cancelRight T.τ⁺ _ a c;
-    apply Equiv.transport (λ w, (a + c) - c ≤ w); symmetry; apply @Group.cancelRight T.τ⁺ _ b c;
+    apply Equiv.transport (λ w, w ≤ b); symmetry; apply @Group.cancelRight T.τ⁺ a c;
+    apply Equiv.transport (λ w, (a + c) - c ≤ w); symmetry; apply @Group.cancelRight T.τ⁺ b c;
     apply orfield.leOverAdd; assumption
   end
 
   hott def leOverSubLeft (T : Overring) [orfield T] (a b c : T.carrier) (p : c + a ≤ c + b) : a ≤ b :=
   begin
-    apply leOverSubRight T a b c; apply Equiv.transport (λ w, w ≤ b + c); apply T.τ⁺.mulComm;
-    apply Equiv.transport (λ w, c + a ≤ w); apply T.τ⁺.mulComm; assumption
+    apply leOverSubRight T a b c; apply Equiv.transport (λ w, w ≤ b + c); apply T.τ.addComm;
+    apply Equiv.transport (λ w, c + a ≤ w); apply T.τ.addComm; assumption
   end
 
   hott def subLeIfAddGe (T : Overring) [orfield T] {a b c : T.carrier} (p : a ≤ c + b) : a - b ≤ c :=
@@ -126,7 +126,7 @@ namespace GroundZero.Algebra
   end
 
   hott def subLeIfAddGeRev (T : Overring) [orfield T] {a b c : T.carrier} (p : a ≤ b + c) : a - b ≤ c :=
-  begin apply subLeIfAddGe; apply Equiv.transport (λ w, a ≤ w); apply T.τ⁺.mulComm; assumption end
+  begin apply subLeIfAddGe; apply Equiv.transport (λ w, a ≤ w); apply T.τ.addComm; assumption end
 
   hott def addLeIfSubGe (T : Overring) [orfield T] {a b c : T.carrier} (p : a ≤ b - c) : a + c ≤ b :=
   begin
@@ -141,10 +141,10 @@ namespace GroundZero.Algebra
   end
 
   hott def subGeIfAddLeRev (T : Overring) [orfield T] {a b c : T.carrier} (p : c + a ≤ b) : a ≤ b - c :=
-  begin apply subGeIfAddLe; apply Equiv.transport (λ w, w ≤ b); apply T.τ⁺.mulComm; assumption end
+  begin apply subGeIfAddLe; apply Equiv.transport (λ w, w ≤ b); apply T.τ.addComm; assumption end
 
   hott def addLeIfSubGeRev (T : Overring) [orfield T] {a b c : T.carrier} (p : a ≤ b - c) : c + a ≤ b :=
-  begin apply Equiv.transport (λ w, w ≤ b); apply T.τ⁺.mulComm; apply addLeIfSubGe; assumption end
+  begin apply Equiv.transport (λ w, w ≤ b); apply T.τ.addComm; apply addLeIfSubGe; assumption end
 
   hott def subGeZeroIfLe (T : Overring) [orfield T] {a b : T.carrier} (p : a ≤ b) : 0 ≤ b - a :=
   begin apply subGeIfAddLe; apply Equiv.transport (λ w, w ≤ b); symmetry; apply T.τ⁺.oneMul; assumption end
@@ -156,13 +156,13 @@ namespace GroundZero.Algebra
   begin
     apply Prod.mk; intro q; apply p.1;
     apply Equiv.transportconst; apply Equiv.bimap;
-    symmetry; apply @Group.cancelRight T.τ⁺ _ a c;
-    symmetry; apply @Group.cancelRight T.τ⁺ _ b c;
+    symmetry; apply @Group.cancelRight T.τ⁺ a c;
+    symmetry; apply @Group.cancelRight T.τ⁺ b c;
     apply Id.map (λ x, x - c) q; apply orfield.leOverAdd; exact p.2
   end
 
   hott def ltOverAddLeft (T : Overring) [orfield T] (a b c : T.carrier) (p : a < b) : c + a < c + b :=
-  begin apply Equiv.transportconst; apply Equiv.bimap <;> apply T.τ⁺.mulComm; apply ltOverAdd; exact p end
+  begin apply Equiv.transportconst; apply Equiv.bimap <;> apply T.τ.addComm; apply ltOverAdd; exact p end
 
   hott def strictIneqTransRight (T : Overring) [orfield T] {a b c : T.carrier} (p : a < b) (q : b ≤ c) : a < c :=
   begin

@@ -386,6 +386,10 @@ hott def piProp {A : Type u} {B : A → Type v}
   (H : Π x, prop (B x)) : prop (Π x, B x) :=
 λ f g, HITs.Interval.funext (λ x, H x (f x) (g x))
 
+hott def sigProp {A : Type u} {B : A → Type v}
+  (H : prop A) (G : Π x, prop (B x)) : prop (Σ x, B x) :=
+begin intros w₁ w₂; fapply Types.Sigma.prod; apply H; apply G end
+
 hott def implProp {A : Type u} {B : Type v} (H : prop B) : prop (A → B) :=
 piProp (λ _, H)
 

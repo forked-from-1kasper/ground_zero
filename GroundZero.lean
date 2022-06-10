@@ -1,14 +1,11 @@
 import GroundZero.Proto
 import GroundZero.Structures
 import GroundZero.Support
-
-/-
 import GroundZero.Algebra.Basic
 import GroundZero.Algebra.Boolean
 import GroundZero.Algebra.Category
 import GroundZero.Algebra.EilenbergMacLane
 import GroundZero.Algebra.Geometry
-import GroundZero.Algebra.Homology
 import GroundZero.Algebra.Monoid
 import GroundZero.Algebra.Orgraph
 import GroundZero.Algebra.Reals
@@ -33,8 +30,6 @@ import GroundZero.Algebra.Group.Semidirect
 import GroundZero.Algebra.Group.Subgroup
 import GroundZero.Algebra.Group.Symmetric
 import GroundZero.Algebra.Group.Z
--/
-
 import GroundZero.Cubical.Connection
 import GroundZero.Cubical.Cubes
 import GroundZero.Cubical.Example

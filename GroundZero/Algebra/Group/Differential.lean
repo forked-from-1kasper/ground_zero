@@ -13,23 +13,23 @@ namespace GroundZero.Algebra
 universe u v u' v' w
 
 namespace Group
-  variable {G : Pregroup} [group G]
+  variable {G : Group}
 
-  hott def imImplKer {φ : G ⤳ G} (H : φ ⋅ φ = 0) : (im φ).set ⊆ (ker φ).set :=
+  hott def imImplKer {φ : Hom G G} (H : φ ⋅ φ = 0) : (im φ).set ⊆ (ker φ).set :=
   begin
     intro x; fapply HITs.Merely.rec; apply G.hset;
     intro ⟨y, p⟩; change _ = _; transitivity; apply Id.map _ (Id.inv p);
-    apply @idhomo _ _ _ _ _ (φ ⋅ φ) 0; apply H
+    apply @idhom _ _ _ _ _ (φ ⋅ φ) 0; apply H
   end
 
-  noncomputable hott def boundaryOfBoundary {φ : G ⤳ G}
+  noncomputable hott def boundaryOfBoundary {φ : Hom G G}
     (p : (im φ).set ⊆ (ker φ).set) : φ ⋅ φ = 0 :=
   begin
-    fapply Homo.funext; intro x; apply p;
+    fapply Hom.funext; intro x; apply p;
     apply HITs.Merely.elem; existsi x; reflexivity
   end
 
-  noncomputable hott def boundaryEqv (φ : G ⤳ G) :
+  noncomputable hott def boundaryEqv (φ : Hom G G) :
     (φ ⋅ φ = 0) ≃ ((im φ).set ⊆ (ker φ).set) :=
   begin
     apply Structures.propEquivLemma;
@@ -38,14 +38,14 @@ namespace Group
   end
 end Group
 
-def Diff := Σ (G : Pregroup) (H : abelian G) (δ : G ⤳ G), δ ⋅ δ = 0
+def Diff := Σ (G : Abelian) (δ : Abelian.Hom G G), δ ⋅ δ = 0
 
 -- Accessors
-def Diff.grp (G : Diff) := G.1
-instance Diff.abelian (G : Diff) : abelian G.grp := G.2.1
+hott def Diff.abelian (G : Diff) := G.1
+hott def Diff.group (G : Diff) := G.abelian.group
 
-def Diff.δ   (G : Diff) : G.grp ⤳ G.grp := G.2.2.1
-def Diff.sqr (G : Diff) : G.δ ⋅ G.δ = 0 := G.2.2.2
+hott def Diff.δ   (G : Diff) : Group.Hom G.group G.group := G.2.1
+hott def Diff.sqr (G : Diff) : G.δ ⋅ G.δ = 0 := G.2.2
 
 namespace Diff
   open GroundZero.Algebra.Group (ker)

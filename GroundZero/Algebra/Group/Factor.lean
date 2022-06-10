@@ -14,9 +14,8 @@ namespace GroundZero.Algebra
 universe u v u' v' w
 
 namespace Group
-  open GroundZero.Algebra.Pregroup (rightDiv leftDiv conjugate conjugateRev subgroup)
+  variable {G : Group}
 
-  variable {G : Pregroup} [Algebra.group G]
   local infixl:70 (priority := high) " * " => G.φ
   local postfix:max (priority := high) "⁻¹" => G.ι
   local notation "e" => G.e
@@ -53,27 +52,27 @@ namespace Group
       apply chainRdiv x y z; apply φ.mul <;> assumption }
   end⟩
 
-  def factorLeft (G : Pregroup) (φ : G.subgroup) [group G] :=
+  def factorLeft (G : Group) (φ : G.subgroup) :=
   HITs.Quotient (factorEqrelLeft φ)
 
-  def factorRight (G : Pregroup) (φ : G.subgroup) [group G] :=
+  def factorRight (G : Group) (φ : G.subgroup) :=
   HITs.Quotient (factorEqrelRight φ)
 
-  noncomputable hott def factorSymm (φ : G.subgroup) [G ⊵ φ] :
+  noncomputable hott def factorSymm (φ : G.subgroup) (ρ : G ⊵ φ) :
     factorLeft G φ = factorRight G φ :=
   begin
     apply map GroundZero.HITs.Quotient; apply GroundZero.eqrel.eq;
     apply Theorems.funext; intro; apply Theorems.funext; intro;
     fapply Types.Sigma.prod; change ldiv φ _ _ = rdiv φ _ _;
     apply HITs.Interval.happly; apply HITs.Interval.happly;
-    apply cosetsEq; apply propIsProp
+    apply cosetsEq ρ; apply propIsProp
   end
 
-  hott def Factor.incl {φ : G.subgroup} [G ⊵ φ] : G.carrier → factorLeft G φ :=
+  hott def Factor.incl {φ : G.subgroup} : G.carrier → factorLeft G φ :=
   GroundZero.HITs.Quotient.elem
 
   section
-    variable {φ : G.subgroup} [G ⊵ φ]
+    variable {φ : G.normal}
 
     noncomputable hott def Factor.mul :
       factorLeft G φ → factorLeft G φ → factorLeft G φ :=
@@ -102,12 +101,12 @@ namespace Group
              Id.inv (G.mulAssoc b⁻¹ a⁻¹ (c * d))
        ... = leftDiv (a * b) (c * d) :
              Id.map (G.φ · (c * d)) (Id.inv (invExplode a b));
-        apply isNormalSubgroup.conj; apply φ.mul;
+        apply isNormalSubgroup.conj φ.2; apply φ.1.mul;
         { exact p };
         { apply transport (· ∈ φ.set); apply calc
             (b * d⁻¹)⁻¹ = d⁻¹⁻¹ * b⁻¹ : invExplode b d⁻¹
                     ... = d * b⁻¹     : Id.map (G.φ · b⁻¹) (invInv d);
-          apply φ.inv; apply (normalSubgroupCosets φ).left; exact q } }
+          apply φ.1.inv; apply (normalSubgroupCosets φ.2).left; exact q } }
     end
 
     hott def Factor.one : factorLeft G φ := Factor.incl e
@@ -121,7 +120,7 @@ namespace Group
           ... = e * x⁻¹ * x   : Id.map (G.φ · x) (Id.inv (G.oneMul x⁻¹))
           ... = e⁻¹ * x⁻¹ * x : Id.map (λ y, y * x⁻¹ * x) unitInv
           ... = (x * e)⁻¹ * x : Id.map (G.φ · x) (Id.inv (invExplode x e));
-        apply φ.unit };
+        apply φ.1.unit };
       { intros; apply HITs.Quotient.set }
     end
 
@@ -152,7 +151,7 @@ namespace Group
       { intros u v H; apply GroundZero.HITs.Quotient.sound;
         apply transport (· ∈ φ.set); symmetry;
         apply map (G.φ · v⁻¹); apply invInv;
-        apply (normalSubgroupCosets φ).left; exact H };
+        apply (normalSubgroupCosets φ.2).left; exact H };
       { apply GroundZero.HITs.Quotient.set }
     end
 
@@ -166,31 +165,23 @@ namespace Group
   end
 
   section
-    variable (H : Pregroup) (φ : H.subgroup) [group H] [H ⊵ φ]
+    variable (H : Group) (φ : H.normal)
 
-    noncomputable hott def Factor : Pregroup :=
-    @Pregroup.intro (factorLeft H φ) HITs.Quotient.set Factor.mul Factor.inv Factor.one
-
-    noncomputable instance Factor.semigroup : semigroup (Factor H φ).magma :=
-    ⟨Factor.assoc⟩
-
-    noncomputable instance Factor.monoid : monoid (Factor H φ).premonoid :=
-    ⟨Factor.semigroup H φ, @Factor.oneMul H _ φ _, Factor.mulOne⟩
-
-    noncomputable  instance Factor.group : group (Factor H φ) :=
-    ⟨Factor.monoid H φ, @Factor.leftInv H _ φ _⟩
+    noncomputable hott def Factor : Group :=
+    @Group.intro (factorLeft H φ) HITs.Quotient.set Factor.mul Factor.inv Factor.one
+      Factor.assoc Factor.oneMul Factor.mulOne Factor.leftInv
   end
 
   infix:70 " \\ " => Factor
 
-  hott def Factor.sound {φ : G.subgroup} [G ⊵ φ] {x : G.carrier} (H : x ∈ φ.set) :
+  hott def Factor.sound {φ : G.normal} {x : G.carrier} (H : x ∈ φ.set) :
     @Id (factorLeft G φ) (Factor.incl x) Factor.one :=
   begin
     apply HITs.Quotient.sound; apply transport (· ∈ φ.set);
-    symmetry; apply ldivByUnit; apply φ.inv; assumption
+    symmetry; apply ldivByUnit; apply φ.1.inv; assumption
   end
 
-  hott def Factor.lift {H : Pregroup} [Algebra.group H] (f : G ⤳ H) {φ : G.subgroup} [G ⊵ φ]
+  hott def Factor.lift {H : Group} (f : Hom G H) {φ : G.normal}
     (p : Π x, x ∈ φ.set → f.fst x = H.e) : factorLeft G φ → H.carrier :=
   begin
     fapply HITs.Quotient.rec; exact f.1;
@@ -243,7 +234,7 @@ namespace Group
   end
 
   section
-    variable {φ : G.subgroup} {ψ : G.subgroup} [G ⊵ φ] [G ⊵ ψ]
+    variable {φ : G.normal} {ψ : G.normal}
 
     noncomputable hott def Factor.transfer (f : φ.set ⊆ ψ.set) : (G\φ).carrier → (G\ψ).carrier :=
     begin

@@ -321,16 +321,15 @@ namespace GroundZero.Algebra
   def continuous.pointed (M₁ M₂ : Metric⁎) := @continuous M₁.1 M₂.1
   notation "continuous⁎" => continuous.pointed
 
-  def absolute (G : Pregroup) (φ : G.carrier → ℝ) :=
+  def absolute (G : Group) (φ : G.carrier → ℝ) :=
     (Π x, φ x = 0 ↔ x = G.e)
   × (Π x, φ x = φ (G.ι x))
   × (Π x y, R.ρ (φ (G.φ x y)) (φ x + φ y))
 
-  def Absolute (G : Pregroup) :=
+  def Absolute (G : Group) :=
   Σ (φ : G.carrier → ℝ), absolute G φ
 
-  noncomputable hott def Absolute.geZero {G : Pregroup} [group G]
-    (A : Absolute G) : Π x, R.ρ 0 (A.1 x) :=
+  noncomputable hott def Absolute.geZero {G : Group} (A : Absolute G) : Π x, R.ρ 0 (A.1 x) :=
   begin
     intro x; apply doubleGeZeroImplGeZero; apply Equiv.transport (R.ρ · _);
     apply (A.2.1 (G.φ x (G.ι x))).right; apply Group.mulRightInv;
@@ -338,14 +337,14 @@ namespace GroundZero.Algebra
     symmetry; apply (A.2.2.1 x); apply A.2.2.2
   end
 
-  noncomputable hott def Absolute.zeroIf {G : Pregroup} [group G]
+  noncomputable hott def Absolute.zeroIf {G : Group}
     (A : Absolute G) : Π x, R.ρ (A.1 x) 0 → A.1 x = 0 :=
   begin intros x p; apply @antisymmetric.asymm R.κ; exact p; apply Absolute.geZero end
 
-  hott def Absolute.metric (G : Pregroup) [group G] (A : Absolute G) :=
+  hott def Absolute.metric (G : Group) (A : Absolute G) :=
   λ x y, A.1 (G.φ x (G.ι y))
 
-  hott def Absolute.metrizable (G : Pregroup) [group G] (A : Absolute G) : Algebra.metric (Absolute.metric G A) :=
+  hott def Absolute.metrizable (G : Group) (A : Absolute G) : Algebra.metric (Absolute.metric G A) :=
   begin
     apply (_, (_, _));
     { intros x y; apply Prod.mk <;> intro p;
@@ -360,10 +359,10 @@ namespace GroundZero.Algebra
       apply Id.map A.1; apply Group.chainRdiv x y z; apply A.2.2.2 }
   end
 
-  hott def Absolute.space (G : Pregroup) [group G] (A : Absolute G) : Metric :=
-  ⟨G.1, ⟨Absolute.metric G A, Absolute.metrizable G A⟩⟩
+  hott def Absolute.space (G : Group) (A : Absolute G) : Metric :=
+  ⟨G.1.1, ⟨Absolute.metric G A, Absolute.metrizable G A⟩⟩
 
-  noncomputable hott def Absolute.mulInv (G : Pregroup) [group G] (A : Absolute G)
+  noncomputable hott def Absolute.mulInv (G : Group) (A : Absolute G)
     (x y : G.carrier) : R.ρ (abs (A.1 x - A.1 y)) (A.1 (G.φ x y)) :=
   begin
     apply abs.leIfMinusLeAndLe;
@@ -380,7 +379,7 @@ namespace GroundZero.Algebra
   begin
     apply abs.leIfMinusLeAndLe;
     { apply Equiv.transport (R.ρ · (x + y)); symmetry; transitivity;
-      apply @Group.invExplode R.τ⁺; apply R.τ⁺.mulComm;
+      apply @Group.invExplode R.τ⁺; apply R.τ.addComm;
       apply ineqAdd <;> apply abs.le };
     { apply ineqAdd <;> apply abs.ge }
   end
@@ -424,7 +423,7 @@ namespace GroundZero.Algebra
     { apply sup.lawful; change _ = _; reflexivity }
   end
 
-  noncomputable hott def Absolute.continuous (G : Pregroup) [group G]
+  noncomputable hott def Absolute.continuous (G : Group)
     (A : Absolute G) : Π m, @continuous (Absolute.space G A) Rₘ A.1 m :=
   begin
     intros x ε H; apply Merely.elem; existsi ε; apply Prod.mk; exact H;

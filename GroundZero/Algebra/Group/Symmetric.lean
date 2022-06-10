@@ -1,5 +1,6 @@
 import GroundZero.Algebra.Group.Subgroup
 open GroundZero.Structures
+open GroundZero.Theorems
 open GroundZero.Types
 open GroundZero.Proto
 open GroundZero
@@ -13,9 +14,7 @@ namespace GroundZero.Algebra
 universe u
 
 namespace Group
-  --open GroundZero.Algebra.Pregroup (right_div left_div conjugate conjugate_rev subgroup)
-
-  variable {G : Pregroup} [Algebra.group G]
+  variable {G : Group}
 
   -- Permutations
   hott def S.carrier (ε : 0-Type) := ε ≃₀ ε
@@ -30,26 +29,14 @@ namespace Group
     instance S.hasMul : Mul (S.carrier ε) := ⟨S.mul⟩
     instance S.hasOne : OfNat (S.carrier ε) (Nat.succ Nat.zero) := ⟨S.one⟩
 
-    section
-      hott def S (ε : nType.{u} 0) : Pregroup.{u} :=
-      @Pregroup.intro (ε ≃₀ ε) (Theorems.Equiv.zeroEquiv.hset ε ε) S.mul S.inv S.one
+    hott def S (ε : nType.{u} 0) : Group.{u} :=
+    @Group.intro (ε ≃₀ ε) (Equiv.zeroEquiv.hset ε ε) S.mul S.inv S.one
+      (λ _ _ _, Equiv.equivHmtpyLem _ _ (λ _, idp _))
+      (λ _, Equiv.equivHmtpyLem _ _ (λ _, idp _))
+      (λ _, Equiv.equivHmtpyLem _ _ (λ _, idp _))
+      (λ e, Equiv.equivHmtpyLem _ _ (λ _, e.rightForward _))
 
-      instance S.semigroup : semigroup (S ε).magma :=
-      ⟨begin intros; fapply Theorems.Equiv.equivHmtpyLem; intro x; reflexivity end⟩
-
-      instance S.monoid : monoid (S ε).premonoid :=
-      ⟨@S.semigroup ε,
-       begin intro; fapply Theorems.Equiv.equivHmtpyLem; intro; reflexivity end,
-       begin intro; fapply Theorems.Equiv.equivHmtpyLem; intro; reflexivity end⟩
-
-      instance S.group : group (S ε) :=
-      ⟨S.monoid, begin
-        intro ⟨f, (⟨g, G⟩, ⟨h, H⟩)⟩; fapply Theorems.Equiv.equivHmtpyLem;
-        intro x; change h (f x) = x; apply Qinv.linvInv; exact H; exact G
-      end⟩
-    end
-
-    hott def left (G : Pregroup) [Algebra.group G] (x : G.carrier) : G.carrier ≃ G.carrier :=
+    hott def left (G : Group) (x : G.carrier) : G.carrier ≃ G.carrier :=
     begin
       existsi (G.φ x ·); apply Prod.mk <;> existsi (G.φ (G.ι x) ·) <;> intro y;
       { transitivity; { symmetry; apply G.mulAssoc };
@@ -60,7 +47,7 @@ namespace Group
         apply G.oneMul }
     end
 
-    hott def S.univ (G : Pregroup.{u}) [Algebra.group G] : G ⤳ S G.zero :=
+    hott def S.univ (G : Group.{u}) : Hom G (S G.1.zero) :=
     mkhomo (left G)
       (begin
         intros x y; fapply Theorems.Equiv.equivHmtpyLem;
@@ -80,7 +67,7 @@ namespace Group
     end
 
     noncomputable hott def S.univ.ker : ker (S.univ G) = triv G :=
-    subgroup.ext (Ens.ssubset.asymm S.univ.ker.encode S.univ.ker.decode)
+    normal.ext (Ens.ssubset.asymm S.univ.ker.encode S.univ.ker.decode)
   end
 end Group
 

@@ -35,15 +35,8 @@ namespace GroundZero.Algebra
       symmetry; apply Equiv.forwardRight a; apply p.2 }
   end
 
-  noncomputable hott def Lim (M : Metric) : Pregroup :=
+  noncomputable hott def Lim (M : Metric) : Group :=
   Group.Subgroup (Group.S M.1) (lim M)
-
-  -- new structures are probably too slow
-  -- (deterministic) timeout at 'whnf', maximum number of heartbeats (200000) has been reached (use 'set_option maxHeartbeats <num>' to set the limit)
-
-/-
-  noncomputable instance Lim.group (M : Metric) : group (Lim M) :=
-  Group.subgroup.group
 
   abbrev Lim.carrier (M : Metric) := (Lim M).carrier
   noncomputable abbrev Lim.φ {M : Metric} := (Lim M).φ
@@ -55,8 +48,9 @@ namespace GroundZero.Algebra
   noncomputable hott def ω.invLe (M : Metric⁎) (φ : Lim.carrier M.1) : R.ρ (ω M (Lim.ι φ)) (ω M φ) :=
   begin
     apply sup.ssubset; intro x; apply Merely.lift; intro ⟨y, p⟩;
-    existsi (Lim.ι φ).1.1 y; symmetry; transitivity; apply M.1.symm;
-    apply Id.map; symmetry; apply φ.1.forwardRight
+    existsi (Lim.ι φ).1.1 y; transitivity; apply M.1.symm;
+    transitivity; apply Id.map (M.1.ρ · _);
+    apply φ.1.forwardRight; exact p
   end
 
   noncomputable hott def ω.inv (M : Metric⁎) (φ : Lim.carrier M.1) : ω M (Lim.ι φ) = ω M φ :=
@@ -71,18 +65,18 @@ namespace GroundZero.Algebra
   begin
     apply sup.exact; intro x; apply Merely.rec; apply R.κ.prop;
     intro ⟨y, p⟩; induction p; apply @transitive.trans R.κ;
-    apply M.1.triangle;exact ψ.1.1 y; apply ineqAdd <;>
+    apply M.1.triangle; exact ψ.1.1 y; apply ineqAdd <;>
     { apply sup.lawful; apply im.intro }
   end
 
   noncomputable hott def ω.mul (M : Metric⁎) (φ ψ : Lim.carrier M.1) :
     R.ρ (ω M (Lim.φ φ ψ)) (ω M φ + ω M ψ) :=
-  begin apply Equiv.transport (R.ρ (ω M (Lim.φ φ ψ))); apply R.τ⁺.mulComm; apply ω.mulRev end
+  begin apply Equiv.transport (R.ρ (ω M (Lim.φ φ ψ))); apply R.τ.addComm; apply ω.mulRev end
 
   noncomputable hott def Lim.ρ {M : Metric⁎} (g h : Lim.carrier M.1) :=
   ω M (Lim.φ g (Lim.ι h))
 
-  noncomputable hott def ω.geZero (M : Metric⁎) (g : Lim.carrier M.1) : 0 ≤ ω M g :=
+  noncomputable hott def ω.geZero (M : Metric⁎) (g : Lim.carrier M.1) : R.ρ 0 (ω M g) :=
   begin
     apply Equiv.transport (R.ρ · _); apply sup.singleton; apply sup.sep;
     intros x y p; apply Merely.rec; apply R.κ.prop; intro ⟨z, q⟩;
@@ -91,7 +85,7 @@ namespace GroundZero.Algebra
 
   noncomputable hott def ω.eqZeroIfLess {M : Metric⁎}
     {g : Lim.carrier M.1} : R.ρ (ω M g) 0 → ω M g = 0 :=
-  begin intro p; apply @antisymmetric.asymm R.κ, exact p, apply ω.geZero end
+  begin intro p; apply @antisymmetric.asymm R.κ; exact p; apply ω.geZero end
 
   noncomputable hott def ω.unit (M : Metric⁎) : ω M (Lim M.1).e = 0 :=
   begin
@@ -105,7 +99,7 @@ namespace GroundZero.Algebra
     (φ : Lim.carrier M.1) (p : ω M φ = 0) : φ = (Lim M.1).e :=
   begin
     apply Sigma.prod; apply Ens.prop; apply GroundZero.Theorems.Equiv.equivHmtpyLem;
-    intro x; apply M.1.eqIfLeZero; apply Equiv.transport (R.ρ (M.1.ρ (φ.1.1 x) x);
+    intro x; apply M.1.eqIfLeZero; apply Equiv.transport (R.ρ (M.1.ρ (φ.1.1 x) x));
     exact p; apply sup.lawful; apply Merely.elem; existsi x; apply M.1.symm
   end
 
@@ -120,17 +114,18 @@ namespace GroundZero.Algebra
   Absolute.metrizable (Lim M.1) ⟨ω M, Lim.absolute M⟩
 
   noncomputable hott def Limₘ : Metric⁎ → Metric :=
-  λ M, ⟨(Lim M.1).1, ⟨Lim.ρ, Lim.metrizable M⟩⟩
+  λ M, ⟨(Lim M.1).1.1, ⟨Lim.ρ, Lim.metrizable M⟩⟩
 
   noncomputable hott def Lim.pointed : Metric⁎ → Metric⁎ := λ M, ⟨Limₘ M, (Lim M.1).e⟩
-  notation Lim⁎ => Lim.pointed
+  notation "Lim⁎" => Lim.pointed
 
-  noncomputable hott def ω.mul_inv (M : Metric⁎) (φ ψ : Lim.carrier M.1) :
-    abs (ω M φ - ω M ψ) ≤ ω M (Lim.φ φ ψ) :=
+  noncomputable hott def ω.mulInv (M : Metric⁎) (φ ψ : Lim.carrier M.1) :
+    R.ρ (abs (ω M φ - ω M ψ)) (ω M (Lim.φ φ ψ)) :=
   Absolute.mulInv (Lim M.1) ⟨ω M, Lim.absolute M⟩ φ ψ
 
-  noncomputable hott def ω.continuous (M : Metric⁎) :
-    Π m, continuous⁎ (Lim⁎ M) R⁎ (ω M) m :=
-  Absolute.continuous (Lim M.1) ⟨ω M, Lim.absolute M⟩
--/
+  -- (deterministic) timeout at 'whnf', maximum number of heartbeats (200000) has been reached (use 'set_option maxHeartbeats <num>' to set the limit)
+
+  --noncomputable hott def ω.continuous (M : Metric⁎) :
+  --  Π m, continuous⁎ (Lim⁎ M) R⁎ (ω M) m :=
+  --Absolute.continuous (Lim M.1) ⟨ω M, Lim.absolute M⟩
 end GroundZero.Algebra

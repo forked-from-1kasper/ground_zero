@@ -20,12 +20,12 @@ open GroundZero
 namespace GroundZero.Algebra
 
 namespace Group
-  variable {G : Pregroup} [Algebra.group G]
+  variable {G : Group}
 
   section
-    variable {H : Pregroup} [Algebra.group H]
+    variable {H : Group}
 
-    hott def ker.encode {φ : G ⤳ H} : factorLeft G (ker φ) → im.carrier φ :=
+    hott def ker.encode {φ : Hom G H} : factorLeft G (ker φ) → im.carrier φ :=
     begin
       fapply HITs.Quotient.rec;
       { intro x; existsi φ.fst x;
@@ -38,7 +38,7 @@ namespace Group
       { apply Ens.hset; apply H.hset }
     end
 
-    noncomputable hott def ker.encodeInj {φ : G ⤳ H} :
+    noncomputable hott def ker.encodeInj {φ : Hom G H} :
       Π (x y : factorLeft G (ker φ)), ker.encode x = ker.encode y → x = y :=
     begin
       fapply @HITs.Quotient.indProp _ _ (λ x, Π y, ker.encode x = ker.encode y → x = y) <;> intro x;
@@ -53,10 +53,10 @@ namespace Group
       { apply piProp; intro; apply implProp; apply HITs.Quotient.set }
     end
 
-    hott def ker.incl {φ : G ⤳ H} : G.carrier → factorLeft G (ker φ) :=
+    hott def ker.incl {φ : Hom G H} : G.carrier → factorLeft G (ker φ) :=
     Factor.incl
 
-    noncomputable hott def ker.decodeSigma {φ : G ⤳ H} :
+    noncomputable hott def ker.decodeSigma {φ : Hom G H} :
       Π (x : im.carrier φ), fib ker.encode x :=
     begin
       intro ⟨x, (p : ∥_∥)⟩; induction p; case elemπ z =>
@@ -69,15 +69,15 @@ namespace Group
         { apply Ens.hset; apply H.hset } }
     end
 
-    noncomputable hott def ker.decode {φ : G ⤳ H}
+    noncomputable hott def ker.decode {φ : Hom G H}
       (x : im.carrier φ) : factorLeft G (ker φ) :=
     (ker.decodeSigma x).1
 
-    abbrev Im (φ : G ⤳ H) : Pregroup :=
+    abbrev Im (φ : Hom G H) : Group :=
     Subgroup H (im φ)
 
     -- First isomorphism theorem.
-    noncomputable hott def firstIsoTheorem {φ : G ⤳ H} : Im φ ≅ G\ker φ :=
+    noncomputable hott def firstIsoTheorem {φ : Hom G H} : Im φ ≅ G\ker φ :=
     begin
       fapply mkiso; exact ker.decode;
       { intro ⟨a, (A : ∥_∥)⟩ ⟨b, (B : ∥_∥)⟩; induction A; induction B;
@@ -96,30 +96,26 @@ namespace Group
     apply Factor.iso S.univ.ker.decode S.univ.ker.encode
   end
 
-  open GroundZero.Algebra.Pregroup (subgroup)
-
-  -- Cayley’s theorem
-  noncomputable hott def Cayley :
-    Σ (φ : subgroup (S G.zero)), Subgroup (S G.zero) φ ≅ G :=
-  ⟨im (S.univ G), S.iso⟩
-
-  hott def Homo.id.encode :
-    G.carrier → im.carrier (Homo.id G) :=
+  hott def Hom.id.encode : G.carrier → im.carrier (Hom.id G.1) :=
   λ x, ⟨x, HITs.Merely.elem ⟨x, idp x⟩⟩
 
-  hott def Homo.id.decode : im.carrier (Homo.id G) → G.carrier :=
+  hott def Hom.id.decode : im.carrier (Hom.id G.1) → G.carrier :=
   Sigma.fst
 
-  hott def Homo.id.iso : G ≅ Im (Homo.id G) :=
+  hott def Hom.id.iso : G ≅ Im (Hom.id G.1) :=
   begin
-    fapply mkiso; exact Homo.id.encode;
+    fapply mkiso; exact Hom.id.encode;
     { intros a b; fapply Sigma.prod;
       reflexivity; apply Ens.prop };
-    apply Prod.mk <;> existsi Homo.id.decode;
+    apply Prod.mk <;> existsi Hom.id.decode;
     { intro; reflexivity };
     { intro; fapply Sigma.prod;
       reflexivity; apply Ens.prop }
   end
+
+  -- Cayley’s theorem
+  noncomputable hott def Cayley : Σ (φ : subgroup (S G.1.zero)), Subgroup (S G.1.zero) φ ≅ G :=
+  ⟨im (S.univ G), S.iso⟩
 end Group
 
 end GroundZero.Algebra

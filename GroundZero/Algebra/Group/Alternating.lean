@@ -52,9 +52,9 @@ namespace Group
   def D₃.elim {β : Type u} (b₁ b₂ b₃ b₄ b₅ b₆ : β) (d : D₃.carrier) : β :=
   @D₃.carrier.casesOn (λ _, β) d b₁ b₂ b₃ b₄ b₅ b₆
 
-  hott def D₃ : Pregroup :=
+  hott def D₃ : Group :=
   begin
-    fapply Pregroup.intro; exact D₃.carrier; apply Hedberg;
+    fapply Group.intro; exact D₃.carrier; apply Hedberg;
     intros x y; induction x <;> induction y <;>
     (first | apply Sum.inl; reflexivity |
       apply Sum.inr; intro H; apply ffNeqTt; symmetry; first
@@ -64,20 +64,10 @@ namespace Group
       | apply Id.map (D₃.elim false false false true  false false) H
       | apply Id.map (D₃.elim false false false false false true)  H
       | apply Id.map (D₃.elim false false false false true  false) H);
-    exact D₃.mul; exact D₃.inv; exact R₀
+    exact D₃.mul; exact D₃.inv; exact R₀;
+    { intro a b c; induction a <;> induction b <;> induction c <;> reflexivity };
+    repeat { intro a; induction a <;> reflexivity }
   end
-
-  instance D₃.semigroup : semigroup D₃.magma :=
-  ⟨begin intro (a : D₃.carrier) (b : D₃.carrier) (c : D₃.carrier);
-         induction a <;> induction b <;> induction c <;> reflexivity end⟩
-
-  instance D₃.monoid : monoid D₃.premonoid :=
-  ⟨D₃.semigroup,
-    begin intro (a : D₃.carrier); induction a <;> reflexivity end,
-    begin intro (a : D₃.carrier); induction a <;> reflexivity end⟩
-
-  instance D₃.group : group D₃ :=
-  ⟨D₃.monoid, begin intro (a : D₃.carrier); induction a <;> reflexivity end⟩
 
   hott def A₃.set : D₃.subset :=
   ⟨D₃.elim 𝟏 𝟏 𝟏 𝟎 𝟎 𝟎, begin
@@ -86,9 +76,9 @@ namespace Group
           | apply Structures.emptyIsProp
   end⟩
 
-  hott def A₃ : D₃.subgroup :=
-  begin
-    fapply Pregroup.subgroup.mk; exact A₃.set; apply ★;
+  hott def A₃ : D₃.normal :=
+  ⟨begin
+    fapply Group.subgroup.mk; exact A₃.set; apply ★;
     { intro (a : D₃.carrier) (b : D₃.carrier) p q;
       induction a <;> induction b <;>
       (first | induction p using Unit.casesOn
@@ -98,17 +88,15 @@ namespace Group
     { intro (a : D₃.carrier) p <;> induction a <;>
       (first | induction p using Unit.casesOn
              | induction p using Proto.Empty.casesOn) <;> apply ★ }
-  end
-
-  instance A₃.normal : D₃ ⊵ A₃ :=
+  end,
   begin
-    constructor; intro (g : D₃.carrier) (h : D₃.carrier) p;
+    intro (g : D₃.carrier) (h : D₃.carrier) p;
     induction g <;> induction h <;>
     (first | induction p using Unit.casesOn
            | induction p using Proto.Empty.casesOn) <;> apply ★
-  end
+  end⟩
 
-  def D₃.inj : D₃.carrier → factorLeft D₃ A₃ := @Factor.incl D₃ _ A₃ _
+  def D₃.inj : D₃.carrier → factorLeft D₃ A₃ := @Factor.incl D₃ A₃
 
   hott def Z₂.encode : Z₂.carrier → factorLeft D₃ A₃
   | false => D₃.inj R₀

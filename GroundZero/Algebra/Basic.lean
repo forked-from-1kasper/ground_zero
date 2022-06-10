@@ -86,35 +86,34 @@ namespace GroundZero.Algebra
         apply Id.map; apply vect.comp }
     end
 
-    hott def Homo (Γ Λ : Alg deg) :=
+    hott def Hom (Γ Λ : Alg deg) :=
     Σ (φ : Γ →ᴬ Λ), respects φ
-    infix:51 " ⤳ " => Homo
 
-    def Homo.ap {Γ Λ : Alg deg} : (Γ ⤳ Λ) → (Γ →ᴬ Λ) := Sigma.fst
+    def Hom.ap {Γ Λ : Alg deg} : Hom Γ Λ → (Γ →ᴬ Λ) := Sigma.fst
 
-    def Homo.comp {Γ Λ Δ : Alg deg} (g : Λ ⤳ Δ) (f : Γ ⤳ Λ) : Γ ⤳ Δ :=
+    def Hom.comp {Γ Λ Δ : Alg deg} (g : Hom Λ Δ) (f : Hom Γ Λ) : Hom Γ Δ :=
     ⟨g.1 ∘ f.1, respects.comp g.2 f.2⟩
 
-    infix:60 " ⋅ " => Homo.comp
+    infix:60 " ⋅ " => Hom.comp
 
-    hott def Homo.id (Γ : Alg deg) : Γ ⤳ Γ :=
+    hott def Hom.id (Γ : Alg deg) : Hom Γ Γ :=
     begin
       existsi Proto.idfun; apply Prod.mk <;> intros i v <;> symmetry;
       apply Id.map (Γ.op i);  apply vect.id;
       apply Id.map (Γ.rel i); apply vect.id
     end
 
-    noncomputable hott def Homo.funext {Γ Λ : Alg deg} :
-      Π {f g : Γ ⤳ Λ}, f.ap ~ g.ap → f = g :=
+    noncomputable hott def Hom.funext {Γ Λ : Alg deg} :
+      Π {f g : Hom Γ Λ}, f.ap ~ g.ap → f = g :=
     begin
       intro ⟨f, F⟩ ⟨g, G⟩ p; fapply Sigma.prod;
       apply Theorems.funext; exact p; apply respects.prop
     end
 
-    hott def idhomo {Γ Λ : Alg deg} {f g : Γ ⤳ Λ} : f = g → f.ap ~ g.ap :=
+    hott def idhom {Γ Λ : Alg deg} {f g : Hom Γ Λ} : f = g → f.ap ~ g.ap :=
     begin intro p; induction p; apply Homotopy.id end
 
-    noncomputable hott def Homo.hset {Γ Λ : Alg deg} : hset (Γ ⤳ Λ) :=
+    noncomputable hott def Hom.hset {Γ Λ : Alg deg} : hset (Hom Γ Λ) :=
     begin
       fapply hsetRespectsSigma;
       { apply piHset; intro; apply Λ.hset };
@@ -123,33 +122,32 @@ namespace GroundZero.Algebra
 
     hott def Iso (Γ Λ : Alg deg) :=
     Σ (φ : Γ →ᴬ Λ), respects φ × biinv φ
-    infix:51 " ≅ " => Iso
 
-    def Iso.ap {Γ Λ : Alg deg} : Γ ≅ Λ → (Γ →ᴬ Λ) := Sigma.fst
+    def Iso.ap {Γ Λ : Alg deg} : Iso Γ Λ → (Γ →ᴬ Λ) := Sigma.fst
 
-    def Iso.eqv {Γ Λ : Alg deg} : Γ ≅ Λ → Γ.carrier ≃ Λ.carrier :=
+    def Iso.eqv {Γ Λ : Alg deg} : Iso Γ Λ → Γ.carrier ≃ Λ.carrier :=
     λ φ, ⟨φ.ap, φ.2.2⟩
 
-    hott def Iso.ofEquiv {Γ Λ : Alg deg} : Π (φ : Γ.carrier ≃ Λ.carrier), respects φ.1 → Γ ≅ Λ :=
+    hott def Iso.ofEquiv {Γ Λ : Alg deg} : Π (φ : Γ.carrier ≃ Λ.carrier), respects φ.1 → Iso Γ Λ :=
     λ ⟨φ, q⟩ p, ⟨φ, (p, q)⟩
 
-    hott def Iso.ofHomo {Γ Λ : Alg deg} : Π (φ : Γ ⤳ Λ), biinv φ.ap → Γ ≅ Λ :=
+    hott def Iso.ofHom {Γ Λ : Alg deg} : Π (φ : Hom Γ Λ), biinv φ.ap → Iso Γ Λ :=
     λ ⟨φ, p⟩ q, ⟨φ, (p, q)⟩
 
-    noncomputable hott def Iso.ext {Γ Λ : Alg deg} (φ ψ : Γ ≅ Λ) : φ.ap ~ ψ.ap → φ = ψ :=
+    noncomputable hott def Iso.ext {Γ Λ : Alg deg} {φ ψ : Iso Γ Λ} : φ.ap ~ ψ.ap → φ = ψ :=
     begin
       intro p; fapply Sigma.prod; apply Theorems.funext p;
       apply productProp; apply respects.prop;
       apply Theorems.Equiv.biinvProp
     end
 
-    noncomputable hott def Iso.eqIffEqEqv {Γ Λ : Alg deg} (φ ψ : Γ ≅ Λ) : φ.eqv = ψ.eqv → φ = ψ :=
+    noncomputable hott def Iso.eqIffEqEqv {Γ Λ : Alg deg} (φ ψ : Iso Γ Λ) : φ.eqv = ψ.eqv → φ = ψ :=
     begin intro p; apply Iso.ext; apply happly; apply Id.map Sigma.fst p end
 
-    hott def Iso.homo {Γ Λ : Alg deg} (φ : Γ ≅ Λ) : Γ ⤳ Λ :=
+    hott def Iso.hom {Γ Λ : Alg deg} (φ : Iso Γ Λ) : Hom Γ Λ :=
     ⟨φ.ap, φ.2.1⟩
 
-    noncomputable hott def Iso.hset {Γ Λ : Alg deg} : hset (Γ ≅ Λ) :=
+    noncomputable hott def Iso.hset {Γ Λ : Alg deg} : hset (Iso Γ Λ) :=
     begin
       apply hsetRespectsSigma;
       { apply piHset; intro; apply Λ.hset };
@@ -158,14 +156,14 @@ namespace GroundZero.Algebra
         apply Theorems.Equiv.biinvProp }
     end
 
-    hott def Iso.refl (Γ : Alg deg) : Γ ≅ Γ :=
+    hott def Iso.refl (Γ : Alg deg) : Iso Γ Γ :=
     begin
       fapply Iso.ofEquiv; reflexivity; apply Prod.mk <;> intros i v;
       { apply Id.map (Γ.op i);  symmetry; apply vect.id };
       { apply Id.map (Γ.rel i); symmetry; apply vect.id }
     end
 
-    hott def Iso.symm {Γ Λ : Alg deg} : Γ ≅ Λ → Λ ≅ Γ :=
+    hott def Iso.symm {Γ Λ : Alg deg} : Iso Γ Λ → Iso Λ Γ :=
     begin
       intro f; have μ := Equiv.forwardLeft f.eqv;
       existsi f.eqv.left; apply Prod.mk;
@@ -180,16 +178,16 @@ namespace GroundZero.Algebra
       { apply Prod.mk <;> existsi f.ap; apply μ; apply f.eqv.leftForward }
     end
 
-    hott def Iso.trans {Γ Λ Δ : Alg deg} : Γ ≅ Λ → Λ ≅ Δ → Γ ≅ Δ :=
+    hott def Iso.trans {Γ Λ Δ : Alg deg} : Iso Γ Λ → Iso Λ Δ → Iso Γ Δ :=
     begin
       intros f g; existsi g.ap ∘ f.ap; apply Prod.mk;
       { apply respects.comp; exact g.2.1; exact f.2.1 };
       { apply Equiv.biinvTrans; exact f.2.2; exact g.2.2 }
     end
 
-    instance : @Reflexive  (Alg deg) (· ≅ ·) := ⟨Iso.refl⟩
-    instance : @Symmetric  (Alg deg) (· ≅ ·) := ⟨@Iso.symm _ _ _⟩
-    instance : @Transitive (Alg deg) (· ≅ ·) := ⟨@Iso.trans _ _ _⟩
+    instance : @Reflexive  (Alg deg) Iso := ⟨Iso.refl⟩
+    instance : @Symmetric  (Alg deg) Iso := ⟨@Iso.symm _ _ _⟩
+    instance : @Transitive (Alg deg) Iso := ⟨@Iso.trans _ _ _⟩
 
     hott def Algebra.ext {A B : Type w} (p : A = B) :
       Π (Γ : Algebra deg A) (Λ : Algebra deg B),
@@ -230,7 +228,7 @@ namespace GroundZero.Algebra
     end
 
     noncomputable hott def uaPreservesOp {Γ Λ : Alg deg} :
-      Π (φ : Γ ≅ Λ) (i : ι), Γ.op i =[ua φ.eqv] Λ.op i :=
+      Π (φ : Iso Γ Λ) (i : ι), Γ.op i =[ua φ.eqv] Λ.op i :=
     begin
       intro ⟨φ, (p, q)⟩ i; apply Id.trans;
       apply transportOverFunctor (λ A, vect A (deg (Sum.inl i))) id;
@@ -243,7 +241,7 @@ namespace GroundZero.Algebra
     end
 
     noncomputable hott def uaPreservesRel {Γ Λ : Alg deg} :
-      Π (φ : Γ ≅ Λ) (i : υ), Γ.rel i =[algrel (deg (Sum.inr i)), ua φ.eqv] Λ.rel i :=
+      Π (φ : Iso Γ Λ) (i : υ), Γ.rel i =[algrel (deg (Sum.inr i)), ua φ.eqv] Λ.rel i :=
     begin
       intro ⟨φ, (p, q)⟩ i; apply Id.trans;
       apply transportOverFunctor (λ A, vect A (deg (Sum.inr i))) (λ _, Ω);
@@ -258,20 +256,20 @@ namespace GroundZero.Algebra
       apply constmap; reflexivity
     end
 
-    noncomputable hott def Alg.ua {Γ Λ : Alg deg} (φ : Γ ≅ Λ) : Γ = Λ :=
+    noncomputable hott def Alg.ua {Γ Λ : Alg deg} (φ : Iso Γ Λ) : Γ = Λ :=
     Alg.ext (GroundZero.ua φ.eqv) (uaPreservesOp φ) (uaPreservesRel φ)
 
     hott def Alg.eqcar {Γ Λ : Alg deg} : Γ = Λ → Γ.carrier = Λ.carrier :=
     λ p, @Id.map (0-Type) (Type _) _ _ Sigma.fst (Id.map Sigma.fst p)
 
-    noncomputable hott def Alg.uaext : Π {Γ Λ : Alg deg} (φ : Γ ≅ Λ), GroundZero.ua φ.eqv = Alg.eqcar (Alg.ua φ) :=
+    noncomputable hott def Alg.uaext : Π {Γ Λ : Alg deg} (φ : Iso Γ Λ), GroundZero.ua φ.eqv = Alg.eqcar (Alg.ua φ) :=
     begin
       intro ⟨⟨A, f⟩, (Γ₁, Γ₂)⟩ ⟨⟨B, g⟩, (Λ₁, Λ₂)⟩ φ;
       symmetry; change Id.map _ _ = _; transitivity; apply Id.map;
       apply Sigma.mapFstOverProd; apply Sigma.mapFstOverProd
     end
 
-    noncomputable hott def Alg.inj {Γ Λ : Alg deg} {φ ψ : Γ ≅ Λ} (p : Alg.ua φ = Alg.ua ψ) : φ = ψ :=
+    noncomputable hott def Alg.inj {Γ Λ : Alg deg} {φ ψ : Iso Γ Λ} (p : Alg.ua φ = Alg.ua ψ) : φ = ψ :=
     begin
       apply Iso.eqIffEqEqv; transitivity; symmetry; apply ua.uaβrule;
       transitivity; apply Id.map; apply Alg.uaext;
@@ -280,7 +278,7 @@ namespace GroundZero.Algebra
       symmetry; apply Alg.uaext; apply ua.uaβrule
     end
 
-    hott def Alg.id {Γ Λ : Alg deg} (p : Γ = Λ) : Γ ≅ Λ :=
+    hott def Alg.id {Γ Λ : Alg deg} (p : Γ = Λ) : Iso Γ Λ :=
     begin induction p; reflexivity end
 
     hott def transportOverProd {A : Type u} {B : A → Type v} {u v : Sigma B}
@@ -307,7 +305,7 @@ namespace GroundZero.Algebra
     noncomputable hott def Alg.rinv {Γ Λ : Alg deg} (p : Γ = Λ) : Alg.ua (Alg.id p) = p :=
     begin induction p; apply Alg.uaβrefl end
 
-    noncomputable hott def Alg.linv {Γ Λ : Alg deg} {φ : Γ ≅ Λ} : Alg.id (Alg.ua φ) = φ :=
+    noncomputable hott def Alg.linv {Γ Λ : Alg deg} {φ : Iso Γ Λ} : Alg.id (Alg.ua φ) = φ :=
     begin apply Alg.inj; apply Alg.rinv end
 
     /--
@@ -334,23 +332,59 @@ namespace GroundZero.Algebra
       Venanzio Capretta
       * https://link.springer.com/chapter/10.1007/3-540-48256-3_10
     -/
-    noncomputable hott def Alg.univalence {Γ Λ : Alg deg} : (Γ ≅ Λ) ≃ (Γ = Λ) :=
+    noncomputable hott def Alg.univalence {Γ Λ : Alg deg} : Iso Γ Λ ≃ (Γ = Λ) :=
     begin existsi Alg.ua; apply Prod.mk <;> existsi Alg.id; apply Alg.linv; apply Alg.rinv end
   end
 
-  def Magma : Type (u + 1) :=
+  hott def Magma : Type (u + 1) :=
   @Alg.{0, 0, u, 0} 𝟏 ⊥ (λ _, 2)
 
   namespace Magma
+    hott def intro {A : Type u} (H : hset A) (φ : A → A → A) : Magma :=
+    ⟨zeroeqv H, (λ _ (a, b, _), φ a b, λ i, nomatch i)⟩
+
     def φ (M : Magma) : M.carrier → M.carrier → M.carrier :=
     λ x y, M.op ★ (x, y, ★)
+
+    hott def isCommutative (M : Magma) :=
+    Π a b, M.φ a b = M.φ b a
+
+    hott def isAssociative (M : Magma) :=
+    Π a b c, M.φ (M.φ a b) c = M.φ a (M.φ b c)
+
+    hott def isLeftUnital (M : Magma) :=
+    Σ e, Π a, M.φ e a = a
+
+    hott def isRightUnital (M : Magma) :=
+    Σ e, Π a, M.φ a e = a
+
+    hott def isUnital (M : Magma) :=
+    Σ e, Π a, M.φ e a = a × M.φ a e = a 
+
+    hott def isLeftInvertible (M : Magma) (e : M.carrier) :=
+    Σ (ι : M →ᴬ M), Π a, M.φ (ι a) a = e
+
+    hott def isRightInvertible (M : Magma) (e : M.carrier) :=
+    Σ (ι : M →ᴬ M), Π a, M.φ a (ι a) = e
+
+    hott def isGroup (M : Magma) :=
+    M.isAssociative × Σ (w : M.isUnital), M.isLeftInvertible w.1
+
+    hott def unitalProp (M : Magma) : prop M.isUnital :=
+    begin
+      intro w₁ w₂; fapply Sigma.prod; transitivity;
+      symmetry; apply (w₂.2 w₁.1).1; apply (w₁.2 _).2;
+      apply piProp; intro; apply productProp <;> apply M.hset
+    end
+
+    hott def assocProp (M : Magma) : prop M.isAssociative :=
+    begin
+      apply piProp; intro;
+      apply piProp; intro;
+      apply piProp; intro;
+      apply M.hset
+    end
   end Magma
-
-  class commutative (M : Magma) :=
-  (mulComm : Π a b, M.φ a b = M.φ b a)
-
-  class semigroup (M : Magma) :=
-  (mulAssoc : Π a b c, M.φ (M.φ a b) c = M.φ a (M.φ b c))
 
   namespace Premonoid
     def signature : 𝟐 + ⊥ → ℕ
@@ -375,11 +409,6 @@ namespace GroundZero.Algebra
       { intro x; apply nomatch x }
     end
   end Premonoid
-
-  class monoid (M : Premonoid) :=
-  (isSemigroup : semigroup M.magma)
-  (oneMul      : Π a, M.φ M.e a = a)
-  (mulOne      : Π a, M.φ a M.e = a)
 
   namespace Pregroup
     inductive Arity : Type
@@ -426,33 +455,91 @@ namespace GroundZero.Algebra
                 | true  => G.op Arity.binary };
       { intro x; apply nomatch x }
     end
+
+    variable (G : Pregroup)
+
+    hott def isAssociative :=
+    Π a b c, G.φ (G.φ a b) c = G.φ a (G.φ b c)
+
+    hott def isLeftUnital  := Π a, G.φ G.e a = a
+    hott def isRightUnital := Π a, G.φ a G.e = a
+
+    hott def isLeftInvertible := Π a, G.φ (G.ι a) a = G.e
+
+    hott def isCommutative := Π a b, G.φ a b = G.φ b a
+
+    hott def isGroup := G.isAssociative × G.isLeftUnital × G.isRightUnital × G.isLeftInvertible
+
+    hott def isAbelian := G.isGroup × G.isCommutative
   end Pregroup
 
-  class group (G : Pregroup) :=
-  (isMonoid   : monoid G.premonoid)
-  (mulLeftInv : Π a, G.φ (G.ι a) a = G.e)
+  hott def Group := Σ (M : Magma), M.isGroup
 
-  class abelian (G : Pregroup) extends group G :=
-  (mulComm : Π a b, G.φ a b = G.φ b a)
+  namespace Group
+    variable (G : Group)
 
-  namespace Pregroup
-    variable (G : Pregroup) [group G]
+    hott def carrier := G.1.carrier
+    hott def subset  := G.1.subset
+    hott def hset    := G.1.hset
+    hott def magma   := G.1
 
-    hott def mulAssoc : Π a b c, G.φ (G.φ a b) c = G.φ a (G.φ b c) :=
-    group.isMonoid.isSemigroup.mulAssoc
+    hott def φ := G.1.φ
+    hott def e := G.2.2.1.1
+    hott def ι := G.2.2.2.1
 
-    hott def oneMul : Π a, G.φ G.e a = a :=
-    group.isMonoid.oneMul
+    hott def mulAssoc : Π a b c, G.φ (G.φ a b) c = G.φ a (G.φ b c) := G.2.1
 
-    hott def mulOne : Π a, G.φ a G.e = a :=
-    group.isMonoid.mulOne
+    hott def oneMul (a : G.carrier) : G.φ G.e a = a := (G.2.2.1.2 a).1
+    hott def mulOne (a : G.carrier) : G.φ a G.e = a := (G.2.2.1.2 a).2
 
-    hott def mulLeftInv : Π a, G.φ (G.ι a) a = G.e :=
-    group.mulLeftInv
-  end Pregroup
+    hott def mulLeftInv : Π a, G.φ (G.ι a) a = G.e := G.2.2.2.2
 
-  hott def Pregroup.mulComm (G : Pregroup) [abelian G] :
-    Π a b, G.φ a b = G.φ b a :=
-  abelian.mulComm
+    hott def isCommutative := G.1.isCommutative
 
+    hott def Hom (G H : Group) := Algebra.Hom G.1 H.1
+
+    hott def intro {A : Type u} (H : Structures.hset A)
+      (φ : A → A → A) (ι : A → A) (e : A)
+      (α : Π a b c, φ (φ a b) c = φ a (φ b c))
+      (β₁ : Π a, φ e a = a) (β₂ : Π a, φ a e = a)
+      (γ : Π a, φ (ι a) a = e) : Group :=
+    ⟨Magma.intro H φ, (α, ⟨⟨e, λ a, (β₁ a, β₂ a)⟩, ⟨ι, γ⟩⟩)⟩
+  end Group
+
+  hott def Abelian := Σ (M : Magma), M.isGroup × M.isCommutative
+
+  namespace Abelian
+    variable (G : Abelian)
+
+    hott def carrier := G.1.carrier
+    hott def subset  := G.1.subset
+    hott def hset    := G.1.hset
+    hott def magma   := G.1
+
+    hott def group : Group := ⟨G.1, G.2.1⟩
+
+    hott def φ := G.1.φ
+    hott def e := G.2.1.2.1.1
+    hott def ι := G.2.1.2.2.1
+
+    hott def mulAssoc : Π a b c, G.φ (G.φ a b) c = G.φ a (G.φ b c) := G.2.1.1
+
+    hott def oneMul (a : G.carrier) : G.φ G.e a = a := (G.2.1.2.1.2 a).1
+    hott def mulOne (a : G.carrier) : G.φ a G.e = a := (G.2.1.2.1.2 a).2
+
+    hott def mulLeftInv : Π a, G.φ (G.ι a) a = G.e := G.2.1.2.2.2
+
+    hott def mulComm : Π a b, G.φ a b = G.φ b a := G.2.2
+
+    hott def Hom (G H : Abelian) := Algebra.Hom G.1 H.1
+
+    hott def intro {A : Type u} (H : Structures.hset A)
+      (φ : A → A → A) (ι : A → A) (e : A)
+      (α : Π a b c, φ (φ a b) c = φ a (φ b c))
+      (β₁ : Π a, φ e a = a) (β₂ : Π a, φ a e = a)
+      (γ : Π a, φ (ι a) a = e) (δ : Π a b, φ a b = φ b a) : Abelian :=
+    ⟨Magma.intro H φ, ((α, ⟨⟨e, λ a, (β₁ a, β₂ a)⟩, ⟨ι, γ⟩⟩), δ)⟩
+  end Abelian
+
+  notation:51 A " ≅ " B => Iso A.1 B.1
 end GroundZero.Algebra
