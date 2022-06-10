@@ -9,10 +9,6 @@ universe u v u' v' w
 namespace Group
   variable {G : Group}
 
-  local infixl:70 (priority := high) " * " => G.φ
-  local postfix:max (priority := high) "⁻¹" => G.ι
-  local notation "e" => G.e
-
   def P.carrier (G : Group) := ℕ → G.carrier
 
   hott def P.hset (G : Group) : Structures.hset (P.carrier G) :=
@@ -39,7 +35,7 @@ namespace Group
   instance P.abelian (G : Group) (ρ : G.isCommutative) : (P G).isCommutative :=
   begin intros f g; fapply Theorems.funext; intro; apply ρ end
 
-  hott def P.unitSqr (H : Π x, x * x = e) (x : P.carrier G) : P.mul x x = P.one :=
+  hott def P.unitSqr (H : Π x, G.φ x x = G.e) (x : P.carrier G) : P.mul x x = P.one :=
   begin fapply Theorems.funext; intro; apply H end
 
   hott def P₂ := P Z₂

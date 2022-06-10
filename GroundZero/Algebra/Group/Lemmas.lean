@@ -11,10 +11,6 @@ namespace GroundZero.Algebra
 namespace Group
   variable {G : Group}
 
-  local infixl:70 (priority := high) " * " => G.φ
-  local postfix:max (priority := high) "⁻¹" => G.ι
-  local notation "e" => G.e
-
   hott def union (φ : ℕ → G.subgroup) (p : Π i, (φ i).set ⊆ (φ (i + 1)).set) : G.subgroup :=
   begin
     fapply Group.subgroup.mk; exact ⋃(λ n, (φ n).set);
@@ -31,8 +27,8 @@ namespace Group
   end
 
   hott def distinctNormalSubgroups {φ ψ : G.subgroup}
-    (H : Π x, x ∈ φ.set → x ∈ ψ.set → x = e) (μ : G ⊵ φ) (η : G ⊵ ψ) :
-    Π g h, g ∈ φ.set → h ∈ ψ.set → g * h = h * g :=
+    (H : Π x, x ∈ φ.set → x ∈ ψ.set → x = G.e) (μ : G ⊵ φ) (η : G ⊵ ψ) :
+    Π g h, g ∈ φ.set → h ∈ ψ.set → G.φ g h = G.φ h g :=
   begin
     intros g h p q; apply commutes; apply H;
     { apply transport (· ∈ φ.set); symmetry;
