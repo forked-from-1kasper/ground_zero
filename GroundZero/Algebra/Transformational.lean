@@ -529,6 +529,8 @@ namespace GroundZero.Algebra
     transport Equiv.biinv (Theorems.funext (reversing.desc L f H m)) (ρ.biinv L m (f m))
   end gis
 
+  namespace Dodecaphony
+
   -- In case of A = {C, C♯, D, D♯, E, F, ...},
   -- this is 12 ordered notes
   abbrev P (A : 0-Type) := A ≃₀ A
@@ -577,4 +579,6 @@ namespace GroundZero.Algebra
       { apply Theorems.Equiv.propsetIsSet }
     end
   end
+
+  end Dodecaphony
 end GroundZero.Algebra
