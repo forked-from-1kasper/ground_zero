@@ -1,5 +1,6 @@
 import Lean.PrettyPrinter.Delaborator.Basic
 import Lean.Elab.Tactic.ElabTerm
+import Lean.Meta.Tactic.Replace
 import Lean.Elab.Command
 
 open Lean
@@ -104,6 +105,12 @@ def leftRightMeta (pickLeft : Bool) (mvar : MVarId) : MetaM (List MVarId) := do
 
 elab "left"  : tactic => Elab.Tactic.liftMetaTactic (leftRightMeta true)
 elab "right" : tactic => Elab.Tactic.liftMetaTactic (leftRightMeta false)
+
+elab "whnf" : tactic => do
+  let mvarId ← Elab.Tactic.getMainGoal
+  let target ← Elab.Tactic.getMainTarget
+  let targetNew ← Meta.whnf target
+  Elab.Tactic.replaceMainGoal [← Meta.replaceTargetDefEq mvarId targetNew]
 
 def getExistsiCtor (mvar : MVarId) : MetaM Name := do
   Meta.withMVarContext mvar do
