@@ -1,7 +1,7 @@
 import GroundZero.Types.Equiv
 
 namespace GroundZero.Types
-universe u v w
+universe u v w w'
 
 def Coproduct (A : Type u) (B : Type v) := Sum A B
 infixl:65 " + " => Coproduct
@@ -17,6 +17,9 @@ namespace Coproduct
   hott def elim {C : Type w} (g₀ : A → C) (g₁ : B → C) : A + B → C
   | inl a => g₀ a
   | inr b => g₁ b
+
+  hott def bimap {C : Type w} {C' : Type w'} (f : A → C) (g : B → C') : A + B → C + C' :=
+  elim (Sum.inl ∘ f) (Sum.inr ∘ g)
 
   hott def inv : A + B → B + A
   | inl x => inr x
