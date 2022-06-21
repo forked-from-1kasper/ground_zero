@@ -539,6 +539,15 @@ namespace Circle
       symmetry; apply transportToTransportconst
     end
   end
+
+  hott def mult (p q : Ω¹(S¹)) : Ω¹(S¹) :=
+  Id.map (rec base p) q
+
+  hott def multZero (p : Ω¹(S¹)) : mult p (idp base) = idp base :=
+  idp (idp base)
+
+  hott def multSucc (p q : Ω¹(S¹)) : mult p (succ q) = mult p q ⬝ p :=
+  begin transitivity; apply mapFunctoriality; apply Id.map; apply recβrule₂ end
 end Circle
 
 def Torus := S¹ × S¹
