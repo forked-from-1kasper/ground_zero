@@ -548,6 +548,24 @@ namespace Circle
 
   hott def multSucc (p q : Ω¹(S¹)) : mult p (succ q) = mult p q ⬝ p :=
   begin transitivity; apply mapFunctoriality; apply Id.map; apply recβrule₂ end
+
+  hott def multDistrRight (p q r : Ω¹(S¹)) : mult p (q ⬝ r) = mult p q ⬝ mult p r :=
+  by apply mapFunctoriality
+
+  hott def recComp (p q : Ω¹(S¹)) : rec base p ∘ rec base q ~ rec base (mult p q) :=
+  begin
+    fapply ind; reflexivity; change _ = _; transitivity;
+    apply Equiv.transportOverHmtpy; transitivity;
+    apply Id.map (· ⬝ _ ⬝ _); transitivity; apply mapInv;
+    apply Id.map; transitivity; apply mapOverComp; apply Id.map (mult p); apply recβrule₂;
+    transitivity; apply bimap; apply Id.reflRight; apply recβrule₂; apply Id.invComp
+  end
+
+  hott def multAssoc (p q r : Ω¹(S¹)) : mult (mult p q) r = mult p (mult q r) :=
+  begin
+    symmetry; transitivity; symmetry; apply mapOverComp (rec base q) (rec base p) r;
+    transitivity; apply Equiv.mapWithHomotopy; apply recComp; apply Id.reflRight
+  end
 end Circle
 
 def Torus := S¹ × S¹

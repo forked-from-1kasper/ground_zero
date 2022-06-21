@@ -270,6 +270,10 @@ namespace Equiv
     {p : a = b} {q : b = c} {r : a = c} (h : p ⬝ q = r) : p = r ⬝ q⁻¹ :=
   begin induction q; exact (Id.reflRight p)⁻¹ ⬝ h ⬝ (Id.reflRight r)⁻¹ end
 
+  hott def mapWithHomotopy {A : Type u} {B : Type v} (f g : A → B) (H : f ~ g) {a b : A} (p : a = b) :
+    Id.map f p = H a ⬝ Id.map g p ⬝ (H b)⁻¹ :=
+  begin apply invCompRewrite; symmetry; apply homotopySquare end
+
   hott def pathoverFromTrans {A : Type u} {a b c : A}
     (p : b = c) (q : a = b) (r : a = c) (η : q ⬝ p = r) : q =[p] r :=
   begin induction η; apply transportComposition end
