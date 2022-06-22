@@ -368,8 +368,8 @@ namespace Circle
     Id.map (μ · base) p = transport (base = ·) (unitRight x)⁻¹ p :=
   begin induction p; reflexivity end
 
-  hott def μLeftAp (p : Ω¹(S¹))  : Id.map (μ · base) p = p := μLeftApLem p
-  hott def μRightAp (p : Ω¹(S¹)) : Id.map (μ base) p   = p := Equiv.idmap p
+  hott def μLeftAp  (p : Ω¹(S¹)) : Id.map (μ · base) p = p := μLeftApLem p
+  hott def μRightAp (p : Ω¹(S¹)) : Id.map (μ base)   p = p := Equiv.idmap p
 
   noncomputable hott def unitComm (x : S¹) : μ base x = μ x base := (unitRight x)⁻¹
 
