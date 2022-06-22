@@ -492,6 +492,12 @@ namespace Circle
     apply Interval.intervalProp; reflexivity
   end
 
+  hott def halfway.trivial : halfway = idp base :=
+  begin
+    transitivity; apply Equiv.mapWithHomotopy; apply halfway.const;
+    transitivity; apply Id.reflRight; apply constmap
+  end
+
   def natPow (x : S¹) : ℕ → S¹
   | Nat.zero   => base
   | Nat.succ n => μ x (natPow x n)
