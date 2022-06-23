@@ -572,6 +572,9 @@ namespace Circle
     symmetry; transitivity; symmetry; apply mapOverComp (rec base q) (rec base p) r;
     transitivity; apply Equiv.mapWithHomotopy; apply recComp; apply Id.reflRight
   end
+
+  hott def mulNegRight (p q : Ω¹(S¹)) : mult p q⁻¹ = (mult p q)⁻¹ :=
+  by apply Id.mapInv
 end Circle
 
 def Torus := S¹ × S¹
