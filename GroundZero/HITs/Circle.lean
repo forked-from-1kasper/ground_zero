@@ -575,6 +575,13 @@ namespace Circle
 
   hott def mulNegRight (p q : Ω¹(S¹)) : mult p q⁻¹ = (mult p q)⁻¹ :=
   by apply Id.mapInv
+
+  hott def mapExt (φ : S¹ → S¹) : φ ~ rec (φ base) (Id.map φ loop) :=
+  begin
+    fapply ind; reflexivity; change _ = _; transitivity; apply Equiv.transportOverHmtpy;
+    transitivity; apply bimap; transitivity; apply Id.reflRight; apply Id.mapInv;
+    apply recβrule₂; apply Id.invComp
+  end
 end Circle
 
 def Torus := S¹ × S¹
