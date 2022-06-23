@@ -164,6 +164,11 @@ namespace Circle
     ... = ℓ ⬝ Id.refl⁻¹                                     : bimap (· ⬝ ·⁻¹) (Suspension.recβrule _ _ _ _) (Suspension.recβrule _ _ _ _)
     ... = ℓ                                                 : Id.reflRight _
 
+  hott def recβrule₃ {B : Type u} (b : B) (ℓ : b = b) := calc
+            Id.map (rec b ℓ) loop⁻¹
+          = (Id.map (rec b ℓ) loop)⁻¹ : Id.mapInv _ _
+      ... = ℓ⁻¹                       : Id.map Id.inv (recβrule₂ _ _)
+
   hott def ind {B : S¹ → Type u} (b : B base) (ℓ : b =[loop] b) : Π (x : S¹), B x :=
   ind₂ b (Equiv.subst seg₁ b) Id.refl (depPathTransSymm ℓ)
 
@@ -581,6 +586,34 @@ namespace Circle
     fapply ind; reflexivity; change _ = _; transitivity; apply Equiv.transportOverHmtpy;
     transitivity; apply bimap; transitivity; apply Id.reflRight; apply Id.mapInv;
     apply recβrule₂; apply Id.invComp
+  end
+
+  section
+    variable {B : Type u} (b : B) (p q : b = b) (H : p ⬝ q = q ⬝ p)
+
+    hott def birec : S¹ → S¹ → B :=
+    @rec (S¹ → B) (rec b p) (Theorems.funext (Circle.ind q (begin
+      change _ = _; transitivity; apply Equiv.transportOverHmtpy;
+      transitivity; apply bimap (· ⬝ q ⬝ ·);
+      apply recβrule₃; apply recβrule₂;
+      apply Id.idConjIfComm; exact H⁻¹
+    end)))
+
+    hott def birecβrule₁ : Id.map (birec b p q H base) loop = p :=
+    by apply recβrule₂
+
+    hott def birecβrule₂ : Id.map (birec b p q H · base) loop = q :=
+    begin
+      transitivity; apply Interval.mapHapply;
+      transitivity; apply Id.map (happly · base); apply recβrule₂;
+      apply happly (Theorems.happlyFunext _ _ _) base
+    end
+
+    hott def birecBimap : bimap (birec b p q H) loop loop = p ⬝ q :=
+    begin
+      transitivity; apply Equiv.bimapCharacterization';
+      apply bimap; apply birecβrule₁; apply birecβrule₂
+    end
   end
 end Circle
 
