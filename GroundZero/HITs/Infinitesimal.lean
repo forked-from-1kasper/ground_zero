@@ -12,32 +12,35 @@ namespace GroundZero.HITs.Infinitesimal
 universe u v
 
 axiom Im : Type u → Type u
-axiom Im.unit {A : Type u} : A → Im A
+notation "ℑ" => Im
 
-def isCoreduced (A : Type u) := biinv (@Im.unit A)
-axiom Im.coreduced (A : Type u) : isCoreduced (Im A)
+axiom ι {A : Type u} : A → ℑ A
 
-axiom Im.ind {A : Type u} {B : Im A → Type v}
-  (h : Π i, isCoreduced (B i)) (f : Π x, B (Im.unit x)) : Π x, B x
+def isCoreduced (A : Type u) := biinv (@ι A)
+axiom Im.coreduced (A : Type u) : isCoreduced (ℑ A)
 
-axiom Im.ind.βrule {A : Type u} {B : Im A → Type v}
-  (h : Π i, isCoreduced (B i)) (f : Π x, B (Im.unit x)) :
-  Π x, Im.ind h f (Im.unit x) = f x
+axiom Im.ind {A : Type u} {B : ℑ A → Type v}
+  (η : Π i, isCoreduced (B i)) (f : Π x, B (ι x)) : Π x, B x
 
-noncomputable hott def Im.rec {A : Type u} {B : Type v}
-  (h : isCoreduced B) (f : A → B) : Im A → B :=
-Im.ind (λ _, h) f
+axiom Im.ind.βrule {A : Type u} {B : ℑ A → Type v}
+  (η : Π i, isCoreduced (B i)) (f : Π x, B (ι x)) :
+  Π x, Im.ind η f (ι x) = f x
 
-noncomputable hott def Im.rec.βrule {A : Type u} {B : Type v}
-  (h : isCoreduced B) (f : A → B) : Π x, Im.rec h f (Im.unit x) = f x :=
-Im.ind.βrule (λ _, h) f
+noncomputable section
+  variable {A : Type u} {B : Type v} (η : isCoreduced B) (f : A → B)
+
+  hott def Im.rec : Im A → B := Im.ind (λ _, η) f
+
+  hott def Im.rec.βrule : Π x, Im.rec η f (ι x) = f x :=
+  Im.ind.βrule (λ _, η) f
+end
 
 noncomputable hott def Im.app {A : Type u} {B : Type v}
-  (f : A → B) : Im A → Im B :=
-Im.rec (Im.coreduced B) (Im.unit ∘ f)
+  (f : A → B) : ℑ A → ℑ B :=
+Im.rec (Im.coreduced B) (ι ∘ f)
 
 noncomputable hott def Im.naturality {A : Type u} {B : Type v}
-  (f : A → B) (x : A) : Im.unit (f x) = Im.app f (Im.unit x) :=
+  (f : A → B) (x : A) : ι (f x) = Im.app f (ι x) :=
 begin symmetry; apply Im.rec.βrule end
 
 end GroundZero.HITs.Infinitesimal
