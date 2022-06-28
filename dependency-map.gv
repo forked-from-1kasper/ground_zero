@@ -79,7 +79,7 @@ digraph dependency_map {
     "Types/Ens" -> { "Algebra/Basic", "Types/Setquot" }
     "Types/Equiv" -> {
       "Types/HEq",
-      "HITs/Infinitesimal",
+      "Modal/Infinitesimal",
       "Types/Coproduct",
       "Types/Lost",
       "Types/Unit",
@@ -116,7 +116,6 @@ digraph dependency_map {
       "HITs/Pushout",
       "HITs/Quotient"
     }
-    "HITs/Infinitesimal"
     "HITs/Interval" -> {
       "Cubical/Cubes",
       "Cubical/Path",
@@ -163,6 +162,10 @@ digraph dependency_map {
     "Meta/HottTheory" -> "Meta/Basic"
     "Meta/Notation" -> "Meta/Basic"
     "Meta/Tactic" -> "Meta/Basic"
+  }
+
+  subgraph Modal {
+    "Modal/Infinitesimal"
   }
 
   subgraph Theorems {

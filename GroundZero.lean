@@ -56,13 +56,13 @@ import GroundZero.Meta.Basic
 import GroundZero.Meta.HottTheory
 import GroundZero.Meta.Notation
 import GroundZero.Meta.Tactic
+import GroundZero.Modal.Infinitesimal
 import GroundZero.HITs.Circle
 import GroundZero.HITs.Coequalizer
 import GroundZero.HITs.Colimit
 import GroundZero.HITs.Flattening
 import GroundZero.HITs.Generalized
 import GroundZero.HITs.Graph
-import GroundZero.HITs.Infinitesimal
 import GroundZero.HITs.Int
 import GroundZero.HITs.Interval
 import GroundZero.HITs.Join
@@ -73,7 +73,7 @@ import GroundZero.HITs.Quotient
 import GroundZero.HITs.Reals
 import GroundZero.HITs.Simplicial
 import GroundZero.HITs.Suspension
---import GroundZero.HITs.Topologization
+import GroundZero.HITs.Topologization
 import GroundZero.HITs.Trunc
 import GroundZero.Theorems.Classical
 import GroundZero.Theorems.Equiv
