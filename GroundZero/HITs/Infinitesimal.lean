@@ -33,13 +33,6 @@ section
   axiom Im.indβrule {f : Π x, ℑ (B (ι x))} (a : A) : Im.ind f (ι a) = f a
 end
 
-axiom Im.indConst {A : Type u} {B : Type v} (b : ℑ B) (x : ℑ A) : @Im.ind A (λ _, B) (λ _, b) x = b
-
-hott def isCoreduced (A : Type u) := biinv (@ι A)
-
-noncomputable hott def Im.coreduced (A : Type u) : isCoreduced (ℑ A) :=
-Qinv.toBiinv ι ⟨μ, (ιcoh, μcom)⟩
-
 axiom κ {A : Type u} {a b : ℑ A} : ℑ (a = b) → a = b
 axiom κ.idp {A : Type u} {a : ℑ A} : κ (ι (idp a)) = idp a
 
@@ -48,6 +41,11 @@ noncomputable hott def κ.right {A : Type u} {a b : ℑ A} : @κ A a b ∘ ι ~ 
 
 noncomputable hott def κ.left {A : Type u} {a b : ℑ A} : ι ∘ @κ A a b ~ idfun :=
 λ ρ, κ (@Im.ind (a = b) (λ ρ, ι (κ ρ) = ρ) (λ p, ι (Id.map ι (κ.right p))) ρ)
+
+hott def isCoreduced (A : Type u) := biinv (@ι A)
+
+noncomputable hott def Im.coreduced (A : Type u) : isCoreduced (ℑ A) :=
+Qinv.toBiinv ι ⟨μ, (ιcoh, μcom)⟩
 
 noncomputable hott def Im.idCoreduced {A : Type u} (a b : ℑ A) : isCoreduced (a = b) :=
 Qinv.toBiinv ι ⟨κ, (κ.left, κ.right)⟩
