@@ -35,12 +35,14 @@ noncomputable section
   Im.ind.βrule (λ _, η) f
 end
 
-noncomputable hott def Im.app {A : Type u} {B : Type v}
-  (f : A → B) : ℑ A → ℑ B :=
-Im.rec (Im.coreduced B) (ι ∘ f)
+noncomputable section
+  variable {A : Type u} {B : Type v} (f : A → B)
 
-noncomputable hott def Im.naturality {A : Type u} {B : Type v}
-  (f : A → B) (x : A) : ι (f x) = Im.app f (ι x) :=
-begin symmetry; apply Im.rec.βrule end
+  hott def Im.app : ℑ A → ℑ B :=
+  Im.rec (Im.coreduced B) (ι ∘ f)
+
+  hott def Im.naturality (x : A) : Im.app f (ι x) = ι (f x) :=
+  Im.rec.βrule _ _ x
+end
 
 end GroundZero.HITs.Infinitesimal
