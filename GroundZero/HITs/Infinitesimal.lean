@@ -15,7 +15,7 @@ open GroundZero.Proto
 -/
 
 namespace GroundZero.HITs.Infinitesimal
-universe u v
+universe u v w
 
 axiom Im : Type u → Type u
 notation "ℑ" => Im
@@ -77,9 +77,15 @@ end
 noncomputable section
   variable {A : Type u} {B : Type v} (f : A → B)
 
-  hott def Im.app : ℑ A → ℑ B := Im.rec (ι ∘ f)
+  hott def Im.ap : ℑ A → ℑ B := Im.rec (ι ∘ f)
 
-  hott def Im.naturality (x : A) : Im.app f (ι x) = ι (f x) := Im.recβrule _ x
+  hott def Im.naturality (x : A) : Im.ap f (ι x) = ι (f x) := Im.recβrule _ x
 end
+
+noncomputable hott def Im.apCom {A : Type u} {B : Type v} {C : Type w}
+  (f : B → C) (g : A → B) : Im.ap (f ∘ g) ~ Im.ap f ∘ Im.ap g :=
+Im.indε (λ _, Im.idCoreduced _ _) (λ _, Im.naturality _ _
+                                     ⬝ (Im.naturality f _)⁻¹
+                                     ⬝  Id.map (ap f) (Im.naturality g _)⁻¹)
 
 end GroundZero.HITs.Infinitesimal
