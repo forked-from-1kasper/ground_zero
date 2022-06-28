@@ -75,7 +75,7 @@ macro_rules
   | `(tactic|iterate $seq:tacticSeq) =>
     `(tactic|try ($seq:tacticSeq); iterate $seq:tacticSeq)
   | `(tactic|iterate $n $seq:tacticSeq) =>
-    match n.toNat with
+    match n.raw.toNat with
     |   0   => `(tactic| skip)
     | n + 1 => `(tactic|($seq:tacticSeq); iterate $(quote n) $seq:tacticSeq)
 
