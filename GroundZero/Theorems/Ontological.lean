@@ -32,8 +32,8 @@ namespace GroundZero.Theorems.Ontological
   -- property
   def prop (ι : Type u) := ι → wff ι
 
-  macro "⋀" is:Lean.Parser.Term.binderIdent+ ", " e:term : term =>
-    Array.foldrM (λ i e, `(wff.«forall» (λ $i, $e))) e is
+  macro "⋀" is:Lean.explicitBinders ", " e:term : term =>
+    Lean.expandExplicitBinders ``wff.«forall» is e
 
   infixr:20 " ⇒ " => wff.impl
   prefix:max "□" => wff.box
@@ -48,8 +48,8 @@ namespace GroundZero.Theorems.Ontological
 
   def «exists» (φ : prop ι) := ¬(⋀ x, ¬(φ x))
 
-  macro "⋁" is:Lean.Parser.Term.binderIdent+ ", " e:term : term =>
-    Array.foldrM (λ i e, `(«exists» (λ $i, $e))) e is
+  macro "⋁" is:Lean.explicitBinders ", " e:term : term =>
+    Lean.expandExplicitBinders ``«exists» is e
 
   def or (φ ψ : wff ι) := ¬φ ⇒ ψ
   infixl:60 (priority := high) " ∨ " => or
