@@ -39,7 +39,7 @@ Interval.rec a b (encode p)
 infix:60 " @ " => Path.compute
 
 macro "<" is:Lean.Parser.Term.binderIdent+ ">" e:term : term =>
-  Array.foldrM (λ i e, `(Path.lam (λ ($i : I), $e))) e is
+  Array.foldrM (λ i e, `(Path.lam (λ ($i : I), $(⟨e⟩)))) e (Array.map (λ s => ⟨s⟩) is)
 
 namespace Path
 
