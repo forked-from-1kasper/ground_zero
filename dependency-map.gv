@@ -6,6 +6,7 @@ digraph dependency_map {
     "HITs/Merely",
     "HITs/Trunc",
     "Types/Nat",
+    "Modal/Disc",
     "Theorems/UA"
   }
 

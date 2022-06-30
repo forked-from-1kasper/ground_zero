@@ -1,5 +1,9 @@
 import GroundZero.Modal.Infinitesimal
+import GroundZero.Structures
+
+open GroundZero.Types.Equiv
 open GroundZero.Types
+open GroundZero
 
 namespace GroundZero.HITs.Infinitesimal
 universe u v w
@@ -28,5 +32,51 @@ noncomputable section
   hott def bundleAp : T∞ A → T∞ B :=
   λ τ, ⟨f τ.1, d f τ.1 τ.2⟩
 end
+
+hott def infProxApCom {A : Type u} {B : Type v} {C : Type w} (f : B → C) (g : A → B)
+  {a b : A} (ρ : a ~ b) : infProxAp (f ∘ g) ρ = infProxAp f (infProxAp g ρ) :=
+begin
+  transitivity; apply Id.ap (_ ⬝ · ⬝ _);
+  transitivity; apply mapWithHomotopy _ _ (Im.apCom _ _);
+  apply bimap; apply bimap; apply Im.indεβrule;
+  apply mapOverComp; apply Id.ap; apply Im.indεβrule;
+
+  transitivity; apply Id.ap (· ⬝ _); apply Id.assoc;
+  transitivity; apply Id.ap (· ⬝ _ ⬝ _); apply Id.assoc;
+  transitivity; symmetry; apply Id.assoc;
+
+  symmetry; transitivity; apply Id.ap (_ ⬝ · ⬝ _); transitivity;
+  apply mapFunctoriality; apply Id.ap (· ⬝ _); apply mapFunctoriality;
+
+  transitivity; apply Id.ap (_ ⬝ · ⬝ _); symmetry; apply Id.assoc;
+  transitivity; apply Id.ap (· ⬝ _); apply Id.assoc;
+  transitivity; symmetry; apply Id.assoc (_ ⬝ Id.ap _ _);
+  transitivity; apply Id.ap (_⁻¹ ⬝ _ ⬝ ·); symmetry; apply Id.assoc;
+  transitivity; apply Id.assoc (_⁻¹ ⬝ _);
+
+  apply bimap (· ⬝ _ ⬝ ·) <;> symmetry;
+  { transitivity; apply Id.ap; symmetry; apply Id.assoc;
+    transitivity; apply Id.assoc; transitivity; apply Id.ap (· ⬝ _);
+    apply Id.invComp; reflexivity };
+  { transitivity; apply Id.ap (· ⬝ _);
+    transitivity; apply Id.explodeInv; apply Id.ap; apply Id.explodeInv;
+    transitivity; apply Id.ap (· ⬝ _); apply Id.assoc;
+    transitivity; symmetry; apply Id.assoc;
+    transitivity; apply Id.ap; apply Id.invComp;
+    transitivity; apply Id.reflRight; apply bimap;
+    { transitivity; apply Id.ap; apply Id.mapInv; apply Id.invInv };
+    { apply Id.invInv } }
+end
+
+noncomputable hott def diffComHom {A : Type u} {B : Type v} {C : Type w}
+  (f : B → C) (g : A → B) {x : A} (ε : 𝔻 x) : d (f ∘ g) x ε = d f (g x) (d g x ε) :=
+Id.ap (Sigma.mk _) (infProxApCom f g _)
+
+hott def diffCom {A : Type u} {B : Type v} {C : Type w} (f : B → C) (g : A → B)
+  {x : A} : d (f ∘ g) x = (d f) (g x) ∘ d g x :=
+Theorems.funext (diffComHom f g)
+
+hott def isHomogeneous (A : Type u) :=
+Σ (e : A) (t : Π x, A ≃ A), Π x, t x e = x
 
 end GroundZero.HITs.Infinitesimal
