@@ -1,8 +1,8 @@
 import GroundZero.Modal.Infinitesimal
 import GroundZero.Structures
 
+open GroundZero.Types GroundZero.Proto
 open GroundZero.Types.Equiv
-open GroundZero.Types
 open GroundZero
 
 namespace GroundZero.HITs.Infinitesimal
@@ -31,6 +31,14 @@ noncomputable section
 
   hott def bundleAp : T∞ A → T∞ B :=
   λ τ, ⟨f τ.1, d f τ.1 τ.2⟩
+end
+
+hott def infProxApIdp {A : Type u} {a b : A} (ρ : a ~ b) : infProxAp idfun ρ = ρ :=
+begin
+  symmetry; transitivity; symmetry; apply Equiv.idmap;
+  transitivity; apply mapWithHomotopy _ _ Im.apIdfun;
+  apply bimap (· ⬝ _ ⬝ ·); apply Im.indεβrule;
+  transitivity; apply Id.ap; apply Im.indεβrule; apply Id.invInv
 end
 
 hott def infProxApCom {A : Type u} {B : Type v} {C : Type w} (f : B → C) (g : A → B)
@@ -75,6 +83,9 @@ Id.ap (Sigma.mk _) (infProxApCom f g _)
 hott def diffCom {A : Type u} {B : Type v} {C : Type w} (f : B → C) (g : A → B)
   {x : A} : d (f ∘ g) x = (d f) (g x) ∘ d g x :=
 Theorems.funext (diffComHom f g)
+
+noncomputable hott def diffIdfun {A : Type u} (x : A) (ε : 𝔻 x) : d idfun x ε = ε :=
+Id.ap (Sigma.mk _) (infProxApIdp _)
 
 hott def isHomogeneous (A : Type u) :=
 Σ (e : A) (t : Π x, A ≃ A), Π x, t x e = x

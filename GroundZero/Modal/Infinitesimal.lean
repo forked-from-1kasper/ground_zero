@@ -82,6 +82,9 @@ noncomputable section
   hott def Im.naturality (x : A) : Im.ap f (ι x) = ι (f x) := Im.recβrule _ x
 end
 
+noncomputable hott def Im.apIdfun {A : Type u} : @idfun (ℑ A) ~ Im.ap idfun :=
+Im.indε (λ _, Im.idCoreduced _ _) (λ _, (Im.naturality idfun _)⁻¹)
+
 noncomputable hott def Im.apCom {A : Type u} {B : Type v} {C : Type w}
   (f : B → C) (g : A → B) : Im.ap (f ∘ g) ~ Im.ap f ∘ Im.ap g :=
 Im.indε (λ _, Im.idCoreduced _ _) (λ _, Im.naturality _ _
