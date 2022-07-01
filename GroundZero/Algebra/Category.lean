@@ -377,7 +377,7 @@ namespace Category
     exact Id.inv r; apply mulAssoc
   end
 
-  hott def dual (𝒞 : Precategory) (η : category 𝒞) : category 𝒞ᵒᵖ :=
+  def dual (𝒞 : Precategory) (η : category 𝒞) : category 𝒞ᵒᵖ :=
   { defDec      := @defDec 𝒞 η,
     bottomLeft  := @bottomRight 𝒞 η,
     bottomRight := @bottomLeft 𝒞 η,
