@@ -166,7 +166,8 @@ digraph dependency_map {
   }
 
   subgraph Modal {
-    "Modal/Disc"
+    "Modal/Disc" -> { "Modal/Etale" }
+    "Modal/Etale"
     "Modal/Infinitesimal" -> { "Modal/Disc" }
   }
 

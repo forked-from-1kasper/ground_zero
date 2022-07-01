@@ -715,7 +715,7 @@ namespace hcommSquare
   λ φ, ⟨(top η ∘ φ, left η ∘ φ), @map (P → C) (X → C) (right η ∘ top η) (bot η ∘ left η) (· ∘ φ) η.naturality⟩
 
   hott def isPullback (η : hcommSquare P A B C) :=
-  Π X, biinv (induced η X)
+  Π (X : Type (max u v w k)), biinv (induced η X)
 end hcommSquare
 
 hott def pullbackSquare (P : Type k) (A : Type u) (B : Type v) (C : Type w) :=
