@@ -9,11 +9,17 @@ universe u v
 hott def injective {A : Type u} {B : Type v} (f : A → B) :=
 Π x y, f x = f y → x = y
 
+hott def surjective {A : Type u} {B : Type v} (f : A → B) :=
+Π b, ∥Σ a, f a = b∥
+
+hott def Surjection (A : Type u) (B : Type v) :=
+Σ (f : A → B), surjective f
+infixr:70 " ↠ " => Surjection
+
+instance (A : Type u) (B : Type v) : CoeFun (A ↠ B) (λ _, A → B) := ⟨Sigma.fst⟩
+
 hott def fibInh {A : Type u} {B : Type v} (f : A → B) :=
 λ b, ∥fib f b∥
-
-hott def surj {A : Type u} {B : Type v} (f : A → B) :=
-fiberwise (fibInh f)
 
 hott def Ran {A : Type u} {B : Type v} (f : A → B) :=
 total (fibInh f)
@@ -21,7 +27,7 @@ total (fibInh f)
 hott def cut {A : Type u} {B : Type v} (f : A → B) : A → Ran f :=
 λ x, ⟨f x, Merely.elem ⟨x, Id.refl⟩⟩
 
-hott def cutIsSurj {A : Type u} {B : Type v} (f : A → B) : surj (cut f) :=
+hott def cutIsSurj {A : Type u} {B : Type v} (f : A → B) : surjective (cut f) :=
 begin
   intro ⟨x, (H : ∥_∥)⟩; induction H;
   case elemπ G => {
@@ -35,10 +41,10 @@ end
 hott def Ran.subset {A : Type u} {B : Type v} (f : A → B) : Ran f → B :=
 Sigma.fst
 
-hott def Ran.incl {A : Type u} {B : Type v} {f : A → B} (H : surj f) : B → Ran f :=
+hott def Ran.incl {A : Type u} {B : Type v} {f : A → B} (H : surjective f) : B → Ran f :=
 λ x, ⟨x, H x⟩
 
-hott def surjImplRanEqv {A : Type u} {B : Type v} (f : A → B) (H : surj f) : Ran f ≃ B :=
+hott def surjImplRanEqv {A : Type u} {B : Type v} (f : A → B) (H : surjective f) : Ran f ≃ B :=
 begin
   existsi Sigma.fst; fapply Prod.mk <;> existsi Ran.incl H;
   { intro ⟨_, _⟩; fapply Sigma.prod; reflexivity; apply Merely.uniq };
@@ -59,16 +65,16 @@ begin
   { intro ★; reflexivity }
 end
 
-hott def embedding (A : Type u) (B : Type v) :=
+hott def Embedding (A : Type u) (B : Type v) :=
 Σ (f : A → B), Π x y, @Equiv.biinv (x = y) (f x = f y) (Id.map f)
 
-infix:55 " ↪ " => embedding
+infix:55 " ↪ " => Embedding
 
 section
   variable {A : Type u} {B : Type v} (f : A ↪ B)
 
-  def embedding.ap : A → B := f.1
-  def embedding.eqv (x y : A) : (x = y) ≃ (f.ap x = f.ap y) :=
+  def Embedding.ap : A → B := f.1
+  def Embedding.eqv (x y : A) : (x = y) ≃ (f.ap x = f.ap y) :=
   ⟨Id.map f.ap, f.2 x y⟩
 end
 

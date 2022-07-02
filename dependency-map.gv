@@ -174,7 +174,7 @@ digraph dependency_map {
   subgraph Theorems {
     "Theorems/Classical" -> { "Algebra/Category", "Algebra/Orgraph" }
     "Theorems/Fibration" -> { "Theorems/Hopf" }
-    "Theorems/Functions" -> { "HITs/Reals", "Algebra/Group/Basic" }
+    "Theorems/Functions" -> { "Algebra/Group/Basic", "HITs/Reals", "Modal/Etale" }
     "Theorems/Funext" -> { "Types/Product" }
     "Theorems/Hopf"
     "Theorems/Ontological"
