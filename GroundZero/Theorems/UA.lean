@@ -133,16 +133,10 @@ begin induction e₁; induction e₂; reflexivity end
 
 section
   open GroundZero.Types.Product
+  variable {A : Type u} {A' : Type v} {B : Type u'} {B' : Type v'}
 
-  hott def productEquiv₃ {A : Type u} {A' : Type v} {B : Type u'} {B' : Type v'}
-    (e₁ : A ≃ A') (e₂ : B ≃ B') : (A × B) ≃ (A' × B') :=
-  begin
-    existsi (Product.bimap e₁.forward e₂.forward); apply Prod.mk;
-    { existsi (Product.bimap e₁.left e₂.left); intro ⟨a, b⟩;
-      apply prod; apply e₁.leftForward; apply e₂.leftForward };
-    { existsi (Product.bimap e₁.right e₂.right); intro ⟨a, b⟩;
-      apply prod; apply e₁.forwardRight; apply e₂.forwardRight }
-  end
+  hott def productEquiv₃ (e₁ : A ≃ A') (e₂ : B ≃ B') : (A × B) ≃ (A' × B') :=
+  prodEquiv e₁ e₂
 end
 
 section

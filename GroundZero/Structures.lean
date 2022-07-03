@@ -727,6 +727,17 @@ namespace Types.Equiv
   -- 1-1 correspondence
   def Corr (A : Type u) (B : Type v) :=
   Σ (R : A → B → Type w), (Π a, contr (Σ b, R a b)) × (Π b, contr (Σ a, R a b))
+
+  open GroundZero.Types
+  variable {A : Type u} {A' : Type v} {B : Type u'} {B' : Type v'}
+
+  hott def prodBiinv {f : A → A'} {g : B → B'}
+    (e₁ : biinv f) (e₂ : biinv g) : biinv (Product.bimap f g) :=
+  (⟨Product.bimap e₁.1.1 e₂.1.1, λ w, Product.prod (e₁.1.2 w.1) (e₂.1.2 w.2)⟩,
+   ⟨Product.bimap e₁.2.1 e₂.2.1, λ w, Product.prod (e₁.2.2 w.1) (e₂.2.2 w.2)⟩)
+
+  hott def prodEquiv (e₁ : A ≃ A') (e₂ : B ≃ B') : (A × B) ≃ (A' × B') :=
+  ⟨Product.bimap e₁.1 e₂.1, prodBiinv e₁.2 e₂.2⟩
 end Types.Equiv
 
 end GroundZero
