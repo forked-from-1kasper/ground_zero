@@ -116,14 +116,14 @@ namespace GroundZero.Algebra
   noncomputable hott def Limₘ : Metric⁎ → Metric :=
   λ M, ⟨(Lim M.1).1.1, ⟨Lim.ρ, Lim.metrizable M⟩⟩
 
-  noncomputable hott def Lim.pointed : Metric⁎ → Metric⁎ := λ M, ⟨Limₘ M, (Lim M.1).e⟩
-  notation "Lim⁎" => Lim.pointed
-
-  noncomputable hott def ω.mulInv (M : Metric⁎) (φ ψ : Lim.carrier M.1) :
-    R.ρ (abs (ω M φ - ω M ψ)) (ω M (Lim.φ φ ψ)) :=
-  Absolute.mulInv (Lim M.1) ⟨ω M, Lim.absolute M⟩ φ ψ
-
   -- (deterministic) timeout at 'whnf', maximum number of heartbeats (200000) has been reached (use 'set_option maxHeartbeats <num>' to set the limit)
+
+  --noncomputable hott def Lim.pointed : Metric⁎ → Metric⁎ := λ M, ⟨Limₘ M, (Lim M.1).e⟩
+  --notation "Lim⁎" => Lim.pointed
+
+  --noncomputable hott def ω.mulInv (M : Metric⁎) (φ ψ : Lim.carrier M.1) :
+  --  R.ρ (abs (ω M φ - ω M ψ)) (ω M (Lim.φ φ ψ)) :=
+  --Absolute.mulInv (Lim M.1) ⟨ω M, Lim.absolute M⟩ φ ψ
 
   --noncomputable hott def ω.continuous (M : Metric⁎) :
   --  Π m, continuous⁎ (Lim⁎ M) R⁎ (ω M) m :=
