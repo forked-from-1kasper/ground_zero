@@ -128,6 +128,9 @@ end
 hott def cozeroMorphismEqv {A : Type u} : (𝟏 → A) ≃ A :=
 familyOverUnit (λ _, A)
 
+hott def terminalArrow {A : Type u} : A ≃ (𝟏 → A) :=
+⟨λ x _, x, Types.Qinv.toBiinv _ ⟨λ φ, φ ★, (λ φ, HITs.Interval.funext (λ ★, idp _), idp)⟩⟩
+
 hott def contrTypeEquiv {A : Type u} {B : Type v}
   (p : contr A) (q : contr B) : A ≃ B := calc
       A ≃ 𝟏 : contrEquivUnit.{_, 0} p
