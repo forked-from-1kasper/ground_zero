@@ -41,7 +41,7 @@ namespace GroundZero.Meta.Tactic
 -- https://github.com/leanprover-community/mathlib4/blob/master/Mathlib/Tactic/Ring.lean#L411-L419
 def applyOnBinRel (name : Name) (rel : Name) : Elab.Tactic.TacticM Unit := do
   let mvars ← Elab.Tactic.liftMetaMAtMain (λ mvar => do
-    let ε ← Meta.instantiateMVars (← Meta.getMVarDecl mvar).type
+    let ε ← instantiateMVars (← Meta.getMVarDecl mvar).type
     ε.consumeMData.withApp λ e es => do
       unless (es.size > 1) do Meta.throwTacticEx name mvar s!"expected binary relation, got “{e} {es}”"
 
@@ -153,7 +153,7 @@ elab "calc " ε:term " : " τ:term σ:(calcLHS " : " term)* : term => do
   let σ ← Array.mapM getEqn σ
 
   let ε ← Elab.Term.elabTerm ε none
-  let ε ← Meta.instantiateMVars ε
+  let ε ← instantiateMVars ε
 
   let e₁ := ε.withApp (λ _ es => es.pop.back)
   let ty₁ ← Meta.inferType e₁
@@ -169,7 +169,7 @@ elab "calc " ε:term " : " τ:term σ:(calcLHS " : " term)* : term => do
 
   for (e, τ) in σ do
     let ε ← Elab.Term.elabTerm (e.setArg 0 (← PrettyPrinter.delab e₂)) none
-    let ε ← Meta.instantiateMVars ε
+    let ε ← instantiateMVars ε
 
     let τ ← Elab.Term.elabTermEnsuringType τ ε
     let mut v₂ ← Meta.getLevel ε
