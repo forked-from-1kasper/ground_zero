@@ -189,8 +189,10 @@ digraph dependency_map {
       "HITs/Circle",
       "Types/Ens",
       "Types/Precategory",
-      "Theorems/Classical"
+      "Theorems/Classical",
+      "Theorems/Pullback"
     }
+    "Theorems/Pullback"
     "Theorems/UA" -> {
       "HITs/Flattening",
       "Theorems/Nat",

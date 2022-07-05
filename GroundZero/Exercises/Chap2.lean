@@ -1,4 +1,4 @@
-import GroundZero.Theorems.Equiv
+import GroundZero.Theorems.Pullback
 
 open GroundZero GroundZero.Types
 open GroundZero.Types.Equiv
@@ -188,20 +188,16 @@ namespace «2.11»
            (η : pullbackSquare P A B C)
 
   example : P ≃ pullback C η.1.right η.1.bot :=
-  Theorems.Equiv.pullbackCorner η
+  Theorems.pullbackCorner η
 end «2.11»
 
 -- exercise 2.12
 
 namespace «2.12»
-  variable {A : Type u} {B : Type u'}
-           {C : Type v} {D : Type v'}
-           {E : Type w} {F : Type w'}
-           {f : A → C} {g : C → E}
-           {i : A → B} {j : C → D} {k : E → F}
-           {h : B → D} {s : D → F}
-           (α : j ∘ f = h ∘ i)
-           (β : k ∘ g = s ∘ j)
+  variable {A B C D E F : Type u}
+           {f : A → C} {g : C → E} {i : A → B} {j : C → D}
+           {k : E → F} {h : B → D} {s : D → F}
+           (α : j ∘ f = h ∘ i) (β : k ∘ g = s ∘ j)
 
   def left  : hcommSquare A C B D := ⟨j, h, f, i, α⟩
   def right : hcommSquare C E D F := ⟨k, s, g, j, β⟩
@@ -209,10 +205,6 @@ namespace «2.12»
   def outer : hcommSquare A E B F :=
   ⟨k, s ∘ h, g ∘ f, i, @Id.map (C → F) (A → F) _ _ (· ∘ f) β
                      ⬝ @Id.map _ (A → F) _ _ (s ∘ ·) α⟩
-
-  hott def pullbackLemma (H : (right α).isPullback) :
-    (left β).isPullback ↔ (outer α β).isPullback :=
-  sorry
 end «2.12»
 
 -- exercise 2.13
