@@ -3,7 +3,7 @@ open Lean.Parser Lean.Parser.Term Lean.Elab.Command
 
 namespace GroundZero.Meta.Notation
 
-syntax "Π" many1(simpleBinder <|> bracketedBinder) ", " term : term
+syntax "Π" many1(binderIdent <|> bracketedBinder) ", " term : term
 macro_rules | `(Π $xs*, $y) => `(∀ $xs*, $y)
 
 macro "λ " xs:many1(funBinder) ", " f:term : term => `(fun $xs* => $f)
