@@ -3,6 +3,7 @@ import GroundZero.Modal.Disc
 
 open GroundZero.Theorems.Functions
 open GroundZero GroundZero.Types
+open GroundZero.Proto
 
 namespace GroundZero.HITs.Infinitesimal
 universe u v w
@@ -17,13 +18,15 @@ noncomputable section
   notation "étale" => etale
 end
 
-noncomputable def EtaleMap (A : Type u) (B : Type v) :=
-Σ (f : A → B), étale f
-infixr:70 " ─ét→ " => EtaleMap
+noncomputable section
+  hott def EtaleMap (A : Type u) (B : Type v) :=
+  Σ (f : A → B), étale f
+  infixr:70 " ─ét→ " => EtaleMap
 
-noncomputable def SurjectiveEtaleMap (A : Type u) (B : Type v) :=
-Σ (f : A → B), étale f × surjective f
-infixr:70 " ─ét↠ " => SurjectiveEtaleMap
+  hott def SurjectiveEtaleMap (A : Type u) (B : Type v) :=
+  Σ (f : A → B), étale f × surjective f
+  infixr:70 " ─ét↠ " => SurjectiveEtaleMap
+end
 
 section
   variable (A : Type u) (B : Type v)
@@ -32,10 +35,12 @@ section
   instance : CoeFun (A ─ét↠ B) (λ _, A → B) := ⟨Sigma.fst⟩
 end
 
-noncomputable def isManifold (V : Type u) (M : Type v) :=
-Σ (U : Type (max u v)), (U ─ét→ V) × (U ─ét↠ M)
+noncomputable section
+  hott def isManifold (V : Type u) (M : Type v) :=
+  Σ (U : Type (max u v)), (U ─ét→ V) × (U ─ét↠ M)
 
-noncomputable def Manifold (V : Type u) :=
-Σ (M : Type v), isManifold V M
+  hott def Manifold (V : Type u) :=
+  Σ (M : Type v), isManifold V M
+end
 
 end GroundZero.HITs.Infinitesimal
