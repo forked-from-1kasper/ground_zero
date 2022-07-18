@@ -615,6 +615,27 @@ namespace Circle
       apply bimap; apply birecβrule₁; apply birecβrule₂
     end
   end
+
+  open GroundZero.Types.Coproduct
+
+  noncomputable hott def succNeqIdp : ua (Integer.succEquiv) ≠ idp ℤ :=
+  begin
+    intro H; apply @ua.succNeqZero 0; apply @inl.encode ℕ ℕ _ (inl 0);
+    transitivity; symmetry; apply ua.transportRule Integer.succEquiv 0;
+    apply ap (transportconst · 0) H
+  end
+
+  noncomputable hott def helixNontriv : helix ≠ (_ ↦ ℤ) :=
+  begin
+    intro H; apply succNeqIdp; transitivity; symmetry; apply recβrule₂;
+    apply transport (λ φ, ap φ loop = idp (φ base)) H⁻¹; apply constmap
+  end
+
+  noncomputable hott def loopSpaceNontriv : ¬(Π (x y : S¹), (x = y) ≃ ℤ) :=
+  begin
+    intro H; apply helixNontriv; apply Theorems.funext; intro y;
+    apply ua; transitivity; symmetry; apply family; apply H
+  end
 end Circle
 
 def Torus := S¹ × S¹
