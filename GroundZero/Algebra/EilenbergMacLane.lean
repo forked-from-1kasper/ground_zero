@@ -37,20 +37,18 @@ def K1 (G : Group) := K1.aux
 
 namespace K1
   variable {G : Group}
-  local infixl:70 " * " => G.φ
-
   attribute [nothott] K1.aux.recOn K1.aux.rec aux.val
 
   hott def base : K1 G := ⟨★⟩
 
   axiom grpd     : groupoid (K1 G)
   axiom loop     : G.carrier → @Id (K1 G) base base
-  axiom loop.mul : Π (x y : G.carrier), loop (x * y) = loop x ⬝ loop y
+  axiom loop.mul : Π (x y : G.carrier), loop (G.φ x y) = loop x ⬝ loop y
 
   @[hottAxiom] def ind {C : K1 G → Type v}
     (baseπ : C base) (loopπ : Π (x : G.carrier), baseπ =[loop x] baseπ)
     (mulπ : Π (x y : G.carrier),
-      loopπ (x * y) =[λ p, baseπ =[p] baseπ, loop.mul x y]
+      loopπ (G.φ x y) =[λ p, baseπ =[p] baseπ, loop.mul x y]
         loopπ x ⬝′ loopπ y)
     (groupoidπ : Π x, groupoid (C x)) : Π x, C x
   | ⟨★⟩ => baseπ
@@ -59,20 +57,20 @@ namespace K1
 
   @[hottAxiom] def rec {C : Type v} (baseπ : C)
     (loopπ : G.carrier → baseπ = baseπ)
-    (mulπ : Π x y, loopπ (x * y) = loopπ x ⬝ loopπ y)
+    (mulπ : Π x y, loopπ (G.φ x y) = loopπ x ⬝ loopπ y)
     (groupoidπ : groupoid C) : K1 G → C
   | ⟨★⟩ => baseπ
 
   axiom indβrule {C : K1 G → Type v}
     (baseπ : C base) (loopπ : Π (x : G.carrier), baseπ =[loop x] baseπ)
     (mulπ : Π (x y : G.carrier),
-      loopπ (x * y) =[λ p, baseπ =[p] baseπ, loop.mul x y]
+      loopπ (G.φ x y) =[λ p, baseπ =[p] baseπ, loop.mul x y]
         loopπ x ⬝′ loopπ y)
     (groupoidπ : Π x, groupoid (C x)) :
     Π x, Equiv.apd (ind baseπ loopπ mulπ groupoidπ) (loop x) = loopπ x
 
   axiom recβrule {C : Type v} (baseπ : C) (loopπ : G.carrier → baseπ = baseπ)
-    (mulπ : Π x y, loopπ (x * y) = loopπ x ⬝ loopπ y) (groupoidπ : groupoid C) :
+    (mulπ : Π x y, loopπ (G.φ x y) = loopπ x ⬝ loopπ y) (groupoidπ : groupoid C) :
     Π x, Id.map (rec baseπ loopπ mulπ groupoidπ) (loop x) = loopπ x
 
   attribute [irreducible] K1
@@ -100,7 +98,7 @@ namespace K1
   noncomputable hott def family
     (baseπ : Type u)
     (loopπ : G.carrier → baseπ = baseπ)
-    (mulπ  : Π x y, loopπ (x * y) = loopπ x ⬝ loopπ y)
+    (mulπ  : Π x y, loopπ (G.φ x y) = loopπ x ⬝ loopπ y)
     (setπ  : hset baseπ) : K1 G → (0-Type) :=
   begin
     fapply rec;
@@ -117,7 +115,7 @@ namespace K1
   begin
     fapply family; exact G.carrier;
     { intro x; apply ua; existsi (G.φ · x); apply Prod.mk <;>
-      existsi (G.φ · (G.ι x)) <;> intro y <;> change _ * _ * _ = _;
+      existsi (G.φ · (G.ι x)) <;> intro y <;> change G.φ (G.φ _ _) _ = _;
       symmetry; apply Group.cancelRight;
       symmetry; apply Group.cancelLeft };
     { intros x y; symmetry; transitivity;
