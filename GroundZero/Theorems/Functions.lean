@@ -65,8 +65,11 @@ begin
   { intro ★; reflexivity }
 end
 
+hott def isEmbedding {A : Type u} {B : Type v} (f : A → B) :=
+Π x y, @Equiv.biinv (x = y) (f x = f y) (Id.map f)
+
 hott def Embedding (A : Type u) (B : Type v) :=
-Σ (f : A → B), Π x y, @Equiv.biinv (x = y) (f x = f y) (Id.map f)
+Σ (f : A → B), isEmbedding f
 
 infix:55 " ↪ " => Embedding
 

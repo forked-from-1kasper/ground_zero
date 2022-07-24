@@ -1,4 +1,8 @@
+import GroundZero.Theorems.Functions
 import GroundZero.Theorems.Equiv
+
+open GroundZero.Theorems.Functions
+open GroundZero.Types.Equiv
 open GroundZero.Structures
 open GroundZero.Theorems
 
@@ -23,7 +27,8 @@ end
 
 namespace Precategory
   def compose {A : Type u} {𝒞 : Precategory A} {a b c : A}
-    (g : hom 𝒞 b c) (f : hom 𝒞 a b) : hom 𝒞 a c := 𝒞.comp g f
+    (g : hom 𝒞 b c) (f : hom 𝒞 a b) : hom 𝒞 a c :=
+  𝒞.comp g f
 
   local infix:60 " ∘ " => compose
 
@@ -43,8 +48,8 @@ namespace Precategory
     {a b : A} (p : a = b) : iso 𝒞 a b :=
   begin induction p; reflexivity end
 
-  hott def invProp {A : Type u} (𝒞 : Precategory A) {a b : A}
-    (f : hom 𝒞 a b) : prop (hasInv 𝒞 f) :=
+  hott def invProp {A : Type u} (𝒞 : Precategory A)
+    {a b : A} (f : hom 𝒞 a b) : prop (hasInv 𝒞 f) :=
   begin
     intro ⟨g', (H₁, H₂)⟩ ⟨g, (G₁, G₂)⟩;
     fapply Sigma.prod; apply calc
@@ -73,6 +78,28 @@ namespace Precategory
     idRight  := λ p, (Id.reflLeft p)⁻¹,
     idLeft   := λ p, (Id.reflRight p)⁻¹,
     assoc    := λ f g h, (Id.assoc f g h)⁻¹ }
+
+  hott def univalent {A : Type u} (𝒞 : Precategory A) :=
+  Π a b, biinv (@Precategory.idtoiso A 𝒞 a b)
+
+  hott def isGroupoidIfUnivalent {A : Type u} (𝒞 : Precategory A) : univalent 𝒞 → groupoid A :=
+  begin
+    intros H a b; change hset (a = b); apply hsetRespectsEquiv;
+    symmetry; existsi idtoiso 𝒞; apply H; apply hsetRespectsSigma;
+    apply 𝒞.set; intro; apply propIsSet; apply invProp
+  end
+
+  hott def Functor {A : Type u} {B : Type v} (𝒞 : Precategory A) (𝒟 : Precategory B) :=
+  Σ (F : A → B) (G : Π a b, 𝒞.hom a b → 𝒟.hom (F a) (F b)),
+    (Π a, G a a 𝒞.id = 𝒟.id) × (Π a b c f g, G a c (𝒞.comp f g) = 𝒟.comp (G b c f) (G a b g))
+
+  section
+    variable {A : Type u} {B : Type v} {𝒞 : Precategory A} {𝒟 : Precategory B} (F : Functor 𝒞 𝒟)
+
+    hott def isFaithful := Π a b, injective  (F.2.1 a b)
+    hott def isFull     := Π a b, surjective (F.2.1 a b)
+  end
+
 end Precategory
 
 end GroundZero.Types
