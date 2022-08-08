@@ -37,7 +37,7 @@ def isProof : LocalContext → Expr → MetaM Bool :=
 def mkNumMetaUnivs : Nat → MetaM (List Level)
 |   0   => return []
 | n + 1 => do
-  let id ← mkFreshMVarId;
+  let id ← mkFreshLMVarId;
   let xs ← mkNumMetaUnivs n;
   return (mkLevelMVar id :: xs)
 

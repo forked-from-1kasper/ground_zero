@@ -173,7 +173,7 @@ namespace Not
   infix:50 (priority := high) " ≠ " => Neq
 
   def absurd {A : Type u} {B : Type v} (h : A) (g : ¬A) : B :=
-  GroundZero.Proto.Empty.casesOn (λ _, B) (g h)
+  nomatch (g h)
 
   def univ : (𝟎 : Type u) → (𝟎 : Type v) :=
   λ e, nomatch e

@@ -41,7 +41,7 @@ namespace GroundZero.Meta.Tactic
 -- https://github.com/leanprover-community/mathlib4/blob/master/Mathlib/Tactic/Ring.lean#L411-L419
 def applyOnBinRel (name : Name) (rel : Name) : Elab.Tactic.TacticM Unit := do
   let mvars ← Elab.Tactic.liftMetaMAtMain (λ mvar => do
-    let ε ← instantiateMVars (← Meta.getMVarDecl mvar).type
+    let ε ← instantiateMVars (← MVarId.getDecl mvar).type
     ε.consumeMData.withApp λ e es => do
       unless (es.size > 1) do Meta.throwTacticEx name mvar s!"expected binary relation, got “{e} {es}”"
 
@@ -59,7 +59,7 @@ def applyOnBinRel (name : Name) (rel : Name) : Elab.Tactic.TacticM Unit := do
       let ι ← Meta.synthInstance (mkApp2 (Lean.mkConst rel [u, v]) ty (mkAppN e es))
       let φ := (← Meta.reduceProj? (mkProj rel 0 ι)).getD ι
 
-      Meta.apply mvar φ)
+      MVarId.apply mvar φ)
   Elab.Tactic.replaceMainGoal mvars
 
 section
@@ -80,28 +80,28 @@ macro_rules
     | n + 1 => `(tactic|($seq:tacticSeq); iterate $(quote n) $seq:tacticSeq)
 
 elab "fapply " e:term : tactic =>
-  Elab.Tactic.evalApplyLikeTactic (Meta.apply (cfg := {newGoals := Meta.ApplyNewGoals.all})) e
+  Elab.Tactic.evalApplyLikeTactic (MVarId.apply (cfg := {newGoals := Meta.ApplyNewGoals.all})) e
 
 macro_rules | `(tactic| change $e:term) => `(tactic| show $e)
 
 -- https://github.com/leanprover-community/mathlib4/blob/master/Mathlib/Tactic/LeftRight.lean
 -- Author: Siddhartha Gadgil
 def getCtors (name : Name) (mvar : MVarId) : MetaM (List Name × List Level) := do
-    Meta.checkNotAssigned mvar name
-    let target ← Meta.getMVarType' mvar
+    MVarId.checkNotAssigned mvar name
+    let target ← MVarId.getType' mvar
     matchConstInduct target.getAppFn
       (λ _ => Meta.throwTacticEx `constructor mvar "target is not an inductive datatype")
       (λ ival us => return (ival.ctors, us))
 
 def leftRightMeta (pickLeft : Bool) (mvar : MVarId) : MetaM (List MVarId) := do
-  Meta.withMVarContext mvar do
+  MVarId.withContext mvar do
     let name := if pickLeft then `left else `right
     let (ctors, us) ← getCtors name mvar
     unless ctors.length == 2 do
       Meta.throwTacticEx `constructor mvar
         s!"{name} target applies for inductive types with exactly two constructors"
     let ctor := ctors.get! (if pickLeft then 0 else 1)
-    Meta.apply mvar (mkConst ctor us)
+    MVarId.apply mvar (mkConst ctor us)
 
 elab "left"  : tactic => Elab.Tactic.liftMetaTactic (leftRightMeta true)
 elab "right" : tactic => Elab.Tactic.liftMetaTactic (leftRightMeta false)
@@ -110,10 +110,10 @@ elab "whnf" : tactic => do
   let mvarId ← Elab.Tactic.getMainGoal
   let target ← Elab.Tactic.getMainTarget
   let targetNew ← Meta.whnf target
-  Elab.Tactic.replaceMainGoal [← Meta.replaceTargetDefEq mvarId targetNew]
+  Elab.Tactic.replaceMainGoal [← MVarId.replaceTargetDefEq mvarId targetNew]
 
 def getExistsiCtor (mvar : MVarId) : MetaM Name := do
-  Meta.withMVarContext mvar do
+  MVarId.withContext mvar do
     let (ctors, us) ← getCtors `existsi mvar
     unless ctors.length == 1 do
       Meta.throwTacticEx `constructor mvar
