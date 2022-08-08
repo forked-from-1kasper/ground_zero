@@ -124,7 +124,7 @@ leading_parser declModifiers false >> "hott " >> («def» <|> «theorem»)
   |> Elab.Command.elabDeclaration
 
   if (← getEnv).contains name then do {
-    Elab.Command.liftTermElabM name (checkDecl declId name);
+    Elab.Command.liftTermElabM (checkDecl declId name);
     modifyEnv (λ env => hottDecls.addEntry env name)
   }
 | _ => throwError "invalid declaration"
