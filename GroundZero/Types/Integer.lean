@@ -121,11 +121,10 @@ hott def auxsubAsymm : Π x y, auxsub x y = negate (auxsub y x)
 | Nat.succ m, Nat.succ n => auxsubAsymm m n
 
 hott def addComm : Π (x y : ℤ), x + y = y + x
-| neg x, neg y => Id.map neg ((Nat.succPlus _ _)⁻¹ ⬝ Nat.comm _ _)
+| neg x, neg y => Id.map neg ((Nat.succPlus x y)⁻¹ ⬝ Nat.comm _ _)
 | neg x, pos y => idp _
 | pos x, neg y => idp _
 | pos x, pos y => Id.map pos (Nat.comm _ _)
-
 
 hott def auxsubZeroRight (n : Nat) : auxsub n 0 = pos n :=
 begin induction n using Nat.casesOn <;> reflexivity end
