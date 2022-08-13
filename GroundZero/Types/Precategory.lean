@@ -102,6 +102,14 @@ namespace Precategory
 
   hott def Natural {A : Type u} {B : Type v} {𝒞 : Precategory A} {𝒟 : Precategory B} (F G : Functor 𝒞 𝒟) :=
   Σ (η : Π x, hom 𝒟 (F.1 x) (G.1 x)), Π (a b : A) (f : hom 𝒞 a b), η b ∘ F.2.1 a b f = G.2.1 a b f ∘ η a
+
+  hott def isProduct {A : Type u} (𝒞 : Precategory A) (a b c : A) :=
+  Σ (i : hom 𝒞 c a) (j : hom 𝒞 c b),
+    ∀ (x : A) (f₁ : hom 𝒞 x a) (f₂ : hom 𝒞 x b),
+      contr (Σ (f : hom 𝒞 x c), i ∘ f = f₁ × j ∘ f = f₂)
+
+  hott def isCoproduct {A : Type u} (𝒞 : Precategory A) (a b c : A) :=
+  isProduct (op 𝒞) a b c
 end Precategory
 
 end GroundZero.Types

@@ -49,13 +49,6 @@ namespace Category
 
   def twoOutOfThree {a b c : A} (g : hom 𝒞 b c) (f : hom 𝒞 a b) (K : Mor 𝒞 → Type v) :=
   (K f → K g → K (g ∘ f)) × (K (g ∘ f) → K g → K f) × (K f → K (g ∘ f) → K g)
-
-  hott def isProduct (a b c : A) :=
-  Σ (π : hom 𝒞 c a × hom 𝒞 c b),
-    Π (x : A) (f₁ : hom 𝒞 x a) (f₂ : hom 𝒞 x b),
-      contr (Σ (f : hom 𝒞 x c), π.1 ∘ f = f₁ × π.snd ∘ f = f₂)
-
-  hott def Product (a b : A) := Σ c, isProduct 𝒞 a b c
 end Category
 
 end GroundZero.Types
