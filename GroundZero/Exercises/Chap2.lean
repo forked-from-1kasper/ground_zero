@@ -205,6 +205,10 @@ namespace «2.12»
   def outer : hcommSquare A E B F :=
   ⟨k, s ∘ h, g ∘ f, i, @Id.map (C → F) (A → F) _ _ (· ∘ f) β
                      ⬝ @Id.map _ (A → F) _ _ (s ∘ ·) α⟩
+
+  hott def pullbackLemma (H : (right β).isPullback) :
+    (left α).isPullback ↔ (outer α β).isPullback :=
+  sorry
 end «2.12»
 
 -- exercise 2.13
@@ -216,7 +220,7 @@ example : (𝟐 ≃ 𝟐) ≃ 𝟐 := Theorems.Equiv.boolEquivEqvBool
 -- Assume Γ, p : x = y ⊢ x ≡ y, let Γ = A : U, a : A. Then Γ, b : A, p : a = b ⊢ p = idp a : U,
 -- because in this context we have p : a = b, so a ≡ b, so p : a = a.
 -- “@Id.rec A a (λ b, p = idp a) (λ x, idp a) a” is then well-typed.
--- This means that we have a proof of “Π (p : a = a) → p = idp a” leading to contradiction.
+-- This means that we have a proof of “Π (p : a = a), p = idp a” leading to contradiction.
 
 -- exercise 2.15
 

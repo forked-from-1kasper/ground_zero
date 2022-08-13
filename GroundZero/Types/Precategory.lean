@@ -100,6 +100,8 @@ namespace Precategory
     hott def isFull     := Π a b, surjective (F.2.1 a b)
   end
 
+  hott def Natural {A : Type u} {B : Type v} {𝒞 : Precategory A} {𝒟 : Precategory B} (F G : Functor 𝒞 𝒟) :=
+  Σ (η : Π x, hom 𝒟 (F.1 x) (G.1 x)), Π (a b : A) (f : hom 𝒞 a b), η b ∘ F.2.1 a b f = G.2.1 a b f ∘ η a
 end Precategory
 
 end GroundZero.Types

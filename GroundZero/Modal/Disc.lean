@@ -88,7 +88,7 @@ noncomputable hott def diffIdfun {A : Type u} (x : A) (ε : 𝔻 x) : d idfun x 
 Id.ap (Sigma.mk _) (infProxApIdp _)
 
 hott def isHomogeneous (A : Type u) :=
-Σ (e : A) (t : Π x, A ≃ A), Π x, t x e = x
+Σ (e : A) (t : A → A ≃ A), Π x, t x e = x
 
 hott def Homogeneous :=
 Σ (A : Type u), isHomogeneous A
