@@ -7,7 +7,6 @@ syntax "Π" many1(binderIdent <|> bracketedBinder) ", " term : term
 macro_rules | `(Π $xs*, $y) => `(∀ $xs*, $y)
 
 macro "λ " xs:many1(funBinder) ", " f:term : term => `(fun $xs* => $f)
-macro xs:many1(funBinder) " ↦ " f:term : term => `(fun $xs* => $f)
 
 macro "begin " ts:sepBy1(tactic, ";", "; ", allowTrailingSep) i:"end" : term =>
   `(by { $[($ts:tactic)]* }%$i)

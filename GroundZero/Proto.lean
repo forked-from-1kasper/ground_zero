@@ -4,7 +4,7 @@ namespace GroundZero.Proto
 universe u v w
 
 hott def idfun {A : Sort u} : A → A :=
-(a ↦ a)
+λ a, a
 
 inductive Empty : Type u
 

@@ -355,6 +355,10 @@ namespace Equiv
     transport (λ x, Σ y, B x y) p u = ⟨u.1, transport (B · u.1) p u.2⟩ :=
   begin induction p; reflexivity end
 
+  hott def transportOverProduct {A : Type u} (F : A → Type v) (G : A → Type w) {a b : A}
+    (p : a = b) {w : F a × G a} : transport (λ x, F x × G x) p w = (transport F p w.1, transport G p w.2) :=
+  begin induction p; reflexivity end
+
   hott def transportOverFunction {A : Type u} {B : Type v}
     {a : A} {b : B} (f g : A → B) (p : f = g) (q : f a = b) :
     transport (λ (f' : A → B), f' a = b) p q =

@@ -377,7 +377,7 @@ namespace GroundZero.Algebra
     begin
       apply Prod.mk <;> existsi L.π i⁻¹ m <;>
       { intro x; transitivity; apply π.comp;
-        transitivity apply Id.map (L.π · m x);
+        transitivity; apply Id.map (L.π · m x);
         first | apply G.mulLeftInv | apply Group.mulRightInv;
         apply π.id }
     end

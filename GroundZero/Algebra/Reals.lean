@@ -303,13 +303,12 @@ namespace GroundZero.Algebra
 
   noncomputable hott def doubleGeZeroImplGeZero {x : ℝ} : R.ρ 0 (x + x) → R.ρ 0 x :=
   begin
-    intro p; match R.total 0 x with
-    | Sum.inl q₁ => { apply q₁ }
-    | Sum.inr q₂ => { apply GroundZero.Proto.Empty.elim;
-      apply (strictIneqAdd R q₂ q₂).1; apply @antisymmetric.asymm R.κ;
-      apply ineqAdd <;> exact q₂.2; apply Equiv.transport (R.ρ · (x + x));
-      symmetry; apply R.τ⁺.mulOne; exact p
-    }
+    intro p; induction R.total 0 x;
+    case inl q₁ => { apply q₁ };
+    case inr q₂ =>
+    { apply GroundZero.Proto.Empty.elim; apply (strictIneqAdd R q₂ q₂).1;
+      apply @antisymmetric.asymm R.κ; apply ineqAdd <;> exact q₂.2;
+      apply Equiv.transport (R.ρ · (x + x)); symmetry; apply R.τ⁺.mulOne; exact p }
   end
 
   def tendsto {M₁ M₂ : Metric} (f : M₁.carrier → M₂.carrier) :=

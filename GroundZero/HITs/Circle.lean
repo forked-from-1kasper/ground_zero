@@ -625,7 +625,7 @@ namespace Circle
     apply ap (transportconst · 0) H
   end
 
-  noncomputable hott def helixNontriv : helix ≠ (_ ↦ ℤ) :=
+  noncomputable hott def helixNontriv : helix ≠ (λ _, ℤ) :=
   begin
     intro H; apply succNeqIdp; transitivity; symmetry; apply recβrule₂;
     apply transport (λ φ, ap φ loop = idp (φ base)) H⁻¹; apply constmap

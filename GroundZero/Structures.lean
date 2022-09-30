@@ -99,7 +99,7 @@ hott def contrImplProp {A : Type u} (h : contr A) : prop A :=
 λ a b, (h.2 a)⁻¹ ⬝ (h.2 b)
 
 def emptyIsProp : prop 𝟎 :=
-begin intros x; induction x end
+begin intros x y; induction x end
 
 def unitIsProp : prop 𝟏 :=
 begin intros x y; induction x; induction y; reflexivity end
@@ -596,11 +596,11 @@ hott def vect.map {A : Type u} {B : Type v} (f : A → B) :
 | Nat.succ n => λ v, (f v.1, map f v.2)
 
 section
-  open GroundZero.Types.Equiv (transport subst)
+  open GroundZero.Types.Equiv (transportOverProduct transport subst)
+  open GroundZero.Types
 
   hott def vect.subst {A B : Type u} (p : A = B) (f : B → A) {n : ℕ} (v : vect A n) :
-    vect.map f (@transport (Type u) (λ δ, vect δ n) A B p v) =
-    vect.map (λ (x : A), f (transport id p x)) v :=
+    vect.map f (transport (vect · n) p v) = vect.map (f ∘ transport id p) v :=
   begin induction p; reflexivity end
 end
 
