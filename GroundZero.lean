@@ -75,6 +75,7 @@ import GroundZero.HITs.Simplicial
 import GroundZero.HITs.Suspension
 import GroundZero.HITs.Topologization
 import GroundZero.HITs.Trunc
+import GroundZero.HITs.Wedge
 import GroundZero.Theorems.Classical
 import GroundZero.Theorems.Equiv
 import GroundZero.Theorems.Fibration
