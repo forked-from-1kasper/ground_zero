@@ -96,7 +96,7 @@ digraph dependency_map {
     "Types/Product" -> { Structures }
     "Types/Setquot"
     "Types/Sigma" -> { Structures }
-    "Types/Unit" -> { Structures, "HITs/Suspension" }
+    "Types/Unit" -> { Structures, "HITs/Suspension", "HITs/Wedge" }
   }
 
   subgraph HITs {
@@ -131,7 +131,8 @@ digraph dependency_map {
     }
     "HITs/Moebius"
     "HITs/Pushout" -> {
-      "HITs/Suspension"
+      "HITs/Suspension",
+      "HITs/Wedge"
     }
     "HITs/Quotient" -> {
       "Algebra/Group/Absolutizer",
@@ -143,6 +144,7 @@ digraph dependency_map {
     "HITs/Suspension" -> { "HITs/Circle", "HITs/Join" }
     "HITs/Topologization"
     "HITs/Trunc" -> { "Algebra/Monoid", "HITs/Quotient" }
+    "HITs/Wedge"
   }
 
   subgraph Cubical {
