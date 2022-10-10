@@ -20,7 +20,6 @@ def Wedge (A B : Type⁎) :=
 infix:50 " ∨ " => Wedge
 
 namespace Wedge
-
   variable {A B : Type⁎}
 
   def inl : A.1 → A ∨ B := Pushout.inl

@@ -95,6 +95,9 @@ hott def Homogeneous :=
 
 noncomputable instance : Coe Homogeneous (Type u) := ⟨Sigma.fst⟩
 
+hott def Homogeneous.trivial : Homogeneous :=
+⟨𝟏, ★, λ _, ideqv 𝟏, λ ★, idp ★⟩
+
 hott def Homogeneous.cart (A B : Homogeneous) : Homogeneous :=
 ⟨A.1 × B.1, ⟨(A.2.1, B.2.1), λ w, prodEquiv (A.2.2.1 w.1) (B.2.2.1 w.2),
              λ w, Product.prod (A.2.2.2 w.1) (B.2.2.2 w.2)⟩⟩
