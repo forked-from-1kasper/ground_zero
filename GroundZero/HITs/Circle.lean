@@ -312,7 +312,7 @@ namespace Circle
 
   noncomputable example : winding (loop ⬝ loop) = 2 := windingPower 2
   noncomputable example : winding loop = 1          := windingPower 1
-  noncomputable example : winding loop⁻¹ = -1       := windingPower (-1)
+  noncomputable example : winding loop⁻¹ = -1       := windingPower (Integer.neg 0)
 
   hott def rot : Π (x : S¹), x = x :=
   Circle.ind Circle.loop (begin

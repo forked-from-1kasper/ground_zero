@@ -1,4 +1,5 @@
 import GroundZero.Proto
+open Lean.TSyntax.Compat
 
 /-
   Some emendations of Gödel’s Ontological proof.
@@ -32,7 +33,7 @@ namespace GroundZero.Theorems.Ontological
   -- property
   def prop (ι : Type u) := ι → wff ι
 
-  macro "⋀" is:Lean.explicitBinders ", " e:term : term =>
+  macro "⋀ " is:Lean.explicitBinders ", " e:term : term =>
     Lean.expandExplicitBinders ``wff.«forall» is e
 
   infixr:20 " ⇒ " => wff.impl
@@ -48,7 +49,7 @@ namespace GroundZero.Theorems.Ontological
 
   def «exists» (φ : prop ι) := ¬(⋀ x, ¬(φ x))
 
-  macro "⋁" is:Lean.explicitBinders ", " e:term : term =>
+  macro "⋁ " is:Lean.explicitBinders ", " e:term : term =>
     Lean.expandExplicitBinders ``«exists» is e
 
   def or (φ ψ : wff ι) := ¬φ ⇒ ψ
