@@ -16,9 +16,6 @@ namespace GroundZero.Algebra
   hott def zeroeqv {A : Type u} (H : hset A) : 0-Type :=
   ⟨A, zeroEqvSet.left H⟩
 
-  macro "propauto" : tactic =>
-    `(repeat { apply piProp; intro }; apply p)
-
   def algop (deg : ℕ) (A : Type u) :=
   vect A deg → A
 

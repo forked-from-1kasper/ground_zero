@@ -259,7 +259,7 @@ namespace GroundZero.Algebra
     @minorant T.κ φ x → @majorant T.κ (@Neg T.τ φ) (T.τ.neg x) :=
   begin
     intros H x p; apply invMinusSign;
-    apply Equiv.transport (λ y, T.ρ y (-x)); symmetry;
+    apply Equiv.transport (λ y, T.ρ y (T.τ.neg x)); symmetry;
     apply @Group.invInv T.τ⁺; apply H; exact p
   end
 
@@ -267,7 +267,7 @@ namespace GroundZero.Algebra
     @minorant T.κ (@Neg T.τ φ) x → @Algebra.majorant T.κ φ (T.τ.neg x) :=
   begin
     intro H; intros x p; apply invMinusSign;
-    apply Equiv.transport (λ y, T.ρ y (-x)); symmetry;
+    apply Equiv.transport (λ y, T.ρ y (T.τ.neg x)); symmetry;
     apply @Group.invInv T.τ⁺; apply H; apply Equiv.transport (· ∈ φ);
     symmetry; apply @Group.invInv T.τ⁺; exact p
   end
@@ -276,7 +276,7 @@ namespace GroundZero.Algebra
     @Algebra.majorant T.κ φ x → @Algebra.minorant T.κ (@Neg T.τ φ) (T.τ.neg x) :=
   begin
     intro H x p; apply invMinusSign;
-    apply Equiv.transport (T.ρ (-x)); symmetry;
+    apply Equiv.transport (T.ρ (T.τ.neg x)); symmetry;
     apply @Group.invInv T.τ⁺; apply H; exact p
   end
 
@@ -284,7 +284,7 @@ namespace GroundZero.Algebra
     @Algebra.majorant T.κ (@Neg T.τ φ) x → @Algebra.minorant T.κ φ (T.τ.neg x) :=
   begin
     intro H x p; apply invMinusSign;
-    apply Equiv.transport (T.ρ (-x)); symmetry;
+    apply Equiv.transport (T.ρ (T.τ.neg x)); symmetry;
     apply @Group.invInv T.τ⁺; apply H; apply Equiv.transport (· ∈ φ);
     symmetry; apply @Group.invInv T.τ⁺; exact p
   end
