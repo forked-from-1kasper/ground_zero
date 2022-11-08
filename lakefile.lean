@@ -5,5 +5,5 @@ package GroundZero {
   moreLeanArgs := #["-Dlinter.unusedVariables=false"]
 }
 
-@[defaultTarget]
+@[default_target]
 lean_lib GroundZero
