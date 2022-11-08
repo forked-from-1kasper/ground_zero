@@ -137,8 +137,8 @@ def calcLHS : Parser.Parser :=
 
 open PrettyPrinter Elab.Term
 
-@[combinatorFormatter GroundZero.Meta.Tactic.calcLHS] def calcLHS.formatter : Formatter := pure ()
-@[combinatorParenthesizer GroundZero.Meta.Tactic.calcLHS] def calcLHS.parenthesizer : Parenthesizer := pure ()
+@[combinator_formatter GroundZero.Meta.Tactic.calcLHS] def calcLHS.formatter : Formatter := pure ()
+@[combinator_parenthesizer GroundZero.Meta.Tactic.calcLHS] def calcLHS.parenthesizer : Parenthesizer := pure ()
 
 def extRelation (e : Expr) : TermElabM (Expr × Expr) :=
   e.withApp λ e es => do

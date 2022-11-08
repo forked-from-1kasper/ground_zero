@@ -11,8 +11,8 @@ attribute [eliminator] Sum.casesOn
 namespace Coproduct
   variable {A : Type u} {B : Type v}
 
-  @[matchPattern] def inl : A → A + B := Sum.inl
-  @[matchPattern] def inr : B → A + B := Sum.inr
+  @[match_pattern] def inl : A → A + B := Sum.inl
+  @[match_pattern] def inr : B → A + B := Sum.inr
 
   hott def elim {C : Type w} (g₀ : A → C) (g₁ : B → C) : A + B → C
   | inl a => g₀ a

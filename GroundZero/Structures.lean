@@ -623,8 +623,8 @@ hott def vect.constMap {A : Type u} {B : Type v} (a : A) (f : A → B) :
 | Nat.succ n => Types.Product.prod (idp _) (constMap a f)
 
 hott def Finite := iter 𝟏 𝟎
-@[matchPattern] def Finite.zero {n : ℕ} : Finite (n + 1) := Sum.inr ★
-@[matchPattern] def Finite.succ {n : ℕ} : Finite n → Finite (n + 1) := Sum.inl
+@[match_pattern] def Finite.zero {n : ℕ} : Finite (n + 1) := Sum.inr ★
+@[match_pattern] def Finite.succ {n : ℕ} : Finite n → Finite (n + 1) := Sum.inl
 
 def LEMinf := Π (A : Type u), A + ¬A
 notation "LEM∞" => LEMinf

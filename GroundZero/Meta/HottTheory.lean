@@ -108,10 +108,10 @@ partial def checkDeclAux (chain : List Name) (tag : Syntax) (name : Name) : Meta
 
 def checkDecl := checkDeclAux []
 
-@[commandParser] def hott :=
+@[command_parser] def hott :=
 leading_parser declModifiers false >> "hott " >> («def» <|> «theorem»)
 
-@[commandElab «hott»] def elabHoTT : Elab.Command.CommandElab :=
+@[command_elab «hott»] def elabHoTT : Elab.Command.CommandElab :=
 λ stx => match stx.getArgs with
 | #[mods, _, cmd] => do
   let declId   := cmd[1]

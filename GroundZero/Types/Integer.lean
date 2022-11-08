@@ -16,8 +16,8 @@ namespace GroundZero.Types
 def Integer := ℕ + ℕ
 notation "ℤ" => Integer
 
-@[matchPattern] def Integer.pos : ℕ → ℤ := Coproduct.inl
-@[matchPattern] def Integer.neg : ℕ → ℤ := Coproduct.inr
+@[match_pattern] def Integer.pos : ℕ → ℤ := Coproduct.inl
+@[match_pattern] def Integer.neg : ℕ → ℤ := Coproduct.inr
 
 instance (n : ℕ) : OfNat ℤ n := ⟨Integer.pos n⟩
 
