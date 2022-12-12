@@ -676,7 +676,7 @@ namespace Circle
           (ua (ΩSuccEquiv π succπ predπ coh₁ coh₂ z))))
 
     noncomputable hott def ΩHelixSucc {z : x = base} (w : π (z ⬝ idp base)) :
-        @Id.rec S¹ base (λ y r, ΩHelix π succπ predπ coh₁ coh₂ y (z ⬝ r)) w base loop
+        J₁ (λ y r, ΩHelix π succπ predπ coh₁ coh₂ y (z ⬝ r)) w loop
       = succπ z (subst (reflRight _) w) :=
     begin
       induction z using J₂; transitivity; apply ΩmeetDef;
@@ -711,8 +711,9 @@ namespace Circle
              (coh₁ : Π p z, predπ _ (succπ p z) =[cancelCompInv _ _] z)
              (coh₂ : Π p z, succπ _ (predπ p z) =[cancelInvComp _ _] z)
 
+    -- https://github.com/ncfavier/cubical-experiments/blob/998602175a25def84b927b5071dac208aea38d7d/Shapes.agda#L52-L68
     noncomputable hott def Ωind (z : Ω¹(S¹)) : π z :=
-    @Id.rec S¹ base (ΩHelix π succπ predπ coh₁ coh₂) zeroπ base z
+    J₁ (ΩHelix π succπ predπ coh₁ coh₂) zeroπ z
 
     noncomputable hott def Ωindβ₁ : Ωind zeroπ succπ predπ coh₁ coh₂ (idp base) = zeroπ :=
     by reflexivity
