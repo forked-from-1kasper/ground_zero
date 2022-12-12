@@ -443,7 +443,7 @@ namespace Circle
   ⬝ Loop.powerComm Circle.loop (winding x) (winding y)
   ⬝ Equiv.bimap Id.trans (powerOfWinding y) (powerOfWinding x)
 
-  noncomputable hott def Ωind₁ {π : (Ω¹(S¹)) → Type u}
+  noncomputable hott def Ωind₁ {π : Ω¹(S¹) → Type u}
     (zeroπ : π (idp base)) (succπ : Π x, π x → π (x ⬝ loop))
     (predπ : Π x, π x → π (x ⬝ loop⁻¹)) : Π x, π x :=
   begin
@@ -458,7 +458,7 @@ namespace Circle
       apply predπ; exact ih }
   end
 
-  noncomputable hott def Ωind₂ {π : (Ω¹(S¹)) → Type u}
+  noncomputable hott def Ωind₂ {π : Ω¹(S¹) → Type u}
     (zeroπ : π Id.refl) (succπ : Π x, π x → π (loop ⬝ x))
     (predπ : Π x, π x → π (loop⁻¹ ⬝ x)) : Π x, π x :=
   begin
@@ -514,7 +514,7 @@ namespace Circle
   def uarec {A : Type u} (φ : A ≃ A) : S¹ → Type u := rec A (ua φ)
 
   hott def Ωrec {A : Type u} (zero : A) (succ pred : A → A)
-    (p : succ ∘ pred ~ id) (q : pred ∘ succ ~ id) : (Ω¹(S¹)) → A :=
+    (p : succ ∘ pred ~ id) (q : pred ∘ succ ~ id) : Ω¹(S¹) → A :=
   λ r, @transport S¹ (uarec ⟨succ, (⟨pred, q⟩, ⟨pred, p⟩)⟩) base base r zero
 
   section
@@ -752,7 +752,7 @@ namespace Circle
   end
 
   section
-    variable {π : (Ω¹(S¹)) → Type u} (zeroπ : π (idp base))
+    variable {π : Ω¹(S¹) → Type u} (zeroπ : π (idp base))
              (succπ : Π x, π x → π (x ⬝ loop)) (predπ : Π x, π x → π (x ⬝ loop⁻¹))
              (coh₁ : Π p z, predπ _ (succπ p z) =[cancelCompInv _ _] z)
              (coh₂ : Π p z, succπ _ (predπ p z) =[cancelInvComp _ _] z)
