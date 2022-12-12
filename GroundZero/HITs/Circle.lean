@@ -673,12 +673,12 @@ namespace Circle
   begin induction p; reflexivity end
 
   section
-    variable {x : S¹} (B : Π y, x = y → Type u) (w : B x (idp x)) {y : S¹} (p : x = y)
+    variable {A : Type u} {a : A} (B : Π x, a = x → Type v) (w : B a (idp a)) {b : A} (p : a = b)
 
-    hott def Ωmeet :=
+    hott def ΩJ :=
     transportconst (Interval.happly (apd B p) p) (transportMeet B w p)
 
-    noncomputable hott def ΩmeetDef : J₁ B w p = Ωmeet B w p :=
+    noncomputable hott def ΩJDef : J₁ B w p = ΩJ B w p :=
     begin induction p; reflexivity end
   end
 
@@ -716,7 +716,7 @@ namespace Circle
         J₁ (λ y r, ΩHelix π succπ predπ coh₁ coh₂ y (z ⬝ r)) w loop
       = succπ z (subst (reflRight _) w) :=
     begin
-      induction z using J₂; transitivity; apply ΩmeetDef;
+      induction z using J₂; transitivity; apply ΩJDef;
       transitivity; apply Id.map (transportconst · _);
       transitivity; apply Id.map (happly · _); apply indβrule₂; apply happlyFunextPath;
       transitivity; apply transportconstOverComposition;
@@ -733,7 +733,7 @@ namespace Circle
         J₁ (λ y r, ΩHelix π succπ predπ coh₁ coh₂ y (z ⬝ r)) w loop⁻¹
       = predπ z (subst (reflRight _) w) :=
     begin
-      induction z using J₂; transitivity; apply ΩmeetDef;
+      induction z using J₂; transitivity; apply ΩJDef;
       transitivity; apply Id.map (transportconst · _);
       transitivity; apply Id.map (happly · _);
       transitivity; apply apdInv; apply Id.map (depSymm _); apply indβrule₂; apply happlyRevFunextPath;
