@@ -637,16 +637,49 @@ namespace Circle
     apply ua; transitivity; symmetry; apply family; apply H
   end
 
+  hott def funextPath {A : Type u} {B : Type v} {a b c : A} (f : a = b → B) (g : a = c → B)
+    (p : b = c) (η : Π q, f (q ⬝ p⁻¹) = g q) : f =[λ x, a = x → B, p] g :=
+  begin
+    induction p; apply Theorems.funext; intro; transitivity;
+    apply Id.map; apply Id.symm; apply Id.reflRight; apply η
+  end
+
+  hott def transportPathMap {A : Type u} {B : Type v} {a b c : A} (φ : a = b → B) (p : b = c) (q : a = c) :
+    transport (λ x, a = x → B) p φ q = φ (q ⬝ p⁻¹) :=
+  begin induction p; induction q; reflexivity end
+
   section
-    variable (B : Π x, base = x → Type u) (w : B base (idp base)) {x : S¹} (z : base = x)
+    variable {A : Type u} {B : Type v} {a b c : A} {f : a = b → B} {g : a = c → B} {p : b = c} (φ : Π r, f (r ⬝ p⁻¹) = g r)
 
-    hott def Ωmeet : B x z :=
-    transportconst (Interval.happly ((transportImpl (base = ·) (λ _, Type u) z (B base))⁻¹ ⬝ apd B z) z)
-      (transportconst (transportOverConstFamily _ _)⁻¹
-        (transport (B base) (transportComposition _ _ ⬝ compInv _)⁻¹ w))
+    hott def happlyFunextPath {q : a = c} : happly (funextPath f g p φ) q = transportPathMap f p q ⬝ φ q :=
+    begin induction p; induction q; apply Interval.happly (Theorems.happlyFunext _ _ _) end
 
-    noncomputable hott def ΩmeetDef : J₁ B w z = Ωmeet B w z :=
-    begin induction z; reflexivity end
+    hott def happlyRevFunextPath {q : b = a} :
+        happly (depSymm p (funextPath f g p φ)) q⁻¹
+      = transportPathMap g p⁻¹ q⁻¹ ⬝ (φ (q⁻¹ ⬝ p⁻¹⁻¹))⁻¹ ⬝ Id.map f (cancelInvComp _ _) :=
+    begin
+      induction p; induction q; transitivity; apply Interval.happly (Interval.happlyRev _);
+      transitivity; apply Id.map Id.symm; apply Interval.happly (Theorems.happlyFunext _ _ _);
+      symmetry; apply Id.reflRight
+    end
+  end
+
+  hott def transportMeet {A : Type u} {a : A} (B : Π x, a = x → Type v)
+    (w : B a (idp a)) {b : A} (p : a = b) : transport (λ x, a = x → Type v) p (B a) p :=
+  begin induction p; exact w end
+
+  hott def meetTransportCoh {A : Type u} {a b : A} (B : Π x, a = x → Type v) (w : B a (idp a)) (p : a = b) :
+    transportconst (transportPathMap (B a) p p) (transportMeet B w p) = subst (compInv p)⁻¹ w :=
+  begin induction p; reflexivity end
+
+  section
+    variable {x : S¹} (B : Π y, x = y → Type u) (w : B x (idp x)) {y : S¹} (p : x = y)
+
+    hott def Ωmeet :=
+    transportconst (Interval.happly (apd B p) p) (transportMeet B w p)
+
+    noncomputable hott def ΩmeetDef : J₁ B w p = Ωmeet B w p :=
+    begin induction p; reflexivity end
   end
 
   section
@@ -655,52 +688,65 @@ namespace Circle
              (coh₁ : Π p z, predπ _ (succπ p z) =[cancelCompInv _ _] z)
              (coh₂ : Π p z, succπ _ (predπ p z) =[cancelInvComp _ _] z)
 
-    noncomputable hott def ΩEquivInj {z : x = base} (w₁ w₂ : π z) (H : succπ z w₁ = succπ z w₂) : w₁ = w₂ :=
+    noncomputable hott def ΩEquivSuccInj {z : x = base} {w₁ w₂ : π z} (H : succπ z w₁ = succπ z w₂) : w₁ = w₂ :=
     begin
       transitivity; apply Id.symm; apply coh₁;
       transitivity; apply Id.map (subst _ ∘ predπ _);
       apply H; apply coh₁
     end
 
+    noncomputable hott def ΩEquivPredInj {z : x = base} {w₁ w₂ : π z} (H : predπ z w₁ = predπ z w₂) : w₁ = w₂ :=
+    begin
+      transitivity; apply Id.symm; apply coh₂;
+      transitivity; apply Id.map (subst _ ∘ succπ _);
+      apply H; apply coh₂
+    end
+
     noncomputable hott def ΩSuccEquiv (z : x = base) : π (z ⬝ loop⁻¹) ≃ π z :=
     ⟨λ H, subst (cancelInvComp z loop) (succπ _ H),
-     (⟨predπ z, λ _, ΩEquivInj π succπ predπ coh₁ _ _
+     (⟨predπ z, λ _, ΩEquivSuccInj π succπ predπ coh₁
       ((transportForwardAndBack (cancelInvComp _ _) _)⁻¹ ⬝
         Id.map (subst _) (coh₂ _ _) ⬝ transportForwardAndBack _ _)⟩,
       ⟨predπ z, coh₂ _⟩)⟩
 
     noncomputable hott def ΩHelix : Π y, x = y → Type u :=
-    Circle.ind π (transportImpl (x = ·) (λ _, Type u) loop π ⬝
-      Theorems.funext (λ z, transportOverConstFamily _ _ ⬝
-        Id.map π (transportComposition _ _) ⬝
-          (ua (ΩSuccEquiv π succπ predπ coh₁ coh₂ z))))
+    Circle.ind π (funextPath π π loop (λ z, ua (ΩSuccEquiv π succπ predπ coh₁ coh₂ z)))
 
     noncomputable hott def ΩHelixSucc {z : x = base} (w : π (z ⬝ idp base)) :
         J₁ (λ y r, ΩHelix π succπ predπ coh₁ coh₂ y (z ⬝ r)) w loop
       = succπ z (subst (reflRight _) w) :=
     begin
       induction z using J₂; transitivity; apply ΩmeetDef;
-      transitivity; apply Id.map (transportconst · _); transitivity;
-      apply Id.map (happly · _); transitivity; apply Id.map (_ ⬝ ·); apply indβrule₂;
-      transitivity; apply Id.assoc; apply Id.map (· ⬝ _); apply invComp;
-      apply Interval.happly (Theorems.happlyFunext _ _ _) loop;
+      transitivity; apply Id.map (transportconst · _);
+      transitivity; apply Id.map (happly · _); apply indβrule₂; apply happlyFunextPath;
       transitivity; apply transportconstOverComposition;
-      transitivity; apply Id.map (transportconst _); transitivity;
+      transitivity; apply Id.map (transportconst _); apply meetTransportCoh (ΩHelix π succπ predπ coh₁ coh₂);
+      transitivity; apply ua.transportRule; show subst _ _ = _; transitivity;
 
-      { transitivity;
-        { transitivity;
-          { transitivity; apply Id.symm; apply transportconstOverComposition;
-            apply Id.map (transportconst · _); transitivity; apply Id.assoc;
-            apply Id.map (· ⬝ _); apply invComp };
-          apply Id.symm; apply transportToTransportconst };
-        apply Id.map (transport _ _); transitivity;
-        apply Id.map (transport _ · _); apply explodeInv; apply substComp };
-
-      apply transportBackAndForward; transitivity; apply ua.transportRule;
-      show subst _ _ = succπ (idp base) w; transitivity;
       apply Id.map (subst _); transitivity; transitivity; apply happly;
-      apply Id.symm; apply apd succπ (compInv loop)⁻¹; apply happly;
+      symmetry; apply apd succπ (compInv loop)⁻¹; apply happly;
       apply transportImpl; apply Id.map (subst _); apply Id.map (succπ _);
+      apply transportForwardAndBack; apply compInvCancelCoh
+    end
+
+    noncomputable hott def ΩHelixPred {z : x = base} (w : π (z ⬝ idp base)) :
+        J₁ (λ y r, ΩHelix π succπ predπ coh₁ coh₂ y (z ⬝ r)) w loop⁻¹
+      = predπ z (subst (reflRight _) w) :=
+    begin
+      induction z using J₂; transitivity; apply ΩmeetDef;
+      transitivity; apply Id.map (transportconst · _);
+      transitivity; apply Id.map (happly · _);
+      transitivity; apply apdInv; apply Id.map (depSymm _); apply indβrule₂; apply happlyRevFunextPath;
+      transitivity; apply transportconstOverComposition;
+      transitivity; apply Id.map (transportconst _);
+      transitivity; apply transportconstOverComposition;
+      transitivity; apply Id.map (transportconst _); apply meetTransportCoh (ΩHelix π succπ predπ coh₁ coh₂);
+      apply ua.transportInvRule; transitivity; symmetry; apply transportToTransportconst;
+
+      show transport _ _ (predπ _ _) = _; transitivity;
+      apply Id.map (subst _); transitivity; transitivity; apply happly;
+      symmetry; apply apd predπ (compInv loop⁻¹)⁻¹; apply happly;
+      apply transportImpl; apply Id.map (subst _); apply Id.map (predπ _);
       apply transportForwardAndBack; apply compInvCancelCoh
     end
   end
@@ -724,6 +770,15 @@ namespace Circle
     begin
       transitivity; apply JTrans;
       transitivity; apply ΩHelixSucc;
+      apply Id.map; apply transportBackAndForward
+    end
+
+    noncomputable hott def Ωindβ₃ (z : Ω¹(S¹)) :
+        Ωind zeroπ succπ predπ coh₁ coh₂ (z ⬝ loop⁻¹)
+      = predπ z (Ωind zeroπ succπ predπ coh₁ coh₂ z) :=
+    begin
+      transitivity; apply JTrans;
+      transitivity; apply ΩHelixPred;
       apply Id.map; apply transportBackAndForward
     end
   end

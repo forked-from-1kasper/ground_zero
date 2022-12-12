@@ -72,6 +72,10 @@ namespace Interval
     {f g : Π x, B x} (p : f = g) : f ~ g :=
   Equiv.transport (λ g, f ~ g) p (Equiv.Homotopy.id f)
 
+  hott def happlyRev {A : Type u} {B : A → Type v}
+    {f g : Π x, B x} (p : f = g) : happly p⁻¹ = Equiv.Homotopy.symm _ _ (happly p) :=
+  begin induction p; reflexivity end
+
   hott def mapHapply {A : Type u} {B : Type v} {C : Type w} {a b : A} {c : B}
     (f : A → B → C) (p : a = b) : Id.map (f · c) p = happly (Id.map f p) c :=
   begin induction p; reflexivity end

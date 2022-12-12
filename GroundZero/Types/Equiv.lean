@@ -171,7 +171,7 @@ namespace Equiv
 
   hott def depSymm {A : Type u} {B : A → Type v} {a b : A}
     (p : a = b) {u : B a} {v : B b} (q : u =[p] v) : v =[p⁻¹] u :=
-  begin induction q using Id.casesOn; apply transportForwardAndBack end
+  begin induction p; exact q⁻¹ end
 
   hott def depTrans {A : Type u} {B : A → Type v}
     {a b c : A} {p : a = b} {q : b = c} {u : B a} {v : B b} {w : B c}

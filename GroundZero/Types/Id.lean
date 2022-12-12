@@ -53,6 +53,10 @@ namespace Id
   infixl:60 " ⬝ " => trans
   postfix:max "⁻¹" => symm
 
+  hott def JSymm {A : Type} {a b : A} (B : Π x, b = x → Type v)
+    (p : a = b) (w : B b (idp b)) : J₁ B w p⁻¹ = J₂ (λ x q, B x q⁻¹) w p :=
+  begin induction p; reflexivity end
+
   hott def compInv {A : Type u} {a b : A} (p : a = b) : p ⬝ p⁻¹ = idp a :=
   begin induction p; reflexivity end
 
