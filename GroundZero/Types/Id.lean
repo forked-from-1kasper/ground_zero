@@ -26,9 +26,17 @@ begin cases p; cases q; apply Id.refl end
 
 @[match_pattern] abbrev idp {A : Type u} (a : A) : a = a := Id.refl
 
-namespace Id
-  attribute [eliminator] Id.casesOn
+attribute [eliminator] Id.casesOn
 
+hott def J₁ {A : Type u} {a : A} (B : Π (b : A), a = b → Type v)
+  (Bidp : B a (idp a)) {b : A} (p : a = b) : B b p :=
+@Id.casesOn A a B b p Bidp
+
+hott def J₂ {A : Type u} {b : A} (B : Π (a : A), a = b → Type v)
+  (Bidp : B b (idp b)) {a : A} (p : a = b) : B a p :=
+by { induction p; apply Bidp }
+
+namespace Id
   hott def symm {A : Type u} {a b : A} (p : a = b) : b = a :=
   begin induction p; apply idp end
 

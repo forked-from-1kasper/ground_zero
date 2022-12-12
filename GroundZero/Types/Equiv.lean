@@ -144,6 +144,15 @@ namespace Equiv
     @Reflexive (B a) (depPath B (idp a)) :=
   ⟨depPath.refl B⟩
 
+  hott def JTrans {A : Type} {a : A} (B : Π x, a = x → Type v)
+    {b c : A} (p : a = b) (q : b = c) (w : B a (idp a)) :
+      J₁ B w (p ⬝ q) = J₁ (λ x r, B x (p ⬝ r)) (subst (Id.reflRight _)⁻¹ (@Id.rec A a B w b p)) q :=
+  begin induction p; induction q; reflexivity end
+
+  hott def compInvCancelCoh {A : Type u} {a b : A} {B : a = b → Type v} (p : a = b) (w : B p) :
+    subst (Id.cancelInvComp p p) (transport (λ r, B (r ⬝ p)) (Id.compInv p)⁻¹ w) = w :=
+  begin induction p; reflexivity end
+
   hott def pathoverOfEq {A : Type u} {B : Type v} {a b : A} {a' b' : B}
     (p : a = b) (q : a' = b') : a' =[λ _, B, p] b' :=
   begin induction p; apply q end
