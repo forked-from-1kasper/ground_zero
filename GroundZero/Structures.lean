@@ -139,7 +139,7 @@ hott def contrTypeEquiv {A : Type u} {B : Type v}
 hott def prodUnitEquiv (A : Type u) : 𝟏 × A ≃ A :=
 begin existsi Prod.snd; apply Prod.mk <;> existsi Prod.mk ★ <;> { intro; reflexivity } end
 
-hott def unitProdEquiv : A × 𝟏 ≃ A :=
+hott def unitProdEquiv (A : Type u) : A × 𝟏 ≃ A :=
 begin existsi Prod.fst; apply Prod.mk <;> existsi (Prod.mk · ★) <;> { intro x; reflexivity } end
 
 def boolToUniverse : 𝟐 → Type
@@ -726,6 +726,7 @@ hott def pullbackSquare (P : Type k) (A : Type u) (B : Type v) (C : Type w) :=
 
 namespace Types.Equiv
   open GroundZero.Structures
+  universe u' v'
 
   -- 1-1 correspondence
   def Corr (A : Type u) (B : Type v) :=

@@ -42,7 +42,7 @@ namespace Precategory
   let p : id 𝒞 = id 𝒞 ∘ id 𝒞 := idLeft 𝒞 (@id A 𝒞 a);
   ⟨id 𝒞, ⟨id 𝒞, (p⁻¹, p⁻¹)⟩⟩
 
-  instance : Reflexive (iso 𝒞) := ⟨@idiso _ 𝒞⟩
+  instance {A : Type u} (𝒞 : Precategory A) : Reflexive (iso 𝒞) := ⟨@idiso _ 𝒞⟩
 
   hott def idtoiso {A : Type u} (𝒞 : Precategory A)
     {a b : A} (p : a = b) : iso 𝒞 a b :=

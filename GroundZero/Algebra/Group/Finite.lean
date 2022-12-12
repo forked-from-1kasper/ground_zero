@@ -201,7 +201,8 @@ namespace Group
           apply map (G.φ · y); apply mulRightInv } }
     end
 
-    noncomputable hott def coset.uniq : x ∈ coset g₁ φ.set → x ∈ coset g₂ φ.set → coset g₁ φ.set = coset g₂ φ.set :=
+    noncomputable hott def coset.uniq {x g₁ g₂ : G.carrier} :
+      x ∈ coset g₁ φ.set → x ∈ coset g₂ φ.set → coset g₁ φ.set = coset g₂ φ.set :=
     begin
       intro ⟨x₁, p⟩ ⟨x₂, q⟩; transitivity;
       apply map (coset · φ.set); apply calc

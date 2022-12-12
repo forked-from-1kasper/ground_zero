@@ -62,14 +62,14 @@ coe.back (λ i, B i → B k) i (coe.back B k)
 notation "coe⁻¹" => coeInv
 
 hott def refl {A : Type u} (a : A) : Path A a a := <_> a
-instance : Reflexive (Path A) := ⟨refl⟩
+instance (A : Type u) : Reflexive (Path A) := ⟨refl⟩
 
 hott def rfl {A : Type u} {a : A} : Path A a a := <_> a
 
 hott def symm {A : Type u} {a b : A} (p : Path A a b) : Path A b a :=
 coe 1 0 (λ i, Path A b (p @ i)) rfl
 
-instance : Symmetric (Path A) := ⟨@symm A⟩
+instance (A : Type u) : Symmetric (Path A) := ⟨@symm A⟩
 
 hott def seg : Path I i₀ i₁ := <i> i
 

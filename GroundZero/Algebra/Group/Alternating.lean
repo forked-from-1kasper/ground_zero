@@ -18,6 +18,8 @@ open GroundZero
   Z₂ ≅ D₃\A₃ proof.
 -/
 
+universe u
+
 namespace GroundZero.Algebra
 
 namespace Group

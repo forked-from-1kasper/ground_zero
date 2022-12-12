@@ -145,6 +145,8 @@ noncomputable hott def set : hset ℤ :=
 by apply ua.coproductSet <;> apply Nat.natIsSet
 
 section
+  universe u
+
   variable {π : ℤ → Type u} (π₀ : π 0) (πsucc : Π x, π x → π (succ x)) (πpred : Π x, π x → π (pred x))
 
   hott def indpos : Π n, π (pos n)

@@ -1,10 +1,10 @@
 import GroundZero.Support
 open GroundZero.Proto (idfun Identity Identity.elem Identity.elim)
 
-def AS (x : A → B → C) (y : A → B) (z : A) := x z (y z)
+universe u v w k
+def AS {A : Type u} {B : Type v} {C : Type w} (x : A → B → C) (y : A → B) (z : A) := x z (y z)
 
 section
-  universe u v
   variable {A : Type u} {B : Type v}
 
   def Prod.Id {a c : A} {b d : B} (p : a = c) (q : b = d) : (a, b) = (c, d) :=
@@ -16,8 +16,6 @@ section
 end
 
 namespace GroundZero.Types
-universe u v w k
-
 namespace Equiv
 
   def Homotopy {A : Type u} {B : A → Type v} (f g : Π x, B x) :=

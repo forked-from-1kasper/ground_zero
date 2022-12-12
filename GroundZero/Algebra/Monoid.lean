@@ -40,12 +40,12 @@ inductive Term (A : Type u)
 | ι : A → Term A
 | e : Term A
 
-hott def Term.toList : Term A → List A
+hott def Term.toList {A : Type u} : Term A → List A
 | Term.φ x y => toList x ++ toList y
 | Term.ι x   => [x]
 | Term.e     => []
 
-hott def Term.ofList : List A → Term A
+hott def Term.ofList {A : Type u} : List A → Term A
 | []      => Term.e
 | x :: xs => Term.φ (Term.ι x) (ofList xs)
 
@@ -74,7 +74,7 @@ hott def Term.example (M : Monoid) (x y z : M.carrier) :
 Term.solve M (Term.φ (Term.φ (Term.φ (Term.ι x) (Term.φ (Term.ι y) Term.e)) Term.e) (Term.φ (Term.ι z) Term.e))
   (Term.φ (Term.ι x) (Term.φ (Term.ι y) (Term.ι z))) Id.refl
 
-hott def Term.ret : Term.toList ∘ @Term.ofList A ~ id
+hott def Term.ret {A : Type u} : Term.toList ∘ @Term.ofList A ~ id
 | []      => Id.refl
 | x :: xs => Id.map (List.cons x) (ret xs)
 

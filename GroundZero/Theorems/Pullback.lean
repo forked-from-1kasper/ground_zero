@@ -3,6 +3,8 @@ open GroundZero GroundZero.Types
 open GroundZero.Structures
 open HITs.Interval (happly)
 
+universe u v w k
+
 namespace GroundZero.Theorems
 
 section

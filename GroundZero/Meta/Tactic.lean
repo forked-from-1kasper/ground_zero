@@ -5,6 +5,8 @@ import Lean.Elab.Command
 
 open Lean
 
+universe u v w u' v' w'
+
 section
   variable {A : Sort u} (ρ : A → A → Sort v)
 
@@ -127,13 +129,12 @@ elab "existsi" e:term : tactic => do
 
 -- https://leanprover.zulipchat.com/#narrow/stream/270676-lean4/topic/How.20to.20use.20hand.20written.20parsers/near/245760023
 -- Author: Mario Carneiro
+
+-- https://leanprover.zulipchat.com/#narrow/stream/270676-lean4/topic/Parser.2EtrailingLoop
 def calcLHS : Parser.Parser :=
-{ fn := λ c s =>
-    let s := Parser.symbolFn "..." c s
-    if s.hasError then s else
-    let tables := (Parser.getCategory (Parser.parserExtension.getState c.env).categories `term).get!.tables
-    Parser.trailingLoop tables c s
-  info := ("..." >> Parser.termParser).info }
+Parser.leadingNode `ellipsis Parser.maxPrec (Parser.symbol "...") >>
+Parser.withFn (λ _ c s => let category := (Parser.getCategory (Parser.parserExtension.getState c.env).categories `term).get!
+  Parser.trailingLoop category.tables c s) Parser.termParser
 
 open PrettyPrinter Elab.Term
 
@@ -149,7 +150,7 @@ def getEqn (e : Syntax) : TermElabM (Syntax × Syntax) := do
   unless (e.getArgs.size > 2) do throwError "expected binary relation"
   return (e.getArgs.get! 0, e.getArgs.get! 2)
 
-elab "calc " ε:term " : " τ:term σ:(calcLHS " : " term)* : term => do
+elab (priority := high) "calc " ε:term " : " τ:term σ:(calcLHS " : " term)* : term => do
   let σ ← Array.mapM getEqn σ
 
   let ε ← Elab.Term.elabTerm ε none

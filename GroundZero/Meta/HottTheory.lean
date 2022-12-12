@@ -3,6 +3,8 @@ import Lean.Elab
 open Lean.Parser.Command
 open Lean Std
 
+universe u v w
+
 /-
   Original implementation:
   https://github.com/gebner/hott3/blob/master/src/hott/init/meta/support.lean

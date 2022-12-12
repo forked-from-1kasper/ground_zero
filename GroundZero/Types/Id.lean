@@ -36,9 +36,9 @@ namespace Id
     (p : a = b) (q : b = c) : a = c :=
   begin induction p; apply q end
 
-  instance : Reflexive  (@Id A) := ⟨@Id.refl A⟩
-  instance : Symmetric  (@Id A) := ⟨@symm A⟩
-  instance : Transitive (@Id A) := ⟨@trans A⟩
+  instance (A : Type u) : Reflexive  (@Id A) := ⟨@Id.refl A⟩
+  instance (A : Type u) : Symmetric  (@Id A) := ⟨@symm A⟩
+  instance (A : Type u) : Transitive (@Id A) := ⟨@trans A⟩
 
   hott def inv {A : Type u} {a b : A} (p : a = b) : b = a := symm p
 
@@ -182,12 +182,12 @@ end Not
 namespace whiskering
   variable {A : Type u} {a b c : A}
 
-  hott def rightWhs (ν : p = q) (r : b = c) : p ⬝ r = q ⬝ r :=
+  hott def rightWhs {p q : a = b} (ν : p = q) (r : b = c) : p ⬝ r = q ⬝ r :=
   begin induction r; apply (Id.reflRight p) ⬝ ν ⬝ (Id.reflRight q)⁻¹ end
 
   infix:60 " ⬝ᵣ " => rightWhs
 
-  hott def leftWhs (q : a = b) (κ : r = s) : q ⬝ r = q ⬝ s :=
+  hott def leftWhs {r s : b = c} (q : a = b) (κ : r = s) : q ⬝ r = q ⬝ s :=
   begin induction q; exact (Id.reflLeft r) ⬝ κ ⬝ (Id.reflLeft s)⁻¹ end
 
   infix:60 " ⬝ₗ " => leftWhs

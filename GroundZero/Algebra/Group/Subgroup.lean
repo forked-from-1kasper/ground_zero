@@ -12,6 +12,8 @@ open GroundZero
   Subgroup, normal subgroup.
 -/
 
+universe u v
+
 namespace GroundZero.Algebra
 
 namespace Group
