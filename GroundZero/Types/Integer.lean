@@ -147,19 +147,36 @@ by apply ua.coproductSet <;> apply Nat.natIsSet
 section
   universe u
 
-  variable {π : ℤ → Type u} (π₀ : π 0) (πsucc : Π x, π x → π (succ x)) (πpred : Π x, π x → π (pred x))
+  variable {π : ℤ → Type u} (π₀ : π 0)
+           (πsucc : Π x, π x → π (succ x))
+           (πpred : Π x, π x → π (pred x))
+           (coh₁ : Π p z, πpred _ (πsucc p z) =[predSucc _] z)
+           (coh₂ : Π p z, πsucc _ (πpred p z) =[succPred _] z)
 
   hott def indpos : Π n, π (pos n)
-  | Nat.zero    => π₀
+  | Nat.zero   => π₀
   | Nat.succ n => πsucc (pos n) (indpos n)
 
   hott def indneg : Π n, π (neg n)
   | Nat.zero   => πpred 0 π₀
   | Nat.succ n => πpred (neg n) (indneg n)
 
-  hott def indsp : Π x, π x
+  hott def indsp : Π z, π z
   | neg n => indneg π₀ πpred n
   | pos n => indpos π₀ πsucc n
+
+  hott def indspβ₁ : indsp π₀ πsucc πpred 0 = π₀ :=
+  by reflexivity
+
+  hott def indspβ₂ : Π z, indsp π₀ πsucc πpred (succ z) = πsucc z (indsp π₀ πsucc πpred z)
+  | neg Nat.zero     => (coh₂ (pos 0) _)⁻¹
+  | neg (Nat.succ n) => (coh₂ (neg n) _)⁻¹
+  | pos n            => idp _
+
+  hott def indspβ₃ : Π z, indsp π₀ πsucc πpred (pred z) = πpred z (indsp π₀ πsucc πpred z)
+  | neg n            => idp _
+  | pos Nat.zero     => idp _
+  | pos (Nat.succ n) => (coh₁ (pos n) _)⁻¹
 end
 
 hott def succToAdd : Π (z : ℤ), z + 1 = succ z
