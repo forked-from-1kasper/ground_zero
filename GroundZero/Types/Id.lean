@@ -212,10 +212,10 @@ namespace whiskering
   hott def horizontalComp₂ (ν : p = q) (κ : r = s) := (p ⬝ₗ κ) ⬝ (ν ⬝ᵣ s)
   infix:65 " ⋆′ " => horizontalComp₂
 
-  hott def compUniq (ν : p = q) (κ : r = s) : ν ⋆ κ = ν ⋆′ κ :=
+  hott lemma compUniq (ν : p = q) (κ : r = s) : ν ⋆ κ = ν ⋆′ κ :=
   begin induction p; induction r; induction ν; induction κ; reflexivity end
 
-  hott def loop₁ {A : Type u} {a : A} {ν κ : idp a = idp a} : ν ⬝ κ = ν ⋆ κ :=
+  hott lemma loop₁ {A : Type u} {a : A} {ν κ : idp a = idp a} : ν ⬝ κ = ν ⋆ κ :=
   begin
     apply Id.symm; transitivity;
     { apply Id.map (· ⬝ (Id.refl ⬝ κ ⬝ Id.refl));
@@ -223,7 +223,7 @@ namespace whiskering
     apply Id.map (ν ⬝ ·); apply Id.reflTwice
   end
 
-  hott def loop₂ {A : Type u} {a : A} {ν κ : idp a = idp a} : ν ⋆′ κ = κ ⬝ ν :=
+  hott lemma loop₂ {A : Type u} {a : A} {ν κ : idp a = idp a} : ν ⋆′ κ = κ ⬝ ν :=
   begin
     transitivity;
     { apply Id.map (· ⬝ (Id.refl ⬝ ν ⬝ Id.refl));
@@ -231,7 +231,7 @@ namespace whiskering
     apply Id.map (κ ⬝ ·); apply Id.reflTwice
   end
 
-  hott def «Eckmann–Hilton argument» {A : Type u} {a : A}
+  hott theorem «Eckmann–Hilton argument» {A : Type u} {a : A}
     (ν κ : idp a = idp a) : ν ⬝ κ = κ ⬝ ν :=
   loop₁ ⬝ compUniq ν κ ⬝ loop₂
 end whiskering

@@ -110,8 +110,17 @@ partial def checkDeclAux (chain : List Name) (tag : Syntax) (name : Name) : Meta
 
 def checkDecl := checkDeclAux []
 
+def declTok : Parser.Parser :=
+    "def "         <|> "definition " <|> "theorem "   <|> "lemma "
+<|> "proposition " <|> "corollary "  <|> "principle " <|> "claim "
+<|> "statement "   <|> "paradox "
+
+def decl := leading_parser
+   declTok >> declId >> Parser.ppIndent optDeclSig
+>> declVal >> optDefDeriving >> terminationSuffix
+
 @[command_parser] def hott :=
-leading_parser declModifiers false >> "hott " >> («def» <|> «theorem»)
+leading_parser declModifiers false >> "hott " >> decl
 
 @[command_elab «hott»] def elabHoTT : Elab.Command.CommandElab :=
 λ stx => match stx.getArgs with
@@ -122,7 +131,9 @@ leading_parser declModifiers false >> "hott " >> («def» <|> «theorem»)
   let ns ← getCurrNamespace
   let name := ns ++ declName
 
-  mkNode `Lean.Parser.Command.declaration #[mods, cmd]
+  cmd.setKind `Lean.Parser.Command.«def»
+  |> (Syntax.setArg · 0 (mkAtom "def "))
+  |> (mkNode `Lean.Parser.Command.declaration #[mods, ·])
   |> Elab.Command.elabDeclaration
 
   if (← getEnv).contains name then do {

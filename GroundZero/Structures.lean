@@ -428,7 +428,7 @@ begin intro H; apply doubleNegEq; intros x y; apply lemToDoubleNeg; apply H x y 
 hott def boolEqTotal (x : 𝟐) : (x = false) + (x = true) :=
 begin induction x using Bool.casesOn; left; reflexivity; right; reflexivity end
 
-hott def boolDecEq (x y : 𝟐) : dec (x = y) :=
+hott lemma boolDecEq (x y : 𝟐) : dec (x = y) :=
 begin
   induction x using Bool.casesOn <;>
   induction y using Bool.casesOn;
@@ -438,7 +438,8 @@ begin
   { left; reflexivity }
 end
 
-hott def boolIsSet : hset 𝟐 := Hedberg boolDecEq
+hott corollary boolIsSet : hset 𝟐 :=
+Hedberg boolDecEq
 
 section
   open GroundZero.Types
@@ -483,16 +484,16 @@ end singl
 namespace Theorems
   open GroundZero.Structures GroundZero.Types.Equiv GroundZero.Types
 
-  hott def naive {A : Type u} {B : A → Type v} {f g : Π x, B x} : f ~ g → f = g :=
+  hott theorem naive {A : Type u} {B : A → Type v} {f g : Π x, B x} : f ~ g → f = g :=
   HITs.Interval.funext
 
-  hott def weak {A : Type u} {B : A → Type v} (H : Π x, contr (B x)) : contr (Π x, B x) :=
+  hott theorem weak {A : Type u} {B : A → Type v} (H : Π x, contr (B x)) : contr (Π x, B x) :=
   begin existsi (λ x, (H x).1); intro f; apply naive; intro x; apply (H x).2 end
 
   section
     variable {A : Type u} {B : A → Type v}
 
-    hott def isContrSigmaHomotopy (f : Π x, B x) : contr (Σ g, f ~ g) :=
+    hott theorem isContrSigmaHomotopy (f : Π x, B x) : contr (Σ g, f ~ g) :=
     let r (k : Π x, Σ y, f x = y) :=
     @Sigma.mk _ (λ g, f ~ g) (λ x, (k x).1) (λ x, (k x).2);
     let s (g : Π x, B x) (h : f ~ g) x :=
@@ -510,7 +511,7 @@ namespace Theorems
       ⟨f, Homotopy.id f⟩ ⟨g, h⟩
       (contrImplProp (isContrSigmaHomotopy f) _ _) r
 
-    hott def homotopyIndId : homotopyInd f r f (Homotopy.id f) = r :=
+    hott lemma homotopyIndId : homotopyInd f r f (Homotopy.id f) = r :=
     begin
       transitivity; apply Id.map
         (λ p, @transport (Σ g, f ~ g) (λ p, π p.fst p.snd)
@@ -524,14 +525,14 @@ namespace Theorems
     {f g : Π x, B x} : (f ~ g) → (f = g) :=
   @homotopyInd _ _ f (λ g x, f = g) (idp _) g
 
-  hott def funextHapply {A : Type u} {B : A → Type v}
+  hott lemma funextHapply {A : Type u} {B : A → Type v}
     {f g : Π x, B x} : funext ∘ @HITs.Interval.happly A B f g ~ id :=
   begin
     intro p; induction p; change funext (Homotopy.id _) = idp _;
     dsimp [funext]; apply homotopyIndId f
   end
 
-  hott def happlyFunext {A : Type u} {B : A → Type v}
+  hott lemma happlyFunext {A : Type u} {B : A → Type v}
     (f g : Π x, B x) : HITs.Interval.happly ∘ @funext A B f g ~ id :=
   begin
     intro H; fapply @homotopyInd _ _ f (λ g G, HITs.Interval.happly (funext G) = G) _ g H;
@@ -539,18 +540,18 @@ namespace Theorems
     change homotopyInd _ _ _ _ = _; apply homotopyIndId
   end
 
-  hott def full {A : Type u} {B : A → Type v} {f g : Π x, B x} : (f = g) ≃ (f ~ g) :=
+  hott theorem full {A : Type u} {B : A → Type v} {f g : Π x, B x} : (f = g) ≃ (f ~ g) :=
   begin
     existsi HITs.Interval.happly; apply Qinv.toBiinv; existsi funext;
     apply Prod.mk; apply happlyFunext; apply funextHapply
   end
 
-  hott def funextId {A : Type u} {B : A → Type v}
+  hott corollary funextId {A : Type u} {B : A → Type v}
     {f : Π x, B x} : funext (Homotopy.id f) = idp f :=
   homotopyIndId _ _
 
   open GroundZero.Types.Equiv (transport)
-  hott def mapHomotopy {A : Type u} {B : Type v} {a b : A} (f g : A → B) (p : a = b) (q : f ~ g) :
+  hott lemma mapHomotopy {A : Type u} {B : Type v} {a b : A} (f g : A → B) (p : a = b) (q : f ~ g) :
     Id.map g p = @transport (A → B) (λ h, h a = h b) f g (funext q) (Id.map f p) :=
   begin
     induction p; symmetry; transitivity; apply Types.Equiv.transportOverHmtpy;
