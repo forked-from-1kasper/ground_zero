@@ -342,7 +342,7 @@ namespace Circle
             = invₚ loop⁻¹ ⬝ Id.refl ⬝ loop          : transportOverInvolution _ _ _
         ... = invₚ loop⁻¹ ⬝ (Id.refl ⬝ loop)        : (Id.assoc _ _ _)⁻¹
         ... = Id.map inv (Id.map inv loop⁻¹) ⬝ loop : Id.map (· ⬝ loop) (mapOverComp _ _ _)
-        ... = Id.map inv (Id.map inv loop)⁻¹ ⬝ loop : Id.map (Id.map inv · ⬝ loop) (Id.mapInv inv loop)
+        ... = Id.map inv (Id.map inv loop)⁻¹ ⬝ loop : Id.map (· ⬝ loop) (Id.map (Id.map inv) (Id.mapInv inv loop))
         ... = Id.map inv loop⁻¹⁻¹ ⬝ loop            : @Id.map Ω¹(S¹) _ _ _ (Id.map inv ·⁻¹ ⬝ loop) (Circle.recβrule₂ base loop⁻¹)
         ... = Id.map inv loop ⬝ loop                : @Id.map Ω¹(S¹) _ _ _ (Id.map inv · ⬝ loop) (Id.invInv _)
         ... = loop⁻¹ ⬝ loop                         : Id.map (· ⬝ loop) (Circle.recβrule₂ _ _)

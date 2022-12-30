@@ -67,7 +67,7 @@ namespace Group
 
   noncomputable hott def Presentation.sound {A : Type u}
     {R : (F A).subset} {x : F.carrier A} (H : x ∈ R) :
-      Factor.incl x = Presentation.one R :=
+      @Factor.incl (F A) _ x = Presentation.one R :=
   begin apply Factor.sound; apply Closure.sub; assumption end
 
   hott def commutators (G : Group) : G.subset :=
