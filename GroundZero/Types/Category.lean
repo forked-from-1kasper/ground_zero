@@ -44,11 +44,8 @@ namespace Category
 
   def Mor {A : Type u} (𝒞 : Category A) := Σ (x y : A), hom 𝒞 x y
 
-  instance {A : Type u} (𝒞 : Category A) {x y : A} : Coe (hom 𝒞 x y) (Mor 𝒞) :=
-  ⟨λ f, ⟨x, y, f⟩⟩
-
-  def twoOutOfThree {a b c : A} (g : hom 𝒞 b c) (f : hom 𝒞 a b) (K : Mor 𝒞 → Type v) :=
-  (K f → K g → K (g ∘ f)) × (K (g ∘ f) → K g → K f) × (K f → K (g ∘ f) → K g)
+  def twoOutOfThree {a b c : A} (g : hom 𝒞 b c) (f : hom 𝒞 a b) (K : Π (x y : A), hom 𝒞 x y → Type v) :=
+  (K a b f → K b c g → K a c (g ∘ f)) × (K a c (g ∘ f) → K b c g → K a b f) × (K a b f → K a c (g ∘ f) → K b c g)
 end Category
 
 end GroundZero.Types

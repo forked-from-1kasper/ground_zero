@@ -179,6 +179,40 @@ section
   | pos (Nat.succ n) => (coh₁ (pos n) _)⁻¹
 end
 
+section
+  universe u
+
+  variable {π : Type u} (π₀ : π)
+           (πsucc : π → π) (πpred : π → π)
+           (coh₁ : πpred ∘ πsucc ~ id)
+           (coh₂ : πsucc ∘ πpred ~ id)
+
+  hott def recpos : ℕ → π
+  | Nat.zero   => π₀
+  | Nat.succ n => πsucc (recpos n)
+
+  hott def recneg : ℕ → π
+  | Nat.zero   => πpred π₀
+  | Nat.succ n => πpred (recneg n)
+
+  hott def recsp : ℤ → π
+  | neg n => recneg π₀ πpred n
+  | pos n => recpos π₀ πsucc n
+
+  hott def recspβ₁ : recsp π₀ πsucc πpred 0 = π₀ :=
+  by reflexivity
+
+  hott def recspβ₂ : Π z, recsp π₀ πsucc πpred (succ z) = πsucc (recsp π₀ πsucc πpred z)
+  | neg Nat.zero     => (coh₂ _)⁻¹
+  | neg (Nat.succ n) => (coh₂ _)⁻¹
+  | pos n            => idp _
+
+  hott def recspβ₃ : Π z, recsp π₀ πsucc πpred (pred z) = πpred (recsp π₀ πsucc πpred z)
+  | neg n            => idp _
+  | pos Nat.zero     => idp _
+  | pos (Nat.succ n) => (coh₁ _)⁻¹
+end
+
 hott def succToAdd : Π (z : ℤ), z + 1 = succ z
 | neg Nat.zero     => idp _
 | neg (Nat.succ _) => idp _

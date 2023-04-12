@@ -195,7 +195,8 @@ namespace K1
     fapply Group.mkiso; exact loop;
     { intros x y; apply loop.mul };
     apply Prod.mk <;> existsi encode base;
-    apply encodeDecode; apply decodeEncode
+    { intro; apply encodeDecode };
+    { apply decodeEncode }
   end
 end K1
 
