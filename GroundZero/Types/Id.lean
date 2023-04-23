@@ -97,10 +97,16 @@ namespace Id
   begin induction p; reflexivity end
 
   hott def cancelCompInv {A : Type u} {a b c : A} (p : a = b) (q : b = c) : (p ⬝ q) ⬝ q⁻¹ = p :=
-  (assoc p q q⁻¹)⁻¹ ⬝ map (trans p) (compInv q) ⬝ (reflRight p)
+  (assoc p q q⁻¹)⁻¹ ⬝ map (trans p) (compInv q) ⬝ reflRight p
 
   hott def cancelInvComp {A : Type u} {a b c : A} (p : a = b) (q : c = b) : (p ⬝ q⁻¹) ⬝ q = p :=
-  (assoc p q⁻¹ q)⁻¹ ⬝ map (trans p) (invComp q) ⬝ (reflRight p)
+  (assoc p q⁻¹ q)⁻¹ ⬝ map (trans p) (invComp q) ⬝ reflRight p
+
+  hott def compInvCancel {A : Type u} {a b c : A} (p : a = b) (q : a = c) : p ⬝ (p⁻¹ ⬝ q) = q :=
+  assoc p p⁻¹ q ⬝ map (· ⬝ q) (compInv p)
+
+  hott def invCompCancel {A : Type u} {a b c : A} (p : a = b) (q : b = c) : p⁻¹ ⬝ (p ⬝ q) = q :=
+  assoc p⁻¹ p q ⬝ map (· ⬝ q) (invComp p)
 
   hott def mapInv {A : Type u} {B : Type v} {a b : A}
     (f : A → B) (p : a = b) : map f p⁻¹ = (map f p)⁻¹ :=
