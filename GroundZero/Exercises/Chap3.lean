@@ -46,11 +46,11 @@ namespace «3.9»
     intro w; apply Equiv.propset.Id; match lem w.1 w.2 with | Sum.inl x => _ | Sum.inr φ => _;
 
     transitivity; apply Id.map; apply Id.map (Bool.elim _ _); apply Id.map (Coproduct.elim _ _);
-    apply lemTrue; exact x; symmetry; apply ua; apply Structures.contrEquivUnit;
+    apply lemTrue x; symmetry; apply ua; apply Structures.contrEquivUnit;
     fapply Sigma.mk; exact x; intro y; apply w.2;
 
     transitivity; apply Id.map; apply Id.map (Bool.elim _ _); apply Id.map (Coproduct.elim _ _);
-    apply lemFalse; exact φ; symmetry; apply ua; apply uninhabitedType; exact Empty.elim ∘ φ
+    apply lemFalse φ; symmetry; apply ua; apply uninhabitedType; exact Empty.elim ∘ φ
   end
 
   hott theorem lemImplPropEqvBool (lem : LEM₋₁) : Prop u ≃ 𝟐 :=
