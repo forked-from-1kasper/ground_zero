@@ -15,17 +15,18 @@ universe u v
 -- exercise 3.9
 
 namespace «3.9»
-  hott def lemTrue {A : Type u} {H : prop A} {lem : LEM₋₁} (x : A) : lem A H = Sum.inl x :=
-  begin
-    match lem A H with | Sum.inl y => _ | Sum.inr φ => _;
-    { apply Id.map; apply H }; { apply Empty.elim; apply φ x }
-  end
+  section
+    variable {A : Type u} {H : prop A} {lem : LEM₋₁}
 
-  hott def lemFalse {A : Type u} {H : prop A} {lem : LEM₋₁} (φ : ¬A) : lem A H = Sum.inr φ :=
-  begin
-    match lem A H with | Sum.inl x => _ | Sum.inr ψ => _;
-    { apply Empty.elim; apply φ x };
-    { apply Id.ap; apply Structures.notIsProp }
+    hott def lemTrue (x : A) : lem A H = Sum.inl x :=
+    match lem A H with
+    | Sum.inl y => ap Sum.inl (H y x)
+    | Sum.inr φ => Empty.elim (φ x)
+
+    hott def lemFalse (φ : ¬A) : lem A H = Sum.inr φ :=
+    match lem A H with
+    | Sum.inl x => Empty.elim (φ x)
+    | Sum.inr ψ => ap Sum.inr (Structures.notIsProp ψ φ)
   end
 
   hott def Ωelim (lem : LEM₋₁ u) : Prop u → 𝟐 :=
