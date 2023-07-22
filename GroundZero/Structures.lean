@@ -627,11 +627,14 @@ hott def Finite := iter 𝟏 𝟎
 @[match_pattern] def Finite.zero {n : ℕ} : Finite (n + 1) := Sum.inr ★
 @[match_pattern] def Finite.succ {n : ℕ} : Finite n → Finite (n + 1) := Sum.inl
 
+open Structures (prop propset)
+hott def hrel (A : Type u) := A → A → propset.{v}
+
 def LEMinf := Π (A : Type u), A + ¬A
 notation "LEM∞" => LEMinf
 
-open Structures (prop propset)
-hott def hrel (A : Type u) := A → A → propset.{v}
+def LEMprop := Π (A : Type u), prop A → A + ¬A
+notation "LEM₋₁" => LEMprop
 
 section
   variable {A : Type u} (R : hrel A)
