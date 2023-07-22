@@ -46,7 +46,7 @@ namespace GroundZero.Algebra
     (construct : Π a b x y, ∥Σ z, G.between x y z × G.congruent y z a b∥)
 
     class continuous (G : Pregeometry) :=
-    (cut (φ ψ : G.carrier → Ω) :
+    (cut (φ ψ : G.carrier → Prop) :
       ∥Σ a, Π x y, (φ x).1 → (ψ y).1 → G.between a x y∥ →
       ∥Σ b, Π x y, (φ x).1 → (ψ y).1 → G.between x b y∥)
 

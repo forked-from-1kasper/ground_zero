@@ -18,7 +18,9 @@ hott def isLoop {A : Type u} {a : A} (p : a = a) := ¬(p = idp a)
 hott def prop (A : Type u) := Π (a b : A), a = b
 
 hott def propset := Σ (A : Type u), prop A
-notation "Ω" => propset
+
+macro (priority := high) "Prop" : term => `(propset)
+macro (priority := high) "Prop" n:level : term => `(propset.{$n})
 
 hott def hset (A : Type u) := Π (a b : A) (p q : a = b), p = q
 hott def Ens := Σ A, hset A
@@ -253,10 +255,10 @@ hott def ntypeRespectsSigma : Π (n : ℕ₋₂) {A : Type u} {B : A → Type v}
 | hlevel.succ n => λ A B p q, ntypeRespectsEquiv n (Types.Equiv.symm Types.Sigma.sigmaPath)
                                 (ntypeRespectsSigma n (A p.1 q.1) (λ x, B q.1 _ _))
 
-inductive propSquash (A : Type u) : Prop
+inductive propSquash (A : Type u) : Sort 0
 | elem : A → propSquash A
 
-inductive Lift (A : Prop) : Type
+inductive Lift (A : Sort 0) : Type
 | elem : A → Lift A
 
 def Squash := Lift ∘ propSquash
@@ -267,7 +269,7 @@ Lift.elem ∘ propSquash.elem
 def Squash.uniq {A : Type u} : Π (a b : Squash A), a = b :=
 λ (Lift.elem _) (Lift.elem _), idp _
 
-def Squash.prop {A : Type u} {B : Prop} (f : A → B) : Squash A → B :=
+def Squash.prop {A : Type u} {B : Sort 0} (f : A → B) : Squash A → B :=
 λ (Lift.elem (propSquash.elem x)), f x
 
 def Squash.Lift {A : Type u} {B : Type v}
@@ -631,10 +633,12 @@ open Structures (prop propset)
 hott def hrel (A : Type u) := A → A → propset.{v}
 
 def LEMinf := Π (A : Type u), A + ¬A
-notation "LEM∞" => LEMinf
+macro "LEM∞" : term => `(LEMinf)
+macro "LEM∞" n:level : term => `(LEMinf.{$n})
 
 def LEMprop := Π (A : Type u), prop A → A + ¬A
-notation "LEM₋₁" => LEMprop
+macro "LEM₋₁" : term => `(LEMprop)
+macro "LEM₋₁" n:level : term => `(LEMprop.{$n})
 
 section
   variable {A : Type u} (R : hrel A)

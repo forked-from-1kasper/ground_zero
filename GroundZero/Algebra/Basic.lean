@@ -20,7 +20,7 @@ namespace GroundZero.Algebra
   vect A deg → A
 
   def algrel (deg : ℕ) (A : Type u) :=
-  vect A deg → Ω
+  vect A deg → Prop
 
   section
     variable {ι : Type u} {υ : Type v} (deg : ι + υ → ℕ)
@@ -241,7 +241,7 @@ namespace GroundZero.Algebra
       Π (φ : Iso Γ Λ) (i : υ), Γ.rel i =[algrel (deg (Sum.inr i)), ua φ.eqv] Λ.rel i :=
     begin
       intro ⟨φ, (p, q)⟩ i; apply Id.trans;
-      apply transportOverFunctor (λ A, vect A (deg (Sum.inr i))) (λ _, Ω);
+      apply transportOverFunctor (λ A, vect A (deg (Sum.inr i))) (λ _, Prop);
       apply Theorems.funext; intro v;
       transitivity; apply Id.map (subst (ua ⟨φ, q⟩));
       transitivity; apply p.2; apply Id.map (Λ.rel i);

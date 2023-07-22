@@ -202,7 +202,7 @@ begin
     reflexivity }
 end
 
-hott def propset.Id (A B : Ω) (H : A.1 = B.1) : A = B :=
+hott def propset.Id (A B : Prop) (H : A.1 = B.1) : A = B :=
 Sigma.prod H (propIsProp _ _)
 
 noncomputable hott def propEqProp {A B : Type u} (G : prop B) : prop (A = B) :=

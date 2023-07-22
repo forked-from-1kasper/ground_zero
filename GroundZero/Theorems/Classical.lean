@@ -53,7 +53,7 @@ end
 
 section
   variable {A : Type u} (H : prop A)
-  def inh := Σ (φ : 𝟐 → Ω), ∥(Σ (x : 𝟐), (φ x).fst)∥
+  def inh := Σ (φ : 𝟐 → Prop), ∥(Σ (x : 𝟐), (φ x).fst)∥
 
   noncomputable hott def inh.hset : hset inh :=
   begin
@@ -68,8 +68,8 @@ section
     have f := @choiceOfRel inh 𝟐 (λ φ x, φ.fst x) inh.hset boolIsSet (λ x, HITs.Merely.lift id x.2);
     induction f; case elemπ w =>
     { let ⟨φ, p⟩ := w;
-      let U : 𝟐 → Ω := λ x, ⟨∥(x = true) + A∥,  HITs.Merely.uniq⟩;
-      let V : 𝟐 → Ω := λ x, ⟨∥(x = false) + A∥, HITs.Merely.uniq⟩;
+      let U : 𝟐 → Prop := λ x, ⟨∥(x = true) + A∥,  HITs.Merely.uniq⟩;
+      let V : 𝟐 → Prop := λ x, ⟨∥(x = false) + A∥, HITs.Merely.uniq⟩;
       have r : ∥_∥ := p ⟨U, HITs.Merely.elem ⟨true,  HITs.Merely.elem (Sum.inl (idp _))⟩⟩;
       have s : ∥_∥ := p ⟨V, HITs.Merely.elem ⟨false, HITs.Merely.elem (Sum.inl (idp _))⟩⟩;
       induction r; case elemπ r' =>

@@ -63,7 +63,7 @@ namespace Overring
   open Prering (Arity)
 
   hott def intro {α : Type u} (H : hset α) (φ ψ : α → α → α)
-    (ι : α → α) (e : α) (ρ : α → α → Ω) : Overring :=
+    (ι : α → α) (e : α) (ρ : α → α → Prop) : Overring :=
   ⟨zeroeqv H,
     (λ | Arity.nullary => λ _, e
        | Arity.unary   => λ (a, _), ι a
@@ -71,7 +71,7 @@ namespace Overring
        | Arity.mul     => λ (a, b, _), ψ a b,
      λ | ★             => λ (a, b, _), ρ a b)⟩
 
-  def rel (T : Overring) (x y : T.carrier) : Ω := Alg.rel T ★ (x, y, ★)
+  def rel (T : Overring) (x y : T.carrier) : Prop := Alg.rel T ★ (x, y, ★)
   def ρ (T : Overring) (x y : T.carrier) := (T.rel x y).1
 
   def σ (T : Overring) (x y : T.carrier) := ¬(x = y) × T.ρ x y

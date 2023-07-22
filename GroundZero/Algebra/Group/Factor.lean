@@ -21,11 +21,11 @@ namespace Group
   local notation "e" => G.e
 
   hott def factorLeftRel (φ : G.subgroup) :
-    G.carrier → G.carrier → Ω :=
+    G.carrier → G.carrier → Prop :=
   λ x y, ⟨ldiv φ x y, Ens.prop _ _⟩
 
   hott def factorRightRel (φ : G.subgroup) :
-    G.carrier → G.carrier → Ω :=
+    G.carrier → G.carrier → Prop :=
   λ x y, ⟨rdiv φ x y, Ens.prop _ _⟩
 
   hott def factorEqrelLeft (φ : G.subgroup) : eqrel G.carrier :=

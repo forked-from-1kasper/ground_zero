@@ -13,7 +13,7 @@ namespace GroundZero.Algebra
   def Orgraph : Type (max u v + 1) :=
   @Alg.{0, 0, u, v} ⊥ 𝟏 (λ _, 2)
 
-  def Orgraph.rel (Γ : Orgraph) (x y : Γ.carrier) : Ω := Alg.rel Γ ★ (x, y, ★)
+  def Orgraph.rel (Γ : Orgraph) (x y : Γ.carrier) : Prop := Alg.rel Γ ★ (x, y, ★)
   def Orgraph.ρ (Γ : Orgraph.{u}) (x y : Γ.carrier) : Type v := (Γ.rel x y).1
 
   def Orgraph.prop (Γ : Orgraph.{u}) (x y : Γ.carrier) : prop (Γ.ρ x y) := (Γ.rel x y).2

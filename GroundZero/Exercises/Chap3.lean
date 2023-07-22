@@ -7,7 +7,7 @@ open GroundZero.Types.Equiv
 open GroundZero.Theorems
 open GroundZero.Proto
 
-open GroundZero.Structures (dec prop contr propset)
+open GroundZero.Structures (dec prop contr)
 open GroundZero.Types.Id (ap)
 
 universe u v
@@ -28,19 +28,19 @@ namespace «3.9»
     { apply Id.ap; apply Structures.notIsProp }
   end
 
-  hott def Ωelim (lem : LEMprop.{u}) : propset.{u} → 𝟐 :=
+  hott def Ωelim (lem : LEM₋₁ u) : Prop u → 𝟐 :=
   λ w, Coproduct.elim (λ _, true) (λ _, false) (lem w.1 w.2)
 
-  hott def Ωintro : 𝟐 → propset :=
+  hott def Ωintro : 𝟐 → Prop :=
   Bool.elim ⟨𝟎, Structures.emptyIsProp⟩ ⟨𝟏, Structures.unitIsProp⟩
 
-  hott lemma propsetInhIsProp (A : propset) : prop A.1 := A.2
+  hott lemma propsetInhIsProp (A : Prop) : prop A.1 := A.2
 
-  hott lemma Ωlinv (lem : LEMprop.{u}) : Ωelim lem ∘ Ωintro ~ idfun
+  hott lemma Ωlinv (lem : LEM₋₁) : Ωelim lem ∘ Ωintro ~ idfun
   | false => ap (Coproduct.elim _ _) (lemFalse Empty.elim)
   | true  => ap (Coproduct.elim _ _) (lemTrue ★)
 
-  hott lemma Ωrinv (lem : LEMprop.{u}) : Ωintro ∘ Ωelim lem ~ idfun :=
+  hott lemma Ωrinv (lem : LEM₋₁) : Ωintro ∘ Ωelim lem ~ idfun :=
   begin
     intro w; apply Equiv.propset.Id; match lem w.1 w.2 with | Sum.inl x => _ | Sum.inr φ => _;
 
@@ -52,7 +52,7 @@ namespace «3.9»
     apply lemFalse; exact φ; symmetry; apply ua; apply uninhabitedType; exact Empty.elim ∘ φ
   end
 
-  hott theorem lemImplPropEqvBool (lem : LEMprop.{u}) : propset.{u} ≃ 𝟐 :=
+  hott theorem lemImplPropEqvBool (lem : LEM₋₁) : Prop u ≃ 𝟐 :=
   ⟨Ωelim lem, Qinv.toBiinv _ ⟨Ωintro, (Ωlinv lem, Ωrinv lem)⟩⟩
 end «3.9»
 
@@ -73,22 +73,22 @@ namespace «3.10»
   hott lemma Resize.prop {A : Type u} (H : prop A) : prop (Resize.{u, v} A) :=
   Structures.propRespectsEquiv.{u, max u v} (Resize.equiv A) H
 
-  hott def ResizeΩ : propset.{u} → propset.{max u v} :=
+  hott def ResizeΩ : Prop u → Prop (max u v) :=
   λ w, ⟨Resize.{u, v} w.1, Resize.prop w.2⟩
 
-  hott lemma lemCumulativity (lem : LEMprop.{max u v}) : LEMprop.{u} :=
+  hott lemma lemCumulativity (lem : LEM₋₁ (max u v)) : LEM₋₁ u :=
   λ A H, match lem (Resize.{u, v} A) (Resize.prop H) with
   | Sum.inl x => Sum.inl (Resize.elim x)
   | Sum.inr φ => Sum.inr (φ ∘ Resize.intro)
 
-  hott corollary lemSucCumulativity : LEMprop.{u + 1} → LEMprop.{u} :=
+  hott corollary lemSucCumulativity : LEM₋₁ (u + 1) → LEM₋₁ u :=
   lemCumulativity.{u, u + 1}
 
-  hott lemma lemImplPropUniverseEqv (lem : LEMprop.{max u v}) : propset.{u} ≃ propset.{max u v} :=
+  hott lemma lemImplPropUniverseEqv (lem : LEM₋₁ (max u v)) : Prop u ≃ Prop (max u v) :=
   Equiv.trans (lemImplPropEqvBool (lemCumulativity.{u, v} lem))
               (Equiv.symm (lemImplPropEqvBool lem))
 
-  hott lemma resizeUniqLem1 (lem : LEMprop.{max u v}) : (lemImplPropUniverseEqv.{u, v} lem).1 ∘ Ωintro ~ ResizeΩ.{u, v} ∘ Ωintro :=
+  hott lemma resizeUniqLem1 (lem : LEM₋₁ (max u v)) : (lemImplPropUniverseEqv.{u, v} lem).1 ∘ Ωintro ~ ResizeΩ.{u, v} ∘ Ωintro :=
   begin
     intro b; transitivity; apply ap Ωintro; apply Ωlinv; apply Equiv.propset.Id;
     symmetry; apply ua; induction b using Bool.casesOn;
@@ -97,13 +97,13 @@ namespace «3.10»
       intro (Resize.intro b); apply ap; apply Structures.unitIsProp }
   end
 
-  hott lemma resizeUniqLem2 (lem : LEMprop.{max u v}) : (lemImplPropUniverseEqv.{u, v} lem).1 ~ ResizeΩ.{u, v} :=
+  hott lemma resizeUniqLem2 (lem : LEM₋₁ (max u v)) : (lemImplPropUniverseEqv.{u, v} lem).1 ~ ResizeΩ.{u, v} :=
   begin
     intro w; transitivity; apply ap; symmetry; apply Ωrinv (lemCumulativity.{u, v} lem);
     transitivity; apply resizeUniqLem1; apply ap ResizeΩ; apply Ωrinv
   end
 
-  hott theorem lemImplResizing (lem : LEMprop.{max u v}) : biinv ResizeΩ :=
+  hott theorem lemImplResizing (lem : LEM₋₁ (max u v)) : biinv ResizeΩ :=
   transport biinv (Theorems.funext (resizeUniqLem2.{u, v} lem)) (lemImplPropUniverseEqv lem).2
 end «3.10»
 

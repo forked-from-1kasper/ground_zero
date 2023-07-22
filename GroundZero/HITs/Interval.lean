@@ -10,8 +10,8 @@ namespace HITs
 namespace Interval
   @[hottAxiom] def segInv : i₁ = i₀ := Support.inclusion (Quot.sound (I.rel.mk true false))
 
-  /- B i₀ and B i₁ are Prop’s, so s : b₀ = b₁ is trivial -/
-  def propRec {B : I → Prop} (b₀ : B i₀) (b₁ : B i₁) : Π x, B x :=
+  /- B i₀ and B i₁ are (Lean) Prop’s, so s : b₀ = b₁ is trivial -/
+  def propRec {B : I → Sort 0} (b₀ : B i₀) (b₁ : B i₁) : Π x, B x :=
   begin
     intro x; refine Quot.ind ?_ x; intro b;
     induction b using Bool.casesOn; exact b₀; exact b₁
