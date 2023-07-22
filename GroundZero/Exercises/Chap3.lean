@@ -105,6 +105,9 @@ namespace «3.10»
 
   hott theorem lemImplResizing (lem : LEM₋₁ (max u v)) : biinv ResizeΩ :=
   transport biinv (Theorems.funext (resizeUniqLem2.{u, v} lem)) (lemImplPropUniverseEqv lem).2
+
+  hott corollary lemImplResizingSuc : LEM₋₁ (u + 1) → biinv ResizeΩ.{u, u + 1} :=
+  lemImplResizing.{u, u + 1}
 end «3.10»
 
 -- exercise 3.19
