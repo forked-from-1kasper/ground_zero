@@ -10,7 +10,7 @@ open GroundZero.Proto
 open GroundZero.Structures (dec prop contr)
 open GroundZero.Types.Id (ap)
 
-universe u v
+universe u v w
 
 -- exercise 3.9
 
@@ -159,6 +159,35 @@ namespace «3.12»
     apply HITs.Merely.elem; left; assumption
   end
 end «3.12»
+
+-- exercise 3.13
+
+namespace «3.13»
+  open Structures (hset)
+  open «3.11»
+
+  hott lemma LEMinfDual (lem : LEM∞ v) {A : Type u} {B : A → Type v} : ¬(Σ x, ¬B x) → Π x, B x :=
+  λ φ x, match lem (B x) with
+  | Sum.inl b => b
+  | Sum.inr ψ => Empty.elim (φ ⟨x, ψ⟩)
+
+  hott lemma LEMinfImplDNegInf (lem : LEM∞ u) {A : Type u} : ∥A∥ → A :=
+  match lem A with
+  | Sum.inl a => λ _, a
+  | Sum.inr φ => λ w, Empty.elim (@merelyImplDneg A w φ)
+
+  -- see lemma 3.8.2
+  hott theorem LEMinfImplCartesian (lem : LEM∞ v) (A : Type u) (B : A → Type v) :
+    hset A → (Π x, hset (B x)) → (Π x, ∥B x∥) → ∥Π x, B x∥ :=
+  λ _ _ f, HITs.Merely.elem (λ x, LEMinfImplDNegInf lem (f x))
+
+  hott theorem LEMinfImplAC (lem : LEM∞ (max v w)) {A : Type u} (B : A → Type v) (η : Π x, B x → Type w) :
+    hset A → (Π x, hset (B x)) → (Π x y, prop (η x y)) →
+    (Π (x : A), ∥(Σ (y : B x), η x y)∥) →
+    ∥(Σ (φ : Π x, B x), Π x, η x (φ x))∥ :=
+  λ _ _ _ f, HITs.Merely.elem ⟨λ x, (LEMinfImplDNegInf lem (f x)).1,
+                               λ x, (LEMinfImplDNegInf lem (f x)).2⟩
+end «3.13»
 
 -- exercise 3.19
 
