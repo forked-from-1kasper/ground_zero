@@ -182,9 +182,10 @@ namespace «3.13»
   λ _ _ f, HITs.Merely.elem (λ x, LEMinfImplDNegInf lem (f x))
 
   hott theorem LEMinfImplAC (lem : LEM∞ (max v w)) {A : Type u} (B : A → Type v) (η : Π x, B x → Type w) :
-    hset A → (Π x, hset (B x)) → (Π x y, prop (η x y)) →
-    (Π (x : A), ∥(Σ (y : B x), η x y)∥) →
-    ∥(Σ (φ : Π x, B x), Π x, η x (φ x))∥ :=
+    hset A → (Π x, hset (B x)) →
+             (Π x y, prop (η x y)) →
+             (Π (x : A), ∥(Σ (y : B x), η x y)∥) →
+            ∥(Σ (φ : Π x, B x), Π x, η x (φ x))∥ :=
   λ _ _ _ f, HITs.Merely.elem ⟨λ x, (LEMinfImplDNegInf lem (f x)).1,
                                λ x, (LEMinfImplDNegInf lem (f x)).2⟩
 end «3.13»
