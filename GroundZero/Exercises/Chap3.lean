@@ -111,6 +111,39 @@ namespace «3.10»
   lemImplResizing.{u, u + 1}
 end «3.10»
 
+-- exercise 3.11
+
+namespace «3.11»
+  open HITs.Interval (happly)
+  open ua (negBoolEquiv)
+  open HITs
+
+  hott lemma negBoolNoFixPoint : Π (x : 𝟐), not x ≠ x
+  | false => λ p, Structures.ffNeqTt p⁻¹
+  | true  => λ p, Structures.ffNeqTt p
+
+  hott theorem WCInfDisproved : ¬(Π (A : Type), ∥A∥ → A) :=
+  begin
+    intro f;
+    let p := ua negBoolEquiv;
+
+    let α := λ u, ua.transportRule negBoolEquiv (f 𝟐 u);
+    let β := λ u, ap (λ w, transport (λ A, A) p (f 𝟐 w))
+                     (Merely.uniq u (transport (λ A, ∥A∥) p⁻¹ u));
+    let γ := (transportOverFunctor (λ A, ∥A∥) (λ A, A) (f 𝟐) p)⁻¹ ⬝ apd f p;
+    let e := λ u, (α u)⁻¹ ⬝ β u ⬝ happly γ u;
+  
+    apply negBoolNoFixPoint; exact e (Merely.elem false)
+  end
+
+  hott lemma merelyImplDneg {A : Type u} : ∥A∥ → ¬¬A :=
+  HITs.Merely.rec Structures.notIsProp (λ x φ, φ x)
+
+  -- Theorem 3.2.2
+  hott corollary dnegInfDisproved : ¬(Π (A : Type), (¬¬A) → A) :=
+  λ H, WCInfDisproved (λ A, H A ∘ merelyImplDneg)
+end «3.11»
+
 -- exercise 3.12
 
 namespace «3.12»
