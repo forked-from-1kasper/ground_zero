@@ -111,6 +111,22 @@ namespace «3.10»
   lemImplResizing.{u, u + 1}
 end «3.10»
 
+-- exercise 3.12
+
+namespace «3.12»
+  hott lemma implOfSum {A : Type u} {B : Type v} : (¬A) + B → A → B
+  | Sum.inl φ => λ a, Empty.elim (φ a)
+  | Sum.inr b => λ _, b
+
+  hott theorem WC (lem : LEM₋₁ u) : Π (A : Type u), ∥(∥A∥ → A)∥ :=
+  begin
+    intro A; apply HITs.Merely.lift; apply implOfSum;
+    match lem ∥A∥ HITs.Merely.uniq with | Sum.inl x => _ | Sum.inr φ => _;
+    apply HITs.Merely.lift; apply Sum.inr; assumption;
+    apply HITs.Merely.elem; left; assumption
+  end
+end «3.12»
+
 -- exercise 3.19
 
 namespace «3.19»
