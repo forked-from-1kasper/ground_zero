@@ -190,6 +190,28 @@ namespace «3.13»
                                λ x, (LEMinfImplDNegInf lem (f x)).2⟩
 end «3.13»
 
+namespace «3.14»
+  open HITs.Interval (happly)
+  open «3.11»
+  open «3.9»
+
+  hott def dneg.intro {A : Type u} : A → ¬¬A :=
+  λ x φ, φ x
+
+  hott def dneg.rec (lem : LEM₋₁ v) {A : Type u} {B : Type v} : prop B → (A → B) → (¬¬A → B) :=
+  λ H f, Coproduct.elim (λ b _, b) (λ φ g, Empty.elim (g (λ x, φ (f x)))) (lem B H)
+
+  hott def dneg.recβrule (lem : LEM₋₁ v) {A : Type u} {B : Type v} {H : prop B}
+    {f : A → B} (x : A) : dneg.rec lem H f (dneg.intro x) = f x :=
+  H _ _
+
+  hott def dnegImplMerely (lem : LEM₋₁ u) {A : Type u} : ¬¬A → ∥A∥ :=
+  dneg.rec lem HITs.Merely.uniq HITs.Merely.elem
+
+  hott def lemMerelyEqvDef (lem : LEM₋₁ u) {A : Type u} : ¬¬A ≃ ∥A∥ :=
+  Structures.propEquivLemma Structures.notIsProp HITs.Merely.uniq (dnegImplMerely lem) merelyImplDneg
+end «3.14»
+
 -- exercise 3.19
 
 namespace «3.19»
