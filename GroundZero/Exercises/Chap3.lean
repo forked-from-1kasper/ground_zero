@@ -298,6 +298,30 @@ namespace «3.14»
   Structures.propEquivLemma Structures.notIsProp HITs.Merely.uniq (dnImplMerely lem) merelyImplDn
 end «3.14»
 
+-- exercise 3.15
+
+namespace «3.15»
+  open «3.10»
+
+  variable (RES : Qinv ResizeΩ.{0, v})
+
+  hott def Merely (A : Type u) := Π (P : Prop 0), (A → P.1) → P.1
+
+  hott def Merely.elem {A : Type u} : A → Merely A :=
+  λ x P f, f x
+
+  -- judgmental computation rule??
+  -- https://github.com/HoTT/Coq-HoTT/pull/1678#issuecomment-1334818499
+  hott def Merely.rec {A : Type u} {B : Type v} (H : prop B) (f : A → B) (φ : Merely A) : B :=
+  transport Sigma.fst (RES.2.1 ⟨B, H⟩)
+    (Resize.intro.{0, v} (φ (RES.1 ⟨B, H⟩) (λ x, Resize.elim.{0, v}
+      (transport Sigma.fst (RES.2.1 ⟨B, H⟩)⁻¹ (f x)))))
+
+  hott theorem Merely.recβrule {A : Type u} {B : Type v} (H : prop B) (f : A → B)
+    (x : A) : Merely.rec RES H f (Merely.elem x) = f x :=
+  transportBackAndForward _ _
+end «3.15»
+
 -- exercise 3.16
 
 namespace «3.16.1»
