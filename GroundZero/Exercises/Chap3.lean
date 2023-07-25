@@ -136,12 +136,12 @@ namespace «3.11»
     apply negBoolNoFixPoint; exact e (Merely.elem false)
   end
 
-  hott lemma merelyImplDneg {A : Type u} : ∥A∥ → ¬¬A :=
+  hott lemma merelyImplDn {A : Type u} : ∥A∥ → ¬¬A :=
   HITs.Merely.rec Structures.notIsProp (λ x φ, φ x)
 
   -- Theorem 3.2.2
-  hott corollary dnegInfDisproved : ¬(Π (A : Type), (¬¬A) → A) :=
-  λ H, WCInfDisproved (λ A, H A ∘ merelyImplDneg)
+  hott corollary dnInfDisproved : ¬(Π (A : Type), (¬¬A) → A) :=
+  λ H, WCInfDisproved (λ A, H A ∘ merelyImplDn)
 end «3.11»
 
 -- exercise 3.12
@@ -166,23 +166,23 @@ namespace «3.13»
   open Structures (hset)
   open «3.11»
 
-  hott lemma LEMinfImplDNegInf (lem : LEM∞ u) {A : Type u} : ∥A∥ → A :=
+  hott lemma LEMinfImplDNInf (lem : LEM∞ u) {A : Type u} : ∥A∥ → A :=
   match lem A with
   | Sum.inl a => λ _, a
-  | Sum.inr φ => λ w, Empty.elim (@merelyImplDneg A w φ)
+  | Sum.inr φ => λ w, Empty.elim (@merelyImplDn A w φ)
 
   -- see lemma 3.8.2
   hott theorem LEMinfImplCartesian (lem : LEM∞ v) (A : Type u) (B : A → Type v) :
     hset A → (Π x, hset (B x)) → (Π x, ∥B x∥) → ∥Π x, B x∥ :=
-  λ _ _ f, HITs.Merely.elem (λ x, LEMinfImplDNegInf lem (f x))
+  λ _ _ f, HITs.Merely.elem (λ x, LEMinfImplDNInf lem (f x))
 
   hott theorem LEMinfImplAC (lem : LEM∞ (max v w)) {A : Type u} (B : A → Type v) (η : Π x, B x → Type w) :
     hset A → (Π x, hset (B x)) →
              (Π x y, prop (η x y)) →
              (Π (x : A), ∥(Σ (y : B x), η x y)∥) →
             ∥(Σ (φ : Π x, B x), Π x, η x (φ x))∥ :=
-  λ _ _ _ f, HITs.Merely.elem ⟨λ x, (LEMinfImplDNegInf lem (f x)).1,
-                               λ x, (LEMinfImplDNegInf lem (f x)).2⟩
+  λ _ _ _ f, HITs.Merely.elem ⟨λ x, (LEMinfImplDNInf lem (f x)).1,
+                               λ x, (LEMinfImplDNInf lem (f x)).2⟩
 
   hott lemma LEMinfDual (lem : LEM∞ v) {A : Type u} {B : A → Type v} : ¬(Σ x, ¬B x) → Π x, B x :=
   λ φ x, match lem (B x) with
@@ -197,22 +197,80 @@ namespace «3.14»
   open «3.11»
   open «3.9»
 
-  hott def dneg.intro {A : Type u} : A → ¬¬A :=
+  hott def dn.intro {A : Type u} : A → ¬¬A :=
   λ x φ, φ x
 
-  hott def dneg.rec (lem : LEM₋₁ v) {A : Type u} {B : Type v} : prop B → (A → B) → (¬¬A → B) :=
+  hott def dn.rec (lem : LEM₋₁ v) {A : Type u} {B : Type v} : prop B → (A → B) → (¬¬A → B) :=
   λ H f, Coproduct.elim (λ b _, b) (λ φ g, Empty.elim (g (φ ∘ f))) (lem B H)
 
-  hott def dneg.recβrule (lem : LEM₋₁ v) {A : Type u} {B : Type v} {H : prop B}
-    {f : A → B} (x : A) : dneg.rec lem H f (dneg.intro x) = f x :=
+  hott def dn.recβrule (lem : LEM₋₁ v) {A : Type u} {B : Type v} {H : prop B}
+    {f : A → B} (x : A) : dn.rec lem H f (dn.intro x) = f x :=
   H _ _
 
-  hott def dnegImplMerely (lem : LEM₋₁ u) {A : Type u} : ¬¬A → ∥A∥ :=
-  dneg.rec lem HITs.Merely.uniq HITs.Merely.elem
+  hott def dnImplMerely (lem : LEM₋₁ u) {A : Type u} : ¬¬A → ∥A∥ :=
+  dn.rec lem HITs.Merely.uniq HITs.Merely.elem
 
   hott def lemMerelyEqvDef (lem : LEM₋₁ u) {A : Type u} : ¬¬A ≃ ∥A∥ :=
-  Structures.propEquivLemma Structures.notIsProp HITs.Merely.uniq (dnegImplMerely lem) merelyImplDneg
+  Structures.propEquivLemma Structures.notIsProp HITs.Merely.uniq (dnImplMerely lem) merelyImplDn
 end «3.14»
+
+-- exercise 3.16
+
+namespace «3.16.1»
+  open GroundZero.Structures
+
+  -- “hset X” isn’t useful here
+  variable (X : Type u) (Y : X → Type v) (G : Π x, prop (Y x))
+
+  hott lemma dn.elim : ¬¬(Π x, Y x) → (Π x, ¬¬(Y x)) :=
+  λ φ x f, φ (λ g, f (g x))
+
+  hott lemma dn.intro (lem : LEM₋₁ v) : (Π x, ¬¬(Y x)) → ¬¬(Π x, Y x) :=
+  λ φ f, f (λ x, match lem (Y x) (G x) with
+  | Sum.inl y => y
+  | Sum.inr g => Empty.elim (φ x g))
+
+  hott theorem dn.comm (lem : LEM₋₁ v) : ¬¬(Π x, Y x) ≃ (Π x, ¬¬(Y x)) :=
+  begin
+    apply propEquivLemma; apply notIsProp; apply piProp; intro; apply notIsProp;
+    apply dn.elim; apply dn.intro <;> assumption
+  end
+end «3.16.1»
+
+namespace «3.16.2»
+  open GroundZero.Structures
+  open GroundZero.HITs
+  open «3.10»
+  open «3.11»
+  open «3.14»
+  open «3.16.1»
+
+  variable (X : Type u) (Y : X → Type v) (H : hset X) (G : Π x, hset (Y x)) (lem : LEM₋₁ (max u v))
+
+  hott lemma elim (H : (Π x, ∥Y x∥) → ∥Π x, Y x∥) : (Π x, ¬¬(Y x)) → ¬¬(Π x, Y x) :=
+  λ φ, merelyImplDn (H (λ x, dnImplMerely (lemCumulativity.{v, u} lem) (φ x)))
+
+  hott lemma intro (H : (Π x, ¬¬(Y x)) → ¬¬(Π x, Y x)) : (Π x, ∥Y x∥) → ∥Π x, Y x∥ :=
+  λ φ, dnImplMerely lem (H (λ x, merelyImplDn (φ x)))
+
+  hott theorem DNComEqvAC : ((Π x, ¬¬(Y x)) ≃ ¬¬(Π x, Y x)) ≃ ((Π x, ∥Y x∥) → ∥Π x, Y x∥) :=
+  begin
+    transitivity; apply @propEquivLemma _ ((Π x, ¬¬(Y x)) → ¬¬(Π x, Y x));
+    { apply Equiv.propEquivProp; apply notIsProp };
+    { apply piProp; intro; apply notIsProp };
+    { apply Equiv.forward };
+    { intro φ; apply propEquivLemma;
+      { apply piProp; intro; apply notIsProp };
+      { apply notIsProp };
+      { exact φ };
+      { apply dn.elim } };
+    { apply propEquivLemma;
+      { apply piProp; intro; apply notIsProp };
+      { apply piProp; intro; apply Merely.uniq };
+      { apply intro; assumption };
+      { apply elim; assumption } }
+  end
+end «3.16.2»
 
 -- exercise 3.17
 
