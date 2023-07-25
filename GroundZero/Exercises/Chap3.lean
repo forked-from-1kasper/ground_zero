@@ -301,6 +301,7 @@ end «3.14»
 -- exercise 3.15
 
 namespace «3.15»
+  open GroundZero.Structures
   open «3.10»
 
   variable (RES : Qinv ResizeΩ.{0, v})
@@ -320,6 +321,9 @@ namespace «3.15»
   hott theorem Merely.recβrule {A : Type u} {B : Type v} (H : prop B) (f : A → B)
     (x : A) : Merely.rec RES H f (Merely.elem x) = f x :=
   transportBackAndForward _ _
+
+  hott theorem Merely.uniq {A : Type u} : prop (Merely A) :=
+  piProp (λ P, piProp (λ _, P.2))
 end «3.15»
 
 -- exercise 3.16
