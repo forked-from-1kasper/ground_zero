@@ -359,6 +359,7 @@ namespace «3.23»
     case inr φ => { right; intro w; apply φ w.1 }
   end
 
+  -- so for decidable type propositional truncation can be constructed explicitly (i.e. without HITs)
   hott corollary decMerelyEqvMerely {A : Type u} (G : dec A) : ∥A∥ ≃ decMerely G :=
   begin
     apply propEquivLemma; apply Merely.uniq; apply decMerely.uniq;
