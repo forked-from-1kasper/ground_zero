@@ -148,7 +148,7 @@ end «3.11»
 
 namespace «3.12»
   hott lemma implOfSum {A : Type u} {B : Type v} : (¬A) + B → A → B
-  | Sum.inl φ => λ a, Empty.elim (φ a)
+  | Sum.inl φ => Empty.elim ∘ φ
   | Sum.inr b => λ _, b
 
   hott theorem WC (lem : LEM₋₁ u) : Π (A : Type u), ∥(∥A∥ → A)∥ :=
@@ -165,11 +165,6 @@ end «3.12»
 namespace «3.13»
   open Structures (hset)
   open «3.11»
-
-  hott lemma LEMinfDual (lem : LEM∞ v) {A : Type u} {B : A → Type v} : ¬(Σ x, ¬B x) → Π x, B x :=
-  λ φ x, match lem (B x) with
-  | Sum.inl b => b
-  | Sum.inr ψ => Empty.elim (φ ⟨x, ψ⟩)
 
   hott lemma LEMinfImplDNegInf (lem : LEM∞ u) {A : Type u} : ∥A∥ → A :=
   match lem A with
@@ -188,6 +183,11 @@ namespace «3.13»
             ∥(Σ (φ : Π x, B x), Π x, η x (φ x))∥ :=
   λ _ _ _ f, HITs.Merely.elem ⟨λ x, (LEMinfImplDNegInf lem (f x)).1,
                                λ x, (LEMinfImplDNegInf lem (f x)).2⟩
+
+  hott lemma LEMinfDual (lem : LEM∞ v) {A : Type u} {B : A → Type v} : ¬(Σ x, ¬B x) → Π x, B x :=
+  λ φ x, match lem (B x) with
+  | Sum.inl b => b
+  | Sum.inr ψ => Empty.elim (φ ⟨x, ψ⟩)
 end «3.13»
 
 namespace «3.14»
@@ -199,7 +199,7 @@ namespace «3.14»
   λ x φ, φ x
 
   hott def dneg.rec (lem : LEM₋₁ v) {A : Type u} {B : Type v} : prop B → (A → B) → (¬¬A → B) :=
-  λ H f, Coproduct.elim (λ b _, b) (λ φ g, Empty.elim (g (λ x, φ (f x)))) (lem B H)
+  λ H f, Coproduct.elim (λ b _, b) (λ φ g, Empty.elim (g (φ ∘ f))) (lem B H)
 
   hott def dneg.recβrule (lem : LEM₋₁ v) {A : Type u} {B : Type v} {H : prop B}
     {f : A → B} (x : A) : dneg.rec lem H f (dneg.intro x) = f x :=
@@ -216,4 +216,71 @@ end «3.14»
 
 namespace «3.19»
   variable {P : ℕ → Type u} (H : Π n, prop (P n)) (G : Π n, dec (P n))
+  open GroundZero.HITs
+
+  hott def BSA (n : ℕ) : ℕ → ℕ
+  | Nat.zero   => n
+  | Nat.succ m => Coproduct.elim (λ _, n) (λ _, BSA (Nat.succ n) m) (G n)
+
+  hott def BS := BSA G Nat.zero
+
+  hott lemma BSP (n m : ℕ) : P (n + m) → P (BSA G n m) :=
+  begin
+    intro h; induction m using Nat.casesOn;
+    case zero   => { exact h };
+    case succ m => { show P (Coproduct.elim _ _ _); induction G n using Sum.casesOn;
+                     case inl p  => { exact p };
+                     case inr np => { apply BSP (Nat.succ n) m;
+                                      exact transport P (Nat.succPlus n m)⁻¹ h }; };
+  end
+
+  hott lemma minimality (n m k : ℕ) : P k → n ≤ k → BSA G n m ≤ k :=
+  begin
+    intro pk h; induction m using Nat.casesOn;
+    case zero   => { exact h };
+    case succ m => { show Coproduct.elim _ _ _ ≤ _; induction G n using Sum.casesOn;
+                     case inl p  => { exact h };
+                     case inr np => { apply minimality (Nat.succ n) m k pk;
+                                      apply Nat.le.neqSucc;
+                                      { intro ω; apply np; apply transport P;
+                                        symmetry; apply ap Nat.pred ω; exact pk };
+                                      apply Nat.le.map; exact h } }
+  end
+
+  hott lemma minExists : (Σ n, P n) → Σ n, P n × Π m, P m → n ≤ m :=
+  λ w, ⟨BS G w.1, (BSP G Nat.zero w.1 (transport P (Nat.zeroPlus w.1)⁻¹ w.2),
+                   λ m h, minimality G Nat.zero w.1 m h (Nat.max.zeroLeft m))⟩
+
+  hott lemma minUnique : prop (Σ n, P n × Π m, P m → n ≤ m) :=
+  λ w₁ w₂, Sigma.prod (Nat.le.asymm (w₁.2.2 w₂.1 w₂.2.1) (w₂.2.2 w₁.1 w₁.2.1))
+                      (Structures.productProp (H _) (Structures.piProp
+                        (λ _, Structures.piProp (λ _, Nat.le.prop _ _))) _ _)
+
+  hott theorem elimMerelyDecFamily : ∥Σ n, P n∥ → Σ n, P n :=
+  begin
+    fapply Function.comp; exact (Σ n, P n × Π m, P m → n ≤ m);
+    intro w; existsi w.1; exact w.2.1; apply Function.comp;
+    apply Merely.rec; apply minUnique H; exact idfun;
+    apply Merely.lift; apply minExists G
+  end
+
+  hott lemma upperEstimate (n m : ℕ) : BSA G n m ≤ n + m :=
+  begin
+    induction m using Nat.casesOn;
+    case zero   => { apply Nat.max.refl };
+    case succ m => { show Coproduct.elim _ _ _ ≤ _; induction G n using Sum.casesOn;
+                     case inl p  => { apply Nat.le.addl Nat.zero; apply Nat.max.zeroLeft };
+                     case inr np => { apply transport (_ ≤ ·); apply Nat.succPlus;
+                                      apply upperEstimate (Nat.succ n) m } }
+  end
+
+  hott lemma lowerEstimate (n m : ℕ) : n ≤ BSA G n m :=
+  begin
+    induction m using Nat.casesOn;
+    case zero   => { apply Nat.max.refl };
+    case succ m => { show _ ≤ Coproduct.elim _ _ _; induction G n using Sum.casesOn;
+                     case inl p  => { apply Nat.max.refl };
+                     case inr np => { apply Nat.le.trans; apply Nat.le.succ;
+                                      apply lowerEstimate (Nat.succ n) m } }
+  end
 end «3.19»

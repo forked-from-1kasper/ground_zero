@@ -1,6 +1,7 @@
 import GroundZero.Theorems.UA
 import GroundZero.Types.Nat
 
+open GroundZero.Proto (idfun)
 open GroundZero.Types.Equiv
 open GroundZero.Structures
 open GroundZero.Types
@@ -190,6 +191,13 @@ namespace Nat
   hott def le.inj (n m : ℕ) : n + 1 ≤ m + 1 → n ≤ m := Id.map Nat.pred
   hott def le.map (n m : ℕ) : n ≤ m → n + 1 ≤ m + 1 := Id.map Nat.succ
 
+  hott def le.addr (n m : ℕ) : Π k, n ≤ m → n + k ≤ m + k
+  | Nat.zero,   h => h
+  | Nat.succ k, h => le.map (n + k) (m + k) (le.addr n m k h)
+
+  hott def le.addl (n m k : ℕ) (h : n ≤ m) : k + n ≤ k + m :=
+  transport (_ ≤ ·) (Nat.comm m k) (transport (· ≤ _) (Nat.comm n k) (le.addr n m k h))
+
   hott def le.succ : Π (n : ℕ), n ≤ n + 1
   | Nat.zero   => idp _
   | Nat.succ n => Id.map Nat.succ (succ n)
@@ -293,7 +301,8 @@ namespace Nat
   | Nat.zero,   Nat.zero   => idp _
   | Nat.succ n, Nat.zero   => max.refl _
   | Nat.zero,   Nat.succ m => transport (m + 1 ≤ ·) (zeroPlus _)⁻¹ (max.refl _)
-  | Nat.succ n, Nat.succ m => le.trans (le.map (max n m) (n + m) (leAdd n m)) (begin
+  | Nat.succ n, Nat.succ m => le.trans (le.map (max n m) (n + m) (leAdd n m))
+    (begin
       apply transport (n + m + 1 ≤ ·); symmetry; transitivity;
       apply Nat.assoc n 1; transitivity; transitivity; apply Id.map;
       symmetry; apply Nat.assoc 1 m 1; symmetry; apply Nat.assoc;
