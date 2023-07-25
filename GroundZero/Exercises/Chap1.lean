@@ -248,7 +248,7 @@ end Nat'
 
 def fin (n : ℕ) : Type := Σ m, m + 1 ≤ n
 
-hott def vin.fmax (n : ℕ) : fin (n + 1) :=
+hott def fin.fmax (n : ℕ) : fin (n + 1) :=
 ⟨n, Theorems.Nat.max.refl (n + 1)⟩
 
 -- exercise 1.10

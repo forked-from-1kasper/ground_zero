@@ -1,5 +1,5 @@
+import GroundZero.Exercises.Chap1
 import GroundZero.Theorems.Equiv
-import GroundZero.Theorems.Nat
 import GroundZero.Types.Lost
 
 open GroundZero GroundZero.Types
@@ -503,6 +503,27 @@ Equiv.contrFamily H
 
 example (P : Type u) : prop P ≃ (P ≃ ∥P∥) :=
 Equiv.propExercise P
+
+-- exercise 3.22
+
+namespace «3.22»
+  open GroundZero.Theorems.Nat
+  open GroundZero.HITs
+
+  hott def fin.fsuc {n : ℕ} (m : fin n) : fin (n + 1) :=
+  ⟨m.1, le.step (m.1 + 1) n m.2⟩
+
+  hott lemma step (n : ℕ) (Y : fin (n + 1) → Type u)
+    (prev : Π (n : fin n), Y (fin.fsuc n)) (last : Y (fin.fmax n)) : Π m, Y m :=
+  λ m, match Nat.natDecEq n m.1 with
+  | Sum.inl p => transport Y (@Sigma.prod ℕ (λ m, m + 1 ≤ n + 1) ⟨n, Nat.max.refl _⟩ m p (Nat.le.prop _ _ _ _)) last
+  | Sum.inr q => let m' : fin n := ⟨m.1, Nat.le.neqSucc (λ p, q (ap Nat.pred p)⁻¹) m.2⟩;
+                 @transport _ Y (fin.fsuc m') m (Sigma.prod (idp m.1) (Nat.le.prop _ _ _ _)) (prev m')
+
+  hott theorem finAC : Π (n : ℕ) (Y : fin n → Type u), (Π x, ∥Y x∥) → ∥Π x, Y x∥
+  | Nat.zero,   Y, _ => Merely.elem (λ k, Empty.elim (Nat.max.neZero k.2))
+  | Nat.succ n, Y, H => Merely.lift₂ (step n Y) (finAC n (Y ∘ fin.fsuc) (λ m, H (fin.fsuc m))) (H (fin.fmax n))
+end «3.22»
 
 -- exercise 3.23
 
