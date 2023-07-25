@@ -325,6 +325,9 @@ Equiv.propExercise P
 -- exercise 3.23
 
 namespace «3.23»
+  open GroundZero.Structures
+  open GroundZero.HITs
+
   hott def choice {A : Type u} (G : dec A) : A → Type u :=
   λ x, Coproduct.elim (x = ·) (λ φ, Empty.elim (φ x)) G
 
@@ -356,8 +359,14 @@ namespace «3.23»
     case inr φ => { right; intro w; apply φ w.1 }
   end
 
+  hott corollary decMerelyEqvMerely {A : Type u} (G : dec A) : ∥A∥ ≃ decMerely G :=
+  begin
+    apply propEquivLemma; apply Merely.uniq; apply decMerely.uniq;
+    apply Merely.rec; apply decMerely.uniq; apply decMerely.elem;
+    { intro w; apply Merely.elem; exact w.1 }
+  end
+
   variable {P : ℕ → Type u} (G : Π n, dec (P n))
-  open GroundZero.HITs
   open «3.19»
 
   hott theorem elimMerelyDecFamily : ∥Σ n, P n∥ → Σ n, P n :=
