@@ -563,3 +563,21 @@ namespace «3.23»
       apply decMerely.elem; exact w.2 }
   end
 end «3.23»
+
+-- exercise 3.24
+
+namespace «3.24»
+  open GroundZero.Structures
+
+  hott lemma codeProp : Π n m, prop (Nat.code n m)
+  | Nat.zero,   Nat.zero   => unitIsProp
+  | Nat.succ n, Nat.zero   => emptyIsProp
+  | Nat.zero,   Nat.succ m => emptyIsProp
+  | Nat.succ n, Nat.succ m => codeProp n m
+
+  hott def encodeDecode {m n : ℕ} (p : Nat.code m n) : Nat.encode (Nat.decode p) = p :=
+  codeProp _ _ _ _
+
+  hott def recognize (m n : ℕ) : m = n ≃ Nat.code m n :=
+  ⟨Nat.encode, (⟨Nat.decode, Nat.decodeEncode⟩, ⟨Nat.decode, encodeDecode⟩)⟩
+end «3.24»

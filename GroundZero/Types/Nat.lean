@@ -90,7 +90,8 @@ hott def encodeDecode : Π {m n : ℕ} (p : code m n), encode (decode p) = p
 | Nat.zero,   Nat.zero,   ★ => idp ★
 | Nat.succ m, Nat.zero,   p => Proto.Empty.elim p
 | Nat.zero,   Nat.succ n, p => Proto.Empty.elim p
-| Nat.succ m, Nat.succ n, p => begin
+| Nat.succ m, Nat.succ n, p =>
+begin
   transitivity; symmetry;
   apply @Equiv.transportComp ℕ ℕ (code (m + 1)) m n
         Nat.succ (decode p) (r (m + 1));
