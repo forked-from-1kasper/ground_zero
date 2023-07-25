@@ -256,7 +256,7 @@ namespace «3.19»
                       (Structures.productProp (H _) (Structures.piProp
                         (λ _, Structures.piProp (λ _, Nat.le.prop _ _))) _ _)
 
-  hott theorem elimMerelyDecFamily : ∥Σ n, P n∥ → Σ n, P n :=
+  hott theorem elimMerelyDecPropFamily : ∥Σ n, P n∥ → Σ n, P n :=
   begin
     fapply Function.comp; exact (Σ n, P n × Π m, P m → n ≤ m);
     intro w; existsi w.1; exact w.2.1; apply Function.comp;
@@ -284,3 +284,51 @@ namespace «3.19»
                                       apply lowerEstimate (Nat.succ n) m } }
   end
 end «3.19»
+
+namespace «3.23»
+  hott def choice {A : Type u} (G : dec A) : A → Type u :=
+  λ x, Coproduct.elim (x = ·) (λ φ, Empty.elim (φ x)) G
+
+  hott def decMerely {A : Type u} (G : dec A) : Type u :=
+  Σ x, choice G x
+
+  hott def decMerely.elem {A : Type u} (G : dec A) : A → decMerely G :=
+  begin
+    intro x; induction G using Sum.casesOn;
+    case inl y => { existsi y; apply idp };
+    case inr φ => { apply Empty.elim (φ x) }
+  end
+
+  hott def decMerely.uniq {A : Type u} (G : dec A) : prop (decMerely G) :=
+  begin
+    induction G using Sum.casesOn;
+    case inl _ => { intro w₁ w₂; fapply Sigma.prod;
+                    { transitivity; apply w₁.2; symmetry; apply w₂.2 };
+                    { transitivity; apply transportCompositionRev;
+                      apply Equiv.rewriteComp; symmetry;
+                      apply Id.cancelInvComp } };
+    case inr φ => { intro w₁ w₂; apply Empty.elim (φ w₁.1) }
+  end
+
+  hott def decMerely.dec {A : Type u} (G : dec A) : dec (@decMerely A G) :=
+  begin
+    induction G using Sum.casesOn;
+    case inl x => { left; existsi x; apply idp };
+    case inr φ => { right; intro w; apply φ w.1 }
+  end
+
+  variable {P : ℕ → Type u} (G : Π n, dec (P n))
+  open GroundZero.HITs
+  open «3.19»
+
+  hott theorem elimMerelyDecFamily : ∥Σ n, P n∥ → Σ n, P n :=
+  begin
+    fapply Function.comp; exact (Σ n, decMerely (G n));
+    intro w; existsi w.1; exact w.2.1; apply Function.comp;
+    apply elimMerelyDecPropFamily;
+    { intro n; apply decMerely.uniq (G n) };
+    { intro n; apply decMerely.dec (G n) };
+    { apply Merely.lift; intro w; existsi w.1;
+      apply decMerely.elem; exact w.2 }
+  end
+end «3.23»
