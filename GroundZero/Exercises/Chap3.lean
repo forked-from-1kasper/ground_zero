@@ -73,6 +73,30 @@ namespace «3.7»
   end
 end «3.7»
 
+-- exercise 3.8
+
+namespace «3.8»
+  open GroundZero.HITs
+
+  variable {A : Type u} {B : Type v} {isequiv : (A → B) → Type (max u v)}
+           (i   : Π (f : A → B), Qinv f → isequiv f)
+           (ii  : Π (f : A → B), isequiv f → Qinv f)
+           (iii : Π (f : A → B), prop (isequiv f))
+
+  hott def i₂ (f : A → B) : Qinv f → ∥Qinv f∥ :=
+  Merely.elem
+
+  hott def ii₂ (f : A → B) : ∥Qinv f∥ → Qinv f :=
+  ii f ∘ Merely.rec (iii f) idfun ∘ Merely.lift (i f)
+
+  hott def iii₂ (f : A → B) : prop ∥Qinv f∥ :=
+  Merely.uniq
+
+  hott theorem isequivEqvMerelyQinv (f : A → B) : isequiv f ≃ ∥Qinv f∥ :=
+  Structures.propEquivLemma (iii f) Merely.uniq (Merely.elem ∘ ii f)
+    (Merely.rec (iii f) idfun ∘ Merely.lift (i f))
+end «3.8»
+
 -- exercise 3.9
 
 namespace «3.9»
