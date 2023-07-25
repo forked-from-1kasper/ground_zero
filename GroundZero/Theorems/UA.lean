@@ -108,7 +108,7 @@ begin
   apply ffNeqTt; exact g⁻¹ ⬝ f
 end
 
-noncomputable hott def coproductSet {A B : Type}
+noncomputable hott def coproductSet {A B : Type u}
   (f : hset A) (g : hset B) : hset (A + B)
 | Coproduct.inl x, Coproduct.inl y =>
   transport prop (ua (@Coproduct.inl.inj' A B x y))⁻¹ (f _ _)

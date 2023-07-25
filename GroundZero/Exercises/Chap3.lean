@@ -7,10 +7,71 @@ open GroundZero.Types.Equiv
 open GroundZero.Theorems
 open GroundZero.Proto
 
-open GroundZero.Structures (dec prop contr)
+open GroundZero.Structures (dec prop hset contr)
 open GroundZero.Types.Id (ap)
 
 universe u v w
+
+-- exercise 3.1
+
+example (A : Type u) (B : Type v) : A ≃ B → hset A → hset B :=
+Structures.hsetRespectsEquiv
+
+-- exercise 3.2
+
+noncomputable example (A B : Type u) : hset A → hset B → hset (A + B) :=
+ua.coproductSet
+
+-- exercise 3.3
+
+example (A : Type u) (B : A → Type v) : hset A → (Π x, hset (B x)) → hset (Σ x, B x) :=
+Structures.hsetRespectsSigma
+
+-- exercise 3.4
+
+namespace «3.4»
+  open GroundZero.Structures
+
+  hott theorem propEqvAutoContr (A : Type u) : prop A ↔ contr (A → A) :=
+  begin
+    apply Prod.mk;
+    { intro; existsi @idfun A; apply piProp;
+      { intro; assumption } };
+    { intro w; intro a b; apply @HITs.Interval.happly A (λ _, A) (λ _, a) (λ _, b);
+      apply contrImplProp; exact w; assumption }
+  end
+end «3.4»
+
+-- exercise 3.5
+
+example (A : Type u) : (prop A) ≃ (A → contr A) :=
+Equiv.lemContrEquiv
+
+-- exercise 3.6
+
+example (A : Type u) : prop A → prop (A + ¬A) :=
+Structures.propEM
+
+-- exercise 3.7
+
+namespace «3.7»
+  open GroundZero.Structures
+
+  variable {A : Type u} {B : Type v} (H₁ : prop A) (H₂ : prop B)
+
+  hott theorem propSum (G : ¬(A × B)) : prop (A + B) :=
+  begin
+    intros x y; match x, y with
+    | Sum.inl _, Sum.inl _ => _
+    | Sum.inr x, Sum.inl y => _
+    | Sum.inl x, Sum.inr y => _
+    | Sum.inr _, Sum.inr _ => _;
+    { apply ap; apply H₁ };
+    { apply Proto.Empty.elim; apply G (y, x) };
+    { apply Proto.Empty.elim; apply G (x, y) };
+    { apply ap; apply H₂ }
+  end
+end «3.7»
 
 -- exercise 3.9
 
@@ -124,8 +185,7 @@ namespace «3.11»
 
   hott theorem WCInfDisproved : ¬(Π (A : Type), ∥A∥ → A) :=
   begin
-    intro f;
-    let p := ua negBoolEquiv;
+    intro f; let p := ua negBoolEquiv;
 
     let α := λ u, ua.transportRule negBoolEquiv (f 𝟐 u);
     let β := λ u, ap (λ w, transport (λ A, A) p (f 𝟐 w))
