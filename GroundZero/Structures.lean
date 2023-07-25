@@ -298,6 +298,9 @@ hott def propEquivLemma {A : Type u} {B : Type v}
   (F : prop A) (G : prop B) (f : A → B) (g : B → A) : A ≃ B :=
 ⟨f, (⟨g, λ _, F _ _⟩, ⟨g, λ _, G _ _⟩)⟩
 
+hott def propIffLemma {A : Type u} {B : Type v} : prop A → prop B → A ↔ B → A ≃ B :=
+λ F G φ, propEquivLemma F G φ.1 φ.2
+
 hott def minusTwoEqvContr {A : Type u} : (is-(−2)-type A) ≃ contr A :=
 by reflexivity
 
@@ -639,6 +642,29 @@ macro "LEM∞" n:level : term => `(LEMinf.{$n})
 def LEMprop := Π (A : Type u), prop A → A + ¬A
 macro "LEM₋₁" : term => `(LEMprop)
 macro "LEM₋₁" n:level : term => `(LEMprop.{$n})
+
+def DNEGinf := Π (A : Type u), ¬¬A → A
+macro "DNEG∞" : term => `(DNEGinf)
+macro "DNEG∞" n:level : term => `(DNEGinf.{$n})
+
+def DNEGprop := Π (A : Type u), prop A → ¬¬A → A
+macro "DNEG₋₁" : term => `(DNEGprop)
+macro "DNEG₋₁" n:level : term => `(DNEGprop.{$n})
+
+namespace Structures
+  hott def propEM {A : Type u} (H : prop A) : prop (A + ¬A) :=
+  begin
+    intros x y; match x, y with
+    | Sum.inl _, Sum.inl _ => _
+    | Sum.inr x, Sum.inl y => _
+    | Sum.inl x, Sum.inr y => _
+    | Sum.inr _, Sum.inr _ => _;
+    { apply map; apply H };
+    { apply Proto.Empty.elim; apply x y };
+    { apply Proto.Empty.elim; apply y x };
+    { apply map; apply notIsProp }
+  end
+end Structures
 
 section
   variable {A : Type u} (R : hrel A)

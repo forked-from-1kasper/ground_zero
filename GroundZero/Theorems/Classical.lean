@@ -38,19 +38,6 @@ begin
   apply HITs.Merely.uniq; intro y; apply HITs.Merely.elem; exact ⟨y, ★⟩
 end
 
-hott def propExcludedMiddle {A : Type u} (H : prop A) : prop (A + ¬A) :=
-begin
-  intros x y; match x, y with
-  | Sum.inl _, Sum.inl _ => _
-  | Sum.inr x, Sum.inl y => _
-  | Sum.inl x, Sum.inr y => _
-  | Sum.inr _, Sum.inr _ => _;
-  { apply map; apply H };
-  { apply Proto.Empty.elim; apply x y };
-  { apply Proto.Empty.elim; apply y x };
-  { apply map; apply notIsProp }
-end
-
 section
   variable {A : Type u} (H : prop A)
   def inh := Σ (φ : 𝟐 → Prop), ∥(Σ (x : 𝟐), (φ x).fst)∥
@@ -86,9 +73,9 @@ section
               intro <;> apply HITs.Merely.elem <;> right <;> exact z; apply HITs.Merely.uniq };
             case inr => { left; assumption } };
           case inr => { left; assumption } };
-        apply propExcludedMiddle H };
-      apply propExcludedMiddle H };
-    apply propExcludedMiddle H
+        apply propEM H };
+      apply propEM H };
+    apply propEM H
   end
 end
 

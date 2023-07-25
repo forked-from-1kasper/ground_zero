@@ -190,6 +190,8 @@ namespace «3.13»
   | Sum.inr ψ => Empty.elim (φ ⟨x, ψ⟩)
 end «3.13»
 
+-- exercise 3.14
+
 namespace «3.14»
   open HITs.Interval (happly)
   open «3.11»
@@ -211,6 +213,31 @@ namespace «3.14»
   hott def lemMerelyEqvDef (lem : LEM₋₁ u) {A : Type u} : ¬¬A ≃ ∥A∥ :=
   Structures.propEquivLemma Structures.notIsProp HITs.Merely.uniq (dnegImplMerely lem) merelyImplDneg
 end «3.14»
+
+-- exercise 3.18
+
+namespace «3.18»
+  open GroundZero.Structures
+
+  hott theorem lemIffDneg : LEM₋₁ u ↔ DNEG₋₁ u :=
+  begin
+    apply Prod.mk; intro lem P H nnp;
+    induction lem P H using Sum.casesOn;
+    case inl p  => { exact p };
+    case inr np => { apply Empty.elim (nnp np) };
+
+    intro dneg P H; apply dneg; apply propEM H; intro npnp;
+    apply npnp; right; intro p; apply npnp; left; exact p
+  end
+
+  hott corollary lemEqvDneg : LEM₋₁ u ≃ DNEG₋₁ u :=
+  begin
+    apply propIffLemma;
+    { repeat (first | apply propEM; assumption | apply piProp; intro) };
+    { repeat (first | assumption | apply piProp; intro) };
+    { apply lemIffDneg }
+  end
+end «3.18»
 
 -- exercise 3.19
 
@@ -284,6 +311,18 @@ namespace «3.19»
                                       apply lowerEstimate (Nat.succ n) m } }
   end
 end «3.19»
+
+-- exercise 3.20
+
+example {A : Type u} {B : A → Type v} (H : contr A) : (Σ x, B x) ≃ B H.1 :=
+Equiv.contrFamily H
+
+-- exercise 3.21
+
+example (P : Type u) : prop P ≃ (P ≃ ∥P∥) :=
+Equiv.propExercise P
+
+-- exercise 3.23
 
 namespace «3.23»
   hott def choice {A : Type u} (G : dec A) : A → Type u :=
