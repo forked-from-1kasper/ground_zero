@@ -214,6 +214,18 @@ namespace «3.14»
   Structures.propEquivLemma Structures.notIsProp HITs.Merely.uniq (dnegImplMerely lem) merelyImplDneg
 end «3.14»
 
+-- exercise 3.17
+
+namespace «3.17»
+  variable (Merely : Type u → Type u)
+           (elem   : Π A, A → Merely A)
+           (uniq   : Π A, prop (Merely A))
+           (mrec   : Π A B, prop B → (A → B) → (Merely A → B))
+
+  def mind {A : Type u} (B : Merely A → Type v) (H : Π x, prop (B x)) (f : Π x, B (elem A x)) : Π x, B x :=
+  λ x, mrec A (B x) (H x) (λ y, transport B (uniq A (elem A y) x) (f y)) x
+end «3.17»
+
 -- exercise 3.18
 
 namespace «3.18»
