@@ -11,6 +11,7 @@ open GroundZero.Structures (prop contr)
 universe u v w k
 
 -- exercise 1.1
+
 hott def compAssoc {A : Type u} {B : Type v} {C : Type w} {D : Type k}
   (f : A → B) (g : B → C) (h : C → D) : h ∘ (g ∘ f) = (h ∘ g) ∘ f :=
 by reflexivity
