@@ -4,11 +4,124 @@ import GroundZero.Types.Product
 import GroundZero.Theorems.Nat
 import GroundZero.Types.Sigma
 
+import GroundZero.Exercises.Chap2
+
 open GroundZero.Types
 open GroundZero.Proto
 open GroundZero
 
-universe u v w k
+universe u v w k u' v' w' k'
+
+-- exercise 4.4
+
+namespace «4.4»
+  open GroundZero.Types.Equiv (apd transport biinv ideqv)
+  open GroundZero.Theorems.Functions
+  open GroundZero.Types.Id
+
+  hott lemma bisigmaComm (A : Type u) (B : Type v) (C : A → B → Type w) : (Σ x y, C x y) ≃ (Σ y x, C x y) :=
+  ⟨λ w, ⟨w.2.1, w.1, w.2.2⟩, Qinv.toBiinv _ ⟨λ w, ⟨w.2.1, w.1, w.2.2⟩, (idp, idp)⟩⟩
+
+  hott def mapProd {A : Type u} {A' : Type u'} {B : A → Type v} {B' : A' → Type v'}
+    (f : A → A') (g : Π x, B x → B' (f x)) : (Σ x, B x) → (Σ y, B' y) :=
+  λ w, ⟨f w.1, g w.1 w.2⟩
+
+  hott lemma transportEmbd {A : Type u} {B : A → Type v} {a b : A} (p : a = b) : isEmbedding (transport B p) :=
+  begin
+    induction p; intro x y; apply transport biinv;
+    show idfun = _; apply Theorems.funext; intro q;
+    induction q; reflexivity; exact (ideqv (x = y)).2
+  end
+
+  hott corollary transportEmbdEqv {A : Type u} {B : A → Type v} {a b : A}
+    (p : a = b) {x y : B a} : (x = y) ≃ (transport B p x = transport B p y) :=
+  ⟨ap (transport B p), transportEmbd p x y⟩
+
+  hott lemma mapProdFiber {A : Type u} {A' : Type u'} {B : A → Type v} {B' : A' → Type v'}
+    (f : A → A') (g : Π x, B x → B' (f x)) (w' : Σ y, B' y) :
+    fib (mapProd f g) w' ≃ Σ (e : fib f w'.1), fib (g e.1) (transport B' e.2⁻¹ w'.2) :=
+  begin
+    transitivity; apply Sigma.respectsEquiv.{_, _, max u' v'}; intro; apply Sigma.sigmaPath;
+    transitivity; symmetry; apply sigma.assoc;
+    transitivity; apply Sigma.respectsEquiv.{_, _, max v u' v'}; intro x;
+    apply bisigmaComm (B x) (f x = w'.1) (λ y p, transport B' p (g x y) = w'.2);
+    transitivity; apply sigma.assoc A (λ x, f x = w'.1) (λ e, Σ (y : B e.1), transport B' e.2 (g e.1 y) = w'.2);
+    apply Sigma.respectsEquiv; intro e; apply Sigma.respectsEquiv; intro;
+    transitivity; apply transportEmbdEqv e.2⁻¹; apply transport (· = _ ≃ _ = _);
+    symmetry; apply Equiv.transportForwardAndBack; reflexivity
+  end
+
+  variable {A : Type u} {B : Type v} {C : Type w} (f : A → B) (g : B → C) (b : B)
+
+  hott def naturalMap : fib (g ∘ f) (g b) → fib g (g b) :=
+  λ w, ⟨f w.1, w.2⟩
+
+  hott theorem «4.4.i» : fib (naturalMap f g b) ⟨b, idp (g b)⟩ ≃ fib f b :=
+  begin
+    apply Equiv.trans; apply @mapProdFiber A B (λ x, g (f x) = g b) (λ y, g y = g b) f (λ _, idfun) ⟨b, idp (g b)⟩;
+    apply transport (@Sigma _ · ≃ _); apply Theorems.funext;
+    intro e; symmetry; apply ap (fib idfun);
+    transitivity; apply Equiv.transportOverContrMap;
+    transitivity; apply Id.reflRight; apply ap (ap g); apply Id.invInv;
+    apply Equiv.trans; apply Sigma.respectsEquiv;
+    { intro; apply Equiv.trans; apply Sigma.hmtpyInvEqv;
+      apply Structures.contrEquivUnit.{_, 0}; apply singl.contr };
+    apply Equiv.trans; apply Sigma.const; apply Structures.unitProdEquiv;
+  end
+
+  hott theorem «4.4.ii» (c : C) : fib (g ∘ f) c ≃ Σ (w : fib g c), fib f w.1 :=
+  begin
+    apply Equiv.symm; apply Equiv.trans;
+    apply sigma.assoc (fib g c) (λ _, A) (λ w, f w.2 = w.1.1);
+    apply Equiv.trans; fapply Theorems.Equiv.respectsEquivOverFst;
+
+    exact (Σ (a : A) (b : B), g b = c);
+    { fapply Sigma.mk;
+      { intro w; existsi w.2; existsi w.1.1; exact w.1.2 };
+      apply Qinv.toBiinv; fapply Sigma.mk;
+      { intro w; existsi ⟨w.2.1, w.2.2⟩; exact w.1 };
+      apply Prod.mk <;> intro <;> reflexivity };
+
+    apply Equiv.trans; symmetry; apply sigma.assoc;
+    apply Sigma.respectsEquiv; intro a;
+    apply Equiv.trans; symmetry; apply sigma.assoc;
+    apply Equiv.trans; apply Sigma.respectsEquiv;
+    intro b; apply Sigma.const (g b = c) (f a = b);
+
+    fapply Sigma.mk; intro w; exact ap g w.2.2 ⬝ w.2.1; apply Qinv.toBiinv; fapply Sigma.mk;
+    { intro p; existsi f a; existsi p; reflexivity }; apply Prod.mk; intro; reflexivity;
+    { intro w; fapply Sigma.prod; exact w.2.2; transitivity;
+      apply Equiv.transportOverProduct; apply Equiv.bimap Prod.mk;
+      { transitivity; apply Equiv.transportOverContrMap; transitivity;
+        apply ap (· ⬝ _); apply Id.mapInv; apply Id.invCompCancel };
+      { transitivity; apply Equiv.transportOverInvContrMap; apply Equiv.idmap } }
+  end
+end «4.4»
+
+-- exercise 4.6
+
+namespace «4.6»
+  open GroundZero.Types.Equiv (transport ideqv)
+
+  hott def idtoqinv {A B : Type u} : A = B → Σ (f : A → B), Qinv f :=
+  λ p, transport (λ X, Σ (f : A → X), Qinv f) p ⟨idfun, ⟨idfun, (idp, idp)⟩⟩
+
+  variable (qinvua : Π (A B : Type u), Qinv (@idtoqinv A B))
+
+  -- 4.6.i
+
+  hott lemma lem1 {A B X : Type u} (p : A = B) : (X → A) ≃ (X → B) :=
+  transport (λ Y, (X → A) ≃ (X → Y)) p (ideqv (X → A))
+
+  hott lemma lem2 {A B X : Type u} (e : A ≃ B) : (X → A) ≃ (X → B) :=
+  lem1 ((qinvua A B).1 ⟨e.1, Qinv.ofBiinv _ e.2⟩)
+
+  -- then proceed exactly as in book
+
+  -- 4.6.ii
+
+  -- 4.6.iii
+end «4.6»
 
 -- exercise 4.7
 
@@ -107,3 +220,8 @@ namespace «4.8»
       { apply Theorems.funext; intro b; induction b using Bool.casesOn <;> reflexivity } }
   end
 end «4.8»
+
+-- exercise 4.9
+
+example {A : Type u} {B : A → Type v} {f g : Π x, B x} : (f = g) ≃ (f ~ g) :=
+Theorems.full -- see “Structures.lean” for this kind of proof

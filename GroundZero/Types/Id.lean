@@ -136,6 +136,9 @@ namespace Id
   hott def compReflIfEq {A : Type u} {a b : A} (p q : a = b) : p = q → p⁻¹ ⬝ q = idp b :=
   begin intro A; induction A; apply invComp end
 
+  hott def eqIfCompRefl {A : Type u} {a b : A} (p q : a = b) : p⁻¹ ⬝ q = idp b → p = q :=
+  begin intro α; induction p; exact α⁻¹ end
+
   section
     variable {A : Type u} {B : Type v} {a b : A} (f : A → B) (p : a = b)
 
