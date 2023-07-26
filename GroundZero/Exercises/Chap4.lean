@@ -10,6 +10,43 @@ open GroundZero
 
 universe u v w k
 
+-- exercise 4.7
+
+namespace «4.7»
+  open GroundZero.Types.Equiv (biinv transport)
+  open GroundZero.Theorems.Functions
+  open GroundZero.Types.Id
+
+  hott theorem embdEqvDef {A : Type u} {B : Type v} (f : A → B) :
+    isEmbedding f ↔ injective f × Π x, biinv (@ap A B x x f) :=
+  begin
+    apply Prod.mk;
+    { intro e; apply Prod.mk;
+      { intro x y; exact (e x y).2.1 };
+      { intro x; exact e x x } };
+    { intro w x y; fapply Qinv.toBiinv; let ε := λ x, Qinv.ofBiinv _ (w.2 x);
+      fapply Sigma.mk;
+      { intro p; exact transport (λ y, f x = f y → x = y) (w.1 x y p) (ε x).1 p }; apply Prod.mk;
+      { intro p; transitivity; apply ap (ap f); transitivity;
+        apply HITs.Interval.happly; apply Equiv.transportCharacterization;
+        apply Equiv.transportComposition; transitivity;
+        apply ap (λ q, ap f ((ε x).1 q ⬝ _));
+        apply Equiv.transportOverInvContrMap;
+        transitivity; apply Equiv.mapFunctoriality;
+        transitivity; apply ap (· ⬝ _); apply (ε x).2.1;
+        transitivity; apply ap (_ ⬝ · ⬝ _); apply Id.mapInv;
+        apply Id.cancelInvComp };
+      { intro p; show transport (λ y, f x = f y → x = y) _ _ _ = _;
+        transitivity; apply HITs.Interval.happly; apply Equiv.transportCharacterization;
+        transitivity; apply Equiv.transportComposition;
+        transitivity; apply ap (· ⬝ _);
+        transitivity; apply ap (ε x).1;
+        transitivity; apply Equiv.transportOverInvContrMap;
+        symmetry; apply Equiv.mapFunctoriality;
+        apply (ε x).2.2; apply Id.cancelInvComp } }
+  end
+end «4.7»
+
 -- exercise 4.8
 
 namespace «4.8»

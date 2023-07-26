@@ -253,8 +253,8 @@ namespace Equiv
     (p : x₁ = x₂) (q : x₁ = a) : transport (· = a) p q = p⁻¹ ⬝ q :=
   begin induction p; reflexivity end
 
-  hott theorem transportCharacterization {A : Type u} {B C : A → Type v} {a b : A} (φ : B a → C a)
-    (p : a = b) : transport (λ x, B x → C x) p φ = transport C p ∘ φ ∘ transport B p⁻¹ :=
+  hott theorem transportCharacterization {A : Type u} {B : A → Type v} {C : A → Type w} {a b : A}
+    (φ : B a → C a) (p : a = b) : transport (λ x, B x → C x) p φ = transport C p ∘ φ ∘ transport B p⁻¹ :=
   begin induction p; reflexivity end
 
   hott theorem transportOverFamily {A : Type u} {x y : A} {B δ : A → Type v}
