@@ -311,7 +311,7 @@ begin
   { intros H a b; existsi H a b; apply propIsSet H }
 end
 
-hott def equivFunext {A : Type u} {η μ : A → Type v}
+hott def equivFunext {A : Type u} {η : A → Type v} {μ : A → Type w}
   (H : Π x, η x ≃ μ x) : (Π x, η x) ≃ (Π x, μ x) :=
 begin
   existsi (λ (f : Π x, η x) (x : A), (H x).forward (f x)); apply Prod.mk;

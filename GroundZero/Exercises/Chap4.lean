@@ -12,6 +12,62 @@ open GroundZero
 
 universe u v w k u' v' w' k'
 
+-- exercise 4.3
+
+namespace «4.3»
+  open GroundZero.Types.Equiv (transport ideqv idtoeqv)
+  open GroundZero.Theorems.Functions
+  open GroundZero.Types.Id
+
+  variable {A : Type u} {B : Type v} (f : A → B)
+
+  hott lemma embdOfIshae (e : Ishae f) : isEmbedding f :=
+  begin
+    intro x y; fapply Qinv.toBiinv; fapply Sigma.mk;
+    { intro p; exact (e.2.1 x)⁻¹ ⬝ ap e.1 p ⬝ (e.2.1 y) }; apply Prod.mk;
+    { intro p; transitivity; apply Equiv.mapFunctoriality;
+      transitivity; apply ap (· ⬝ _); apply Equiv.mapFunctoriality;
+      transitivity; apply Equiv.bimap (λ p q, p ⬝ _ ⬝ q);
+      apply Id.mapInv; symmetry; apply Id.invInv;
+      symmetry; transitivity; symmetry; apply Equiv.idmap;
+      transitivity; apply @Equiv.mapWithHomotopy B B idfun (f ∘ e.1) (λ x, (e.2.2.1 x)⁻¹);
+      transitivity; apply Equiv.bimap (λ p q, p ⬝ _ ⬝ q);
+      apply ap; symmetry; apply e.2.2.2;
+      apply ap (·⁻¹⁻¹); symmetry; apply e.2.2.2;
+      apply ap (_ ⬝ · ⬝ _); apply Equiv.mapOverComp };
+    { intro p; induction p; transitivity; apply ap (· ⬝ _);
+      apply Id.reflRight; apply Id.invComp }
+  end
+
+  hott lemma embdOfQinv : Qinv f → isEmbedding f :=
+  embdOfIshae f ∘ Theorems.Equiv.qinvImplsIshae f
+
+  hott corollary qinvIdEqv (e : Qinv f) {a b : A} : (a = b) ≃ (f a = f b) :=
+  ⟨ap f, embdOfQinv f e a b⟩
+
+  hott corollary qinvEqvLeft (e : Qinv f) {C : Type w} (g h : C → A) : (g ~ h) ≃ (f ∘ g ~ f ∘ h) :=
+  begin apply Structures.equivFunext; intro; apply qinvIdEqv f e end
+
+  hott theorem «4.1.1» (e : Qinv f) : Qinv f ≃ (Π (x : A), x = x) :=
+  begin
+    apply Equiv.trans; apply Sigma.respectsEquiv;
+    intro g; apply Equiv.trans; apply Equiv.prodEquiv;
+
+    apply Equiv.trans; apply qinvEqvLeft e.1 ⟨f, ⟨e.2.2, e.2.1⟩⟩;
+    apply Equiv.trans; apply transport (· ∘ g ~ _ ≃ _) (Theorems.funext e.2.2)⁻¹;
+    apply ideqv; apply Equiv.trans; symmetry; apply Theorems.full;
+    apply Equiv.inveqv; apply ideqv;
+    symmetry; apply Sigma.const; apply Equiv.trans;
+    apply sigma.assoc (B → A) (λ g, e.1 = g) (λ w, w.1 ∘ f ~ idfun);
+    apply Equiv.trans; apply Theorems.Equiv.contrFamily; apply singl.contr;
+
+    apply Structures.equivFunext; intro x;
+    apply Equiv.trans; apply qinvIdEqv f e;
+    apply transport (· = _ ≃ _); symmetry; apply e.2.1;
+    apply Equiv.symm; apply qinvIdEqv f e
+  end
+end «4.3»
+
 -- exercise 4.4
 
 namespace «4.4»
