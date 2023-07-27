@@ -12,6 +12,15 @@ open GroundZero
 
 universe u v w k u' v' w' k'
 
+-- exercise 4.2
+
+namespace «4.2»
+  open GroundZero.Types.Equiv (Corr)
+
+  noncomputable example {A : Type u} {B : Type v} : Corr A B ≃ (A ≃ B) :=
+  Theorems.Equiv.biinvEquivCorr
+end «4.2»
+
 -- exercise 4.3
 
 namespace «4.3»
