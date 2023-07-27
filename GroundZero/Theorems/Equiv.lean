@@ -363,5 +363,20 @@ begin
   { induction p; reflexivity }
 end
 
+hott def replaceIshaeUnderPi {A : Type u} {B : Type v} {C : A → Type w}
+  (g : B → A) (e : Ishae g) : (Π x, C x) ≃ (Π x, C (g x)) :=
+begin
+  fapply Sigma.mk; intro φ x; exact φ (g x); fapply Qinv.toBiinv;
+  fapply Sigma.mk; intro ψ y; exact transport C (e.2.2.1 y) (ψ (e.1 y)); apply Prod.mk;
+  { intro ψ; apply Theorems.funext; intro;
+    transitivity; apply Equiv.transportSquare; symmetry; apply e.2.2.2;
+    transitivity; symmetry; apply Equiv.transportComp; apply apd };
+  { intro φ; apply Theorems.funext; intro; apply apd }
+end
+
+hott def replaceQinvUnderPi {A : Type u} {B : Type v} {C : A → Type w}
+  (g : B → A) : Qinv g → (Π x, C x) ≃ (Π x, C (g x)) :=
+replaceIshaeUnderPi g ∘ qinvImplsIshae g
+
 end Theorems.Equiv
 end GroundZero

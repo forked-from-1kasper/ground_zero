@@ -12,6 +12,46 @@ open GroundZero
 
 universe u v w k u' v' w' k'
 
+-- exercise 4.1
+
+namespace «4.1»
+  open GroundZero.Types.Equiv (biinv idtoeqv transport)
+  open GroundZero.Structures (prop)
+  open GroundZero.Types.Id (ap)
+
+  def Adjoint {A : Type u} {B : Type v} (f : A → B) :=
+  Σ (g : B → A) (η : g ∘ f ~ idfun) (ε : f ∘ g ~ idfun), (Π x, ap f (η x) = ε (f x)) × (Π y, ap g (ε y) = η (g y))
+
+  hott lemma adjointIdfun (A : Type u) : Adjoint (@idfun A) ≃ (Π (x : A), idp x = idp x) :=
+  begin
+    apply Equiv.trans; apply sigma.assoc (A → A) (λ g, g ~ idfun) (λ w, Σ (ε : w.1 ~ idfun), (Π x, ap idfun (w.2 x) = ε x) × (Π y, ap w.1 (ε y) = w.2 (w.1 y)));
+    apply Equiv.trans; apply Theorems.Equiv.contrFamily;
+    apply Structures.contrRespectsEquiv; apply Sigma.respectsEquiv;
+    intro; apply Equiv.trans; apply Equiv.inveqv;
+    apply Theorems.full; apply singl.contr;
+    show (Σ (ε : idfun ~ idfun), (Π x, idp x = ε x) × (Π y, ap idfun (ε y) = idp y)) ≃ _;
+
+    apply Equiv.trans; apply Sigma.respectsEquiv; intro; symmetry; apply Sigma.const;
+    apply Equiv.trans; apply sigma.assoc (idfun ~ idfun) (λ ε, Π x, idp x = ε x) (λ w, Π y, ap idfun (w.1 y) = idp y);
+    apply Equiv.trans; apply Theorems.Equiv.contrFamily;
+    apply Structures.contrRespectsEquiv; apply Sigma.respectsEquiv;
+    intro; apply Theorems.full; apply singl.contr; reflexivity
+  end
+
+  hott theorem adjointIdtoeqv {A B : Type u}
+    (p : A = B) : Adjoint (idtoeqv p) ≃ (Π (x : A), idp x = idp x) :=
+  begin induction p; apply adjointIdfun end
+
+  -- not a mere proposition if, for example, A = S²
+  noncomputable hott theorem adjointIfInh {A B : Type u} (f : A → B) :
+    biinv f → Adjoint f ≃ (Π (x : A), idp x = idp x) :=
+  begin
+    intro e; apply transport (Adjoint · ≃ _);
+    apply ap Sigma.fst (ua.uaβrule ⟨f, e⟩);
+    apply adjointIdtoeqv
+  end
+end «4.1»
+
 -- exercise 4.2
 
 namespace «4.2»
