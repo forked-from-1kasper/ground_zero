@@ -38,8 +38,8 @@ namespace «4.1»
     intro; apply Theorems.full; apply singl.contr; reflexivity
   end
 
-  hott theorem adjointIdtoeqv {A B : Type u}
-    (p : A = B) : Adjoint (idtoeqv p) ≃ (Π (x : A), idp x = idp x) :=
+  hott theorem adjointIdtoeqv {A B : Type u} (p : A = B) :
+    Adjoint (idtoeqv p) ≃ (Π (x : A), idp x = idp x) :=
   begin induction p; apply adjointIdfun end
 
   -- not a mere proposition if, for example, A = S²
