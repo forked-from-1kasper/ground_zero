@@ -2,7 +2,6 @@ import GroundZero.Algebra.Group.Basic
 import GroundZero.Theorems.Nat
 
 open GroundZero.Types.Equiv (transport)
-open GroundZero.Types.Qinv (eqv)
 open GroundZero.Types.Id (map)
 open GroundZero.Types
 

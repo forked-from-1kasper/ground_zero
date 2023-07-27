@@ -77,7 +77,7 @@ namespace Sigma
   end
 
   hott def replaceIshae {A : Type u} {B : Type v} {C : A → Type w}
-    (g : B → A) (ρ : Ishae g) : (Σ x, C x) ≃ (Σ x, C (g x)) :=
+    (g : B → A) (ρ : ishae g) : (Σ x, C x) ≃ (Σ x, C (g x)) :=
   begin
     existsi (λ w, ⟨ρ.1 w.1, Equiv.transport C (ρ.2.2.1 w.1)⁻¹ w.2⟩);
     apply Qinv.toBiinv; existsi (λ w, ⟨g w.1, w.2⟩); apply Prod.mk <;> intro w;

@@ -70,7 +70,7 @@ namespace «4.3»
 
   variable {A : Type u} {B : Type v} (f : A → B)
 
-  hott lemma embdOfIshae (e : Ishae f) : isEmbedding f :=
+  hott theorem embdOfIshae (e : ishae f) : isEmbedding f :=
   begin
     intro x y; fapply Qinv.toBiinv; fapply Sigma.mk;
     { intro p; exact (e.2.1 x)⁻¹ ⬝ ap e.1 p ⬝ (e.2.1 y) }; apply Prod.mk;
@@ -88,16 +88,16 @@ namespace «4.3»
       apply Id.reflRight; apply Id.invComp }
   end
 
-  hott lemma embdOfQinv : Qinv f → isEmbedding f :=
+  hott lemma embdOfQinv : qinv f → isEmbedding f :=
   embdOfIshae f ∘ Theorems.Equiv.qinvImplsIshae f
 
-  hott corollary qinvIdEqv (e : Qinv f) {a b : A} : (a = b) ≃ (f a = f b) :=
+  hott corollary qinvIdEqv (e : qinv f) {a b : A} : (a = b) ≃ (f a = f b) :=
   ⟨ap f, embdOfQinv f e a b⟩
 
-  hott corollary qinvEqvLeft (e : Qinv f) {C : Type w} (g h : C → A) : (g ~ h) ≃ (f ∘ g ~ f ∘ h) :=
+  hott corollary qinvEqvLeft (e : qinv f) {C : Type w} (g h : C → A) : (g ~ h) ≃ (f ∘ g ~ f ∘ h) :=
   begin apply Structures.equivFunext; intro; apply qinvIdEqv f e end
 
-  hott theorem «4.1.1» (e : Qinv f) : Qinv f ≃ (Π (x : A), x = x) :=
+  hott theorem «4.1.1» (e : qinv f) : qinv f ≃ (Π (x : A), x = x) :=
   begin
     apply Equiv.trans; apply Sigma.respectsEquiv;
     intro g; apply Equiv.trans; apply Equiv.prodEquiv;
@@ -203,15 +203,58 @@ namespace «4.4»
   end
 end «4.4»
 
+-- exercise 4.5
+
+namespace «4.5.i»
+  open GroundZero.Types.Equiv (biinv transport)
+  open GroundZero.Types.Id (ap)
+
+  variable {A : Type u} {B : Type v} {C : Type w} {D : Type k}
+
+  variable (f : A → B) (g : B → C) (h : C → D)
+
+  hott lemma lem1 : qinv (g ∘ f) → qinv (h ∘ g) → qinv (h ∘ g ∘ f) :=
+  λ e₁ e₂, ⟨e₁.1 ∘ g ∘ e₂.1, (λ d, ap h (e₁.2.1 (g (e₂.1 d))) ⬝ e₂.2.1 d,
+                              λ a, ap (e₁.1 ∘ g) (e₂.2.2 (f a)) ⬝ e₁.2.2 a)⟩
+
+  hott lemma lem2 : qinv (g ∘ f) → qinv (h ∘ g) → qinv f :=
+  λ e₁ e₂, transport qinv (Theorems.funext (λ a, e₂.2.2 (f a))) (Qinv.com (Qinv.sym e₂) (lem1 f g h e₁ e₂))
+
+  hott lemma lem3 : qinv (g ∘ f) → qinv (h ∘ g) → qinv h :=
+  λ e₁ e₂, transport qinv (Theorems.funext (λ c, ap h (e₁.2.1 c)))
+                          (@Qinv.com _ _ _ (h ∘ g ∘ f) _ (lem1 f g h e₁ e₂) (Qinv.sym e₁))
+
+  hott lemma lem4 : qinv (g ∘ f) → qinv (h ∘ g) → qinv g :=
+  λ e₁ e₂, transport qinv (Theorems.funext (λ b, (lem3 f g h e₁ e₂).2.2 (g (f ((lem2 f g h e₁ e₂).1 b))) ⬝ ap g ((lem2 f g h e₁ e₂).2.1 b)))
+                          (Qinv.com (Qinv.sym (lem3 f g h e₁ e₂)) (@Qinv.com _ _ _ (h ∘ g ∘ f) _ (lem1 f g h e₁ e₂) (Qinv.sym (lem2 f g h e₁ e₂))))
+end «4.5.i»
+
+namespace «4.5.ii»
+  open GroundZero.Types.Equiv (transport)
+  open GroundZero.Theorems.Functions
+  open GroundZero.Types.Id (ap)
+  open «4.5.i»
+
+  hott lemma idfunEmbd {A : Type u} {f : A → A} (H : f ~ idfun) : isEmbedding f :=
+  transport isEmbedding (Theorems.funext H)⁻¹ (λ a b, Qinv.toBiinv _ ⟨idfun, (Equiv.idmap, Equiv.idmap)⟩)
+
+  hott theorem embdOfQinv {A : Type u} {B : Type v} {f : A → B} (e : qinv f) : isEmbedding f :=
+  begin
+    intro a b; apply Qinv.toBiinv; apply lem2 (ap f) (ap e.1) (ap f) <;>
+    { apply transport qinv; apply Theorems.funext; intro; apply Equiv.mapOverComp;
+      apply Qinv.ofBiinv; apply idfunEmbd; (first | exact e.2.1 | exact e.2.2) };
+  end
+end «4.5.ii»
+
 -- exercise 4.6
 
 namespace «4.6»
   open GroundZero.Types.Equiv (transport ideqv)
 
-  hott def idtoqinv {A B : Type u} : A = B → Σ (f : A → B), Qinv f :=
-  λ p, transport (λ X, Σ (f : A → X), Qinv f) p ⟨idfun, ⟨idfun, (idp, idp)⟩⟩
+  hott def idtoqinv {A B : Type u} : A = B → Σ (f : A → B), qinv f :=
+  λ p, transport (λ X, Σ (f : A → X), qinv f) p ⟨idfun, ⟨idfun, (idp, idp)⟩⟩
 
-  variable (qinvua : Π (A B : Type u), Qinv (@idtoqinv A B))
+  variable (qinvua : Π (A B : Type u), qinv (@idtoqinv A B))
 
   -- 4.6.i
 

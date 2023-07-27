@@ -456,15 +456,12 @@ end Equiv
 def isQinv {A : Type u} {B : Type v} (f : A → B) (g : B → A) :=
 (f ∘ g ~ idfun) × (g ∘ f ~ idfun)
 
-def Qinv {A : Type u} {B : Type v} (f : A → B) :=
+def qinv {A : Type u} {B : Type v} (f : A → B) :=
 Σ (g : B → A), isQinv f g
 
 namespace Qinv
-  def eqv (A : Type u) (B : Type v) :=
-  Σ (f : A → B), Qinv f
-
-  hott def toBiinv {A : Type u} {B : Type v} (f : A → B) (q : Qinv f) : Equiv.biinv f :=
-  (⟨q.1, q.2.2⟩, ⟨q.1, q.2.1⟩)
+  open Equiv (biinv)
+  open Id (ap)
 
   hott def linvInv {A : Type u} {B : Type v}
     (f : A → B) (g : B → A) (h : B → A)
@@ -480,14 +477,22 @@ namespace Qinv
   let F₂ := λ x, Id.map f (H (g x));
   λ x, (F₁ x)⁻¹ ⬝ F₂ x ⬝ G x
 
-  hott def ofBiinv {A : Type u} {B : Type v} (f : A → B) (F : Equiv.biinv f) : Qinv f :=
+  hott def toBiinv {A : Type u} {B : Type v} (f : A → B) (q : qinv f) : biinv f :=
+  (⟨q.1, q.2.2⟩, ⟨q.1, q.2.1⟩)
+
+  hott def ofBiinv {A : Type u} {B : Type v} (f : A → B) (F : biinv f) : qinv f :=
   ⟨F.2.1, (F.2.2, linvInv f F.2.1 F.1.1 F.2.2 F.1.2)⟩
 
-  hott def inv {A : Type u} {B : Type v} (e : eqv A B) : eqv B A :=
-  ⟨e.2.1, ⟨e.1, (e.2.2.2, e.2.2.1)⟩⟩
+  hott def sym {A : Type u} {B : Type v} {f : A → B} (e : qinv f) : qinv e.1 :=
+  ⟨f, (e.2.2, e.2.1)⟩
 
-  hott def toEquiv {A : Type u} {B : Type v} (e : eqv A B) : A ≃ B :=
-  ⟨e.1, (⟨e.2.1, e.2.2.2⟩, ⟨e.2.1, e.2.2.1⟩)⟩
+  hott def com {A : Type u} {B : Type v} {C : Type w} {g : B → C} {f : A → B} :
+    qinv g → qinv f → qinv (g ∘ f) :=
+  λ e₁ e₂, ⟨e₂.1 ∘ e₁.1, (λ c, ap g (e₂.2.1 (e₁.1 c)) ⬝ e₁.2.1 c,
+                          λ a, ap e₂.1 (e₁.2.2 (f a)) ⬝ e₂.2.2 a)⟩
+
+  hott def toEquiv {A : Type u} {B : Type v} {f : A → B} (e : qinv f) : A ≃ B :=
+  ⟨f, (⟨e.1, e.2.2⟩, ⟨e.1, e.2.1⟩)⟩
 end Qinv
 
 namespace Equiv
@@ -498,7 +503,7 @@ namespace Equiv
   begin apply Qinv.linvInv; apply e.forwardRight; apply e.leftForward end
 
   hott def symm {A : Type u} {B : Type v} (f : A ≃ B) : B ≃ A :=
-  Qinv.toEquiv (Qinv.inv ⟨f.1, Qinv.ofBiinv f.1 f.2⟩)
+  Qinv.toEquiv (Qinv.sym (Qinv.ofBiinv f.1 f.2))
 
   instance : @Symmetric (Type u) (· ≃ ·) := ⟨@Equiv.symm⟩
 
@@ -528,7 +533,7 @@ namespace Equiv
 end Equiv
 
 -- half adjoint equivalence
-def Ishae {A : Type u} {B : Type v} (f : A → B) :=
+def ishae {A : Type u} {B : Type v} (f : A → B) :=
 Σ (g : B → A) (η : g ∘ f ~ id) (ϵ : f ∘ g ~ id), Π x, Id.map f (η x) = ϵ (f x)
 
 def fib {A : Type u} {B : Type v} (f : A → B) (y : B) := Σ (x : A), f x = y

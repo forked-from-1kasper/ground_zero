@@ -79,20 +79,20 @@ namespace «3.8»
   open GroundZero.HITs
 
   variable {A : Type u} {B : Type v} {isequiv : (A → B) → Type (max u v)}
-           (i   : Π (f : A → B), Qinv f → isequiv f)
-           (ii  : Π (f : A → B), isequiv f → Qinv f)
+           (i   : Π (f : A → B), qinv f → isequiv f)
+           (ii  : Π (f : A → B), isequiv f → qinv f)
            (iii : Π (f : A → B), prop (isequiv f))
 
-  hott def i₂ (f : A → B) : Qinv f → ∥Qinv f∥ :=
+  hott def i₂ (f : A → B) : qinv f → ∥qinv f∥ :=
   Merely.elem
 
-  hott def ii₂ (f : A → B) : ∥Qinv f∥ → Qinv f :=
+  hott def ii₂ (f : A → B) : ∥qinv f∥ → qinv f :=
   ii f ∘ Merely.rec (iii f) idfun ∘ Merely.lift (i f)
 
-  hott def iii₂ (f : A → B) : prop ∥Qinv f∥ :=
+  hott def iii₂ (f : A → B) : prop ∥qinv f∥ :=
   Merely.uniq
 
-  hott theorem isequivEqvMerelyQinv (f : A → B) : isequiv f ≃ ∥Qinv f∥ :=
+  hott theorem isequivEqvMerelyQinv (f : A → B) : isequiv f ≃ ∥qinv f∥ :=
   Structures.propEquivLemma (iii f) Merely.uniq (Merely.elem ∘ ii f)
     (Merely.rec (iii f) idfun ∘ Merely.lift (i f))
 end «3.8»
@@ -304,7 +304,7 @@ namespace «3.15»
   open GroundZero.Structures
   open «3.10»
 
-  variable (RES : Qinv ResizeΩ.{0, v})
+  variable (RES : qinv ResizeΩ.{0, v})
 
   hott def Merely (A : Type u) := Π (P : Prop 0), (A → P.1) → P.1
 

@@ -75,7 +75,7 @@ begin apply happly; apply HITs.Interval.happlyRev end
 hott def hmtpyRewrite {A : Type u} (f : A → A) (H : f ~ id) (x : A) : H (f x) = Id.map f (H x) :=
 begin have p := (Theorems.funext H)⁻¹; induction p; symmetry; apply Equiv.idmap end
 
-hott def qinvImplsIshae {A : Type u} {B : Type v} (f : A → B) : Qinv f → Ishae f :=
+hott def qinvImplsIshae {A : Type u} {B : Type v} (f : A → B) : qinv f → ishae f :=
 begin
   intro ⟨g, ⟨ε, η⟩⟩; let ε' := λ b, (ε (f (g b)))⁻¹ ⬝ (Id.map f (η (g b)) ⬝ ε b);
   existsi g; existsi η; existsi ε'; intro x; symmetry; transitivity;
@@ -99,7 +99,7 @@ begin
 end
 
 hott def ishaeImplContrFib {A : Type u} {B : Type v}
-  (f : A → B) : Ishae f → Π y, contr (fib f y) :=
+  (f : A → B) : ishae f → Π y, contr (fib f y) :=
 begin
   intro ⟨g, η, ε, τ⟩ y; existsi ⟨g y, ε y⟩; intro ⟨x, p⟩; apply fibEq;
   existsi (Id.map g p)⁻¹ ⬝ η x; transitivity;
@@ -112,10 +112,9 @@ begin
   symmetry; apply idmap; apply homotopySquare
 end
 
-
 hott def compQinv₁ {A : Type u} {B : Type v} {C : Type w}
   (f : A → B) (g : B → A) (H : isQinv f g) :
-  @Qinv (C → A) (C → B) (f ∘ ·) :=
+  @qinv (C → A) (C → B) (f ∘ ·) :=
 begin
   existsi (g ∘ ·); apply Prod.mk <;> intro <;>
   apply Theorems.funext <;> intro; apply H.1; apply H.2
@@ -123,7 +122,7 @@ end
 
 hott def compQinv₂ {A : Type u} {B : Type v} {C : Type w}
   (f : A → B) (g : B → A) (H : isQinv f g) :
-  @Qinv (B → C) (A → C) (· ∘ f) :=
+  @qinv (B → C) (A → C) (· ∘ f) :=
 begin
   existsi (· ∘ g) <;> apply Prod.mk <;> intro G <;>
   apply Theorems.funext <;> intro <;>
@@ -131,7 +130,7 @@ begin
 end
 
 hott def linvContr {A : Type u} {B : Type v}
-  (f : A → B) (H : Qinv f) : contr (linv f) :=
+  (f : A → B) (H : qinv f) : contr (linv f) :=
 begin
   apply contrRespectsEquiv;
   { apply Equiv.symm; apply Sigma.respectsEquiv;
@@ -141,7 +140,7 @@ begin
 end
 
 hott def rinvContr {A : Type u} {B : Type v}
-  (f : A → B) (H : Qinv f) : contr (rinv f) :=
+  (f : A → B) (H : qinv f) : contr (rinv f) :=
 begin
   apply contrRespectsEquiv;
   { apply Equiv.symm; apply Sigma.respectsEquiv;
@@ -255,23 +254,23 @@ begin
       apply eqvInj ⟨φ, H⟩; exact p₂ ⬝ q₂⁻¹ } }
 end
 
-hott def contrQinvFib {A : Type u} {B : Type v} (w : Qinv.eqv A B) (b : B) : contr (Σ a, b = w.1 a) :=
-begin apply contrRespectsEquiv; apply respectsEquivOverFst (Qinv.toEquiv (Qinv.inv w)) (Id b); apply singl.contr end
+hott def contrQinvFib {A : Type u} {B : Type v} {f : A → B} (e : qinv f) (b : B) : contr (Σ a, b = f a) :=
+begin apply contrRespectsEquiv; apply respectsEquivOverFst (Qinv.toEquiv (Qinv.sym e)) (Id b); apply singl.contr end
 
-hott def propQinvFib {A : Type u} {B : Type v} (w : Qinv.eqv A B) (b : B) : prop (Σ a, b = w.1 a) :=
-contrImplProp (contrQinvFib w b)
+hott def propQinvFib {A : Type u} {B : Type v} {f : A → B} (e : qinv f) (b : B) : prop (Σ a, b = f a) :=
+contrImplProp (contrQinvFib e b)
 
 hott def corrRev {A : Type u} {B : Type v} : Corr A B → Corr B A :=
 λ w, ⟨λ a b, w.1 b a, (w.2.2, w.2.1)⟩
 
-hott def corrOfQinv {A : Type u} {B : Type v} : Qinv.eqv A B → Corr A B :=
+hott def corrOfQinv {A : Type u} {B : Type v} : (Σ f, @qinv A B f) → Corr A B :=
 begin
   intro w; existsi (λ a b, b = w.1 a); apply Prod.mk <;> intros;
   apply contrRespectsEquiv; apply Sigma.hmtpyInvEqv; apply singl.contr;
-  apply contrQinvFib
+  apply contrQinvFib; exact w.2
 end
 
-hott def qinvOfCorr {A : Type u} {B : Type v} : Corr A B → Qinv.eqv A B :=
+hott def qinvOfCorr {A : Type u} {B : Type v} : Corr A B → (Σ f, @qinv A B f) :=
 begin
   intro w; fapply Sigma.mk; intro a; apply (w.2.1 a).1.1;
   fapply Sigma.mk; intro b; apply (w.2.2 b).1.1; apply Prod.mk;
@@ -280,7 +279,7 @@ begin
 end
 
 section
-  variable {A : Type u} {B : Type v} (e : Qinv.eqv A B)
+  variable {A : Type u} {B : Type v} (e : Σ f, @qinv A B f)
 
   example : (qinvOfCorr (corrOfQinv e)).1 = e.1     := by reflexivity
   example : (qinvOfCorr (corrOfQinv e)).2.1 = e.2.1 := by reflexivity
@@ -293,7 +292,7 @@ section
   λ e, @corrOfQinv A B ⟨e.1, Qinv.ofBiinv e.1 e.2⟩
 
   hott def biinvOfCorr : Corr A B → A ≃ B :=
-  Qinv.toEquiv ∘ qinvOfCorr
+  λ c, Qinv.toEquiv (qinvOfCorr c).2
 
   hott def corrLem (R : A → B → Type w) (φ : A → B) (ρ : Π x, R x (φ x))
     (H : Π x y, R x y → φ x = y) (c : Π (x : A) (y : B) (w : R x y), ρ x =[H x y w] w)
@@ -364,7 +363,7 @@ begin
 end
 
 hott def replaceIshaeUnderPi {A : Type u} {B : Type v} {C : A → Type w}
-  (g : B → A) (e : Ishae g) : (Π x, C x) ≃ (Π x, C (g x)) :=
+  (g : B → A) (e : ishae g) : (Π x, C x) ≃ (Π x, C (g x)) :=
 begin
   fapply Sigma.mk; intro φ x; exact φ (g x); fapply Qinv.toBiinv;
   fapply Sigma.mk; intro ψ y; exact transport C (e.2.2.1 y) (ψ (e.1 y)); apply Prod.mk;
@@ -375,7 +374,7 @@ begin
 end
 
 hott def replaceQinvUnderPi {A : Type u} {B : Type v} {C : A → Type w}
-  (g : B → A) : Qinv g → (Π x, C x) ≃ (Π x, C (g x)) :=
+  (g : B → A) : qinv g → (Π x, C x) ≃ (Π x, C (g x)) :=
 replaceIshaeUnderPi g ∘ qinvImplsIshae g
 
 end Theorems.Equiv
