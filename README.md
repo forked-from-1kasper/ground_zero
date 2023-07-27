@@ -21,7 +21,7 @@ There are:
 * (Sequential) [colimit](https://github.com/forked-from-1kasper/ground_zero/blob/master/GroundZero/HITs/Colimit.lean).
 * [Generalized circle](https://github.com/forked-from-1kasper/ground_zero/blob/master/GroundZero/HITs/Generalized.lean) $\{\alpha\}$.
 * [Propositional truncation](https://github.com/forked-from-1kasper/ground_zero/blob/master/GroundZero/HITs/Merely.lean) as a colimit of a following sequence:
-  $ \alpha \rightarrow \{\alpha\} \rightarrow \{\{\alpha\}\} \rightarrow \ldots $
+  $` \alpha \rightarrow \{\alpha\} \rightarrow \{\{\alpha\}\} \rightarrow \ldots `$
 * [Suspension](https://github.com/forked-from-1kasper/ground_zero/blob/master/GroundZero/HITs/Suspension.lean) $\Sigma \alpha$ is defined as the pushout of the span $\mathbf{1} \leftarrow \alpha \rightarrow \mathbf{1}$.
 * [Circle](https://github.com/forked-from-1kasper/ground_zero/blob/master/GroundZero/HITs/Circle.lean) $S^1$ is the suspension of the bool $\mathbf{2}$.
 * Sphere $S^2$ is the suspension of the circle $S^1$.
