@@ -483,6 +483,9 @@ namespace Qinv
   hott def ofBiinv {A : Type u} {B : Type v} (f : A → B) (F : biinv f) : qinv f :=
   ⟨F.2.1, (F.2.2, linvInv f F.2.1 F.1.1 F.2.2 F.1.2)⟩
 
+  hott def ideqv {A : Type u} : qinv (@idfun A) :=
+  ⟨idfun, (idp, idp)⟩
+
   hott def sym {A : Type u} {B : Type v} {f : A → B} (e : qinv f) : qinv e.1 :=
   ⟨f, (e.2.2, e.2.1)⟩
 

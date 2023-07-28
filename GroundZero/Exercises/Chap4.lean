@@ -3,6 +3,7 @@ import GroundZero.Theorems.Equiv
 import GroundZero.Types.Product
 import GroundZero.Theorems.Nat
 import GroundZero.Types.Sigma
+import GroundZero.HITs.Circle
 
 import GroundZero.Exercises.Chap2
 
@@ -304,25 +305,88 @@ end «4.5.ii»
 
 namespace «4.6»
   open GroundZero.Types.Equiv (transport ideqv)
+  open GroundZero.Types.Id (ap)
+  open GroundZero.Structures
+  open GroundZero.HITs
 
   hott def idtoqinv {A B : Type u} : A = B → Σ (f : A → B), qinv f :=
   λ p, transport (λ X, Σ (f : A → X), qinv f) p ⟨idfun, ⟨idfun, (idp, idp)⟩⟩
 
-  variable (qinvua : Π (A B : Type u), qinv (@idtoqinv A B))
-
   -- 4.6.i
 
-  hott lemma lem1 {A B X : Type u} (p : A = B) : (X → A) ≃ (X → B) :=
-  transport (λ Y, (X → A) ≃ (X → Y)) p (ideqv (X → A))
+  section
+    variable (uaq : Π (A B : Type u), qinv (@idtoqinv A B))
 
-  hott lemma lem2 {A B X : Type u} (e : A ≃ B) : (X → A) ≃ (X → B) :=
-  lem1 ((qinvua A B).1 ⟨e.1, Qinv.ofBiinv _ e.2⟩)
+    hott lemma lem1 {A B X : Type u} (p : A = B) : (X → A) ≃ (X → B) :=
+    transport (λ Y, (X → A) ≃ (X → Y)) p (ideqv (X → A))
+
+    hott lemma lem2 {A B X : Type u} (e : A ≃ B) : (X → A) ≃ (X → B) :=
+    lem1 ((uaq A B).1 ⟨e.1, Qinv.ofBiinv _ e.2⟩)
+  end
 
   -- then proceed exactly as in book
 
   -- 4.6.ii
 
+  section
+    variable (uaq : Π (A B : Type), qinv (@idtoqinv A B))
+    open Circle (base loop rot)
+
+    hott def negBoolQinv : qinv not :=
+    ⟨not, (ua.negNeg, ua.negNeg)⟩
+
+    hott def universeNotASet : ¬(hset Type) :=
+    let φ : Σ (f : 𝟐 → 𝟐), qinv f := ⟨not, negBoolQinv⟩;
+    let ψ : Σ (f : 𝟐 → 𝟐), qinv f := ⟨idfun, Qinv.ideqv⟩;
+
+    λ ε, let p : 𝟐 = 𝟐 := (uaq 𝟐 𝟐).1 φ;
+    let f : idtoqinv p = φ := (uaq 𝟐 𝟐).2.1 φ;
+    let g : idtoqinv p = ψ := ap idtoqinv (ε _ _ p (idp 𝟐));
+    ffNeqTt (Interval.happly (ap Sigma.fst (f⁻¹ ⬝ g)) true)
+
+    noncomputable hott def loopNeqRefl : loop ≠ idp base :=
+    begin
+      intro H; apply universeNotASet uaq;
+      intros A B p q; apply (KIffSet Type).left;
+      apply Circle.loopEqReflImplsUip; assumption
+    end
+
+    noncomputable hott lemma rotNeqIdp : rot ≠ idp :=
+    λ H, loopNeqRefl uaq (Interval.happly H base)
+
+    noncomputable hott lemma notTrivLoop : ¬(prop (Π (x : S¹), x = x)) :=
+    begin intro H; apply loopNeqRefl uaq; exact Interval.happly (H rot idp) base end
+
+    open «4.3»
+
+    noncomputable hott theorem «4.6.ii» : Σ (A B : Type) (f : A → B), ¬prop (qinv f) :=
+    begin
+      existsi S¹; existsi S¹; existsi idfun; intro H; apply notTrivLoop uaq;
+      apply propRespectsEquiv; apply «4.1.1»; exact Qinv.ideqv; assumption
+    end
+  end
+
   -- 4.6.iii
+
+  section
+    variable (uaq : Π (A B : Type u), qinv (@idtoqinv A B))
+
+    hott lemma cohQinvIdtoqinv {A B : Type u} (p : A = B) :
+      (λ x, ap (idtoqinv p).2.1 ((idtoqinv p).2.2.1 x)) = (λ x, (idtoqinv p).2.2.2 ((idtoqinv p).2.1 x)) :=
+    begin induction p; reflexivity end
+
+    hott lemma cohQinv {A B : Type u} (f : A → B) (e : qinv f) :=
+    transport (λ w, (λ x, ap w.2.1 (w.2.2.1 x)) = (λ x, w.2.2.2 (w.2.1 x)))
+      ((uaq A B).2.1 ⟨f, e⟩) (cohQinvIdtoqinv _)
+  end
+
+  section
+    variable (uaq : Π (A B : Type), qinv (@idtoqinv A B))
+    open Circle (rot)
+
+    noncomputable hott theorem «4.6.iii» : 𝟎 :=
+    begin apply rotNeqIdp uaq; symmetry; apply @cohQinv uaq S¹ S¹ idfun ⟨idfun, (idp, rot)⟩ end
+  end
 end «4.6»
 
 -- exercise 4.7
