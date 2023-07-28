@@ -55,10 +55,64 @@ end «4.1»
 -- exercise 4.2
 
 namespace «4.2»
-  open GroundZero.Types.Equiv (Corr)
+  open GroundZero.Types.Equiv (Corr transport)
+  open GroundZero.Types.Id (ap)
+  open GroundZero.Structures
+  open GroundZero.Types (Id)
 
-  noncomputable example {A : Type u} {B : Type v} : Corr A B ≃ (A ≃ B) :=
+  variable {A : Type u} {B : Type v}
+
+  noncomputable example : Corr A B ≃ (A ≃ B) :=
   Theorems.Equiv.biinvEquivCorr
+
+  hott def isequiv (f : A → B) := Σ (ρ : Corr A B), Π x, ρ.1 x (f x)
+
+  hott theorem «4.2.i» (f : A → B) : qinv f → isequiv f :=
+  begin
+    intro e; existsi Theorems.Equiv.corrOfQinv ⟨f, e⟩;
+    intro; show _ = _; reflexivity
+  end
+
+  hott theorem «4.2.ii» (f : A → B) : isequiv f → qinv f :=
+  begin
+    intro w; apply transport qinv _ (Theorems.Equiv.qinvOfCorr w.1).2;
+    apply Theorems.funext; intro x; exact ap Sigma.fst ((w.1.2.1 x).2 ⟨f x, w.2 x⟩);
+  end
+
+  hott def corrPath {f : A → B} (e : isequiv f) {a : A} {b : B} :=
+  λ r, contrImplProp (e.1.2.1 a) ⟨f a, e.2 a⟩ ⟨b, r⟩
+
+  hott def F {f : A → B} (e : isequiv f) {a : A} {b : B} : e.1.1 a b → f a = b :=
+  λ r, ap Sigma.fst (corrPath e r)
+
+  hott def G {f : A → B} (e : isequiv f) {a : A} {b : B} : f a = b → e.1.1 a b :=
+  λ p, transport (e.1.1 a) p (e.2 a)
+
+  hott lemma isequivRel {f : A → B} (e : isequiv f) {a : A} {b : B} : (e.1.1 a b) ≃ (f a = b) :=
+  begin
+    existsi F e; apply Qinv.toBiinv; existsi G e; apply Prod.mk;
+    { intro p; induction p; transitivity; apply ap (ap _); apply Id.invComp; reflexivity };
+    { intro w; show transport _ _ _ = _; transitivity; symmetry;
+      apply Equiv.transportComp (e.1.1 a) Sigma.fst (corrPath e w);
+      exact Equiv.apd Sigma.snd (corrPath e w) }
+  end
+
+  hott theorem «4.2.iii» (f : A → B) : prop (isequiv f) :=
+  begin
+    intro e₁ e₂; fapply Sigma.prod;
+    { fapply Sigma.prod; apply Theorems.funext; intro; apply Theorems.funext; intro;
+      apply ua; transitivity; apply isequivRel; symmetry; apply isequivRel;
+      apply productProp <;> apply piProp <;> intro <;> apply contrIsProp };
+    { transitivity; apply Equiv.transportOverPi; apply Theorems.funext;
+      intro a; transitivity; apply Equiv.transportToTransportconst;
+      transitivity; apply ap (Equiv.transportconst · _);
+      transitivity; apply Equiv.mapOverComp Sigma.fst (λ (φ : A → B → Type _), φ a (f a));
+      transitivity; apply ap (ap _); apply Sigma.mapFstOverProd;
+      transitivity; apply Theorems.Equiv.mapToHapply₂; apply Theorems.Equiv.happlyFunextPt₂;
+      transitivity; apply ua.transportRule; show G e₂ (F e₁ (Sigma.snd e₁ a)) = Sigma.snd e₂ a;
+      transitivity; symmetry; apply Equiv.transportComp (e₂.1.1 a) Sigma.fst (corrPath _ _);
+      transitivity; apply Equiv.substSquare; apply Id.invComp; reflexivity }
+  end
 end «4.2»
 
 -- exercise 4.3
