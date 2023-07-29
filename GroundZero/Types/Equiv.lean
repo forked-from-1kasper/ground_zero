@@ -1,5 +1,6 @@
 import GroundZero.Support
 open GroundZero.Proto (idfun Identity Identity.elem Identity.elim)
+open GroundZero.Types.Id (ap)
 
 universe u v w k
 def AS {A : Type u} {B : Type v} {C : Type w} (x : A → B → C) (y : A → B) (z : A) := x z (y z)
@@ -432,6 +433,16 @@ namespace Equiv
     induction p; symmetry; transitivity; apply Id.map; transitivity;
     apply bimapReflLeft; apply Id.mapInv; apply Id.compInv
   end
+
+  hott lemma transportBimap₁ {A : Type u} {B : Type v} {a₁ a₂ : A} {b₁ b₂ : B}
+    (f : A → B → Type w) (p : a₁ = a₂) (q : b₁ = b₂) (u : f a₁ b₁) :
+    transportconst (bimap f p q) u = transport (f · b₂) p (transport (f a₁) q u) :=
+  begin induction p; induction q; reflexivity end
+
+  hott lemma transportBimap₂ {A : Type u} {B : Type v} {a₁ a₂ : A} {b₁ b₂ : B}
+    (f : A → B → Type w) (p : a₁ = a₂) (q : b₁ = b₂) (u : f a₁ b₁) :
+    transportconst (bimap f p q) u = transport (f a₂) q (transport (f · b₁) p u) :=
+  begin induction p; induction q; reflexivity end
 
   hott theorem mapOverAS {A : Type u} {a b : A} (f : A → A → A) (g : A → A) (p : a = b) :
     Id.map (AS f g) p = @bimap A A A a b (g a) (g b) f p (Id.map g p) :=

@@ -1,5 +1,8 @@
 import GroundZero.Theorems.Funext
 
+open GroundZero.Types.Equiv (bimap)
+open GroundZero.Types.Id (ap)
+
 namespace GroundZero.Types
 
 universe u v u' v' w
@@ -17,6 +20,10 @@ namespace Product
 
   hott def prod' {A : Type u} {B : Type v} (x y : A × B) (p : x.1 = y.1) (q : x.2 = y.2) : x = y :=
   begin apply prod <;> assumption end
+
+  hott lemma mapProd {A : Type u} {B : Type v} {C : Type w} {a₁ a₂ : A} {b₁ b₂ : B}
+    (f : A → B → C) (p : a₁ = a₂) (q : b₁ = b₂) : ap (λ w, f w.1 w.2) (prod p q) = bimap f p q :=
+  begin induction p; induction q; reflexivity end
 
   hott def ind {π : A × B → Type w} (g : Π x y, π (x, y)) : Π x, π x := λ w, g w.1 w.2
 

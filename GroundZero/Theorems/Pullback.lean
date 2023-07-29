@@ -27,8 +27,8 @@ section
   hott def pullbackCorner : P ≃ pullback C η.1.right η.1.bot :=
   begin
     apply Equiv.trans; apply Structures.terminalArrow;
-    apply Equiv.trans; fapply Sigma.mk; exact η.1.induced 𝟏; apply η.2;
-    apply terminalPullback
+    apply Equiv.trans; fapply Sigma.mk; exact η.1.induced 𝟏;
+    apply η.2; apply terminalPullback
   end
 end
 
