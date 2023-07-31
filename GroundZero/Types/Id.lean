@@ -84,8 +84,7 @@ namespace Id
   hott def eqEnvIfInvEq {A : Type u} {a b : A} {p : a = b} {q : b = a} : p = q⁻¹ → p⁻¹ = q :=
   λ η => @invEqIfEqInv A b a p⁻¹ q⁻¹ (invInv p ⬝ η) ⬝ invInv q
 
-  hott def assoc {A : Type u} {a b c d : A}
-    (p : a = b) (q : b = c) (r : c = d) :
+  hott def assoc {A : Type u} {a b c d : A} (p : a = b) (q : b = c) (r : c = d) :
     p ⬝ (q ⬝ r) = (p ⬝ q) ⬝ r :=
   begin induction p; reflexivity end
 
@@ -116,15 +115,13 @@ namespace Id
     (r : a = b) (p q : b = c) : r ⬝ p = r ⬝ q → p = q :=
   begin intro μ; induction r; exact μ end
 
-  hott def transCancelRight {A : Type u} {a b c : A}
-    (r : b = c) (p q : a = b) : p ⬝ r = q ⬝ r → p = q :=
+  hott def transCancelRight {A : Type u} {a b c : A} (r : b = c) (p q : a = b) : p ⬝ r = q ⬝ r → p = q :=
   begin
     intro μ; induction r; transitivity; { symmetry; apply reflRight };
     symmetry; transitivity; { symmetry; apply reflRight }; exact μ⁻¹
   end
 
-  hott def idConjIfComm {A : Type u} {a : A}
-    (p q : a = a) : p ⬝ q = q ⬝ p → q⁻¹ ⬝ p ⬝ q = p :=
+  hott def idConjIfComm {A : Type u} {a : A} (p q : a = a) : p ⬝ q = q ⬝ p → q⁻¹ ⬝ p ⬝ q = p :=
   begin
     intro r; apply transCancelLeft q;
     transitivity; apply assoc;
