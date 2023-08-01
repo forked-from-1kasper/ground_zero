@@ -281,7 +281,7 @@ end
 section
   variable {A : Type u} {B : Type v} (e : Σ f, @qinv A B f)
 
-  example : (qinvOfCorr (corrOfQinv e)).1 = e.1     := by reflexivity
+  example : (qinvOfCorr (corrOfQinv e)).1   = e.1   := by reflexivity
   example : (qinvOfCorr (corrOfQinv e)).2.1 = e.2.1 := by reflexivity
 end
 
