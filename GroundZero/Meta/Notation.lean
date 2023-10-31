@@ -1,12 +1,30 @@
-import Lean.Parser import Lean.Elab.Command
+import Lean.Parser import Lean.Elab.Command import Lean.PrettyPrinter
 open Lean.Parser Lean.Parser.Term Lean.Elab.Command
+open Lean.PrettyPrinter.Delaborator
 
 namespace GroundZero.Meta.Notation
 
-syntax "Π" many1(binderIdent <|> bracketedBinder) ", " term : term
+syntax "Π " many1(ppSpace (binderIdent <|> bracketedBinder)) ", " term : term
 macro_rules | `(Π $xs*, $y) => `(∀ $xs*, $y)
 
+-- https://github.com/leanprover-community/mathlib4/blob/f8593acbc38a592e6eeda6ce0d26383798de1b32/Mathlib/Util/Delaborators.lean#L79-L90
+@[delab forallE]
+def delabPi : Delab := whenPPOption Lean.getPPNotation do {
+  match (← delabForall) with
+  | `($group:bracketedBinder → Π $groups*, $body) => `(Π $group $groups*, $body)
+  | `($group:bracketedBinder → $body)             => `(Π $group, $body)
+  | stx                                           => pure stx
+}
+
 macro "λ " xs:many1(funBinder) ", " f:term : term => `(fun $xs* => $f)
+
+@[delab lam]
+def delabLambda : Delab := whenPPOption Lean.getPPNotation do {
+  match (← delabLam) with
+  | `(fun $group:funBinder => λ $groups:funBinder*, $body) => `(λ $group $groups*, $body)
+  | `(fun $group:funBinder => $body)                       => `(λ $group, $body)
+  | stx                                                    => pure stx;
+}
 
 macro "begin " ts:sepBy1(tactic, ";", "; ", allowTrailingSep) i:"end" : term =>
   `(by { $[($ts:tactic)]* }%$i)
