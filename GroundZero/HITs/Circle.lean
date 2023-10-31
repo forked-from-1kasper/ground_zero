@@ -332,7 +332,8 @@ namespace Circle
     apply Sigma.mapFstOverProd
   end
 
-  hott def inv : S¹ → S¹ := Circle.rec base loop⁻¹
+  hott def turn : S¹ → S¹ := rec base loop
+  hott def inv  : S¹ → S¹ := rec base loop⁻¹
 
   noncomputable hott def invInv (x : S¹) : inv (inv x) = x :=
   let invₚ := @Id.map S¹ S¹ base base (inv ∘ inv);
@@ -513,9 +514,12 @@ namespace Circle
 
   def uarec {A : Type u} (φ : A ≃ A) : S¹ → Type u := rec A (ua φ)
 
-  hott def Ωrec {A : Type u} (zero : A) (succ pred : A → A)
-    (p : succ ∘ pred ~ id) (q : pred ∘ succ ~ id) : Ω¹(S¹) → A :=
-  λ r, @transport S¹ (uarec ⟨succ, (⟨pred, q⟩, ⟨pred, p⟩)⟩) base base r zero
+  abbrev Ωhelix {A : Type u} {succ pred : A → A} (p : succ ∘ pred ~ id) (q : pred ∘ succ ~ id) : S¹ → Type u :=
+  uarec ⟨succ, ⟨pred, q⟩, ⟨pred, p⟩⟩
+
+  hott def Ωrec {x : S¹} {A : Type u} (zero : A) (succ pred : A → A)
+    (p : succ ∘ pred ~ id) (q : pred ∘ succ ~ id) : base = x → Ωhelix p q x :=
+  λ r, @transport S¹ (Ωhelix p q) base x r zero
 
   section
     variable {A : Type u} (zero : A) (succ pred : A → A)
@@ -586,6 +590,24 @@ namespace Circle
     fapply ind; reflexivity; change _ = _; transitivity; apply Equiv.transportOverHmtpy;
     transitivity; apply bimap; transitivity; apply Id.reflRight; apply Id.mapInv;
     apply recβrule₂; apply Id.invComp
+  end
+
+  hott def mapLoopEqv {B : Type u} : (S¹ → B) ≃ (Σ (x : B), x = x) :=
+  begin
+    fapply Sigma.mk; intro φ; exact ⟨φ base, ap φ loop⟩; apply Qinv.toBiinv;
+    fapply Sigma.mk; intro w; exact rec w.1 w.2; apply Prod.mk;
+    { intro w; fapply Sigma.prod; exact idp w.1; transitivity;
+      apply Equiv.transportInvCompComp; transitivity;
+      apply Id.reflRight; apply recβrule₂ };
+    { intro φ; symmetry; apply Theorems.funext; apply mapExt }
+  end
+
+  hott def recBaseInj (p q : Ω¹(S¹)) (ε : rec base p = rec base q) : p = q :=
+  begin
+    have θ := ap (subst ε) (recβrule₂ base p)⁻¹ ⬝ apd (λ f, ap f loop) ε ⬝ recβrule₂ base q;
+    apply transport (p = ·) θ _⁻¹; transitivity; apply Equiv.transportOverHmtpy;
+    -- somewhat surprisingly commutativity of Ω¹(S¹) arises out of nowhere
+    transitivity; apply ap (· ⬝ _ ⬝ _); apply Id.mapInv; apply Id.idConjIfComm; apply comm
   end
 
   section
@@ -675,8 +697,7 @@ namespace Circle
   section
     variable {A : Type u} {a : A} (B : Π x, a = x → Type v) (w : B a (idp a)) {b : A} (p : a = b)
 
-    hott def ΩJ :=
-    transportconst (Interval.happly (apd B p) p) (transportMeet B w p)
+    hott def ΩJ := transportconst (Interval.happly (apd B p) p) (transportMeet B w p)
 
     noncomputable hott def ΩJDef : J₁ B w p = ΩJ B w p :=
     begin induction p; reflexivity end

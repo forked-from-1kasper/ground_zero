@@ -444,6 +444,14 @@ namespace Equiv
     transportconst (bimap f p q) u = transport (f a₂) q (transport (f · b₁) p u) :=
   begin induction p; induction q; reflexivity end
 
+  hott def transportDiag₁ {A : Type u} (B : A → A → Type v) {a b : A} {p : a = b} (w : B a a) :
+    transport (λ x, B x x) p w = transport (B b) p (transport (B · a) p w) :=
+  begin induction p; reflexivity end
+
+  hott def transportDiag₂ {A : Type u} (B : A → A → Type v) {a b : A} {p : a = b} (w : B a a) :
+    transport (λ x, B x x) p w = transport (B · b) p (transport (B a) p w) :=
+  begin induction p; reflexivity end
+
   hott theorem mapOverAS {A : Type u} {a b : A} (f : A → A → A) (g : A → A) (p : a = b) :
     Id.map (AS f g) p = @bimap A A A a b (g a) (g b) f p (Id.map g p) :=
   begin induction p; reflexivity end

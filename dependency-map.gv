@@ -141,9 +141,9 @@ digraph dependency_map {
     }
     "HITs/Reals"
     "HITs/Simplicial"
-    "HITs/Suspension" -> { "HITs/Circle", "HITs/Join" }
+    "HITs/Suspension" -> { "Algebra/EilenbergMacLane", "HITs/Circle", "HITs/Join" }
     "HITs/Topologization"
-    "HITs/Trunc" -> { "Algebra/Monoid", "HITs/Quotient" }
+    "HITs/Trunc" -> { "Algebra/EilenbergMacLane", "Algebra/Monoid", "HITs/Quotient" }
     "HITs/Wedge"
   }
 

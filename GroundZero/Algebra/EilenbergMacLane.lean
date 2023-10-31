@@ -1,4 +1,7 @@
 import GroundZero.Algebra.Group.Basic
+import GroundZero.HITs.Suspension
+import GroundZero.HITs.Trunc
+
 open GroundZero.Theorems.Functions GroundZero.Theorems.Equiv
 open GroundZero.Types.Equiv (idtoeqv)
 open GroundZero.Types.Id (dotted)
@@ -199,5 +202,14 @@ namespace K1
     { apply decodeEncode }
   end
 end K1
+
+hott def ItS (A : Type) : ℕ → Type
+|      0     => A
+| Nat.succ n => ∑ (ItS A n)
+
+open GroundZero.HITs (Trunc)
+
+hott def K (G : Group) (n : ℕ) :=
+Trunc (hlevel.ofNat (n + 1)) (ItS (K1 G) n)
 
 end GroundZero.Algebra
