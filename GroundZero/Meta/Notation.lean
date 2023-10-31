@@ -26,6 +26,18 @@ def delabLambda : Delab := whenPPOption Lean.getPPNotation do {
   | stx                                                    => pure stx;
 }
 
+section
+  open Lean.TSyntax.Compat
+
+  @[delab app.Sigma]
+  def delabSig : Delab := whenPPOption Lean.getPPNotation do {
+    match (← delabSigma) with
+    | `($group:bracketedExplicitBinders × Σ $groups*, $body) => `(Σ $group:bracketedExplicitBinders $groups*, $body)
+    | `($group:bracketedExplicitBinders × $body) => `(Σ $group:bracketedExplicitBinders, $body)
+    | stx => pure stx
+  }
+end
+
 macro "begin " ts:sepBy1(tactic, ";", "; ", allowTrailingSep) i:"end" : term =>
   `(by { $[($ts:tactic)]* }%$i)
 
