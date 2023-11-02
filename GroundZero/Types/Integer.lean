@@ -1,4 +1,6 @@
 import GroundZero.Theorems.Nat
+
+open GroundZero.Types.Equiv (bimap)
 open GroundZero.Types.Id (ap)
 open GroundZero.Structures
 open GroundZero.Theorems
@@ -28,32 +30,6 @@ instance : ToString ℤ :=
 ⟨λ | pos n => toString n
    | neg n => "-" ++ toString (n + 1)⟩
 
-hott def abs : ℤ → ℕ
-| pos n => n
-| neg n => n + 1
-
-hott def plus : ℕ → ℤ := Integer.pos
-
-hott def minus : ℕ → ℤ
-| Nat.zero   => pos 0
-| Nat.succ n => neg n
-
-hott def negate : ℤ → ℤ
-| pos Nat.zero     => pos 0
-| pos (Nat.succ n) => neg n
-| neg n            => pos (n + 1)
-
-instance : Neg ℤ := ⟨negate⟩
-
-hott def sgn : ℤ → ℤ
-| pos Nat.zero     => 0
-| pos (Nat.succ n) => 1
-| neg n            => -1
-
-hott def signum : ℤ → (ℕ → ℤ)
-| pos _ => plus
-| neg _ => minus
-
 hott def auxsucc : ℕ → ℤ
 | Nat.zero   => pos 0
 | Nat.succ n => neg n
@@ -82,85 +58,6 @@ hott def predSucc : Π z, pred (succ z) = z
 
 hott def succEquiv : ℤ ≃ ℤ :=
 ⟨succ, (⟨pred, predSucc⟩, ⟨pred, succPred⟩)⟩
-
-hott def auxsub : ℕ → ℕ → ℤ
-| m,          Nat.zero   => pos m
-| Nat.zero,   Nat.succ n => neg n
-| Nat.succ m, Nat.succ n => auxsub m n
-
-hott def add : ℤ → ℤ → ℤ
-| neg x, neg y => neg (x + y + 1)
-| neg x, pos y => auxsub y (x + 1)
-| pos x, neg y => auxsub x (y + 1)
-| pos x, pos y => pos (x + y)
-instance : Add ℤ := ⟨add⟩
-
-hott def sub (x y : ℤ) := x + (-y)
-instance : Sub ℤ := ⟨sub⟩
-
-hott def mul : ℤ → ℤ → ℤ
-| neg x, neg y => plus  ((x + 1) * (y + 1))
-| neg x, pos y => minus ((x + 1) * y)
-| pos x, neg y => minus (x * (y + 1))
-| pos x, pos y => plus  (x * y)
-instance : Mul ℤ := ⟨mul⟩
-
-hott def addZero (x : ℤ) : x + 0 = x :=
-begin induction x using Sum.casesOn <;> reflexivity end
-
-hott def zeroAdd (x : ℤ) : 0 + x = x :=
-begin
-  induction x using Sum.casesOn;
-  { apply Id.map pos; apply Nat.zeroPlus };
-  { apply Id.map neg; reflexivity }
-end
-
-hott def auxsubAsymm : Π x y, auxsub x y = negate (auxsub y x)
-| Nat.zero,   Nat.zero   => idp _
-| Nat.succ m, Nat.zero   => idp _
-| Nat.zero,   Nat.succ n => idp _
-| Nat.succ m, Nat.succ n => auxsubAsymm m n
-
-hott def addComm : Π (x y : ℤ), x + y = y + x
-| neg x, neg y => Id.map neg ((Nat.succPlus x y)⁻¹ ⬝ Nat.comm _ _)
-| neg x, pos y => idp _
-| pos x, neg y => idp _
-| pos x, pos y => Id.map pos (Nat.comm _ _)
-
-hott def auxsubZeroRight : Π (n : Nat), auxsub n 0 = pos n
-| Nat.zero   => idp 0
-| Nat.succ n => idp (pos (n + 1))
-
-hott def auxsubZeroLeft : Π (n : ℕ), auxsub 0 n = auxsucc n
-| Nat.zero   => idp 0
-| Nat.succ n => idp (neg n)
-
-hott def auxsubSucc : Π (n m : ℕ), auxsub (n + 1) m = auxsub n m + 1
-| Nat.zero,   Nat.zero   => idp _
-| Nat.succ n, Nat.zero   => idp _
-| Nat.zero,   Nat.succ m => idp _
-| Nat.succ n, Nat.succ m => auxsubSucc n m
-
-hott def auxsubNeg : Π (n m : ℕ), auxsub n m = negate (auxsub m n)
-| Nat.zero,   Nat.zero   => idp _
-| Nat.succ m, Nat.zero   => idp _
-| Nat.zero,   Nat.succ m => idp _
-| Nat.succ n, Nat.succ m => auxsubNeg n m
-
-hott def succAuxsub : Π (n m : ℕ), succ (auxsub n m) = auxsub (n + 1) m
-| Nat.zero,   Nat.zero   => idp _
-| Nat.succ n, Nat.zero   => idp _
-| Nat.zero,   Nat.succ m => (auxsubZeroLeft _)⁻¹
-| Nat.succ n, Nat.succ m => succAuxsub n m
-
-hott def predAuxsub : Π (n m : ℕ), pred (auxsub n m) = auxsub n (m + 1)
-| Nat.zero,   Nat.zero   => idp _
-| Nat.succ n, Nat.zero   => (auxsubZeroRight _)⁻¹
-| Nat.zero,   Nat.succ m => idp _
-| Nat.succ n, Nat.succ m => predAuxsub n m
-
-noncomputable hott def set : hset ℤ :=
-by apply ua.coproductSet <;> apply Nat.natIsSet
 
 section
   universe u
@@ -231,39 +128,174 @@ section
   | pos (Nat.succ n) => (coh₁ _)⁻¹
 end
 
-hott def succToAdd : Π (z : ℤ), z + 1 = succ z
+hott def abs : ℤ → ℕ
+| pos n => n
+| neg n => n + 1
+
+hott def add : ℤ → ℤ → ℤ :=
+λ z, recsp z succ pred
+
+instance : Add ℤ := ⟨add⟩
+
+hott def negate : ℤ → ℤ
+| pos n => auxsucc n
+| neg n => pos (n + 1)
+
+instance : Neg ℤ := ⟨negate⟩
+
+hott def sgn : ℤ → ℤ
+| pos Nat.zero     =>  0
+| pos (Nat.succ n) =>  1
+| neg n            => -1
+
+hott def sub (x y : ℤ) := x + (-y)
+instance : Sub ℤ := ⟨sub⟩
+
+hott lemma plusSucc (i j : ℤ) : i + succ j = succ (i + j) :=
+begin apply recspβ₂; apply succPred end
+
+hott lemma plusPred (i j : ℤ) : i + pred j = pred (i + j) :=
+begin apply recspβ₃; apply predSucc end
+
+hott def addZero (x : ℤ) : x + 0 = x :=
+by reflexivity
+
+hott def zeroAdd (x : ℤ) : 0 + x = x :=
+begin
+  induction x using indsp; reflexivity;
+  { transitivity; apply plusSucc; apply ap; assumption };
+  { transitivity; apply plusPred; apply ap; assumption }
+end
+
+hott def succPlus (i j : ℤ) : succ i + j = succ (i + j) :=
+begin
+  induction j using indsp; reflexivity;
+  { transitivity; apply plusSucc; apply ap;
+    transitivity; assumption; symmetry; apply plusSucc };
+  { transitivity; apply plusPred; transitivity;
+    apply ap pred; assumption; transitivity; apply predSucc;
+    transitivity; symmetry; apply succPred; apply ap succ;
+    symmetry; apply plusPred }
+end
+
+hott def predPlus (i j : ℤ) : pred i + j = pred (i + j) :=
+begin
+  induction j using indsp; reflexivity;
+  { transitivity; apply plusSucc; transitivity;
+    apply ap succ; assumption; transitivity; apply succPred;
+    transitivity; symmetry; apply predSucc; apply ap pred;
+    symmetry; apply plusSucc };
+  { transitivity; apply plusPred; apply ap pred;
+    transitivity; assumption; symmetry; apply plusPred }
+end
+
+hott def addComm (x y : ℤ) : x + y = y + x :=
+begin
+  induction y using indsp; symmetry; apply zeroAdd;
+  { transitivity; apply plusSucc; transitivity; apply ap succ;
+    assumption; symmetry; apply succPlus };
+  { transitivity; apply plusPred; transitivity; apply ap pred;
+    assumption; symmetry; apply predPlus }
+end
+
+hott def diff : ℕ → ℕ → ℤ
+| m,          Nat.zero   => pos m
+| Nat.zero,   Nat.succ n => neg n
+| Nat.succ m, Nat.succ n => diff m n
+
+hott def diffAsymm : Π x y, diff x y = negate (diff y x)
+| Nat.zero,   Nat.zero   => idp _
+| Nat.succ m, Nat.zero   => idp _
+| Nat.zero,   Nat.succ n => idp _
+| Nat.succ m, Nat.succ n => diffAsymm m n
+
+hott def diffZeroRight : Π (n : Nat), diff n 0 = pos n
+| Nat.zero   => idp 0
+| Nat.succ n => idp (pos (n + 1))
+
+hott def diffZeroLeft : Π (n : ℕ), diff 0 n = auxsucc n
+| Nat.zero   => idp 0
+| Nat.succ n => idp (neg n)
+
+hott def diffSucc : Π (n m : ℕ), diff (n + 1) m = diff n m + 1
+| Nat.zero,   Nat.zero   => idp _
+| Nat.succ n, Nat.zero   => idp _
+| Nat.zero,   Nat.succ m => diffZeroLeft _
+| Nat.succ n, Nat.succ m => diffSucc n m
+
+hott def succDiff : Π (n m : ℕ), succ (diff n m) = diff (n + 1) m
+| Nat.zero,   Nat.zero   => idp _
+| Nat.succ n, Nat.zero   => idp _
+| Nat.zero,   Nat.succ m => (diffZeroLeft _)⁻¹
+| Nat.succ n, Nat.succ m => succDiff n m
+
+hott def predDiff : Π (n m : ℕ), pred (diff n m) = diff n (m + 1)
+| Nat.zero,   Nat.zero   => idp _
+| Nat.succ n, Nat.zero   => (diffZeroRight _)⁻¹
+| Nat.zero,   Nat.succ m => idp _
+| Nat.succ n, Nat.succ m => predDiff n m
+
+hott def diffAddLeft (n : ℕ) : Π (m : ℕ), diff (n + m) m = pos n
+| Nat.zero   => diffZeroRight n
+| Nat.succ m => diffAddLeft n m
+
+hott def diffAddRight (n : ℕ) : Π (m : ℕ), diff m (n + m) = auxsucc n
+| Nat.zero   => diffZeroLeft n
+| Nat.succ m => diffAddRight n m
+
+noncomputable hott def set : hset ℤ :=
+by apply ua.coproductSet <;> apply Nat.natIsSet
+
+hott def succToAdd (z : ℤ) : z + 1 = succ z :=
+by reflexivity
+
+hott def predToSub (z : ℤ) : z - 1 = pred z :=
+by apply plusPred z 0
+
+hott def mul : ℤ → ℤ → ℤ :=
+λ i, recsp 0 (λ j, j + i) (λ j, j - i)
+
+instance : Mul ℤ := ⟨mul⟩
+
+hott lemma negateSucc : Π (i : ℤ), negate (succ i) = pred (negate i)
+| pos Nat.zero     => idp _
+| pos (Nat.succ _) => idp _
 | neg Nat.zero     => idp _
 | neg (Nat.succ _) => idp _
-| pos n            => idp _
 
-hott def predToSub : Π (z : ℤ), z - 1 = pred z
-| neg n            => idp _
+hott lemma negatePred : Π (i : ℤ), negate (pred i) = succ (negate i)
 | pos Nat.zero     => idp _
-| pos (Nat.succ _) => auxsubZeroRight _
+| pos (Nat.succ _) => idp _
+| neg Nat.zero     => idp _
+| neg (Nat.succ _) => idp _
 
-hott def succPlus : Π (i j : ℤ), succ i + j = succ (i + j)
-| neg Nat.zero,     neg y => ap neg (Nat.zeroPlus _)⁻¹
-| neg (Nat.succ x), neg y => ap neg (Nat.assoc _ _ _ ⬝ (Nat.succPlus _ _)⁻¹)
-| neg Nat.zero,     pos y => ap pos (Nat.zeroPlus _) ⬝ (auxsubZeroRight _)⁻¹ ⬝ (succPred _)⁻¹ ⬝ ap succ (predAuxsub _ _)
-| neg (Nat.succ x), pos y => (succPred _)⁻¹ ⬝ ap succ (predAuxsub _ _)
-| pos Nat.zero,     neg y => (succPred _)⁻¹ ⬝ ap succ (predAuxsub _ _)
-| pos (Nat.succ x), neg y => (succAuxsub _ _)⁻¹
-| pos x,            pos y => ap pos (Nat.succPlus _ _)
+hott lemma negateNegate : Π (i : ℤ), negate (negate i) = i
+| pos Nat.zero     => idp _
+| pos (Nat.succ n) => idp _
+| neg n            => idp _
 
-hott def plusSucc (i j : ℤ) : i + succ j = succ (i + j) :=
-addComm _ _ ⬝ succPlus _ _ ⬝ ap succ (addComm _ _)
+hott lemma addSub (i j : ℤ) : (i + j) - j = i :=
+begin
+  induction j using indsp; reflexivity;
+  { transitivity; apply bimap add; apply plusSucc; apply negateSucc;
+    transitivity; apply succPlus; transitivity; apply ap succ;
+    apply plusPred; transitivity; apply succPred; assumption };
+  { transitivity; apply bimap add; apply plusPred; apply negatePred;
+    transitivity; apply predPlus; transitivity; apply ap pred;
+    apply plusSucc; transitivity; apply predSucc; assumption }
+end
 
-hott def predPlus : Π (i j : ℤ), pred i + j = pred (i + j)
-| neg x,            neg y => ap neg (ap Nat.succ (Nat.succPlus _ _))
-| neg Nat.zero,     pos y => (predAuxsub _ _)⁻¹
-| neg (Nat.succ x), pos y => (predAuxsub _ _)⁻¹
-| pos Nat.zero,     neg y => ap neg (Nat.assoc _ _ _ ⬝ Nat.zeroPlus _) ⬝ (ap pred (auxsubZeroLeft _) ⬝ predSucc (neg (y + 1)))⁻¹
-| pos (Nat.succ x), neg y => (predAuxsub _ _)⁻¹
-| pos Nat.zero,     pos y => (predAuxsub _ _)⁻¹ ⬝ ap pred (auxsubZeroRight _ ⬝ ap pos (Nat.zeroPlus _)⁻¹)
-| pos (Nat.succ x), pos y => (predSucc _)⁻¹ ⬝ ap (pred ∘ pos) (Nat.succPlus _ _)⁻¹
+hott lemma subAdd (i j : ℤ) : (i - j) + j = i :=
+begin transitivity; apply ap (add _); symmetry; apply negateNegate; apply addSub end
 
-hott def plusPred (i j : ℤ) : i + pred j = pred (i + j) :=
-addComm _ _ ⬝ predPlus _ _ ⬝ ap pred (addComm _ _)
+hott def multZero (i : ℤ) : i * 0 = 0 :=
+by reflexivity
+
+hott def multSucc (i j : ℤ) : i * succ j = i * j + i :=
+begin apply recspβ₂; intro; apply subAdd end
+
+hott def multPred (i j : ℤ) : i * pred j = i * j - i :=
+begin apply recspβ₃; intro; apply addSub end
 
 end Integer
 

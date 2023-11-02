@@ -73,6 +73,9 @@ namespace Nat
   | Nat.zero   => (zeroMul _)⁻¹
   | Nat.succ j => distribLeft j 1 i ⬝ (mulSucc j i ⬝ bimap Nat.add (mulComm i j)⁻¹ (mulOne i)⁻¹)⁻¹
 
+  hott def succMul (i j : ℕ) : i * Nat.succ j = i * j + i :=
+  mulComm _ _ ⬝ mulSucc _ _ ⬝ Id.ap (Nat.add · _) (mulComm _ _)
+
   hott def distribRight (i j n : ℕ) : (i + j) * n = i * n + j * n :=
   mulComm (i + j) n ⬝ distribLeft _ _ _ ⬝ bimap Nat.add (mulComm _ _) (mulComm _ _)
 
@@ -156,7 +159,7 @@ namespace Nat
   hott def max.zero : Π n, max n 0 = 0 → n = 0
   | Nat.zero,   _ => idp _
   | Nat.succ n, p => Proto.Empty.elim (max.neZero p)
-  
+
   hott def le.prop (n m : ℕ) : prop (n ≤ m) := natIsSet _ _
 
   hott def max.assoc : Π n m k, max n (max m k) = max (max n m) k

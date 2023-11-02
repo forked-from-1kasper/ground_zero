@@ -559,6 +559,16 @@ namespace Circle
       transitivity; apply ua.transportInvRule; apply Id.map pred;
       symmetry; apply transportToTransportconst
     end
+
+    noncomputable hott def Ωrecβ₄ (r : Ω¹(S¹)) :
+        Ωrec zero succ pred p q (loop ⬝ r)
+      = succ (Ωrec zero succ pred p q r) :=
+    ap (Ωrec _ _ _ _ _) (comm _ _) ⬝ Ωrecβ₂ _ _ _ _ _ _
+
+    noncomputable hott def Ωrecβ₅ (r : Ω¹(S¹)) :
+        Ωrec zero succ pred p q (loop⁻¹ ⬝ r)
+      = pred (Ωrec zero succ pred p q r) :=
+    ap (Ωrec _ _ _ _ _) (comm _ _) ⬝ Ωrecβ₃ _ _ _ _ _ _
   end
 
   hott def mult {a b : S¹} (p : a = a) (q : b = b) : rec a p b = rec a p b :=
@@ -569,6 +579,9 @@ namespace Circle
 
   hott def multOne {a : S¹} (p : a = a) : mult p loop = p :=
   by apply recβrule₂
+
+  hott def multMinusOne {a : S¹} (p : a = a) : mult p loop⁻¹ = p⁻¹ :=
+  begin transitivity; apply mapInv; apply ap; apply recβrule₂ end
 
   hott def oneMult (p : Ω¹(S¹)) : mult loop p = p :=
   begin
@@ -696,7 +709,7 @@ namespace Circle
   section
     open GroundZero.Types.Integer
 
-    noncomputable hott def windingTrans : Π (p q : Ω¹(S¹)), winding (p ⬝ q) = winding p + winding q :=
+    noncomputable hott lemma windingTrans : Π (p q : Ω¹(S¹)), winding (p ⬝ q) = winding p + winding q :=
     begin
       intro p; fapply Ωind₁;
       { transitivity; apply ap; apply Id.reflRight; symmetry; apply Integer.addZero };
@@ -708,18 +721,68 @@ namespace Circle
         symmetry; apply plusPred; apply ap; symmetry; apply Ωrecβ₃ }
     end
 
-    noncomputable hott def windBimap : Π {a b : S¹} (p : a = a) (q : b = b),
+    noncomputable hott theorem windBimap : Π {a b : S¹} (p : a = a) (q : b = b),
       wind (μ a b) (bimap μ p q) = wind a p + wind b q :=
     begin
       fapply indΩ₂; intro p q; transitivity; apply ap winding; apply mulTrans; apply windingTrans;
       intros; apply piProp; intro; apply piProp; intro; apply Integer.set
     end
 
-    noncomputable hott theorem degHomAdd (f g : S¹ → S¹) : degree (add f g) = degree f + degree g :=
+    noncomputable hott theorem degAdd (f g : S¹ → S¹) : degree (add f g) = degree f + degree g :=
     begin
       transitivity; apply bimap (λ φ ψ, degree (add φ ψ)) <;> { apply Theorems.funext; apply mapExt };
       transitivity; apply ap degree; apply Theorems.funext; apply recAdd;
       transitivity; apply degreeToWind; apply windBimap
+    end
+
+    noncomputable hott lemma powerRev (z : ℤ) : winding (power z)⁻¹ = -z :=
+    begin
+      induction z using indsp; reflexivity;
+      { transitivity; apply ap winding; transitivity; apply ap; symmetry;
+        apply Loop.powerComp; apply Id.explodeInv; transitivity; apply Ωrecβ₅;
+        transitivity; apply ap Integer.pred; assumption; symmetry; apply Integer.negateSucc };
+      { transitivity; apply ap winding; transitivity; apply ap; symmetry;
+        apply Loop.powerCompPred; apply Id.explodeInv; transitivity;
+        apply ap (λ p, winding (p ⬝ _)); apply Id.invInv;
+        transitivity; apply Ωrecβ₄; transitivity; apply ap Integer.succ;
+        assumption; symmetry; apply Integer.negatePred }
+    end
+
+    noncomputable hott theorem windingRev (p : Ω¹(S¹)) : winding p⁻¹ = -(winding p) :=
+    begin
+      transitivity; apply ap (λ q, winding q⁻¹);
+      symmetry; apply powerOfWinding; apply powerRev
+    end
+
+    noncomputable hott lemma windingMult : Π (p q : Ω¹(S¹)), winding (mult p q) = winding p * winding q :=
+    begin
+      intro p; fapply Ωind₁;
+      { symmetry; apply Integer.multZero };
+      { intro q ih; transitivity; apply ap; apply multDistrRight; transitivity;
+        apply windingTrans; transitivity; apply ap (λ z, z + winding _); apply ih;
+        transitivity; apply ap; apply ap winding; apply multOne;
+        transitivity; symmetry; apply Integer.multSucc;
+        apply ap; symmetry; apply Ωrecβ₂ };
+      { intro q ih; transitivity; apply ap; apply multDistrRight; transitivity;
+        apply windingTrans; transitivity; apply ap (λ z, z + winding _); apply ih;
+        transitivity; apply ap; apply ap winding; apply multMinusOne;
+        transitivity; apply ap (Integer.add _); apply windingRev;
+        transitivity; symmetry; apply Integer.multPred;
+        apply ap; symmetry; apply Ωrecβ₃ }
+    end
+
+    noncomputable hott theorem windMult : Π {a b : S¹} (p : a = a) (q : b = b),
+      wind (rec a p b) (mult p q) = wind a p * wind b q :=
+    begin
+      fapply indΩ₂; intros; apply windingMult; intros;
+      apply piProp; intro; apply piProp; intro; apply Integer.set
+    end
+
+    noncomputable hott theorem degCom (f g : S¹ → S¹) : degree (f ∘ g) = degree f * degree g :=
+    begin
+      transitivity; apply bimap (λ φ ψ, degree (φ ∘ ψ)) <;> { apply Theorems.funext; apply mapExt };
+      transitivity; apply ap degree; apply Theorems.funext; apply recComp;
+      transitivity; apply degreeToWind; apply windMult
     end
   end
 
