@@ -889,6 +889,35 @@ namespace Circle
     apply degOfBiinv; apply biinvOfDegOneHmtpy
   end
 
+  hott lemma windingMulPower (z : ℤ) (p : Ω¹(S¹)) : winding (Loop.power p z) = z * winding p :=
+  begin
+    induction z using Integer.indsp; symmetry; apply Integer.zeroMult;
+    { transitivity; apply ap winding; symmetry; apply Loop.powerComp;
+      transitivity; apply windingTrans; transitivity; apply ap (λ k, k + winding p);
+      assumption; symmetry; apply Integer.succMult };
+    { transitivity; apply ap winding; symmetry; apply Loop.powerCompPred;
+      transitivity; apply windingTrans; transitivity; apply ap (λ k, k + winding p⁻¹);
+      assumption; transitivity; apply ap (Integer.add _);
+      apply windingRev; symmetry; apply Integer.predMult }
+  end
+
+  noncomputable hott corollary windMulPower : Π {x : S¹} (z : ℤ) (p : x = x),
+    wind x (Loop.power p z) = z * wind x p :=
+  begin
+    fapply ind; apply windingMulPower; apply piProp;
+    intro; apply piProp; intro; apply Integer.set
+  end
+
+  noncomputable hott lemma circleEqvDeg (z : ℤ) : (Σ (f : S¹ → S¹), degree f = z) ≃ S¹ :=
+  begin
+    fapply Sigma.mk; intro w; exact w.1 base; apply Qinv.toBiinv;
+    fapply Sigma.mk; intro x; existsi rec x (Loop.power (rot x) z);
+    transitivity; apply degreeToWind; transitivity; apply windMulPower;
+    transitivity; apply ap (λ k, z * k); apply windRot; apply Integer.multOne;
+    apply Prod.intro; intro; reflexivity; intro w; fapply Sigma.prod;
+    symmetry; apply Theorems.funext; apply mapExt; apply Integer.set
+  end
+
   section
     variable {B : Type u} (b : B) (p q : b = b) (H : p ⬝ q = q ⬝ p)
 
