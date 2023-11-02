@@ -288,14 +288,172 @@ end
 hott lemma subAdd (i j : ℤ) : (i - j) + j = i :=
 begin transitivity; apply ap (add _); symmetry; apply negateNegate; apply addSub end
 
-hott def multZero (i : ℤ) : i * 0 = 0 :=
+hott theorem multZero (i : ℤ) : i * 0 = 0 :=
 by reflexivity
 
-hott def multSucc (i j : ℤ) : i * succ j = i * j + i :=
+hott theorem multOne (i : ℤ) : i * 1 = i :=
+by apply zeroAdd
+
+hott theorem multSucc (i j : ℤ) : i * succ j = i * j + i :=
 begin apply recspβ₂; intro; apply subAdd end
 
-hott def multPred (i j : ℤ) : i * pred j = i * j - i :=
+hott theorem multPred (i j : ℤ) : i * pred j = i * j - i :=
 begin apply recspβ₃; intro; apply addSub end
+
+hott lemma zeroMult (i : ℤ) : 0 * i = 0 :=
+begin
+  induction i using indsp; reflexivity;
+  { transitivity; apply multSucc; apply ap (λ z, z + 0); assumption };
+  { transitivity; apply multPred; apply ap (λ z, z - 0); assumption }
+end
+
+hott theorem multMinusOne (i : ℤ) : i * (-1) = -i :=
+begin transitivity; apply multPred i 0; apply zeroAdd end
+
+hott lemma predAuxsucc : Π (n : ℕ), pred (auxsucc n) = neg n
+| Nat.zero   => idp _
+| Nat.succ _ => idp _
+
+hott lemma absAuxsucc : Π (n : ℕ), abs (auxsucc n) = n
+| Nat.zero   => idp _
+| Nat.succ _ => idp _
+
+hott lemma negateAuxsucc : Π (n : ℕ), negate (auxsucc n) = pos n
+| Nat.zero   => idp _
+| Nat.succ _ => idp _
+
+hott lemma negateAdd (i j : ℤ) : -(i + j) = -i - j :=
+begin
+  induction j using indsp; reflexivity;
+  { transitivity; apply ap negate; apply plusSucc;
+    transitivity; apply negateSucc;
+    transitivity; apply ap pred; assumption;
+    transitivity; symmetry; apply plusPred;
+    apply ap; symmetry; apply negateSucc };
+  { transitivity; apply ap negate; apply plusPred;
+    transitivity; apply negatePred;
+    transitivity; apply ap succ; assumption;
+    transitivity; symmetry; apply plusSucc;
+    apply ap; symmetry; apply negatePred }
+end
+
+hott theorem addAssoc (i j k : ℤ) : (i + j) + k = i + (j + k) :=
+begin
+  induction k using indsp; reflexivity;
+  { transitivity; apply plusSucc;
+    transitivity; apply ap succ; assumption;
+    transitivity; symmetry; apply plusSucc;
+    apply ap; symmetry; apply plusSucc };
+  { transitivity; apply plusPred;
+    transitivity; apply ap pred; assumption;
+    transitivity; symmetry; apply plusPred;
+    apply ap; symmetry; apply plusPred }
+end
+
+hott lemma succMult (i j : ℤ) : succ i * j = i * j + j :=
+begin
+  induction j using indsp; reflexivity;
+  { transitivity; apply multSucc; transitivity; apply ap (add · _); assumption;
+    transitivity; apply plusSucc; transitivity; apply ap succ;
+    transitivity; apply addAssoc; transitivity; apply ap; apply addComm;
+    symmetry; apply addAssoc; transitivity; symmetry; apply plusSucc;
+    apply ap (add · _); symmetry; apply multSucc };
+  { transitivity; apply multPred; transitivity; apply ap (add · (negate (succ i))); assumption;
+    transitivity; apply ap (add _); apply negateSucc; transitivity; apply plusPred;
+    transitivity; apply ap pred; transitivity; apply addAssoc;
+    transitivity; apply ap; apply addComm; symmetry; apply addAssoc;
+    transitivity; symmetry; apply plusPred; apply ap (add · _);
+    symmetry; apply multPred }
+end
+
+hott lemma predMult (i j : ℤ) : pred i * j = i * j - j :=
+begin
+  induction j using indsp; reflexivity;
+  { transitivity; apply multSucc; transitivity; apply ap (add · _); assumption;
+    transitivity; apply plusPred; transitivity; apply ap pred;
+    transitivity; apply addAssoc; transitivity; apply ap; apply addComm;
+    symmetry; apply addAssoc; transitivity; symmetry; apply plusPred;
+    transitivity; apply ap (add _); symmetry; apply negateSucc;
+    apply ap (add · _); symmetry; apply multSucc };
+  { transitivity; apply multPred; transitivity; apply ap (add · (negate (pred i))); assumption;
+    transitivity; apply ap (add _); apply negatePred; transitivity; apply plusSucc;
+    transitivity; apply ap succ; transitivity; apply addAssoc;
+    transitivity; apply ap; apply addComm; symmetry; apply addAssoc;
+    transitivity; symmetry; apply plusSucc;
+    transitivity; apply ap (add _); symmetry; apply negatePred;
+    apply ap (add · _); symmetry; apply multPred }
+end
+
+hott theorem multComm (i j : ℤ) : i * j = j * i :=
+begin
+  induction j using indsp; transitivity; apply multZero; symmetry; apply zeroMult;
+  { transitivity; apply multSucc; transitivity; apply ap (λ k, k + i);
+    assumption; symmetry; apply succMult };
+  { transitivity; apply multPred; transitivity; apply ap (λ k, k - i);
+    assumption; symmetry; apply predMult }
+end
+
+hott corollary oneMult (i : ℤ) : 1 * i = i :=
+multComm _ _ ⬝ multOne _
+
+hott lemma posPosAdd (i : ℕ) : Π (j : ℕ), pos (i + j) = pos i + pos j
+| Nat.zero   => idp _
+| Nat.succ j => ap succ (posPosAdd i j) ⬝ (plusSucc (pos i) (pos j))⁻¹
+
+hott lemma posNegAdd (i : ℕ) : Π (j : ℕ), diff i (j + 1) = pos i + neg j
+| Nat.zero   => (predDiff _ _)⁻¹ ⬝ (predToSub _)⁻¹ ⬝ ap (λ z, z - 1) (diffZeroRight _)
+| Nat.succ j => (predDiff _ _)⁻¹ ⬝ ap pred (posNegAdd i j) ⬝ (plusPred (pos i) (neg j))⁻¹
+
+hott lemma negPosAdd : Π (i j : ℕ), diff j (i + 1) = neg i + pos j
+| Nat.zero,   j => (predDiff _ _)⁻¹ ⬝ ap pred (diffZeroRight _) ⬝ (predToSub _)⁻¹ ⬝ addComm (pos j) (neg 0)
+| Nat.succ i, j => (predDiff _ _)⁻¹ ⬝ ap pred (negPosAdd i j) ⬝ (predPlus (neg i) (pos j))⁻¹
+
+hott lemma negNegAdd (i : ℕ) : Π (j : ℕ), neg (i + j + 1) = neg i + neg j
+| Nat.zero   => idp _
+| Nat.succ j => ap neg Nat.plusOnePlus ⬝ ap pred (negNegAdd i j) ⬝ (plusPred (neg i) (neg j))⁻¹
+
+hott lemma posPosMult (i : ℕ) : Π (j : ℕ), pos (i * j) = pos i * pos j
+| Nat.zero   => idp _
+| Nat.succ j => posPosAdd _ _ ⬝ ap (add · _) (posPosMult i j) ⬝ (multSucc (pos i) (pos j))⁻¹
+
+hott lemma negateMultLeft (i j : ℤ) : negate (i * j) = i * negate j :=
+begin
+  induction j using indsp; reflexivity;
+  { transitivity; apply ap negate; apply multSucc;
+    transitivity; apply negateAdd;
+    transitivity; apply ap (λ k, k - i); assumption;
+    transitivity; symmetry; apply multPred;
+    apply ap; symmetry; apply negateSucc };
+  { transitivity; apply ap negate; apply multPred;
+    transitivity; apply negateAdd;
+    transitivity; apply ap (λ k, k - (-i)); assumption;
+    transitivity; apply ap (add _); apply negateNegate;
+    transitivity; symmetry; apply multSucc;
+    apply ap; symmetry; apply negatePred }
+end
+
+hott lemma posNegMult (i j : ℕ) : auxsucc (i * Nat.succ j) = pos i * neg j :=
+begin
+  transitivity; symmetry; apply negateNegate; transitivity;
+  apply ap negate; transitivity; apply negateAuxsucc;
+  apply posPosMult; apply negateMultLeft
+end
+
+hott lemma negPosMult (i j : ℕ) : auxsucc (Nat.succ i * j) = neg i * pos j :=
+begin
+  transitivity; apply ap auxsucc; apply Nat.mulComm;
+  transitivity; apply posNegMult; apply multComm
+end
+
+hott lemma negNegMult (i : ℕ) : Π (j : ℕ), pos (Nat.succ i * Nat.succ j) = neg i * neg j
+| Nat.zero   => ap pos (Nat.mulOne _) ⬝ (multMinusOne _)⁻¹
+| Nat.succ j => posPosAdd _ _ ⬝ ap (add · _) (negNegMult i j) ⬝ (multPred (neg i) (neg j))⁻¹
+
+hott theorem absMult : Π (i j : ℤ), abs (i * j) = abs i * abs j
+| neg i, neg j => ap abs (negNegMult i j)⁻¹
+| neg i, pos j => ap abs (negPosMult i j)⁻¹ ⬝ absAuxsucc _
+| pos i, neg j => ap abs (posNegMult i j)⁻¹ ⬝ absAuxsucc _
+| pos i, pos j => ap abs (posPosMult i j)⁻¹
 
 end Integer
 

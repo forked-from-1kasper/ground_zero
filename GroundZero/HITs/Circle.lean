@@ -784,6 +784,109 @@ namespace Circle
       transitivity; apply ap degree; apply Theorems.funext; apply recComp;
       transitivity; apply degreeToWind; apply windMult
     end
+
+    noncomputable hott lemma degOne : degree idfun = 1 :=
+    begin
+      transitivity; apply ap degree; apply Theorems.funext;
+      symmetry; apply map.nontrivialHmtpy; transitivity;
+      apply degreeToWind; apply windingPower 1
+    end
+
+    noncomputable hott lemma degZero : degree (λ _, base) = 0 :=
+    begin
+      transitivity; apply ap degree; apply Theorems.funext;
+      symmetry; apply map.trivialHmtpy; apply degreeToWind
+    end
+  end
+
+  open GroundZero.Types.Integer (abs)
+  open GroundZero.Proto
+
+  hott theorem plusEqZeroRight {n : ℕ} : Π {m : ℕ}, n + m = 0 → m = 0
+  | Nat.zero,   _ => idp 0
+  | Nat.succ _, H => Empty.elim (ua.succNeqZero H)
+
+  hott theorem multEqOneRight : Π (n m : ℕ), n * m = 1 → m = 1
+  | n,          Nat.zero,   H => Empty.elim (ua.succNeqZero H⁻¹)
+  | Nat.zero,   Nat.succ m, H => Empty.elim (ua.succNeqZero (H⁻¹ ⬝ Theorems.Nat.zeroMul _))
+  | Nat.succ n, Nat.succ m, H => (H⁻¹ ⬝ ap (λ k, Nat.succ k * Nat.succ m)
+                                           (plusEqZeroRight (Theorems.Nat.succInj H))
+                                      ⬝ Theorems.Nat.oneMul _)⁻¹
+
+  hott corollary multEqOneLeft (n m : ℕ) (H : n * m = 1) : n = 1 :=
+  multEqOneRight m n (Theorems.Nat.mulComm _ _ ⬝ H)
+
+  hott lemma zeroNeqOne : ¬@Id ℤ 0 1 :=
+  λ p, @ua.succNeqZero 0 (Coproduct.inl.encode p)⁻¹
+
+  hott theorem degOfRetr (f g : S¹ → S¹) (H : f ∘ g ~ id) : abs (degree f) = 1 :=
+  begin
+    have η := (degCom f g)⁻¹ ⬝ ap degree (Theorems.funext H) ⬝ degOne;
+    have ε := (Integer.absMult _ _)⁻¹ ⬝ ap Integer.abs η;
+    apply multEqOneLeft; transitivity; symmetry; apply Integer.absMult;
+    exact degree g; transitivity; symmetry; apply ap abs; apply degCom;
+    transitivity; apply ap (abs ∘ degree); apply Theorems.funext H;
+    transitivity; apply ap abs; apply degOne; reflexivity
+  end
+
+  hott corollary degOfBiinv (f : S¹ → S¹) : biinv f → abs (degree f) = 1 :=
+  λ w, degOfRetr f w.2.1 w.2.2
+
+  noncomputable hott proposition windRot (x : S¹) : wind x (rot x) = 1 :=
+  begin induction x using indΩ; apply windingPower 1; apply Integer.set end
+
+  hott proposition circleConnected (x : S¹) : ∥x = base∥ :=
+  begin induction x; exact Merely.elem loop; apply Merely.uniq end
+
+  section
+    hott lemma windingOneImplLoop (p : Ω¹(S¹)) : winding p = 1 → p = loop :=
+    begin
+      apply transport (λ q, winding q = 1 → q = loop); apply powerOfWinding;
+      intro ε; transitivity; apply ap power; transitivity; apply ap winding;
+      symmetry; apply powerOfWinding; exact ε; reflexivity
+    end
+
+    noncomputable hott lemma idfunIfWindOne {x : S¹} (p : x = x)
+      (q : x = base) (ε : wind x p = 1) : rec x p ~ idfun :=
+    begin
+      induction q using J₂; transitivity; apply Homotopy.Id; apply ap (rec base);
+      apply windingOneImplLoop; exact ε; apply map.nontrivialHmtpy
+    end
+
+    noncomputable hott corollary idfunIfDegOne (f : S¹ → S¹) (p : f base = base) (H : degree f = 1) : f ~ idfun :=
+    begin
+      transitivity; apply mapExt; apply idfunIfWindOne; exact p;
+      transitivity; symmetry; apply degreeToWind;
+      transitivity; apply ap degree; apply Theorems.funext;
+      symmetry; apply mapExt; exact H
+    end
+
+    hott theorem absOneDec : Π (z : ℤ), abs z = 1 → (z = 1) + (z = -1)
+    | Integer.pos n,            H => Coproduct.inl (ap Integer.pos H)
+    | Integer.neg Nat.zero,     _ => Coproduct.inr (idp _)
+    | Integer.neg (Nat.succ n), H => Empty.elim (ua.succNeqZero (Theorems.Nat.succInj H))
+
+    hott corollary absOneImplSqrEqOne (z : ℤ) (H : abs z = 1) : z * z = 1 :=
+    match absOneDec z H with
+    | Coproduct.inl p => transport (λ k, k * k = 1) p⁻¹ (idp _)
+    | Coproduct.inr q => transport (λ k, k * k = 1) q⁻¹ (idp _)
+
+    noncomputable hott lemma sqrIdfunHmtpy (f : S¹ → S¹) (H : abs (degree f) = 1) (ε : f (f base) = base) : f ∘ f ~ idfun :=
+    begin apply idfunIfDegOne; exact ε; transitivity; apply degCom; apply absOneImplSqrEqOne; exact H end
+
+    noncomputable hott theorem biinvOfDegOneHmtpy (f : S¹ → S¹) (H : abs (degree f) = 1) : biinv f :=
+    begin
+      apply Merely.rec _ _ (circleConnected (f (f base)));
+      apply Theorems.Equiv.biinvProp; intro G; fapply Qinv.toBiinv;
+      existsi f; apply Prod.intro <;> { apply sqrIdfunHmtpy <;> assumption }
+    end
+  end
+
+  noncomputable hott corollary degIffBiinv (f : S¹ → S¹) : biinv f ≃ (abs (degree f) = 1) :=
+  begin
+    apply Structures.propEquivLemma;
+    apply Theorems.Equiv.biinvProp; apply Theorems.Nat.natIsSet';
+    apply degOfBiinv; apply biinvOfDegOneHmtpy
   end
 
   section
