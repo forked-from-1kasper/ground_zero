@@ -189,6 +189,12 @@ namespace Circle
   hott def indΩ {B : S¹ → Type u} (b : B base) (H : Π x, prop (B x)) : Π x, B x :=
   begin fapply ind; exact b; apply H end
 
+  hott def indΩ₂ {B : S¹ → S¹ → Type u} (b : B base base) (H : Π x y, prop (B x y)) : Π x y, B x y :=
+  begin
+    fapply indΩ; fapply indΩ; exact b; intro;
+    apply H; intro; apply piProp; apply H
+  end
+
   noncomputable hott def loopEqReflImplsUip {A : Type u} (H : loop = idp base) : K A :=
   begin
     intros a p; transitivity;
@@ -555,11 +561,20 @@ namespace Circle
     end
   end
 
-  hott def mult (p q : Ω¹(S¹)) : Ω¹(S¹) :=
-  Id.map (rec base p) q
+  hott def mult {a b : S¹} (p : a = a) (q : b = b) : rec a p b = rec a p b :=
+  Id.map (rec a p) q
 
-  hott def multZero (p : Ω¹(S¹)) : mult p (idp base) = idp base :=
-  idp (idp base)
+  hott def multZero {a b : S¹} (p : a = a) : mult p (idp b) = idp (rec a p b) :=
+  idp (idp (rec a p b))
+
+  hott def multOne {a : S¹} (p : a = a) : mult p loop = p :=
+  by apply recβrule₂
+
+  hott def oneMult (p : Ω¹(S¹)) : mult loop p = p :=
+  begin
+    transitivity; apply mapWithHomotopy; apply map.nontrivialHmtpy;
+    transitivity; apply idConjRevIfComm; apply comm; apply idmap
+  end
 
   hott def multSucc (p q : Ω¹(S¹)) : mult p (succ q) = mult p q ⬝ p :=
   begin transitivity; apply mapFunctoriality; apply Id.map; apply recβrule₂ end
@@ -567,7 +582,22 @@ namespace Circle
   hott def multDistrRight (p q r : Ω¹(S¹)) : mult p (q ⬝ r) = mult p q ⬝ mult p r :=
   by apply mapFunctoriality
 
-  hott def recComp (p q : Ω¹(S¹)) : rec base p ∘ rec base q ~ rec base (mult p q) :=
+  hott def add (f g : S¹ → S¹) := λ x, μ (f x) (g x)
+
+  hott theorem recAdd {a b : S¹} (p : a = a) (q : b = b) :
+    add (rec a p) (rec b q) ~ rec (μ a b) (bimap μ p q) :=
+  begin
+    fapply ind; reflexivity; change _ = _; transitivity;
+    apply Equiv.transportOverHmtpy; transitivity;
+    apply Id.map (· ⬝ _ ⬝ _); transitivity; apply mapInv;
+    apply Id.map; transitivity; apply Equiv.bimapBicom (rec a p) (rec b q);
+    apply bimap (bimap μ) <;> apply recβrule₂;
+    transitivity; apply ap; apply recβrule₂;
+    transitivity; symmetry; apply Id.assoc; apply Id.invComp;
+  end
+
+  hott theorem recComp {a b : S¹} (p : a = a) (q : b = b) :
+    rec a p ∘ rec b q ~ rec (rec a p b) (mult p q) :=
   begin
     fapply ind; reflexivity; change _ = _; transitivity;
     apply Equiv.transportOverHmtpy; transitivity;
@@ -585,14 +615,14 @@ namespace Circle
   hott def mulNegRight (p q : Ω¹(S¹)) : mult p q⁻¹ = (mult p q)⁻¹ :=
   by apply Id.mapInv
 
-  hott def mapExt {B : Type u} (φ : S¹ → B) : φ ~ rec (φ base) (Id.map φ loop) :=
+  hott lemma mapExt {B : Type u} (φ : S¹ → B) : φ ~ rec (φ base) (Id.map φ loop) :=
   begin
     fapply ind; reflexivity; change _ = _; transitivity; apply Equiv.transportOverHmtpy;
     transitivity; apply bimap; transitivity; apply Id.reflRight; apply Id.mapInv;
     apply recβrule₂; apply Id.invComp
   end
 
-  hott def mapLoopEqv {B : Type u} : (S¹ → B) ≃ (Σ (x : B), x = x) :=
+  hott theorem mapLoopEqv {B : Type u} : (S¹ → B) ≃ (Σ (x : B), x = x) :=
   begin
     fapply Sigma.mk; intro φ; exact ⟨φ base, ap φ loop⟩; apply Qinv.toBiinv;
     fapply Sigma.mk; intro w; exact rec w.1 w.2; apply Prod.mk;
@@ -602,12 +632,95 @@ namespace Circle
     { intro φ; symmetry; apply Theorems.funext; apply mapExt }
   end
 
-  hott def recBaseInj (p q : Ω¹(S¹)) (ε : rec base p = rec base q) : p = q :=
+  hott lemma recBaseInj {x : S¹} (p q : x = x) (ε : rec x p = rec x q) : p = q :=
   begin
-    have θ := ap (subst ε) (recβrule₂ base p)⁻¹ ⬝ apd (λ f, ap f loop) ε ⬝ recβrule₂ base q;
+    have θ := ap (subst ε) (recβrule₂ x p)⁻¹ ⬝ apd (λ f, ap f loop) ε ⬝ recβrule₂ x q;
     apply transport (p = ·) θ _⁻¹; transitivity; apply Equiv.transportOverHmtpy;
     -- somewhat surprisingly commutativity of Ω¹(S¹) arises out of nowhere
-    transitivity; apply ap (· ⬝ _ ⬝ _); apply Id.mapInv; apply Id.idConjIfComm; apply comm
+    transitivity; apply ap (· ⬝ _ ⬝ _); apply Id.mapInv;
+    apply idConjIfComm; apply transComm
+  end
+
+  hott def wind : Π (x : S¹), x = x → ℤ :=
+  begin
+    fapply ind; exact winding; apply Id.trans; apply Equiv.transportCharacterization;
+    apply Theorems.funext; intro p; transitivity; apply Equiv.transportOverConstFamily;
+    apply ap winding; transitivity; apply Equiv.transportInvCompComp;
+    apply idConjIfComm; apply comm
+  end
+
+  hott def degree : (S¹ → S¹) → ℤ :=
+  λ φ, wind (φ base) (ap φ loop)
+
+  hott lemma degreeToWind {x : S¹} (p : x = x) : degree (rec x p) = wind x p :=
+  ap (wind x) (recβrule₂ x p)
+
+  hott corollary degreeToWinding : Π (p : Ω¹(S¹)), degree (rec base p) = winding p :=
+  @degreeToWind base
+
+  -- so path between basepoints must be natural over loops to obtain required homotopy
+  hott lemma endoHmtpyCriterion {a b : S¹} (p : a = a) (q : b = b)
+    (r : a = b) (ε : p ⬝ r = r ⬝ q) : rec a p ~ rec b q :=
+  begin
+    fapply ind; exact r; apply Id.trans; apply Equiv.transportOverHmtpy;
+    transitivity; apply ap (· ⬝ _ ⬝ _); apply Id.mapInv;
+    transitivity; apply bimap (λ p q, p ⬝ r ⬝ q);
+    apply ap; apply recβrule₂; apply recβrule₂;
+    apply idConjIfComm; symmetry; exact ε
+  end
+
+  hott def roll (x : S¹) : Ω¹(S¹) → x = x :=
+  λ p, ap (rec x (rot x)) p
+
+  open GroundZero.Proto (idfun)
+
+  hott def unroll : Π (x : S¹), x = x → Ω¹(S¹) :=
+  begin
+    fapply ind; exact idfun; apply Id.trans; apply Equiv.transportCharacterization;
+    apply Theorems.funext; intro p; transitivity; apply Equiv.transportOverConstFamily;
+    transitivity; apply Equiv.transportInvCompComp; apply idConjIfComm; apply comm
+  end
+
+  hott lemma rollNat {x : S¹} (p : Ω¹(S¹)) (ε : base = x) : p ⬝ ε = ε ⬝ roll x p :=
+  begin induction ε; transitivity; apply Id.reflRight; symmetry; apply oneMult end
+
+  hott lemma unrollNat {x : S¹} (p : x = x) (ε : base = x) : unroll x p ⬝ ε = ε ⬝ p :=
+  begin induction ε; apply Id.reflRight end
+
+  noncomputable hott lemma rollPreservesWind {x : S¹} (p : Ω¹(S¹)) : wind x (roll x p) = winding p :=
+  begin induction x using indΩ; apply ap winding; apply oneMult; apply Integer.set end
+
+  noncomputable hott lemma unrollPreservesWind : Π {x : S¹} (p : x = x), winding (unroll x p) = wind x p :=
+  begin fapply indΩ; intro; reflexivity; intro; apply piProp; intro; apply Integer.set end
+
+  section
+    open GroundZero.Types.Integer
+
+    noncomputable hott def windingTrans : Π (p q : Ω¹(S¹)), winding (p ⬝ q) = winding p + winding q :=
+    begin
+      intro p; fapply Ωind₁;
+      { transitivity; apply ap; apply Id.reflRight; symmetry; apply Integer.addZero };
+      { intro q ih; transitivity; apply ap; apply Id.assoc; transitivity;
+        apply Ωrecβ₂; transitivity; apply ap; exact ih; transitivity;
+        symmetry; apply plusSucc; apply ap; symmetry; apply Ωrecβ₂ };
+      { intro q ih; transitivity; apply ap; apply Id.assoc; transitivity;
+        apply Ωrecβ₃; transitivity; apply ap; exact ih; transitivity;
+        symmetry; apply plusPred; apply ap; symmetry; apply Ωrecβ₃ }
+    end
+
+    noncomputable hott def windBimap : Π {a b : S¹} (p : a = a) (q : b = b),
+      wind (μ a b) (bimap μ p q) = wind a p + wind b q :=
+    begin
+      fapply indΩ₂; intro p q; transitivity; apply ap winding; apply mulTrans; apply windingTrans;
+      intros; apply piProp; intro; apply piProp; intro; apply Integer.set
+    end
+
+    noncomputable hott theorem degHomAdd (f g : S¹ → S¹) : degree (add f g) = degree f + degree g :=
+    begin
+      transitivity; apply bimap (λ φ ψ, degree (add φ ψ)) <;> { apply Theorems.funext; apply mapExt };
+      transitivity; apply ap degree; apply Theorems.funext; apply recAdd;
+      transitivity; apply degreeToWind; apply windBimap
+    end
   end
 
   section
@@ -618,7 +731,7 @@ namespace Circle
       change _ = _; transitivity; apply Equiv.transportOverHmtpy;
       transitivity; apply bimap (· ⬝ q ⬝ ·);
       apply recβrule₃; apply recβrule₂;
-      apply Id.idConjIfComm; exact H⁻¹
+      apply idConjIfComm; exact H⁻¹
     end)))
 
     hott def birecβrule₁ : Id.map (birec b p q H base) loop = p :=

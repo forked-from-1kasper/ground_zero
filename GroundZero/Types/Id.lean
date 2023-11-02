@@ -121,21 +121,6 @@ namespace Id
     symmetry; transitivity; { symmetry; apply reflRight }; exact μ⁻¹
   end
 
-  hott def idConjIfComm {A : Type u} {a : A} (p q : a = a) : p ⬝ q = q ⬝ p → q⁻¹ ⬝ p ⬝ q = p :=
-  begin
-    intro r; apply transCancelLeft q;
-    transitivity; apply assoc;
-    transitivity; apply map (· ⬝ q);
-    transitivity; apply assoc; apply map (· ⬝ p);
-    apply compInv; exact r
-  end
-
-  hott def compReflIfEq {A : Type u} {a b : A} (p q : a = b) : p = q → p⁻¹ ⬝ q = idp b :=
-  begin intro A; induction A; apply invComp end
-
-  hott def eqIfCompRefl {A : Type u} {a b : A} (p q : a = b) : p⁻¹ ⬝ q = idp b → p = q :=
-  begin intro α; induction p; exact α⁻¹ end
-
   section
     variable {A : Type u} {B : Type v} {a b : A} (f : A → B) (p : a = b)
 
@@ -146,6 +131,12 @@ namespace Id
   hott def ap₂ {A : Type u} {B : Type v} {a b : A} {p q : a = b}
     (f : A → B) (r : p = q) : ap f p = ap f q :=
   ap (ap f) r
+
+  hott def compReflIfEq {A : Type u} {a b : A} (p q : a = b) : p = q → p⁻¹ ⬝ q = idp b :=
+  begin intro A; induction A; apply invComp end
+
+  hott def eqIfCompRefl {A : Type u} {a b : A} (p q : a = b) : p⁻¹ ⬝ q = idp b → p = q :=
+  begin intro α; induction p; exact α⁻¹ end
 
   class dotted (space : Type u) :=
   (point : space)

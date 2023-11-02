@@ -1,4 +1,5 @@
 import GroundZero.Theorems.Nat
+open GroundZero.Types.Id (ap)
 open GroundZero.Structures
 open GroundZero.Theorems
 open GroundZero
@@ -126,20 +127,37 @@ hott def addComm : Π (x y : ℤ), x + y = y + x
 | pos x, neg y => idp _
 | pos x, pos y => Id.map pos (Nat.comm _ _)
 
-hott def auxsubZeroRight (n : Nat) : auxsub n 0 = pos n :=
-begin induction n using Nat.casesOn <;> reflexivity end
+hott def auxsubZeroRight : Π (n : Nat), auxsub n 0 = pos n
+| Nat.zero   => idp 0
+| Nat.succ n => idp (pos (n + 1))
+
+hott def auxsubZeroLeft : Π (n : ℕ), auxsub 0 n = auxsucc n
+| Nat.zero   => idp 0
+| Nat.succ n => idp (neg n)
 
 hott def auxsubSucc : Π (n m : ℕ), auxsub (n + 1) m = auxsub n m + 1
 | Nat.zero,   Nat.zero   => idp _
-| Nat.succ m, Nat.zero   => idp _
-| Nat.zero,   Nat.succ n => idp _
-| Nat.succ m, Nat.succ n => auxsubSucc m n
+| Nat.succ n, Nat.zero   => idp _
+| Nat.zero,   Nat.succ m => idp _
+| Nat.succ n, Nat.succ m => auxsubSucc n m
 
 hott def auxsubNeg : Π (n m : ℕ), auxsub n m = negate (auxsub m n)
 | Nat.zero,   Nat.zero   => idp _
 | Nat.succ m, Nat.zero   => idp _
-| Nat.zero,   Nat.succ n => idp _
-| Nat.succ m, Nat.succ n => auxsubNeg m n
+| Nat.zero,   Nat.succ m => idp _
+| Nat.succ n, Nat.succ m => auxsubNeg n m
+
+hott def succAuxsub : Π (n m : ℕ), succ (auxsub n m) = auxsub (n + 1) m
+| Nat.zero,   Nat.zero   => idp _
+| Nat.succ n, Nat.zero   => idp _
+| Nat.zero,   Nat.succ m => (auxsubZeroLeft _)⁻¹
+| Nat.succ n, Nat.succ m => succAuxsub n m
+
+hott def predAuxsub : Π (n m : ℕ), pred (auxsub n m) = auxsub n (m + 1)
+| Nat.zero,   Nat.zero   => idp _
+| Nat.succ n, Nat.zero   => (auxsubZeroRight _)⁻¹
+| Nat.zero,   Nat.succ m => idp _
+| Nat.succ n, Nat.succ m => predAuxsub n m
 
 noncomputable hott def set : hset ℤ :=
 by apply ua.coproductSet <;> apply Nat.natIsSet
@@ -222,6 +240,30 @@ hott def predToSub : Π (z : ℤ), z - 1 = pred z
 | neg n            => idp _
 | pos Nat.zero     => idp _
 | pos (Nat.succ _) => auxsubZeroRight _
+
+hott def succPlus : Π (i j : ℤ), succ i + j = succ (i + j)
+| neg Nat.zero,     neg y => ap neg (Nat.zeroPlus _)⁻¹
+| neg (Nat.succ x), neg y => ap neg (Nat.assoc _ _ _ ⬝ (Nat.succPlus _ _)⁻¹)
+| neg Nat.zero,     pos y => ap pos (Nat.zeroPlus _) ⬝ (auxsubZeroRight _)⁻¹ ⬝ (succPred _)⁻¹ ⬝ ap succ (predAuxsub _ _)
+| neg (Nat.succ x), pos y => (succPred _)⁻¹ ⬝ ap succ (predAuxsub _ _)
+| pos Nat.zero,     neg y => (succPred _)⁻¹ ⬝ ap succ (predAuxsub _ _)
+| pos (Nat.succ x), neg y => (succAuxsub _ _)⁻¹
+| pos x,            pos y => ap pos (Nat.succPlus _ _)
+
+hott def plusSucc (i j : ℤ) : i + succ j = succ (i + j) :=
+addComm _ _ ⬝ succPlus _ _ ⬝ ap succ (addComm _ _)
+
+hott def predPlus : Π (i j : ℤ), pred i + j = pred (i + j)
+| neg x,            neg y => ap neg (ap Nat.succ (Nat.succPlus _ _))
+| neg Nat.zero,     pos y => (predAuxsub _ _)⁻¹
+| neg (Nat.succ x), pos y => (predAuxsub _ _)⁻¹
+| pos Nat.zero,     neg y => ap neg (Nat.assoc _ _ _ ⬝ Nat.zeroPlus _) ⬝ (ap pred (auxsubZeroLeft _) ⬝ predSucc (neg (y + 1)))⁻¹
+| pos (Nat.succ x), neg y => (predAuxsub _ _)⁻¹
+| pos Nat.zero,     pos y => (predAuxsub _ _)⁻¹ ⬝ ap pred (auxsubZeroRight _ ⬝ ap pos (Nat.zeroPlus _)⁻¹)
+| pos (Nat.succ x), pos y => (predSucc _)⁻¹ ⬝ ap (pred ∘ pos) (Nat.succPlus _ _)⁻¹
+
+hott def plusPred (i j : ℤ) : i + pred j = pred (i + j) :=
+addComm _ _ ⬝ predPlus _ _ ⬝ ap pred (addComm _ _)
 
 end Integer
 

@@ -282,6 +282,14 @@ namespace Equiv
     {p : a = b} {q : b = c} {r : a = c} (h : p ⬝ q = r) : p = r ⬝ q⁻¹ :=
   begin induction q; exact (Id.reflRight p)⁻¹ ⬝ h ⬝ (Id.reflRight r)⁻¹ end
 
+  hott def idConjIfComm {A : Type u} {a b : A} (p : a = b) (q : a = a) (r : b = b) :
+    p ⬝ r = q ⬝ p → q⁻¹ ⬝ p ⬝ r = p :=
+  begin intro ε; transitivity; symmetry; apply Id.assoc; apply rewriteComp; exact ε end
+
+  hott def idConjRevIfComm {A : Type u} {a b : A} (p : a = b) (q : a = a) (r : b = b) :
+    p ⬝ r = q ⬝ p → q ⬝ p ⬝ r⁻¹ = p :=
+  begin intro ε; symmetry; apply invCompRewrite; exact ε end
+
   hott lemma mapWithHomotopy {A : Type u} {B : Type v} (f g : A → B) (H : f ~ g) {a b : A} (p : a = b) :
     Id.map f p = H a ⬝ Id.map g p ⬝ (H b)⁻¹ :=
   begin apply invCompRewrite; symmetry; apply homotopySquare end
@@ -450,6 +458,11 @@ namespace Equiv
 
   hott def transportDiag₂ {A : Type u} (B : A → A → Type v) {a b : A} {p : a = b} (w : B a a) :
     transport (λ x, B x x) p w = transport (B · b) p (transport (B a) p w) :=
+  begin induction p; reflexivity end
+
+  hott def bimapBicom {A : Type u} {B : Type v} {C : Type w} {D : Type k}
+    (f : D → A) (g : D → B) (h : A → B → C) {x y : D} (p : x = y) :
+    ap (λ x, h (f x) (g x)) p = bimap h (ap f p) (ap g p) :=
   begin induction p; reflexivity end
 
   hott theorem mapOverAS {A : Type u} {a b : A} (f : A → A → A) (g : A → A) (p : a = b) :
