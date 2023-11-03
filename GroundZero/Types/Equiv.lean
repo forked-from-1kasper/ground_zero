@@ -34,6 +34,19 @@ namespace Equiv
     {f g h : Π (x : A), B x} (p : f ~ g) (q : g ~ h) : f ~ h :=
   λ x, p x ⬝ q x
 
+  namespace Homotopy
+    variable {A : Type u} {B : Type v} {C : Type w}
+
+    hott def hcom {f₁ f₂ : B → C} {g₁ g₂ : A → B} (H : f₁ ~ f₂) (G : g₁ ~ g₂) : f₁ ∘ g₁ ~ f₂ ∘ g₂ :=
+    λ x, H (g₁ x) ⬝ ap f₂ (G x)
+
+    hott def rwhs {f : B → C} {g₁ g₂ : A → B} (H : g₁ ~ g₂) : f ∘ g₁ ~ f ∘ g₂ :=
+    hcom (id f) H
+
+    hott def lwhs {f₁ f₂ : B → C} {g : A → B} (H : f₁ ~ f₂) : f₁ ∘ g ~ f₂ ∘ g :=
+    hcom H (id g)
+  end Homotopy
+
   section
     variable {A : Type u} {B : A → Type v}
     instance : @Reflexive  (Π x, B x) (· ~ ·) := ⟨@Homotopy.id A B⟩
