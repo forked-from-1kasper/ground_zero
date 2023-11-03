@@ -908,26 +908,89 @@ namespace Circle
     intro; apply piProp; intro; apply Integer.set
   end
 
+  noncomputable hott lemma windPowerRot {x : S¹} (z : ℤ) : wind x (Loop.power (rot x) z) = z :=
+  begin
+    transitivity; apply windMulPower; transitivity;
+    apply ap (_ * ·); apply windRot; apply Integer.multOne
+  end
+
+  noncomputable hott corollary degPowerRot {x : S¹} (z : ℤ) : degree (rec x (Loop.power (rot x) z)) = z :=
+  begin transitivity; apply degreeToWind; apply windPowerRot end
+
+  noncomputable hott lemma windPower : Π {x : S¹} (p : x = x), Loop.power (rot x) (wind x p) = p :=
+  begin fapply ind; apply powerOfWinding; apply piProp; intro; apply isGroupoid end
+
+  noncomputable hott theorem endoEquiv : (S¹ → S¹) ≃ ℤ × S¹ :=
+  begin
+    existsi λ φ, (degree φ, φ base); apply Qinv.toBiinv;
+    existsi λ w, rec w.2 (Loop.power (rot w.2) w.1); apply Prod.intro;
+    { intro w; apply Product.prod; apply degPowerRot; reflexivity };
+    { intro φ; symmetry; apply Theorems.funext;
+      transitivity; apply mapExt; apply Homotopy.Id;
+      apply ap (rec (φ base)); symmetry; apply windPower }
+  end
+
   noncomputable hott lemma circleEqvDeg (z : ℤ) : (Σ (f : S¹ → S¹), degree f = z) ≃ S¹ :=
   begin
     fapply Sigma.mk; intro w; exact w.1 base; apply Qinv.toBiinv;
-    fapply Sigma.mk; intro x; existsi rec x (Loop.power (rot x) z);
-    transitivity; apply degreeToWind; transitivity; apply windMulPower;
-    transitivity; apply ap (λ k, z * k); apply windRot; apply Integer.multOne;
+    fapply Sigma.mk; intro x; existsi rec x (Loop.power (rot x) z); apply degPowerRot;
     apply Prod.intro; intro; reflexivity; intro w; fapply Sigma.prod;
     symmetry; apply Theorems.funext; apply mapExt; apply Integer.set
+  end
+
+  section
+    open GroundZero.Types.Coproduct (inl inr)
+
+    open GroundZero.Types.Integer (pos auxsucc)
+
+    hott lemma neqZeroImplNeqMinus : Π (i : ℕ), i ≠ 0 → pos i ≠ auxsucc i
+    | Nat.zero,   H, G => H (inl.encode G)
+    | Nat.succ i, _, G => inl.encode G
+
+    noncomputable hott lemma absEqEqv {i : ℤ} (j : ℕ) (H : j ≠ 0) : (abs i = j) ≃ (i = pos j) + (i = auxsucc j) :=
+    begin
+      apply propEquivLemma; apply Theorems.Nat.natIsSet';
+      apply propSum; apply Integer.set; apply Integer.set;
+      intro w; apply neqZeroImplNeqMinus; exact H; exact w.1⁻¹ ⬝ w.2;
+      { intro G; induction i;
+        { left; apply ap pos; exact G };
+        { induction j; left; apply Empty.elim; apply H; reflexivity;
+          right; apply ap Sum.inr; apply Theorems.Nat.succInj; exact G } };
+      { intro G; induction G; transitivity; apply ap abs; assumption; reflexivity;
+        transitivity; apply ap abs; assumption; induction j;
+        apply Empty.elim; apply H; reflexivity; reflexivity }
+    end
+
+    hott theorem sigmaSumDistrib {A : Type u} (B : A → Type v) (C : A → Type w) :
+      (Σ x, B x + C x) ≃ (Σ x, B x) + (Σ x, C x) :=
+    begin
+      fapply Sigma.mk; intro w; exact Coproduct.elim (λ b, inl ⟨w.1, b⟩) (λ c, inr ⟨w.1, c⟩) w.2;
+      apply Qinv.toBiinv; fapply Sigma.mk; exact Coproduct.elim (λ w, ⟨w.1, inl w.2⟩) (λ w, ⟨w.1, inr w.2⟩);
+      apply Prod.intro; intro w; induction w using Sum.casesOn <;> reflexivity;
+      intro | ⟨x, inl _⟩ => _ | ⟨x, inr _⟩ => _ <;> reflexivity
+    end
+  end
+
+  section
+    open GroundZero.Types.Integer (auxsucc)
+
+    noncomputable hott theorem autEquiv := calc
+      (S¹ ≃ S¹) ≃ Σ φ, abs (degree φ) = 1                           : Sigma.respectsEquiv degIffBiinv
+            ... ≃ Σ φ, (degree φ = 1) + (degree φ = auxsucc 1)      : Sigma.respectsEquiv (λ _, absEqEqv 1 ua.succNeqZero)
+            ... ≃ (Σ φ, degree φ = 1) + (Σ φ, degree φ = auxsucc 1) : sigmaSumDistrib _ _
+            ... ≃ S¹ + S¹                                           : sumEquiv (circleEqvDeg _) (circleEqvDeg _)
   end
 
   section
     variable {B : Type u} (b : B) (p q : b = b) (H : p ⬝ q = q ⬝ p)
 
     hott def birec : S¹ → S¹ → B :=
-    @rec (S¹ → B) (rec b p) (Theorems.funext (Circle.ind q (begin
-      change _ = _; transitivity; apply Equiv.transportOverHmtpy;
-      transitivity; apply bimap (· ⬝ q ⬝ ·);
-      apply recβrule₃; apply recβrule₂;
-      apply idConjIfComm; exact H⁻¹
-    end)))
+    begin
+      fapply @rec (S¹ → B) (rec b p); apply Theorems.funext;
+      fapply Circle.ind; exact q; change _ = _; transitivity;
+      apply Equiv.transportOverHmtpy; transitivity; apply bimap (· ⬝ q ⬝ ·);
+      apply recβrule₃; apply recβrule₂; apply idConjIfComm; exact H⁻¹
+    end
 
     hott def birecβrule₁ : Id.map (birec b p q H base) loop = p :=
     by apply recβrule₂

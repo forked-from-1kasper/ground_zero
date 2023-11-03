@@ -59,18 +59,8 @@ namespace «3.7»
 
   variable {A : Type u} {B : Type v} (H₁ : prop A) (H₂ : prop B)
 
-  hott theorem propSum (G : ¬(A × B)) : prop (A + B) :=
-  begin
-    intros x y; match x, y with
-    | Sum.inl _, Sum.inl _ => _
-    | Sum.inr x, Sum.inl y => _
-    | Sum.inl x, Sum.inr y => _
-    | Sum.inr _, Sum.inr _ => _;
-    { apply ap; apply H₁ };
-    { apply Proto.Empty.elim; apply G (y, x) };
-    { apply Proto.Empty.elim; apply G (x, y) };
-    { apply ap; apply H₂ }
-  end
+  hott theorem propSum : ¬(A × B) → prop (A + B) :=
+  Structures.propSum H₁ H₂
 end «3.7»
 
 -- exercise 3.8
@@ -216,7 +206,7 @@ namespace «3.11»
                      (Merely.uniq u (transport (λ A, ∥A∥) p⁻¹ u));
     let γ := (transportOverFunctor (λ A, ∥A∥) (λ A, A) (f 𝟐) p)⁻¹ ⬝ apd f p;
     let e := λ u, (α u)⁻¹ ⬝ β u ⬝ happly γ u;
-  
+
     apply negBoolNoFixPoint; exact e (Merely.elem false)
   end
 

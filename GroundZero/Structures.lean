@@ -652,18 +652,18 @@ macro "DNEG₋₁" : term => `(DNEGprop)
 macro "DNEG₋₁" n:level : term => `(DNEGprop.{$n})
 
 namespace Structures
-  hott def propEM {A : Type u} (H : prop A) : prop (A + ¬A) :=
-  begin
-    intros x y; match x, y with
-    | Sum.inl _, Sum.inl _ => _
-    | Sum.inr x, Sum.inl y => _
-    | Sum.inl x, Sum.inr y => _
-    | Sum.inr _, Sum.inr _ => _;
-    { apply map; apply H };
-    { apply Proto.Empty.elim; apply x y };
-    { apply Proto.Empty.elim; apply y x };
-    { apply map; apply notIsProp }
-  end
+  open GroundZero.Types.Coproduct (inl inr)
+  open GroundZero.Types.Id (ap)
+  open GroundZero.Proto
+
+  hott theorem propSum {A : Type u} {B : Type v} (H₁ : prop A) (H₂ : prop B) (G : ¬(A × B)) : prop (A + B)
+  | inl _, inl _ => ap inl (H₁ _ _)
+  | inr x, inl y => Empty.elim (G (y, x))
+  | inl x, inr y => Empty.elim (G (x, y))
+  | inr _, inr _ => ap inr (H₂ _ _)
+
+  hott corollary propEM {A : Type u} (H : prop A) : prop (A + ¬A) :=
+  propSum H notIsProp (λ w, w.2 w.1)
 end Structures
 
 section
@@ -769,13 +769,22 @@ namespace Types.Equiv
   open GroundZero.Types
   variable {A : Type u} {A' : Type v} {B : Type u'} {B' : Type v'}
 
-  hott def prodBiinv {f : A → A'} {g : B → B'}
-    (e₁ : biinv f) (e₂ : biinv g) : biinv (Product.bimap f g) :=
+  hott lemma prodBiinv {f : A → A'} {g : B → B'} (e₁ : biinv f) (e₂ : biinv g) : biinv (Product.bimap f g) :=
   (⟨Product.bimap e₁.1.1 e₂.1.1, λ w, Product.prod (e₁.1.2 w.1) (e₂.1.2 w.2)⟩,
    ⟨Product.bimap e₁.2.1 e₂.2.1, λ w, Product.prod (e₁.2.2 w.1) (e₂.2.2 w.2)⟩)
 
-  hott def prodEquiv (e₁ : A ≃ A') (e₂ : B ≃ B') : (A × B) ≃ (A' × B') :=
+  hott theorem prodEquiv (e₁ : A ≃ A') (e₂ : B ≃ B') : (A × B) ≃ (A' × B') :=
   ⟨Product.bimap e₁.1 e₂.1, prodBiinv e₁.2 e₂.2⟩
+
+  open GroundZero.Types.Coproduct (inl inr)
+  open GroundZero.Types.Id (ap)
+
+  hott lemma sumBiinv {f : A → A'} {g : B → B'} (e₁ : biinv f) (e₂ : biinv g) : biinv (Coproduct.bimap f g) :=
+  (⟨Coproduct.bimap e₁.1.1 e₂.1.1, λ | inl x => ap inl (e₁.1.2 x) | inr y => ap inr (e₂.1.2 y)⟩,
+   ⟨Coproduct.bimap e₁.2.1 e₂.2.1, λ | inl x => ap inl (e₁.2.2 x) | inr y => ap inr (e₂.2.2 y)⟩)
+
+  hott theorem sumEquiv (e₁ : A ≃ A') (e₂ : B ≃ B') : (A + B) ≃ (A' + B') :=
+  ⟨Coproduct.bimap e₁.1 e₂.1, sumBiinv e₁.2 e₂.2⟩
 end Types.Equiv
 
 end GroundZero
