@@ -1031,7 +1031,8 @@ namespace Circle
       apply Id.assoc; apply ap (ε⁻¹ ⬝ ·); apply Loop.powerCompPred }
   end
 
-  hott corollary loopPowerConjComm {a b : S¹} (p : a = a) (ε : a = b) (z : ℤ) : Loop.power p z ⬝ ε = ε ⬝ Loop.power (ε⁻¹ ⬝ p ⬝ ε) z :=
+  hott corollary loopPowerConjComm {a b : S¹} (p : a = a) (ε : a = b) (z : ℤ) :
+    Loop.power p z ⬝ ε = ε ⬝ Loop.power (ε⁻¹ ⬝ p ⬝ ε) z :=
   begin apply invRewriteComp; transitivity; apply Id.assoc; symmetry; apply loopPowerConjLeft end
 
   hott corollary loopPowerConjRight {a b : S¹} (p : b = b) (ε : a = b) (z : ℤ) :
@@ -1055,6 +1056,9 @@ namespace Circle
     apply windPower; symmetry; apply mapExt
   end
 
+  noncomputable hott corollary degOneMap (f : S¹ → S¹) (H : degree f = 1) : f ~ μ (f base) :=
+  begin transitivity; apply μDupDecom; apply Homotopy.rwhs; apply map.nontrivialHmtpy end
+
   section
     variable {B : Type u} (b : B) (p q : b = b) (H : p ⬝ q = q ⬝ p)
 
@@ -1066,13 +1070,13 @@ namespace Circle
       apply recβrule₃; apply recβrule₂; apply idConjIfComm; exact H⁻¹
     end
 
-    hott def birecβrule₁ : Id.map (birec b p q H base) loop = p :=
+    hott def birecβrule₁ : ap (birec b p q H base) loop = p :=
     by apply recβrule₂
 
-    hott def birecβrule₂ : Id.map (birec b p q H · base) loop = q :=
+    hott def birecβrule₂ : ap (birec b p q H · base) loop = q :=
     begin
       transitivity; apply Interval.mapHapply;
-      transitivity; apply Id.map (happly · base); apply recβrule₂;
+      transitivity; apply ap (happly · base); apply recβrule₂;
       apply happly (Theorems.happlyFunext _ _ _) base
     end
 
