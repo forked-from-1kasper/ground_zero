@@ -385,7 +385,7 @@ namespace Circle
 
   noncomputable hott def unitComm (x : S¹) : μ base x = μ x base := (unitRight x)⁻¹
 
-  noncomputable hott def mulInv (x : S¹) : base = μ x (inv x) :=
+  noncomputable hott theorem mulInv (x : S¹) : base = μ x (inv x) :=
   begin
     induction x; exact loop; change _ = _;
     transitivity; apply transportComp (base = ·) (AS μ inv) loop;
@@ -415,14 +415,17 @@ namespace Circle
     intro; apply piProp; intro; apply Structures.setIsProp
   end
 
-  noncomputable hott def mulComm (x y : S¹) : μ x y = μ y x :=
+  noncomputable hott theorem mulComm (x y : S¹) : μ x y = μ y x :=
   begin
     fapply @lemSetTorus (λ x y, μ x y = μ y x); apply loopHset;
     { intro z; symmetry; apply unitRight };
     { intro z; apply unitRight }; reflexivity
   end
 
-  noncomputable hott def mulAssoc : Π x y z, μ x (μ y z) = μ (μ x y) z :=
+  noncomputable hott corollary invMul (x : S¹) : base = μ (inv x) x :=
+  begin transitivity; apply mulInv x; apply mulComm end
+
+  noncomputable hott theorem mulAssoc : Π x y z, μ x (μ y z) = μ (μ x y) z :=
   begin
     intro x; fapply @lemSetTorus (λ y z, μ x (μ y z) = μ (μ x y) z); apply isGroupoid;
     { intro z; apply ap (μ · z); exact (unitRight x)⁻¹ };
@@ -430,22 +433,22 @@ namespace Circle
     { induction x; reflexivity; apply isGroupoid }
   end
 
-  noncomputable hott def mulTrans (p q : Ω¹(S¹)) : bimap μ p q = p ⬝ q :=
+  noncomputable hott lemma mulTrans (p q : Ω¹(S¹)) : bimap μ p q = p ⬝ q :=
   begin
     transitivity; apply bimapCharacterization;
     apply bimap; apply μLeftAp; apply μRightAp
   end
 
-  noncomputable hott def mulTrans' (p q : Ω¹(S¹)) : bimap μ p q = q ⬝ p :=
+  noncomputable hott lemma mulTrans' (p q : Ω¹(S¹)) : bimap μ p q = q ⬝ p :=
   begin
     transitivity; apply bimapCharacterization';
     apply bimap; apply μRightAp; apply μLeftAp
   end
 
-  noncomputable hott def comm (x y : Ω¹(S¹)) : x ⬝ y = y ⬝ x :=
+  noncomputable hott theorem comm (x y : Ω¹(S¹)) : x ⬝ y = y ⬝ x :=
   (mulTrans x y)⁻¹ ⬝ (mulTrans' x y)
 
-  noncomputable hott def comm' (x y : Ω¹(S¹)) : x ⬝ y = y ⬝ x :=
+  noncomputable hott theorem comm' (x y : Ω¹(S¹)) : x ⬝ y = y ⬝ x :=
     Equiv.bimap Id.trans (powerOfWinding x)⁻¹ (powerOfWinding y)⁻¹
   ⬝ Loop.powerComm Circle.loop (winding x) (winding y)
   ⬝ Equiv.bimap Id.trans (powerOfWinding y) (powerOfWinding x)
@@ -872,6 +875,16 @@ namespace Circle
     noncomputable hott lemma sqrIdfunHmtpy (f : S¹ → S¹) (H : abs (degree f) = 1) (ε : f (f base) = base) : f ∘ f ~ idfun :=
     begin apply idfunIfDegOne; exact ε; transitivity; apply degCom; apply absOneImplSqrEqOne; exact H end
 
+    /- It’s interesting that this construction of f⁻¹ is not very explicit
+       as it was produced inside of ∥·∥, so it’s not definitionally
+       in the form “rec x p” as we may expect.
+
+       So this proof is to some extent “non-constructive”, however degree of the inverse
+       map obtained from this proof should normalize in CTT as well as degree
+       of any other concrete map S¹ → S¹.
+
+       For the more explicit construction see below.
+    -/
     noncomputable hott theorem biinvOfDegOneHmtpy (f : S¹ → S¹) (H : abs (degree f) = 1) : biinv f :=
     begin
       apply Merely.rec _ _ (circleConnected (f (f base)));
@@ -1054,8 +1067,51 @@ namespace Circle
     apply windPower; symmetry; apply mapExt
   end
 
-  noncomputable hott corollary degOneMap (f : S¹ → S¹) (H : degree f = 1) : f ~ μ (f base) :=
-  begin transitivity; apply μDupDecom; apply Homotopy.rwhs; apply map.nontrivialHmtpy end
+  section
+    variable (f : S¹ → S¹)
+
+    noncomputable hott corollary translationMap (H : degree f = 1) : f ~ μ (f base) :=
+    begin transitivity; apply μDupDecom; apply Homotopy.rwhs; apply map.nontrivialHmtpy end
+
+    noncomputable hott corollary reflectionMap (H : degree f = -1) : f ~ μ (f base) ∘ inv :=
+    by apply μDupDecom
+
+    noncomputable hott theorem translationMapBiinv (H : degree f = 1) : biinv f :=
+    begin
+      fapply Qinv.toBiinv; existsi μ (inv (f base)); fapply Prod.mk;
+      { transitivity; apply Homotopy.lwhs; apply translationMap f H;
+        intro x; transitivity; apply mulAssoc; transitivity; apply ap (μ · x);
+        symmetry; apply mulInv; apply unitLeft };
+      { transitivity; apply Homotopy.rwhs; apply translationMap f H;
+        intro x; transitivity; apply mulAssoc; transitivity; apply ap (μ · x);
+        symmetry; apply invMul; apply unitLeft }
+    end
+
+    noncomputable hott theorem reflectionMapBiinv (H : degree f = -1) : biinv f :=
+    begin
+      fapply Qinv.toBiinv; existsi inv ∘ μ (inv (f base)); fapply Prod.mk;
+      { transitivity; apply Homotopy.lwhs; apply reflectionMap f H;
+        transitivity; apply @Homotopy.rwhs _ _ _ (μ (f base));
+        apply @Homotopy.lwhs _ _ _ (inv ∘ inv) idfun (μ (inv (f base)));
+        apply invInv; intro x; transitivity; apply mulAssoc;
+        transitivity; apply ap (μ · x); symmetry;
+        apply mulInv; apply unitLeft };
+      { transitivity; apply Homotopy.rwhs; apply reflectionMap f H;
+        transitivity; apply @Homotopy.rwhs _ _ _ inv;
+        apply @Homotopy.lwhs _ _ _ (μ (inv (f base)) ∘ μ (f base)) idfun inv;
+        intro x; transitivity; apply mulAssoc; transitivity;
+        apply ap (μ · x); symmetry; apply invMul; apply unitLeft;
+        apply invInv }
+    end
+
+    -- Explicit version of `biinvOfDegOneHmtpy`.
+    noncomputable hott corollary biinvOfDegOneHmtpy' (f : S¹ → S¹) (H : abs (degree f) = 1) : biinv f :=
+    begin
+      induction absOneDec (degree f) H;
+      apply translationMapBiinv; assumption;
+      apply reflectionMapBiinv; assumption
+    end
+  end
 
   section
     variable {B : Type u} (b : B) (p q : b = b) (H : p ⬝ q = q ⬝ p)
