@@ -833,8 +833,82 @@ namespace Circle
   hott corollary degOfBiinv (f : S¹ → S¹) : biinv f → abs (degree f) = 1 :=
   λ w, degOfRetr f w.2.1 w.2.2
 
+  hott lemma windingMulPower (z : ℤ) (p : Ω¹(S¹)) : winding (Loop.power p z) = z * winding p :=
+  begin
+    induction z using Integer.indsp; symmetry; apply Integer.zeroMult;
+    { transitivity; apply ap winding; symmetry; apply Loop.powerComp;
+      transitivity; apply windingTrans; transitivity; apply ap (λ k, k + winding p);
+      assumption; symmetry; apply Integer.succMult };
+    { transitivity; apply ap winding; symmetry; apply Loop.powerCompPred;
+      transitivity; apply windingTrans; transitivity; apply ap (λ k, k + winding p⁻¹);
+      assumption; transitivity; apply ap (Integer.add _);
+      apply windingRev; symmetry; apply Integer.predMult }
+  end
+
+  noncomputable hott corollary windMulPower : Π {x : S¹} (z : ℤ) (p : x = x),
+    wind x (Loop.power p z) = z * wind x p :=
+  begin
+    fapply ind; apply windingMulPower; apply piProp;
+    intro; apply piProp; intro; apply Integer.set
+  end
+
   noncomputable hott proposition windRot (x : S¹) : wind x (rot x) = 1 :=
   begin induction x using indΩ; apply windingPower 1; apply Integer.set end
+
+  noncomputable hott lemma windPowerRot {x : S¹} (z : ℤ) : wind x (Loop.power (rot x) z) = z :=
+  begin
+    transitivity; apply windMulPower; transitivity;
+    apply ap (_ * ·); apply windRot; apply Integer.multOne
+  end
+
+  noncomputable hott corollary degPowerRot {x : S¹} (z : ℤ) : degree (rec x (Loop.power (rot x) z)) = z :=
+  begin transitivity; apply degreeToWind; apply windPowerRot end
+
+  noncomputable hott lemma windPower : Π {x : S¹} (p : x = x), Loop.power (rot x) (wind x p) = p :=
+  begin fapply ind; apply powerOfWinding; apply piProp; intro; apply isGroupoid end
+
+  hott lemma loopPowerConjLeft {a b : S¹} (p : a = a) (ε : a = b) (z : ℤ) :
+    Loop.power (ε⁻¹ ⬝ p ⬝ ε) z = ε⁻¹ ⬝ Loop.power p z ⬝ ε :=
+  begin
+    induction z using Integer.indsp;
+    { symmetry; transitivity; apply ap (· ⬝ _); apply Id.reflRight; apply Id.invComp };
+    { transitivity; symmetry; apply Loop.powerComp; transitivity; apply ap (· ⬝ _); assumption;
+      transitivity; symmetry; apply Id.assoc; transitivity; apply ap (_ ⬝ ·);
+      transitivity; apply Id.assoc; apply ap (· ⬝ _); apply Id.compInvCancel;
+      transitivity; apply Id.assoc; apply ap (· ⬝ ε); transitivity; symmetry;
+      apply Id.assoc; apply ap (ε⁻¹ ⬝ ·); apply Loop.powerComp };
+    { transitivity; symmetry; apply Loop.powerCompPred; transitivity; apply ap (· ⬝ _); assumption;
+      transitivity; symmetry; apply Id.assoc; transitivity; apply ap (_ ⬝ ·);
+      transitivity; transitivity; apply ap (_ ⬝ ·); apply Id.explodeInv;
+      transitivity; apply Id.compInvCancel; apply Id.explodeInv; apply ap (_ ⬝ ·);
+      apply Id.invInv; transitivity; apply Id.assoc; apply ap (· ⬝ ε); transitivity; symmetry;
+      apply Id.assoc; apply ap (ε⁻¹ ⬝ ·); apply Loop.powerCompPred }
+  end
+
+  hott corollary loopPowerConjComm {a b : S¹} (p : a = a) (ε : a = b) (z : ℤ) :
+    Loop.power p z ⬝ ε = ε ⬝ Loop.power (ε⁻¹ ⬝ p ⬝ ε) z :=
+  begin apply invRewriteComp; transitivity; apply Id.assoc; symmetry; apply loopPowerConjLeft end
+
+  hott corollary loopPowerConjRight {a b : S¹} (p : b = b) (ε : a = b) (z : ℤ) :
+    Loop.power (ε ⬝ p ⬝ ε⁻¹) z = ε ⬝ Loop.power p z ⬝ ε⁻¹ :=
+  begin
+    transitivity; apply ap (Loop.power · z); apply ap (λ q, q ⬝ p ⬝ ε⁻¹);
+    symmetry; apply Id.invInv; transitivity; apply loopPowerConjLeft;
+    apply ap (λ q, q ⬝ _ ⬝ _); apply Id.invInv
+  end
+
+  hott lemma rotInterchange {a b : S¹} (p : a = b) : p⁻¹ ⬝ rot a ⬝ p = rot b :=
+  begin induction p; apply Id.reflRight end
+
+  hott theorem hmtpyDegCriterion {f g : S¹ → S¹} (p : f base = g base) (q : degree f = degree g) : f ~ g :=
+  begin
+    transitivity; apply mapExt; transitivity; fapply endoHmtpyCriterion;
+    exact g base; exact p; exact ap g loop; transitivity; apply ap (· ⬝ _);
+    transitivity; symmetry; apply windPower; apply ap (Loop.power _); exact q;
+    transitivity; apply loopPowerConjComm; apply ap; transitivity;
+    apply ap (λ p, Loop.power p _); apply rotInterchange;
+    apply windPower; symmetry; apply mapExt
+  end
 
   hott proposition circleConnected (x : S¹) : ∥x = base∥ :=
   begin induction x; exact Merely.elem loop; apply Merely.uniq end
@@ -847,20 +921,8 @@ namespace Circle
       symmetry; apply powerOfWinding; exact ε; reflexivity
     end
 
-    noncomputable hott lemma idfunIfWindOne {x : S¹} (p : x = x)
-      (q : x = base) (ε : wind x p = 1) : rec x p ~ idfun :=
-    begin
-      induction q using J₂; transitivity; apply Homotopy.Id; apply ap (rec base);
-      apply windingOneImplLoop; exact ε; apply map.nontrivialHmtpy
-    end
-
     noncomputable hott corollary idfunIfDegOne (f : S¹ → S¹) (p : f base = base) (H : degree f = 1) : f ~ idfun :=
-    begin
-      transitivity; apply mapExt; apply idfunIfWindOne; exact p;
-      transitivity; symmetry; apply degreeToWind;
-      transitivity; apply ap degree; apply Theorems.funext;
-      symmetry; apply mapExt; exact H
-    end
+    begin fapply hmtpyDegCriterion; exact p; transitivity; apply H; symmetry; apply degOne end
 
     hott theorem absOneDec : Π (z : ℤ), abs z = 1 → (z = 1) + (z = -1)
     | Integer.pos n,            H => Coproduct.inl (ap Integer.pos H)
@@ -899,37 +961,6 @@ namespace Circle
     apply Theorems.Equiv.biinvProp; apply Theorems.Nat.natIsSet';
     apply degOfBiinv; apply biinvOfDegOneHmtpy
   end
-
-  hott lemma windingMulPower (z : ℤ) (p : Ω¹(S¹)) : winding (Loop.power p z) = z * winding p :=
-  begin
-    induction z using Integer.indsp; symmetry; apply Integer.zeroMult;
-    { transitivity; apply ap winding; symmetry; apply Loop.powerComp;
-      transitivity; apply windingTrans; transitivity; apply ap (λ k, k + winding p);
-      assumption; symmetry; apply Integer.succMult };
-    { transitivity; apply ap winding; symmetry; apply Loop.powerCompPred;
-      transitivity; apply windingTrans; transitivity; apply ap (λ k, k + winding p⁻¹);
-      assumption; transitivity; apply ap (Integer.add _);
-      apply windingRev; symmetry; apply Integer.predMult }
-  end
-
-  noncomputable hott corollary windMulPower : Π {x : S¹} (z : ℤ) (p : x = x),
-    wind x (Loop.power p z) = z * wind x p :=
-  begin
-    fapply ind; apply windingMulPower; apply piProp;
-    intro; apply piProp; intro; apply Integer.set
-  end
-
-  noncomputable hott lemma windPowerRot {x : S¹} (z : ℤ) : wind x (Loop.power (rot x) z) = z :=
-  begin
-    transitivity; apply windMulPower; transitivity;
-    apply ap (_ * ·); apply windRot; apply Integer.multOne
-  end
-
-  noncomputable hott corollary degPowerRot {x : S¹} (z : ℤ) : degree (rec x (Loop.power (rot x) z)) = z :=
-  begin transitivity; apply degreeToWind; apply windPowerRot end
-
-  noncomputable hott lemma windPower : Π {x : S¹} (p : x = x), Loop.power (rot x) (wind x p) = p :=
-  begin fapply ind; apply powerOfWinding; apply piProp; intro; apply isGroupoid end
 
   noncomputable hott theorem endoEquiv : (S¹ → S¹) ≃ ℤ × S¹ :=
   begin
@@ -1022,49 +1053,6 @@ namespace Circle
     apply Homotopy.lwhs; apply μDef; transitivity;
     apply recComp; apply Homotopy.Id; apply ap (rec (φ base));
     apply rotPowerDecom
-  end
-
-  hott lemma loopPowerConjLeft {a b : S¹} (p : a = a) (ε : a = b) (z : ℤ) :
-    Loop.power (ε⁻¹ ⬝ p ⬝ ε) z = ε⁻¹ ⬝ Loop.power p z ⬝ ε :=
-  begin
-    induction z using Integer.indsp;
-    { symmetry; transitivity; apply ap (· ⬝ _); apply Id.reflRight; apply Id.invComp };
-    { transitivity; symmetry; apply Loop.powerComp; transitivity; apply ap (· ⬝ _); assumption;
-      transitivity; symmetry; apply Id.assoc; transitivity; apply ap (_ ⬝ ·);
-      transitivity; apply Id.assoc; apply ap (· ⬝ _); apply Id.compInvCancel;
-      transitivity; apply Id.assoc; apply ap (· ⬝ ε); transitivity; symmetry;
-      apply Id.assoc; apply ap (ε⁻¹ ⬝ ·); apply Loop.powerComp };
-    { transitivity; symmetry; apply Loop.powerCompPred; transitivity; apply ap (· ⬝ _); assumption;
-      transitivity; symmetry; apply Id.assoc; transitivity; apply ap (_ ⬝ ·);
-      transitivity; transitivity; apply ap (_ ⬝ ·); apply Id.explodeInv;
-      transitivity; apply Id.compInvCancel; apply Id.explodeInv; apply ap (_ ⬝ ·);
-      apply Id.invInv; transitivity; apply Id.assoc; apply ap (· ⬝ ε); transitivity; symmetry;
-      apply Id.assoc; apply ap (ε⁻¹ ⬝ ·); apply Loop.powerCompPred }
-  end
-
-  hott corollary loopPowerConjComm {a b : S¹} (p : a = a) (ε : a = b) (z : ℤ) :
-    Loop.power p z ⬝ ε = ε ⬝ Loop.power (ε⁻¹ ⬝ p ⬝ ε) z :=
-  begin apply invRewriteComp; transitivity; apply Id.assoc; symmetry; apply loopPowerConjLeft end
-
-  hott corollary loopPowerConjRight {a b : S¹} (p : b = b) (ε : a = b) (z : ℤ) :
-    Loop.power (ε ⬝ p ⬝ ε⁻¹) z = ε ⬝ Loop.power p z ⬝ ε⁻¹ :=
-  begin
-    transitivity; apply ap (Loop.power · z); apply ap (λ q, q ⬝ p ⬝ ε⁻¹);
-    symmetry; apply Id.invInv; transitivity; apply loopPowerConjLeft;
-    apply ap (λ q, q ⬝ _ ⬝ _); apply Id.invInv
-  end
-
-  hott lemma rotInterchange {a b : S¹} (p : a = b) : p⁻¹ ⬝ rot a ⬝ p = rot b :=
-  begin induction p; apply Id.reflRight end
-
-  hott theorem hmtpyDegCriterion {f g : S¹ → S¹} (p : f base = g base) (q : degree f = degree g) : f ~ g :=
-  begin
-    transitivity; apply mapExt; transitivity; fapply endoHmtpyCriterion;
-    exact g base; exact p; exact ap g loop; transitivity; apply ap (· ⬝ _);
-    transitivity; symmetry; apply windPower; apply ap (Loop.power _); exact q;
-    transitivity; apply loopPowerConjComm; apply ap; transitivity;
-    apply ap (λ p, Loop.power p _); apply rotInterchange;
-    apply windPower; symmetry; apply mapExt
   end
 
   section
