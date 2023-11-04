@@ -3,8 +3,7 @@ import GroundZero.Proto
 namespace GroundZero.Types
 universe u v
 
-theorem UIP {A : Type u} {a b : A} (p q : a = b) : p = q :=
-begin rfl end
+theorem UIP {A : Type u} {a b : A} (p q : a = b) : p = q := by rfl
 
 section
   variable (A : Sort u)
@@ -15,16 +14,16 @@ section
 end
 
 inductive Id {A : Type u} : A → A → Type u
-| refl {a : A} : Id a a
+| idp (a : A) : Id a a
+
+export Id (idp)
 
 infix:50 (priority := high) " = " => Id
 
 /- fails!
 hott theorem Id.UIP {A : Type u} {a b : A} (p q : a = b) : p = q :=
-begin cases p; cases q; apply Id.refl end
+begin cases p; cases q; apply idp end
 -/
-
-@[match_pattern] abbrev idp {A : Type u} (a : A) : a = a := Id.refl
 
 attribute [eliminator] Id.casesOn
 
@@ -34,9 +33,11 @@ hott def J₁ {A : Type u} {a : A} (B : Π (b : A), a = b → Type v)
 
 hott def J₂ {A : Type u} {b : A} (B : Π (a : A), a = b → Type v)
   (Bidp : B b (idp b)) {a : A} (p : a = b) : B a p :=
-by { induction p; apply Bidp }
+begin induction p; apply Bidp end
 
 namespace Id
+  @[match_pattern] abbrev refl {A : Type u} {a : A} : a = a := idp a
+
   hott def symm {A : Type u} {a b : A} (p : a = b) : b = a :=
   begin induction p; apply idp end
 
@@ -44,7 +45,7 @@ namespace Id
     (p : a = b) (q : b = c) : a = c :=
   begin induction p; apply q end
 
-  instance (A : Type u) : Reflexive  (@Id A) := ⟨@Id.refl A⟩
+  instance (A : Type u) : Reflexive  (@Id A) := ⟨@idp A⟩
   instance (A : Type u) : Symmetric  (@Id A) := ⟨@symm A⟩
   instance (A : Type u) : Transitive (@Id A) := ⟨@trans A⟩
 
@@ -91,24 +92,24 @@ namespace Id
   hott def mpr {A B : Type u} (p : A = B) : B → A :=
   begin induction p; intro x; exact x end
 
-  hott def map {A : Type u} {B : Type v} {a b : A}
+  hott def ap {A : Type u} {B : Type v} {a b : A}
     (f : A → B) (p : a = b) : f a = f b :=
   begin induction p; reflexivity end
 
   hott def cancelCompInv {A : Type u} {a b c : A} (p : a = b) (q : b = c) : (p ⬝ q) ⬝ q⁻¹ = p :=
-  (assoc p q q⁻¹)⁻¹ ⬝ map (trans p) (compInv q) ⬝ reflRight p
+  (assoc p q q⁻¹)⁻¹ ⬝ ap (trans p) (compInv q) ⬝ reflRight p
 
   hott def cancelInvComp {A : Type u} {a b c : A} (p : a = b) (q : c = b) : (p ⬝ q⁻¹) ⬝ q = p :=
-  (assoc p q⁻¹ q)⁻¹ ⬝ map (trans p) (invComp q) ⬝ reflRight p
+  (assoc p q⁻¹ q)⁻¹ ⬝ ap (trans p) (invComp q) ⬝ reflRight p
 
   hott def compInvCancel {A : Type u} {a b c : A} (p : a = b) (q : a = c) : p ⬝ (p⁻¹ ⬝ q) = q :=
-  assoc p p⁻¹ q ⬝ map (· ⬝ q) (compInv p)
+  assoc p p⁻¹ q ⬝ ap (· ⬝ q) (compInv p)
 
   hott def invCompCancel {A : Type u} {a b c : A} (p : a = b) (q : b = c) : p⁻¹ ⬝ (p ⬝ q) = q :=
-  assoc p⁻¹ p q ⬝ map (· ⬝ q) (invComp p)
+  assoc p⁻¹ p q ⬝ ap (· ⬝ q) (invComp p)
 
   hott def mapInv {A : Type u} {B : Type v} {a b : A}
-    (f : A → B) (p : a = b) : map f p⁻¹ = (map f p)⁻¹ :=
+    (f : A → B) (p : a = b) : ap f p⁻¹ = (ap f p)⁻¹ :=
   begin induction p; reflexivity end
 
   hott def transCancelLeft {A : Type u} {a b c : A}
@@ -119,13 +120,6 @@ namespace Id
   begin
     intro μ; induction r; transitivity; { symmetry; apply reflRight };
     symmetry; transitivity; { symmetry; apply reflRight }; exact μ⁻¹
-  end
-
-  section
-    variable {A : Type u} {B : Type v} {a b : A} (f : A → B) (p : a = b)
-
-    def cong := map f p
-    def ap   := map f p
   end
 
   hott def ap₂ {A : Type u} {B : Type v} {a b : A} {p q : a = b}
@@ -158,7 +152,7 @@ namespace Id
   end pointed.map
 
   def loopSpace (X : Type⁎) : Type⁎ :=
-  ⟨X.point = X.point, Id.refl⟩
+  ⟨X.point = X.point, idp X.point⟩
 
   hott def iteratedLoopSpace : Type⁎ → ℕ → Type⁎
   | X,   0   => X
@@ -188,18 +182,20 @@ namespace Not
   λ e, nomatch e
 end Not
 
-namespace whiskering
+namespace Whiskering
+  open GroundZero.Types.Id (ap)
+
   variable {A : Type u} {a b c : A}
 
-  hott def rightWhs {p q : a = b} (ν : p = q) (r : b = c) : p ⬝ r = q ⬝ r :=
+  hott def rwhs {p q : a = b} (ν : p = q) (r : b = c) : p ⬝ r = q ⬝ r :=
   begin induction r; apply (Id.reflRight p) ⬝ ν ⬝ (Id.reflRight q)⁻¹ end
 
-  infix:60 " ⬝ᵣ " => rightWhs
+  infix:60 " ⬝ᵣ " => rwhs
 
-  hott def leftWhs {r s : b = c} (q : a = b) (κ : r = s) : q ⬝ r = q ⬝ s :=
+  hott def lwhs {r s : b = c} (q : a = b) (κ : r = s) : q ⬝ r = q ⬝ s :=
   begin induction q; exact (Id.reflLeft r) ⬝ κ ⬝ (Id.reflLeft s)⁻¹ end
 
-  infix:60 " ⬝ₗ " => leftWhs
+  infix:60 " ⬝ₗ " => lwhs
 
   variable {p q : a = b} {r s : b = c}
 
@@ -214,23 +210,19 @@ namespace whiskering
 
   hott lemma loop₁ {A : Type u} {a : A} {ν κ : idp a = idp a} : ν ⬝ κ = ν ⋆ κ :=
   begin
-    apply Id.symm; transitivity;
-    { apply Id.map (· ⬝ (Id.refl ⬝ κ ⬝ Id.refl));
-      apply Id.reflTwice };
-    apply Id.map (ν ⬝ ·); apply Id.reflTwice
+    apply Id.symm; transitivity; apply ap (· ⬝ _);
+    apply Id.reflTwice; apply ap (ν ⬝ ·); apply Id.reflTwice
   end
 
   hott lemma loop₂ {A : Type u} {a : A} {ν κ : idp a = idp a} : ν ⋆′ κ = κ ⬝ ν :=
   begin
-    transitivity;
-    { apply Id.map (· ⬝ (Id.refl ⬝ ν ⬝ Id.refl));
-      apply Id.reflTwice };
-    apply Id.map (κ ⬝ ·); apply Id.reflTwice
+    transitivity; apply ap (· ⬝ _); apply Id.reflTwice;
+    apply ap (κ ⬝ ·); apply Id.reflTwice
   end
 
   hott theorem «Eckmann–Hilton argument» {A : Type u} {a : A}
     (ν κ : idp a = idp a) : ν ⬝ κ = κ ⬝ ν :=
   loop₁ ⬝ compUniq ν κ ⬝ loop₂
-end whiskering
+end Whiskering
 
 end GroundZero.Types

@@ -1,4 +1,6 @@
 import GroundZero.Types.HEq
+
+open GroundZero.Types.Id (ap)
 open GroundZero.Types
 
 namespace GroundZero.HITs
@@ -34,7 +36,7 @@ namespace Graph
 
   axiom recβrule {A : Type u} {B : Type v} {R : A → A → Type w}
     (f : A → B) (h : Π x y, R x y → f x = f y) {x y : A} (g : R x y) :
-    Id.map (rec f h) (line g) = h x y g
+    ap (rec f h) (line g) = h x y g
 
   axiom indβrule {A : Type u} {R : A → A → Type w} {B : Graph R → Type v}
     (f : Π x, B (elem x)) (h : Π x y (H : R x y), f x =[line H] f y)

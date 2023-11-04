@@ -3,6 +3,7 @@ import GroundZero.Theorems.Nat
 import GroundZero.Types.Sigma
 
 open GroundZero GroundZero.Types
+open GroundZero.Types.Id (ap)
 open GroundZero.Types.Equiv
 open GroundZero.Proto
 
@@ -66,7 +67,7 @@ hott def grec {C : Type u} (c₀ : C) (cₛ : ℕ → C → C) : ℕ → ℕ × 
 hott def grec.stable {C : Type u} (c₀ : C) (cₛ : ℕ → C → C) :
   Π n, (grec c₀ cₛ n).1 = n
 | Nat.zero   => idp 0
-| Nat.succ n => Id.map Nat.succ (stable c₀ cₛ n)
+| Nat.succ n => ap Nat.succ (stable c₀ cₛ n)
 
 section
   variable {C : Type u} (c₀ : C) (cₛ : ℕ → C → C)
@@ -77,7 +78,7 @@ section
   by reflexivity
 
   hott def Nat.iterB₂ (n : ℕ) : Nat.rec' c₀ cₛ (n + 1) = cₛ n (Nat.rec' c₀ cₛ n) :=
-  Id.map (λ m, cₛ m (Nat.rec' c₀ cₛ n)) (grec.stable c₀ cₛ n)
+  ap (λ m, cₛ m (Nat.rec' c₀ cₛ n)) (grec.stable c₀ cₛ n)
 end
 
 -- exercise 1.5
@@ -127,8 +128,8 @@ namespace Product'
 
   hott def indB (a : A) (b : B) : ind π φ (mk a b) = φ a b :=
   begin
-    transitivity; apply Id.map (transport π · (φ a b));
-    transitivity; apply Id.map Theorems.funext; change _ = (λ x, idp (mk a b x));
+    transitivity; apply ap (transport π · (φ a b));
+    transitivity; apply ap Theorems.funext; change _ = (λ x, idp (mk a b x));
     apply Theorems.funext; intro b; induction b using Bool.casesOn <;> reflexivity;
     apply Theorems.funextId; reflexivity
   end
@@ -189,33 +190,33 @@ namespace Nat'
   hott def addZero : Π n, add n 0 = n := idp
 
   hott def zeroAdd : Π n, add 0 n = n :=
-  ind (λ n, add 0 n = n) (idp 0) (λ n p, Id.map Nat.succ p)
+  ind (λ n, add 0 n = n) (idp 0) (λ n p, ap Nat.succ p)
 
   hott def succAdd : Π n m, add (n + 1) m = add n m + 1 :=
-  λ n, ind (λ m, add (n + 1) m = add n m + 1) (idp (n + 1)) (λ m p, Id.map Nat.succ p)
+  λ n, ind (λ m, add (n + 1) m = add n m + 1) (idp (n + 1)) (λ m p, ap Nat.succ p)
 
   hott def addComm : Π n m, add n m = add m n :=
   λ n, ind (λ m, add n m = add m n) (zeroAdd n)⁻¹
-    (λ m p, (Id.map Nat.succ p) ⬝ (succAdd m n)⁻¹)
+    (λ m p, (ap Nat.succ p) ⬝ (succAdd m n)⁻¹)
 
   hott def addAssoc : Π n m k, add n (add m k) = add (add n m) k :=
-  λ n m, ind (λ k, add n (add m k) = add (add n m) k) (idp (add n m)) (λ k p, Id.map Nat.succ p)
+  λ n m, ind (λ k, add n (add m k) = add (add n m) k) (idp (add n m)) (λ k p, ap Nat.succ p)
 
   hott def oneMul : Π n, mult 1 n = n :=
-  ind (λ n, mult 1 n = n) (idp 0) (λ n p, (addComm 1 (mult 1 n)) ⬝ Id.map Nat.succ p)
+  ind (λ n, mult 1 n = n) (idp 0) (λ n p, (addComm 1 (mult 1 n)) ⬝ ap Nat.succ p)
 
   hott def succMul : Π n m, mult (n + 1) m = add m (mult n m) :=
   λ n, ind (λ m, mult (n + 1) m = add m (mult n m)) (idp 0) (λ m p, calc
     mult (n + 1) (m + 1) = add n (mult (n + 1) m) + 1   : succAdd n (mult (n + 1) m)
-                     ... = add n (add m (mult n m)) + 1 : Id.map (λ k, add n k + 1) p
-                     ... = add (add n m) (mult n m) + 1 : Id.map Nat.succ (addAssoc n m (mult n m))
-                     ... = add (add m n) (mult n m) + 1 : Id.map (λ k, add k (mult n m) + 1) (addComm n m)
-                     ... = add m (add n (mult n m)) + 1 : Id.map Nat.succ (addAssoc m n (mult n m))⁻¹
+                     ... = add n (add m (mult n m)) + 1 : ap (λ k, add n k + 1) p
+                     ... = add (add n m) (mult n m) + 1 : ap Nat.succ (addAssoc n m (mult n m))
+                     ... = add (add m n) (mult n m) + 1 : ap (λ k, add k (mult n m) + 1) (addComm n m)
+                     ... = add m (add n (mult n m)) + 1 : ap Nat.succ (addAssoc m n (mult n m))⁻¹
                      ... = add (m + 1) (mult n (m + 1)) : (succAdd m (mult n (m + 1)))⁻¹)
 
   hott def mulOne : Π n, mult n 1 = n :=
   ind (λ n, mult n 1 = n) (idp 0) (λ n p,
-    (succMul n 1) ⬝ (addComm 1 (mult n 1)) ⬝ Id.map Nat.succ p)
+    (succMul n 1) ⬝ (addComm 1 (mult n 1)) ⬝ ap Nat.succ p)
 
   hott def mulZero : Π n, mult n 0 = 0 := λ _, idp 0
 
@@ -224,14 +225,14 @@ namespace Nat'
 
   hott def mulComm : Π n m, mult n m = mult m n :=
   λ n, ind (λ m, mult n m = mult m n) (zeroMul n)⁻¹
-    (λ m p, Id.map (add n) p ⬝ (succMul m n)⁻¹)
+    (λ m p, ap (add n) p ⬝ (succMul m n)⁻¹)
 
   hott def mulDistrLeft : Π n m k, mult n (add m k) = add (mult n m) (mult n k) :=
   λ n m, ind (λ k, mult n (add m k) = add (mult n m) (mult n k)) (idp (mult n m)) (λ k p, calc
-      mult n (add m (k + 1)) = add n (add (mult n m) (mult n k)) : Id.map (add n) p
+      mult n (add m (k + 1)) = add n (add (mult n m) (mult n k)) : ap (add n) p
                          ... = add (add (mult n m) (mult n k)) n : addComm _ _
                          ... = add (mult n m) (add (mult n k) n) : (addAssoc _ _ _)⁻¹
-                         ... = add (mult n m) (mult n (k + 1))   : Id.map (add (mult n m)) (addComm _ _))
+                         ... = add (mult n m) (mult n (k + 1))   : ap (add (mult n m)) (addComm _ _))
 
   hott def mulDistrRight : Π n m k, mult (add n m) k = add (mult n k) (mult m k) :=
   λ n m k, calc mult (add n m) k = mult k (add n m)          : mulComm _ _
@@ -241,7 +242,7 @@ namespace Nat'
   hott def mulAssoc : Π n m k, mult n (mult m k) = mult (mult n m) k :=
   λ n m, ind (λ k, mult n (mult m k) = mult (mult n m) k) (idp 0) (λ k p, calc
     mult n (mult m (k + 1)) = add (mult n m) (mult n (mult m k)) : mulDistrLeft _ _ _
-                        ... = add (mult n m) (mult (mult n m) k) : Id.map (add (mult n m)) p
+                        ... = add (mult n m) (mult (mult n m) k) : ap (add (mult n m)) p
                         ... = mult (mult n m) (k + 1)            : idp _)
 end Nat'
 

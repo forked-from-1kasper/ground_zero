@@ -1,4 +1,6 @@
 import GroundZero.Structures
+
+open GroundZero.Types.Id (ap)
 open GroundZero.Structures
 
 namespace GroundZero.HITs
@@ -38,7 +40,7 @@ namespace Trunc
     (f g : ∥A∥ₙ → B) (H : f ∘ elem = g ∘ elem) : f = g :=
   begin
     apply GroundZero.Theorems.funext; fapply ind <;> intro x;
-    { exact Types.Id.map (λ (f : A → B), f x) H };
+    { exact ap (λ (f : A → B), f x) H };
     { apply hlevel.cumulative; assumption }
   end
 

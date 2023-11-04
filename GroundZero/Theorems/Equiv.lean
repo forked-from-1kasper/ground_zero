@@ -2,6 +2,7 @@ import GroundZero.HITs.Interval
 import GroundZero.Theorems.UA
 import GroundZero.HITs.Merely
 
+open GroundZero.Types.Id (ap)
 open GroundZero.HITs.Interval
 open GroundZero.Proto (idfun)
 open GroundZero.Types.Equiv
@@ -24,28 +25,28 @@ hott def propFromEquiv {A : Type u} : A ≃ ∥A∥ → prop A :=
 begin
   intro ⟨f, (⟨g, A⟩, _)⟩ a b; transitivity;
   exact (A a)⁻¹; symmetry; transitivity; exact (A b)⁻¹;
-  apply Id.map g; exact HITs.Merely.uniq (f b) (f a)
+  apply ap g; exact HITs.Merely.uniq (f b) (f a)
 end
 
 hott def mapToHapply {A : Type u} {B : A → Type v}
   (c : A) (f g : Π x, B x) (p : f = g) :
-  Id.map (λ (f : Π x, B x), f c) p = happly p c :=
+  ap (λ (f : Π x, B x), f c) p = happly p c :=
 begin induction p; reflexivity end
 
 hott def mapToHapply₂ {A : Type u} {B : A → Type v} {C : Π x, B x → Type w}
   (c₁ : A) (c₂ : B c₁) (f g : Π (x : A) (y : B x), C x y) (p : f = g) :
-  Id.map (λ f, f c₁ c₂) p = happly (happly p c₁) c₂ :=
+  ap (λ f, f c₁ c₂) p = happly (happly p c₁) c₂ :=
 begin induction p; reflexivity end
 
 hott def mapToHapply₃ {A : Type u} {B : A → Type v} {C : Π x, B x → Type w}
   {D : Π x y, C x y → Type w'} (c₁ : A) (c₂ : B c₁) (c₃ : C c₁ c₂) (f g : Π x y z, D x y z) (p : f = g) :
-  Id.map (λ f, f c₁ c₂ c₃) p = happly (happly (happly p c₁) c₂) c₃ :=
+  ap (λ f, f c₁ c₂ c₃) p = happly (happly (happly p c₁) c₂) c₃ :=
 begin induction p; reflexivity end
 
 hott def mapToHapply₄ {A : Type u} {B : A → Type v} {C : Π x, B x → Type w}
   {D : Π (x : A) (y : B x), C x y → Type w'} {E : Π (x : A) (y : B x) (z : C x y), D x y z → Type w''}
   (c₁ : A) (c₂ : B c₁) (c₃ : C c₁ c₂) (c₄ : D c₁ c₂ c₃) (f g : Π x y z w, E x y z w) (p : f = g) :
-  Id.map (λ f, f c₁ c₂ c₃ c₄) p = happly (happly (happly (happly p c₁) c₂) c₃) c₄ :=
+  ap (λ f, f c₁ c₂ c₃ c₄) p = happly (happly (happly (happly p c₁) c₂) c₃) c₄ :=
 begin induction p; reflexivity end
 
 hott def happlyFunextPt {A : Type u} {B : A → Type v} {f g : Π x, B x} (H : f ~ g) (x : A) : happly (funext H) x = H x :=
@@ -54,33 +55,33 @@ begin apply happly; apply happlyFunext end
 hott def happlyFunextPt₂ {A : Type u} {B : A → Type v} {C : Π x, B x → Type w}
   {f g : Π x y, C x y} (H : Π x y, f x y = g x y) (c₁ : A) (c₂ : B c₁) :
   happly (happly (funext (λ x, funext (H x))) c₁) c₂ = H c₁ c₂ :=
-begin transitivity; apply Id.map (happly · c₂); apply happlyFunextPt; apply happlyFunextPt end
+begin transitivity; apply ap (happly · c₂); apply happlyFunextPt; apply happlyFunextPt end
 
 hott def happlyFunextPt₃ {A : Type u} {B : A → Type v} {C : Π x, B x → Type w}
   {D : Π x y, C x y → Type w'} {f g : Π x y z, D x y z}
   (H : Π x y z, f x y z = g x y z) (c₁ : A) (c₂ : B c₁) (c₃ : C c₁ c₂) :
   happly (happly (happly (funext (λ x, funext (λ y, funext (H x y)))) c₁) c₂) c₃ = H c₁ c₂ c₃ :=
-begin transitivity; apply Id.map (happly · c₃); apply happlyFunextPt₂; apply happlyFunextPt end
+begin transitivity; apply ap (happly · c₃); apply happlyFunextPt₂; apply happlyFunextPt end
 
 hott def happlyFunextPt₄ {A : Type u} {B : A → Type v} {C : Π x, B x → Type w}
   {D : Π x y, C x y → Type w'} {E : Π x y z, D x y z → Type w''} {f g : Π x y z w, E x y z w}
   (H : Π x y z w, f x y z w = g x y z w) (c₁ : A) (c₂ : B c₁) (c₃ : C c₁ c₂) (c₄ : D c₁ c₂ c₃) :
   happly (happly (happly (happly (funext (λ x, funext (λ y, funext (λ z, funext (H x y z))))) c₁) c₂) c₃) c₄ = H c₁ c₂ c₃ c₄ :=
-begin transitivity; apply Id.map (happly · c₄); apply happlyFunextPt₃; apply happlyFunextPt end
+begin transitivity; apply ap (happly · c₄); apply happlyFunextPt₃; apply happlyFunextPt end
 
 hott def happlyRevPt {A : Type u} {B : A → Type v} {f g : Π x, B x} (p : f = g) (x : A) :
   happly p⁻¹ x = Homotopy.symm f g (happly p) x :=
 begin apply happly; apply HITs.Interval.happlyRev end
 
-hott def hmtpyRewrite {A : Type u} (f : A → A) (H : f ~ id) (x : A) : H (f x) = Id.map f (H x) :=
+hott def hmtpyRewrite {A : Type u} (f : A → A) (H : f ~ id) (x : A) : H (f x) = ap f (H x) :=
 begin have p := (Theorems.funext H)⁻¹; induction p; symmetry; apply Equiv.idmap end
 
 hott def qinvImplsIshae {A : Type u} {B : Type v} (f : A → B) : qinv f → ishae f :=
 begin
-  intro ⟨g, ⟨ε, η⟩⟩; let ε' := λ b, (ε (f (g b)))⁻¹ ⬝ (Id.map f (η (g b)) ⬝ ε b);
+  intro ⟨g, ⟨ε, η⟩⟩; let ε' := λ b, (ε (f (g b)))⁻¹ ⬝ (ap f (η (g b)) ⬝ ε b);
   existsi g; existsi η; existsi ε'; intro x; symmetry; transitivity;
-  { apply Id.map (λ p, _ ⬝ (Id.map f p ⬝ _)); apply hmtpyRewrite (g ∘ f) };
-  apply rewriteComp; transitivity; apply Id.map (· ⬝ _); symmetry; apply mapOverComp (g ∘ f);
+  { apply ap (λ p, _ ⬝ (ap f p ⬝ _)); apply hmtpyRewrite (g ∘ f) };
+  apply rewriteComp; transitivity; apply ap (· ⬝ _); symmetry; apply mapOverComp (g ∘ f);
   symmetry; apply @homotopySquare A B (f ∘ g ∘ f) f (λ x, ε (f x)) (g (f x)) x (η x)
 end
 
@@ -92,23 +93,23 @@ begin
 end
 
 hott def fibEq {A : Type u} {B : Type v} (f : A → B) {y : B} {a b : A}
-  (p : f a = y) (q : f b = y) : (Σ (γ : a = b), Id.map f γ ⬝ q = p) → @Id (fib f y) ⟨a, p⟩ ⟨b, q⟩ :=
+  (p : f a = y) (q : f b = y) : (Σ (γ : a = b), ap f γ ⬝ q = p) → @Id (fib f y) ⟨a, p⟩ ⟨b, q⟩ :=
 begin
   intro ⟨γ, r⟩; fapply Sigma.prod; exact γ; transitivity; apply transportOverContrMap;
-  transitivity; apply Id.map (· ⬝ p); apply Id.mapInv; apply rewriteComp; exact r⁻¹
+  transitivity; apply ap (· ⬝ p); apply Id.mapInv; apply rewriteComp; exact r⁻¹
 end
 
 hott def ishaeImplContrFib {A : Type u} {B : Type v}
   (f : A → B) : ishae f → Π y, contr (fib f y) :=
 begin
   intro ⟨g, η, ε, τ⟩ y; existsi ⟨g y, ε y⟩; intro ⟨x, p⟩; apply fibEq;
-  existsi (Id.map g p)⁻¹ ⬝ η x; transitivity;
-  apply Id.map (· ⬝ p); apply mapFunctoriality;
-  transitivity; apply Id.map (_ ⬝ · ⬝ p); apply τ;
+  existsi (ap g p)⁻¹ ⬝ η x; transitivity;
+  apply ap (· ⬝ p); apply mapFunctoriality;
+  transitivity; apply ap (_ ⬝ · ⬝ p); apply τ;
   transitivity; symmetry; apply Id.assoc; transitivity;
-  { apply Id.map (· ⬝ _); transitivity; apply Id.mapInv;
-    apply Id.map; symmetry; apply mapOverComp };
-  apply rewriteComp; transitivity; apply Id.map (_ ⬝ ·);
+  { apply ap (· ⬝ _); transitivity; apply Id.mapInv;
+    apply ap; symmetry; apply mapOverComp };
+  apply rewriteComp; transitivity; apply ap (_ ⬝ ·);
   symmetry; apply idmap; apply homotopySquare
 end
 
@@ -126,7 +127,7 @@ hott def compQinv₂ {A : Type u} {B : Type v} {C : Type w}
 begin
   existsi (· ∘ g) <;> apply Prod.mk <;> intro G <;>
   apply Theorems.funext <;> intro <;>
-  apply Id.map G; apply H.2; apply H.1
+  apply ap G; apply H.2; apply H.1
 end
 
 hott def linvContr {A : Type u} {B : Type v}
@@ -196,7 +197,7 @@ begin
   existsi contrToType H; apply Prod.mk <;>
   existsi @typeToContr A B H <;> intro x;
   { fapply Sigma.prod; apply H.2; apply transportBackAndForward };
-  { transitivity; apply Id.map (subst · x);
+  { transitivity; apply ap (subst · x);
     apply propIsSet (contrImplProp H) _ _ _ (idp _);
     reflexivity }
 end
@@ -246,9 +247,9 @@ begin
     -- TODO: apply “or” here somehow
     { apply Proto.Empty.elim; apply ffNeqTt;
       apply eqvInj ⟨φ, H⟩; exact p₁ ⬝ q₁⁻¹ };
-    { transitivity; apply Id.map (bool.encode · x); apply p₂;
+    { transitivity; apply ap (bool.encode · x); apply p₂;
       symmetry; induction x using Bool.casesOn <;> assumption };
-    { transitivity; apply Id.map (bool.encode · x); apply p₁;
+    { transitivity; apply ap (bool.encode · x); apply p₁;
       symmetry; induction x using Bool.casesOn <;> assumption };
     { apply Proto.Empty.elim; apply ffNeqTt;
       apply eqvInj ⟨φ, H⟩; exact p₂ ⬝ q₂⁻¹ } }
@@ -274,8 +275,8 @@ hott def qinvOfCorr {A : Type u} {B : Type v} : Corr A B → (Σ f, @qinv A B f)
 begin
   intro w; fapply Sigma.mk; intro a; apply (w.2.1 a).1.1;
   fapply Sigma.mk; intro b; apply (w.2.2 b).1.1; apply Prod.mk;
-  { intro b; apply Id.map Sigma.fst ((w.2.1 (w.2.2 b).1.1).2 ⟨b, (w.2.2 b).1.2⟩) };
-  { intro a; apply Id.map Sigma.fst ((w.2.2 (w.2.1 a).1.1).2 ⟨a, (w.2.1 a).1.2⟩) }
+  { intro b; apply ap Sigma.fst ((w.2.1 (w.2.2 b).1.1).2 ⟨b, (w.2.2 b).1.2⟩) };
+  { intro a; apply ap Sigma.fst ((w.2.2 (w.2.1 a).1.1).2 ⟨a, (w.2.1 a).1.2⟩) }
 end
 
 section
@@ -300,8 +301,8 @@ section
   begin
     fapply Sigma.mk; { intro p; apply transport (R x) p; apply ρ }; fapply Qinv.toBiinv;
     fapply Sigma.mk; intro r; exact (H x (φ x) (ρ x))⁻¹ ⬝ H x y r; apply Prod.mk;
-    { intro r; dsimp; transitivity; apply Id.map; symmetry; apply c x (φ x) (ρ x);
-      transitivity; apply substComp; transitivity; apply Id.map (subst (H x y r));
+    { intro r; dsimp; transitivity; apply ap; symmetry; apply c x (φ x) (ρ x);
+      transitivity; apply substComp; transitivity; apply ap (subst (H x y r));
       apply transportForwardAndBack; apply c };
     { intro p; induction p; apply Id.invComp }
   end
@@ -312,7 +313,7 @@ section
     apply Theorems.funext; intro x; apply Theorems.funext; intro y;
     change (y = (w.2.1 x).1.1) = (w.1 x y); apply ua; apply Equiv.trans;
     apply inveqv; fapply corrLem w.1 (λ x, (w.2.1 x).1.1) (λ x, (w.2.1 x).1.2)
-      (λ x y ρ, Id.map Sigma.fst ((w.2.1 x).2 ⟨y, ρ⟩));
+      (λ x y ρ, ap Sigma.fst ((w.2.1 x).2 ⟨y, ρ⟩));
     { intros x y ρ; change _ = _; transitivity; symmetry;
       apply transportComp (w.1 x) Sigma.fst ((w.2.1 x).2 ⟨y, ρ⟩);
       apply apd Sigma.snd };
@@ -345,19 +346,19 @@ begin
       induction η; apply Theorems.funext (λ w, (ω.2.2 x w)⁻¹) };
     transitivity; apply transportOverProduct; apply Product.prod;
     transitivity; apply transportOverContrMap;
-    { transitivity; apply Id.map (· ⬝ _);
-      transitivity; apply Id.mapInv; apply Id.map Id.inv;
+    { transitivity; apply ap (· ⬝ _);
+      transitivity; apply Id.mapInv; apply ap Id.inv;
       transitivity; apply mapToHapply₄;
-      transitivity; apply Id.map (happly · _);
+      transitivity; apply ap (happly · _);
       apply happlyFunextPt₃; apply happlyFunextPt; apply Id.invCompCancel };
     { transitivity; apply transportOverPi; apply Theorems.funext; intro;
       transitivity; apply transportOverPi; apply Theorems.funext; intro;
       transitivity; apply transportOverContrMap;
       transitivity; apply Id.reflRight;
       transitivity; apply Id.mapInv;
-      transitivity; apply Id.map Id.inv;
+      transitivity; apply ap Id.inv;
       transitivity; apply mapToHapply₄;
-      transitivity; apply Id.map (happly · _);
+      transitivity; apply ap (happly · _);
       apply happlyFunextPt₃; apply happlyFunextPt; apply Id.invInv } };
   { induction p; reflexivity }
 end

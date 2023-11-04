@@ -1,6 +1,7 @@
 import GroundZero.Theorems.Equiv
+
 open GroundZero.Types.Equiv (transport)
-open GroundZero.Types.Id (map)
+open GroundZero.Types.Id (ap)
 open GroundZero.Structures
 open GroundZero.Types
 
@@ -67,7 +68,7 @@ section
             case inl s' =>
             { right; intro z; apply ffNeqTt;
               transitivity; exact s'⁻¹; symmetry; transitivity; exact r'⁻¹;
-              apply map; fapply Types.Sigma.prod; apply Theorems.funext;
+              apply ap; fapply Types.Sigma.prod; apply Theorems.funext;
               intro x; apply Theorems.Equiv.propset.Id; apply GroundZero.ua.propext;
               apply HITs.Merely.uniq; apply HITs.Merely.uniq; apply Prod.mk <;>
               intro <;> apply HITs.Merely.elem <;> right <;> exact z; apply HITs.Merely.uniq };

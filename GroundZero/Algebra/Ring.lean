@@ -1,7 +1,7 @@
 import GroundZero.Algebra.Group.Factor
 open GroundZero.Algebra.Group (factorLeft)
 open GroundZero.Types.Equiv (transport)
-open GroundZero.Types.Id (map)
+open GroundZero.Types.Id (ap)
 open GroundZero.Structures
 open GroundZero.Types
 open GroundZero
@@ -169,21 +169,21 @@ section
   begin
     apply @Group.unitOfSqr T⁺; transitivity;
     symmetry; apply ring.distribLeft;
-    apply map (T.ψ a); apply T.zeroAdd
+    apply ap (T.ψ a); apply T.zeroAdd
   end
 
   hott def ring.zeroMul (a : T.carrier) : 0 * a = 0 :=
   begin
     apply @Group.unitOfSqr T⁺; transitivity;
     symmetry; apply T.distribRight;
-    apply map (· * a); apply T.addZero
+    apply ap (· * a); apply T.addZero
   end
 
   hott def ring.mulNeg (a b : T.carrier) : a * (-b) = -(a * b) :=
   begin
     apply @Group.eqInvOfMulEqOne T⁺; transitivity;
     symmetry; apply T.distribLeft; transitivity;
-    apply map (T.ψ a); apply T.addLeftNeg;
+    apply ap (T.ψ a); apply T.addLeftNeg;
     apply ring.mulZero
   end
 
@@ -191,16 +191,16 @@ section
   begin
     apply @Group.eqInvOfMulEqOne T⁺; transitivity;
     symmetry; apply T.distribRight; transitivity;
-    apply map (· * b); apply T.addLeftNeg; apply ring.zeroMul
+    apply ap (· * b); apply T.addLeftNeg; apply ring.zeroMul
   end
 
   hott def ring.subDistribLeft (a b c : T.carrier) := calc
     a * (b - c) = a * b + a * (-c) : T.distribLeft a b (T.neg c)
-            ... = a * b - a * c    : Id.map (T.φ (T.ψ a b)) (ring.mulNeg a c)
+            ... = a * b - a * c    : ap (T.φ (T.ψ a b)) (ring.mulNeg a c)
 
   hott def ring.subDistribRight (a b c : T.carrier) := calc
     (a - b) * c = a * c + (-b) * c : T.distribRight a (T.neg b) c
-            ... = a * c - b * c    : Id.map (T.φ (T.ψ a c)) (ring.negMul b c)
+            ... = a * c - b * c    : ap (T.φ (T.ψ a c)) (ring.negMul b c)
 end
 
 class ring.assoc (T : Prering) :=
@@ -233,7 +233,7 @@ class field (T : Prering) extends ring.assoc T, ring.divisible T, ring.comm T :=
 hott def ring.minusOneSqr (T : Prering) [ring T] [ring.monoid T] : @Id T.carrier ((-1) * (-1)) 1 :=
 begin
   transitivity; apply ring.mulNeg;
-  transitivity; apply Id.map T.neg;
+  transitivity; apply ap T.neg;
   apply ring.monoid.mulOne;
   apply @Group.invInv T⁺
 end
@@ -243,20 +243,20 @@ hott def field.properMul {T : Prering} [field T] {a b : T.carrier} :
 begin
   intros p q r; apply @field.nontrivial T _;
   transitivity; { symmetry; apply ring.divisible.mulLeftInv b q };
-  transitivity; { apply map (· * b); symmetry; apply ring.monoid.mulOne };
+  transitivity; { apply ap (· * b); symmetry; apply ring.monoid.mulOne };
   transitivity; apply ring.assoc.mulAssoc;
-  transitivity; apply map (λ y, b⁻¹ * (y * b));
+  transitivity; apply ap (λ y, b⁻¹ * (y * b));
   { symmetry; apply ring.divisible.mulLeftInv a p };
-  transitivity; apply map (T.ψ _); apply ring.assoc.mulAssoc;
+  transitivity; apply ap (T.ψ _); apply ring.assoc.mulAssoc;
   transitivity; { symmetry; apply ring.assoc.mulAssoc };
-  transitivity; apply map; exact r; apply ring.mulZero
+  transitivity; apply ap; exact r; apply ring.mulZero
 end
 
 hott def field.propInv {T : Prering} [field T] {a : T.carrier} : T.isproper a → T.isproper a⁻¹ :=
 begin
   intros p q; apply @field.nontrivial T _;
   transitivity; { symmetry; apply ring.divisible.mulLeftInv a p };
-  transitivity; apply map (· * a); exact q; apply ring.zeroMul
+  transitivity; apply ap (· * a); exact q; apply ring.zeroMul
 end
 
 hott def field.mul (T : Prering) [field T] :
@@ -282,7 +282,7 @@ postfix:max "ˣ" => multiplicative
 -- voilà, no need to repeat a bunch of lemmas
 hott def field.mulRightInv (T : Prering) [field T] {x : T.carrier}
   (p : T.isproper x) : x * x⁻¹ = 1 :=
-Id.map Sigma.fst (Tˣ.mulRightInv ⟨x, p⟩)
+ap Sigma.fst (Tˣ.mulRightInv ⟨x, p⟩)
 
 class lid (T : Prering) [ring T] (φ : T⁺.subgroup) :=
 (ideal : Π r i, i ∈ φ.set → T.ψ r i ∈ φ.set)
@@ -313,18 +313,18 @@ namespace Ring
       { let φ' := T⁺.leftDiv;
         change T.φ (φ' (T.ψ a₁ a₂) (T.ψ a₁ b₂)) (φ' (T.ψ a₁ b₂) (T.ψ b₁ b₂)) = _;
         transitivity; apply T⁺.mulAssoc;
-        transitivity; apply Id.map (T.φ _);
+        transitivity; apply ap (T.φ _);
         transitivity; symmetry; apply T⁺.mulAssoc;
-        apply Id.map (λ z, T.φ z (T.ψ b₁ b₂));
-        apply Group.mulRightInv; apply Id.map; apply T.zeroAdd };
+        apply ap (λ z, T.φ z (T.ψ b₁ b₂));
+        apply Group.mulRightInv; apply ap; apply T.zeroAdd };
       apply φ.mul;
       { apply transport (· ∈ φ.set);
         transitivity; apply T.distribLeft a₁ (T.neg a₂) b₂;
-        apply Id.map (λ z, T.φ z (T.ψ a₁ b₂));
+        apply ap (λ z, T.φ z (T.ψ a₁ b₂));
         apply ring.mulNeg; apply ideal.left; exact q };
       { apply transport (· ∈ φ.set);
         transitivity; apply T.distribRight (T.neg a₁) b₁ b₂;
-        apply Id.map (λ z, T.φ z (T.ψ b₁ b₂));
+        apply ap (λ z, T.φ z (T.ψ b₁ b₂));
         apply ring.negMul; apply ideal.right; exact p } }
   end
 end Ring

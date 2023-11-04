@@ -1,6 +1,7 @@
 import GroundZero.HITs.Colimit
 import GroundZero.Structures
 
+open GroundZero.Types.Id (ap)
 open GroundZero.Structures
 open GroundZero.Types
 open GroundZero
@@ -35,9 +36,9 @@ begin
 
   existsi f; apply Prod.mk <;> existsi g;
   { intro x; induction x using Sum.casesOn;
-    apply Id.map Sum.inl; apply e.leftForward; reflexivity };
+    apply ap Sum.inl; apply e.leftForward; reflexivity };
   { intro x; induction x using Sum.casesOn;
-    apply Id.map Sum.inl; apply e.forwardLeft; reflexivity }
+    apply ap Sum.inl; apply e.forwardLeft; reflexivity }
 end
 
 example : ℕ ≃ (ℕ + 𝟏) + 𝟏 :=
@@ -77,11 +78,11 @@ hott def decode : Π {m n : ℕ}, code m n → m = n
 | Nat.zero,   Nat.zero,   p => idp 0
 | Nat.succ m, Nat.zero,   p => Proto.Empty.elim p
 | Nat.zero,   Nat.succ n, p => Proto.Empty.elim p
-| Nat.succ m, Nat.succ n, p => Id.map Nat.succ (decode p)
+| Nat.succ m, Nat.succ n, p => ap Nat.succ (decode p)
 
 hott def decodeEncodeIdp : Π m, decode (encode (idp m)) = idp m
 | Nat.zero   => idp _
-| Nat.succ m => Id.map _ (decodeEncodeIdp m)
+| Nat.succ m => ap _ (decodeEncodeIdp m)
 
 hott def decodeEncode {m n : ℕ} (p : m = n) : decode (encode p) = p :=
 begin induction p; apply decodeEncodeIdp end

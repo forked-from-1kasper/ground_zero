@@ -2,7 +2,7 @@ import GroundZero.Algebra.Group.Basic
 import GroundZero.Theorems.Nat
 
 open GroundZero.Types.Equiv (transport)
-open GroundZero.Types.Id (map)
+open GroundZero.Types.Id (ap)
 open GroundZero.Types
 
 namespace GroundZero
@@ -15,7 +15,7 @@ namespace Types.Coproduct
     apply Equiv.trans; apply Types.Coproduct.symm;
     apply Equiv.trans; apply Types.Nat.equivAddition;
     assumption; apply Types.Coproduct.symm
-  end 
+  end
 
   hott def eqvVariants (e : C + A ≃ C + B) (x : A) :
     (Σ y, e (Sum.inr x) = Sum.inr y) +
@@ -130,23 +130,23 @@ namespace Algebra
 
 namespace Finite
   hott def plus : Π (n m : ℕ), Finite n + Finite m ≃ Finite (n + m)
-  | Nat.zero,   m => Equiv.trans Types.Coproduct.empty (Equiv.idtoeqv (map Finite (Theorems.Nat.zeroPlus m)⁻¹))
+  | Nat.zero,   m => Equiv.trans Types.Coproduct.empty (Equiv.idtoeqv (ap Finite (Theorems.Nat.zeroPlus m)⁻¹))
   | Nat.succ n, m => calc
     Finite (Nat.succ n) + Finite m ≃ Finite n + (𝟏 + Finite m) : Types.Coproduct.assoc
                                ... ≃ Finite n + (Finite m + 𝟏) : Types.Coproduct.respectsEquivLeft Types.Coproduct.symm
                                ... ≃ (Finite n + Finite m) + 𝟏 : Equiv.symm Types.Coproduct.assoc
                                ... ≃ Finite (n + m) + 𝟏        : Types.Nat.equivAddition 𝟏 (plus n m)
                                ... ≃ Finite (Nat.succ (n + m)) : Equiv.ideqv _
-                               ... ≃ Finite (Nat.succ n + m)   : Equiv.idtoeqv (map Finite (Theorems.Nat.succPlus n m)⁻¹)
+                               ... ≃ Finite (Nat.succ n + m)   : Equiv.idtoeqv (ap Finite (Theorems.Nat.succPlus n m)⁻¹)
 
   hott def mul : Π (n m : ℕ), Finite n × Finite m ≃ Finite (n * m)
-  | Nat.zero,   m => Equiv.trans Types.Product.destroy (Equiv.idtoeqv (map Finite (Theorems.Nat.zeroMul m)⁻¹))
+  | Nat.zero,   m => Equiv.trans Types.Product.destroy (Equiv.idtoeqv (ap Finite (Theorems.Nat.zeroMul m)⁻¹))
   | Nat.succ n, m => calc
     Finite (Nat.succ n) × Finite m ≃ (Finite n × Finite m) + (𝟏 × Finite m) : Types.Product.distribRight
                                ... ≃ Finite (n * m) + (𝟏 × Finite m)        : Types.Nat.equivAddition _ (mul n m)
                                ... ≃ Finite (n * m) + Finite m              : Types.Coproduct.respectsEquivLeft (Structures.prodUnitEquiv _)
                                ... ≃ Finite (n * m + m)                     : plus _ _
-                               ... ≃ Finite (Nat.succ n * m)                : Equiv.idtoeqv (map Finite (Theorems.Nat.mulSucc n m)⁻¹)
+                               ... ≃ Finite (Nat.succ n * m)                : Equiv.idtoeqv (ap Finite (Theorems.Nat.mulSucc n m)⁻¹)
 end Finite
 
 namespace Group
@@ -178,7 +178,7 @@ namespace Group
   begin
     apply Ens.ext; intro x; apply Prod.mk;
     { intro ⟨y, ⟨⟨z, ⟨p, q⟩⟩, r⟩⟩; apply transport (· ∈ coset (G.φ a b) φ.set);
-      symmetry; transitivity; { transitivity; exact r; apply map (G.φ a); exact q };
+      symmetry; transitivity; { transitivity; exact r; apply ap (G.φ a); exact q };
       symmetry; apply G.mulAssoc; apply coset.intro p };
     { intro ⟨y, p⟩; apply transport (· ∈ coset a (coset b φ.set));
       symmetry; transitivity; exact p.2; apply G.mulAssoc;
@@ -197,21 +197,21 @@ namespace Group
         { apply φ.mul; { apply φ.inv; exact p }; exact q };
         { transitivity; { symmetry; apply G.oneMul };
           symmetry; transitivity; { symmetry; apply G.mulAssoc };
-          apply map (G.φ · y); apply mulRightInv } }
+          apply ap (G.φ · y); apply mulRightInv } }
     end
 
     noncomputable hott def coset.uniq {x g₁ g₂ : G.carrier} :
       x ∈ coset g₁ φ.set → x ∈ coset g₂ φ.set → coset g₁ φ.set = coset g₂ φ.set :=
     begin
       intro ⟨x₁, p⟩ ⟨x₂, q⟩; transitivity;
-      apply map (coset · φ.set); apply calc
+      apply ap (coset · φ.set); apply calc
          g₁ = G.φ g₁ G.e               : (G.mulOne g₁)⁻¹
-        ... = G.φ g₁ (G.φ x₁ (G.ι x₁)) : Id.map (G.φ g₁) (mulRightInv x₁)⁻¹
+        ... = G.φ g₁ (G.φ x₁ (G.ι x₁)) : ap (G.φ g₁) (mulRightInv x₁)⁻¹
         ... = G.φ (G.φ g₁ x₁) (G.ι x₁) : (G.mulAssoc _ _ _)⁻¹
-        ... = G.φ (G.φ g₂ x₂) (G.ι x₁) : Id.map (G.φ · (G.ι x₁)) (p.2⁻¹ ⬝ q.2)
+        ... = G.φ (G.φ g₂ x₂) (G.ι x₁) : ap (G.φ · (G.ι x₁)) (p.2⁻¹ ⬝ q.2)
         ... = G.φ g₂ (G.φ x₂ (G.ι x₁)) : G.mulAssoc _ _ _;
       transitivity; { symmetry; apply coset.assoc };
-      apply map; apply @coset.idem.{u, v} G φ;
+      apply ap; apply @coset.idem.{u, v} G φ;
       apply φ.mul; exact q.1; apply φ.inv; exact p.1
     end
   end

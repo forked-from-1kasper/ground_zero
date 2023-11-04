@@ -3,10 +3,10 @@ import GroundZero.Types.Sigma
 import GroundZero.Types.Product
 import GroundZero.Types.Coproduct
 
-open GroundZero.Types.Unit
-open GroundZero.Types.Id (map)
 open GroundZero.Types (Coproduct idp fib)
 open GroundZero.Types.Equiv (biinv)
+open GroundZero.Types.Id (ap)
+open GroundZero.Types.Unit
 
 namespace GroundZero
 universe u v w k r
@@ -184,7 +184,7 @@ section
   hott def contrIsProp {A : Type u} : prop (contr A) :=
   begin
     intro ⟨x, u⟩ ⟨y, v⟩; have p := u y;
-    induction p; apply map;
+    induction p; apply ap;
     apply HITs.Interval.funext; intro a;
     apply propIsSet (contrImplProp ⟨x, u⟩)
   end
@@ -222,19 +222,19 @@ hott def retract (B : Type u) (A : Type v) :=
 hott def retract.section {B : Type u} {A : Type v} (w : retract B A) : B → A := w.2.1
 
 hott def contrRetract {A : Type u} {B : Type v} : retract B A → contr A → contr B :=
-λ ⟨r, s, ε⟩ ⟨a₀, p⟩, ⟨r a₀, λ b, map r (p (s b)) ⬝ (ε b)⟩
+λ ⟨r, s, ε⟩ ⟨a₀, p⟩, ⟨r a₀, λ b, ap r (p (s b)) ⬝ (ε b)⟩
 
 hott def retract.path {A : Type u} {B : Type v} :
   Π (H : retract B A) {a b : B},
   retract (a = b) (H.section a = H.section b) :=
-λ ⟨r, s, ε⟩ a b, ⟨λ q, (ε a)⁻¹ ⬝ (@map A B _ _ r q) ⬝ (ε b), map s,
+λ ⟨r, s, ε⟩ a b, ⟨λ q, (ε a)⁻¹ ⬝ (@ap A B _ _ r q) ⬝ (ε b), ap s,
 begin
   intro p; transitivity; symmetry; apply Types.Id.assoc;
   symmetry; apply Types.Equiv.invRewriteComp;
-  transitivity; apply map (· ⬝ p); apply Types.Id.invInv;
-  transitivity; apply map (ε a ⬝ ·); symmetry; apply Types.Equiv.idmap;
+  transitivity; apply ap (· ⬝ p); apply Types.Id.invInv;
+  transitivity; apply ap (ε a ⬝ ·); symmetry; apply Types.Equiv.idmap;
   transitivity; apply Types.Equiv.homotopySquare ε p;
-  apply map (· ⬝ ε b); apply Types.Equiv.mapOverComp
+  apply ap (· ⬝ ε b); apply Types.Equiv.mapOverComp
 end⟩
 
 hott def equivRespectsRetraction : Π {n : ℕ₋₂} {A : Type u} {B : Type v},
@@ -411,7 +411,7 @@ begin
   apply Types.Id.transCancelLeft (f a a (ρ a));
   transitivity; symmetry; apply Types.Equiv.transportComposition;
   transitivity; apply Types.Equiv.liftedHapply (R a); apply Types.Equiv.apd (f a) p;
-  transitivity; apply map (f a a) (h _ _ _ (ρ a)); symmetry; apply Types.Id.reflRight
+  transitivity; apply ap (f a a) (h _ _ _ (ρ a)); symmetry; apply Types.Id.reflRight
 end
 
 hott def doubleNegEq {A : Type u} (h : Π (x y : A), ¬¬(x = y) → x = y) : hset A :=
@@ -451,9 +451,9 @@ section
   hott def zeroPath {A B : 0-Type} (p : A.fst = B.fst) : A = B :=
   begin fapply Sigma.prod; exact p; apply ntypeIsProp end
 
-  hott def zeroPathRefl (A : 0-Type) : @zeroPath A A Id.refl = Id.refl :=
+  hott def zeroPathRefl (A : 0-Type) : @zeroPath A A (idp A.1) = idp A :=
   begin
-    transitivity; apply Id.map (Sigma.prod (idp _)); change _ = Id.refl;
+    transitivity; apply ap (Sigma.prod (idp _)); change _ = idp _;
     apply propIsSet (ntypeIsProp 0); apply Sigma.prodRefl
   end
 end
@@ -506,7 +506,7 @@ namespace Theorems
     begin
       existsi Sigma.mk f (Homotopy.id f); intro ⟨g, H⟩;
       change r (λ x, Sigma.mk (f x) (idp _)) = r (s g H);
-      apply Id.map r; apply contrImplProp;
+      apply ap r; apply contrImplProp;
       apply weak; intro x; apply singl.contr
     end
 
@@ -518,7 +518,7 @@ namespace Theorems
 
     hott lemma homotopyIndId : homotopyInd f r f (Homotopy.id f) = r :=
     begin
-      transitivity; apply Id.map
+      transitivity; apply ap
         (λ p, @transport (Σ g, f ~ g) (λ p, π p.fst p.snd)
            ⟨f, Homotopy.id f⟩ ⟨f, Homotopy.id f⟩ p r);
       change _ = idp _; apply propIsSet; apply contrImplProp;
@@ -541,7 +541,7 @@ namespace Theorems
     (f g : Π x, B x) : HITs.Interval.happly ∘ @funext A B f g ~ id :=
   begin
     intro H; fapply @homotopyInd _ _ f (λ g G, HITs.Interval.happly (funext G) = G) _ g H;
-    change _ = HITs.Interval.happly (idp _); apply Id.map HITs.Interval.happly;
+    change _ = HITs.Interval.happly (idp _); apply ap HITs.Interval.happly;
     change homotopyInd _ _ _ _ = _; apply homotopyIndId
   end
 
@@ -557,12 +557,12 @@ namespace Theorems
 
   open GroundZero.Types.Equiv (transport)
   hott lemma mapHomotopy {A : Type u} {B : Type v} {a b : A} (f g : A → B) (p : a = b) (q : f ~ g) :
-    Id.map g p = @transport (A → B) (λ h, h a = h b) f g (funext q) (Id.map f p) :=
+    ap g p = @transport (A → B) (λ h, h a = h b) f g (funext q) (ap f p) :=
   begin
     induction p; symmetry; transitivity; apply Types.Equiv.transportOverHmtpy;
-    transitivity; apply Id.map (· ⬝ Id.map (λ (h : A → B), h a) (funext q));
+    transitivity; apply ap (· ⬝ ap (λ (h : A → B), h a) (funext q));
     apply Id.reflRight; transitivity; symmetry; apply mapFunctoriality (λ (h : A → B), h a);
-    transitivity; apply Id.map; apply Id.invComp; reflexivity
+    transitivity; apply ap; apply Id.invComp; reflexivity
   end
 end Theorems
 
@@ -749,7 +749,7 @@ namespace hcommSquare
 
   hott def induced (η : hcommSquare P A B C) (X : Type r) :
     (X → P) → @pullback (X → A) (X → B) (X → C) (λ f, right η ∘ f) (λ g, bot η ∘ g) :=
-  λ φ, ⟨(top η ∘ φ, left η ∘ φ), @map (P → C) (X → C) (right η ∘ top η) (bot η ∘ left η) (· ∘ φ) η.naturality⟩
+  λ φ, ⟨(top η ∘ φ, left η ∘ φ), @ap (P → C) (X → C) (right η ∘ top η) (bot η ∘ left η) (· ∘ φ) η.naturality⟩
 
   hott def isPullback (η : hcommSquare P A B C) :=
   Π (X : Type (max u v w k)), biinv (induced η X)

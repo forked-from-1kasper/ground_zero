@@ -1,4 +1,6 @@
 import GroundZero.Algebra.Group.Subgroup
+
+open GroundZero.Types.Id (ap)
 open GroundZero.Structures
 open GroundZero.Theorems
 open GroundZero.Types
@@ -40,10 +42,10 @@ namespace Group
     begin
       existsi (G.φ x ·); apply Prod.mk <;> existsi (G.φ (G.ι x) ·) <;> intro y;
       { transitivity; { symmetry; apply G.mulAssoc };
-        transitivity; { apply Id.map (G.φ · y); apply G.mulLeftInv };
+        transitivity; { apply ap (G.φ · y); apply G.mulLeftInv };
         apply G.oneMul };
       { transitivity; { symmetry; apply G.mulAssoc };
-        transitivity; { apply Id.map (G.φ · y); apply mulRightInv };
+        transitivity; { apply ap (G.φ · y); apply mulRightInv };
         apply G.oneMul }
     end
 

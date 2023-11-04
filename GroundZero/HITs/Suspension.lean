@@ -1,6 +1,7 @@
 import GroundZero.HITs.Pushout
 import GroundZero.Types.Unit
 
+open GroundZero.Types.Id (ap)
 open GroundZero.Types.Equiv
 open GroundZero.Types
 
@@ -42,7 +43,7 @@ namespace Suspension
   by apply Pushout.indβrule
 
   noncomputable hott def recβrule {A : Type u} {B : Type v} (n s : B)
-    (m : A → n = s) (x : A) : Id.map (rec n s m) (merid x) = m x :=
+    (m : A → n = s) (x : A) : ap (rec n s m) (merid x) = m x :=
   by apply Pushout.recβrule
 end Suspension
 

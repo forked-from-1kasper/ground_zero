@@ -1,6 +1,8 @@
 import GroundZero.Structures
+
 open GroundZero.Structures GroundZero.Types
 open GroundZero.Theorems (funext)
+open GroundZero.Types.Id (ap)
 open GroundZero.Types.Equiv
 
 namespace GroundZero
@@ -61,7 +63,7 @@ namespace Interval
   infix:70 " ∨ " => max
 
   hott def elim {A : Type u} {a b : A} (p : a = b) : I → A := rec a b p
-  hott def lam  {A : Type u} (f : I → A) : f 0 = f 1 := Id.map f seg
+  hott def lam  {A : Type u} (f : I → A) : f 0 = f 1 := ap f seg
 
   hott def connAnd {A : Type u} {a b : A}
     (p : a = b) : Π i, a = elim p i :=
@@ -75,37 +77,37 @@ namespace Interval
     {a : A} (f : A → B) : cong f (idp a) = idp (f a) :=
   begin
     transitivity; apply mapOverComp;
-    transitivity; apply Id.map;
+    transitivity; apply ap;
     apply recβrule; reflexivity
   end
 
   noncomputable hott def mapEqCong {A : Type u} {B : Type v} {a b : A}
-    (f : A → B) (p : a = b) : Id.map f p = cong f p :=
+    (f : A → B) (p : a = b) : ap f p = cong f p :=
   begin induction p; symmetry; apply congRefl end
 
   noncomputable hott def negNeg : Π x, neg (neg x) = x :=
   ind (idp i₀) (idp i₁) (calc
     transport (λ x, neg (neg x) = x) seg (idp i₀) =
-    (@Id.map I I i₁ i₀ (neg ∘ neg) seg⁻¹) ⬝ idp i₀ ⬝ seg :
+    (@ap I I i₁ i₀ (neg ∘ neg) seg⁻¹) ⬝ idp i₀ ⬝ seg :
       by apply transportOverInvolution
-    ... = Id.map neg (Id.map neg seg⁻¹) ⬝ idp i₀ ⬝ seg :
-      begin apply Id.map (λ p, p ⬝ idp i₀ ⬝ seg);
+    ... = ap neg (ap neg seg⁻¹) ⬝ idp i₀ ⬝ seg :
+      begin apply ap (λ p, p ⬝ idp i₀ ⬝ seg);
             apply mapOverComp end
-    ... = Id.map neg (Id.map neg seg)⁻¹ ⬝ idp i₀ ⬝ seg :
-      begin apply Id.map (λ p, p ⬝ idp i₀ ⬝ seg);
-            apply Id.map; apply Id.mapInv end
-    ... = Id.map neg seg⁻¹⁻¹ ⬝ idp i₀ ⬝ seg :
-      begin apply Id.map (λ p, p ⬝ idp i₀ ⬝ seg);
-            apply Id.map; apply Id.map Types.Id.symm;
+    ... = ap neg (ap neg seg)⁻¹ ⬝ idp i₀ ⬝ seg :
+      begin apply ap (λ p, p ⬝ idp i₀ ⬝ seg);
+            apply ap; apply Id.mapInv end
+    ... = ap neg seg⁻¹⁻¹ ⬝ idp i₀ ⬝ seg :
+      begin apply ap (λ p, p ⬝ idp i₀ ⬝ seg);
+            apply ap; apply ap Types.Id.symm;
             apply recβrule end
-    ... = Id.map neg seg ⬝ idp i₀ ⬝ seg :
-      begin apply Id.map (λ (p : i₀ = i₁), Id.map neg p ⬝ idp i₀ ⬝ seg);
+    ... = ap neg seg ⬝ idp i₀ ⬝ seg :
+      begin apply ap (λ (p : i₀ = i₁), ap neg p ⬝ idp i₀ ⬝ seg);
             apply Id.invInv end
     ... = seg⁻¹ ⬝ idp i₀ ⬝ seg :
-      begin apply Id.map (· ⬝ idp i₀ ⬝ seg);
+      begin apply ap (· ⬝ idp i₀ ⬝ seg);
             apply recβrule end
     ... = seg⁻¹ ⬝ seg :
-      begin apply Id.map (· ⬝ seg);
+      begin apply ap (· ⬝ seg);
             apply Id.reflRight end
     ... = idp i₁ : by apply Id.invComp)
 
@@ -116,14 +118,14 @@ namespace Interval
   ⟨neg, ⟨⟨neg, negNeg'⟩, ⟨neg, negNeg'⟩⟩⟩
 
   noncomputable hott def lineRec {A : Type u} (p : I → A) :
-    rec (p 0) (p 1) (Id.map p seg) = p :=
+    rec (p 0) (p 1) (ap p seg) = p :=
   begin
     apply Theorems.funext; intro x; induction x;
     reflexivity; reflexivity; change _ = _;
     transitivity; apply Equiv.transportOverHmtpy;
-    transitivity; apply Id.map (· ⬝ Id.map p seg);
+    transitivity; apply ap (· ⬝ ap p seg);
     transitivity; apply Id.reflRight;
-    transitivity; apply Id.mapInv; apply Id.map;
+    transitivity; apply Id.mapInv; apply ap;
     apply recβrule; apply Id.invComp
   end
 
@@ -132,7 +134,7 @@ namespace Interval
     @transport I (λ i, π (elim p i)) 0 1 Interval.seg u = subst p u :=
   begin
     transitivity; apply transportComp;
-    transitivity; apply Id.map (subst · u);
+    transitivity; apply ap (subst · u);
     apply recβrule; reflexivity
   end
 

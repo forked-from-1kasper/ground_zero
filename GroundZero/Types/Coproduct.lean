@@ -1,5 +1,7 @@
 import GroundZero.Types.Equiv
 
+open GroundZero.Types.Id (ap)
+
 namespace GroundZero.Types
 universe u v w w'
 
@@ -40,7 +42,7 @@ namespace Coproduct
     Equiv.transport (code a₀) p (idp a₀)
 
     hott def decode {a₀ : A} : Π {x : A + B} (c : code a₀ x), inl a₀ = x
-    | inl a, c => Id.map inl c
+    | inl a, c => ap inl c
     | inr b, c => Proto.Empty.elim c
 
     hott def decodeEncode {a₀ : A} {x : A + B}
@@ -76,7 +78,7 @@ namespace Coproduct
 
     hott def decode {b₀ : B} : Π {x : A + B} (c : code b₀ x), inr b₀ = x
     | inl a, c => Proto.Empty.elim c
-    | inr b, c => Id.map inr c
+    | inr b, c => ap inr c
 
     hott def decodeEncode {b₀ : B} {x : A + B}
       (p : inr b₀ = x) : decode (encode p) = p :=
@@ -108,8 +110,8 @@ namespace Coproduct
   hott def pathSum {A B : Type u} (z₁ z₂ : A + B) (p : code z₁ z₂) : z₁ = z₂ :=
   begin
     induction z₁ using Sum.casesOn <;> induction z₂ using Sum.casesOn;
-    apply Id.map; assumption; apply Proto.Empty.elim p;
-    apply Proto.Empty.elim p; apply Id.map; assumption
+    apply ap; assumption; apply Proto.Empty.elim p;
+    apply Proto.Empty.elim p; apply ap; assumption
   end
 end Coproduct
 

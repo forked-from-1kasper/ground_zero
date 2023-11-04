@@ -4,7 +4,7 @@ import GroundZero.HITs.Trunc
 
 open GroundZero.Theorems.Functions GroundZero.Theorems.Equiv
 open GroundZero.Types.Equiv (idtoeqv)
-open GroundZero.Types.Id (dotted)
+open GroundZero.Types.Id (dotted ap)
 open GroundZero.ua (uaβrule)
 open GroundZero.Structures
 open GroundZero.Types
@@ -74,7 +74,7 @@ namespace K1
 
   axiom recβrule {C : Type v} (baseπ : C) (loopπ : G.carrier → baseπ = baseπ)
     (mulπ : Π x y, loopπ (G.φ x y) = loopπ x ⬝ loopπ y) (groupoidπ : groupoid C) :
-    Π x, Id.map (rec baseπ loopπ mulπ groupoidπ) (loop x) = loopπ x
+    Π x, ap (rec baseπ loopπ mulπ groupoidπ) (loop x) = loopπ x
 
   attribute [irreducible] K1
 
@@ -123,7 +123,7 @@ namespace K1
       symmetry; apply Group.cancelLeft };
     { intros x y; symmetry; transitivity;
       { symmetry; apply ua.uaTrans };
-      apply Id.map ua; fapply Sigma.prod;
+      apply ap ua; fapply Sigma.prod;
       { apply Theorems.funext; intro; apply G.mulAssoc };
       { apply biinvProp } };
     apply G.hset
@@ -151,19 +151,19 @@ namespace K1
     case loopπ x =>
     { change _ = _; transitivity; apply Equiv.transportCharacterization;
       apply Theorems.funext; intro y; transitivity;
-      apply Id.map (λ p, Equiv.transport (λ x, base = x) (loop x) (loop p));
+      apply ap (λ p, Equiv.transport (λ x, base = x) (loop x) (loop p));
       transitivity; apply Equiv.transportToTransportconst;
-      transitivity; apply Id.map (Equiv.transportconst · y);
-      transitivity; apply Id.mapInv; apply Id.map;
+      transitivity; apply ap (Equiv.transportconst · y);
+      transitivity; apply Id.mapInv; apply ap;
       transitivity; apply Equiv.mapOverComp;
-      transitivity; apply Id.map; unfold code'; apply recβrule;
+      transitivity; apply ap; unfold code'; apply recβrule;
       apply Sigma.mapFstOverProd; apply ua.transportInvRule;
       transitivity; apply Equiv.transportOverInvContrMap;
-      transitivity; apply Id.map; apply Equiv.idmap;
-      transitivity; apply Id.map (· ⬝ loop x); apply loop.mul;
+      transitivity; apply ap; apply Equiv.idmap;
+      transitivity; apply ap (· ⬝ loop x); apply loop.mul;
       transitivity; symmetry; apply Id.assoc;
-      transitivity; apply Id.map; apply Id.map (· ⬝ loop x); apply loop.inv;
-      transitivity; apply Id.map; apply Id.invComp; apply Id.reflRight };
+      transitivity; apply ap; apply ap (· ⬝ loop x); apply loop.inv;
+      transitivity; apply ap; apply Id.invComp; apply Id.reflRight };
     { apply zeroEqvSet.forward; apply piRespectsNType 0;
       intro; apply zeroEqvSet.left; apply grpd };
     { apply oneEqvGroupoid.forward;
@@ -178,9 +178,9 @@ namespace K1
     induction z;
     { intro (x : G.carrier); change encode base (loop x) = _;
       transitivity; apply Equiv.transportToTransportconst;
-      transitivity; apply Id.map (Equiv.transportconst · G.e);
+      transitivity; apply ap (Equiv.transportconst · G.e);
       transitivity; apply Equiv.mapOverComp;
-      transitivity; apply Id.map; unfold code'; apply recβrule;
+      transitivity; apply ap; unfold code'; apply recβrule;
       apply Sigma.mapFstOverProd; transitivity;
       apply ua.transportRule; apply G.oneMul };
     { apply Theorems.funext; intro; apply hsetBase };

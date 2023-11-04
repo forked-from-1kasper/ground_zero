@@ -51,7 +51,7 @@ namespace Reals
 
   noncomputable hott def recβrule {A : Type u} (cz : ℤ → A)
     (sz : Π z, cz z = cz (Integer.succ z)) (z : ℤ) :
-    Id.map (rec cz sz) (glue z) = sz z := 
+    ap (rec cz sz) (glue z) = sz z :=
   begin
     apply Equiv.pathoverOfEqInj (glue z); transitivity;
     symmetry; apply Equiv.apdOverConstantFamily;
@@ -81,7 +81,7 @@ namespace Reals
     | Integer.neg n => _;
     induction n using Nat.casesOn; apply Id.invComp;
     { transitivity; symmetry; apply Id.assoc;
-      transitivity; apply Id.map; apply Id.invComp;
+      transitivity; apply ap; apply Id.invComp;
       apply Id.reflRight }
   end)⟩
 
@@ -102,16 +102,16 @@ namespace Reals
 
     hott def helixOverHomo (x : A.1) : helix (φ.ap x) = ℤ :=
     begin
-      transitivity; apply map (helix ∘ φ.ap);
+      transitivity; apply ap (helix ∘ φ.ap);
       apply H x A.point; change _ = helix base;
-      apply map helix; apply φ.id
+      apply ap helix; apply φ.id
     end
 
     noncomputable hott def fibOfHomo (x : S¹) := calc
       fib φ.ap x ≃ Σ (z : A.1), φ.ap z = x       : Equiv.ideqv (fib φ.ap x)
-             ... = Σ (z : A.1), φ.ap A.point = x : Id.map Sigma (funext (λ z, Id.map (φ.ap · = x) (H z A.point)))
-             ... = Σ (z : A.1), base = x         : Id.map Sigma (funext (λ _, Id.map (· = x) φ.id))
-             ... = Σ (z : A.1), helix x          : Id.map Sigma (funext (λ _, GroundZero.ua (Circle.family x)))
+             ... = Σ (z : A.1), φ.ap A.point = x : ap Sigma (funext (λ z, ap (φ.ap · = x) (H z A.point)))
+             ... = Σ (z : A.1), base = x         : ap Sigma (funext (λ _, ap (· = x) φ.id))
+             ... = Σ (z : A.1), helix x          : ap Sigma (funext (λ _, GroundZero.ua (Circle.family x)))
              ... ≃ A.1 × (helix x)               : Sigma.const A.1 (helix x)
              ... ≃ 𝟏 × (helix x)                 : ua.productEquiv₃ (contrEquivUnit.{_, 0} ⟨A.point, H A.point⟩) (Equiv.ideqv (helix x))
              ... ≃ helix x                       : prodUnitEquiv (helix x)
@@ -141,20 +141,20 @@ namespace Reals
     case sz z => {
       change _ = _; let p := Integer.shift z; apply calc
             Equiv.transport (λ x, helix (cis x) = ℤ) (glue z) (Integer.shift z)⁻¹
-          = @Id.map R Type _ _ (helix ∘ cis) (glue z)⁻¹ ⬝ (Integer.shift z)⁻¹ :
+          = @ap R Type _ _ (helix ∘ cis) (glue z)⁻¹ ⬝ (Integer.shift z)⁻¹ :
         Equiv.transportOverContrMap _ _ _
-      ... = (Id.map (helix ∘ cis) (glue z))⁻¹ ⬝ (Integer.shift z)⁻¹ :
-        Id.map (· ⬝ p⁻¹) (Id.mapInv _ _)
-      ... = (Id.map helix (Id.map cis (glue z)))⁻¹ ⬝ (Integer.shift z)⁻¹ :
-        Id.map (·⁻¹ ⬝ p⁻¹) (Equiv.mapOverComp _ _ _)
-      ... = (Id.map helix loop)⁻¹ ⬝ (Integer.shift z)⁻¹ :
-        begin apply Id.map (·⁻¹ ⬝ p⁻¹); apply Id.map; apply recβrule end
+      ... = (ap (helix ∘ cis) (glue z))⁻¹ ⬝ (Integer.shift z)⁻¹ :
+        ap (· ⬝ p⁻¹) (Id.mapInv _ _)
+      ... = (ap helix (ap cis (glue z)))⁻¹ ⬝ (Integer.shift z)⁻¹ :
+        ap (·⁻¹ ⬝ p⁻¹) (Equiv.mapOverComp _ _ _)
+      ... = (ap helix loop)⁻¹ ⬝ (Integer.shift z)⁻¹ :
+        begin apply ap (·⁻¹ ⬝ p⁻¹); apply ap; apply recβrule end
       ... = Integer.succPath⁻¹ ⬝ (Integer.shift z)⁻¹ :
-        begin apply Id.map (·⁻¹ ⬝ p⁻¹); apply Circle.recβrule₂ end
+        begin apply ap (·⁻¹ ⬝ p⁻¹); apply Circle.recβrule₂ end
       ... = (Integer.shift z ⬝ Integer.succPath)⁻¹ :
         (Id.explodeInv _ _)⁻¹
       ... = (Integer.shift (Integer.succ z))⁻¹ :
-        Id.map _ (Integer.shiftComp _)
+        ap _ (Integer.shiftComp _)
     }
   end
 

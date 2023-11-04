@@ -1,6 +1,7 @@
 import GroundZero.Theorems.UA
 import GroundZero.Types.Nat
 
+open GroundZero.Types.Id (ap)
 open GroundZero.Proto (idfun)
 open GroundZero.Types.Equiv
 open GroundZero.Structures
@@ -29,26 +30,26 @@ namespace Nat
   | Nat.zero,   Nat.succ n => Sum.inr (ua.succNeqZero ∘ Id.inv)
   | Nat.succ m, Nat.succ n =>
     match natDecEq m n with
-    | Sum.inl p => Sum.inl (Id.map Nat.succ p)
+    | Sum.inl p => Sum.inl (ap Nat.succ p)
     | Sum.inr φ => Sum.inr (φ ∘ succInj)
 
   hott def natIsSet : hset ℕ := Hedberg natDecEq
 
   hott def zeroPlus : Π (i : ℕ), 0 + i = i
   | Nat.zero   => idp 0
-  | Nat.succ i => Id.map Nat.succ (zeroPlus i)
+  | Nat.succ i => ap Nat.succ (zeroPlus i)
 
   hott def succPlus (i : ℕ) : Π j, Nat.succ i + j = Nat.succ (i + j)
   | Nat.zero   => idp _
-  | Nat.succ j => Id.map Nat.succ (succPlus i j)
+  | Nat.succ j => ap Nat.succ (succPlus i j)
 
   hott def comm : Π (i j : ℕ), i + j = j + i
   | Nat.zero,   j => zeroPlus j
-  | Nat.succ i, j => succPlus i j ⬝ Id.map Nat.succ (comm i j)
+  | Nat.succ i, j => succPlus i j ⬝ ap Nat.succ (comm i j)
 
   hott def assoc (i j : ℕ) : Π k, (i + j) + k = i + (j + k)
   | Nat.zero   => idp (i + j)
-  | Nat.succ k => Id.map Nat.succ (assoc i j k)
+  | Nat.succ k => ap Nat.succ (assoc i j k)
 
   hott def zeroMul : Π (i : ℕ), 0 * i = 0
   | Nat.zero   => idp 0
@@ -56,18 +57,18 @@ namespace Nat
 
   hott def oneMul : Π (i : ℕ), 1 * i = i
   | Nat.zero   => idp 0
-  | Nat.succ i => Id.map Nat.succ (oneMul i)
+  | Nat.succ i => ap Nat.succ (oneMul i)
 
   hott def mulOne (i : ℕ) : i * 1 = i := zeroPlus i
 
   hott def distribLeft (i : ℕ) : Π (j n : ℕ), n * (i + j) = n * i + n * j
   | Nat.zero,   n => idp _
-  | Nat.succ j, n => Id.map (λ m, m + n) (distribLeft i j n) ⬝ assoc _ _ _
+  | Nat.succ j, n => ap (λ m, m + n) (distribLeft i j n) ⬝ assoc _ _ _
 
   hott def mulSucc (i : ℕ) : Π j, Nat.succ i * j = i * j + j
   | Nat.zero   => idp _
-  | Nat.succ j => Id.map Nat.succ (Id.map (λ k, k + i) (mulSucc i j) ⬝ assoc _ _ _
-                                ⬝ (assoc _ _ _ ⬝ Id.map _ (comm _ _))⁻¹)
+  | Nat.succ j => ap Nat.succ (ap (λ k, k + i) (mulSucc i j) ⬝ assoc _ _ _
+                                ⬝ (assoc _ _ _ ⬝ ap _ (comm _ _))⁻¹)
 
   hott def mulComm (i : ℕ) : Π j, i * j = j * i
   | Nat.zero   => (zeroMul _)⁻¹
@@ -80,23 +81,23 @@ namespace Nat
   mulComm (i + j) n ⬝ distribLeft _ _ _ ⬝ bimap Nat.add (mulComm _ _) (mulComm _ _)
 
   hott def oneNeqNPlusTwo (n : ℕ) : ¬(1 = n + 2) :=
-  λ p, ua.succNeqZero (Id.map Nat.pred p)⁻¹
+  λ p, ua.succNeqZero (ap Nat.pred p)⁻¹
 
   def isEven (n : ℕ) := Σ m, n = m * 2
   def isOdd  (n : ℕ) := Σ m, n = m * 2 + 1
 
   hott def plusOnePlus {i j : ℕ} : i + 1 + j = (i + j) + 1 := calc
     i + 1 + j = i + (1 + j) : assoc _ _ _
-          ... = i + (j + 1) : Id.map (Nat.add i) (comm 1 j)
+          ... = i + (j + 1) : ap (Nat.add i) (comm 1 j)
           ... = (i + j) + 1 : idp _
 
   hott def assocTetra {i j k l : ℕ} : i + (j + k) + l = (i + j) + (k + l) := calc
     (i + (j + k)) + l = i + ((j + k) + l) : assoc _ _ _
-                  ... = i + (j + (k + l)) : Id.map _ (assoc _ _ _)
+                  ... = i + (j + (k + l)) : ap _ (assoc _ _ _)
                   ... = (i + j) + (k + l) : (assoc _ _ _)⁻¹
 
   hott def plusDiag (n : ℕ) : n * 2 = n + n :=
-  Id.map (λ m, m + n) (zeroPlus _)
+  ap (λ m, m + n) (zeroPlus _)
 
   hott def apart : ℕ → ℕ → Type
   | Nat.zero,   Nat.zero   => 𝟎
@@ -114,7 +115,7 @@ namespace Nat
   | Nat.zero,   Nat.zero   => idp _
   | Nat.succ m, Nat.zero   => idp _
   | Nat.zero,   Nat.succ n => idp _
-  | Nat.succ m, Nat.succ n => Id.map Nat.succ (comm _ _)
+  | Nat.succ m, Nat.succ n => ap Nat.succ (comm _ _)
 
   hott def min : ℕ → ℕ → ℕ
   | Nat.zero,   Nat.zero   => 0
@@ -126,15 +127,15 @@ namespace Nat
   | Nat.zero,   Nat.zero   => idp _
   | Nat.succ m, Nat.zero   => idp _
   | Nat.zero,   Nat.succ n => idp _
-  | Nat.succ m, Nat.succ n => Id.map Nat.succ (comm _ _)
+  | Nat.succ m, Nat.succ n => ap Nat.succ (comm _ _)
 
   hott def max.refl : Π n, max n n = n
   | Nat.zero   => idp 0
-  | Nat.succ n => Id.map Nat.succ (refl n)
+  | Nat.succ n => ap Nat.succ (refl n)
 
   hott def min.refl : Π n, min n n = n
   | Nat.zero   => idp 0
-  | Nat.succ n => Id.map Nat.succ (refl n)
+  | Nat.succ n => ap Nat.succ (refl n)
 
   def le (n m : ℕ) := max n m = m
   infix:55 (priority := high) " ≤ " => le
@@ -170,7 +171,7 @@ namespace Nat
   | Nat.succ n, Nat.zero,   Nat.zero   => idp _
   | Nat.succ n, Nat.zero,   Nat.succ k => idp _
   | Nat.succ n, Nat.succ m, Nat.zero   => idp _
-  | Nat.succ n, Nat.succ m, Nat.succ k => Id.map Nat.succ (assoc _ _ _)
+  | Nat.succ n, Nat.succ m, Nat.succ k => ap Nat.succ (assoc _ _ _)
 
   hott def min.assoc : Π n m k, min n (min m k) = min (min n m) k
   | Nat.zero,   Nat.zero,   Nat.zero   => idp _
@@ -180,19 +181,19 @@ namespace Nat
   | Nat.succ n, Nat.zero,   Nat.zero   => idp _
   | Nat.succ n, Nat.zero,   Nat.succ k => idp _
   | Nat.succ n, Nat.succ m, Nat.zero   => idp _
-  | Nat.succ n, Nat.succ m, Nat.succ k => Id.map Nat.succ (assoc _ _ _)
+  | Nat.succ n, Nat.succ m, Nat.succ k => ap Nat.succ (assoc _ _ _)
 
   hott def le.trans {n m k : ℕ} : n ≤ m → m ≤ k → n ≤ k :=
   begin
     intros p q; change _ = _; transitivity;
-    apply Id.map; exact q⁻¹; transitivity; apply max.assoc;
-    transitivity; apply Id.map (max · k); exact p; exact q
+    apply ap; exact q⁻¹; transitivity; apply max.assoc;
+    transitivity; apply ap (max · k); exact p; exact q
   end
 
   instance : Transitive le := ⟨@le.trans⟩
 
-  hott def le.inj (n m : ℕ) : n + 1 ≤ m + 1 → n ≤ m := Id.map Nat.pred
-  hott def le.map (n m : ℕ) : n ≤ m → n + 1 ≤ m + 1 := Id.map Nat.succ
+  hott def le.inj (n m : ℕ) : n + 1 ≤ m + 1 → n ≤ m := ap Nat.pred
+  hott def le.map (n m : ℕ) : n ≤ m → n + 1 ≤ m + 1 := ap Nat.succ
 
   hott def le.addr (n m : ℕ) : Π k, n ≤ m → n + k ≤ m + k
   | Nat.zero,   h => h
@@ -203,7 +204,7 @@ namespace Nat
 
   hott def le.succ : Π (n : ℕ), n ≤ n + 1
   | Nat.zero   => idp _
-  | Nat.succ n => Id.map Nat.succ (succ n)
+  | Nat.succ n => ap Nat.succ (succ n)
 
   hott def le.step : Π (n m : ℕ), n ≤ m → n ≤ m + 1
   | Nat.zero,   m, _ => idp _
@@ -213,12 +214,12 @@ namespace Nat
   | Nat.zero,   Nat.zero,   p => idp _
   | Nat.succ m, Nat.zero,   p => Proto.Empty.elim (max.neZero p)
   | Nat.zero,   Nat.succ n, p => idp _
-  | Nat.succ m, Nat.succ n, p => Id.map Nat.succ (minMax m n (Id.map Nat.pred p))
+  | Nat.succ m, Nat.succ n, p => ap Nat.succ (minMax m n (ap Nat.pred p))
 
   hott def le.max (n m : ℕ) : n ≤ max n m :=
   begin
     change _ = _; transitivity; apply max.assoc;
-    apply Id.map (Nat.max · m); apply max.refl
+    apply ap (Nat.max · m); apply max.refl
   end
 
   hott def le.maxRev (n m : ℕ) : n ≤ Nat.max m n :=
@@ -228,7 +229,7 @@ namespace Nat
   | Nat.zero,   Nat.zero   => idp _
   | Nat.succ n, Nat.zero   => idp _
   | Nat.zero,   Nat.succ m => idp _
-  | Nat.succ n, Nat.succ m => Id.map Nat.succ (min n m)
+  | Nat.succ n, Nat.succ m => ap Nat.succ (min n m)
 
   hott def le.minRev (n m : ℕ) : Nat.min m n ≤ m :=
   @transport ℕ (· ≤ m) (Nat.min n m) (Nat.min m n) (min.comm n m) (le.min n m)
@@ -238,9 +239,9 @@ namespace Nat
 
   hott def le.dec : Π (m n : ℕ), (m ≤ n) + (n + 1 ≤ m)
   | Nat.zero,   Nat.zero   => Sum.inl (idp _)
-  | Nat.succ m, Nat.zero   => Sum.inr (Id.map Nat.succ (max.zeroLeft m))
+  | Nat.succ m, Nat.zero   => Sum.inr (ap Nat.succ (max.zeroLeft m))
   | Nat.zero,   Nat.succ n => Sum.inl (idp _)
-  | Nat.succ m, Nat.succ n => Coproduct.elim (Sum.inl ∘ Id.map Nat.succ) (Sum.inr ∘ Id.map Nat.succ) (dec m n)
+  | Nat.succ m, Nat.succ n => Coproduct.elim (Sum.inl ∘ ap Nat.succ) (Sum.inr ∘ ap Nat.succ) (dec m n)
 
   hott def le.neSucc : Π (n : ℕ), ¬(n + 1 ≤ n)
   | Nat.zero   => max.neZero
@@ -256,7 +257,7 @@ namespace Nat
 
   hott def le.leSucc : Π (n : ℕ), n ≤ n + 1
   | Nat.zero   => idp _
-  | Nat.succ n => Id.map Nat.succ (leSucc n)
+  | Nat.succ n => ap Nat.succ (leSucc n)
 
   hott def le.elim (ρ : ℕ → ℕ → Type u) (τ : Π n m k, ρ n m → ρ m k → ρ n k)
     (reflρ : Π n, ρ n n) (succρ : Π n, ρ n (n + 1)) {n : ℕ} : Π {m : ℕ}, n ≤ m → ρ n m
@@ -280,7 +281,7 @@ namespace Nat
   | Nat.zero,   Nat.zero,   _ => idp 0
   | Nat.succ m, Nat.zero,   p => p
   | Nat.zero,   Nat.succ n, p => p⁻¹
-  | Nat.succ m, Nat.succ n, p => Id.map Nat.succ (identity m n p)
+  | Nat.succ m, Nat.succ n, p => ap Nat.succ (identity m n p)
 
   hott def dist.symm : Π (n m : ℕ), dist n m = dist m n
   | Nat.zero,   Nat.zero   => idp _
@@ -307,9 +308,9 @@ namespace Nat
   | Nat.succ n, Nat.succ m => le.trans (le.map (max n m) (n + m) (leAdd n m))
     (begin
       apply transport (n + m + 1 ≤ ·); symmetry; transitivity;
-      apply Nat.assoc n 1; transitivity; transitivity; apply Id.map;
+      apply Nat.assoc n 1; transitivity; transitivity; apply ap;
       symmetry; apply Nat.assoc 1 m 1; symmetry; apply Nat.assoc;
-      apply Id.map (λ k, n + k + 1); apply Nat.comm; apply le.leSucc
+      apply ap (λ k, n + k + 1); apply Nat.comm; apply le.leSucc
     end)
 
   -- ℕ-specific property
@@ -347,11 +348,11 @@ namespace UnitList
 
   def decodeEncode : Π n, decode (encode n) = n
   | Nat.zero   => idp _
-  | Nat.succ n => Id.map Nat.succ (decodeEncode n)
+  | Nat.succ n => ap Nat.succ (decodeEncode n)
 
   def encodeDecode : Π xs, encode (decode xs) = xs
   | []      => idp _
-  | ★ :: xs => Id.map succ' (encodeDecode xs)
+  | ★ :: xs => ap succ' (encodeDecode xs)
 
   hott def iso : ℕ ≃ List 𝟏 :=
   ⟨encode, (⟨decode, decodeEncode⟩, ⟨decode, encodeDecode⟩)⟩

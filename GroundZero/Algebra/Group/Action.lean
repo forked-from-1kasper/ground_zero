@@ -1,5 +1,7 @@
 import GroundZero.Algebra.Group.Symmetric
 import GroundZero.HITs.Quotient
+
+open GroundZero.Types.Id (ap)
 open GroundZero.Structures
 open GroundZero.Types
 open GroundZero
@@ -27,15 +29,15 @@ namespace Group
   variable {G : Group}
 
   section
-    variable {A : Type u} 
+    variable {A : Type u}
 
     hott def rightAction.associated : (G ⮎ A) → (G ⮌ A) :=
     λ ⟨φ, (p, q)⟩, ⟨λ x g, φ (G.ι g) x, (begin
-      intro x; transitivity; apply Id.map (φ · x);
+      intro x; transitivity; apply ap (φ · x);
       symmetry; apply unitInv; apply p
     end, begin
       intros g h x; transitivity;
-      apply q; apply Id.map (φ · x);
+      apply q; apply ap (φ · x);
       symmetry; apply invExplode
     end)⟩
 
@@ -70,9 +72,9 @@ namespace Group
   begin
     apply HITs.Merely.lift;
     intro ⟨g, p⟩; existsi G.ι g;
-    transitivity; apply Id.map; exact Id.inv p;
+    transitivity; apply ap; exact Id.inv p;
     transitivity; apply φ.2.2;
-    transitivity; apply Id.map (φ.1 · a);
+    transitivity; apply ap (φ.1 · a);
     apply G.mulLeftInv; apply φ.2.1
   end
 
@@ -81,7 +83,7 @@ namespace Group
   begin
     apply HITs.Merely.lift₂; intro ⟨g, p⟩ ⟨h, q⟩;
     existsi G.φ h g; transitivity; symmetry; apply φ.2.2;
-    transitivity; apply Id.map; exact p; exact q
+    transitivity; apply ap; exact p; exact q
   end
 
   hott def leftAction.rel {A : Type u} (φ : G ⮎ A) : hrel A :=
@@ -168,8 +170,8 @@ namespace Group
     intro H; apply Prod.mk;
     { intros a b; apply HITs.Merely.elem; exact (H a b).1 };
     { intros x g h p;
-      apply @Id.map (Σ g, φ.fst g x = φ.fst h x) G.carrier
-                    ⟨g, p⟩ ⟨h, Id.refl⟩ Sigma.fst;
+      apply @ap (Σ g, φ.fst g x = φ.fst h x) G.carrier
+                ⟨g, p⟩ ⟨h, Id.refl⟩ Sigma.fst;
       apply contrImplProp; apply H }
   end
 

@@ -1,6 +1,7 @@
 import GroundZero.HITs.Coequalizer
 import GroundZero.Theorems.UA
 
+open GroundZero.Types.Id (ap)
 open GroundZero.Types.Equiv
 open GroundZero.Types
 open GroundZero (ua)
@@ -37,7 +38,7 @@ namespace Flattening
   begin
     fapply Sigma.prod; apply Coeq.resp;
     transitivity; apply transportToTransportconst;
-    transitivity; apply @Id.map _ _ (Id.map (P f g C D) (Coeq.resp x)) _ (transportconst · y);
+    transitivity; apply @ap _ _ (ap (P f g C D) (Coeq.resp x)) _ (transportconst · y);
     apply Coeq.recβrule (Type w) C (λ x, ua (D x)) x; apply GroundZero.ua.transportRule
   end
 

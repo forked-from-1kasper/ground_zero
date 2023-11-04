@@ -2,6 +2,7 @@ import GroundZero.Theorems.Functions
 import GroundZero.Theorems.Equiv
 
 open GroundZero.Theorems.Functions
+open GroundZero.Types.Id (ap)
 open GroundZero.Types.Equiv
 open GroundZero.Structures
 open GroundZero.Theorems
@@ -54,9 +55,9 @@ namespace Precategory
     intro ⟨g', (H₁, H₂)⟩ ⟨g, (G₁, G₂)⟩;
     fapply Sigma.prod; apply calc
         g' = id 𝒞 ∘ g'    : idLeft _ _
-       ... = (g ∘ f) ∘ g' : Id.map (compose · g') G₂⁻¹
+       ... = (g ∘ f) ∘ g' : ap (compose · g') G₂⁻¹
        ... = g ∘ (f ∘ g') : (assoc _ _ _ _)⁻¹
-       ... = g ∘ id 𝒞     : Id.map (compose g) H₁
+       ... = g ∘ id 𝒞     : ap (compose g) H₁
        ... = g            : (idRight _ _)⁻¹;
     apply productProp <;> apply set
   end

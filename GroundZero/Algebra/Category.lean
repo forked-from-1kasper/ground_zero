@@ -1,6 +1,7 @@
 import GroundZero.Theorems.Classical
 import GroundZero.Algebra.Basic
 
+open GroundZero.Types.Id (ap)
 open GroundZero.Types.Equiv
 open GroundZero.Structures
 open GroundZero.Theorems
@@ -173,10 +174,10 @@ namespace Category
   begin
     intro x; match defDec x with
     | Sum.inl p => _ | Sum.inr q => _;
-      { transitivity; apply Id.map; exact p;
-        transitivity; apply Id.map 𝒞.dom; apply bottomDom;
-        apply Id.map; symmetry; assumption };
-      { symmetry; transitivity; apply Id.map 𝒞.dom;
+      { transitivity; apply ap; exact p;
+        transitivity; apply ap 𝒞.dom; apply bottomDom;
+        apply ap; symmetry; assumption };
+      { symmetry; transitivity; apply ap 𝒞.dom;
         symmetry; apply domComp; apply mulDom;
         apply transport 𝒞.defined (domComp x)⁻¹ q }
   end
@@ -185,36 +186,36 @@ namespace Category
   begin
     intro x; match defDec x with
     | Sum.inl p => _ | Sum.inr q => _;
-    { transitivity; apply Id.map; exact p;
-      transitivity; apply Id.map 𝒞.cod; apply bottomCod;
-      apply Id.map; symmetry; assumption };
-    { symmetry; transitivity; apply Id.map 𝒞.cod;
+    { transitivity; apply ap; exact p;
+      transitivity; apply ap 𝒞.cod; apply bottomCod;
+      apply ap; symmetry; assumption };
+    { symmetry; transitivity; apply ap 𝒞.cod;
       symmetry; apply codComp; apply mulCod;
       apply transport 𝒞.defined (codComp x)⁻¹ q }
   end
 
   hott def codMulCod : Π a, 𝒞.μ (𝒞.cod a) (𝒞.cod a) = 𝒞.cod a :=
   begin
-    intro a; transitivity; apply Id.map (𝒞.μ · (𝒞.cod a));
+    intro a; transitivity; apply ap (𝒞.μ · (𝒞.cod a));
     symmetry; apply codCod; apply codComp
   end
 
   hott def domMulDom : Π a, 𝒞.μ (𝒞.dom a) (𝒞.dom a) = 𝒞.dom a :=
   begin
-    intro a; transitivity; apply Id.map (𝒞.μ (𝒞.dom a));
+    intro a; transitivity; apply ap (𝒞.μ (𝒞.dom a));
     symmetry; apply domDom; apply domComp
   end
 
   hott def undefDomImplUndef {a : 𝒞.carrier} : 𝒞.dom a = ∄ → a = ∄ :=
   begin
     intro p; transitivity; apply (domComp a)⁻¹;
-    transitivity; apply Id.map (𝒞.μ a) p; apply bottomRight
+    transitivity; apply ap (𝒞.μ a) p; apply bottomRight
   end
 
   hott def undefCodImplUndef {a : 𝒞.carrier} : 𝒞.cod a = ∄ → a = ∄ :=
   begin
     intro p; transitivity; apply (codComp a)⁻¹;
-    transitivity; apply Id.map (𝒞.μ · a) p; apply bottomLeft
+    transitivity; apply ap (𝒞.μ · a) p; apply bottomLeft
   end
 
   hott def defImplDomDef {a : 𝒞.carrier} : ∃a → ∃(𝒞.dom a) :=
@@ -226,13 +227,13 @@ namespace Category
   hott def domDefImplDef {a : 𝒞.carrier} : ∃(𝒞.dom a) → ∃a :=
   begin
     apply Classical.Contrapos.intro; intro p;
-    transitivity; apply Id.map 𝒞.dom p; apply bottomDom
+    transitivity; apply ap 𝒞.dom p; apply bottomDom
   end
 
   hott def codDefImplDef {a : 𝒞.carrier} : ∃(𝒞.cod a) → ∃a :=
   begin
     apply Classical.Contrapos.intro; intro p;
-    transitivity; apply Id.map 𝒞.cod p; apply bottomCod
+    transitivity; apply ap 𝒞.cod p; apply bottomCod
   end
 
   hott def codDefImplDomDef {a : 𝒞.carrier} : ∃(𝒞.cod a) → ∃(𝒞.dom a) :=
@@ -253,7 +254,7 @@ namespace Category
   hott def idEndo (a : 𝒞.carrier) : 𝒞.id a → 𝒞.endo a :=
   begin
     intro p; change _ = _; symmetry; transitivity;
-    apply Id.map; exact p; apply codDom
+    apply ap; exact p; apply codDom
   end
 
   hott def following.domImplTotal {f g : 𝒞.carrier} :
@@ -276,19 +277,19 @@ namespace Category
   begin
     apply Prod.mk; { intro p; transitivity; exact p; apply idEndo a p };
     { intro p; change _ = _; transitivity; exact p; symmetry;
-      transitivity; apply Id.map; exact p; apply domCod }
+      transitivity; apply ap; exact p; apply domCod }
   end
 
   hott def mulDefImplLeftDef {a b : 𝒞.carrier} : ∃(𝒞.μ a b) → ∃a :=
   begin
     apply Classical.Contrapos.intro; intro p; transitivity;
-    apply Id.map (𝒞.μ · b); exact p; apply bottomLeft
+    apply ap (𝒞.μ · b); exact p; apply bottomLeft
   end
 
   hott def mulDefImplRightDef {a b : 𝒞.carrier} : ∃(𝒞.μ a b) → ∃b :=
   begin
     apply Classical.Contrapos.intro; intro p; transitivity;
-    apply Id.map (𝒞.μ a); exact p; apply bottomRight
+    apply ap (𝒞.μ a); exact p; apply bottomRight
   end
 
   hott def defImplFollowing {a b : 𝒞.carrier} : ∃(𝒞.μ a b) → 𝒞.following a b :=
@@ -336,21 +337,21 @@ namespace Category
 
   hott def domHeteroComp {a b : 𝒞.carrier} : ∃(𝒞.μ (𝒞.dom a) b) → 𝒞.μ (𝒞.dom a) b = b :=
   begin
-    intro p; transitivity; apply Id.map (𝒞.μ · b);
+    intro p; transitivity; apply ap (𝒞.μ · b);
     transitivity; apply (domDom a)⁻¹;
     apply defImplFollowing p; apply codComp
   end
 
   hott def codHeteroComp {a b : 𝒞.carrier} : ∃(𝒞.μ a (𝒞.cod b)) → 𝒞.μ a (𝒞.cod b) = a :=
   begin
-    intro p; transitivity; apply Id.map (𝒞.μ a);
+    intro p; transitivity; apply ap (𝒞.μ a);
     transitivity; apply (codCod b)⁻¹;
     symmetry; apply defImplFollowing p; apply domComp
   end
 
   hott def idComp {a b : 𝒞.carrier} : ∃(𝒞.μ a b) → 𝒞.id a → 𝒞.μ a b = b :=
   begin
-    intros p q; transitivity; apply Id.map (𝒞.μ · b);
+    intros p q; transitivity; apply ap (𝒞.μ · b);
     exact q; apply domHeteroComp; apply defImplDomCompDef p
   end
 
@@ -362,7 +363,7 @@ namespace Category
     apply defImplDomCompDef; apply Equiv.subst r q;
     apply transport (λ z, 𝒞.μ z y = 𝒞.μ z x); exact p;
     transitivity; apply mulAssoc; symmetry;
-    transitivity; apply mulAssoc; apply Id.map; exact r
+    transitivity; apply mulAssoc; apply ap; exact r
   end
 
   hott def retractionImplEpic {a : 𝒞.carrier} : 𝒞.retraction a → 𝒞.epic a :=
@@ -373,7 +374,7 @@ namespace Category
     apply defImplCodCompDef; apply Equiv.subst r q;
     apply transport (λ z, 𝒞.μ y z = 𝒞.μ x z); exact p;
     transitivity; symmetry; apply mulAssoc;
-    transitivity; apply Id.map (𝒞.μ · b);
+    transitivity; apply ap (𝒞.μ · b);
     exact Id.inv r; apply mulAssoc
   end
 
@@ -466,13 +467,13 @@ namespace Category
 
   hott def leftε {a b : Obj 𝒞} (f : 𝒞.Hom a.val b.val) : ε b ∘ f = f :=
   begin
-    apply 𝒞.homext; transitivity; apply Id.map (𝒞.μ · f.ap);
+    apply 𝒞.homext; transitivity; apply ap (𝒞.μ · f.ap);
     symmetry; apply f.2.2; apply codComp
   end
 
   hott def rightε {a b : Obj 𝒞} (f : 𝒞.Hom a.val b.val) : f ∘ ε a = f :=
   begin
-    apply 𝒞.homext; transitivity; apply Id.map (𝒞.μ f.ap);
+    apply 𝒞.homext; transitivity; apply ap (𝒞.μ f.ap);
     symmetry; apply f.2.1; apply domComp
   end
 

@@ -1,6 +1,8 @@
 import GroundZero.HITs.Interval
+
 open GroundZero.HITs.Interval (i₀ i₁ seg)
 open GroundZero.Types GroundZero.HITs
+open GroundZero.Types.Id (ap)
 open GroundZero.Proto (idfun)
 
 /-
@@ -28,7 +30,7 @@ hott def elim {A : Type u} {a b : A} (p : Path A a b) : I → A :=
 @Path.casesOn A (λ _ _ _, I → A) a b p (@idfun (I → A))
 
 hott def encode {A : Type u} {a b : A} (p : Path A a b) : a = b :=
-@Path.casesOn A (λ a b _, a = b) a b p (Id.map · seg)
+@Path.casesOn A (λ a b _, a = b) a b p (ap · seg)
 
 noncomputable hott def encodeDecode {A : Type u} {a b : A} (p : a = b) : encode (decode p) = p :=
 by apply Interval.recβrule
@@ -49,7 +51,7 @@ Interval.ind x (Equiv.subst Interval.seg x) Id.refl i
 hott def coe.back (B : I → Type u) (i : I) (x : B i₁) : B i :=
 Interval.ind (Equiv.subst Interval.seg⁻¹ x) x (begin
   apply Id.trans; symmetry; apply Equiv.substComp;
-  transitivity; apply Id.map (Equiv.subst · x);
+  transitivity; apply ap (Equiv.subst · x);
   apply Id.invComp; reflexivity
 end) i
 
@@ -160,11 +162,12 @@ def eta {A : Type u} (a : A) : singl a := ⟨a, refl a⟩
 
 @[hottAxiom] def meet {A : Type u} {a b : A} (p : Path A a b) :
   LineP (λ i, Path A a (p @ i)) :=
-Interval.hrec _ (refl a) p (begin
+begin
+  fapply Interval.hrec; exact refl a; exact p;
   induction p using Path.casesOn;
   apply HEq.map lam; apply Theorems.funext;
-  intro; apply Id.map; apply Interval.contrLeft
-end)
+  intro; apply Id.ap; apply Interval.contrLeft
+end
 
 /-
 This doesn’t pass typechecking.

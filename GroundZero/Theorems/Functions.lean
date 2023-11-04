@@ -1,6 +1,7 @@
 import GroundZero.HITs.Merely
 
 open GroundZero.Types GroundZero.HITs
+open GroundZero.Types.Id (ap)
 open GroundZero.Structures
 
 namespace GroundZero.Theorems.Functions
@@ -25,7 +26,7 @@ hott def Ran {A : Type u} {B : Type v} (f : A → B) :=
 total (fibInh f)
 
 hott def cut {A : Type u} {B : Type v} (f : A → B) : A → Ran f :=
-λ x, ⟨f x, Merely.elem ⟨x, Id.refl⟩⟩
+λ x, ⟨f x, Merely.elem ⟨x, idp (f x)⟩⟩
 
 hott def cutIsSurj {A : Type u} {B : Type v} (f : A → B) : surjective (cut f) :=
 begin
@@ -53,7 +54,7 @@ end
 
 hott def ranConst {A : Type u} (a : A) {B : Type v} (b : B) :
   Ran (Function.const A b) :=
-⟨b, Merely.elem ⟨a, Id.refl⟩⟩
+⟨b, Merely.elem ⟨a, idp b⟩⟩
 
 hott def ranConstEqv {A : Type u} (a : A) {B : Type v}
   (H : hset B) (b : B) : Ran (Function.const A b) ≃ 𝟏 :=
@@ -66,7 +67,7 @@ begin
 end
 
 hott def isEmbedding {A : Type u} {B : Type v} (f : A → B) :=
-Π x y, @Equiv.biinv (x = y) (f x = f y) (Id.map f)
+Π x y, @Equiv.biinv (x = y) (f x = f y) (ap f)
 
 hott def Embedding (A : Type u) (B : Type v) :=
 Σ (f : A → B), isEmbedding f
@@ -78,19 +79,19 @@ section
 
   def Embedding.ap : A → B := f.1
   def Embedding.eqv (x y : A) : (x = y) ≃ (f.ap x = f.ap y) :=
-  ⟨Id.map f.ap, f.2 x y⟩
+  ⟨Id.ap f.ap, f.2 x y⟩
 end
 
 hott def ntypeOverEmbedding {A : Type u} {B : Type v} (f : A ↪ B) (n : ℕ₋₂) :
   is-(hlevel.succ n)-type B → is-(hlevel.succ n)-type A :=
 begin
   intros H x y; apply ntypeRespectsEquiv; apply Equiv.symm;
-  existsi Id.map f.1; apply f.2; apply H
+  existsi ap f.1; apply f.2; apply H
 end
 
 hott def eqvMapForward {A : Type u} {B : Type v} (e : A ≃ B)
   (x y : A) (p : e x = e y) : x = y :=
-(e.leftForward x)⁻¹ ⬝ (@Id.map B A _ _ e.left p) ⬝ (e.leftForward y)
+(e.leftForward x)⁻¹ ⬝ (@ap B A _ _ e.left p) ⬝ (e.leftForward y)
 
 hott def sigmaPropEq {A : Type u} {B : A → Type v}
   (H : Π x, prop (B x)) {x y : Sigma B} (p : x.1 = y.1) : x = y :=

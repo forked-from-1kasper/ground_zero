@@ -1,5 +1,6 @@
 import GroundZero.Algebra.Group.Automorphism
 
+open GroundZero.Types.Id (ap)
 open GroundZero.Structures
 open GroundZero.Types
 open GroundZero
@@ -15,30 +16,30 @@ namespace Group
     (λ (n₁, h₁) (n₂, h₂) (n₃, h₃), begin
       apply Product.prod;
       { transitivity; apply N.mulAssoc;
-        apply Id.map (N.φ n₁); symmetry;
+        apply ap (N.φ n₁); symmetry;
         transitivity; apply isoMul;
-        apply Id.map; symmetry;
+        apply ap; symmetry;
         transitivity; apply HITs.Interval.happly;
-        apply Id.map; apply homoMul; reflexivity };
+        apply ap; apply homoMul; reflexivity };
       { apply H.mulAssoc }
     end)
     (λ (n, h), begin
       apply Product.prod;
       { transitivity; apply N.oneMul;
         transitivity; apply HITs.Interval.happly;
-        apply Id.map; apply homoUnit; reflexivity };
+        apply ap; apply homoUnit; reflexivity };
       { apply H.oneMul }
     end)
     (λ (n, h), begin
       apply Product.prod;
-      { transitivity; apply Id.map (N.φ n);
+      { transitivity; apply ap (N.φ n);
         apply isoUnit (φ.1 h); apply N.mulOne };
       { apply H.mulOne }
     end)
     (λ ⟨n, h⟩, begin
       apply Product.prod;
       { transitivity; symmetry; apply isoMul;
-        transitivity; apply Id.map;
+        transitivity; apply ap;
         apply N.mulLeftInv; apply isoUnit };
       { apply H.mulLeftInv }
     end)

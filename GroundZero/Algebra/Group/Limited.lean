@@ -1,6 +1,7 @@
 import GroundZero.Algebra.Group.Symmetric
 import GroundZero.Algebra.Reals
 
+open GroundZero.Types.Id (ap)
 open GroundZero.Structures
 open GroundZero.Types
 open GroundZero.HITs
@@ -31,7 +32,7 @@ namespace GroundZero.Algebra
       exact b.1 x; apply ineqAdd; apply q.2; apply p.2 };
     { intro a; apply Merely.lift; intro p; existsi p.1;
       intro x; apply Equiv.transport (R.ρ · _);
-      symmetry; transitivity; apply M.symm; apply Id.map (M.ρ _);
+      symmetry; transitivity; apply M.symm; apply ap (M.ρ _);
       symmetry; apply Equiv.forwardRight a; apply p.2 }
   end
 
@@ -49,7 +50,7 @@ namespace GroundZero.Algebra
   begin
     apply sup.ssubset; intro x; apply Merely.lift; intro ⟨y, p⟩;
     existsi (Lim.ι φ).1.1 y; transitivity; apply M.1.symm;
-    transitivity; apply Id.map (M.1.ρ · _);
+    transitivity; apply ap (M.1.ρ · _);
     apply φ.1.forwardRight; exact p
   end
 
@@ -106,7 +107,7 @@ namespace GroundZero.Algebra
   noncomputable hott def Lim.absolute (M : Metric⁎) : absolute (Lim M.1) (ω M) :=
   begin
     apply (_, (_, _)); intro x; apply Prod.mk; apply ω.unitIfZero;
-    { intro p; transitivity; exact Id.map (ω M) p; apply ω.unit };
+    { intro p; transitivity; exact ap (ω M) p; apply ω.unit };
     intro x; symmetry; apply ω.inv; apply ω.mul
   end
 

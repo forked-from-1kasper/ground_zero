@@ -1,4 +1,6 @@
 import GroundZero.HITs.Graph
+
+open GroundZero.Types.Id (ap)
 open GroundZero.Types.Equiv
 open GroundZero.Types
 
@@ -35,7 +37,7 @@ namespace Coeq
   ind (λ _, C) i (λ x, pathoverOfEq (resp x) (ρ x))
 
   noncomputable hott def recβrule (C : Type w) (i : B → C)
-    (ρ : Π x, i (f x) = i (g x)) : Π x, Id.map (rec C i ρ) (resp x) = ρ x :=
+    (ρ : Π x, i (f x) = i (g x)) : Π x, ap (rec C i ρ) (resp x) = ρ x :=
   begin
     intro x; apply pathoverOfEqInj (resp x);
     transitivity; symmetry; apply apdOverConstantFamily;

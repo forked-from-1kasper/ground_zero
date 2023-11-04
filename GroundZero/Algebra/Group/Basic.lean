@@ -1,7 +1,8 @@
 import GroundZero.Theorems.Functions
 import GroundZero.Algebra.Basic
+
 open GroundZero.Types.Equiv (bimap biinv transport)
-open GroundZero.Types.Id (map)
+open GroundZero.Types.Id (ap)
 open GroundZero.Structures
 open GroundZero.Types
 open GroundZero.Proto
@@ -90,52 +91,52 @@ namespace Group
 
   hott def unitOfSqr {x : G.carrier} (h : x * x = x) := calc
       x = e * x         : Id.inv (G.oneMul _)
-    ... = (x⁻¹ * x) * x : Id.map (G.φ · x) (Id.inv (G.mulLeftInv x))
+    ... = (x⁻¹ * x) * x : ap (G.φ · x) (Id.inv (G.mulLeftInv x))
     ... = x⁻¹ * (x * x) : G.mulAssoc _ _ _
-    ... = x⁻¹ * x       : Id.map (G.φ x⁻¹) h
+    ... = x⁻¹ * x       : ap (G.φ x⁻¹) h
     ... = e             : G.mulLeftInv _
 
   hott def invEqOfMulEqOne {x y : G.carrier} (h : x * y = e) := calc
      x⁻¹ = x⁻¹ * e       : Id.inv (G.mulOne _)
-     ... = x⁻¹ * (x * y) : Id.map (G.φ x⁻¹) (Id.inv h)
+     ... = x⁻¹ * (x * y) : ap (G.φ x⁻¹) (Id.inv h)
      ... = (x⁻¹ * x) * y : Id.inv (G.mulAssoc _ _ _)
-     ... = e * y         : Id.map (G.φ · y) (G.mulLeftInv x)
+     ... = e * y         : ap (G.φ · y) (G.mulLeftInv x)
      ... = y             : G.oneMul y
 
   hott def invInv (x : G.carrier) : x⁻¹⁻¹ = x :=
   invEqOfMulEqOne (G.mulLeftInv x)
 
   hott def eqInvOfMulEqOne {x y : G.carrier} (h : x * y = e) : x = y⁻¹ :=
-  Id.inv (invInv x) ⬝ Id.map G.ι (invEqOfMulEqOne h)
+  Id.inv (invInv x) ⬝ ap G.ι (invEqOfMulEqOne h)
 
   hott def mulRightInv (x : G.carrier) := calc
-    x * x⁻¹ = x⁻¹⁻¹ * x⁻¹ : Id.map (G.φ · x⁻¹) (Id.inv (invInv x))
+    x * x⁻¹ = x⁻¹⁻¹ * x⁻¹ : ap (G.φ · x⁻¹) (Id.inv (invInv x))
         ... = e           : G.mulLeftInv x⁻¹
 
   hott def mulEqOneOfInvEq {x y : G.carrier} (h : x⁻¹ = y) : x * y = e :=
-  Id.inv (Id.map (G.φ x) h) ⬝ (mulRightInv x)
+  Id.inv (ap (G.φ x) h) ⬝ (mulRightInv x)
 
   hott def invInj {x y : G.carrier} (h : x⁻¹ = y⁻¹) : x = y := calc
       x = x⁻¹⁻¹ : Id.inv (invInv x)
-    ... = y⁻¹⁻¹ : Id.map G.ι h
+    ... = y⁻¹⁻¹ : ap G.ι h
     ... = y     : invInv y
 
   hott def mulCancelLeft {a b c : G.carrier} (h : c * a = c * b) := calc
       a = e * a         : Id.inv (G.oneMul a)
-    ... = (c⁻¹ * c) * a : Id.map (G.φ · a) (Id.inv (G.mulLeftInv c))
+    ... = (c⁻¹ * c) * a : ap (G.φ · a) (Id.inv (G.mulLeftInv c))
     ... = c⁻¹ * (c * a) : G.mulAssoc _ _ _
-    ... = c⁻¹ * (c * b) : Id.map (G.φ c⁻¹) h
+    ... = c⁻¹ * (c * b) : ap (G.φ c⁻¹) h
     ... = (c⁻¹ * c) * b : Id.inv (G.mulAssoc _ _ _)
-    ... = e * b         : Id.map (G.φ · b) (G.mulLeftInv c)
+    ... = e * b         : ap (G.φ · b) (G.mulLeftInv c)
     ... = b             : G.oneMul b
 
   hott def mulCancelRight {a b c : G.carrier} (h : a * c = b * c) := calc
       a = a * e         : Id.inv (G.mulOne a)
-    ... = a * (c * c⁻¹) : Id.map (G.φ a) (Id.inv (mulRightInv c))
+    ... = a * (c * c⁻¹) : ap (G.φ a) (Id.inv (mulRightInv c))
     ... = (a * c) * c⁻¹ : Id.inv (G.mulAssoc _ _ _)
-    ... = (b * c) * c⁻¹ : Id.map (G.φ · c⁻¹) h
+    ... = (b * c) * c⁻¹ : ap (G.φ · c⁻¹) h
     ... = b * (c * c⁻¹) : G.mulAssoc _ _ _
-    ... = b * e         : Id.map (G.φ b) (mulRightInv c)
+    ... = b * e         : ap (G.φ b) (mulRightInv c)
     ... = b             : G.mulOne b
 
   hott def unitInv : e = e⁻¹ :=
@@ -154,16 +155,16 @@ namespace Group
   invEqOfMulEqOne
     (calc (x * y) * (y⁻¹ * x⁻¹)
         = ((x * y) * y⁻¹) * x⁻¹ : Id.inv (G.mulAssoc _ _ _)
-    ... = (x * (y * y⁻¹)) * x⁻¹ : Id.map (G.φ · x⁻¹) (G.mulAssoc _ _ _)
-    ... = (x * e) * x⁻¹         : Id.map (λ z, (x * z) * x⁻¹) (mulRightInv _)
-    ... = x * x⁻¹               : Id.map (G.φ · x⁻¹) (G.mulOne x)
+    ... = (x * (y * y⁻¹)) * x⁻¹ : ap (G.φ · x⁻¹) (G.mulAssoc _ _ _)
+    ... = (x * e) * x⁻¹         : ap (λ z, (x * z) * x⁻¹) (mulRightInv _)
+    ... = x * x⁻¹               : ap (G.φ · x⁻¹) (G.mulOne x)
     ... = e                     : mulRightInv _)
 
   hott def sqrUnit {x : G.carrier} (p : x * x = e) := calc
       x = x * e         : Id.inv (G.mulOne x)
-    ... = x * (x * x⁻¹) : Id.map (G.φ x) (Id.inv (mulRightInv x))
+    ... = x * (x * x⁻¹) : ap (G.φ x) (Id.inv (mulRightInv x))
     ... = (x * x) * x⁻¹ : Id.inv (G.mulAssoc x x x⁻¹)
-    ... = e * x⁻¹       : Id.map (G.φ · x⁻¹) p
+    ... = e * x⁻¹       : ap (G.φ · x⁻¹) p
     ... = x⁻¹           : G.oneMul x⁻¹
 
   hott def sqrUnitImplsAbelian (H : Π x, x * x = e) : G.isCommutative :=
@@ -186,29 +187,29 @@ namespace Group
 
   hott def cancelLeft (a b : G.carrier) := calc
       a = a * e         : Id.inv (G.mulOne a)
-    ... = a * (b⁻¹ * b) : Id.map (G.φ a) (Id.inv (G.mulLeftInv b))
+    ... = a * (b⁻¹ * b) : ap (G.φ a) (Id.inv (G.mulLeftInv b))
     ... = (a * b⁻¹) * b : Id.inv (G.mulAssoc a b⁻¹ b)
 
   hott def cancelRight (a b : G.carrier) := calc
       a = a * e         : Id.inv (G.mulOne a)
-    ... = a * (b * b⁻¹) : Id.map (G.φ a) (Id.inv (mulRightInv b))
+    ... = a * (b * b⁻¹) : ap (G.φ a) (Id.inv (mulRightInv b))
     ... = (a * b) * b⁻¹ : Id.inv (G.mulAssoc a b b⁻¹)
 
   hott def revCancelLeft (a b : G.carrier) := calc
       b = e * b         : Id.inv (G.oneMul b)
-    ... = (a⁻¹ * a) * b : Id.map (G.φ · b) (Id.inv (G.mulLeftInv a))
+    ... = (a⁻¹ * a) * b : ap (G.φ · b) (Id.inv (G.mulLeftInv a))
     ... = a⁻¹ * (a * b) : G.mulAssoc a⁻¹ a b
 
   hott def revCancelRight (a b : G.carrier) := calc
       b = e * b         : Id.inv (G.oneMul b)
-    ... = (a * a⁻¹) * b : Id.map (G.φ · b) (Id.inv (mulRightInv a))
+    ... = (a * a⁻¹) * b : ap (G.φ · b) (Id.inv (mulRightInv a))
     ... = a * (a⁻¹ * b) : G.mulAssoc a a⁻¹ b
 
   hott def commImplConj {x y : G.carrier} (p : x * y = y * x) : x = x ^ y := calc
       x = e * x         : Id.inv (G.oneMul x)
-    ... = (y⁻¹ * y) * x : Id.map (G.φ · x) (Id.inv (G.mulLeftInv y))
+    ... = (y⁻¹ * y) * x : ap (G.φ · x) (Id.inv (G.mulLeftInv y))
     ... = y⁻¹ * (y * x) : G.mulAssoc y⁻¹ y x
-    ... = y⁻¹ * (x * y) : Id.map (G.φ y⁻¹) (Id.inv p)
+    ... = y⁻¹ * (x * y) : ap (G.φ y⁻¹) (Id.inv p)
     ... = (y⁻¹ * x) * y : Id.inv (G.mulAssoc y⁻¹ x y)
     ... = x ^ y         : Id.refl
 
@@ -216,7 +217,7 @@ namespace Group
   begin
     transitivity; apply eqInvOfMulEqOne (y := y⁻¹);
     transitivity; symmetry; apply invExplode;
-    transitivity; apply Id.map G.ι; exact h;
+    transitivity; apply ap G.ι; exact h;
     apply Id.inv unitInv; apply invInv
   end
 
@@ -246,7 +247,7 @@ namespace Group
     (p : commutator x y = e) : x * y = y * x :=
   begin
     symmetry; transitivity; { symmetry; apply invInv };
-    transitivity; apply Id.map; apply invExplode;
+    transitivity; apply ap; apply invExplode;
     symmetry; apply eqInvOfMulEqOne; exact p
   end
 
@@ -254,10 +255,10 @@ namespace Group
     (commutator x y)⁻¹ = commutator y x :=
   begin
     transitivity; apply invExplode;
-    transitivity; apply Id.map; apply invExplode;
-    apply Id.map (λ z, z * (y⁻¹ * x⁻¹)); transitivity; apply invExplode;
-    transitivity; apply Id.map; apply invInv;
-    apply Id.map (G.φ · x); apply invInv
+    transitivity; apply ap; apply invExplode;
+    apply ap (λ z, z * (y⁻¹ * x⁻¹)); transitivity; apply invExplode;
+    transitivity; apply ap; apply invInv;
+    apply ap (G.φ · x); apply invInv
   end
 
   def ldiv (φ : G.subgroup) := λ x y, @leftDiv G x y ∈ φ.set
@@ -265,14 +266,14 @@ namespace Group
 
   hott def invMulInv (x y : G.carrier) := calc
     (x⁻¹ * y)⁻¹ = y⁻¹ * x⁻¹⁻¹ : invExplode _ _
-            ... = y⁻¹ * x     : Id.map (G.φ y⁻¹) (invInv x)
+            ... = y⁻¹ * x     : ap (G.φ y⁻¹) (invInv x)
 
   hott def mulInvInv (x y : G.carrier) := calc
     (x * y⁻¹)⁻¹ = y⁻¹⁻¹ * x⁻¹ : invExplode _ _
-            ... = y * x⁻¹     : Id.map (G.φ · x⁻¹) (invInv y)
+            ... = y * x⁻¹     : ap (G.φ · x⁻¹) (invInv y)
 
   hott def divByUnit (x : G.carrier) : x / e = x :=
-  begin change _ * _ = _; transitivity; apply Id.map; symmetry; apply unitInv; apply G.mulOne end
+  begin change _ * _ = _; transitivity; apply ap; symmetry; apply unitInv; apply G.mulOne end
 
   hott def ldivByUnit (x : G.carrier) : leftDiv x e = x⁻¹ :=
   by apply G.mulOne
@@ -281,19 +282,19 @@ namespace Group
           (leftDiv x y) * (leftDiv y z)
         = (x⁻¹ * y) * (y⁻¹ * z) : Id.refl
     ... = x⁻¹ * (y * (y⁻¹ * z)) : G.mulAssoc x⁻¹ y (y⁻¹ * z)
-    ... = x⁻¹ * ((y * y⁻¹) * z) : Id.map (G.φ x⁻¹) (Id.inv (G.mulAssoc y y⁻¹ z))
-    ... = x⁻¹ * (e * z)         : Id.map (λ g, x⁻¹ * (g * z)) (mulRightInv _)
-    ... = leftDiv x z           : Id.map (G.φ x⁻¹) (G.oneMul z)
+    ... = x⁻¹ * ((y * y⁻¹) * z) : ap (G.φ x⁻¹) (Id.inv (G.mulAssoc y y⁻¹ z))
+    ... = x⁻¹ * (e * z)         : ap (λ g, x⁻¹ * (g * z)) (mulRightInv _)
+    ... = leftDiv x z           : ap (G.φ x⁻¹) (G.oneMul z)
 
   hott def chainRdiv (x y z : G.carrier) := calc
     (x / y) * (y / z) = (x * y⁻¹) * (y * z⁻¹) : Id.refl
                   ... = x * (y⁻¹ * (y * z⁻¹)) : G.mulAssoc x y⁻¹ (y * z⁻¹)
-                  ... = x * ((y⁻¹ * y) * z⁻¹) : Id.map (G.φ x) (Id.inv (G.mulAssoc y⁻¹ y z⁻¹))
-                  ... = x * (e * z⁻¹)         : Id.map (λ g, x * (g * z⁻¹)) (G.mulLeftInv _)
-                  ... = x / z                 : Id.map (G.φ x) (G.oneMul z⁻¹)
+                  ... = x * ((y⁻¹ * y) * z⁻¹) : ap (G.φ x) (Id.inv (G.mulAssoc y⁻¹ y z⁻¹))
+                  ... = x * (e * z⁻¹)         : ap (λ g, x * (g * z⁻¹)) (G.mulLeftInv _)
+                  ... = x / z                 : ap (G.φ x) (G.oneMul z⁻¹)
 
   hott def conjugate.idem (x : G.carrier) := calc
-    conjugate x x = G.φ G.e x : Id.map (G.φ · x) (G.mulLeftInv x)
+    conjugate x x = G.φ G.e x : ap (G.φ · x) (G.mulLeftInv x)
               ... = x         : G.oneMul x
 
   hott def conjugate.eq {x y : G.carrier}
@@ -310,7 +311,7 @@ namespace Group
     transitivity; { symmetry; apply G.mulAssoc };
     transitivity; exact p; transitivity;
     { transitivity; symmetry; apply G.oneMul;
-      apply Id.map (G.φ · x); symmetry; apply G.mulLeftInv y };
+      apply ap (G.φ · x); symmetry; apply G.mulLeftInv y };
     apply G.mulAssoc
   end
 
@@ -331,17 +332,17 @@ namespace Group
     begin
       apply unitOfSqr; apply calc
         H.φ (φ e) (φ e) = φ (G.e * G.e) : Id.inv (p G.e G.e)
-                    ... = φ G.e         : Id.map φ (Id.inv unitSqr)
+                    ... = φ G.e         : ap φ (Id.inv unitSqr)
     end
 
     hott def homoRespectsInv {φ : G.carrier → H.carrier}
       (p : Π a b, φ (a * b) = φ a ∗ φ b) (x : G.carrier) : φ x⁻¹ = H.ι (φ x) := calc
         φ x⁻¹ = φ x⁻¹ ∗ H.e               : Id.inv (H.mulOne (φ x⁻¹))
-          ... = φ x⁻¹ ∗ (φ x ∗ H.ι (φ x)) : Id.map (H.φ (φ x⁻¹)) (Id.inv (mulRightInv (φ x)))
+          ... = φ x⁻¹ ∗ (φ x ∗ H.ι (φ x)) : ap (H.φ (φ x⁻¹)) (Id.inv (mulRightInv (φ x)))
           ... = φ x⁻¹ ∗ φ x ∗ H.ι (φ x)   : Id.inv (H.mulAssoc _ _ _)
-          ... = φ (x⁻¹ * x) ∗ H.ι (φ x)   : Id.map (H.φ · (H.ι (φ x))) (Id.inv (p x⁻¹ x))
-          ... = φ G.e ∗ H.ι (φ x)         : Id.map (λ y, φ y ∗ H.ι (φ x)) (G.mulLeftInv x)
-          ... = H.e ∗ H.ι (φ x)           : Id.map (H.φ · (H.ι (φ x))) (homoRespectsUnit p)
+          ... = φ (x⁻¹ * x) ∗ H.ι (φ x)   : ap (H.φ · (H.ι (φ x))) (Id.inv (p x⁻¹ x))
+          ... = φ G.e ∗ H.ι (φ x)         : ap (λ y, φ y ∗ H.ι (φ x)) (G.mulLeftInv x)
+          ... = H.e ∗ H.ι (φ x)           : ap (H.φ · (H.ι (φ x))) (homoRespectsUnit p)
           ... = H.ι (φ x)                 : H.oneMul (H.ι (φ x))
 
     hott def mkhomo (φ : G.carrier → H.carrier)
@@ -371,7 +372,7 @@ namespace Group
     hott def homoRespectsDiv (φ : Hom G H) (x y : G.carrier) :
       φ.1 (x / y) = rightDiv (φ.1 x) (φ.1 y) := calc
       φ.1 (x / y) = φ.1 x ∗ φ.1 y⁻¹     : homoMul φ x y⁻¹
-              ... = φ.1 x ∗ H.ι (φ.1 y) : Id.map (H.φ (φ.1 x)) (homoInv φ y)
+              ... = φ.1 x ∗ H.ι (φ.1 y) : ap (H.φ (φ.1 x)) (homoInv φ y)
 
     hott def Homo.zero : Hom G H :=
     mkhomo (λ _, H.e) (λ _ _, Id.inv (H.oneMul H.e))
@@ -394,7 +395,7 @@ namespace Group
   hott def Homo.ofPath {G H : Group} (φ : G.carrier = H.carrier) (p : G.φ =[λ G, G → G → G, φ] H.φ) : Hom G H :=
   begin
     fapply mkhomo; exact @transport _ (λ G, G) G.carrier H.carrier φ;
-    intros a b; transitivity; apply Id.map; apply bimap;
+    intros a b; transitivity; apply ap; apply bimap;
     iterate 2 { symmetry; apply @Equiv.transportForwardAndBack _ (λ G, G) _ _ φ };
     transitivity; symmetry; apply Equiv.transportOverOperationPointwise G.φ;
     apply HITs.Interval.happly; apply HITs.Interval.happly; exact p

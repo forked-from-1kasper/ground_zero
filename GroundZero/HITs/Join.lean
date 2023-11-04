@@ -1,4 +1,5 @@
 import GroundZero.HITs.Suspension
+
 open GroundZero.Types.Equiv (pathoverOfEq)
 open GroundZero.Types
 

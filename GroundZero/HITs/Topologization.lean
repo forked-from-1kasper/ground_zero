@@ -1,4 +1,5 @@
 import GroundZero.Algebra.Reals
+
 open GroundZero.Structures
 open GroundZero.Types
 open GroundZero

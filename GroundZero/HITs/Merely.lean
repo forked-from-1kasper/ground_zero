@@ -52,7 +52,7 @@ namespace Merely
   begin
     transitivity; { symmetry; apply Colimit.glue }; symmetry;
     transitivity; { symmetry; apply Colimit.glue };
-    apply map; apply Generalized.glue
+    apply ap; apply Generalized.glue
   end
 
   hott def incl {A : Type u} {n : ℕ} :=
@@ -72,7 +72,7 @@ namespace Merely
 
   hott def inclUniq {A : Type u} {n : ℕ} (a b : Generalized.rep A n) : incl a = incl b :=
   calc incl a = incl (Generalized.dep A n a) : glue⁻¹
-          ... = incl (Generalized.dep A n b) : Id.map incl (Generalized.glue a b)
+          ... = incl (Generalized.dep A n b) : ap incl (Generalized.glue a b)
           ... = incl b                       : glue
 
   hott def inclZeroEqIncl {A : Type u} {n : ℕ} (x : A)
@@ -81,32 +81,32 @@ namespace Merely
                ... = incl y              : inclUniq (exactNth x n) y
 
   hott def weaklyConstantAp {A : Type u} {B : Type v} (f : A → B)
-    {a b : A} (p q : a = b) (H : Π a b, f a = f b) : Id.map f p = Id.map f q :=
-  let L : Π {u v : A} (r : u = v), (H a u)⁻¹ ⬝ H a v = Id.map f r :=
+    {a b : A} (p q : a = b) (H : Π a b, f a = f b) : ap f p = ap f q :=
+  let L : Π {u v : A} (r : u = v), (H a u)⁻¹ ⬝ H a v = ap f r :=
   begin intros u v r; induction r; apply Types.Id.invComp end; (L p)⁻¹ ⬝ L q
 
   hott def congClose {A : Type u} {n : ℕ} {a b : Generalized.rep A n} (p : a = b) :
-    glue⁻¹ ⬝ Id.map incl (Id.map (Generalized.dep A n) p) ⬝ glue = Id.map incl p :=
+    glue⁻¹ ⬝ ap incl (ap (Generalized.dep A n) p) ⬝ glue = ap incl p :=
   begin
     induction p; transitivity; { symmetry; apply Id.assoc };
     apply Equiv.rewriteComp; symmetry; apply Id.reflRight
   end
 
   hott def congOverPath {A : Type u} {n : ℕ} {a b : Generalized.rep A n}
-    (p q : a = b) : Id.map incl p = Id.map incl q :=
+    (p q : a = b) : ap incl p = ap incl q :=
   weaklyConstantAp incl p q inclUniq
 
   hott def glueClose {A : Type u} {n : ℕ} {a b : Generalized.rep A n} :
-      glue⁻¹ ⬝ Id.map incl (Generalized.glue (Generalized.dep A n a) (Generalized.dep A n b)) ⬝ glue
-    = Id.map incl (Generalized.glue a b) :=
+      glue⁻¹ ⬝ ap incl (Generalized.glue (Generalized.dep A n a) (Generalized.dep A n b)) ⬝ glue
+    = ap incl (Generalized.glue a b) :=
   begin
     symmetry; transitivity; { symmetry; apply @congClose A (n + 1) _ _ (Generalized.glue a b) };
-    apply map (· ⬝ glue); apply map; apply congOverPath
+    apply ap (· ⬝ glue); apply ap; apply congOverPath
   end
 
   hott def inclUniqClose {A : Type u} {n : ℕ} (a b : Generalized.rep A n) :
     glue⁻¹ ⬝ inclUniq (Generalized.dep A n a) (Generalized.dep A n b) ⬝ glue = inclUniq a b :=
-  Id.map (· ⬝ glue) (Id.map _ glueClose)
+  ap (· ⬝ glue) (ap _ glueClose)
 
   hott def uniq {A : Type u} : prop ∥A∥ :=
   begin
@@ -114,12 +114,12 @@ namespace Merely
     { intro x; existsi elem x; fapply Colimit.ind <;> intros n y;
       { apply inclZeroEqIncl };
       { apply pathoverFromTrans; symmetry; transitivity;
-        apply Id.map (_ ⬝ ·); symmetry; apply inclUniqClose;
-        symmetry; transitivity; apply Id.map (· ⬝ _ ⬝ _); apply Id.explodeInv;
+        apply ap (_ ⬝ ·); symmetry; apply inclUniqClose;
+        symmetry; transitivity; apply ap (· ⬝ _ ⬝ _); apply Id.explodeInv;
         -- TODO: use “iterate” here
         transitivity; symmetry; apply Id.assoc;
         transitivity; symmetry; apply Id.assoc;
-        apply Id.map ((nthGlue x n)⁻¹ ⬝ ·); apply Id.assoc } };
+        apply ap ((nthGlue x n)⁻¹ ⬝ ·); apply Id.assoc } };
     { intro x; apply Structures.contrIsProp }
   end
 

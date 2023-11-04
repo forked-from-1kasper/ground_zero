@@ -1,6 +1,7 @@
 import GroundZero.Types.Equiv
 
 open GroundZero.Types.Equiv (biinv)
+open GroundZero.Types.Id (ap)
 open GroundZero.Types
 open GroundZero.Proto
 
@@ -40,7 +41,7 @@ noncomputable hott def κ.right {A : Type u} {a b : ℑ A} : @κ A a b ∘ ι ~ 
 @Id.rec (ℑ A) a (λ b p, κ (ι p) = p) κ.idp b
 
 noncomputable hott def κ.left {A : Type u} {a b : ℑ A} : ι ∘ @κ A a b ~ idfun :=
-λ ρ, κ (@Im.ind (a = b) (λ ρ, ι (κ ρ) = ρ) (λ p, ι (Id.map ι (κ.right p))) ρ)
+λ ρ, κ (@Im.ind (a = b) (λ ρ, ι (κ ρ) = ρ) (λ p, ι (ap ι (κ.right p))) ρ)
 
 hott def isCoreduced (A : Type u) := biinv (@ι A)
 
@@ -56,7 +57,7 @@ noncomputable hott def Im.indε {A : Type u} {B : ℑ A → Type v} (η : Π i, 
 
 noncomputable def Im.indεβrule {A : Type u} {B : ℑ A → Type v} (η : Π i, isCoreduced (B i))
   (f : Π x, B (ι x)) : Π x, Im.indε η f (ι x) = f x :=
-λ a, Id.map (η (ι a)).1.1 (Im.indβrule a) ⬝ (η (ι a)).1.2 (f a)
+λ a, ap (η (ι a)).1.1 (Im.indβrule a) ⬝ (η (ι a)).1.2 (f a)
 
 noncomputable section
   variable {A : Type u} {B : Type v} (f : A → ℑ B)
@@ -89,6 +90,6 @@ noncomputable hott def Im.apCom {A : Type u} {B : Type v} {C : Type w}
   (f : B → C) (g : A → B) : Im.ap (f ∘ g) ~ Im.ap f ∘ Im.ap g :=
 Im.indε (λ _, Im.idCoreduced _ _) (λ _, Im.naturality _ _
                                      ⬝ (Im.naturality f _)⁻¹
-                                     ⬝  Id.map (ap f) (Im.naturality g _)⁻¹)
+                                     ⬝  Id.ap (ap f) (Im.naturality g _)⁻¹)
 
 end GroundZero.HITs.Infinitesimal

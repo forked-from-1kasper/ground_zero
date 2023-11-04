@@ -1,7 +1,7 @@
 import GroundZero.Algebra.Group.Basic
 
 open GroundZero.Types.Equiv (biinv transport)
-open GroundZero.Types.Id (map)
+open GroundZero.Types.Id (ap)
 open GroundZero.Structures
 open GroundZero.Types
 open GroundZero.Proto
@@ -78,8 +78,8 @@ namespace Group
     intro h; apply H;
     apply transport (· ∈ φ.set); apply calc
       g * (g⁻¹ * n) = (g * g⁻¹) * n : Id.inv (G.mulAssoc g g⁻¹ n)
-                ... = e * n         : Id.map (G.φ · n) (mulRightInv g)
-                ... = (g⁻¹ * g) * n : Id.map (G.φ · n) (Id.inv (G.mulLeftInv g))
+                ... = e * n         : ap (G.φ · n) (mulRightInv g)
+                ... = (g⁻¹ * g) * n : ap (G.φ · n) (Id.inv (G.mulLeftInv g))
                 ... = g⁻¹ * (g * n) : G.mulAssoc g⁻¹ g n;
     apply H; assumption
   end
@@ -89,14 +89,14 @@ namespace Group
     apply Prod.mk <;> intro h;
     { change (x * y⁻¹) ∈ φ.set; apply transport (· ∈ φ.set);
       apply calc x * (y⁻¹ * x) * x⁻¹ = x * (y⁻¹ * x * x⁻¹) : G.mulAssoc x (leftDiv y x) x⁻¹
-                                 ... = x * y⁻¹             : Id.map (G.φ x) (Id.inv (cancelRight y⁻¹ x));
+                                 ... = x * y⁻¹             : ap (G.φ x) (Id.inv (cancelRight y⁻¹ x));
       apply conjugateEqv H;
       apply isNormalSubgroup.conj H;
       apply transport (· ∈ φ.set); apply invMulInv;
       apply φ.inv; assumption };
     { change (x⁻¹ * y) ∈ φ.set; apply transport (· ∈ φ.set);
       apply calc x⁻¹ * (y * x⁻¹) * x = x⁻¹ * (y * x⁻¹ * x) : G.mulAssoc x⁻¹ (y / x) x
-                                 ... = x⁻¹ * y             : Id.map (G.φ x⁻¹) (Id.inv (cancelLeft y x));
+                                 ... = x⁻¹ * y             : ap (G.φ x⁻¹) (Id.inv (cancelLeft y x));
       apply isNormalSubgroup.conj H; apply transport (· ∈ φ.set);
       apply mulInvInv; apply φ.inv; assumption }
   end
@@ -143,7 +143,7 @@ namespace Group
   end
 
   hott def Subgroup.ext : Π (φ ψ : G.subgroup), φ.set = ψ.set → Subgroup G φ = Subgroup G ψ :=
-  begin intro ⟨φ, p⟩ ⟨ψ, q⟩ r; apply Id.map (Subgroup G); apply subgroup.ext r end
+  begin intro ⟨φ, p⟩ ⟨ψ, q⟩ r; apply ap (Subgroup G); apply subgroup.ext r end
 
   hott def inter (φ ψ : G.subgroup) : subgroup (Subgroup G ψ) :=
   begin
@@ -186,13 +186,13 @@ namespace Group
         intros x h; change _ = _;
         apply calc
           φ.1 x⁻¹ = H.ι (φ.1 x) : homoInv φ x
-              ... = H.ι H.e     : Id.map H.ι h
+              ... = H.ι H.e     : ap H.ι h
               ... = H.e         : Id.inv unitInv
       end),
     begin
       intro n g p; have r := Id.inv (homoMul φ n g) ⬝ p; apply calc
         φ.1 (g * n) = φ.1 g ∗ φ.1 n       : homoMul φ g n
-                ... = φ.1 g ∗ H.ι (φ.1 g) : Id.map (H.φ (φ.1 g)) (eqInvOfMulEqOne r)
+                ... = φ.1 g ∗ H.ι (φ.1 g) : ap (H.φ (φ.1 g)) (eqInvOfMulEqOne r)
                 ... = H.e                 : Group.mulRightInv _
     end⟩
 
@@ -215,7 +215,7 @@ namespace Group
       (begin
         intro a (p : ∥_∥); induction p; case elemπ p =>
         { apply HITs.Merely.elem; existsi p.1⁻¹;
-          transitivity; apply homoInv; apply map _ p.2 };
+          transitivity; apply homoInv; apply ap _ p.2 };
         apply HITs.Merely.uniq
       end)
   end
@@ -230,23 +230,23 @@ namespace Group
     { intro; transitivity; apply G.oneMul; symmetry; apply G.mulOne };
     { intros a b g h c; symmetry; apply calc
         G.φ c (G.φ a b) = G.φ (G.φ c a) b : Id.inv (G.mulAssoc _ _ _)
-                    ... = G.φ (G.φ a c) b : Id.map (G.φ · b) (Id.inv (g c))
+                    ... = G.φ (G.φ a c) b : ap (G.φ · b) (Id.inv (g c))
                     ... = G.φ a (G.φ c b) : G.mulAssoc _ _ _
-                    ... = G.φ a (G.φ b c) : Id.map (G.φ a) (Id.inv (h c))
+                    ... = G.φ a (G.φ b c) : ap (G.φ a) (Id.inv (h c))
                     ... = G.φ (G.φ a b) c : Id.inv (G.mulAssoc _ _ _) };
     { intros a g b; apply calc
-      G.φ (G.ι a) b = G.φ (G.ι a) (G.ι (G.ι b)) : Id.map (G.φ (G.ι a)) (Id.inv (invInv b))
+      G.φ (G.ι a) b = G.φ (G.ι a) (G.ι (G.ι b)) : ap (G.φ (G.ι a)) (Id.inv (invInv b))
                 ... = G.ι (G.φ (G.ι b) a)       : Id.inv (invExplode _ _)
-                ... = G.ι (G.φ a (G.ι b))       : Id.map G.ι (Id.inv (g (G.ι b)))
+                ... = G.ι (G.φ a (G.ι b))       : ap G.ι (Id.inv (g (G.ι b)))
                 ... = G.φ (G.ι (G.ι b)) (G.ι a) : invExplode _ _
-                ... = G.φ b (G.ι a)             : Id.map (G.φ · (G.ι a)) (invInv b) }
+                ... = G.φ b (G.ι a)             : ap (G.φ · (G.ι a)) (invInv b) }
   end,
   begin
     intros g h r z;
     have p := Id.inv (G.mulAssoc g h g) ⬝ r g;
     have q := mulCancelLeft p;
-    transitivity; apply Id.map (G.φ · z); apply q ;
-    symmetry; transitivity; apply Id.map (G.φ z);
+    transitivity; apply ap (G.φ · z); apply q ;
+    symmetry; transitivity; apply ap (G.φ z);
     apply q; symmetry; apply r
   end⟩
 
@@ -267,7 +267,7 @@ namespace Group
     transitivity; apply G.mulOne;
     transitivity; symmetry; apply G.oneMul;
     symmetry; transitivity; symmetry; apply G.mulAssoc;
-    symmetry; apply Id.map (G.φ · g); assumption
+    symmetry; apply ap (G.φ · g); assumption
   end⟩
 
   hott def univ (G : Group) : G.normal :=

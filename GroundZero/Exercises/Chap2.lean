@@ -1,6 +1,7 @@
 import GroundZero.Theorems.Pullback
 
 open GroundZero GroundZero.Types
+open GroundZero.Types.Id (ap)
 open GroundZero.Types.Equiv
 open GroundZero.Proto
 
@@ -112,9 +113,9 @@ namespace «2.7»
   def φ (x : Σ a, B a) : Σ a', B' a' := ⟨g x.1, h x.1 x.2⟩
 
   hott def prodMap : Π (x y : Σ a, B a) (p : x.1 = y.1) (q : x.2 =[p] y.2),
-      Id.map (φ g h) (Sigma.prod p q)
+      ap (φ g h) (Sigma.prod p q)
     = @Sigma.prod A' B' (φ g h x) (φ g h y)
-        (@Id.map A A' x.1 y.1 g p) (depPathMap' g h q) :=
+        (@ap A A' x.1 y.1 g p) (depPathMap' g h q) :=
   begin
     intro ⟨x, H⟩ ⟨y, G⟩ (p : x = y); induction p;
     intro (q : H = G); induction q; reflexivity
@@ -130,13 +131,13 @@ namespace «2.8»
   Coproduct.elim (Coproduct.inl ∘ g) (Coproduct.inr ∘ h)
 
   hott def ρ : Π {x y : A + B}, Coproduct.code x y → Coproduct.code (φ g h x) (φ g h y)
-  | Sum.inl _, Sum.inl _, p => Id.map _ p
+  | Sum.inl _, Sum.inl _, p => ap _ p
   | Sum.inr _, Sum.inl _, p => Empty.elim p
   | Sum.inl _, Sum.inr _, p => Empty.elim p
-  | Sum.inr _, Sum.inr _, p => Id.map _ p
+  | Sum.inr _, Sum.inr _, p => ap _ p
 
   hott def mapPathSum (x y : A + B) : Π p,
-      Id.map (φ g h) (Coproduct.pathSum x y p)
+      ap (φ g h) (Coproduct.pathSum x y p)
     = Coproduct.pathSum (φ g h x) (φ g h y) (ρ g h p) :=
   begin
     match x, y with
@@ -203,8 +204,8 @@ namespace «2.12»
   def right : hcommSquare C E D F := ⟨k, s, g, j, β⟩
 
   def outer : hcommSquare A E B F :=
-  ⟨k, s ∘ h, g ∘ f, i, @Id.map (C → F) (A → F) _ _ (· ∘ f) β
-                     ⬝ @Id.map _ (A → F) _ _ (s ∘ ·) α⟩
+  ⟨k, s ∘ h, g ∘ f, i, @ap (C → F) (A → F) _ _ (· ∘ f) β
+                     ⬝ @ap _ (A → F) _ _ (s ∘ ·) α⟩
 
   hott def pullbackLemma (H : (right β).isPullback) :
     (left α).isPullback ↔ (outer α β).isPullback :=
@@ -225,11 +226,11 @@ example : (𝟐 ≃ 𝟐) ≃ 𝟐 := Theorems.Equiv.boolEquivEqvBool
 -- exercise 2.15
 
 hott def transportMap {A : Type u} {B : A → Type v} {x y : A} (p : x = y) :
-  transport B p = idtoeqv (Id.map B p) :=
+  transport B p = idtoeqv (ap B p) :=
 begin induction p; reflexivity end
 
 -- exercise 2.18
 
 hott def transportSquare {A : Type u} {B : A → Type v} {f g : Π x, B x} (H : f ~ g) {x y : A} (p : x = y) :
-  Id.map (transport B p) (H x) ⬝ apd g p = apd f p ⬝ H y :=
+  ap (transport B p) (H x) ⬝ apd g p = apd f p ⬝ H y :=
 begin induction p; transitivity; apply Id.reflRight; apply Equiv.idmap end

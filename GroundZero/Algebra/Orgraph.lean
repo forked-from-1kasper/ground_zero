@@ -2,6 +2,7 @@ import GroundZero.Theorems.Classical
 import GroundZero.Algebra.Ring
 
 open GroundZero.Types GroundZero.Proto
+open GroundZero.Types.Id (ap)
 open GroundZero.Structures
 open GroundZero.Theorems
 open GroundZero.HITs
@@ -158,7 +159,7 @@ namespace GroundZero.Algebra
     apply Equiv.transportconst; apply Equiv.bimap;
     symmetry; apply @Group.cancelRight T.τ⁺ a c;
     symmetry; apply @Group.cancelRight T.τ⁺ b c;
-    apply Id.map (λ x, x - c) q; apply orfield.leOverAdd; exact p.2
+    apply ap (λ x, x - c) q; apply orfield.leOverAdd; exact p.2
   end
 
   hott def ltOverAddLeft (T : Overring) [orfield T] (a b c : T.carrier) (p : a < b) : c + a < c + b :=
@@ -196,7 +197,7 @@ namespace GroundZero.Algebra
     change T.carrier; exact -b; change T.carrier; exact -a; apply T.κ.prop;
     { intro ih; induction ih; assumption;
       match @Classical.lem (a = b) (T.hset _ _) with | Sum.inl r₁ => _ | Sum.inr r₂ => _;
-      apply eqImplReflRel T.κ; symmetry; apply Id.map T.τ.neg r₁;
+      apply eqImplReflRel T.κ; symmetry; apply ap T.τ.neg r₁;
       apply Empty.elim; apply (_ : T.σ 0 0).1; reflexivity;
       apply Equiv.transportconst; apply Equiv.bimap;
       apply @Group.mulRightInv T.τ⁺; exact a;

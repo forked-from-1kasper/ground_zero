@@ -69,7 +69,7 @@ namespace Equiv
 
   hott def homotopySquare {A : Type u} {B : Type v}
     {f g : A → B} (H : f ~ g) {x y : A} (p : x = y) :
-    H x ⬝ Id.map g p = Id.map f p ⬝ H y :=
+    H x ⬝ ap g p = ap f p ⬝ H y :=
   begin induction p; transitivity; apply Id.reflRight; apply Id.reflLeft end
 end Equiv
 
@@ -97,8 +97,8 @@ namespace Equiv
 
   hott def biinvTrans {A : Type u} {B : Type v} {C : Type w}
     {f : A → B} {g : B → C} (e₁ : biinv f) (e₂ : biinv g) : biinv (g ∘ f) :=
-  (⟨e₁.1.1 ∘ e₂.1.1, λ x, Id.map e₁.1.1 (e₂.1.2 (f x)) ⬝ e₁.1.2 x⟩,
-   ⟨e₁.2.1 ∘ e₂.2.1, λ x, Id.map g (e₁.2.2 (e₂.2.1 x)) ⬝ e₂.2.2 x⟩)
+  (⟨e₁.1.1 ∘ e₂.1.1, λ x, ap e₁.1.1 (e₂.1.2 (f x)) ⬝ e₁.1.2 x⟩,
+   ⟨e₁.2.1 ∘ e₂.2.1, λ x, ap g (e₁.2.2 (e₂.2.1 x)) ⬝ e₂.2.2 x⟩)
 
   hott def trans {A : Type u} {B : Type v} {C : Type w}
     (f : A ≃ B) (g : B ≃ C) : A ≃ C :=
@@ -234,7 +234,7 @@ namespace Equiv
 
   hott def depPathMap' {A : Type u} {B : Type v} {C : A → Type w} {D : B → Type k}
     {a b : A} {p : a = b} {u : C a} {v : C b} (f : A → B)
-    (g : Π x, C x → D (f x)) (q : u =[p] v) : g a u =[Id.map f p] g b v :=
+    (g : Π x, C x → D (f x)) (q : u =[p] v) : g a u =[ap f p] g b v :=
   begin induction p; induction q using Id.casesOn; apply idp end
 
   def transportInv {A : Type u} (B : A → Type v) {a b : A} (p : a = b) : B b → B a :=
@@ -248,11 +248,11 @@ namespace Equiv
 
   hott theorem transportComp {A : Type u} {B : Type v}
     (C : B → Type w) {x y : A} (f : A → B) (p : x = y) (u : C (f x)) :
-    transport (C ∘ f) p u = transport C (Id.map f p) u :=
+    transport (C ∘ f) p u = transport C (ap f p) u :=
   begin induction p; reflexivity end
 
   hott theorem transportToTransportconst {A : Type u} (B : A → Type v) {a b : A}
-    (p : a = b) (u : B a) : Equiv.transport B p u = Equiv.transportconst (Id.map B p) u :=
+    (p : a = b) (u : B a) : Equiv.transport B p u = Equiv.transportconst (ap B p) u :=
   begin induction p; reflexivity end
 
   hott theorem transportconstOverComposition {A B C : Type u} (p : A = B) (q : B = C) (x : A) :
@@ -304,7 +304,7 @@ namespace Equiv
   begin intro ε; symmetry; apply invCompRewrite; exact ε end
 
   hott lemma mapWithHomotopy {A : Type u} {B : Type v} (f g : A → B) (H : f ~ g) {a b : A} (p : a = b) :
-    Id.map f p = H a ⬝ Id.map g p ⬝ (H b)⁻¹ :=
+    ap f p = H a ⬝ ap g p ⬝ (H b)⁻¹ :=
   begin apply invCompRewrite; symmetry; apply homotopySquare end
 
   hott def pathoverFromTrans {A : Type u} {a b c : A}
@@ -317,46 +317,46 @@ namespace Equiv
 
   hott theorem mapFunctoriality {A : Type u} {B : Type v}
     {a b c : A} (f : A → B) {p : a = b} {q : b = c} :
-    Id.map f (p ⬝ q) = Id.map f p ⬝ Id.map f q :=
+    ap f (p ⬝ q) = ap f p ⬝ ap f q :=
   begin induction p; reflexivity end
 
   hott lemma transportOverContrMap {A : Type u} {B : Type v} {a b : A} {c : B}
     (f : A → B) (p : a = b) (q : f a = c) :
-    Equiv.transport (λ x, f x = c) p q = Id.map f p⁻¹ ⬝ q :=
+    Equiv.transport (λ x, f x = c) p q = ap f p⁻¹ ⬝ q :=
   begin induction p; reflexivity end
 
   hott lemma transportOverInvContrMap {A : Type u} {B : Type v} {a b : A} {c : B}
     (f : A → B) (p : a = b) (q : c = f a) :
-    Equiv.transport (λ x, c = f x) p q = q ⬝ Id.map f p :=
+    Equiv.transport (λ x, c = f x) p q = q ⬝ ap f p :=
   begin induction p; symmetry; apply Id.reflRight end
 
   hott lemma transportOverInvolution {A : Type u} {a b : A} (f : A → A) (p : a = b) (q : f a = a) :
-    Equiv.transport (λ x, f x = x) p q = Id.map f p⁻¹ ⬝ q ⬝ p :=
+    Equiv.transport (λ x, f x = x) p q = ap f p⁻¹ ⬝ q ⬝ p :=
   begin induction p; symmetry; apply Id.reflRight end
 
   hott lemma transportOverHmtpy {A : Type u} {B : Type v} {a b : A} (f g : A → B) (p : a = b) (q : f a = g a) :
-    Equiv.transport (λ x, f x = g x) p q = Id.map f p⁻¹ ⬝ q ⬝ Id.map g p :=
+    Equiv.transport (λ x, f x = g x) p q = ap f p⁻¹ ⬝ q ⬝ ap g p :=
   begin induction p; symmetry; apply Id.reflRight end
 
-  hott lemma idmap {A : Type u} {a b : A} (p : a = b) : Id.map idfun p = p :=
+  hott lemma idmap {A : Type u} {a b : A} (p : a = b) : ap idfun p = p :=
   begin induction p; reflexivity end
 
   hott lemma constmap {A : Type u} {B : Type v} {a b : A} {c : B}
-    (p : a = b) : Id.map (λ _, c) p = idp c :=
+    (p : a = b) : ap (λ _, c) p = idp c :=
   begin induction p; reflexivity end
 
   hott theorem transportOverDhmtpy {A : Type u} {B : A → Type v} {a b : A}
     (f g : Π x, B x) (p : a = b) (q : f a = g a) :
-    Equiv.transport (λ x, f x = g x) p q = (apd f p)⁻¹ ⬝ Id.map (subst p) q ⬝ apd g p :=
+    Equiv.transport (λ x, f x = g x) p q = (apd f p)⁻¹ ⬝ ap (subst p) q ⬝ apd g p :=
   begin induction p; symmetry; transitivity; apply Id.reflRight; apply idmap end
 
   hott theorem mapOverComp {A : Type u} {B : Type v} {C : Type w} {a b : A}
     (f : A → B) (g : B → C) (p : a = b) :
-    @Id.map A C a b (g ∘ f) p = Id.map g (Id.map f p) :=
+    @ap A C a b (g ∘ f) p = ap g (ap f p) :=
   begin induction p; reflexivity end
 
   hott theorem apdOverConstantFamily {A : Type u} {B : Type v} {a b : A}
-    (f : A → B) (p : a = b) : apd f p = pathoverOfEq p (Id.map f p) :=
+    (f : A → B) (p : a = b) : apd f p = pathoverOfEq p (ap f p) :=
   begin induction p; reflexivity end
 
   def reflPathover {A : Type u} {B : Type v} {a : A} {x y : B} (p : x =[λ _, B, idp a] y) : x = y := p
@@ -395,7 +395,7 @@ namespace Equiv
   hott lemma transportOverFunction {A : Type u} {B : Type v}
     {a : A} {b : B} (f g : A → B) (p : f = g) (q : f a = b) :
     transport (λ (f' : A → B), f' a = b) p q =
-    @Id.map (A → B) B g f (λ (f' : A → B), f' a) p⁻¹ ⬝ q :=
+    @ap (A → B) B g f (λ (f' : A → B), f' a) p⁻¹ ⬝ q :=
   begin induction p; reflexivity end
 
   hott lemma transportOverOperation {A B : Type u} (φ : A → A → A) (p : A = B) :
@@ -425,22 +425,22 @@ namespace Equiv
 
   hott lemma bimapReflLeft {A : Type u} {B : Type v} {C : Type w}
     {a : A} {a' b' : B} (f : A → B → C) (p : a' = b') :
-    bimap f (idp a) p = Id.map (f a) p :=
+    bimap f (idp a) p = ap (f a) p :=
   begin induction p; reflexivity end
 
   hott lemma bimapReflRight {A : Type u} {B : Type v} {C : Type w}
     {a b : A} {a' : B} (f : A → B → C) (p : a = b) :
-    bimap f p (idp a') = Id.map (f · a') p :=
+    bimap f p (idp a') = ap (f · a') p :=
   begin induction p; reflexivity end
 
   hott theorem bimapCharacterization {A : Type u} {B : Type v} {C : Type w}
     {a b : A} {a' b' : B} (f : A → B → C) (p : a = b) (q : a' = b') :
-    bimap f p q = @Id.map A C a b (f · a') p ⬝ Id.map (f b) q :=
+    bimap f p q = @ap A C a b (f · a') p ⬝ ap (f b) q :=
   begin induction p; induction q; reflexivity end
 
   hott theorem bimapCharacterization' {A : Type u} {B : Type v} {C : Type w}
     {a b : A} {a' b' : B} (f : A → B → C) (p : a = b) (q : a' = b') :
-    bimap f p q = Id.map (f a) q ⬝ @Id.map A C a b (f · b') p :=
+    bimap f p q = ap (f a) q ⬝ @ap A C a b (f · b') p :=
   begin induction p; induction q; reflexivity end
 
   hott theorem bimapInv {A : Type u} {B : Type v} {C : Type w} {a b : A} {a' b' : B}
@@ -449,9 +449,9 @@ namespace Equiv
 
   hott theorem bimapComp {A : Type u} {B : Type v} {C : Type w}
     {a b : A} {a' b' : B} (f : A → B → C) (p : a = b) (q : a' = b') :
-    Id.map (f · a') p = Id.map (f a) q ⬝ bimap f p q⁻¹ :=
+    ap (f · a') p = ap (f a) q ⬝ bimap f p q⁻¹ :=
   begin
-    induction p; symmetry; transitivity; apply Id.map; transitivity;
+    induction p; symmetry; transitivity; apply ap; transitivity;
     apply bimapReflLeft; apply Id.mapInv; apply Id.compInv
   end
 
@@ -479,7 +479,7 @@ namespace Equiv
   begin induction p; reflexivity end
 
   hott theorem mapOverAS {A : Type u} {a b : A} (f : A → A → A) (g : A → A) (p : a = b) :
-    Id.map (AS f g) p = @bimap A A A a b (g a) (g b) f p (Id.map g p) :=
+    ap (AS f g) p = @bimap A A A a b (g a) (g b) f p (ap g p) :=
   begin induction p; reflexivity end
 
   hott lemma liftedHapply {A : Type u} (B : A → Type v) (C : A → Type w)
@@ -512,14 +512,14 @@ namespace Qinv
     (f : A → B) (g : B → A) (h : B → A)
     (G : f ∘ g ~ id) (H : h ∘ f ~ id) : g ∘ f ~ id :=
   let F₁ := λ x, H (g (f x));
-  let F₂ := λ x, Id.map h (G (f x));
+  let F₂ := λ x, ap h (G (f x));
   λ x, (F₁ x)⁻¹ ⬝ F₂ x ⬝ H x
 
   hott def rinvInv {A : Type u} {B : Type v}
     (f : A → B) (g : B → A) (h : B → A)
     (G : f ∘ g ~ id) (H : h ∘ f ~ id) : f ∘ h ~ id :=
-  let F₁ := λ x, Id.map (f ∘ h) (G x);
-  let F₂ := λ x, Id.map f (H (g x));
+  let F₁ := λ x, ap (f ∘ h) (G x);
+  let F₂ := λ x, ap f (H (g x));
   λ x, (F₁ x)⁻¹ ⬝ F₂ x ⬝ G x
 
   hott def toBiinv {A : Type u} {B : Type v} (f : A → B) (q : qinv f) : biinv f :=
@@ -559,7 +559,7 @@ namespace Equiv
     (x y : A) (p : e.forward x = e.forward y) : x = y :=
   begin
     transitivity; symmetry; apply e.leftForward;
-    transitivity; apply Id.map e.left;
+    transitivity; apply ap e.left;
     exact p; apply e.leftForward
   end
 
@@ -567,7 +567,7 @@ namespace Equiv
     (x y : B) (p : e.left x = e.left y) : x = y :=
   begin
     transitivity; symmetry; apply e.forwardLeft;
-    transitivity; apply Id.map e.forward;
+    transitivity; apply ap e.forward;
     exact p; apply e.forwardLeft
   end
 
@@ -575,14 +575,14 @@ namespace Equiv
     (x y : B) (p : e.right x = e.right y) : x = y :=
   begin
     transitivity; symmetry; apply e.forwardRight;
-    transitivity; apply Id.map e.forward;
+    transitivity; apply ap e.forward;
     exact p; apply e.forwardRight
   end
 end Equiv
 
 -- half adjoint equivalence
 def ishae {A : Type u} {B : Type v} (f : A → B) :=
-Σ (g : B → A) (η : g ∘ f ~ id) (ϵ : f ∘ g ~ id), Π x, Id.map f (η x) = ϵ (f x)
+Σ (g : B → A) (η : g ∘ f ~ id) (ϵ : f ∘ g ~ id), Π x, ap f (η x) = ϵ (f x)
 
 def fib {A : Type u} {B : Type v} (f : A → B) (y : B) := Σ (x : A), f x = y
 def total {A : Type u} (B : A → Type v) := Σ x, B x

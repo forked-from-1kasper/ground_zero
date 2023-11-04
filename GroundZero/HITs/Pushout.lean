@@ -1,4 +1,6 @@
 import GroundZero.HITs.Graph
+
+open GroundZero.Types.Id (ap)
 open GroundZero.Types.Equiv
 open GroundZero.Types
 
@@ -55,7 +57,7 @@ namespace Pushout
 
   noncomputable hott def recβrule {D : Type w} (inlπ : A → D) (inrπ : B → D)
     (glueπ : Π x, inlπ (f x) = inrπ (g x)) (x : C) :
-    Id.map (rec inlπ inrπ glueπ) (glue x) = glueπ x :=
+    ap (rec inlπ inrπ glueπ) (glue x) = glueπ x :=
   begin
     apply pathoverOfEqInj (glue x); transitivity;
     symmetry; apply apdOverConstantFamily;

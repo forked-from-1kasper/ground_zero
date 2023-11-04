@@ -2,7 +2,7 @@ import GroundZero.Algebra.Group.Symmetric
 import GroundZero.Algebra.Group.Factor
 
 open GroundZero.Types.Equiv (biinv transport)
-open GroundZero.Types.Id (map)
+open GroundZero.Types.Id (ap)
 open GroundZero.Structures
 open GroundZero.Types
 open GroundZero.Proto
@@ -32,7 +32,7 @@ namespace Group
         apply HITs.Merely.elem; existsi x; reflexivity };
       { intro x y (p : _ = _); fapply Sigma.prod; transitivity;
         symmetry; apply invInv; apply invEqOfMulEqOne; transitivity;
-        { apply map (H.φ · (φ.1 y)); symmetry; apply homoInv };
+        { apply ap (H.φ · (φ.1 y)); symmetry; apply homoInv };
         transitivity; { symmetry; apply homoMul }; apply p;
         apply HITs.Merely.uniq };
       { apply Ens.hset; apply H.hset }
@@ -45,7 +45,7 @@ namespace Group
       { fapply @HITs.Quotient.indProp _ _ (λ y, ker.encode _ = ker.encode y → _ = y) <;> intro y;
         { intro p; apply HITs.Quotient.sound;
           change _ = _; transitivity; apply homoMul;
-          transitivity; apply Id.map (H.φ · (φ.1 y));
+          transitivity; apply ap (H.φ · (φ.1 y));
           apply homoInv; apply mulEqOneOfInvEq;
           transitivity; apply invInv;
           apply (Sigma.sigmaEqOfEq p).1 };

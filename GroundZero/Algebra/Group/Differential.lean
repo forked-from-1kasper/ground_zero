@@ -1,4 +1,6 @@
 import GroundZero.Algebra.Group.Subgroup
+
+open GroundZero.Types.Id (ap)
 open GroundZero.Structures
 open GroundZero.Types
 open GroundZero.Proto
@@ -18,7 +20,7 @@ namespace Group
   hott def imImplKer {φ : Hom G G} (H : φ ⋅ φ = 0) : (im φ).set ⊆ (ker φ).set :=
   begin
     intro x; fapply HITs.Merely.rec; apply G.hset;
-    intro ⟨y, p⟩; change _ = _; transitivity; apply Id.map _ (Id.inv p);
+    intro ⟨y, p⟩; change _ = _; transitivity; apply ap _ (Id.inv p);
     apply @idhom _ _ _ _ _ (φ ⋅ φ) 0; apply H
   end
 

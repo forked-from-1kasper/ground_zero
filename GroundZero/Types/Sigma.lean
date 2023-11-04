@@ -1,5 +1,7 @@
 import GroundZero.Types.Equiv
 
+open GroundZero.Types.Id (ap)
+
 namespace GroundZero.Types
 universe u v w
 
@@ -24,7 +26,7 @@ namespace Sigma
   end
 
   hott def mapFstOverProd {A : Type u} {B : A → Type v} : Π {u v : Sigma B}
-    (p : u.1 = v.1) (q : Equiv.subst p u.snd = v.snd), Id.map pr₁ (prod p q) = p :=
+    (p : u.1 = v.1) (q : Equiv.subst p u.snd = v.snd), ap pr₁ (prod p q) = p :=
   begin
     intro ⟨x, u⟩ ⟨y, v⟩ (p : x = y); induction p;
     intro (q : u = v); induction q; apply idp
@@ -71,9 +73,9 @@ namespace Sigma
   begin
     existsi (map (λ x, (e x).forward)); apply Prod.mk;
     { existsi (map (λ x, (e x).left)); intro w;
-      apply Id.map (Sigma.mk w.1); apply (e w.1).leftForward };
+      apply ap (Sigma.mk w.1); apply (e w.1).leftForward };
     { existsi (map (λ x, (e x).right)); intro w;
-      apply Id.map (Sigma.mk w.1); apply (e w.1).forwardRight }
+      apply ap (Sigma.mk w.1); apply (e w.1).forwardRight }
   end
 
   hott def replaceIshae {A : Type u} {B : Type v} {C : A → Type w}
@@ -84,7 +86,7 @@ namespace Sigma
     { apply @prod B (C ∘ g) ⟨ρ.1 (g w.1), _⟩ w (ρ.2.1 w.1);
       transitivity; apply Equiv.transportComp;
       transitivity; symmetry; apply Equiv.substComp;
-      transitivity; apply Id.map (λ p, Equiv.subst p w.2);
+      transitivity; apply ap (λ p, Equiv.subst p w.2);
       apply Id.compReflIfEq; symmetry; apply ρ.2.2.2; reflexivity };
     { apply prod; apply Equiv.transportBackAndForward }
   end
@@ -94,7 +96,7 @@ namespace Sigma
   begin
     existsi hmtpyInv f g; apply Qinv.toBiinv;
     existsi hmtpyInv g f; apply Prod.mk <;>
-    { intro w; apply Id.map (Sigma.mk w.1); apply Id.invInv }
+    { intro w; apply ap (Sigma.mk w.1); apply Id.invInv }
   end
 
   hott def sigmaEqOfEq {A : Type u} {B : A → Type v} {a b : Σ x, B x}

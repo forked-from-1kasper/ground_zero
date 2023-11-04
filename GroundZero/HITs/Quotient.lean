@@ -1,6 +1,7 @@
 import GroundZero.HITs.Trunc
 import GroundZero.HITs.Graph
 
+open GroundZero.Types.Id (ap)
 open GroundZero.Structures
 open GroundZero.Theorems
 open GroundZero.Types
@@ -16,7 +17,7 @@ Trunc.elem ∘ Graph.elem
 
 hott def Quot.sound {A : Type u} {R : A → A → propset.{v}} {a b : A} :
   (R a b).1 → @Id (Quot R) (Quot.elem a) (Quot.elem b) :=
-begin intro H; apply Id.map Trunc.elem; apply Graph.line; assumption end
+begin intro H; apply ap Trunc.elem; apply Graph.line; assumption end
 
 noncomputable hott def Quot.set {A : Type u} {R : A → A → propset.{v}} : hset (Quot R) :=
 zeroEqvSet.forward (Trunc.uniq 0)

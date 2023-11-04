@@ -1,6 +1,7 @@
 import GroundZero.Algebra.Orgraph
 import GroundZero.Theorems.Nat
 
+open GroundZero.Types.Id (ap)
 open GroundZero.Structures
 open GroundZero.Theorems
 open GroundZero.Types
@@ -54,7 +55,7 @@ namespace GroundZero.Algebra
 
   noncomputable hott def N.incl.add (n : ℕ) : Π m, N.incl (n + m) = N.incl n + N.incl m
   | Nat.zero   => Id.inv (R.τ⁺.mulOne _)
-  | Nat.succ m => @Id.map ℝ ℝ _ _ (λ r, r + 1) (add n m) ⬝ R.τ⁺.mulAssoc _ _ _
+  | Nat.succ m => @ap ℝ ℝ _ _ (λ r, r + 1) (add n m) ⬝ R.τ⁺.mulAssoc _ _ _
 
   noncomputable hott def leAddOne (x : ℝ) : R.ρ x (x + 1) :=
   begin
@@ -69,7 +70,7 @@ namespace GroundZero.Algebra
   | Nat.zero,   Nat.zero   => λ _, @reflexive.refl R.κ _ (N.incl 0)
   | Nat.zero,   Nat.succ m => λ _, @transitive.trans R.κ _ (N.incl 0) (N.incl m) (N.incl (m + 1)) (lt 0 m (Nat.max.zeroLeft m)) (leAddOne (N.incl m))
   | Nat.succ n, Nat.zero   => λ p, GroundZero.Proto.Empty.elim (Nat.max.neZero p)
-  | Nat.succ n, Nat.succ m => λ p, orfield.leOverAdd (N.incl n) (N.incl m) 1 (lt n m (Id.map Nat.pred p))
+  | Nat.succ n, Nat.succ m => λ p, orfield.leOverAdd (N.incl n) (N.incl m) 1 (lt n m (ap Nat.pred p))
 
   noncomputable hott def R.complete (φ : R.subset) (H : φ.inh) (G : @majorized R.κ φ) :
     Σ M, exact (@Majorant R.κ φ) M :=
@@ -136,10 +137,10 @@ namespace GroundZero.Algebra
   noncomputable hott def R.totalIsProp (x y : ℝ) : prop (R.ρ x y + (x > y)) :=
   begin
     intros p q; match p, q with
-    | Sum.inl p₁,      Sum.inl q₁      => { apply Id.map; apply R.κ.prop }
+    | Sum.inl p₁,      Sum.inl q₁      => { apply ap; apply R.κ.prop }
     | Sum.inl p₁,      Sum.inr q₂      => { apply GroundZero.Proto.Empty.elim; apply R.notNotTotal x y <;> assumption }
     | Sum.inr p₂,      Sum.inl q₁      => { apply GroundZero.Proto.Empty.elim; apply R.notNotTotal x y <;> assumption }
-    | Sum.inr (p, p'), Sum.inr (q, q') => { apply Id.map; apply Product.prod; apply notIsProp; apply R.κ.prop }
+    | Sum.inr (p, p'), Sum.inr (q, q') => { apply ap; apply Product.prod; apply notIsProp; apply R.κ.prop }
   end
 
   noncomputable hott def R.total (x y : ℝ) : R.ρ x y + (x > y) :=
@@ -168,7 +169,7 @@ namespace GroundZero.Algebra
   noncomputable hott def R.zeroEqMinusZero {x : ℝ} (p : x = 0) : x = -x :=
   begin
     transitivity; exact p; symmetry;
-    transitivity; apply Id.map; exact p;
+    transitivity; apply ap; exact p;
     symmetry; apply @Group.unitInv R.τ⁺
   end
 
@@ -237,12 +238,12 @@ namespace GroundZero.Algebra
     match R.total 0 x with
     | Sum.inl p => {
       apply Equiv.transport (R.ρ · x); symmetry;
-      apply Id.map; apply abs.pos p; apply @transitive.trans R.κ;
+      apply ap; apply abs.pos p; apply @transitive.trans R.κ;
       apply R.zeroLeImplZeroGeMinus p; assumption
     }
     | Sum.inr q => {
       apply Equiv.transport (R.ρ · x); symmetry;
-      transitivity; apply Id.map; apply abs.neg q.2;
+      transitivity; apply ap; apply abs.neg q.2;
       apply @Group.invInv R.τ⁺; apply @reflexive.refl R.κ
     }
   end
@@ -352,10 +353,10 @@ namespace GroundZero.Algebra
       { apply (A.2.1 (G.φ x (G.ι y))).right;
         induction p; apply Group.mulRightInv } };
     { intros x y; transitivity; apply A.2.2.1 (G.φ x (G.ι y));
-      apply Id.map A.1; transitivity; apply Group.invExplode;
-      apply Id.map (λ z, G.φ z (G.ι x)); apply Group.invInv };
+      apply ap A.1; transitivity; apply Group.invExplode;
+      apply ap (λ z, G.φ z (G.ι x)); apply Group.invInv };
     { intros x y z; apply Equiv.transport (R.ρ · _);
-      apply Id.map A.1; apply Group.chainRdiv x y z; apply A.2.2.2 }
+      apply ap A.1; apply Group.chainRdiv x y z; apply A.2.2.2 }
   end
 
   hott def Absolute.space (G : Group) (A : Absolute G) : Metric :=
@@ -368,10 +369,10 @@ namespace GroundZero.Algebra
     { apply geIfMinusLe; apply Equiv.transport (λ w, R.ρ w _);
       symmetry; apply @Group.mulInvInv R.τ⁺; apply subLeIfAddGeRev;
       apply Equiv.transport (λ w, R.ρ (A.1 y) (w + A.1 (G.φ x y))); symmetry; apply A.2.2.1;
-      apply Equiv.transport (R.ρ · _); apply Id.map A.1; symmetry; apply Group.revCancelLeft x y; apply A.2.2.2 };
+      apply Equiv.transport (R.ρ · _); apply ap A.1; symmetry; apply Group.revCancelLeft x y; apply A.2.2.2 };
     { apply subLeIfAddGe; apply Equiv.transport (λ w, R.ρ (A.1 x) (A.1 (G.φ x y) + w));
       symmetry; apply A.2.2.1; apply Equiv.transport (R.ρ · _);
-      apply Id.map A.1; symmetry; apply Group.cancelRight x y; apply A.2.2.2 }
+      apply ap A.1; symmetry; apply Group.cancelRight x y; apply A.2.2.2 }
   end
 
   noncomputable hott def triangle (x y : ℝ) : R.ρ (abs (x + y)) (abs x + abs y) :=
@@ -386,7 +387,7 @@ namespace GroundZero.Algebra
   noncomputable hott def R.absolute : absolute R.τ⁺ abs :=
   begin
     apply (_, (_, _)); intro; apply Prod.mk; apply abs.zeroIf;
-    { intro p; transitivity; exact Id.map abs p; apply abs.zero };
+    { intro p; transitivity; exact ap abs p; apply abs.zero };
     apply abs.even; apply triangle
   end
 

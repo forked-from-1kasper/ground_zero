@@ -2,7 +2,7 @@ import GroundZero.Algebra.Group.Subgroup
 import GroundZero.HITs.Quotient
 
 open GroundZero.Types.Equiv (biinv transport)
-open GroundZero.Types.Id (map)
+open GroundZero.Types.Id (ap)
 open GroundZero.Structures
 open GroundZero.Types
 open GroundZero.Proto
@@ -61,7 +61,7 @@ namespace Group
   noncomputable hott def factorSymm (φ : G.subgroup) (ρ : G ⊵ φ) :
     factorLeft G φ = factorRight G φ :=
   begin
-    apply map GroundZero.HITs.Quotient; apply GroundZero.eqrel.eq;
+    apply ap GroundZero.HITs.Quotient; apply GroundZero.eqrel.eq;
     apply Theorems.funext; intro; apply Theorems.funext; intro;
     fapply Types.Sigma.prod; change ldiv φ _ _ = rdiv φ _ _;
     apply HITs.Interval.happly; apply HITs.Interval.happly;
@@ -86,26 +86,26 @@ namespace Group
         apply calc
              b⁻¹ * (a⁻¹ * c * (d * b⁻¹)) * b
            = b⁻¹ * (a⁻¹ * c * d * b⁻¹) * b :
-             Id.map (b⁻¹ * · * b) (Id.inv (G.mulAssoc (a⁻¹ * c) d b⁻¹))
+             ap (b⁻¹ * · * b) (Id.inv (G.mulAssoc (a⁻¹ * c) d b⁻¹))
        ... = b⁻¹ * (a⁻¹ * c * d * b⁻¹ * b) :
              G.mulAssoc b⁻¹ (a⁻¹ * c * d * b⁻¹) b
        ... = b⁻¹ * (a⁻¹ * c * d * (b⁻¹ * b)) :
-             Id.map (G.φ b⁻¹) (G.mulAssoc (a⁻¹ * c * d) b⁻¹ b)
+             ap (G.φ b⁻¹) (G.mulAssoc (a⁻¹ * c * d) b⁻¹ b)
        ... = b⁻¹ * (a⁻¹ * c * d * e) :
-             @map G.carrier G.carrier _ _ (λ x, b⁻¹ * (a⁻¹ * c * d * x)) (G.mulLeftInv b)
+             @ap G.carrier G.carrier _ _ (λ x, b⁻¹ * (a⁻¹ * c * d * x)) (G.mulLeftInv b)
        ... = b⁻¹ * (a⁻¹ * c * d) :
-             Id.map (b⁻¹ * ·) (G.mulOne (a⁻¹ * c * d))
+             ap (b⁻¹ * ·) (G.mulOne (a⁻¹ * c * d))
        ... = b⁻¹ * (a⁻¹ * (c * d)) :
-             Id.map (b⁻¹ * ·) (G.mulAssoc a⁻¹ c d)
+             ap (b⁻¹ * ·) (G.mulAssoc a⁻¹ c d)
        ... = (b⁻¹ * a⁻¹) * (c * d) :
              Id.inv (G.mulAssoc b⁻¹ a⁻¹ (c * d))
        ... = leftDiv (a * b) (c * d) :
-             Id.map (G.φ · (c * d)) (Id.inv (invExplode a b));
+             ap (G.φ · (c * d)) (Id.inv (invExplode a b));
         apply isNormalSubgroup.conj φ.2; apply φ.1.mul;
         { exact p };
         { apply transport (· ∈ φ.set); apply calc
             (b * d⁻¹)⁻¹ = d⁻¹⁻¹ * b⁻¹ : invExplode b d⁻¹
-                    ... = d * b⁻¹     : Id.map (G.φ · b⁻¹) (invInv d);
+                    ... = d * b⁻¹     : ap (G.φ · b⁻¹) (invInv d);
           apply φ.1.inv; apply (normalSubgroupCosets φ.2).left; exact q } }
     end
 
@@ -117,9 +117,9 @@ namespace Group
       { intro x; apply HITs.Quotient.sound;
         apply transport (· ∈ φ.set); apply calc
             e = x⁻¹ * x       : Id.inv (G.mulLeftInv x)
-          ... = e * x⁻¹ * x   : Id.map (G.φ · x) (Id.inv (G.oneMul x⁻¹))
-          ... = e⁻¹ * x⁻¹ * x : Id.map (λ y, y * x⁻¹ * x) unitInv
-          ... = (x * e)⁻¹ * x : Id.map (G.φ · x) (Id.inv (invExplode x e));
+          ... = e * x⁻¹ * x   : ap (G.φ · x) (Id.inv (G.oneMul x⁻¹))
+          ... = e⁻¹ * x⁻¹ * x : ap (λ y, y * x⁻¹ * x) unitInv
+          ... = (x * e)⁻¹ * x : ap (G.φ · x) (Id.inv (invExplode x e));
         apply φ.1.unit };
       { intros; apply HITs.Quotient.set }
     end
@@ -128,7 +128,7 @@ namespace Group
     begin
       fapply HITs.Quotient.indProp;
       { intro; change HITs.Quotient.elem _ = _;
-        apply map; apply G.oneMul };
+        apply ap; apply G.oneMul };
       { intros; apply HITs.Quotient.set }
     end
 
@@ -137,7 +137,7 @@ namespace Group
     begin
       intro (x : HITs.Quotient _) (y : HITs.Quotient _) (z : HITs.Quotient _);
       induction x; induction y; induction z;
-      apply Id.map Factor.incl; apply G.mulAssoc;
+      apply ap Factor.incl; apply G.mulAssoc;
       -- ???
       apply HITs.Quotient.set; apply propIsSet; apply HITs.Quotient.set;
       apply HITs.Quotient.set; apply propIsSet; apply HITs.Quotient.set;
@@ -150,7 +150,7 @@ namespace Group
       { intro x; exact Factor.incl x⁻¹ };
       { intros u v H; apply GroundZero.HITs.Quotient.sound;
         apply transport (· ∈ φ.set); symmetry;
-        apply map (G.φ · v⁻¹); apply invInv;
+        apply ap (G.φ · v⁻¹); apply invInv;
         apply (normalSubgroupCosets φ.2).left; exact H };
       { apply GroundZero.HITs.Quotient.set }
     end
@@ -159,7 +159,7 @@ namespace Group
       Π (x : factorLeft G φ), Factor.mul (Factor.inv x) x = Factor.one :=
     begin
       intro (x : HITs.Quotient _); induction x;
-      apply Id.map Factor.incl; apply G.mulLeftInv;
+      apply ap Factor.incl; apply G.mulLeftInv;
       apply HITs.Quotient.set; apply propIsSet; apply HITs.Quotient.set
     end
   end
@@ -186,7 +186,7 @@ namespace Group
   begin
     fapply HITs.Quotient.rec; exact f.1;
     { intros x y q; apply eqOfDivEq; change H.φ _ _ = _;
-      transitivity; apply Id.map (H.φ · (f.1 y));
+      transitivity; apply ap (H.φ · (f.1 y));
       symmetry; apply homoInv f; transitivity;
       symmetry; apply homoMul; apply p; apply q };
     apply H.hset

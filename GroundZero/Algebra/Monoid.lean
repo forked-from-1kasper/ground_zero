@@ -1,6 +1,8 @@
 import GroundZero.Algebra.Basic
 import GroundZero.HITs.Trunc
+
 open GroundZero GroundZero.Types
+open GroundZero.Types.Id (ap)
 
 namespace GroundZero.Algebra
 
@@ -58,7 +60,7 @@ hott def Term.ofAppend (M : Monoid) : Π (xs ys : List M.carrier),
     Term.toMonoid M (Term.ofList (xs ++ ys))
   = M.φ (Term.toMonoid M (Term.ofList xs)) (Term.toMonoid M (Term.ofList ys))
 | [],      ys => (M.oneMul _)⁻¹
-| x :: xs, ys => Id.map (M.φ x) (ofAppend M xs ys) ⬝ (M.mulAssoc _ _ _)⁻¹
+| x :: xs, ys => ap (M.φ x) (ofAppend M xs ys) ⬝ (M.mulAssoc _ _ _)⁻¹
 
 hott def Term.sec (M : Monoid) : Term.toMonoid M ∘ Term.ofList ∘ Term.toList ~ Term.toMonoid M
 | Term.e     => Id.refl
@@ -67,7 +69,7 @@ hott def Term.sec (M : Monoid) : Term.toMonoid M ∘ Term.ofList ∘ Term.toList
 
 hott def Term.solve (M : Monoid) (τ₁ τ₂ : Term M.carrier)
   (ρ : τ₁.toList = τ₂.toList) : τ₁.toMonoid M = τ₂.toMonoid M :=
-(Term.sec M τ₁)⁻¹ ⬝ Id.map (Term.toMonoid M ∘ Term.ofList) ρ ⬝ Term.sec M τ₂
+(Term.sec M τ₁)⁻¹ ⬝ ap (Term.toMonoid M ∘ Term.ofList) ρ ⬝ Term.sec M τ₂
 
 hott def Term.example (M : Monoid) (x y z : M.carrier) :
   M.φ (M.φ (M.φ x (M.φ y M.e)) M.e) (M.φ z M.e) = M.φ x (M.φ y z) :=
@@ -76,6 +78,6 @@ Term.solve M (Term.φ (Term.φ (Term.φ (Term.ι x) (Term.φ (Term.ι y) Term.e)
 
 hott def Term.ret {A : Type u} : Term.toList ∘ @Term.ofList A ~ id
 | []      => Id.refl
-| x :: xs => Id.map (List.cons x) (ret xs)
+| x :: xs => ap (List.cons x) (ret xs)
 
 end GroundZero.Algebra

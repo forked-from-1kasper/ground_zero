@@ -2,6 +2,7 @@ import GroundZero.Types.Ens
 
 open GroundZero.Types GroundZero.Structures
 open GroundZero.HITs.Interval (happly)
+open GroundZero.Types.Id (ap)
 open GroundZero.Types.Equiv
 open GroundZero
 
@@ -75,12 +76,12 @@ namespace GroundZero.Algebra
       respects g → respects f → respects (g ∘ f) :=
     begin
       intros p q; apply Prod.mk <;> intros;
-      { transitivity; apply Id.map g; apply q.1;
+      { transitivity; apply ap g; apply q.1;
         transitivity; apply p.1;
-        apply Id.map; apply vect.comp };
+        apply ap; apply vect.comp };
       { transitivity; apply q.2;
         transitivity; apply p.2;
-        apply Id.map; apply vect.comp }
+        apply ap; apply vect.comp }
     end
 
     hott def Hom (Γ Λ : Alg deg) :=
@@ -96,8 +97,8 @@ namespace GroundZero.Algebra
     hott def Hom.id (Γ : Alg deg) : Hom Γ Γ :=
     begin
       existsi Proto.idfun; apply Prod.mk <;> intros i v <;> symmetry;
-      apply Id.map (Γ.op i);  apply vect.id;
-      apply Id.map (Γ.rel i); apply vect.id
+      apply Id.ap (Γ.op i);  apply vect.id;
+      apply Id.ap (Γ.rel i); apply vect.id
     end
 
     noncomputable hott def Hom.funext {Γ Λ : Alg deg} :
@@ -139,7 +140,7 @@ namespace GroundZero.Algebra
     end
 
     noncomputable hott def Iso.eqIffEqEqv {Γ Λ : Alg deg} (φ ψ : Iso Γ Λ) : φ.eqv = ψ.eqv → φ = ψ :=
-    begin intro p; apply Iso.ext; apply happly; apply Id.map Sigma.fst p end
+    begin intro p; apply Iso.ext; apply happly; apply Id.ap Sigma.fst p end
 
     hott def Iso.hom {Γ Λ : Alg deg} (φ : Iso Γ Λ) : Hom Γ Λ :=
     ⟨φ.ap, φ.2.1⟩
@@ -156,8 +157,8 @@ namespace GroundZero.Algebra
     hott def Iso.refl (Γ : Alg deg) : Iso Γ Γ :=
     begin
       fapply Iso.ofEquiv; reflexivity; apply Prod.mk <;> intros i v;
-      { apply Id.map (Γ.op i);  symmetry; apply vect.id };
-      { apply Id.map (Γ.rel i); symmetry; apply vect.id }
+      { apply Id.ap (Γ.op i);  symmetry; apply vect.id };
+      { apply Id.ap (Γ.rel i); symmetry; apply vect.id }
     end
 
     hott def Iso.symm {Γ Λ : Alg deg} : Iso Γ Λ → Iso Λ Γ :=
@@ -166,10 +167,10 @@ namespace GroundZero.Algebra
       existsi f.eqv.left; apply Prod.mk;
       { apply Prod.mk <;> intros i v;
         { symmetry; transitivity; { symmetry; apply f.eqv.leftForward };
-          transitivity; apply Id.map f.eqv.left; apply f.2.1.1;
-          apply Id.map (f.eqv.left ∘ Λ.op i); transitivity;
+          transitivity; apply Id.ap f.eqv.left; apply f.2.1.1;
+          apply Id.ap (f.eqv.left ∘ Λ.op i); transitivity;
           apply vect.comp; apply vect.idfunc; apply μ };
-        { transitivity; apply Id.map (Λ.rel i);
+        { transitivity; apply Id.ap (Λ.rel i);
           transitivity; symmetry; apply vect.idfunc (f.ap ∘ f.eqv.left);
           apply μ; symmetry; apply vect.comp; symmetry; apply f.2.1.2 } };
       { apply Prod.mk <;> existsi f.ap; apply μ; apply f.eqv.leftForward }
@@ -201,7 +202,7 @@ namespace GroundZero.Algebra
       intro ⟨A, F⟩ ⟨B, G⟩ C (p : A = B) u; induction p;
       have ρ : F = G := ntypeIsProp 0 F G; induction ρ;
       transitivity; apply Equiv.transportToTransportconst; transitivity;
-      apply Id.map (λ p, transportconst (Id.map (C ∘ Sigma.fst) p) u);
+      apply Id.ap (λ p, transportconst (Id.ap (C ∘ Sigma.fst) p) u);
       apply zeroPathRefl; reflexivity
     end
 
@@ -218,7 +219,7 @@ namespace GroundZero.Algebra
       φ.1 ∘ transportconst (ua φ)⁻¹ = id :=
     begin
       apply Theorems.funext; intro x;
-      transitivity; apply Id.map φ.1;
+      transitivity; apply Id.ap φ.1;
       transitivity; apply Equiv.substOverInvPath;
       apply ua.transportInvRule;
       apply Equiv.forwardLeft
@@ -231,9 +232,9 @@ namespace GroundZero.Algebra
       apply transportOverFunctor (λ A, vect A (deg (Sum.inl i))) id;
       apply Theorems.funext; intro v;
       transitivity; apply ua.transportRule;
-      transitivity; apply p.1; apply Id.map;
+      transitivity; apply p.1; apply Id.ap;
       transitivity; apply vect.subst;
-      transitivity; apply Id.map (vect.map · v);
+      transitivity; apply Id.ap (vect.map · v);
       apply equivCompSubst ⟨φ, q⟩; apply vect.id
     end
 
@@ -243,13 +244,13 @@ namespace GroundZero.Algebra
       intro ⟨φ, (p, q)⟩ i; apply Id.trans;
       apply transportOverFunctor (λ A, vect A (deg (Sum.inr i))) (λ _, Prop);
       apply Theorems.funext; intro v;
-      transitivity; apply Id.map (subst (ua ⟨φ, q⟩));
-      transitivity; apply p.2; apply Id.map (Λ.rel i);
+      transitivity; apply Id.ap (subst (ua ⟨φ, q⟩));
+      transitivity; apply p.2; apply Id.ap (Λ.rel i);
       transitivity; apply vect.subst;
-      transitivity; apply Id.map (vect.map · v);
+      transitivity; apply Id.ap (vect.map · v);
       apply equivCompSubst ⟨φ, q⟩; apply vect.id; change transport _ _ _ = _;
       transitivity; apply Equiv.transportToTransportconst;
-      transitivity; apply Id.map (transportconst · (Λ.rel i v));
+      transitivity; apply Id.ap (transportconst · (Λ.rel i v));
       apply constmap; reflexivity
     end
 
@@ -257,21 +258,21 @@ namespace GroundZero.Algebra
     Alg.ext (GroundZero.ua φ.eqv) (uaPreservesOp φ) (uaPreservesRel φ)
 
     hott def Alg.eqcar {Γ Λ : Alg deg} : Γ = Λ → Γ.carrier = Λ.carrier :=
-    λ p, @Id.map (0-Type) (Type _) _ _ Sigma.fst (Id.map Sigma.fst p)
+    λ p, @Id.ap (0-Type) (Type _) _ _ Sigma.fst (Id.ap Sigma.fst p)
 
     noncomputable hott def Alg.uaext : Π {Γ Λ : Alg deg} (φ : Iso Γ Λ), GroundZero.ua φ.eqv = Alg.eqcar (Alg.ua φ) :=
     begin
       intro ⟨⟨A, f⟩, (Γ₁, Γ₂)⟩ ⟨⟨B, g⟩, (Λ₁, Λ₂)⟩ φ;
-      symmetry; change Id.map _ _ = _; transitivity; apply Id.map;
+      symmetry; change Id.ap _ _ = _; transitivity; apply Id.ap;
       apply Sigma.mapFstOverProd; apply Sigma.mapFstOverProd
     end
 
     noncomputable hott def Alg.inj {Γ Λ : Alg deg} {φ ψ : Iso Γ Λ} (p : Alg.ua φ = Alg.ua ψ) : φ = ψ :=
     begin
       apply Iso.eqIffEqEqv; transitivity; symmetry; apply ua.uaβrule;
-      transitivity; apply Id.map; apply Alg.uaext;
-      transitivity; apply Id.map (Equiv.idtoeqv ∘ Alg.eqcar);
-      exact p; transitivity; apply Id.map Equiv.idtoeqv;
+      transitivity; apply Id.ap; apply Alg.uaext;
+      transitivity; apply Id.ap (Equiv.idtoeqv ∘ Alg.eqcar);
+      exact p; transitivity; apply Id.ap Equiv.idtoeqv;
       symmetry; apply Alg.uaext; apply ua.uaβrule
     end
 
@@ -290,10 +291,10 @@ namespace GroundZero.Algebra
       change Sigma.prod _ _ = _;
       transitivity; apply transportOverProd;
       transitivity; transitivity; apply transportOverProd;
-      apply ua.reflOnUa; apply Id.map (Sigma.prod Id.refl);
+      apply ua.reflOnUa; apply Id.ap (Sigma.prod Id.refl);
       change _ = Id.refl; apply propIsSet;
       apply ntypeIsProp; apply Sigma.prodRefl;
-      transitivity; apply Id.map (Sigma.prod Id.refl);
+      transitivity; apply Id.ap (Sigma.prod Id.refl);
       change _ = Id.refl; apply Algebra.hset;
       apply zeroEqvSet.forward Γ.1.2;
       apply Sigma.prodRefl
@@ -356,7 +357,7 @@ namespace GroundZero.Algebra
     Σ e, Π a, M.φ a e = a
 
     hott def isUnital (M : Magma) :=
-    Σ e, Π a, M.φ e a = a × M.φ a e = a 
+    Σ e, Π a, M.φ e a = a × M.φ a e = a
 
     hott def isLeftInvertible (M : Magma) (e : M.carrier) :=
     Σ (ι : M →ᴬ M), Π a, M.φ (ι a) a = e

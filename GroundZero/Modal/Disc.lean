@@ -33,7 +33,7 @@ noncomputable section
   λ τ, ⟨f τ.1, d f τ.1 τ.2⟩
 end
 
-hott def infProxApIdp {A : Type u} {a b : A} (ρ : a ~ b) : infProxAp idfun ρ = ρ :=
+noncomputable hott def infProxApIdp {A : Type u} {a b : A} (ρ : a ~ b) : infProxAp idfun ρ = ρ :=
 begin
   symmetry; transitivity; symmetry; apply Equiv.idmap;
   transitivity; apply mapWithHomotopy _ _ Im.apIdfun;
@@ -41,7 +41,7 @@ begin
   transitivity; apply Id.ap; apply Im.indεβrule; apply Id.invInv
 end
 
-hott def infProxApCom {A : Type u} {B : Type v} {C : Type w} (f : B → C) (g : A → B)
+noncomputable hott def infProxApCom {A : Type u} {B : Type v} {C : Type w} (f : B → C) (g : A → B)
   {a b : A} (ρ : a ~ b) : infProxAp (f ∘ g) ρ = infProxAp f (infProxAp g ρ) :=
 begin
   transitivity; apply Id.ap (_ ⬝ · ⬝ _);

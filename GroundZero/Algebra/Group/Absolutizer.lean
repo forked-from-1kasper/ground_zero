@@ -1,6 +1,7 @@
 import GroundZero.Algebra.Group.Basic
 import GroundZero.HITs.Quotient
 
+open GroundZero.Types.Id (ap)
 open GroundZero.Types
 open GroundZero
 
@@ -20,13 +21,13 @@ namespace Group
         match p with | Sum.inl u => _ | Sum.inr v => _;
         { left; exact Id.inv u };
         { right; transitivity; symmetry; apply invInv;
-          apply Id.map; exact Id.inv v } };
+          apply ap; exact Id.inv v } };
       { intros a b c; apply HITs.Merely.lift₂;
         intros p q; match p, q with
         | Sum.inl p₁, Sum.inl q₁ => { left;  exact p₁ ⬝ q₁ }
         | Sum.inl p₁, Sum.inr q₂ => { right; exact p₁ ⬝ q₂ }
-        | Sum.inr p₂, Sum.inl q₁ => { right; exact p₂ ⬝ Id.map _ q₁ }
-        | Sum.inr p₂, Sum.inr q₂ => { left;  exact p₂ ⬝ Id.map _ q₂ ⬝ invInv _ } }
+        | Sum.inr p₂, Sum.inl q₁ => { right; exact p₂ ⬝ ap _ q₁ }
+        | Sum.inr p₂, Sum.inr q₂ => { left;  exact p₂ ⬝ ap _ q₂ ⬝ invInv _ } }
     end⟩
 
   notation "⌈" G "⌉" => «Sosnitsky construction» G
@@ -43,14 +44,14 @@ namespace Group
 
     hott def Absolutizer.even : φ.ap ∘ G.ι ~ φ.ap :=
     begin
-      intro; apply Id.map φ.1; apply HITs.Quotient.sound;
+      intro; apply Id.ap φ.1; apply HITs.Quotient.sound;
       apply HITs.Merely.elem; right; reflexivity
     end
 
     hott def Absolutizer.inv : Absolutizer G :=
     ⟨G.ι ∘ φ.fst,
     begin
-      intro; apply Id.map G.ι;
+      intro; apply Id.ap G.ι;
       transitivity; apply φ.even; apply φ.2
     end⟩
 
@@ -58,7 +59,7 @@ namespace Group
     begin intro; transitivity; apply φ.even; apply φ.idem end
 
     hott def Absolutizer.comp₂ : φ.inv.ap ∘ φ.ap ~ φ.inv.ap :=
-    begin intro x; apply Id.map G.ι; apply φ.idem end
+    begin intro x; apply Id.ap G.ι; apply φ.idem end
 
     noncomputable hott def Absolutizer.mul : ⌈G⌉ → ⌈G⌉ → ⌈G⌉ :=
     begin
@@ -69,14 +70,14 @@ namespace Group
         case elemπ p =>
         { intro (q : ∥_∥); induction q;
           case elemπ q =>
-          { apply Id.map HITs.Quotient.elem; apply Equiv.bimap;
+          { apply Id.ap HITs.Quotient.elem; apply Equiv.bimap;
             { induction p using Sum.casesOn;
-              { apply Id.map; assumption };
-              { transitivity; apply Id.map; assumption;
+              { apply Id.ap; assumption };
+              { transitivity; apply Id.ap; assumption;
                 apply Absolutizer.even } };
             { induction q using Sum.casesOn;
-              { apply Id.map; assumption };
-              { transitivity; apply Id.map; assumption;
+              { apply Id.ap; assumption };
+              { transitivity; apply Id.ap; assumption;
                 apply Absolutizer.even } } };
           apply HITs.Quotient.set };
         apply Structures.piProp; intro; apply HITs.Quotient.set }

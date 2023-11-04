@@ -1,4 +1,6 @@
 import GroundZero.Types.HEq
+
+open GroundZero.Types.Id (ap)
 open GroundZero.Types
 
 /-
@@ -54,7 +56,7 @@ namespace Interval
     (s : b₀ =[seg] b₁) : Equiv.apd (ind b₀ b₁ s) seg = s
 
   noncomputable hott def recβrule {B : Type u} (b₀ b₁ : B)
-    (s : b₀ = b₁) : Id.map (rec b₀ b₁ s) seg = s :=
+    (s : b₀ = b₁) : ap (rec b₀ b₁ s) seg = s :=
   begin
     apply Equiv.pathoverOfEqInj seg; transitivity;
     symmetry; apply Equiv.apdOverConstantFamily; apply indβrule
@@ -66,7 +68,7 @@ namespace Interval
 
   hott def funext {A : Type u} {B : A → Type v}
     {f g : Π x, B x} (p : f ~ g) : f = g :=
-  @Id.map I (Π x, B x) 0 1 (λ i x, homotopy p x i) seg
+  @ap I (Π x, B x) 0 1 (λ i x, homotopy p x i) seg
 
   hott def happly {A : Type u} {B : A → Type v}
     {f g : Π x, B x} (p : f = g) : f ~ g :=
@@ -77,7 +79,7 @@ namespace Interval
   begin induction p; reflexivity end
 
   hott def mapHapply {A : Type u} {B : Type v} {C : Type w} {a b : A} {c : B}
-    (f : A → B → C) (p : a = b) : Id.map (f · c) p = happly (Id.map f p) c :=
+    (f : A → B → C) (p : a = b) : ap (f · c) p = happly (ap f p) c :=
   begin induction p; reflexivity end
 end Interval
 

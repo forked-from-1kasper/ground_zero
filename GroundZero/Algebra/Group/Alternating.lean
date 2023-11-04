@@ -1,6 +1,7 @@
 import GroundZero.Algebra.Group.Factor
+
 open GroundZero.Types.Equiv (biinv transport)
-open GroundZero.Types.Id (map)
+open GroundZero.Types.Id (ap)
 open GroundZero.Structures
 open GroundZero.Types
 open GroundZero.Proto
@@ -60,12 +61,12 @@ namespace Group
     intros x y; induction x <;> induction y <;>
     (first | apply Sum.inl; reflexivity |
       apply Sum.inr; intro H; apply ffNeqTt; symmetry; first
-      | apply Id.map (D₃.elim true  false false false false false) H
-      | apply Id.map (D₃.elim false true  false false false false) H
-      | apply Id.map (D₃.elim false false true  false false false) H
-      | apply Id.map (D₃.elim false false false true  false false) H
-      | apply Id.map (D₃.elim false false false false false true)  H
-      | apply Id.map (D₃.elim false false false false true  false) H);
+      | apply ap (D₃.elim true  false false false false false) H
+      | apply ap (D₃.elim false true  false false false false) H
+      | apply ap (D₃.elim false false true  false false false) H
+      | apply ap (D₃.elim false false false true  false false) H
+      | apply ap (D₃.elim false false false false false true)  H
+      | apply ap (D₃.elim false false false false true  false) H);
     exact D₃.mul; exact D₃.inv; exact R₀;
     { intro a b c; induction a <;> induction b <;> induction c <;> reflexivity };
     repeat { intro a; induction a <;> reflexivity }

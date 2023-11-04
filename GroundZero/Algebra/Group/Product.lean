@@ -1,4 +1,6 @@
 import GroundZero.Algebra.Group.Basic
+
+open GroundZero.Types.Id (ap)
 open GroundZero.Types
 
 namespace GroundZero.Algebra
@@ -27,10 +29,10 @@ namespace Group
     change F.φ (φ.1 _) (ψ.1 _) = F.φ (F.φ _ _) (F.φ _ _);
     transitivity; apply Equiv.bimap F.φ <;> apply homoMul;
     transitivity; apply F.mulAssoc;
-    transitivity; apply Id.map (F.φ (φ.1 _));
+    transitivity; apply ap (F.φ (φ.1 _));
     transitivity; apply ρ; apply F.mulAssoc;
     transitivity; symmetry; apply F.mulAssoc;
-    apply Id.map; apply ρ
+    apply ap; apply ρ
   end
 end Group
 

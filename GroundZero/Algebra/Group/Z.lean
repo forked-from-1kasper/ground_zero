@@ -3,6 +3,7 @@ import GroundZero.HITs.Circle
 
 open GroundZero.Structures GroundZero.Types.Equiv
 open GroundZero.Types GroundZero.HITs
+open GroundZero.Types.Id (ap)
 
 namespace GroundZero.Algebra
 
@@ -23,7 +24,7 @@ noncomputable hott def helix.loop {G : Group} (z x : G.carrier) :
   transport (helix z) Circle.loop x = G.φ z x :=
 begin
   transitivity; apply Equiv.transportToTransportconst;
-  transitivity; apply Id.map (transportconst · x);
+  transitivity; apply ap (transportconst · x);
   apply Circle.recβrule₂; apply ua.transportRule
 end
 
@@ -31,8 +32,8 @@ noncomputable hott def helix.loopInv {G : Group} (z x : G.carrier) :
   transport (helix z) Circle.loop⁻¹ x = G.φ (G.ι z) x :=
 begin
   transitivity; apply Equiv.transportToTransportconst;
-  transitivity; apply Id.map (transportconst · x);
-  transitivity; apply Id.mapInv; apply Id.map;
+  transitivity; apply ap (transportconst · x);
+  transitivity; apply Id.mapInv; apply ap;
   apply Circle.recβrule₂; apply ua.transportInvRule
 end
 
@@ -49,18 +50,18 @@ noncomputable hott def power.mul {G : Group} (z : G.carrier) :
 begin
   intro p q; fapply @Circle.Ωind₁ (λ p, power z (p ⬝ q) = G.φ (power z p) (power z q)) <;> clear p;
   { symmetry; apply G.oneMul };
-  { intros p ih; transitivity; apply Id.map; transitivity;
-    symmetry; apply Id.assoc; transitivity; apply Id.map (Id.trans p);
+  { intros p ih; transitivity; apply ap; transitivity;
+    symmetry; apply Id.assoc; transitivity; apply ap (Id.trans p);
     apply Circle.comm; apply Id.assoc; transitivity; apply power.succ;
-    transitivity; apply Id.map (G.φ z); exact ih;
+    transitivity; apply ap (G.φ z); exact ih;
     transitivity; symmetry; apply G.mulAssoc;
-    apply Id.map (G.φ · _); symmetry; apply power.succ };
-  { intros p ih; transitivity; apply Id.map; transitivity;
-    symmetry; apply Id.assoc; transitivity; apply Id.map (Id.trans p);
+    apply ap (G.φ · _); symmetry; apply power.succ };
+  { intros p ih; transitivity; apply ap; transitivity;
+    symmetry; apply Id.assoc; transitivity; apply ap (Id.trans p);
     apply Circle.comm; apply Id.assoc; transitivity; apply power.pred;
-    transitivity; apply Id.map (G.φ (G.ι z)); exact ih;
+    transitivity; apply ap (G.φ (G.ι z)); exact ih;
     transitivity; symmetry; apply G.mulAssoc;
-    apply Id.map (G.φ · _); symmetry; apply power.pred }
+    apply ap (G.φ · _); symmetry; apply power.pred }
 end
 
 noncomputable hott def ZΩ.rec {G : Group} (z : G.carrier) : Group.Hom ZΩ G :=
@@ -75,7 +76,7 @@ begin
   { intros p ih; transitivity; apply power.succ;
     transitivity; apply G.oneMul; exact ih };
   { intros p ih; transitivity; apply power.pred;
-    transitivity; apply Id.map (G.φ · _);
+    transitivity; apply ap (G.φ · _);
     symmetry; apply Group.unitInv;
     transitivity; apply G.oneMul; exact ih }
 end
@@ -89,6 +90,6 @@ by reflexivity
 
 -- something is really wrong with this thing
 --noncomputable hott def ZΩ.zeroMul (p : ZΩ.carrier) : ZΩ.mul Id.refl p = Id.refl :=
---@Id.map (Group.S ZΩ.1.zero).carrier ZΩ.carrier _ _ (λ e, e.1 Id.refl) (power.one p)
+--@ap (Group.S ZΩ.1.zero).carrier ZΩ.carrier _ _ (λ e, e.1 Id.refl) (power.one p)
 
 end GroundZero.Algebra

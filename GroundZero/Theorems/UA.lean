@@ -1,4 +1,6 @@
 import GroundZero.Structures
+
+open GroundZero.Types.Id (ap)
 open GroundZero.Types.Equiv
 open GroundZero.Structures
 open GroundZero.Types
@@ -45,7 +47,7 @@ noncomputable hott def transportRule {A B : Type u} (e : A ≃ B) (x : A) :
   transportconst (ua e) x = e x :=
 begin
   induction e; transitivity;
-  apply Id.map (transport id · x);
+  apply ap (transport id · x);
   apply reflOnUa; reflexivity
 end
 
@@ -53,7 +55,7 @@ noncomputable hott def transportInvRule {A B : Type u} (e : A ≃ B) (x : B) :
   transportconst (ua e)⁻¹ x = e.left x :=
 begin
   induction e; transitivity;
-  apply Id.map (transport id ·⁻¹ x);
+  apply ap (transport id ·⁻¹ x);
   apply reflOnUa; reflexivity
 end
 
@@ -64,7 +66,7 @@ hott def idtoeqvAndId {A : Type u} : idtoeqv (idp A) = ideqv A :=
 by reflexivity
 
 noncomputable hott def uaβrule {A B : Type u} (e : A ≃ B) : idtoeqv (ua e) = e :=
-begin induction e; change _ = idtoeqv (idp _); apply Id.map; apply reflOnUa end
+begin induction e; change _ = idtoeqv (idp _); apply ap; apply reflOnUa end
 
 noncomputable hott def propUniq {A B : Type u} (p : A = B) : ua (idtoeqv p) = p :=
 begin induction p; exact Jβrule end
@@ -80,7 +82,7 @@ noncomputable hott def uaTrans {A B γ : Type u} (p : A ≃ B) (q : B ≃ γ) :
   ua (Equiv.trans p q) = ua p ⬝ ua q :=
 begin
   induction p; induction q; change ua (ideqv _) = _; symmetry;
-  change _ = idp _ ⬝ _; apply Id.map (· ⬝ ua _); apply reflOnUa
+  change _ = idp _ ⬝ _; apply ap (· ⬝ ua _); apply reflOnUa
 end
 
 hott def isZero : ℕ → 𝟐
@@ -88,10 +90,10 @@ hott def isZero : ℕ → 𝟐
 | Nat.succ _ => false
 
 example (h : 0 = 1) : 𝟎 :=
-ffNeqTt (Id.map isZero h)⁻¹
+ffNeqTt (ap isZero h)⁻¹
 
 hott def succNeqZero {n : ℕ} : ¬(Nat.succ n = 0) :=
-λ h, ffNeqTt (Id.map isZero h)
+λ h, ffNeqTt (ap isZero h)
 
 hott def negNeg : Π x, not (not x) = x
 | true  => idp true
@@ -104,7 +106,7 @@ noncomputable hott def universeNotASet : ¬(hset Type) :=
 begin
   let p : 𝟐 = 𝟐 := ua negBoolEquiv; let h := transportconst p true;
   let g : h = false := transportRule negBoolEquiv true;
-  intro ε; let f : h = true := Id.map (transportconst · true) (ε _ _ p (idp 𝟐));
+  intro ε; let f : h = true := ap (transportconst · true) (ε _ _ p (idp 𝟐));
   apply ffNeqTt; exact g⁻¹ ⬝ f
 end
 

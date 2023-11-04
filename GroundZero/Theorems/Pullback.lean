@@ -1,6 +1,8 @@
 import GroundZero.Theorems.Equiv
 open GroundZero GroundZero.Types
 open GroundZero.Structures
+
+open GroundZero.Types.Id (ap)
 open HITs.Interval (happly)
 
 universe u v w k
@@ -14,9 +16,9 @@ section
   begin
     fapply Sigma.mk; { intro w; existsi (w.1.1 ★, w.1.2 ★); apply happly w.2 ★ }; apply Qinv.toBiinv;
     fapply Sigma.mk; { intro w; existsi (λ _, w.1.1, λ _, w.1.2); apply funext; intro; apply w.2 }; apply Prod.mk <;> intro w;
-    { apply Id.map (Sigma.mk _); apply happly (happlyFunext _ _ _) };
-    { apply Id.map (Sigma.mk _); transitivity;
-      apply Id.map funext; change _ = happly w.2; apply funext;
+    { apply ap (Sigma.mk _); apply happly (happlyFunext _ _ _) };
+    { apply ap (Sigma.mk _); transitivity;
+      apply ap funext; change _ = happly w.2; apply funext;
       intro c; induction c; reflexivity; apply funextHapply }
   end
 end

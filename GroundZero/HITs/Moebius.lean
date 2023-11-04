@@ -1,4 +1,6 @@
 import GroundZero.HITs.Circle
+
+open GroundZero.Types.Id (ap)
 open GroundZero
 
 namespace GroundZero.HITs
@@ -18,15 +20,15 @@ noncomputable hott def C.const : Π x, C x = I :=
 begin
   intro x; induction x; reflexivity; change _ = _;
   transitivity; apply Equiv.transportOverContrMap;
-  transitivity; apply Id.map (· ⬝ idp I);
-  transitivity; apply Id.mapInv; apply Id.map;
+  transitivity; apply ap (· ⬝ idp I);
+  transitivity; apply Id.mapInv; apply ap;
   apply Circle.recβrule₂; reflexivity
 end
 
 noncomputable hott def cylEqv : cylinder' ≃ cylinder :=
 begin
   transitivity;
-  { apply Equiv.idtoeqv; apply Id.map;
+  { apply Equiv.idtoeqv; apply ap;
     apply Theorems.funext; exact C.const };
   { apply Sigma.const }
 end

@@ -1,4 +1,6 @@
 import GroundZero.Theorems.Nat
+
+open GroundZero.Types.Id (ap)
 open GroundZero.Types
 open GroundZero
 
@@ -58,7 +60,7 @@ namespace Int
   begin
     apply glue; transitivity; symmetry; apply Theorems.Nat.assoc;
     symmetry; transitivity; symmetry; apply Theorems.Nat.assoc;
-    apply Id.map (λ n, n + k); apply Theorems.Nat.comm
+    apply ap (λ n, n + k); apply Theorems.Nat.comm
   end
 
 end Int

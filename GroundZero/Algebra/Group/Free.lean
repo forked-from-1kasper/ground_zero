@@ -1,6 +1,7 @@
 import GroundZero.Algebra.Group.Basic
+
 open GroundZero.Types.Equiv (biinv transport)
-open GroundZero.Types.Id (map)
+open GroundZero.Types.Id (ap)
 open GroundZero.Structures
 open GroundZero.Types
 open GroundZero.Proto
@@ -106,23 +107,23 @@ namespace Group
     mkhomo (rec G f) (recMul f)
 
     noncomputable def recβrule₁ {a b c : F.carrier ε} (f : ε → G.carrier) :
-      Id.map (rec G f) (mulAssoc a b c) =
+      ap (rec G f) (mulAssoc a b c) =
         G.mulAssoc (rec G f a) (rec G f b) (rec G f c) :=
     by apply G.hset
 
     noncomputable def recβrule₂ {a : F.carrier ε} (f : ε → G.carrier) :
-      Id.map (rec G f) (oneMul a) = G.oneMul (rec G f a) :=
+      ap (rec G f) (oneMul a) = G.oneMul (rec G f a) :=
     by apply G.hset
 
     noncomputable def recβrule₃ {a : F.carrier ε} (f : ε → G.carrier) :
-      Id.map (rec G f) (mulOne a) = G.mulOne (rec G f a) :=
+      ap (rec G f) (mulOne a) = G.mulOne (rec G f a) :=
     by apply G.hset
 
     noncomputable def recβrule₄ {a : F.carrier ε} (f : ε → G.carrier) :
-      Id.map (rec G f) (mulLeftInv a) = G.mulLeftInv (rec G f a) :=
+      ap (rec G f) (mulLeftInv a) = G.mulLeftInv (rec G f a) :=
     by apply G.hset
 
-    noncomputable hott def ind_prop {π : F.carrier ε → Type v}
+    noncomputable hott def indΩ {π : F.carrier ε → Type v}
       (propπ : Π x, prop (π x))
       (u : π unit) (η : Π {x}, π (elem x))
       (m : Π {x y}, π x → π y → π (mul x y))
