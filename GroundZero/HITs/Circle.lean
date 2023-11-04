@@ -139,15 +139,18 @@ namespace Circle
   def base₁ : S¹ := Suspension.north
   def base₂ : S¹ := Suspension.south
 
-  def seg₁ : base₁ = base₂ := Suspension.merid false
-  def seg₂ : base₁ = base₂ := Suspension.merid true
+  hott def seg₁ : base₁ = base₂ := Suspension.merid false
+  hott def seg₂ : base₁ = base₂ := Suspension.merid true
 
   hott def ind₂ {B : S¹ → Type u} (b₁ : B base₁) (b₂ : B base₂)
     (ℓ₁ : b₁ =[seg₁] b₂) (ℓ₂ : b₁ =[seg₂] b₂) : Π x, B x :=
   Suspension.ind b₁ b₂ (λ | false => ℓ₁ | true => ℓ₂)
 
-  def base : S¹ := base₁
-  def loop : base = base := seg₂ ⬝ seg₁⁻¹
+  hott def base : S¹ := base₁
+  hott def loop : base = base := seg₂ ⬝ seg₁⁻¹
+
+  abbrev loop₁ : base₁ = base₁ := loop
+  hott def loop₂ : base₂ = base₂ := seg₁⁻¹ ⬝ seg₂
 
   hott def rec {B : Type u} (b : B) (ℓ : b = b) : S¹ → B :=
   Suspension.rec b b (λ | false => idp b | true => ℓ)
@@ -754,6 +757,9 @@ namespace Circle
       transitivity; apply ap (λ q, winding q⁻¹);
       symmetry; apply powerOfWinding; apply powerRev
     end
+
+    noncomputable hott corollary windRev : Π {x : S¹} (p : x = x), wind x p⁻¹ = -(wind x p) :=
+    begin fapply indΩ; apply windingRev; intro; apply piProp; intro; apply Integer.set end
 
     noncomputable hott lemma windingMult : Π (p q : Ω¹(S¹)), winding (mult p q) = winding p * winding q :=
     begin
