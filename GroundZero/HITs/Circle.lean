@@ -1008,11 +1008,17 @@ namespace Circle
     /- It doesn’t mean that classically these maps are not homotopic,
        but that this homotopy cannot be chosen continously.
 
+       This is similar to the fact that we cannot construct “Π x, base = x”,
+       but we can construct “Π x, ∥base = x∥”.
+
        It also means that we cannot drop “f (f base) = base” condition in the previous lemma,
        so the next theorem cannot be proved this way outside of ∥·∥.
     -/
     hott proposition sqrIdfunNonHmtpy : ¬(Π f, abs (degree f) = 1 → f ∘ f ~ idfun) :=
     λ H, μNotLinv (λ x, H (μ x) (ap abs (μDegree x)))
+
+    noncomputable hott corollary sqrIdfunMerelyHmtpy : Π f, abs (degree f) = 1 → ∥f ∘ f ~ idfun∥ :=
+    λ f H, Merely.lift (sqrIdfunHmtpy f H) (circleConnected (f (f base)))
 
     /- It’s interesting that this construction of f⁻¹ is not very explicit
        as it was produced inside of ∥·∥, so it’s not definitionally
@@ -1026,9 +1032,8 @@ namespace Circle
     -/
     noncomputable hott theorem biinvOfDegOneHmtpy (f : S¹ → S¹) (H : abs (degree f) = 1) : biinv f :=
     begin
-      apply Merely.rec _ _ (circleConnected (f (f base)));
-      apply Theorems.Equiv.biinvProp; intro G; fapply Qinv.toBiinv;
-      existsi f; apply Prod.intro <;> { apply sqrIdfunHmtpy <;> assumption }
+      apply Merely.rec _ _ (sqrIdfunMerelyHmtpy f H); apply Theorems.Equiv.biinvProp;
+      intro; fapply Qinv.toBiinv; existsi f; apply Prod.intro <;> assumption
     end
   end
 
