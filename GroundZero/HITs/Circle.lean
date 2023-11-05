@@ -1011,7 +1011,7 @@ namespace Circle
        It also means that we cannot drop “f (f base) = base” condition in the previous lemma,
        so the next theorem cannot be proved this way outside of ∥·∥.
     -/
-    noncomputable hott proposition sqrIdfunNonHmtpy : ¬(Π f, abs (degree f) = 1 → f ∘ f ~ idfun) :=
+    hott proposition sqrIdfunNonHmtpy : ¬(Π f, abs (degree f) = 1 → f ∘ f ~ idfun) :=
     λ H, μNotLinv (λ x, H (μ x) (ap abs (μDegree x)))
 
     /- It’s interesting that this construction of f⁻¹ is not very explicit
