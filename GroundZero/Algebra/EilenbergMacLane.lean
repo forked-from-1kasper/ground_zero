@@ -4,7 +4,7 @@ import GroundZero.HITs.Trunc
 
 open GroundZero.Theorems.Functions GroundZero.Theorems.Equiv
 open GroundZero.Types.Equiv (idtoeqv)
-open GroundZero.Types.Id (dotted ap)
+open GroundZero.Types.Id (isPointed ap)
 open GroundZero.ua (uaβrule)
 open GroundZero.Structures
 open GroundZero.Types
@@ -78,7 +78,7 @@ namespace K1
 
   attribute [irreducible] K1
 
-  instance : dotted (K1 G) := ⟨base⟩
+  instance : isPointed (K1 G) := ⟨base⟩
 
   def KΩ.mul : Ω¹(K1 G) → Ω¹(K1 G) → Ω¹(K1 G) := λ p q, p ⬝ q
   def KΩ.one : Ω¹(K1 G)                       := idp base

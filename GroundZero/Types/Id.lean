@@ -122,9 +122,15 @@ namespace Id
     symmetry; transitivity; { symmetry; apply reflRight }; exact μ⁻¹
   end
 
-  hott def ap₂ {A : Type u} {B : Type v} {a b : A} {p q : a = b}
-    (f : A → B) (r : p = q) : ap f p = ap f q :=
-  ap (ap f) r
+  section
+    variable {A : Type u} {B : Type v} {a b : A} {p q : a = b}
+
+    hott def ap₂ (f : A → B) (r : p = q) : ap f p = ap f q :=
+    ap (ap f) r
+
+    hott def ap₃ {α β : p = q} (f : A → B) (r : α = β) : ap₂ f α = ap₂ f β :=
+    ap (ap₂ f) r
+  end
 
   hott def compReflIfEq {A : Type u} {a b : A} (p q : a = b) : p = q → p⁻¹ ⬝ q = idp b :=
   begin intro A; induction A; apply invComp end
@@ -132,40 +138,53 @@ namespace Id
   hott def eqIfCompRefl {A : Type u} {a b : A} (p q : a = b) : p⁻¹ ⬝ q = idp b → p = q :=
   begin intro α; induction p; exact α⁻¹ end
 
-  class dotted (space : Type u) :=
-  (point : space)
+  class isPointed (A : Type u) := (point : A)
 
-  structure pointed :=
-  (space : Type u) (point : space)
+  hott def pointOf (A : Type u) [isPointed A] : A := isPointed.point
 
-  notation "Type⁎" => pointed
+  hott def Pointed := Σ (A : Type u), A
 
-  def pointed.map (A B : Type⁎) :=
+  macro "Type⁎" : term => `(Pointed)
+  macro "Type⁎" n:level : term => `(Pointed.{$n})
+
+  abbrev Pointed.space : Type⁎ u → Type u := Sigma.fst
+  abbrev Pointed.point : Π (A : Type⁎ u), A.space := Sigma.snd
+
+  def Pointed.Map (A B : Type⁎) :=
   Σ (f : A.space → B.space), f A.point = B.point
-  notation "Map⁎" => pointed.map
 
-  namespace pointed.map
+  notation "Map⁎" => Pointed.Map
+
+  namespace Pointed.Map
     variable {A B : Type⁎} (φ : Map⁎ A B)
 
     def ap : A.space → B.space := φ.fst
     def id : φ.ap A.point = B.point := φ.snd
-  end pointed.map
+  end Pointed.Map
 
-  def loopSpace (X : Type⁎) : Type⁎ :=
-  ⟨X.point = X.point, idp X.point⟩
-
-  hott def iteratedLoopSpace : Type⁎ → ℕ → Type⁎
-  | X,   0   => X
-  | X, n + 1 => iteratedLoopSpace (loopSpace X) n
-
-  def loopPointedSpace (A : Type u) [dotted A] :=
-  iteratedLoopSpace ⟨A, dotted.point⟩
+  hott def Loop {B : Type u} (b : B) : ℕ → Type u
+  | Nat.zero   => B
+  | Nat.succ n => Loop (idp b) n
 
   macro:max "Ω" n:superscript "(" τ:term ")" : term => do
-    `((loopPointedSpace $τ $(← Meta.Notation.parseSuperscript n)).space)
+    `(Loop (pointOf $τ) $(← Meta.Notation.parseSuperscript n))
 
-  macro:max "Θ" n:superscript "(" τ:term ")" : term => do
-    `((iteratedLoopSpace $τ $(← Meta.Notation.parseSuperscript n)).point)
+  macro:max "Ω" n:superscript "(" τ:term "," ε:term ")" : term => do
+    `(@Loop $τ $ε $(← Meta.Notation.parseSuperscript n))
+
+  macro:max "Ω" "[" n:term "]" "(" τ:term ")" : term => do
+    `(Loop (pointOf $τ) $n)
+
+  macro:max "Ω" "[" n:term "]" "(" τ:term "," ε:term ")" : term => do
+    `(@Loop $τ $ε $n)
+
+  hott def idloop {B : Type u} (b : B) : Π n, Ωⁿ(B, b)
+  | Nat.zero   => b
+  | Nat.succ n => idloop (idp b) n
+
+  hott def aploop {A : Type u} {B : Type v} (f : A → B) {a : A} : Π {n : ℕ}, Ωⁿ(A, a) → Ωⁿ(B, f a)
+  | Nat.zero   => f
+  | Nat.succ _ => aploop (ap f)
 end Id
 
 def Not (A : Type u) : Type u := A → (𝟎 : Type)
@@ -223,6 +242,9 @@ namespace Whiskering
   hott theorem «Eckmann–Hilton argument» {A : Type u} {a : A}
     (ν κ : idp a = idp a) : ν ⬝ κ = κ ⬝ ν :=
   loop₁ ⬝ compUniq ν κ ⬝ loop₂
+
+  hott corollary comm {A : Type u} {a b : A} {p : a = b} (ν κ : p = p) : ν ⬝ κ = κ ⬝ ν :=
+  begin induction p; apply «Eckmann–Hilton argument» end
 end Whiskering
 
 end GroundZero.Types

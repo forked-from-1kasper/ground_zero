@@ -1,6 +1,7 @@
 import GroundZero.Support
+
 open GroundZero.Proto (idfun Identity Identity.elem Identity.elim)
-open GroundZero.Types.Id (ap)
+open GroundZero.Types.Id (ap aploop)
 
 universe u v w k
 def AS {A : Type u} {B : Type v} {C : Type w} (x : A → B → C) (y : A → B) (z : A) := x z (y z)
@@ -252,7 +253,7 @@ namespace Equiv
   begin induction p; reflexivity end
 
   hott theorem transportToTransportconst {A : Type u} (B : A → Type v) {a b : A}
-    (p : a = b) (u : B a) : Equiv.transport B p u = Equiv.transportconst (ap B p) u :=
+    (p : a = b) (u : B a) : transport B p u = transportconst (ap B p) u :=
   begin induction p; reflexivity end
 
   hott theorem transportconstOverComposition {A B C : Type u} (p : A = B) (q : B = C) (x : A) :
@@ -295,6 +296,28 @@ namespace Equiv
     {p : a = b} {q : b = c} {r : a = c} (h : p ⬝ q = r) : p = r ⬝ q⁻¹ :=
   begin induction q; exact (Id.reflRight p)⁻¹ ⬝ h ⬝ (Id.reflRight r)⁻¹ end
 
+  hott lemma cancelHigherConjLeft {A : Type u} {a b : A} {p : a = b} (ν κ : p = p) : κ⁻¹ ⬝ ν ⬝ κ = ν :=
+  begin transitivity; symmetry; apply Id.assoc; apply rewriteComp; apply Whiskering.comm end
+
+  hott lemma cancelHigherConjRight {A : Type u} {a b : A} {p : a = b} (ν κ : p = p) : κ ⬝ ν ⬝ κ⁻¹ = ν :=
+  begin symmetry; apply invCompRewrite; apply Whiskering.comm end
+
+  hott corollary cancelDoubleConjLeftLeft {A : Type u} {a b : A} {p q : a = b}
+    (ν : p = p) (κ : p = q) (ε : q = p) : ε⁻¹ ⬝ (κ⁻¹ ⬝ ν ⬝ κ) ⬝ ε = ν :=
+  begin induction ε; transitivity; apply Id.reflRight; apply cancelHigherConjLeft end
+
+  hott corollary cancelDoubleConjRightRight {A : Type u} {a b : A} {p q : a = b}
+    (ν : q = q) (κ : p = q) (ε : q = p) : ε ⬝ (κ ⬝ ν ⬝ κ⁻¹) ⬝ ε⁻¹ = ν :=
+  begin induction ε; transitivity; apply Id.reflRight; apply cancelHigherConjRight end
+
+  hott corollary cancelDoubleConjRightLeft {A : Type u} {a b : A} {p q : a = b}
+    (ν : q = q) (κ : q = p) (ε : q = p) : ε ⬝ (κ⁻¹ ⬝ ν ⬝ κ) ⬝ ε⁻¹ = ν :=
+  begin induction ε; transitivity; apply Id.reflRight; apply cancelHigherConjLeft end
+
+  hott corollary cancelDoubleConjLeftRight {A : Type u} {a b : A} {p q : a = b}
+    (ν : q = q) (κ : p = q) (ε : p = q) : ε⁻¹ ⬝ (κ ⬝ ν ⬝ κ⁻¹) ⬝ ε = ν :=
+  begin induction ε; transitivity; apply Id.reflRight; apply cancelHigherConjRight end
+
   hott def idConjIfComm {A : Type u} {a b : A} (p : a = b) (q : a = a) (r : b = b) :
     p ⬝ r = q ⬝ p → q⁻¹ ⬝ p ⬝ r = p :=
   begin intro ε; transitivity; symmetry; apply Id.assoc; apply rewriteComp; exact ε end
@@ -319,6 +342,16 @@ namespace Equiv
     {a b c : A} (f : A → B) {p : a = b} {q : b = c} :
     ap f (p ⬝ q) = ap f p ⬝ ap f q :=
   begin induction p; reflexivity end
+
+  hott corollary mapFunctoriality₃ {A : Type u} {B : Type v}
+    {a b c d : A} (f : A → B) {p : a = b} {q : b = c} {r : c = d} :
+    ap f (p ⬝ q ⬝ r) = ap f p ⬝ ap f q ⬝ ap f r :=
+  begin induction p; induction q; reflexivity end
+
+  hott corollary mapFunctoriality₄ {A : Type u} {B : Type v}
+    {a b c d e : A} (f : A → B) {p : a = b} {q : b = c} {r : c = d} {s : d = e} :
+    ap f (p ⬝ q ⬝ r ⬝ s) = ap f p ⬝ ap f q ⬝ ap f r ⬝ ap f s :=
+  begin induction p; induction q; induction r; reflexivity end
 
   hott lemma transportOverContrMap {A : Type u} {B : Type v} {a b : A} {c : B}
     (f : A → B) (p : a = b) (q : f a = c) :
@@ -496,6 +529,36 @@ namespace Equiv
 
   hott def eqvEqEqv {A B C : Type u} (p : A ≃ B) (q : B = C) : A ≃ C :=
   transport (Equiv A) q p
+
+  hott def loopConj {A : Type u} {a b : A} (p : a = b) {n : ℕ} : Ωⁿ(A, a) → Ωⁿ(A, b) :=
+  transport (λ x, Ωⁿ(A, x)) p
+
+  instance {A : Type u} {a b : A} {n : ℕ} : HPow (Ωⁿ(A, a)) (a = b) (Ωⁿ(A, b)) :=
+  ⟨λ p α, loopConj α p⟩
+
+  hott lemma conjRewrite {A : Type u} {a b : A} (p : a = b) {n : ℕ}
+    (α : Ωⁿ(A, a)) (β : Ωⁿ(A, b)) : α = β^p⁻¹ → α^p = β :=
+  begin induction p; apply idfun end
+
+  hott lemma conjRewriteInv {A : Type u} {a b : A} (p : a = b) {n : ℕ}
+    (α : Ωⁿ(A, a)) (β : Ωⁿ(A, b)) : α^p = β → α = β^p⁻¹ :=
+  begin induction p; apply idfun end
+
+  hott theorem aploopConj {A : Type u} {B : Type v} (f : A → B) {a b : A} (p : a = b)
+    (n : ℕ) (α : Ωⁿ(A, a)) : aploop f (α^p) = (aploop f α)^(ap f p) :=
+  begin induction p; reflexivity end
+
+  hott theorem conjOfConj {A : Type u} {a b c : A} (p : a = b) (q : b = c)
+    (n : ℕ) (α : Ωⁿ(A, a)) : α^(p ⬝ q) = (α^p)^q :=
+  begin induction p; reflexivity end
+
+  hott lemma conjInvOfConj {A : Type u} {a b : A} (p : a = b)
+    (n : ℕ) (α : Ωⁿ(A, a)) : (α^p)^p⁻¹ = α :=
+  begin induction p; reflexivity end
+
+  hott lemma conjOfConjInv {A : Type u} {a b : A} (p : a = b)
+    (n : ℕ) (α : Ωⁿ(A, b)) : (α^p⁻¹)^p = α :=
+  begin induction p; reflexivity end
 end Equiv
 
 def isQinv {A : Type u} {B : Type v} (f : A → B) (g : B → A) :=

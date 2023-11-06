@@ -32,15 +32,13 @@ hott def dec (A : Type u) := A + ¬A
 
 hott def contr (A : Type u) := Σ (a : A), Π b, a = b
 
-instance contr.dotted {A : Type u} (H : contr A) : Types.Id.dotted A := ⟨H.1⟩
-
 inductive hlevel
 | minusTwo
 | succ : hlevel → hlevel
 
 notation "ℕ₋₂" => hlevel
-notation "−2" => hlevel.minusTwo
-notation "−1" => hlevel.succ hlevel.minusTwo
+notation "−2"  => hlevel.minusTwo
+notation "−1"  => hlevel.succ hlevel.minusTwo
 
 namespace hlevel
   inductive le : hlevel → hlevel → Type
@@ -786,5 +784,41 @@ namespace Types.Equiv
   hott theorem sumEquiv (e₁ : A ≃ A') (e₂ : B ≃ B') : (A + B) ≃ (A' + B') :=
   ⟨Coproduct.bimap e₁.1 e₂.1, sumBiinv e₁.2 e₂.2⟩
 end Types.Equiv
+
+namespace Types.Id
+  open GroundZero.HITs.Interval (happly)
+  open GroundZero.Types.Equiv
+
+  hott def aploopPath {A : Type u} {B : Type v} {f g : A → B} (H : f = g) {a : A}
+    (n : ℕ) (α : Ωⁿ(A, a)) : aploop f α = (aploop g α)^(happly H a)⁻¹ :=
+  begin induction H; reflexivity end
+
+  hott def aploopWithHomotopy {A : Type u} {B : Type v} {f g : A → B} (H : f ~ g) {a : A}
+    (n : ℕ) (α : Ωⁿ(A, a)) : aploop f α = (aploop g α)^(H a)⁻¹ :=
+  aploopPath (Theorems.funext H) n α ⬝ ap (_^·⁻¹) (happly (Theorems.happlyFunext _ _ _) _)
+
+  hott def aploopIdfun {A : Type u} {a : A} : Π (n : ℕ) (α : Ωⁿ(A, a)), aploop (λ x, x) α = α
+  | Nat.zero,   _ => idp _
+  | Nat.succ _, _ => aploopWithHomotopy idmap _ _ ⬝ aploopIdfun _ _
+
+  hott def loopConjSucc {A : Type u} {a b : A} (p : a = b) (n : ℕ) (α : Ω[n + 1](A, a)) :
+    α^p = loopConj (apd idp p) (aploop (transport (λ x, x = x) p) α) :=
+  begin induction p; symmetry; apply aploopIdfun end
+
+  hott def higherTransportIdfun {A : Type u} {a : A} (ε : idp a = idp a) :
+    transport (λ x, x = x) ε ~ λ x, x :=
+  λ _, transportInvCompComp _ _ ⬝ cancelHigherConjLeft _ _
+
+  hott def cancelConj {A : Type u} {a : A} (p : idp a = idp a) :
+    Π (n : ℕ) (α : Ω[n + 1](a = a, idp a)), α^p = α
+  | Nat.zero,   _ => higherTransportIdfun _ _
+  | Nat.succ n, _ => loopConjSucc _ _ _ ⬝ ap (loopConj (apd idp p)) (aploopWithHomotopy (higherTransportIdfun _) _ _) ⬝
+                     (conjOfConj _ _ (n + 1) _)⁻¹ ⬝ cancelConj _ _ _ ⬝ aploopIdfun _ _
+
+  hott def aploopCom {A : Type u} {B : Type v} {C : Type w} (f : B → C) (g : A → B) {a : A} :
+    Π (n : ℕ) (α : Ωⁿ(A, a)), aploop (f ∘ g) α = aploop f (aploop g α)
+  | Nat.zero,   _ => idp _
+  | Nat.succ n, _ => aploopWithHomotopy (mapOverComp _ _) _ _ ⬝ aploopCom (ap f) (ap g) _ _
+end Types.Id
 
 end GroundZero

@@ -1,7 +1,7 @@
 import GroundZero.HITs.Pushout
 import GroundZero.Types.Unit
 
-open GroundZero.Types.Id (ap)
+open GroundZero.Types.Id (ap isPointed pointOf)
 open GroundZero.Types.Equiv
 open GroundZero.Types
 
@@ -45,6 +45,11 @@ namespace Suspension
   noncomputable hott def recβrule {A : Type u} {B : Type v} (n s : B)
     (m : A → n = s) (x : A) : ap (rec n s m) (merid x) = m x :=
   by apply Pushout.recβrule
+
+  instance (A : Type u) : isPointed (∑ A) := ⟨north⟩
+
+  hott def σ {A : Type u} [isPointed A] : A → Ω¹(∑ A) :=
+  λ x, merid x ⬝ (merid (pointOf A))⁻¹
 end Suspension
 
 end HITs

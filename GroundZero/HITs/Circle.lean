@@ -124,7 +124,8 @@ def S.lift : Π n, S n → S (n + 1)
 | Nat.succ _, z     => Suspension.rec Suspension.north Suspension.south (λ _, Suspension.merid z) z
 
 macro:max "S" n:superscript : term => do `(GroundZero.HITs.S $(← Meta.Notation.parseSuperscript n))
-instance (n : ℕ) : Id.dotted Sⁿ :=
+
+instance (n : ℕ) : isPointed Sⁿ :=
 ⟨match n with
  | Nat.zero   => false
  | Nat.succ _ => Suspension.north⟩
@@ -1364,20 +1365,84 @@ namespace Torus
   Φ Circle.loop Circle.loop
 end Torus
 
+namespace HigherSphere
+  open GroundZero.HITs.Suspension (north σ)
+
+  hott def base : Π {n : ℕ}, S n
+  | Nat.zero   => false
+  | Nat.succ _ => north
+
+  hott def surf : Π (n : ℕ), Ω[n + 1](S (n + 1))
+  | Nat.zero   => Circle.loop
+  | Nat.succ n => loopConj (compInv _) (aploop σ (surf n))
+
+  hott def rec (B : Type u) (b : B) : Π (n : ℕ), Ω[n + 1](B, b) → S (n + 1) → B
+  | Nat.zero   => Circle.rec b
+  | Nat.succ n => λ ε, Suspension.rec b b (rec (b = b) (idp b) n ε)
+
+  hott theorem recβrule₁ {B : Type u} (b : B) : Π {n : ℕ} (α : Ω[n + 1](B, b)), rec B b n α base = b
+  | Nat.zero,   _ => idp _
+  | Nat.succ _, _ => idp _
+
+  hott lemma σComApRec {B : Type u} (b : B) (n : ℕ) (ε : Ω[n + 2](B, b)) :
+    ap (rec B b (n + 1) ε) ∘ σ ~ rec (b = b) (idp b) n ε :=
+  begin
+    intro x; transitivity; apply mapFunctoriality;
+    transitivity; apply bimap; apply Suspension.recβrule;
+    transitivity; apply Id.mapInv; apply ap;
+    apply Suspension.recβrule; transitivity; apply ap (_ ⬝ ·);
+    apply ap; apply recβrule₁; apply Id.reflRight
+  end
+
+  hott theorem recβrule₂ {B : Type u} (b : B) : Π (n : ℕ) (α : Ω[n + 1](B, b)),
+    loopConj (recβrule₁ b α) (aploop (rec B b n α) (surf n)) = α
+  | Nat.zero,   _ => Circle.recβrule₂ _ _
+  | Nat.succ n, _ =>
+  begin
+    show aploop (ap _) (loopConj _ _) = _;
+    transitivity; apply aploopConj; transitivity; apply ap (loopConj _);
+    transitivity; symmetry; apply aploopCom _ σ; apply aploopWithHomotopy;
+    apply σComApRec; transitivity; symmetry; apply conjOfConj;
+    transitivity; apply ap (loopConj _); symmetry; apply conjInvOfConj;
+    apply recβrule₁; transitivity; symmetry; apply conjOfConj;
+    transitivity; apply ap (loopConj _); apply recβrule₂ _ n; apply cancelConj
+  end
+end HigherSphere
+
 namespace Sphere
-  def base₁ : S² := Suspension.north
-  def base₂ : S² := Suspension.south
+  hott def base : S² := HigherSphere.base
 
-  hott def base : S² := base₁
+  hott def surf : idp base = idp base :=
+  HigherSphere.surf 1
 
-  hott def rec {B : Type u} (b : B) (ε : idp b = idp b) : S² → B :=
-  Suspension.rec b b (Circle.rec (idp b) ε)
+  section
+    variable {B : Type u} (b : B) (ε : idp b = idp b)
 
-  hott def recβrule₁ {B : Type u} (b : B) (ε : idp b = idp b) : rec b ε base = b :=
-  idp b
+    hott def rec : S² → B := HigherSphere.rec B b 1 ε
+
+    hott corollary recβrule₁ : rec b ε base = b := idp b
+
+    hott corollary recβrule₂ : ap₂ (rec b ε) surf = ε :=
+    HigherSphere.recβrule₂ b 1 ε
+  end
 end Sphere
 
 namespace Glome
+  hott def base : S³ := HigherSphere.base
+
+  hott def surf : idp (idp base) = idp (idp base) :=
+  HigherSphere.surf 2
+
+  section
+    variable {B : Type u} (b : B) (ε : idp (idp b) = idp (idp b))
+
+    hott def rec : S³ → B := HigherSphere.rec B b 2 ε
+
+    hott corollary recβrule₁ : rec b ε base = b := idp b
+
+    hott corollary recβrule₂ : ap₃ (rec b ε) surf = ε :=
+    HigherSphere.recβrule₂ b 2 ε
+  end
 end Glome
 
 end HITs
