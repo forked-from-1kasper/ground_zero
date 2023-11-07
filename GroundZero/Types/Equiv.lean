@@ -150,7 +150,7 @@ namespace Equiv
   Equiv.subst p u = v
 
   notation u " =[" P ", " p "] " v => depPath P p u v
-  notation u " =[" p "] " v       => depPath _ p u v
+  notation u " =[" p "] " v        => depPath _ p u v
 
   hott def depPath.refl {A : Type u} (B : A → Type v) {a : A} (u : B a) : u =[idp a] u :=
   idp u
@@ -276,9 +276,9 @@ namespace Equiv
     (f : Π x, B x → δ x) (p : x = y) (u : B x) : subst p (f x u) = f y (subst p u) :=
   begin induction p; reflexivity end
 
-  hott def apdSqr {A : Type u} {B C : A → Type v} {a b : A} {u : B a} {v : B b} {p : a = b}
-    (f : Π {x : A}, B x → C x) (q : u =[p] v) : f u =[p] f v :=
-  begin induction p; induction q using Id.casesOn; reflexivity end
+  hott def apdSqr {A : Type u} {B : A → Type v} {C : A → Type w} {a b : A} {u : B a} {v : B b}
+    {p : a = b} (f : Π x, B x → C x) (q : u =[p] v) : f a u =[p] f b v :=
+  begin induction p; exact ap (f a) q end
 
   hott def apd₂ {A : Type u} {B : A → Type v} {a b : A} {p q : a = b}
     (f : Π x, B x) (r : p = q) : apd f p =[λ s, subst s (f a) = f b, r] apd f q :=
@@ -355,20 +355,20 @@ namespace Equiv
 
   hott lemma transportOverContrMap {A : Type u} {B : Type v} {a b : A} {c : B}
     (f : A → B) (p : a = b) (q : f a = c) :
-    Equiv.transport (λ x, f x = c) p q = ap f p⁻¹ ⬝ q :=
+    transport (λ x, f x = c) p q = ap f p⁻¹ ⬝ q :=
   begin induction p; reflexivity end
 
   hott lemma transportOverInvContrMap {A : Type u} {B : Type v} {a b : A} {c : B}
     (f : A → B) (p : a = b) (q : c = f a) :
-    Equiv.transport (λ x, c = f x) p q = q ⬝ ap f p :=
+    transport (λ x, c = f x) p q = q ⬝ ap f p :=
   begin induction p; symmetry; apply Id.reflRight end
 
   hott lemma transportOverInvolution {A : Type u} {a b : A} (f : A → A) (p : a = b) (q : f a = a) :
-    Equiv.transport (λ x, f x = x) p q = ap f p⁻¹ ⬝ q ⬝ p :=
+    transport (λ x, f x = x) p q = ap f p⁻¹ ⬝ q ⬝ p :=
   begin induction p; symmetry; apply Id.reflRight end
 
   hott lemma transportOverHmtpy {A : Type u} {B : Type v} {a b : A} (f g : A → B) (p : a = b) (q : f a = g a) :
-    Equiv.transport (λ x, f x = g x) p q = ap f p⁻¹ ⬝ q ⬝ ap g p :=
+    transport (λ x, f x = g x) p q = ap f p⁻¹ ⬝ q ⬝ ap g p :=
   begin induction p; symmetry; apply Id.reflRight end
 
   hott lemma idmap {A : Type u} {a b : A} (p : a = b) : ap idfun p = p :=
@@ -380,12 +380,32 @@ namespace Equiv
 
   hott theorem transportOverDhmtpy {A : Type u} {B : A → Type v} {a b : A}
     (f g : Π x, B x) (p : a = b) (q : f a = g a) :
-    Equiv.transport (λ x, f x = g x) p q = (apd f p)⁻¹ ⬝ ap (subst p) q ⬝ apd g p :=
+    transport (λ x, f x = g x) p q = (apd f p)⁻¹ ⬝ ap (subst p) q ⬝ apd g p :=
   begin induction p; symmetry; transitivity; apply Id.reflRight; apply idmap end
 
   hott theorem mapOverComp {A : Type u} {B : Type v} {C : Type w} {a b : A}
     (f : A → B) (g : B → C) (p : a = b) :
     @ap A C a b (g ∘ f) p = ap g (ap f p) :=
+  begin induction p; reflexivity end
+
+  section
+    variable {A : Type u} {B : Type v} {C : B → Type w} (f : A → B) {a b : A} {u : C (f a)} {v : C (f b)}
+
+    hott def pathOverAp (p : a = b) : (u =[C, ap f p] v) → (u =[C ∘ f, p] v) :=
+    begin induction p; exact idfun end
+
+    hott def pathUnderAp (p : a = b) : (u =[C ∘ f, p] v) → (u =[C, ap f p] v) :=
+    begin induction p; exact idfun end
+
+    hott lemma pathOverApCoh₁ (p : a = b) : pathOverAp f p ∘ @pathUnderAp A B C f a b u v p ~ idfun :=
+    begin intro; induction p; reflexivity end
+
+    hott lemma pathOverApCoh₂ (p : a = b) : pathUnderAp f p ∘ @pathOverAp A B C f a b u v p ~ idfun :=
+    begin intro; induction p; reflexivity end
+  end
+
+  hott theorem apdOverComp {A : Type u} {B : Type v} {C : B → Type w} {a b : A} (f : Π x, C x) (g : A → B)
+    (p : a = b) : apd (λ x, f (g x)) p = pathOverAp g p (apd f (ap g p)) :=
   begin induction p; reflexivity end
 
   hott theorem apdOverConstantFamily {A : Type u} {B : Type v} {a b : A}
@@ -530,6 +550,14 @@ namespace Equiv
   hott def eqvEqEqv {A B C : Type u} (p : A ≃ B) (q : B = C) : A ≃ C :=
   transport (Equiv A) q p
 
+  hott corollary apComHmtpy {A : Type u} {B : Type v} {f g : A → B}
+    (H : f ~ g) {a b : A} (p : a = b) : (f a = f b) = (g a = g b) :=
+  bimap Id (H a) (H b)
+
+  hott lemma apdComHmtpy {A : Type u} {B : A → Type v} {f g : Π x, B x} (H : f ~ g)
+    {a b : A} (p : a = b) : (f a =[B, p] f b) = (g a =[B, p] g b) :=
+  bimap Id (ap (transport B p) (H a)) (H b)
+
   hott def loopConj {A : Type u} {a b : A} (p : a = b) {n : ℕ} : Ωⁿ(A, a) → Ωⁿ(A, b) :=
   transport (λ x, Ωⁿ(A, x)) p
 
@@ -558,6 +586,58 @@ namespace Equiv
 
   hott lemma conjOfConjInv {A : Type u} {a b : A} (p : a = b)
     (n : ℕ) (α : Ωⁿ(A, b)) : (α^p⁻¹)^p = α :=
+  begin induction p; reflexivity end
+
+  open GroundZero.Types.Id (idloop)
+
+  hott def LoopOver {A : Type u} (B : A → Type v) {a : A} (b : B a) : Π (n : ℕ), Ωⁿ(A, a) → Type v
+  | Nat.zero,   x => B x
+  | Nat.succ n, α => @LoopOver (a = a) (λ p, b =[p] b) (idp a) (idp b) n α
+
+  macro:max "Ω" n:superscript "(" τ:term "," ε:term "," η:term ")" : term => do
+    `(@LoopOver _ $τ _ $ε $(← Meta.Notation.parseSuperscript n) $η)
+
+  macro:max "Ω" "[" n:term "]" "(" τ:term "," ε:term "," η:term ")" : term => do
+    `(@LoopOver _ $τ _ $ε $n $η)
+
+  hott def apdloop {A : Type u} {B : A → Type v} (f : Π x, B x)
+    {a : A} : Π {n : ℕ} (α : Ωⁿ(A, a)), Ωⁿ(B, f a, α)
+  | Nat.zero   => f
+  | Nat.succ _ => apdloop (apd f)
+
+  hott def loopOverConj {A : Type u} {B : A → Type v} {a : A} {b₁ b₂ : B a} {n : ℕ}
+    {α : Ωⁿ(A, a)} (p : b₁ = b₂) : Ωⁿ(B, b₁, α) → Ωⁿ(B, b₂, α) :=
+  transport (λ x, LoopOver B x n α) p
+
+  hott def loopOverSwapConj {A : Type u} (B : A → Type v) {a b : A} (p : a = b) (u : B b)
+    (n : ℕ) (α : Ωⁿ(A, a)) (β : Ωⁿ(B, u, α^p)) : Ωⁿ(B, transport B p⁻¹ u, α) :=
+  begin induction p; exact β end
+
+  hott def loopOverApTrans {A : Type u} {B₁ : A → Type v} {B₂ : A → Type w} (φ : Π x, B₁ x → B₂ x) {a : A} {b : B₁ a} :
+    Π (n : ℕ) (α : Ωⁿ(A, a)), Ωⁿ(B₁, b, α) → Ωⁿ(B₂, φ a b, α)
+  | Nat.zero,   x => φ x
+  | Nat.succ n, α => @loopOverApTrans (a = a) (λ p, b =[p] b) (λ p, φ a b =[p] φ a b) (λ _, apdSqr φ) (idp a) (idp b) n α
+
+  hott def loopOverAploop {A : Type u} {B : Type v} (C : B → Type w) (f : A → B) {a : A} {b : C (f a)} :
+    Π (n : ℕ) (α : Ωⁿ(A, a)) (β : Ωⁿ(C, b, aploop f α)), Ωⁿ(C ∘ f, b, α)
+  | Nat.zero,   x, y => y
+  | Nat.succ n, α, β => @loopOverApTrans (a = a) (λ p, b =[C, ap f p] b) (λ p, b =[C ∘ f, p] b)
+                          (pathOverAp f) (idp a) (idp b) n α
+                            (@loopOverAploop (a = a) (f a = f a) (λ p, b =[C, p] b) (ap f) (idp a) (idp b) n α β)
+
+  hott def loopUnderAploop {A : Type u} {B : Type v} (C : B → Type w) (f : A → B) {a : A} {b : C (f a)} :
+    Π (n : ℕ) (α : Ωⁿ(A, a)) (β : Ωⁿ(C ∘ f, b, α)), Ωⁿ(C, b, aploop f α)
+  | Nat.zero,   x, y => y
+  | Nat.succ n, α, β => @loopUnderAploop (a = a) (f a = f a) (λ p, b =[C, p] b) (ap f) (idp a) (idp b) n α
+                          (@loopOverApTrans (a = a) (λ p, b =[C ∘ f, p] b) (λ p, b =[C, ap f p] b)
+                            (pathUnderAp f) (idp a) (idp b) n α β)
+
+  hott def loopConjBase {A : Type u} {B : A → Type v} {a b : A} {u : B a} {n : ℕ}
+    {α : Ωⁿ(A, a)} (p : a = b) : Ωⁿ(B, u, α) → Ωⁿ(B, transport B p u, α^p) :=
+  begin induction p; fapply idfun end
+
+  hott def apdloopConj {A : Type u} {B : A → Type v} (f : Π x, B x) {a b : A} (p : a = b) {n : ℕ}
+    (α : Ωⁿ(A, a)) : apdloop f (α^p) = loopOverConj (apd f p) (loopConjBase p (apdloop f α)) :=
   begin induction p; reflexivity end
 end Equiv
 
