@@ -109,7 +109,7 @@ namespace «4.2»
       transitivity; apply ap (Equiv.transportconst · _);
       transitivity; apply Equiv.mapOverComp Sigma.fst (λ (φ : A → B → Type _), φ a (f a));
       transitivity; apply ap (ap _); apply Sigma.mapFstOverProd;
-      transitivity; apply Theorems.Equiv.mapToHapply₂; apply Theorems.Equiv.happlyFunextPt₂;
+      transitivity; apply Theorems.mapToHapply₂; apply Theorems.happlyFunextPt₂;
       transitivity; apply ua.transportRule; show G e₂ (F e₁ (Sigma.snd e₁ a)) = Sigma.snd e₂ a;
       transitivity; symmetry; apply Equiv.transportComp (e₂.1.1 a) Sigma.fst (corrPath _ _);
       transitivity; apply Equiv.substSquare; apply Id.invComp; reflexivity }

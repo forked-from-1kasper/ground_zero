@@ -178,13 +178,13 @@ namespace Id
   macro:max "Ω" "[" n:term "]" "(" τ:term "," ε:term ")" : term => do
     `(@Loop $τ $ε $n)
 
-  hott def idloop {B : Type u} (b : B) : Π n, Ωⁿ(B, b)
+  hott def idΩ {B : Type u} (b : B) : Π n, Ωⁿ(B, b)
   | Nat.zero   => b
-  | Nat.succ n => idloop (idp b) n
+  | Nat.succ n => idΩ (idp b) n
 
-  hott def aploop {A : Type u} {B : Type v} (f : A → B) {a : A} : Π {n : ℕ}, Ωⁿ(A, a) → Ωⁿ(B, f a)
+  hott def apΩ {A : Type u} {B : Type v} (f : A → B) {a : A} : Π {n : ℕ}, Ωⁿ(A, a) → Ωⁿ(B, f a)
   | Nat.zero   => f
-  | Nat.succ _ => aploop (ap f)
+  | Nat.succ _ => apΩ (ap f)
 end Id
 
 def Not (A : Type u) : Type u := A → (𝟎 : Type)

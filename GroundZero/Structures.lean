@@ -9,7 +9,7 @@ open GroundZero.Types.Id (ap)
 open GroundZero.Types.Unit
 
 namespace GroundZero
-universe u v w k r
+universe u v w k r w' w''
 
 namespace Structures
 
@@ -486,6 +486,7 @@ end singl
 
 namespace Theorems
   open GroundZero.Structures GroundZero.Types.Equiv GroundZero.Types
+  open GroundZero.HITs.Interval (happly)
 
   hott theorem naive {A : Type u} {B : A → Type v} {f g : Π x, B x} : f ~ g → f = g :=
   HITs.Interval.funext
@@ -529,23 +530,23 @@ namespace Theorems
   @homotopyInd _ _ f (λ g x, f = g) (idp _) g
 
   hott lemma funextHapply {A : Type u} {B : A → Type v}
-    {f g : Π x, B x} : funext ∘ @HITs.Interval.happly A B f g ~ id :=
+    {f g : Π x, B x} : funext ∘ @happly A B f g ~ id :=
   begin
     intro p; induction p; change funext (Homotopy.id _) = idp _;
     dsimp [funext]; apply homotopyIndId f
   end
 
   hott lemma happlyFunext {A : Type u} {B : A → Type v}
-    (f g : Π x, B x) : HITs.Interval.happly ∘ @funext A B f g ~ id :=
+    (f g : Π x, B x) : happly ∘ @funext A B f g ~ id :=
   begin
-    intro H; fapply @homotopyInd _ _ f (λ g G, HITs.Interval.happly (funext G) = G) _ g H;
-    change _ = HITs.Interval.happly (idp _); apply ap HITs.Interval.happly;
+    intro H; fapply @homotopyInd _ _ f (λ g G, happly (funext G) = G) _ g H;
+    change _ = happly (idp _); apply ap happly;
     change homotopyInd _ _ _ _ = _; apply homotopyIndId
   end
 
   hott theorem full {A : Type u} {B : A → Type v} {f g : Π x, B x} : (f = g) ≃ (f ~ g) :=
   begin
-    existsi HITs.Interval.happly; apply Qinv.toBiinv; existsi funext;
+    existsi happly; apply Qinv.toBiinv; existsi funext;
     apply Prod.mk; apply happlyFunext; apply funextHapply
   end
 
@@ -562,6 +563,51 @@ namespace Theorems
     apply Id.reflRight; transitivity; symmetry; apply mapFunctoriality (λ (h : A → B), h a);
     transitivity; apply ap; apply Id.invComp; reflexivity
   end
+
+  hott def mapToHapply {A : Type u} {B : A → Type v}
+    (c : A) (f g : Π x, B x) (p : f = g) :
+    ap (λ (f : Π x, B x), f c) p = happly p c :=
+  begin induction p; reflexivity end
+
+  hott def mapToHapply₂ {A : Type u} {B : A → Type v} {C : Π x, B x → Type w}
+    (c₁ : A) (c₂ : B c₁) (f g : Π (x : A) (y : B x), C x y) (p : f = g) :
+    ap (λ f, f c₁ c₂) p = happly (happly p c₁) c₂ :=
+  begin induction p; reflexivity end
+
+  hott def mapToHapply₃ {A : Type u} {B : A → Type v} {C : Π x, B x → Type w}
+    {D : Π x y, C x y → Type w'} (c₁ : A) (c₂ : B c₁) (c₃ : C c₁ c₂) (f g : Π x y z, D x y z) (p : f = g) :
+    ap (λ f, f c₁ c₂ c₃) p = happly (happly (happly p c₁) c₂) c₃ :=
+  begin induction p; reflexivity end
+
+  hott def mapToHapply₄ {A : Type u} {B : A → Type v} {C : Π x, B x → Type w}
+    {D : Π (x : A) (y : B x), C x y → Type w'} {E : Π (x : A) (y : B x) (z : C x y), D x y z → Type w''}
+    (c₁ : A) (c₂ : B c₁) (c₃ : C c₁ c₂) (c₄ : D c₁ c₂ c₃) (f g : Π x y z w, E x y z w) (p : f = g) :
+    ap (λ f, f c₁ c₂ c₃ c₄) p = happly (happly (happly (happly p c₁) c₂) c₃) c₄ :=
+  begin induction p; reflexivity end
+
+  hott def happlyFunextPt {A : Type u} {B : A → Type v} {f g : Π x, B x} (H : f ~ g) (x : A) : happly (funext H) x = H x :=
+  begin apply happly; apply happlyFunext end
+
+  hott def happlyFunextPt₂ {A : Type u} {B : A → Type v} {C : Π x, B x → Type w}
+    {f g : Π x y, C x y} (H : Π x y, f x y = g x y) (c₁ : A) (c₂ : B c₁) :
+    happly (happly (funext (λ x, funext (H x))) c₁) c₂ = H c₁ c₂ :=
+  begin transitivity; apply ap (happly · c₂); apply happlyFunextPt; apply happlyFunextPt end
+
+  hott def happlyFunextPt₃ {A : Type u} {B : A → Type v} {C : Π x, B x → Type w}
+    {D : Π x y, C x y → Type w'} {f g : Π x y z, D x y z}
+    (H : Π x y z, f x y z = g x y z) (c₁ : A) (c₂ : B c₁) (c₃ : C c₁ c₂) :
+    happly (happly (happly (funext (λ x, funext (λ y, funext (H x y)))) c₁) c₂) c₃ = H c₁ c₂ c₃ :=
+  begin transitivity; apply ap (happly · c₃); apply happlyFunextPt₂; apply happlyFunextPt end
+
+  hott def happlyFunextPt₄ {A : Type u} {B : A → Type v} {C : Π x, B x → Type w}
+    {D : Π x y, C x y → Type w'} {E : Π x y z, D x y z → Type w''} {f g : Π x y z w, E x y z w}
+    (H : Π x y z w, f x y z w = g x y z w) (c₁ : A) (c₂ : B c₁) (c₃ : C c₁ c₂) (c₄ : D c₁ c₂ c₃) :
+    happly (happly (happly (happly (funext (λ x, funext (λ y, funext (λ z, funext (H x y z))))) c₁) c₂) c₃) c₄ = H c₁ c₂ c₃ c₄ :=
+  begin transitivity; apply ap (happly · c₄); apply happlyFunextPt₃; apply happlyFunextPt end
+
+  hott def happlyRevPt {A : Type u} {B : A → Type v} {f g : Π x, B x} (p : f = g) (x : A) :
+    happly p⁻¹ x = Homotopy.symm f g (happly p) x :=
+  begin apply happly; apply HITs.Interval.happlyRev end
 end Theorems
 
 namespace Structures
@@ -788,37 +834,111 @@ end Types.Equiv
 namespace Types.Id
   open GroundZero.HITs.Interval (happly)
   open GroundZero.Types.Equiv
+  open GroundZero.Proto
 
-  hott def aploopPath {A : Type u} {B : Type v} {f g : A → B} (H : f = g) {a : A}
-    (n : ℕ) (α : Ωⁿ(A, a)) : aploop f α = (aploop g α)^(happly H a)⁻¹ :=
+  hott lemma happlyApΩ {A : Type u} {B : Type v} {f g : A → B} (H : f = g) {a : A}
+    (n : ℕ) (α : Ωⁿ(A, a)) : apΩ f α = (apΩ g α)^(happly H a)⁻¹ :=
   begin induction H; reflexivity end
 
-  hott def aploopWithHomotopy {A : Type u} {B : Type v} {f g : A → B} (H : f ~ g) {a : A}
-    (n : ℕ) (α : Ωⁿ(A, a)) : aploop f α = (aploop g α)^(H a)⁻¹ :=
-  aploopPath (Theorems.funext H) n α ⬝ ap (_^·⁻¹) (happly (Theorems.happlyFunext _ _ _) _)
+  hott lemma happlyApdΩ {A : Type u} {B : A → Type v} {f g : Π x, B x} (H : f = g) {a : A}
+    (n : ℕ) (α : Ωⁿ(A, a)) : apdΩ f α = conjugateOverΩ (happly H a)⁻¹ (apdΩ g α) :=
+  begin induction H; reflexivity end
 
-  hott def aploopIdfun {A : Type u} {a : A} : Π (n : ℕ) (α : Ωⁿ(A, a)), aploop (λ x, x) α = α
+  hott theorem apWithHomotopyΩ {A : Type u} {B : Type v} {f g : A → B} (H : f ~ g) {a : A}
+    (n : ℕ) (α : Ωⁿ(A, a)) : apΩ f α = (apΩ g α)^(H a)⁻¹ :=
+  happlyApΩ (Theorems.funext H) n α ⬝ ap (_^·⁻¹) (happly (Theorems.happlyFunext _ _ _) _)
+
+  hott theorem apdWithHomotopyΩ {A : Type u} {B : A → Type v} {f g : Π x, B x} (H : f ~ g) {a : A}
+    (n : ℕ) (α : Ωⁿ(A, a)) : apdΩ f α = conjugateOverΩ (H a)⁻¹ (apdΩ g α) :=
+  happlyApdΩ (Theorems.funext H) n α ⬝ ap (conjugateOverΩ ·⁻¹ _) (happly (Theorems.happlyFunext _ _ _) _)
+
+  hott lemma idmapΩ {A : Type u} {a : A} : Π (n : ℕ) (α : Ωⁿ(A, a)), apΩ idfun α = α
   | Nat.zero,   _ => idp _
-  | Nat.succ _, _ => aploopWithHomotopy idmap _ _ ⬝ aploopIdfun _ _
+  | Nat.succ _, _ => apWithHomotopyΩ idmap _ _ ⬝ idmapΩ _ _
 
-  hott def loopConjSucc {A : Type u} {a b : A} (p : a = b) (n : ℕ) (α : Ω[n + 1](A, a)) :
-    α^p = loopConj (apd idp p) (aploop (transport (λ x, x = x) p) α) :=
-  begin induction p; symmetry; apply aploopIdfun end
+  hott lemma conjugateSuccΩ {A : Type u} {a b : A} (p : a = b) (n : ℕ) (α : Ω[n + 1](A, a)) :
+    α^p = conjugateΩ (apd idp p) (apΩ (transport (λ x, x = x) p) α) :=
+  begin induction p; symmetry; apply idmapΩ end
 
   hott def higherTransportIdfun {A : Type u} {a : A} (ε : idp a = idp a) :
     transport (λ x, x = x) ε ~ λ x, x :=
   λ _, transportInvCompComp _ _ ⬝ cancelHigherConjLeft _ _
 
-  hott def cancelConj {A : Type u} {a : A} (p : idp a = idp a) :
+  hott def abelianΩ {A : Type u} {a : A} (p : idp a = idp a) :
     Π (n : ℕ) (α : Ω[n + 1](a = a, idp a)), α^p = α
   | Nat.zero,   _ => higherTransportIdfun _ _
-  | Nat.succ n, _ => loopConjSucc _ _ _ ⬝ ap (loopConj (apd idp p)) (aploopWithHomotopy (higherTransportIdfun _) _ _) ⬝
-                     (conjOfConj _ _ (n + 1) _)⁻¹ ⬝ cancelConj _ _ _ ⬝ aploopIdfun _ _
+  | Nat.succ n, _ => conjugateSuccΩ _ _ _ ⬝ ap (conjugateΩ (apd idp p)) (apWithHomotopyΩ (higherTransportIdfun _) _ _) ⬝
+                     (conjugateTransΩ _ _ (n + 1) _)⁻¹ ⬝ abelianΩ _ _ _ ⬝ idmapΩ _ _
 
-  hott def aploopCom {A : Type u} {B : Type v} {C : Type w} (f : B → C) (g : A → B) {a : A} :
-    Π (n : ℕ) (α : Ωⁿ(A, a)), aploop (f ∘ g) α = aploop f (aploop g α)
+  hott def comApΩ {A : Type u} {B : Type v} {C : Type w} (f : B → C) (g : A → B) {a : A} :
+    Π (n : ℕ) (α : Ωⁿ(A, a)), apΩ (f ∘ g) α = apΩ f (apΩ g α)
   | Nat.zero,   _ => idp _
-  | Nat.succ n, _ => aploopWithHomotopy (mapOverComp _ _) _ _ ⬝ aploopCom (ap f) (ap g) _ _
+  | Nat.succ _, _ => apWithHomotopyΩ (mapOverComp _ _) _ _ ⬝ comApΩ (ap f) (ap g) _ _
+
+  hott lemma apdDiag {A : Type u} {B : A → Type v} {C : A → Type w} (f : Π x, B x) (φ : Π x, B x → C x)
+    {a b : A} (p : a = b) : apd (λ x, φ x (f x)) p = biapd φ p (apd f p) :=
+  begin induction p; reflexivity end
+
+  hott lemma apdDiagΩ {A : Type u} {B : A → Type v} {C : A → Type w} (f : Π x, B x) (φ : Π x, B x → C x) {x : A} :
+    Π (n : ℕ) (α : Ωⁿ(A, x)), apdΩ (λ x, φ x (f x)) α = biapdΩ φ n α (apdΩ f α)
+  | Nat.zero,   _ => idp _
+  | Nat.succ n, α => apdWithHomotopyΩ (apdDiag f φ) n α ⬝ apdDiagΩ (apd f) (biapd φ) n α
+
+  hott def comApdΩ {A : Type u} {B : Type v} {C : B → Type w} (f : Π x, C x) (g : A → B) {x : A} :
+    Π (n : ℕ) (α : Ωⁿ(A, x)), apdΩ (λ x, f (g x)) α = overApΩ C g n α (apdΩ f (apΩ g α))
+  | Nat.zero,   _ => idp _
+  | Nat.succ n, α => apdWithHomotopyΩ (apdOverComp _ _) _ _ ⬝ apdDiagΩ (λ p, apd f (ap g p)) (pathOverAp g) n α ⬝
+                     ap (biapdΩ (pathOverAp g) n α) (comApdΩ (apd f) (ap g) n α)
+
+  hott lemma happlyBiapdΩ {A : Type u} {B₁ : A → Type v} {B₂ : A → Type w} {φ ψ : Π x, B₁ x → B₂ x}
+    (H : φ = ψ) {a : A} {b : B₁ a} (n : ℕ) (α : Ωⁿ(A, a)) (β : Ωⁿ(B₁, b, α)) :
+      biapdΩ φ n α β = conjugateOverΩ (happly (happly H a) b)⁻¹ (biapdΩ ψ n α β) :=
+  begin induction H; reflexivity end
+
+  hott lemma biapdWithHomotopyΩ {A : Type u} {B₁ : A → Type v} {B₂ : A → Type w} {φ ψ : Π x, B₁ x → B₂ x}
+    (H : Π x, φ x ~ ψ x) {a : A} {b : B₁ a} (n : ℕ) (α : Ωⁿ(A, a)) (β : Ωⁿ(B₁, b, α)) :
+      biapdΩ φ n α β = conjugateOverΩ (H a b)⁻¹ (biapdΩ ψ n α β) :=
+  begin
+    transitivity; apply happlyBiapdΩ; apply Theorems.funext;
+    intro; apply Theorems.funext; intro; apply H;
+    apply ap (conjugateOverΩ ·⁻¹ (biapdΩ ψ n α β));
+    apply Theorems.happlyFunextPt₂
+  end
+
+  hott theorem comBiapdΩ {A : Type u} {B₁ : A → Type v} {B₂ : A → Type w} {B₃ : A → Type k}
+    (ψ : Π x, B₂ x → B₃ x) (φ : Π x, B₁ x → B₂ x) {a : A} {b : B₁ a} :
+    Π (n : ℕ) (α : Ωⁿ(A, a)) (β : Ωⁿ(B₁, b, α)), biapdΩ ψ n α (biapdΩ φ n α β) = biapdΩ (λ x, ψ x ∘ φ x) n α β
+  | Nat.zero,   _, _ => idp _
+  | Nat.succ n, α, β => @comBiapdΩ (a = a) (λ p, b =[B₁, p] b) (λ p, φ a b =[B₂, p] φ a b)
+                                   (λ p, ψ a (φ a b) =[B₃, p] ψ a (φ a b))
+                                   (biapd ψ) (biapd φ) (idp a) (idp b) n α β ⬝
+                        biapdWithHomotopyΩ (λ p q, (comBiapd ψ φ p q)⁻¹) n α β
+
+  hott lemma biapdIdfunΩ {A : Type u} {B : A → Type v} {a : A} {b : B a} :
+    Π (n : ℕ) (α : Ωⁿ(A, a)) (β : Ωⁿ(B, b, α)), biapdΩ (λ _, idfun) n α β = β
+  | Nat.zero,   _, _ => idp _
+  | Nat.succ n, α, β => biapdWithHomotopyΩ (λ _, biapdIdfun) _ _ _ ⬝ biapdIdfunΩ n α β
+
+  hott corollary loopOverApBackAndForward {A : Type u} {B₁ : A → Type v} {B₂ : A → Type w}
+    (ψ : Π x, B₂ x → B₁ x) (φ : Π x, B₁ x → B₂ x) (H : Π x, ψ x ∘ φ x ~ idfun) {a : A} {b : B₁ a}
+    (n : ℕ) (α : Ωⁿ(A, a)) (β : Ωⁿ(B₁, b, α)) : biapdΩ ψ n α (biapdΩ φ n α β) = conjugateOverΩ (H a b)⁻¹ β :=
+  begin transitivity; apply comBiapdΩ; transitivity; apply biapdWithHomotopyΩ H; apply ap; apply biapdIdfunΩ end
+
+  hott theorem pathOverApCohΩ {A : Type u} {B : Type v} (C : B → Type w) (f : A → B) {a : A} {b : C (f a)} :
+    Π (n : ℕ) (α : Ωⁿ(A, a)) (β : Ωⁿ(C ∘ f, b, α)), overApΩ C f n α (underApΩ C f n α β) = β
+  | Nat.zero,   _, _ => idp _
+  | Nat.succ n, α, β => ap (biapdΩ (pathOverAp f) n α) (@pathOverApCohΩ (a = a) (f a = f a) (λ p, b =[C, p] b) (ap f) (idp a) (idp b) n α _) ⬝
+                        loopOverApBackAndForward (pathOverAp f) (pathUnderAp f) (pathOverApCoh f) n α β
+
+  hott theorem pathUnderApCohΩ {A : Type u} {B : Type v} (C : B → Type w) (f : A → B) {a : A} {b : C (f a)} :
+    Π (n : ℕ) (α : Ωⁿ(A, a)) (β : Ωⁿ(C, b, apΩ f α)), underApΩ C f n α (overApΩ C f n α β) = β
+  | Nat.zero,   _, _ => idp _
+  | Nat.succ n, α, β => ap (underApΩ _ _ n _) (loopOverApBackAndForward (pathUnderAp f) (pathOverAp f) (pathUnderApCoh f) n α _) ⬝
+                        @pathUnderApCohΩ (a = a) (f a = f a) (λ p, b =[C, p] b) (ap f) (idp a) (idp b) n α β
+
+  hott corollary comApdUnderΩ {A : Type u} {B : Type v} {C : B → Type w} (f : Π x, C x) (g : A → B) {x : A}
+    (n : ℕ) (α : Ωⁿ(A, x)) : underApΩ C g n α (apdΩ (λ x, f (g x)) α) = apdΩ f (apΩ g α) :=
+  begin transitivity; apply ap (underApΩ C g n α); apply comApdΩ; apply pathUnderApCohΩ end
 end Types.Id
 
 end GroundZero

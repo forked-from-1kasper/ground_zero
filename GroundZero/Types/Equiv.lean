@@ -1,7 +1,7 @@
 import GroundZero.Support
 
 open GroundZero.Proto (idfun Identity Identity.elem Identity.elim)
-open GroundZero.Types.Id (ap aploop)
+open GroundZero.Types.Id (ap apΩ)
 
 universe u v w k
 def AS {A : Type u} {B : Type v} {C : Type w} (x : A → B → C) (y : A → B) (z : A) := x z (y z)
@@ -276,8 +276,8 @@ namespace Equiv
     (f : Π x, B x → δ x) (p : x = y) (u : B x) : subst p (f x u) = f y (subst p u) :=
   begin induction p; reflexivity end
 
-  hott def apdSqr {A : Type u} {B : A → Type v} {C : A → Type w} {a b : A} {u : B a} {v : B b}
-    {p : a = b} (f : Π x, B x → C x) (q : u =[p] v) : f a u =[p] f b v :=
+  hott def biapd {A : Type u} {B : A → Type v} {C : A → Type w} {a b : A} {u : B a} {v : B b}
+    (f : Π x, B x → C x) (p : a = b) (q : u =[p] v) : f a u =[p] f b v :=
   begin induction p; exact ap (f a) q end
 
   hott def apd₂ {A : Type u} {B : A → Type v} {a b : A} {p q : a = b}
@@ -389,18 +389,18 @@ namespace Equiv
   begin induction p; reflexivity end
 
   section
-    variable {A : Type u} {B : Type v} {C : B → Type w} (f : A → B) {a b : A} {u : C (f a)} {v : C (f b)}
+    variable {A : Type u} {B : Type v} {C : B → Type w} (f : A → B) {a b : A} {u : C (f a)} {v : C (f b)} (p : a = b)
 
-    hott def pathOverAp (p : a = b) : (u =[C, ap f p] v) → (u =[C ∘ f, p] v) :=
+    hott def pathOverAp : (u =[C, ap f p] v) → (u =[C ∘ f, p] v) :=
     begin induction p; exact idfun end
 
-    hott def pathUnderAp (p : a = b) : (u =[C ∘ f, p] v) → (u =[C, ap f p] v) :=
+    hott def pathUnderAp : (u =[C ∘ f, p] v) → (u =[C, ap f p] v) :=
     begin induction p; exact idfun end
 
-    hott lemma pathOverApCoh₁ (p : a = b) : pathOverAp f p ∘ @pathUnderAp A B C f a b u v p ~ idfun :=
+    hott lemma pathOverApCoh : pathOverAp f p ∘ @pathUnderAp A B C f a b u v p ~ idfun :=
     begin intro; induction p; reflexivity end
 
-    hott lemma pathOverApCoh₂ (p : a = b) : pathUnderAp f p ∘ @pathOverAp A B C f a b u v p ~ idfun :=
+    hott lemma pathUnderApCoh : pathUnderAp f p ∘ @pathOverAp A B C f a b u v p ~ idfun :=
     begin intro; induction p; reflexivity end
   end
 
@@ -558,37 +558,62 @@ namespace Equiv
     {a b : A} (p : a = b) : (f a =[B, p] f b) = (g a =[B, p] g b) :=
   bimap Id (ap (transport B p) (H a)) (H b)
 
-  hott def loopConj {A : Type u} {a b : A} (p : a = b) {n : ℕ} : Ωⁿ(A, a) → Ωⁿ(A, b) :=
+  hott def conjugateOver {A : Type u} {B : A → Type v} {C : A → Type w}
+    {φ ψ : Π x, B x → C x} (H : Π x, φ x ~ ψ x) {a b : A} {u : B a} {v : B b}
+    {p : a = b} (q : φ a u =[C, p] φ b v) : ψ a u =[C, p] ψ b v :=
+  begin induction p; exact (H a u)⁻¹ ⬝ q ⬝ H a v end
+
+  hott lemma biapdWithHomotopy {A : Type u} {B₁ : A → Type v} {B₂ : A → Type w}
+    {φ ψ : Π x, B₁ x → B₂ x} (H : Π x, φ x ~ ψ x) {a b : A} {u : B₁ a} {v : B₁ b}
+    (p : a = b) (q : u =[B₁, p] v) : biapd φ p q = conjugateOver (λ x y, (H x y)⁻¹) (biapd ψ p q) :=
+  begin
+    induction p; induction q using J₁; symmetry; transitivity;
+    apply ap (· ⬝ _); apply Id.reflRight; apply Id.invComp
+  end
+
+  hott lemma biapdIdfun {A : Type u} {B : A → Type v} {a b : A}
+    {u : B a} {v : B b} {p : a = b} (q : u =[B, p] v) : biapd (λ _, idfun) p q = q :=
+  begin induction p; apply idmap end
+
+  hott lemma comBiapd {A : Type u} {B₁ : A → Type v} {B₂ : A → Type w} {B₃ : A → Type k}
+    (ψ : Π x, B₂ x → B₃ x) (φ : Π x, B₁ x → B₂ x) {a b : A} {u : B₁ a} {v : B₁ b}
+    (p : a = b) (q : u =[B₁, p] v) : biapd (λ x, ψ x ∘ φ x) p q = biapd ψ p (biapd φ p q) :=
+  begin induction p; apply mapOverComp end
+
+  hott def bimapΩ {A : Type u} {B : Type v} {C : Type w} (f : A → B → C) {a : A} {b : B} :
+    Π {n : ℕ}, Ωⁿ(A, a) → Ωⁿ(B, b) → Ωⁿ(C, f a b)
+  | Nat.zero   => f
+  | Nat.succ _ => bimapΩ (bimap f)
+
+  hott def conjugateΩ {A : Type u} {a b : A} (p : a = b) {n : ℕ} : Ωⁿ(A, a) → Ωⁿ(A, b) :=
   transport (λ x, Ωⁿ(A, x)) p
 
   instance {A : Type u} {a b : A} {n : ℕ} : HPow (Ωⁿ(A, a)) (a = b) (Ωⁿ(A, b)) :=
-  ⟨λ p α, loopConj α p⟩
+  ⟨λ p α, conjugateΩ α p⟩
 
-  hott lemma conjRewrite {A : Type u} {a b : A} (p : a = b) {n : ℕ}
+  hott lemma conjugateRewriteΩ {A : Type u} {a b : A} (p : a = b) {n : ℕ}
     (α : Ωⁿ(A, a)) (β : Ωⁿ(A, b)) : α = β^p⁻¹ → α^p = β :=
   begin induction p; apply idfun end
 
-  hott lemma conjRewriteInv {A : Type u} {a b : A} (p : a = b) {n : ℕ}
+  hott lemma conjugateRewriteInvΩ {A : Type u} {a b : A} (p : a = b) {n : ℕ}
     (α : Ωⁿ(A, a)) (β : Ωⁿ(A, b)) : α^p = β → α = β^p⁻¹ :=
   begin induction p; apply idfun end
 
-  hott theorem aploopConj {A : Type u} {B : Type v} (f : A → B) {a b : A} (p : a = b)
-    (n : ℕ) (α : Ωⁿ(A, a)) : aploop f (α^p) = (aploop f α)^(ap f p) :=
+  hott theorem apConjugateΩ {A : Type u} {B : Type v} (f : A → B) {a b : A} (p : a = b)
+    (n : ℕ) (α : Ωⁿ(A, a)) : apΩ f (α^p) = (apΩ f α)^(ap f p) :=
   begin induction p; reflexivity end
 
-  hott theorem conjOfConj {A : Type u} {a b c : A} (p : a = b) (q : b = c)
+  hott theorem conjugateTransΩ {A : Type u} {a b c : A} (p : a = b) (q : b = c)
     (n : ℕ) (α : Ωⁿ(A, a)) : α^(p ⬝ q) = (α^p)^q :=
   begin induction p; reflexivity end
 
-  hott lemma conjInvOfConj {A : Type u} {a b : A} (p : a = b)
+  hott lemma conjugateRevRightΩ {A : Type u} {a b : A} (p : a = b)
     (n : ℕ) (α : Ωⁿ(A, a)) : (α^p)^p⁻¹ = α :=
   begin induction p; reflexivity end
 
-  hott lemma conjOfConjInv {A : Type u} {a b : A} (p : a = b)
+  hott lemma conjugateRevLeftΩ {A : Type u} {a b : A} (p : a = b)
     (n : ℕ) (α : Ωⁿ(A, b)) : (α^p⁻¹)^p = α :=
   begin induction p; reflexivity end
-
-  open GroundZero.Types.Id (idloop)
 
   hott def LoopOver {A : Type u} (B : A → Type v) {a : A} (b : B a) : Π (n : ℕ), Ωⁿ(A, a) → Type v
   | Nat.zero,   x => B x
@@ -600,44 +625,48 @@ namespace Equiv
   macro:max "Ω" "[" n:term "]" "(" τ:term "," ε:term "," η:term ")" : term => do
     `(@LoopOver _ $τ _ $ε $n $η)
 
-  hott def apdloop {A : Type u} {B : A → Type v} (f : Π x, B x)
+  hott def apdΩ {A : Type u} {B : A → Type v} (f : Π x, B x)
     {a : A} : Π {n : ℕ} (α : Ωⁿ(A, a)), Ωⁿ(B, f a, α)
   | Nat.zero   => f
-  | Nat.succ _ => apdloop (apd f)
+  | Nat.succ _ => apdΩ (apd f)
 
-  hott def loopOverConj {A : Type u} {B : A → Type v} {a : A} {b₁ b₂ : B a} {n : ℕ}
-    {α : Ωⁿ(A, a)} (p : b₁ = b₂) : Ωⁿ(B, b₁, α) → Ωⁿ(B, b₂, α) :=
-  transport (λ x, LoopOver B x n α) p
+  hott def conjugateOverΩ {A : Type u} {B : A → Type v} {a : A} {b₁ b₂ : B a}
+    {n : ℕ} {α : Ωⁿ(A, a)} (p : b₁ = b₂) : Ωⁿ(B, b₁, α) → Ωⁿ(B, b₂, α) :=
+  transport (λ x, Ωⁿ(B, x, α)) p
 
-  hott def loopOverSwapConj {A : Type u} (B : A → Type v) {a b : A} (p : a = b) (u : B b)
-    (n : ℕ) (α : Ωⁿ(A, a)) (β : Ωⁿ(B, u, α^p)) : Ωⁿ(B, transport B p⁻¹ u, α) :=
-  begin induction p; exact β end
-
-  hott def loopOverApTrans {A : Type u} {B₁ : A → Type v} {B₂ : A → Type w} (φ : Π x, B₁ x → B₂ x) {a : A} {b : B₁ a} :
+  hott def biapdΩ {A : Type u} {B₁ : A → Type v} {B₂ : A → Type w} (φ : Π x, B₁ x → B₂ x) {a : A} {b : B₁ a} :
     Π (n : ℕ) (α : Ωⁿ(A, a)), Ωⁿ(B₁, b, α) → Ωⁿ(B₂, φ a b, α)
   | Nat.zero,   x => φ x
-  | Nat.succ n, α => @loopOverApTrans (a = a) (λ p, b =[p] b) (λ p, φ a b =[p] φ a b) (λ _, apdSqr φ) (idp a) (idp b) n α
+  | Nat.succ n, α => @biapdΩ (a = a) (λ p, b =[p] b) (λ p, φ a b =[p] φ a b) (biapd φ) (idp a) (idp b) n α
 
-  hott def loopOverAploop {A : Type u} {B : Type v} (C : B → Type w) (f : A → B) {a : A} {b : C (f a)} :
-    Π (n : ℕ) (α : Ωⁿ(A, a)) (β : Ωⁿ(C, b, aploop f α)), Ωⁿ(C ∘ f, b, α)
+  hott def overApΩ {A : Type u} {B : Type v} (C : B → Type w) (f : A → B) {a : A} {b : C (f a)} :
+    Π (n : ℕ) (α : Ωⁿ(A, a)) (β : Ωⁿ(C, b, apΩ f α)), Ωⁿ(C ∘ f, b, α)
   | Nat.zero,   x, y => y
-  | Nat.succ n, α, β => @loopOverApTrans (a = a) (λ p, b =[C, ap f p] b) (λ p, b =[C ∘ f, p] b)
+  | Nat.succ n, α, β => @biapdΩ (a = a) (λ p, b =[C, ap f p] b) (λ p, b =[C ∘ f, p] b)
                           (pathOverAp f) (idp a) (idp b) n α
-                            (@loopOverAploop (a = a) (f a = f a) (λ p, b =[C, p] b) (ap f) (idp a) (idp b) n α β)
+                            (@overApΩ (a = a) (f a = f a) (λ p, b =[C, p] b) (ap f) (idp a) (idp b) n α β)
 
-  hott def loopUnderAploop {A : Type u} {B : Type v} (C : B → Type w) (f : A → B) {a : A} {b : C (f a)} :
-    Π (n : ℕ) (α : Ωⁿ(A, a)) (β : Ωⁿ(C ∘ f, b, α)), Ωⁿ(C, b, aploop f α)
+  hott def underApΩ {A : Type u} {B : Type v} (C : B → Type w) (f : A → B) {a : A} {b : C (f a)} :
+    Π (n : ℕ) (α : Ωⁿ(A, a)) (β : Ωⁿ(C ∘ f, b, α)), Ωⁿ(C, b, apΩ f α)
   | Nat.zero,   x, y => y
-  | Nat.succ n, α, β => @loopUnderAploop (a = a) (f a = f a) (λ p, b =[C, p] b) (ap f) (idp a) (idp b) n α
-                          (@loopOverApTrans (a = a) (λ p, b =[C ∘ f, p] b) (λ p, b =[C, ap f p] b)
+  | Nat.succ n, α, β => @underApΩ (a = a) (f a = f a) (λ p, b =[C, p] b) (ap f) (idp a) (idp b) n α
+                          (@biapdΩ (a = a) (λ p, b =[C ∘ f, p] b) (λ p, b =[C, ap f p] b)
                             (pathUnderAp f) (idp a) (idp b) n α β)
 
-  hott def loopConjBase {A : Type u} {B : A → Type v} {a b : A} {u : B a} {n : ℕ}
+  hott def fillΩ {A : Type u} {B : A → Type v} {a b : A} {u : B a} {n : ℕ}
     {α : Ωⁿ(A, a)} (p : a = b) : Ωⁿ(B, u, α) → Ωⁿ(B, transport B p u, α^p) :=
   begin induction p; fapply idfun end
 
-  hott def apdloopConj {A : Type u} {B : A → Type v} (f : Π x, B x) {a b : A} (p : a = b) {n : ℕ}
-    (α : Ωⁿ(A, a)) : apdloop f (α^p) = loopOverConj (apd f p) (loopConjBase p (apdloop f α)) :=
+  hott def fillHaeΩ {A : Type u} {B : A → Type v} {a b : A} {u : B a} {n : ℕ}
+    {α : Ωⁿ(A, a)} (p : a = b) : Ωⁿ(B, transport B p u, α^p) → Ωⁿ(B, u, α) :=
+  begin induction p; fapply idfun end
+
+  hott def fillConjugateΩ {A : Type u} {B : A → Type v} {a b : A} {u : B b} {n : ℕ}
+    {α : Ωⁿ(A, a)} (p : a = b) : Ωⁿ(B, u, α^p) → Ωⁿ(B, transport B p⁻¹ u, α) :=
+  λ β, fillHaeΩ p (conjugateOverΩ (transportBackAndForward p u)⁻¹ β)
+
+  hott def apdConjugateΩ {A : Type u} {B : A → Type v} (f : Π x, B x) {a b : A} (p : a = b) {n : ℕ}
+    (α : Ωⁿ(A, a)) : apdΩ f (α^p) = conjugateOverΩ (apd f p) (fillΩ p (apdΩ f α)) :=
   begin induction p; reflexivity end
 end Equiv
 

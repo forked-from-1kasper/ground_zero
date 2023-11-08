@@ -1366,7 +1366,7 @@ namespace Torus
 end Torus
 
 namespace HigherSphere
-  open GroundZero.HITs.Suspension (north σ)
+  open GroundZero.HITs.Suspension (north merid σ)
 
   hott def base : Π {n : ℕ}, S n
   | Nat.zero   => false
@@ -1374,7 +1374,7 @@ namespace HigherSphere
 
   hott def surf : Π (n : ℕ), Ω[n + 1](S (n + 1))
   | Nat.zero   => Circle.loop
-  | Nat.succ n => loopConj (compInv _) (aploop σ (surf n))
+  | Nat.succ n => conjugateΩ (compInv _) (apΩ σ (surf n))
 
   hott def rec (B : Type u) (b : B) : Π (n : ℕ), Ω[n + 1](B, b) → S (n + 1) → B
   | Nat.zero   => Circle.rec b
@@ -1395,21 +1395,37 @@ namespace HigherSphere
   end
 
   hott theorem recβrule₂ {B : Type u} (b : B) : Π (n : ℕ) (α : Ω[n + 1](B, b)),
-    loopConj (recβrule₁ b α) (aploop (rec B b n α) (surf n)) = α
+    conjugateΩ (recβrule₁ b α) (apΩ (rec B b n α) (surf n)) = α
   | Nat.zero,   _ => Circle.recβrule₂ _ _
   | Nat.succ n, _ =>
   begin
-    show aploop (ap _) (loopConj _ _) = _;
-    transitivity; apply aploopConj; transitivity; apply ap (loopConj _);
-    transitivity; symmetry; apply aploopCom _ σ; apply aploopWithHomotopy;
-    apply σComApRec; transitivity; symmetry; apply conjOfConj;
-    transitivity; apply ap (loopConj _); symmetry; apply conjInvOfConj;
-    apply recβrule₁; transitivity; symmetry; apply conjOfConj;
-    transitivity; apply ap (loopConj _); apply recβrule₂ _ n; apply cancelConj
+    show apΩ (ap _) (conjugateΩ _ _) = _;
+    transitivity; apply apConjugateΩ; transitivity; apply ap (conjugateΩ _);
+    transitivity; symmetry; apply comApΩ _ σ; apply apWithHomotopyΩ;
+    apply σComApRec; transitivity; symmetry; apply conjugateTransΩ;
+    transitivity; apply ap (conjugateΩ _); symmetry; apply conjugateRevRightΩ;
+    apply recβrule₁; transitivity; symmetry; apply conjugateTransΩ;
+    transitivity; apply ap (conjugateΩ _); apply recβrule₂ _ n; apply abelianΩ
   end
+
+  hott lemma indCoh {A : Type u} (B : A → Type v) {a b : A} (p : a = b) (u : B a) :
+    depPathTransSymm (transport (λ p, u =[B, p] u) (compInv p)⁻¹ (idp u)) = idp (subst p u) :=
+  begin induction p; reflexivity end
+
+  hott def ind : Π (n : ℕ) (B : S (n + 1) → Type u) (b : B base), Ω[n + 1](B, b, surf n) → Π x, B x
+  | Nat.zero   => @Circle.ind
+  | Nat.succ n => λ B b ε, Suspension.ind b (transport B (merid base) b)
+    (ind n (λ x, b =[B, merid x] transport B (merid x) b) (idp _) (conjugateOverΩ (indCoh _ _ _)
+      (biapdΩ (λ _, depPathTransSymm) _ _ (overApΩ _ σ _ _ (fillConjugateΩ _ ε)))))
+
+  hott theorem indβrule₁ : Π (n : ℕ) (B : S (n + 1) → Type u) (b : B base) (α : Ω[n + 1](B, b, surf n)), ind n B b α base = b
+  | Nat.zero,   _, _, _ => idp _
+  | Nat.succ _, _, _, _ => idp _
 end HigherSphere
 
 namespace Sphere
+  open GroundZero.HITs.Suspension (σ)
+
   hott def base : S² := HigherSphere.base
 
   hott def surf : idp base = idp base :=
@@ -1425,6 +1441,9 @@ namespace Sphere
     hott corollary recβrule₂ : ap₂ (rec b ε) surf = ε :=
     HigherSphere.recβrule₂ b 1 ε
   end
+
+  hott def cup : S¹ → S¹ → S² :=
+  Circle.rec (λ _, base) (Theorems.funext σ)
 end Sphere
 
 namespace Glome

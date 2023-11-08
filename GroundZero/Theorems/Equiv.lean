@@ -28,51 +28,6 @@ begin
   apply ap g; exact HITs.Merely.uniq (f b) (f a)
 end
 
-hott def mapToHapply {A : Type u} {B : A → Type v}
-  (c : A) (f g : Π x, B x) (p : f = g) :
-  ap (λ (f : Π x, B x), f c) p = happly p c :=
-begin induction p; reflexivity end
-
-hott def mapToHapply₂ {A : Type u} {B : A → Type v} {C : Π x, B x → Type w}
-  (c₁ : A) (c₂ : B c₁) (f g : Π (x : A) (y : B x), C x y) (p : f = g) :
-  ap (λ f, f c₁ c₂) p = happly (happly p c₁) c₂ :=
-begin induction p; reflexivity end
-
-hott def mapToHapply₃ {A : Type u} {B : A → Type v} {C : Π x, B x → Type w}
-  {D : Π x y, C x y → Type w'} (c₁ : A) (c₂ : B c₁) (c₃ : C c₁ c₂) (f g : Π x y z, D x y z) (p : f = g) :
-  ap (λ f, f c₁ c₂ c₃) p = happly (happly (happly p c₁) c₂) c₃ :=
-begin induction p; reflexivity end
-
-hott def mapToHapply₄ {A : Type u} {B : A → Type v} {C : Π x, B x → Type w}
-  {D : Π (x : A) (y : B x), C x y → Type w'} {E : Π (x : A) (y : B x) (z : C x y), D x y z → Type w''}
-  (c₁ : A) (c₂ : B c₁) (c₃ : C c₁ c₂) (c₄ : D c₁ c₂ c₃) (f g : Π x y z w, E x y z w) (p : f = g) :
-  ap (λ f, f c₁ c₂ c₃ c₄) p = happly (happly (happly (happly p c₁) c₂) c₃) c₄ :=
-begin induction p; reflexivity end
-
-hott def happlyFunextPt {A : Type u} {B : A → Type v} {f g : Π x, B x} (H : f ~ g) (x : A) : happly (funext H) x = H x :=
-begin apply happly; apply happlyFunext end
-
-hott def happlyFunextPt₂ {A : Type u} {B : A → Type v} {C : Π x, B x → Type w}
-  {f g : Π x y, C x y} (H : Π x y, f x y = g x y) (c₁ : A) (c₂ : B c₁) :
-  happly (happly (funext (λ x, funext (H x))) c₁) c₂ = H c₁ c₂ :=
-begin transitivity; apply ap (happly · c₂); apply happlyFunextPt; apply happlyFunextPt end
-
-hott def happlyFunextPt₃ {A : Type u} {B : A → Type v} {C : Π x, B x → Type w}
-  {D : Π x y, C x y → Type w'} {f g : Π x y z, D x y z}
-  (H : Π x y z, f x y z = g x y z) (c₁ : A) (c₂ : B c₁) (c₃ : C c₁ c₂) :
-  happly (happly (happly (funext (λ x, funext (λ y, funext (H x y)))) c₁) c₂) c₃ = H c₁ c₂ c₃ :=
-begin transitivity; apply ap (happly · c₃); apply happlyFunextPt₂; apply happlyFunextPt end
-
-hott def happlyFunextPt₄ {A : Type u} {B : A → Type v} {C : Π x, B x → Type w}
-  {D : Π x y, C x y → Type w'} {E : Π x y z, D x y z → Type w''} {f g : Π x y z w, E x y z w}
-  (H : Π x y z w, f x y z w = g x y z w) (c₁ : A) (c₂ : B c₁) (c₃ : C c₁ c₂) (c₄ : D c₁ c₂ c₃) :
-  happly (happly (happly (happly (funext (λ x, funext (λ y, funext (λ z, funext (H x y z))))) c₁) c₂) c₃) c₄ = H c₁ c₂ c₃ c₄ :=
-begin transitivity; apply ap (happly · c₄); apply happlyFunextPt₃; apply happlyFunextPt end
-
-hott def happlyRevPt {A : Type u} {B : A → Type v} {f g : Π x, B x} (p : f = g) (x : A) :
-  happly p⁻¹ x = Homotopy.symm f g (happly p) x :=
-begin apply happly; apply HITs.Interval.happlyRev end
-
 hott def hmtpyRewrite {A : Type u} (f : A → A) (H : f ~ id) (x : A) : H (f x) = ap f (H x) :=
 begin have p := (Theorems.funext H)⁻¹; induction p; symmetry; apply Equiv.idmap end
 
