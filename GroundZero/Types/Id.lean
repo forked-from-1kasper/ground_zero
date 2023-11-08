@@ -169,14 +169,32 @@ namespace Id
   macro:max "Ω" n:superscript "(" τ:term ")" : term => do
     `(Loop (pointOf $τ) $(← Meta.Notation.parseSuperscript n))
 
-  macro:max "Ω" n:superscript "(" τ:term "," ε:term ")" : term => do
+  macro:max "Ω" n:superscript "(" τ:term ", " ε:term ")" : term => do
     `(@Loop $τ $ε $(← Meta.Notation.parseSuperscript n))
 
   macro:max "Ω" "[" n:term "]" "(" τ:term ")" : term => do
     `(Loop (pointOf $τ) $n)
 
-  macro:max "Ω" "[" n:term "]" "(" τ:term "," ε:term ")" : term => do
+  macro:max "Ω" "[" n:term "]" "(" τ:term ", " ε:term ")" : term => do
     `(@Loop $τ $ε $n)
+
+  section
+    open Lean Lean.PrettyPrinter.Delaborator
+
+    def isPointOf (e : Expr) := e.isAppOfArity' `GroundZero.Types.Id.pointOf 2
+
+    @[delab app.GroundZero.Types.Id.Loop]
+    def delabLoop : Delab := whenPPOption Lean.getPPNotation do {
+      let ε ← SubExpr.getExpr;
+      guard (ε.isAppOfArity' `GroundZero.Types.Id.Loop 3);
+
+      let B ← SubExpr.withNaryArg 0 delab;
+      let b ← SubExpr.withNaryArg 1 delab;
+      let n ← SubExpr.withNaryArg 2 delab;
+
+      if isPointOf (ε.getArg! 1) then `(Ω[$n]($B)) else `(Ω[$n]($B, $b))
+    }
+  end
 
   hott def idΩ {B : Type u} (b : B) : Π n, Ωⁿ(B, b)
   | Nat.zero   => b

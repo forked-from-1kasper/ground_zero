@@ -4,6 +4,11 @@ open Lean.PrettyPrinter.Delaborator
 
 namespace GroundZero.Meta.Notation
 
+@[app_unexpander Nat.succ]
+def natSuccUnexpander : Lean.PrettyPrinter.Unexpander
+| `($_ $n) => `($n + 1)
+| _        => throw ()
+
 syntax "Π " many1(ppSpace (binderIdent <|> bracketedBinder)) ", " term : term
 macro_rules | `(Π $xs*, $y) => `(∀ $xs*, $y)
 
@@ -16,7 +21,7 @@ def delabPi : Delab := whenPPOption Lean.getPPNotation do {
   | stx                                           => pure stx
 }
 
-macro "λ " xs:many1(funBinder) ", " f:term : term => `(fun $xs* => $f)
+macro "λ " xs:(ppSpace funBinder)+ ", " f:term : term => `(fun $xs* => $f)
 
 @[delab lam]
 def delabLambda : Delab := whenPPOption Lean.getPPNotation do {
@@ -33,8 +38,8 @@ section
   def delabSig : Delab := whenPPOption Lean.getPPNotation do {
     match (← delabSigma) with
     | `($group:bracketedExplicitBinders × Σ $groups*, $body) => `(Σ $group:bracketedExplicitBinders $groups*, $body)
-    | `($group:bracketedExplicitBinders × $body) => `(Σ $group:bracketedExplicitBinders, $body)
-    | stx => pure stx
+    | `($group:bracketedExplicitBinders × $body)             => `(Σ $group:bracketedExplicitBinders, $body)
+    | stx                                                    => pure stx
   }
 end
 

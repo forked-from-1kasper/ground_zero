@@ -619,11 +619,16 @@ namespace Equiv
   | Nat.zero,   x => B x
   | Nat.succ n, α => @LoopOver (a = a) (λ p, b =[p] b) (idp a) (idp b) n α
 
-  macro:max "Ω" n:superscript "(" τ:term "," ε:term "," η:term ")" : term => do
+  macro:max "Ω" n:superscript "(" τ:term ", " ε:term ", " η:term ")" : term => do
     `(@LoopOver _ $τ _ $ε $(← Meta.Notation.parseSuperscript n) $η)
 
-  macro:max "Ω" "[" n:term "]" "(" τ:term "," ε:term "," η:term ")" : term => do
+  macro:max "Ω" "[" n:term "]" "(" τ:term ", " ε:term ", " η:term ")" : term => do
     `(@LoopOver _ $τ _ $ε $n $η)
+
+  @[app_unexpander LoopOver]
+  def loopOverUnexpander : Lean.PrettyPrinter.Unexpander
+  | `($_ $B $b $n $α) => `(Ω[$n]($B, $b, $α))
+  | _                 => throw ()
 
   hott def apdΩ {A : Type u} {B : A → Type v} (f : Π x, B x)
     {a : A} : Π {n : ℕ} (α : Ωⁿ(A, a)), Ωⁿ(B, f a, α)
