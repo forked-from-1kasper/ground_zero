@@ -87,7 +87,7 @@ namespace K1
   noncomputable def KΩ (G : Group) : Group :=
   @Group.intro (Ω¹(K1 G)) (grpd _ _) KΩ.mul KΩ.inv KΩ.one
     (λ _ _ _, Id.inv (Id.assoc _ _ _))
-    Id.reflLeft Id.reflRight Id.invComp
+    Id.lid Id.rid Id.invComp
 
   noncomputable def homomorphism : Group.Hom G (KΩ G) :=
   Group.mkhomo loop loop.mul
@@ -163,7 +163,7 @@ namespace K1
       transitivity; apply ap (· ⬝ loop x); apply loop.mul;
       transitivity; symmetry; apply Id.assoc;
       transitivity; apply ap; apply ap (· ⬝ loop x); apply loop.inv;
-      transitivity; apply ap; apply Id.invComp; apply Id.reflRight };
+      transitivity; apply ap; apply Id.invComp; apply Id.rid };
     { apply zeroEqvSet.forward; apply piRespectsNType 0;
       intro; apply zeroEqvSet.left; apply grpd };
     { apply oneEqvGroupoid.forward;

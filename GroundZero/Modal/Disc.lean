@@ -71,7 +71,7 @@ begin
     transitivity; apply Id.ap (· ⬝ _); apply Id.assoc;
     transitivity; symmetry; apply Id.assoc;
     transitivity; apply Id.ap; apply Id.invComp;
-    transitivity; apply Id.reflRight; apply bimap;
+    transitivity; apply Id.rid; apply bimap;
     { transitivity; apply Id.ap; apply Id.mapInv; apply Id.invInv };
     { apply Id.invInv } }
 end

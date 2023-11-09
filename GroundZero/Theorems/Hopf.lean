@@ -65,7 +65,7 @@ namespace Real
   begin
     fapply Suspension.ind; reflexivity; apply Suspension.merid true;
     intro (b : 𝟐); apply Id.trans; apply Equiv.transportOverHmtpy;
-    transitivity; apply ap (· ⬝ _); transitivity; apply Id.reflRight;
+    transitivity; apply ap (· ⬝ _); transitivity; apply Id.rid;
     transitivity; apply Id.mapInv; apply ap; transitivity; apply Equiv.mapOverComp;
     apply ap (ap map); apply Suspension.recβrule; induction b;
     { transitivity; apply ap (· ⬝ _); transitivity; apply ap; apply Sigma.mapFstOverProd;

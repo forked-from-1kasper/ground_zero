@@ -309,7 +309,7 @@ begin
     { transitivity; apply transportOverPi; apply Theorems.funext; intro;
       transitivity; apply transportOverPi; apply Theorems.funext; intro;
       transitivity; apply transportOverContrMap;
-      transitivity; apply Id.reflRight;
+      transitivity; apply Id.rid;
       transitivity; apply Id.mapInv;
       transitivity; apply ap Id.inv;
       transitivity; apply mapToHapply₄;

@@ -10,19 +10,19 @@ open GroundZero
 namespace GroundZero.HITs
 universe u v w u' v'
 
-hott def Quot {A : Type u} (R : A → A → propset.{v}) := ∥Graph (λ x y, (R x y).1)∥₀
+hott def Quot {A : Type u} (R : A → A → Prop v) := ∥Graph (λ x y, (R x y).1)∥₀
 
-hott def Quot.elem {A : Type u} {R : A → A → propset.{v}} : A → Quot R :=
+hott def Quot.elem {A : Type u} {R : A → A → Prop v} : A → Quot R :=
 Trunc.elem ∘ Graph.elem
 
-hott def Quot.sound {A : Type u} {R : A → A → propset.{v}} {a b : A} :
+hott def Quot.sound {A : Type u} {R : A → A → Prop v} {a b : A} :
   (R a b).1 → @Id (Quot R) (Quot.elem a) (Quot.elem b) :=
 begin intro H; apply ap Trunc.elem; apply Graph.line; assumption end
 
-noncomputable hott def Quot.set {A : Type u} {R : A → A → propset.{v}} : hset (Quot R) :=
+noncomputable hott def Quot.set {A : Type u} {R : A → A → Prop v} : hset (Quot R) :=
 zeroEqvSet.forward (Trunc.uniq 0)
 
-hott def Quot.ind {A : Type u} {R : A → A → propset.{u'}} {π : Quot R → Type v}
+hott def Quot.ind {A : Type u} {R : A → A → Prop u'} {π : Quot R → Type v}
   (elemπ : Π x, π (Quot.elem x))
   (lineπ : Π x y H, elemπ x =[Quot.sound H] elemπ y)
   (set   : Π x, hset (π x)) : Π x, π x :=
@@ -37,11 +37,11 @@ end
 
 attribute [eliminator] Quot.ind
 
-hott def Quot.rec {A : Type u} {R : A → A → propset.{u'}} {B : Type v}
+hott def Quot.rec {A : Type u} {R : A → A → Prop u'} {B : Type v}
   (elemπ : A → B) (lineπ : Π x y, (R x y).fst → elemπ x = elemπ y) (set : hset B) : Quot R → B :=
 @Quot.ind A R (λ _, B) elemπ (λ x y H, Equiv.pathoverOfEq (Quot.sound H) (lineπ x y H)) (λ _, set)
 
-hott def Quot.lift₂ {A : Type u} {R₁ : A → A → propset.{u'}} {B : Type v} {R₂ : B → B → propset.{v'}}
+hott def Quot.lift₂ {A : Type u} {R₁ : A → A → Prop u'} {B : Type v} {R₂ : B → B → Prop v'}
   {γ : Type w} (R₁refl : Π x, (R₁ x x).fst) (R₂refl : Π x, (R₂ x x).fst) (f : A → B → γ)
   (h : hset γ) (p : Π a₁ a₂ b₁ b₂, (R₁ a₁ b₁).fst → (R₂ a₂ b₂).fst → f a₁ a₂ = f b₁ b₂) : Quot R₁ → Quot R₂ → γ :=
 begin

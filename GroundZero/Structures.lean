@@ -16,17 +16,31 @@ namespace Structures
 hott def isLoop {A : Type u} {a : A} (p : a = a) := ¬(p = idp a)
 
 hott def prop (A : Type u) := Π (a b : A), a = b
-
-hott def propset := Σ (A : Type u), prop A
-
-macro (priority := high) "Prop" : term => `(propset)
-macro (priority := high) "Prop" n:level : term => `(propset.{$n})
-
 hott def hset (A : Type u) := Π (a b : A) (p q : a = b), p = q
-hott def Ens := Σ A, hset A
 
 hott def groupoid (A : Type u) :=
 Π (a b : A) (p q : a = b) (A B : p = q), A = B
+
+hott def propset := Σ (A : Type u), prop A
+hott def hsetset := Σ (A : Type u), hset A
+
+macro (priority := high) "Prop" : term => `(propset)
+macro (priority := high) "Prop" n:(ppSpace level:max) : term => `(propset.{$n})
+
+macro "Set" : term => `(hsetset)
+macro "Set" n:(ppSpace level:max) : term => `(hsetset.{$n})
+
+section
+  open Lean Lean.PrettyPrinter.Delaborator
+
+  @[delab app.GroundZero.Structures.propset]
+  def delabPropSet : Delab :=
+  Meta.Notation.delabCustomSort `(Prop) (λ n, `(Prop $n))
+
+  @[delab app.GroundZero.Structures.hsetset]
+  def delabHSetSet : Delab :=
+  Meta.Notation.delabCustomSort `(Set) (λ n, `(Set $n))
+end
 
 hott def dec (A : Type u) := A + ¬A
 
@@ -413,7 +427,7 @@ begin
   apply Types.Id.transCancelLeft (f a a (ρ a));
   transitivity; symmetry; apply Types.Equiv.transportComposition;
   transitivity; apply Types.Equiv.liftedHapply (R a); apply Types.Equiv.apd (f a) p;
-  transitivity; apply ap (f a a) (h _ _ _ (ρ a)); symmetry; apply Types.Id.reflRight
+  transitivity; apply ap (f a a) (h _ _ _ (ρ a)); symmetry; apply Types.Id.rid
 end
 
 hott def doubleNegEq {A : Type u} (h : Π (x y : A), ¬¬(x = y) → x = y) : hset A :=
@@ -447,8 +461,6 @@ end
 
 hott corollary boolIsSet : hset 𝟐 :=
 Hedberg boolDecEq
-
-
 
 section
   open GroundZero.Types.Not (univ)
@@ -583,7 +595,7 @@ namespace Theorems
   begin
     induction p; symmetry; transitivity; apply Types.Equiv.transportOverHmtpy;
     transitivity; apply ap (· ⬝ ap (λ (h : A → B), h a) (funext q));
-    apply Id.reflRight; transitivity; symmetry; apply mapFunctoriality (λ (h : A → B), h a);
+    apply Id.rid; transitivity; symmetry; apply mapFunctoriality (λ (h : A → B), h a);
     transitivity; apply ap; apply Id.invComp; reflexivity
   end
 
@@ -700,7 +712,7 @@ hott def Finite := iter 𝟏 𝟎
 @[match_pattern] def Finite.succ {n : ℕ} : Finite n → Finite (n + 1) := Sum.inl
 
 open Structures (prop propset)
-hott def hrel (A : Type u) := A → A → propset.{v}
+hott def hrel (A : Type u) := A → A → Prop v
 
 def LEMinf := Π (A : Type u), A + ¬A
 macro "LEM∞" : term => `(LEMinf)
@@ -758,7 +770,7 @@ begin
     apply Theorems.funext; intro;
     apply (R _ _).2 };
   { intros f g;
-     apply Theorems.funext; intro;
+    apply Theorems.funext; intro;
     apply Theorems.funext; intro;
     apply Theorems.funext; intro;
     apply Theorems.funext; intro;
@@ -883,14 +895,14 @@ namespace Types.Id
     α^p = conjugateΩ (apd idp p) (apΩ (transport (λ x, x = x) p) α) :=
   begin induction p; symmetry; apply idmapΩ end
 
-  hott def higherTransportIdfun {A : Type u} {a : A} (ε : idp a = idp a) :
+  hott lemma transportAbelian {A : Type u} {a : A} (ε : idp a = idp a) :
     transport (λ x, x = x) ε ~ λ x, x :=
   λ _, transportInvCompComp _ _ ⬝ cancelHigherConjLeft _ _
 
-  hott def abelianΩ {A : Type u} {a : A} (p : idp a = idp a) :
+  hott theorem abelianΩ {A : Type u} {a : A} (p : idp a = idp a) :
     Π (n : ℕ) (α : Ω[n + 1](a = a, idp a)), α^p = α
-  | Nat.zero,   _ => higherTransportIdfun _ _
-  | Nat.succ n, _ => conjugateSuccΩ _ _ _ ⬝ ap (conjugateΩ (apd idp p)) (apWithHomotopyΩ (higherTransportIdfun _) _ _) ⬝
+  | Nat.zero,   _ => transportAbelian _ _
+  | Nat.succ n, _ => conjugateSuccΩ _ _ _ ⬝ ap (conjugateΩ (apd idp p)) (apWithHomotopyΩ (transportAbelian _) _ _) ⬝
                      (conjugateTransΩ _ _ (n + 1) _)⁻¹ ⬝ abelianΩ _ _ _ ⬝ idmapΩ _ _
 
   hott def comApΩ {A : Type u} {B : Type v} {C : Type w} (f : B → C) (g : A → B) {a : A} :

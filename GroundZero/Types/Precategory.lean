@@ -76,8 +76,8 @@ namespace Precategory
     set      := H,
     id       := idp _,
     comp     := λ p q, q ⬝ p,
-    idRight  := λ p, (Id.reflLeft p)⁻¹,
-    idLeft   := λ p, (Id.reflRight p)⁻¹,
+    idRight  := λ p, (Id.lid p)⁻¹,
+    idLeft   := λ p, (Id.rid p)⁻¹,
     assoc    := λ f g h, (Id.assoc f g h)⁻¹ }
 
   hott def univalent {A : Type u} (𝒞 : Precategory A) :=

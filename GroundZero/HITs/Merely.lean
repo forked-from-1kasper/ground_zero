@@ -89,7 +89,7 @@ namespace Merely
     glue⁻¹ ⬝ ap incl (ap (Generalized.dep A n) p) ⬝ glue = ap incl p :=
   begin
     induction p; transitivity; { symmetry; apply Id.assoc };
-    apply Equiv.rewriteComp; symmetry; apply Id.reflRight
+    apply Equiv.rewriteComp; symmetry; apply Id.rid
   end
 
   hott def congOverPath {A : Type u} {n : ℕ} {a b : Generalized.rep A n}

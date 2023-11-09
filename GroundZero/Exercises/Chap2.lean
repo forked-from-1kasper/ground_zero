@@ -233,4 +233,4 @@ begin induction p; reflexivity end
 
 hott def transportSquare {A : Type u} {B : A → Type v} {f g : Π x, B x} (H : f ~ g) {x y : A} (p : x = y) :
   ap (transport B p) (H x) ⬝ apd g p = apd f p ⬝ H y :=
-begin induction p; transitivity; apply Id.reflRight; apply Equiv.idmap end
+begin induction p; transitivity; apply Id.rid; apply Equiv.idmap end

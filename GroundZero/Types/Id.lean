@@ -58,20 +58,20 @@ namespace Id
     (p : a = b) (w : B b (idp b)) : J₁ B w p⁻¹ = J₂ (λ x q, B x q⁻¹) w p :=
   begin induction p; reflexivity end
 
+  hott def lid {A : Type u} {a b : A} (p : a = b) : idp a ⬝ p = p :=
+  begin induction p; reflexivity end
+
+  hott def rid {A : Type u} {a b : A} (p : a = b) : p ⬝ idp b = p :=
+  begin induction p; reflexivity end
+
   hott def compInv {A : Type u} {a b : A} (p : a = b) : p ⬝ p⁻¹ = idp a :=
   begin induction p; reflexivity end
 
   hott def invComp {A : Type u} {a b : A} (p : a = b) : p⁻¹ ⬝ p = idp b :=
   begin induction p; reflexivity end
 
-  hott def reflLeft {A : Type u} {a b : A} (p : a = b) : idp a ⬝ p = p :=
-  begin induction p; reflexivity end
-
-  hott def reflRight {A : Type u} {a b : A} (p : a = b) : p ⬝ idp b = p :=
-  begin induction p; reflexivity end
-
   hott def reflTwice {A : Type u} {a b : A} (p : a = b) : idp a ⬝ p ⬝ idp b = p :=
-  begin induction p; reflexivity end
+  by apply rid
 
   hott def explodeInv {A : Type u} {a b c : A} (p : a = b) (q : b = c) : (p ⬝ q)⁻¹ = q⁻¹ ⬝ p⁻¹ :=
   begin induction p; induction q; reflexivity end
@@ -97,10 +97,10 @@ namespace Id
   begin induction p; reflexivity end
 
   hott def cancelCompInv {A : Type u} {a b c : A} (p : a = b) (q : b = c) : (p ⬝ q) ⬝ q⁻¹ = p :=
-  (assoc p q q⁻¹)⁻¹ ⬝ ap (trans p) (compInv q) ⬝ reflRight p
+  (assoc p q q⁻¹)⁻¹ ⬝ ap (trans p) (compInv q) ⬝ rid p
 
   hott def cancelInvComp {A : Type u} {a b c : A} (p : a = b) (q : c = b) : (p ⬝ q⁻¹) ⬝ q = p :=
-  (assoc p q⁻¹ q)⁻¹ ⬝ ap (trans p) (invComp q) ⬝ reflRight p
+  (assoc p q⁻¹ q)⁻¹ ⬝ ap (trans p) (invComp q) ⬝ rid p
 
   hott def compInvCancel {A : Type u} {a b c : A} (p : a = b) (q : a = c) : p ⬝ (p⁻¹ ⬝ q) = q :=
   assoc p p⁻¹ q ⬝ ap (· ⬝ q) (compInv p)
@@ -118,8 +118,8 @@ namespace Id
 
   hott def transCancelRight {A : Type u} {a b c : A} (r : b = c) (p q : a = b) : p ⬝ r = q ⬝ r → p = q :=
   begin
-    intro μ; induction r; transitivity; { symmetry; apply reflRight };
-    symmetry; transitivity; { symmetry; apply reflRight }; exact μ⁻¹
+    intro μ; induction r; transitivity; { symmetry; apply rid };
+    symmetry; transitivity; { symmetry; apply rid }; exact μ⁻¹
   end
 
   section
@@ -145,7 +145,15 @@ namespace Id
   hott def Pointed := Σ (A : Type u), A
 
   macro "Type⁎" : term => `(Pointed)
-  macro "Type⁎" n:level : term => `(Pointed.{$n})
+  macro "Type⁎" n:(ppSpace level:max) : term => `(Pointed.{$n})
+
+  section
+    open Lean.PrettyPrinter.Delaborator
+
+    @[delab app.GroundZero.Types.Id.Pointed]
+    def delabPropSet : Delab :=
+    Meta.Notation.delabCustomSort `(Type⁎) (λ n, `(Type⁎ $n))
+  end
 
   abbrev Pointed.space : Type⁎ u → Type u := Sigma.fst
   abbrev Pointed.point : Π (A : Type⁎ u), A.space := Sigma.snd
@@ -225,12 +233,12 @@ namespace Whiskering
   variable {A : Type u} {a b c : A}
 
   hott def rwhs {p q : a = b} (ν : p = q) (r : b = c) : p ⬝ r = q ⬝ r :=
-  begin induction r; apply (Id.reflRight p) ⬝ ν ⬝ (Id.reflRight q)⁻¹ end
+  begin induction r; apply (Id.rid p) ⬝ ν ⬝ (Id.rid q)⁻¹ end
 
   infix:60 " ⬝ᵣ " => rwhs
 
   hott def lwhs {r s : b = c} (q : a = b) (κ : r = s) : q ⬝ r = q ⬝ s :=
-  begin induction q; exact (Id.reflLeft r) ⬝ κ ⬝ (Id.reflLeft s)⁻¹ end
+  begin induction q; exact (Id.lid r) ⬝ κ ⬝ (Id.lid s)⁻¹ end
 
   infix:60 " ⬝ₗ " => lwhs
 

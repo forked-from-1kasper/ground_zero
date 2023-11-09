@@ -9,7 +9,7 @@ namespace GroundZero.Algebra
 
 noncomputable def ZΩ : Group :=
 Group.intro (Circle.isGroupoid Circle.base Circle.base) Id.trans Id.inv Id.refl
-  (λ a b c, (Id.assoc a b c)⁻¹) Id.reflLeft Id.reflRight Id.invComp
+  (λ a b c, (Id.assoc a b c)⁻¹) Id.lid Id.rid Id.invComp
 
 noncomputable def ZΩ.abelian : ZΩ.isCommutative := Circle.comm
 

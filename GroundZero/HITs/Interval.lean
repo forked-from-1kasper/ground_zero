@@ -31,7 +31,7 @@ namespace Interval
   rec (φ false) (φ true) (H _ _)
 
   hott def contrLeft : Π i, i₀ = i :=
-  Interval.ind (idp i₀) seg (begin apply pathoverFromTrans; apply Id.reflLeft end)
+  Interval.ind (idp i₀) seg (begin apply pathoverFromTrans; apply Id.lid end)
 
   hott def contrRight : Π i, i₁ = i :=
   Interval.ind seg⁻¹ (idp i₁) (begin apply pathoverFromTrans; apply Id.invComp end)
@@ -108,7 +108,7 @@ namespace Interval
             apply recβrule end
     ... = seg⁻¹ ⬝ seg :
       begin apply ap (· ⬝ seg);
-            apply Id.reflRight end
+            apply Id.rid end
     ... = idp i₁ : by apply Id.invComp)
 
   hott def negNeg' (x : I) : neg (neg x) = x :=
@@ -124,7 +124,7 @@ namespace Interval
     reflexivity; reflexivity; change _ = _;
     transitivity; apply Equiv.transportOverHmtpy;
     transitivity; apply ap (· ⬝ ap p seg);
-    transitivity; apply Id.reflRight;
+    transitivity; apply Id.rid;
     transitivity; apply Id.mapInv; apply ap;
     apply recβrule; apply Id.invComp
   end

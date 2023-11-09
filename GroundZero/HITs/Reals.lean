@@ -82,7 +82,7 @@ namespace Reals
     induction n using Nat.casesOn; apply Id.invComp;
     { transitivity; symmetry; apply Id.assoc;
       transitivity; apply ap; apply Id.invComp;
-      apply Id.reflRight }
+      apply Id.rid }
   end)⟩
 
   hott def dist : Π (u v : R), u = v :=

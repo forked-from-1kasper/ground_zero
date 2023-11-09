@@ -140,7 +140,7 @@ namespace «4.3»
       apply ap (·⁻¹⁻¹); symmetry; apply e.2.2.2;
       apply ap (_ ⬝ · ⬝ _); apply Equiv.mapOverComp };
     { intro p; induction p; transitivity; apply ap (· ⬝ _);
-      apply Id.reflRight; apply Id.invComp }
+      apply Id.rid; apply Id.invComp }
   end
 
   hott lemma embdOfQinv : qinv f → isEmbedding f :=
@@ -222,7 +222,7 @@ namespace «4.4»
     apply transport (@Sigma _ · ≃ _); apply Theorems.funext;
     intro e; symmetry; apply ap (fib idfun);
     transitivity; apply Equiv.transportOverContrMap;
-    transitivity; apply Id.reflRight; apply ap (ap g); apply Id.invInv;
+    transitivity; apply Id.rid; apply ap (ap g); apply Id.invInv;
     apply Equiv.trans; apply Sigma.respectsEquiv;
     { intro; apply Equiv.trans; apply Sigma.hmtpyInvEqv;
       apply Structures.contrEquivUnit.{_, 0}; apply singl.contr };

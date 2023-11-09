@@ -284,10 +284,10 @@ hott def field.mulRightInv (T : Prering) [field T] {x : T.carrier}
   (p : T.isproper x) : x * x⁻¹ = 1 :=
 ap Sigma.fst (Tˣ.mulRightInv ⟨x, p⟩)
 
-class lid (T : Prering) [ring T] (φ : T⁺.subgroup) :=
+class Lid (T : Prering) [ring T] (φ : T⁺.subgroup) :=
 (ideal : Π r i, i ∈ φ.set → T.ψ r i ∈ φ.set)
 
-class rid (T : Prering) [ring T] (φ : T⁺.subgroup) :=
+class Rid (T : Prering) [ring T] (φ : T⁺.subgroup) :=
 (ideal : Π i r, i ∈ φ.set → T.ψ i r ∈ φ.set)
 
 class ideal (T : Prering) [ring T] (φ : T⁺.subgroup) :=
@@ -295,8 +295,8 @@ class ideal (T : Prering) [ring T] (φ : T⁺.subgroup) :=
 (right : Π i r, i ∈ φ.set → T.ψ i r ∈ φ.set)
 
 instance ideal.auto (T : Prering) [ring T]
-  (φ : T⁺.subgroup) [lid T φ] [rid T φ] : ideal T φ :=
-⟨lid.ideal, rid.ideal⟩
+  (φ : T⁺.subgroup) [Lid T φ] [Rid T φ] : ideal T φ :=
+⟨Lid.ideal, Rid.ideal⟩
 
 namespace Ring
   variable (T : Prering) [ring T] (φ : T⁺.subgroup) [ideal T φ]

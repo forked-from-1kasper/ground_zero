@@ -71,7 +71,7 @@ namespace Equiv
   hott def homotopySquare {A : Type u} {B : Type v}
     {f g : A → B} (H : f ~ g) {x y : A} (p : x = y) :
     H x ⬝ ap g p = ap f p ⬝ H y :=
-  begin induction p; transitivity; apply Id.reflRight; apply Id.reflLeft end
+  begin induction p; apply Id.rid end
 end Equiv
 
 def Equiv (A : Type u) (B : Type v) : Type (max u v) :=
@@ -161,7 +161,7 @@ namespace Equiv
 
   hott def JTrans {A : Type} {a : A} (B : Π x, a = x → Type v)
     {b c : A} (p : a = b) (q : b = c) (w : B a (idp a)) :
-      J₁ B w (p ⬝ q) = J₁ (λ x r, B x (p ⬝ r)) (subst (Id.reflRight _)⁻¹ (@Id.rec A a B w b p)) q :=
+      J₁ B w (p ⬝ q) = J₁ (λ x r, B x (p ⬝ r)) (subst (Id.rid _)⁻¹ (@Id.rec A a B w b p)) q :=
   begin induction p; induction q; reflexivity end
 
   hott def compInvCancelCoh {A : Type u} {a b : A} {B : a = b → Type v} (p : a = b) (w : B p) :
@@ -262,7 +262,7 @@ namespace Equiv
 
   hott theorem transportComposition {A : Type u} {a x₁ x₂ : A}
     (p : x₁ = x₂) (q : a = x₁) : transport (Id a) p q = q ⬝ p :=
-  begin induction p; symmetry; apply Id.reflRight end
+  begin induction p; symmetry; apply Id.rid end
 
   hott theorem transportCompositionRev {A : Type u} {a x₁ x₂ : A}
     (p : x₁ = x₂) (q : x₁ = a) : transport (· = a) p q = p⁻¹ ⬝ q :=
@@ -294,7 +294,7 @@ namespace Equiv
 
   hott lemma invCompRewrite {A : Type u} {a b c : A}
     {p : a = b} {q : b = c} {r : a = c} (h : p ⬝ q = r) : p = r ⬝ q⁻¹ :=
-  begin induction q; exact (Id.reflRight p)⁻¹ ⬝ h ⬝ (Id.reflRight r)⁻¹ end
+  begin induction q; exact (Id.rid p)⁻¹ ⬝ h ⬝ (Id.rid r)⁻¹ end
 
   hott lemma cancelHigherConjLeft {A : Type u} {a b : A} {p : a = b} (ν κ : p = p) : κ⁻¹ ⬝ ν ⬝ κ = ν :=
   begin transitivity; symmetry; apply Id.assoc; apply rewriteComp; apply Whiskering.comm end
@@ -304,19 +304,19 @@ namespace Equiv
 
   hott corollary cancelDoubleConjLeftLeft {A : Type u} {a b : A} {p q : a = b}
     (ν : p = p) (κ : p = q) (ε : q = p) : ε⁻¹ ⬝ (κ⁻¹ ⬝ ν ⬝ κ) ⬝ ε = ν :=
-  begin induction ε; transitivity; apply Id.reflRight; apply cancelHigherConjLeft end
+  begin induction ε; transitivity; apply Id.rid; apply cancelHigherConjLeft end
 
   hott corollary cancelDoubleConjRightRight {A : Type u} {a b : A} {p q : a = b}
     (ν : q = q) (κ : p = q) (ε : q = p) : ε ⬝ (κ ⬝ ν ⬝ κ⁻¹) ⬝ ε⁻¹ = ν :=
-  begin induction ε; transitivity; apply Id.reflRight; apply cancelHigherConjRight end
+  begin induction ε; transitivity; apply Id.rid; apply cancelHigherConjRight end
 
   hott corollary cancelDoubleConjRightLeft {A : Type u} {a b : A} {p q : a = b}
     (ν : q = q) (κ : q = p) (ε : q = p) : ε ⬝ (κ⁻¹ ⬝ ν ⬝ κ) ⬝ ε⁻¹ = ν :=
-  begin induction ε; transitivity; apply Id.reflRight; apply cancelHigherConjLeft end
+  begin induction ε; transitivity; apply Id.rid; apply cancelHigherConjLeft end
 
   hott corollary cancelDoubleConjLeftRight {A : Type u} {a b : A} {p q : a = b}
     (ν : q = q) (κ : p = q) (ε : p = q) : ε⁻¹ ⬝ (κ ⬝ ν ⬝ κ⁻¹) ⬝ ε = ν :=
-  begin induction ε; transitivity; apply Id.reflRight; apply cancelHigherConjRight end
+  begin induction ε; transitivity; apply Id.rid; apply cancelHigherConjRight end
 
   hott def idConjIfComm {A : Type u} {a b : A} (p : a = b) (q : a = a) (r : b = b) :
     p ⬝ r = q ⬝ p → q⁻¹ ⬝ p ⬝ r = p :=
@@ -336,7 +336,7 @@ namespace Equiv
 
   hott lemma transportInvCompComp {A : Type u} {a b : A} (p : a = b) (q : a = a) :
     Equiv.transport (λ x, x = x) p q = p⁻¹ ⬝ q ⬝ p :=
-  begin induction p; symmetry; apply Id.reflRight end
+  begin induction p; symmetry; apply Id.rid end
 
   hott theorem mapFunctoriality {A : Type u} {B : Type v}
     {a b c : A} (f : A → B) {p : a = b} {q : b = c} :
@@ -361,15 +361,15 @@ namespace Equiv
   hott lemma transportOverInvContrMap {A : Type u} {B : Type v} {a b : A} {c : B}
     (f : A → B) (p : a = b) (q : c = f a) :
     transport (λ x, c = f x) p q = q ⬝ ap f p :=
-  begin induction p; symmetry; apply Id.reflRight end
+  begin induction p; symmetry; apply Id.rid end
 
   hott lemma transportOverInvolution {A : Type u} {a b : A} (f : A → A) (p : a = b) (q : f a = a) :
     transport (λ x, f x = x) p q = ap f p⁻¹ ⬝ q ⬝ p :=
-  begin induction p; symmetry; apply Id.reflRight end
+  begin induction p; symmetry; apply Id.rid end
 
   hott lemma transportOverHmtpy {A : Type u} {B : Type v} {a b : A} (f g : A → B) (p : a = b) (q : f a = g a) :
     transport (λ x, f x = g x) p q = ap f p⁻¹ ⬝ q ⬝ ap g p :=
-  begin induction p; symmetry; apply Id.reflRight end
+  begin induction p; symmetry; apply Id.rid end
 
   hott lemma idmap {A : Type u} {a b : A} (p : a = b) : ap idfun p = p :=
   begin induction p; reflexivity end
@@ -381,7 +381,7 @@ namespace Equiv
   hott theorem transportOverDhmtpy {A : Type u} {B : A → Type v} {a b : A}
     (f g : Π x, B x) (p : a = b) (q : f a = g a) :
     transport (λ x, f x = g x) p q = (apd f p)⁻¹ ⬝ ap (subst p) q ⬝ apd g p :=
-  begin induction p; symmetry; transitivity; apply Id.reflRight; apply idmap end
+  begin induction p; symmetry; transitivity; apply Id.rid; apply idmap end
 
   hott theorem mapOverComp {A : Type u} {B : Type v} {C : Type w} {a b : A}
     (f : A → B) (g : B → C) (p : a = b) :
@@ -568,7 +568,7 @@ namespace Equiv
     (p : a = b) (q : u =[B₁, p] v) : biapd φ p q = conjugateOver (λ x y, (H x y)⁻¹) (biapd ψ p q) :=
   begin
     induction p; induction q using J₁; symmetry; transitivity;
-    apply ap (· ⬝ _); apply Id.reflRight; apply Id.invComp
+    apply ap (· ⬝ _); apply Id.rid; apply Id.invComp
   end
 
   hott lemma biapdIdfun {A : Type u} {B : A → Type v} {a b : A}

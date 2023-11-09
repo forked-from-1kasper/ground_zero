@@ -16,7 +16,7 @@ axiom choice {A : Type u} (B : A → Type v) (η : Π x, B x → Type w) :
   ∥(Σ (φ : Π x, B x), Π x, η x (φ x))∥
 
 noncomputable hott def choiceOfRel {A : Type u} {B : Type v}
-  (R : A → B → propset.{w}) (H : hset A) (G : hset B) :
+  (R : A → B → Prop w) (H : hset A) (G : hset B) :
   (Π x, ∥(Σ y, (R x y).fst)∥) → ∥(Σ (φ : A → B), Π x, (R x (φ x)).fst)∥ :=
 begin
   apply @choice A (λ _, B) (λ x y, (R x y).1);

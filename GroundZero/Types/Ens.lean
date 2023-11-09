@@ -87,7 +87,7 @@ begin
   { intro; apply propIsSet; apply s.2 }
 end
 
-hott def predicate (A : Type u) := A → propset.{v}
+hott def predicate (A : Type u) := A → Prop v
 
 hott def Ens.eqvPredicate {A : Type u} : Ens A ≃ predicate A :=
 begin
