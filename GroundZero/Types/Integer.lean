@@ -46,12 +46,12 @@ hott def pred : ℤ → ℤ
 | neg u => neg (u + 1)
 | pos v => auxpred v
 
-hott def succPred : Π z, succ (pred z) = z
+hott lemma succPred : Π z, succ (pred z) = z
 | neg _            => idp _
 | pos Nat.zero     => idp _
 | pos (Nat.succ _) => idp _
 
-hott def predSucc : Π z, pred (succ z) = z
+hott lemma predSucc : Π z, pred (succ z) = z
 | neg Nat.zero     => idp _
 | neg (Nat.succ _) => idp _
 | pos _            => idp _
@@ -80,15 +80,15 @@ section
   | neg n => indneg π₀ πpred n
   | pos n => indpos π₀ πsucc n
 
-  hott def indspβ₁ : indsp π₀ πsucc πpred 0 = π₀ :=
+  hott theorem indspβ₁ : indsp π₀ πsucc πpred 0 = π₀ :=
   by reflexivity
 
-  hott def indspβ₂ : Π z, indsp π₀ πsucc πpred (succ z) = πsucc z (indsp π₀ πsucc πpred z)
+  hott theorem indspβ₂ : Π z, indsp π₀ πsucc πpred (succ z) = πsucc z (indsp π₀ πsucc πpred z)
   | neg Nat.zero     => (coh₂ (pos 0) _)⁻¹
   | neg (Nat.succ n) => (coh₂ (neg n) _)⁻¹
   | pos n            => idp _
 
-  hott def indspβ₃ : Π z, indsp π₀ πsucc πpred (pred z) = πpred z (indsp π₀ πsucc πpred z)
+  hott theorem indspβ₃ : Π z, indsp π₀ πsucc πpred (pred z) = πpred z (indsp π₀ πsucc πpred z)
   | neg n            => idp _
   | pos Nat.zero     => idp _
   | pos (Nat.succ n) => (coh₁ (pos n) _)⁻¹
@@ -114,15 +114,15 @@ section
   | neg n => recneg π₀ πpred n
   | pos n => recpos π₀ πsucc n
 
-  hott def recspβ₁ : recsp π₀ πsucc πpred 0 = π₀ :=
+  hott theorem recspβ₁ : recsp π₀ πsucc πpred 0 = π₀ :=
   by reflexivity
 
-  hott def recspβ₂ : Π z, recsp π₀ πsucc πpred (succ z) = πsucc (recsp π₀ πsucc πpred z)
+  hott theorem recspβ₂ : Π z, recsp π₀ πsucc πpred (succ z) = πsucc (recsp π₀ πsucc πpred z)
   | neg Nat.zero     => (coh₂ _)⁻¹
   | neg (Nat.succ n) => (coh₂ _)⁻¹
   | pos n            => idp _
 
-  hott def recspβ₃ : Π z, recsp π₀ πsucc πpred (pred z) = πpred (recsp π₀ πsucc πpred z)
+  hott theorem recspβ₃ : Π z, recsp π₀ πsucc πpred (pred z) = πpred (recsp π₀ πsucc πpred z)
   | neg n            => idp _
   | pos Nat.zero     => idp _
   | pos (Nat.succ n) => (coh₁ _)⁻¹
@@ -157,17 +157,17 @@ begin apply recspβ₂; apply succPred end
 hott lemma plusPred (i j : ℤ) : i + pred j = pred (i + j) :=
 begin apply recspβ₃; apply predSucc end
 
-hott def addZero (x : ℤ) : x + 0 = x :=
+hott theorem addZero (x : ℤ) : x + 0 = x :=
 by reflexivity
 
-hott def zeroAdd (x : ℤ) : 0 + x = x :=
+hott theorem zeroAdd (x : ℤ) : 0 + x = x :=
 begin
   induction x using indsp; reflexivity;
   { transitivity; apply plusSucc; apply ap; assumption };
   { transitivity; apply plusPred; apply ap; assumption }
 end
 
-hott def succPlus (i j : ℤ) : succ i + j = succ (i + j) :=
+hott theorem succPlus (i j : ℤ) : succ i + j = succ (i + j) :=
 begin
   induction j using indsp; reflexivity;
   { transitivity; apply plusSucc; apply ap;
@@ -178,7 +178,7 @@ begin
     symmetry; apply plusPred }
 end
 
-hott def predPlus (i j : ℤ) : pred i + j = pred (i + j) :=
+hott theorem predPlus (i j : ℤ) : pred i + j = pred (i + j) :=
 begin
   induction j using indsp; reflexivity;
   { transitivity; apply plusSucc; transitivity;
@@ -189,7 +189,7 @@ begin
     transitivity; assumption; symmetry; apply plusPred }
 end
 
-hott def addComm (x y : ℤ) : x + y = y + x :=
+hott theorem addComm (x y : ℤ) : x + y = y + x :=
 begin
   induction y using indsp; symmetry; apply zeroAdd;
   { transitivity; apply plusSucc; transitivity; apply ap succ;
@@ -203,48 +203,48 @@ hott def diff : ℕ → ℕ → ℤ
 | Nat.zero,   Nat.succ n => neg n
 | Nat.succ m, Nat.succ n => diff m n
 
-hott def diffAsymm : Π x y, diff x y = negate (diff y x)
+hott proposition diffAsymm : Π x y, diff x y = negate (diff y x)
 | Nat.zero,   Nat.zero   => idp _
 | Nat.succ m, Nat.zero   => idp _
 | Nat.zero,   Nat.succ n => idp _
 | Nat.succ m, Nat.succ n => diffAsymm m n
 
-hott def diffZeroRight : Π (n : Nat), diff n 0 = pos n
+hott lemma diffZeroRight : Π (n : Nat), diff n 0 = pos n
 | Nat.zero   => idp 0
 | Nat.succ n => idp (pos (n + 1))
 
-hott def diffZeroLeft : Π (n : ℕ), diff 0 n = auxsucc n
+hott lemma diffZeroLeft : Π (n : ℕ), diff 0 n = auxsucc n
 | Nat.zero   => idp 0
 | Nat.succ n => idp (neg n)
 
-hott def diffSucc : Π (n m : ℕ), diff (n + 1) m = diff n m + 1
+hott lemma diffSucc : Π (n m : ℕ), diff (n + 1) m = diff n m + 1
 | Nat.zero,   Nat.zero   => idp _
 | Nat.succ n, Nat.zero   => idp _
 | Nat.zero,   Nat.succ m => diffZeroLeft _
 | Nat.succ n, Nat.succ m => diffSucc n m
 
-hott def succDiff : Π (n m : ℕ), succ (diff n m) = diff (n + 1) m
+hott lemma succDiff : Π (n m : ℕ), succ (diff n m) = diff (n + 1) m
 | Nat.zero,   Nat.zero   => idp _
 | Nat.succ n, Nat.zero   => idp _
 | Nat.zero,   Nat.succ m => (diffZeroLeft _)⁻¹
 | Nat.succ n, Nat.succ m => succDiff n m
 
-hott def predDiff : Π (n m : ℕ), pred (diff n m) = diff n (m + 1)
+hott lemma predDiff : Π (n m : ℕ), pred (diff n m) = diff n (m + 1)
 | Nat.zero,   Nat.zero   => idp _
 | Nat.succ n, Nat.zero   => (diffZeroRight _)⁻¹
 | Nat.zero,   Nat.succ m => idp _
 | Nat.succ n, Nat.succ m => predDiff n m
 
-hott def diffAddLeft (n : ℕ) : Π (m : ℕ), diff (n + m) m = pos n
+hott lemma diffAddLeft (n : ℕ) : Π (m : ℕ), diff (n + m) m = pos n
 | Nat.zero   => diffZeroRight n
 | Nat.succ m => diffAddLeft n m
 
-hott def diffAddRight (n : ℕ) : Π (m : ℕ), diff m (n + m) = auxsucc n
+hott lemma diffAddRight (n : ℕ) : Π (m : ℕ), diff m (n + m) = auxsucc n
 | Nat.zero   => diffZeroLeft n
 | Nat.succ m => diffAddRight n m
 
-noncomputable hott def set : hset ℤ :=
-by apply ua.coproductSet <;> apply Nat.natIsSet
+hott theorem set : hset ℤ :=
+Hedberg (decCoproduct Nat.natDecEq Nat.natDecEq)
 
 hott def succToAdd (z : ℤ) : z + 1 = succ z :=
 by reflexivity

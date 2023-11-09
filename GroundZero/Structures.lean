@@ -30,6 +30,10 @@ hott def groupoid (A : Type u) :=
 
 hott def dec (A : Type u) := A + ¬A
 
+hott def decEq (A : Type u) := Π (a b : A), dec (a = b)
+
+notation "dec⁼" => decEq
+
 hott def contr (A : Type u) := Σ (a : A), Π b, a = b
 
 inductive hlevel
@@ -425,7 +429,7 @@ hott def lemToDoubleNeg {A : Type u} : dec A → (¬¬A → A)
 | Sum.inl x => λ _, x
 | Sum.inr t => λ g, Proto.Empty.elim (g t)
 
-hott def Hedberg {A : Type u} : (Π (x y : A), dec (x = y)) → hset A :=
+hott def Hedberg {A : Type u} : dec⁼ A → hset A :=
 begin intro H; apply doubleNegEq; intros x y; apply lemToDoubleNeg; apply H x y end
 
 hott def boolEqTotal (x : 𝟐) : (x = false) + (x = true) :=
@@ -443,6 +447,25 @@ end
 
 hott corollary boolIsSet : hset 𝟐 :=
 Hedberg boolDecEq
+
+
+
+section
+  open GroundZero.Types.Not (univ)
+  open GroundZero.Types.Coproduct
+  open GroundZero.Types
+
+  variable {A : Type u} {B : Type v}
+
+  hott theorem decOverEqv (e : A ≃ B) (H : dec A) : dec B :=
+  match H with | inl x => inl (e x) | inr φ => inr (φ ∘ e.left)
+
+  hott theorem decCoproduct (H : dec⁼ A) (G : dec⁼ B) : dec⁼ (A + B)
+  | inl a, inl b => decOverEqv (Equiv.symm (inl.inj' a b)) (H a b)
+  | inl _, inr _ => inr (univ ∘ inl.encode)
+  | inr _, inl _ => inr (univ ∘ inr.encode)
+  | inr a, inr b => decOverEqv (Equiv.symm (inr.inj' a b)) (G a b)
+end
 
 section
   open GroundZero.Types

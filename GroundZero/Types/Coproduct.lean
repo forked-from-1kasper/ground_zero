@@ -45,17 +45,17 @@ namespace Coproduct
     | inl a, c => ap inl c
     | inr b, c => Proto.Empty.elim c
 
-    hott def decodeEncode {a₀ : A} {x : A + B}
+    hott statement decodeEncode {a₀ : A} {x : A + B}
       (p : inl a₀ = x) : decode (encode p) = p :=
     begin induction p; reflexivity end
 
-    hott def encodeDecode {a₀ : A} {x : A + B} : Π (c : code a₀ x), encode (decode c) = c :=
+    hott lemma encodeDecode {a₀ : A} {x : A + B} : Π (c : code a₀ x), encode (decode c) = c :=
     begin
       induction x using Sum.casesOn; intro (p : a₀ = _);
       induction p; apply idp; apply Proto.Empty.casesOn
     end
 
-    hott def recognize (a₀ : A) (x : A + B) : (inl a₀ = x) ≃ code a₀ x :=
+    hott lemma recognize (a₀ : A) (x : A + B) : (inl a₀ = x) ≃ code a₀ x :=
     begin
       existsi encode; apply Qinv.toBiinv; existsi decode;
       apply Prod.mk; apply encodeDecode; apply decodeEncode
@@ -80,17 +80,17 @@ namespace Coproduct
     | inl a, c => Proto.Empty.elim c
     | inr b, c => ap inr c
 
-    hott def decodeEncode {b₀ : B} {x : A + B}
+    hott statement decodeEncode {b₀ : B} {x : A + B}
       (p : inr b₀ = x) : decode (encode p) = p :=
     begin induction p; reflexivity end
 
-    hott def encodeDecode {b₀ : B} {x : A + B} : Π (c : code b₀ x), encode (decode c) = c :=
+    hott lemma encodeDecode {b₀ : B} {x : A + B} : Π (c : code b₀ x), encode (decode c) = c :=
     begin
       induction x using Sum.casesOn; apply Proto.Empty.casesOn;
       intro (p : b₀ = _); induction p; apply idp;
     end
 
-    hott def recognize (b₀ : B) (x : A + B) : (inr b₀ = x) ≃ code b₀ x :=
+    hott lemma recognize (b₀ : B) (x : A + B) : (inr b₀ = x) ≃ code b₀ x :=
     begin
       existsi encode; apply Qinv.toBiinv; existsi decode;
       apply Prod.mk; apply encodeDecode; apply decodeEncode

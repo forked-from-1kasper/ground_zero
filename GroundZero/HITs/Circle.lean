@@ -317,7 +317,7 @@ namespace Circle
 
   noncomputable hott def fundamentalGroup : Ω¹(S¹) = ℤ := ua (family base)
 
-  noncomputable hott def loopHset : hset (base = base) :=
+  hott def loopHset : hset (base = base) :=
   transport hset fundamentalGroup⁻¹ Integer.set
 
   noncomputable example : winding (loop ⬝ loop) = 2 := windingPower 2
@@ -345,7 +345,7 @@ namespace Circle
   hott def turn : S¹ → S¹ := rec base loop
   hott def inv  : S¹ → S¹ := rec base loop⁻¹
 
-  noncomputable hott def invInv (x : S¹) : inv (inv x) = x :=
+  noncomputable hott def invol (x : S¹) : inv (inv x) = x :=
   let invₚ := @ap S¹ S¹ base base (inv ∘ inv);
   begin
     induction x; reflexivity; apply calc
@@ -705,10 +705,10 @@ namespace Circle
   hott lemma unrollNat {x : S¹} (p : x = x) (ε : base = x) : unroll x p ⬝ ε = ε ⬝ p :=
   begin induction ε; apply Id.reflRight end
 
-  noncomputable hott lemma rollPreservesWind {x : S¹} (p : Ω¹(S¹)) : wind x (roll x p) = winding p :=
+  hott lemma rollPreservesWind {x : S¹} (p : Ω¹(S¹)) : wind x (roll x p) = winding p :=
   begin induction x using indΩ; apply ap winding; apply oneMult; apply Integer.set end
 
-  noncomputable hott lemma unrollPreservesWind : Π {x : S¹} (p : x = x), winding (unroll x p) = wind x p :=
+  hott lemma unrollPreservesWind : Π {x : S¹} (p : x = x), winding (unroll x p) = wind x p :=
   begin fapply indΩ; intro; reflexivity; intro; apply piProp; intro; apply Integer.set end
 
   section
@@ -855,7 +855,7 @@ namespace Circle
       apply windingRev; symmetry; apply Integer.predMult }
   end
 
-  noncomputable hott corollary windMulPower : Π {x : S¹} (z : ℤ) (p : x = x),
+  hott corollary windMulPower : Π {x : S¹} (z : ℤ) (p : x = x),
     wind x (Loop.power p z) = z * wind x p :=
   begin
     fapply ind; apply windingMulPower; apply piProp;
@@ -1062,11 +1062,11 @@ namespace Circle
       { transitivity; apply Homotopy.lwhs; apply reflectionMap f H;
         transitivity; apply @Homotopy.rwhs _ _ _ (μ (f base));
         apply @Homotopy.lwhs _ _ _ (inv ∘ inv) idfun (μ (inv (f base)));
-        apply invInv; apply invCancelRight };
+        apply invol; apply invCancelRight };
       { transitivity; apply Homotopy.rwhs; apply reflectionMap f H;
         transitivity; apply @Homotopy.rwhs _ _ _ inv;
         apply @Homotopy.lwhs _ _ _ (μ (inv (f base)) ∘ μ (f base)) idfun inv;
-        apply invCancelLeft; apply invInv }
+        apply invCancelLeft; apply invol }
     end
 
     -- Explicit version of `biinvOfDegOneHmtpy`.
@@ -1081,7 +1081,7 @@ namespace Circle
   noncomputable hott corollary degIffBiinv (f : S¹ → S¹) : biinv f ≃ (abs (degree f) = 1) :=
   begin
     apply Structures.propEquivLemma;
-    apply Theorems.Equiv.biinvProp; apply Theorems.Nat.natIsSet';
+    apply Theorems.Equiv.biinvProp; apply Theorems.Nat.natIsSet;
     apply degOfBiinv; apply biinvOfDegOneHmtpy
   end
 
@@ -1112,18 +1112,19 @@ namespace Circle
     | Nat.zero,   H, G => H (inl.encode G)
     | Nat.succ i, _, G => inl.encode G
 
-    noncomputable hott lemma absEqEqv {i : ℤ} (j : ℕ) (H : j ≠ 0) : (abs i = j) ≃ (i = pos j) + (i = auxsucc j) :=
+    hott lemma absEqEqv {i : ℤ} (j : ℕ) (H : j ≠ 0) : (abs i = j) ≃ (i = pos j) + (i = auxsucc j) :=
     begin
-      apply propEquivLemma; apply Theorems.Nat.natIsSet';
+      apply propEquivLemma; apply Theorems.Nat.natIsSet;
       apply propSum; apply Integer.set; apply Integer.set;
       intro w; apply neqZeroImplNeqMinus; exact H; exact w.1⁻¹ ⬝ w.2;
-      { intro G; induction i;
+      { intro G; induction i using Sum.casesOn;
         { left; apply ap pos; exact G };
-        { induction j; left; apply Empty.elim; apply H; reflexivity;
+        { induction j using Nat.casesOn; left; apply Empty.elim; apply H; reflexivity;
           right; apply ap Sum.inr; apply Theorems.Nat.succInj; exact G } };
-      { intro G; induction G; transitivity; apply ap abs; assumption; reflexivity;
-        transitivity; apply ap abs; assumption; induction j;
-        apply Empty.elim; apply H; reflexivity; reflexivity }
+      { intro G; induction G using Sum.casesOn; transitivity; apply ap abs; assumption;
+        reflexivity; transitivity; apply ap abs; assumption;
+        induction j using Nat.casesOn; apply Empty.elim;
+        apply H; reflexivity; reflexivity }
     end
 
     hott theorem sigmaSumDistrib {A : Type u} (B : A → Type v) (C : A → Type w) :
@@ -1438,7 +1439,7 @@ namespace Sphere
 
     hott corollary recβrule₁ : rec b ε base = b := idp b
 
-    hott corollary recβrule₂ : ap₂ (rec b ε) surf = ε :=
+    hott corollary recβrule₂ : ap² (rec b ε) surf = ε :=
     HigherSphere.recβrule₂ b 1 ε
   end
 
@@ -1459,7 +1460,7 @@ namespace Glome
 
     hott corollary recβrule₁ : rec b ε base = b := idp b
 
-    hott corollary recβrule₂ : ap₃ (rec b ε) surf = ε :=
+    hott corollary recβrule₂ : ap³ (rec b ε) surf = ε :=
     HigherSphere.recβrule₂ b 2 ε
   end
 end Glome

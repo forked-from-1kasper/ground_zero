@@ -125,11 +125,11 @@ namespace Id
   section
     variable {A : Type u} {B : Type v} {a b : A} {p q : a = b}
 
-    hott def ap₂ (f : A → B) (r : p = q) : ap f p = ap f q :=
-    ap (ap f) r
+    hott def ap2 (f : A → B) (r : p = q) : ap f p = ap f q := ap (ap f) r
+    notation "ap²" => ap2
 
-    hott def ap₃ {α β : p = q} (f : A → B) (r : α = β) : ap₂ f α = ap₂ f β :=
-    ap (ap₂ f) r
+    hott def ap3 {α β : p = q} (f : A → B) (r : α = β) : ap² f α = ap² f β := ap (ap² f) r
+    notation "ap³" => ap3
   end
 
   hott def compReflIfEq {A : Type u} {a b : A} (p q : a = b) : p = q → p⁻¹ ⬝ q = idp b :=
