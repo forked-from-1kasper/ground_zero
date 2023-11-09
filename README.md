@@ -5,7 +5,7 @@ This is an attempt to develop Homotopy Type Theory in [Lean 4](https://gith
 As in [gebner/hott3](https://github.com/gebner/hott3), no modifications to the Lean kernel are made, because library uses [large eliminator checker](https://github.com/forked-from-1kasper/ground_zero/blob/master/GroundZero/Meta/HottTheory.lean) ported [from Lean 3](https://github.com/gebner/hott3/blob/master/src/hott/init/meta/support.lean). So stuff like this will print an error:
 
 ```lean
-hott theorem Id.UIP {α : Type u} {a b : α} (p q : a = b) : p = q :=
+hott example {α : Type u} {a b : α} (p q : a = b) : p = q :=
 begin cases p; cases q; apply Id.refl end
 ```
 

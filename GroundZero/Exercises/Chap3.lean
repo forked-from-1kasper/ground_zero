@@ -14,17 +14,17 @@ universe u v w
 
 -- exercise 3.1
 
-example (A : Type u) (B : Type v) : A ≃ B → hset A → hset B :=
+hott example (A : Type u) (B : Type v) : A ≃ B → hset A → hset B :=
 Structures.hsetRespectsEquiv
 
 -- exercise 3.2
 
-noncomputable example (A B : Type u) : hset A → hset B → hset (A + B) :=
+noncomputable hott example (A B : Type u) : hset A → hset B → hset (A + B) :=
 ua.coproductSet
 
 -- exercise 3.3
 
-example (A : Type u) (B : A → Type v) : hset A → (Π x, hset (B x)) → hset (Σ x, B x) :=
+hott example (A : Type u) (B : A → Type v) : hset A → (Π x, hset (B x)) → hset (Σ x, B x) :=
 Structures.hsetRespectsSigma
 
 -- exercise 3.4
@@ -44,12 +44,12 @@ end «3.4»
 
 -- exercise 3.5
 
-example (A : Type u) : (prop A) ≃ (A → contr A) :=
+hott example (A : Type u) : (prop A) ≃ (A → contr A) :=
 Equiv.lemContrEquiv
 
 -- exercise 3.6
 
-example (A : Type u) : prop A → prop (A + ¬A) :=
+hott example (A : Type u) : prop A → prop (A + ¬A) :=
 Structures.propEM
 
 -- exercise 3.7
@@ -486,12 +486,12 @@ end «3.19»
 
 -- exercise 3.20
 
-example {A : Type u} {B : A → Type v} (H : contr A) : (Σ x, B x) ≃ B H.1 :=
+hott example {A : Type u} {B : A → Type v} (H : contr A) : (Σ x, B x) ≃ B H.1 :=
 Equiv.contrFamily H
 
 -- exercise 3.21
 
-example (P : Type u) : prop P ≃ (P ≃ ∥P∥) :=
+hott example (P : Type u) : prop P ≃ (P ≃ ∥P∥) :=
 Equiv.propExercise P
 
 -- exercise 3.22

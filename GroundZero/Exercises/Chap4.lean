@@ -63,7 +63,7 @@ namespace «4.2»
 
   variable {A : Type u} {B : Type v}
 
-  noncomputable example : Corr A B ≃ (A ≃ B) :=
+  noncomputable hott example : Corr A B ≃ (A ≃ B) :=
   Theorems.Equiv.biinvEquivCorr
 
   hott def isequiv (f : A → B) := Σ (ρ : Corr A B), Π x, ρ.1 x (f x)
@@ -489,5 +489,5 @@ end «4.8»
 
 -- exercise 4.9
 
-example {A : Type u} {B : A → Type v} {f g : Π x, B x} : (f = g) ≃ (f ~ g) :=
+hott example {A : Type u} {B : A → Type v} {f g : Π x, B x} : (f = g) ≃ (f ~ g) :=
 Theorems.full -- see “Structures.lean” for this kind of proof

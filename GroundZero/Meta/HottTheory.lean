@@ -74,8 +74,8 @@ initialize hottDecls : SimplePersistentEnvExtension Name NameSet ←
     addImportedFn := fun es => mkStateFromImportedEntries NameSet.insert {} es
   }
 
-initialize nothott : TagAttribute ← registerTagAttribute `nothott "Marks a defintion as unsafe for HoTT"
-initialize hottAxiom : TagAttribute ← registerTagAttribute `hottAxiom "Unsafely marks a definition as safe for HoTT"
+initialize nothott   : TagAttribute ← registerTagAttribute `nothott "Marks a defintion as unsafe for HoTT"
+initialize hottAxiom : TagAttribute ← registerTagAttribute `hottAxiom "(Potentially) unsafely marks a definition as safe for HoTT"
 
 def unsafeDecls :=
 [`Quot.lift, `Quot.ind, `Quot.rec, `Classical.choice]
@@ -113,33 +113,48 @@ def checkDecl := checkDeclAux []
 def declTok : Parser.Parser :=
     "def "         <|> "definition " <|> "theorem "   <|> "lemma "
 <|> "proposition " <|> "corollary "  <|> "principle " <|> "claim "
-<|> "statement "   <|> "paradox "
+<|> "statement "   <|> "paradox "    <|> "remark "    <|> "exercise "
 
-def decl := leading_parser
-   declTok >> declId >> Parser.ppIndent optDeclSig
->> declVal >> optDefDeriving >> terminationSuffix
+def declDef := leading_parser
+  Parser.ppIndent optDeclSig >> declVal >> optDefDeriving >> terminationSuffix
+
+def decl        := leading_parser declTok >> declId >> declDef
+def declExample := leading_parser "example " >> declDef
 
 @[command_parser] def hott :=
-leading_parser declModifiers false >> "hott " >> decl
+leading_parser declModifiers false >> "hott " >> (decl <|> declExample)
 
-@[command_elab «hott»] def elabHoTT : Elab.Command.CommandElab :=
-λ stx => match stx.getArgs with
-| #[mods, _, cmd] => do
-  let declId   := cmd[1]
-  let declName := declId[0].getId
+open Elab.Command
 
-  let ns ← getCurrNamespace
-  let name := ns ++ declName
+def defAndCheck (tag declMods declId declDef : Syntax) : CommandElabM Unit := do {
+  let ns ← getCurrNamespace;
+  let declName := ns ++ declId[0].getId;
 
-  cmd.setKind `Lean.Parser.Command.«def»
-  |> (Syntax.setArg · 0 (mkAtom "def "))
-  |> (mkNode `Lean.Parser.Command.declaration #[mods, ·])
-  |> Elab.Command.elabDeclaration
+  declDef.setKind `Lean.Parser.Command.«def»
+  |> (Syntax.setArgs · (Array.append #[mkAtom "def ", declId] declDef.getArgs))
+  |> (mkNode `Lean.Parser.Command.declaration #[declMods, ·])
+  |> elabDeclaration;
 
-  if (← getEnv).contains name then do {
-    Elab.Command.liftTermElabM (checkDecl declId name);
-    modifyEnv (λ env => hottDecls.addEntry env name)
+  if (← getEnv).contains declName then do {
+    liftTermElabM (checkDecl tag declName);
+    modifyEnv (λ env => hottDecls.addEntry env declName)
   }
-| _ => throwError "invalid declaration"
+}
+
+@[command_elab «hott»] def elabHoTT : CommandElab :=
+λ stx => do {
+  let #[mods, _, cmd] := stx.getArgs | throwError "invalid declaration";
+
+  match cmd.getArgs with
+  | #[_, declId, declDef] => defAndCheck declId mods declId declDef
+  | #[tok, declDef]       => do {
+    withoutModifyingEnv do {
+      #[mkIdentFrom tok `_example, mkNullNode]
+      |> mkNode ``Parser.Command.declId
+      |> (defAndCheck tok mods · declDef)
+    }
+  }
+  | _ => throwError "invalid definition"
+}
 
 end GroundZero.Meta.HottTheory

@@ -21,7 +21,7 @@ export Id (idp)
 infix:50 (priority := high) " = " => Id
 
 /- fails!
-hott theorem Id.UIP {A : Type u} {a b : A} (p q : a = b) : p = q :=
+hott example {A : Type u} {a b : A} (p q : a = b) : p = q :=
 begin cases p; cases q; apply idp end
 -/
 

@@ -23,18 +23,16 @@ hott def Product.rec' {A : Type u} {B : Type v} {C : Type w}
   (φ : A → B → C) : A × B → C :=
 λ u, φ u.1 u.2
 
-example {A : Type u} {B : Type v} {C : Type w}
-  (φ : A → B → C) (a : A) (b : B) :
-  Product.rec' φ (a, b) = φ a b :=
+hott example {A : Type u} {B : Type v} {C : Type w}
+  (φ : A → B → C) (a : A) (b : B) : Product.rec' φ (a, b) = φ a b :=
 by reflexivity
 
 hott def Sigma.rec' {A : Type u} {B : A → Type v} {C : Type w}
   (φ : Π x, B x → C) : (Σ x, B x) → C :=
 λ u, φ u.1 u.2
 
-example {A : Type u} {B : A → Type v} {C : Type w}
-  (φ : Π x, B x → C) (a : A) (b : B a) :
-  Sigma.rec' φ ⟨a, b⟩ = φ a b :=
+hott example {A : Type u} {B : A → Type v} {C : Type w}
+  (φ : Π x, B x → C) (a : A) (b : B a) : Sigma.rec' φ ⟨a, b⟩ = φ a b :=
 by reflexivity
 
 -- exercise 1.3
@@ -43,7 +41,7 @@ hott def Product.ind' {A : Type u} {B : Type v} {C : A × B → Type w}
   (φ : Π a b, C (a, b)) : Π x, C x :=
 λ u, transport C (Product.uniq u) (φ u.1 u.2)
 
-example {A : Type u} {B : Type v} {C : A × B → Type w}
+hott example {A : Type u} {B : Type v} {C : A × B → Type w}
   (φ : Π a b, C (a, b)) (a : A) (b : B) : Product.ind' φ (a, b) = φ a b :=
 by reflexivity
 
@@ -51,7 +49,7 @@ hott def Sigma.ind' {A : Type u} {B : A → Type v} {C : (Σ x, B x) → Type w}
   (φ : Π a b, C ⟨a, b⟩) : Π x, C x :=
 λ u, transport C (Sigma.uniq u) (φ u.1 u.2)
 
-example {A : Type u} {B : A → Type v} {C : (Σ x, B x) → Type w}
+hott example {A : Type u} {B : A → Type v} {C : (Σ x, B x) → Type w}
   (φ : Π a b, C ⟨a, b⟩) (a : A) (b : B a) : Sigma.ind' φ ⟨a, b⟩ = φ a b :=
 by reflexivity
 
@@ -146,7 +144,7 @@ hott def Ind' :=
   C a (idp a) → Π (x : A) (p : a = x), C x p
 
 -- note that φ involves “max u (v + 1)”
-example (φ : Ind.{u, max u (v + 1)}) : Ind'.{u, v} :=
+hott example (φ : Ind.{u, max u (v + 1)}) : Ind'.{u, v} :=
 λ A a C c x p, φ A (λ x y p, Π (C : Π z, x = z → Type v), C x (idp x) → C y p)
   (λ x C d, d) a x p C c
 
@@ -262,35 +260,35 @@ namespace Nat'
   hott def ack : ℕ → ℕ → ℕ :=
   rec Nat.succ (λ m φ n, iterate φ (n + 1) 1)
 
-  example (n : ℕ) : ack 0 n = n + 1 :=
+  hott example (n : ℕ) : ack 0 n = n + 1 :=
   by reflexivity
 
-  example (m : ℕ) : ack (m + 1) 0 = ack m 1 :=
+  hott example (m : ℕ) : ack (m + 1) 0 = ack m 1 :=
   by reflexivity
 
-  example (m n : ℕ) : ack (m + 1) (n + 1) = ack m (ack (m + 1) n) :=
+  hott example (m n : ℕ) : ack (m + 1) (n + 1) = ack m (ack (m + 1) n) :=
   by reflexivity
 end Nat'
 
 -- exercise 1.11
 
-example (A : Type u) : (¬¬¬A) → (¬A) :=
+hott example (A : Type u) : (¬¬¬A) → (¬A) :=
 λ φ x, φ (λ ψ, ψ x)
 
 -- exercise 1.12
 
-example (A : Type u) (B : Type v) : A → (B → A) :=
+hott example (A : Type u) (B : Type v) : A → (B → A) :=
 λ a b, a
 
-example (A : Type u) : A → ¬¬A :=
+hott example (A : Type u) : A → ¬¬A :=
 λ a φ, φ a
 
-example (A : Type u) (B : Type v) : (¬A) + (¬B) → ¬(A × B) :=
+hott example (A : Type u) (B : Type v) : (¬A) + (¬B) → ¬(A × B) :=
 λ φ w, @Coproduct.elim (¬A) (¬B) 𝟎 (λ ψ, ψ w.1) (λ ψ, ψ w.2) φ
 
 -- exercise 1.13
 
-example (A : Type u) : ¬¬(A + ¬A) :=
+hott example (A : Type u) : ¬¬(A + ¬A) :=
 λ φ, φ (Coproduct.inr (λ a, φ (Coproduct.inl a)))
 
 -- exercise 1.14
@@ -308,5 +306,5 @@ hott def «Indiscernibility of Identicals» {A : Type u} (C : A → Type v)
 
 -- exercise 1.16
 
-example : Π (i j : ℕ), i + j = j + i :=
+hott example : Π (i j : ℕ), i + j = j + i :=
 Theorems.Nat.comm

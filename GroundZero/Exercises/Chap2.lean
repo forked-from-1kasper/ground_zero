@@ -44,7 +44,7 @@ end
 section
   variable {A : Type u} {a b c : A} (p : a = b) (q : b = c)
 
-  example : eq₁₂ p q ⬝ eq₂₃ p q = eq₁₃ p q :=
+  hott example : eq₁₂ p q ⬝ eq₂₃ p q = eq₁₃ p q :=
   begin induction p; induction q; reflexivity end
 end
 
@@ -59,12 +59,12 @@ section
   infixl:99 " ⬝₄ " => trans₄
 
   /-
-  example (p : a = b) (q : b = c) : p ⬝₁ q = p ⬝₄ q := idp _
-  example (p : a = b) (q : b = c) : p ⬝₂ q = p ⬝₄ q := idp _
-  example (p : a = b) (q : b = c) : p ⬝₃ q = p ⬝₄ q := idp _
+  hott example (p : a = b) (q : b = c) : p ⬝₁ q = p ⬝₄ q := idp _
+  hott example (p : a = b) (q : b = c) : p ⬝₂ q = p ⬝₄ q := idp _
+  hott example (p : a = b) (q : b = c) : p ⬝₃ q = p ⬝₄ q := idp _
   -/
 
-  example (p : a = b) (q : b = c) : p ⬝₁ q = p ⬝₄ q :=
+  hott example (p : a = b) (q : b = c) : p ⬝₁ q = p ⬝₄ q :=
   begin induction p; induction q; reflexivity end
 end
 
@@ -92,16 +92,16 @@ namespace «2.5»
   hott def g (φ : A → B) : transport (λ _, B) p (φ x) = φ y → φ x = φ y :=
   λ q, (transconst p (φ x))⁻¹ ⬝ q
 
-  example (φ : A → B) : f p φ ∘ g p φ ~ id :=
+  hott example (φ : A → B) : f p φ ∘ g p φ ~ id :=
   begin induction p; reflexivity end
 
-  example (φ : A → B) : g p φ ∘ f p φ ~ id :=
+  hott example (φ : A → B) : g p φ ∘ f p φ ~ id :=
   begin induction p; reflexivity end
 end «2.5»
 
 -- exercise 2.6
 
-example {A : Type u} {x y z : A} (p : x = y) : biinv (@Id.trans A x y z p) :=
+hott example {A : Type u} {x y z : A} (p : x = y) : biinv (@Id.trans A x y z p) :=
 begin apply Prod.mk <;> existsi Id.trans p⁻¹ <;> intro q <;> induction p <;> induction q <;> reflexivity end
 
 -- exercise 2.7
@@ -188,7 +188,7 @@ namespace «2.11»
   variable {P : Type k} {A : Type u} {B : Type v} {C : Type w}
            (η : pullbackSquare P A B C)
 
-  example : P ≃ pullback C η.1.right η.1.bot :=
+  hott example : P ≃ pullback C η.1.right η.1.bot :=
   Theorems.pullbackCorner η
 end «2.11»
 
@@ -214,7 +214,7 @@ end «2.12»
 
 -- exercise 2.13
 
-example : (𝟐 ≃ 𝟐) ≃ 𝟐 := Theorems.Equiv.boolEquivEqvBool
+hott example : (𝟐 ≃ 𝟐) ≃ 𝟐 := Theorems.Equiv.boolEquivEqvBool
 
 -- exercise 2.14
 
