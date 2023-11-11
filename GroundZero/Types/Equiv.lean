@@ -191,7 +191,8 @@ namespace Equiv
   hott def depTrans {A : Type u} {B : A → Type v}
     {a b c : A} {p : a = b} {q : b = c} {u : B a} {v : B b} {w : B c}
     (r : u =[p] v) (s : v =[q] w): u =[p ⬝ q] w :=
-  begin induction r using Id.casesOn; induction s using Id.casesOn; apply substComp end
+  substComp p q u ⬝ ap (subst q) r ⬝ s
+
   infix:60 " ⬝′ " => depTrans
 
   hott def depPathTransSymm {A : Type u} {B : A → Type v} {a b c : A} {p : a = b} {q : c = b}

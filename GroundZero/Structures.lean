@@ -910,6 +910,21 @@ namespace Types.Id
   | Nat.zero,   _ => idp _
   | Nat.succ _, _ => apWithHomotopyΩ (mapOverComp _ _) _ _ ⬝ comApΩ (ap f) (ap g) _ _
 
+  hott def sigmaProdΩ {A : Type u} {B : A → Type v} {w : Σ x, B x} :
+    Π {n : ℕ} (α : Ω[n](A, w.1)) (β : Ω[n](B, w.2, α)), Ω[n](Σ x, B x, w)
+  | Nat.zero,   x, y => ⟨x, y⟩
+  | Nat.succ n, α, β => apΩ Sigma.eqOfSigmaEq (@sigmaProdΩ (w.1 = w.1) (λ p, w.2 =[B, p] w.2) ⟨idp w.1, idp w.2⟩ n α β)
+
+  hott lemma apFstProdΩ {A : Type u} {B : A → Type v} {w : Σ x, B x} :
+    Π {n : ℕ} (α : Ω[n](A, w.1)) (β : Ω[n](B, w.2, α)), apΩ Sigma.fst (sigmaProdΩ α β) = α
+  | Nat.zero,   _, _ => idp _
+  | Nat.succ n, α, β =>
+  begin
+    let ε := @sigmaProdΩ (w.1 = w.1) (λ p, w.2 =[B, p] w.2) ⟨idp w.1, idp w.2⟩ n α β;
+    dsimp [apΩ, sigmaProdΩ]; transitivity; symmetry; apply comApΩ (ap Sigma.fst) Sigma.eqOfSigmaEq n ε;
+    transitivity; apply apWithHomotopyΩ; intro; apply Sigma.mapFstOverProd; apply apFstProdΩ
+  end
+
   hott lemma apdDiag {A : Type u} {B : A → Type v} {C : A → Type w} (f : Π x, B x) (φ : Π x, B x → C x)
     {a b : A} (p : a = b) : apd (λ x, φ x (f x)) p = biapd φ p (apd f p) :=
   begin induction p; reflexivity end

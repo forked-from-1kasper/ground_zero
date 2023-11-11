@@ -96,6 +96,9 @@ namespace Id
     (f : A → B) (p : a = b) : f a = f b :=
   begin induction p; reflexivity end
 
+  hott lemma invInj {A : Type u} {a b : A} {p q : a = b} (α : p⁻¹ = q⁻¹) : p = q :=
+  (invInv p)⁻¹ ⬝ ap (·⁻¹) α ⬝ invInv q
+
   hott def cancelCompInv {A : Type u} {a b c : A} (p : a = b) (q : b = c) : (p ⬝ q) ⬝ q⁻¹ = p :=
   (assoc p q q⁻¹)⁻¹ ⬝ ap (trans p) (compInv q) ⬝ rid p
 
@@ -253,23 +256,22 @@ namespace Whiskering
   hott lemma compUniq (ν : p = q) (κ : r = s) : ν ⋆ κ = ν ⋆′ κ :=
   begin induction p; induction r; induction ν; induction κ; reflexivity end
 
-  hott lemma loop₁ {A : Type u} {a : A} {ν κ : idp a = idp a} : ν ⬝ κ = ν ⋆ κ :=
+  hott lemma loop₁ {a : A} {ν κ : idp a = idp a} : ν ⬝ κ = ν ⋆ κ :=
   begin
     apply Id.symm; transitivity; apply ap (· ⬝ _);
     apply Id.reflTwice; apply ap (ν ⬝ ·); apply Id.reflTwice
   end
 
-  hott lemma loop₂ {A : Type u} {a : A} {ν κ : idp a = idp a} : ν ⋆′ κ = κ ⬝ ν :=
+  hott lemma loop₂ {a : A} {ν κ : idp a = idp a} : ν ⋆′ κ = κ ⬝ ν :=
   begin
     transitivity; apply ap (· ⬝ _); apply Id.reflTwice;
     apply ap (κ ⬝ ·); apply Id.reflTwice
   end
 
-  hott theorem «Eckmann–Hilton argument» {A : Type u} {a : A}
-    (ν κ : idp a = idp a) : ν ⬝ κ = κ ⬝ ν :=
+  hott theorem «Eckmann–Hilton argument» {a : A} (ν κ : idp a = idp a) : ν ⬝ κ = κ ⬝ ν :=
   loop₁ ⬝ compUniq ν κ ⬝ loop₂
 
-  hott corollary comm {A : Type u} {a b : A} {p : a = b} (ν κ : p = p) : ν ⬝ κ = κ ⬝ ν :=
+  hott corollary comm {a b : A} {p : a = b} (ν κ : p = p) : ν ⬝ κ = κ ⬝ ν :=
   begin induction p; apply «Eckmann–Hilton argument» end
 end Whiskering
 
