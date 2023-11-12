@@ -1,5 +1,6 @@
 import GroundZero.Types.Equiv
 
+open GroundZero.Types.Equiv (apd pathOverAp transport)
 open GroundZero.Types.Id (ap)
 
 namespace GroundZero.Types
@@ -19,17 +20,24 @@ namespace Sigma
   hott def uniq : Π (x : Σ x, B x), ⟨pr₁ x, pr₂ x⟩ = x := idp
 
   hott def prod {A : Type u} {B : A → Type v} : Π {u v : Sigma B}
-    (p : u.1 = v.1) (q : Equiv.subst p u.2 = v.2), u = v :=
+    (p : u.1 = v.1) (q : transport B p u.2 = v.2), u = v :=
   begin
     intro ⟨x, u⟩ ⟨y, v⟩ (p : x = y); induction p;
     intro (q : u = v); induction q; apply idp
   end
 
-  hott def mapFstOverProd {A : Type u} {B : A → Type v} : Π {u v : Sigma B}
-    (p : u.1 = v.1) (q : Equiv.subst p u.snd = v.snd), ap pr₁ (prod p q) = p :=
+  hott theorem mapFstOverProd {A : Type u} {B : A → Type v} : Π {u v : Sigma B}
+    (p : u.1 = v.1) (q : transport B p u.2 = v.2), ap pr₁ (prod p q) = p :=
   begin
     intro ⟨x, u⟩ ⟨y, v⟩ (p : x = y); induction p;
     intro (q : u = v); induction q; apply idp
+  end
+
+  hott theorem mapSndOverProd {A : Type u} {B : A → Type v} : Π {u v : Sigma B} (p : u.1 = v.1) (q : transport B p u.2 = v.2),
+    apd pr₂ (prod p q) = pathOverAp Sigma.fst (prod p q) (transport (λ s, u.2 =[s] v.2) (mapFstOverProd p q)⁻¹ q) :=
+  begin
+    intro ⟨x, u⟩ ⟨y, v⟩ (p : x = y); induction p;
+    intro (q : u = v); induction q; reflexivity
   end
 
   hott def prodRefl {A : Type u} {B : A → Type v}

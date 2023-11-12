@@ -23,7 +23,7 @@ universe u v w
 
 hott def suspEmpty : ∑ 𝟎 ≃ 𝟐 :=
 let f : ∑ 𝟎 → 𝟐 :=
-Suspension.rec false true Proto.Empty.elim
+Suspension.rec false true Proto.Empty.elim;
 let g : 𝟐 → ∑ 𝟎 :=
 λ | false => Suspension.north
   | true  => Suspension.south;
@@ -614,15 +614,23 @@ namespace Circle
     transitivity; symmetry; apply Id.assoc; apply Id.invComp;
   end
 
-  hott theorem recComp {a b : S¹} (p : a = a) (q : b = b) :
-    rec a p ∘ rec b q ~ rec (rec a p b) (mult p q) :=
+  hott theorem recComMap {A : Type u} {B : Type v} (φ : A → B)
+    (a : A) (p : a = a) : φ ∘ rec a p ~ rec (φ a) (ap φ p) :=
   begin
-    fapply ind; reflexivity; change _ = _; transitivity;
+    fapply ind; reflexivity; apply Id.trans;
     apply Equiv.transportOverHmtpy; transitivity;
-    apply ap (· ⬝ _ ⬝ _); transitivity; apply mapInv;
-    apply ap; transitivity; apply mapOverComp; apply ap (mult p); apply recβrule₂;
-    transitivity; apply bimap; apply Id.rid; apply recβrule₂; apply Id.invComp
+    apply ap (· ⬝ _); apply Id.rid;
+    transitivity; apply bimap;
+    { transitivity; apply mapInv; apply ap;
+      transitivity; apply mapOverComp;
+      apply ap; apply recβrule₂ };
+    { apply recβrule₂ };
+    apply invComp;
   end
+
+  hott corollary recComp {a b : S¹} (p : a = a) (q : b = b) :
+    rec a p ∘ rec b q ~ rec (rec a p b) (mult p q) :=
+  by apply recComMap
 
   hott theorem multAssoc (p q r : Ω¹(S¹)) : mult (mult p q) r = mult p (mult q r) :=
   begin
@@ -1368,6 +1376,7 @@ end Torus
 
 namespace HigherSphere
   open GroundZero.HITs.Suspension (north merid σ)
+  open GroundZero.Proto (idfun)
 
   hott def base : Π {n : ℕ}, S n
   | Nat.zero   => false
@@ -1413,11 +1422,106 @@ namespace HigherSphere
     depPathTransSymm (transport (λ p, u =[B, p] u) (compInv p)⁻¹ (idp u)) = idp (subst p u) :=
   begin induction p; reflexivity end
 
-  hott def ind : Π (n : ℕ) (B : S (n + 1) → Type u) (b : B base), Ω[n + 1](B, b, surf n) → Π x, B x
-  | Nat.zero   => @Circle.ind
-  | Nat.succ n => λ B b ε, Suspension.ind b (transport B (merid base) b)
-    (ind n (λ x, b =[B, merid x] transport B (merid x) b) (idp _) (conjugateOverΩ (indCoh _ _ _)
-      (biapdΩ (λ _, depPathTransSymm) _ _ (overApΩ _ σ _ _ (fillConjugateΩ _ ε)))))
+  hott lemma recConjugateΩ {A : Type u} {a b : A} (p : a = b)
+    (n : ℕ) (α : Ω[n + 1](A, a)) : rec A b n (α^p) ~ rec A a n α :=
+  begin induction p; reflexivity end
+
+  hott theorem recComMapΩ {A : Type u} {B : Type v} (φ : A → B) (a : A) :
+    Π (n : ℕ) (α : Ω[n + 1](A, a)), φ ∘ rec A a n α ~ rec B (φ a) n (apΩ φ α)
+  | Nat.zero,   _ => Circle.recComMap _ _ _
+  | Nat.succ n, α =>
+  begin
+    fapply Suspension.ind; reflexivity; reflexivity; intro x;
+    apply Id.trans; apply Equiv.transportOverHmtpy;
+    transitivity; apply ap (· ⬝ _); apply Id.rid;
+    transitivity; apply bimap;
+    { transitivity; apply mapInv; apply ap;
+      transitivity; apply mapOverComp;
+      transitivity; apply ap (ap φ); apply Suspension.recβrule;
+      apply recComMapΩ (ap φ) _ n };
+    { apply Suspension.recβrule };
+    apply invComp
+  end
+
+  noncomputable hott theorem idfunRecΩ : Π (n : ℕ), rec (S (n + 1)) base n (surf n) ~ idfun
+  | Nat.zero   => Circle.map.nontrivialHmtpy
+  | Nat.succ n =>
+  begin
+    fapply Suspension.ind; reflexivity; apply merid base; intro x;
+    apply Id.trans; apply Equiv.transportOverHmtpy;
+    transitivity; apply ap (· ⬝ _); apply Id.rid;
+    transitivity; apply bimap;
+    { transitivity; apply mapInv; apply ap;
+      transitivity; apply Suspension.recβrule;
+      transitivity; apply @recConjugateΩ (base = base);
+      transitivity; symmetry; apply recComMapΩ σ;
+      apply ap σ; apply idfunRecΩ n };
+    { apply idmap };
+    apply Suspension.σRevComMerid
+  end
+
+  noncomputable hott lemma σRecΩ (n : ℕ) : rec (@Id (S (n + 2)) base base) (idp base) n (surf (n + 1)) ~ σ :=
+  begin
+    transitivity; apply recConjugateΩ;
+    transitivity; symmetry; apply recComMapΩ σ;
+    apply Homotopy.rwhs; apply idfunRecΩ
+  end
+
+  hott theorem mapExtΩ {B : Type u} : Π (n : ℕ) (φ : S (n + 1) → B), rec B (φ base) n (apΩ φ (surf n)) ~ φ
+  | Nat.zero   => λ _ _, (Circle.mapExt _ _)⁻¹
+  | Nat.succ n =>
+  begin
+    intro φ; fapply Suspension.ind; reflexivity; apply ap φ (merid base);
+    intro x; apply Id.trans; apply Equiv.transportOverHmtpy;
+    transitivity; apply ap (· ⬝ _); transitivity; apply Id.rid;
+    transitivity; apply mapInv; transitivity; apply ap;
+    transitivity; apply Suspension.recβrule; dsimp [apΩ];
+    symmetry; apply recComMapΩ (ap φ) (idp base);
+    symmetry; apply mapInv φ; transitivity; symmetry;
+    apply mapFunctoriality φ; apply ap (ap φ);
+    transitivity; apply ap (·⁻¹ ⬝ _); apply σRecΩ;
+    apply Suspension.σRevComMerid
+  end
+
+  hott def indBias (n : ℕ) (B : S (n + 1) → Type u) (b : B base) (ε : Ω[n + 1](B, b, surf n)) :=
+  rec (Σ x, B x) ⟨base, b⟩ n (sigmaProdΩ (surf n) ε)
+
+  noncomputable hott example (n : ℕ) (B : S (n + 1) → Type u) (b : B base)
+    (ε : Ω[n + 1](B, b, surf n)) (x : S (n + 1)) : (indBias n B b ε x).1 = x :=
+  begin
+    transitivity; apply recComMapΩ;
+    transitivity; apply ap (rec _ _ _ · _);
+    apply apFstProdΩ; apply idfunRecΩ
+  end
+
+  -- this (longer) proof computes better than the previous one
+  noncomputable hott lemma indBiasPath : Π (n : ℕ) (B : S (n + 1) → Type u)
+    (b : B base) (ε : Ω[n + 1](B, b, surf n)), Π x, (indBias n B b ε x).1 = x
+  | Nat.zero =>
+  begin
+    intro B b ε; fapply Circle.ind; reflexivity; apply Id.trans;
+    transitivity; apply transportOverInvolution; apply ap (· ⬝ _);
+    transitivity; apply Id.rid; transitivity; apply mapInv; apply ap;
+    transitivity; apply mapOverComp;
+    transitivity; apply ap (ap Sigma.fst);
+    dsimp [indBias]; apply Circle.recβrule₂;
+    apply Sigma.mapFstOverProd; apply invComp
+  end
+  | Nat.succ n =>
+  begin
+    intro B b ε; fapply Suspension.ind; reflexivity; exact merid base;
+    intro x; apply Id.trans; apply transportOverInvolution;
+    transitivity; apply ap (· ⬝ _); transitivity; apply Id.rid;
+    transitivity; apply mapInv; apply ap;
+    transitivity; apply mapOverComp;
+    transitivity; apply ap (ap Sigma.fst); dsimp [indBias]; apply Suspension.recβrule;
+    transitivity; apply recComMapΩ; transitivity; apply ap (rec _ _ _ · _);
+    apply @apFstProdΩ (S (n + 2)) B ⟨base, b⟩ (n + 2) (surf (n + 1)) ε;
+    apply σRecΩ; apply Suspension.σRevComMerid
+  end
+
+  hott def ind (n : ℕ) (B : S (n + 1) → Type u) (b : B base) (ε : Ω[n + 1](B, b, surf n)) : Π x, B x :=
+  λ x, transport B (indBiasPath n B b ε x) (indBias n B b ε x).2
 
   hott theorem indβrule₁ : Π (n : ℕ) (B : S (n + 1) → Type u) (b : B base) (α : Ω[n + 1](B, b, surf n)), ind n B b α base = b
   | Nat.zero,   _, _, _ => idp _

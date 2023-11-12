@@ -50,6 +50,12 @@ namespace Suspension
 
   hott def σ {A : Type u} [isPointed A] : A → Ω¹(∑ A) :=
   λ x, merid x ⬝ (merid (pointOf A))⁻¹
+
+  hott lemma σComMerid {A : Type u} [isPointed A] (x : A) : σ x ⬝ merid (pointOf A) = merid x :=
+  by apply Id.cancelInvComp
+
+  hott lemma σRevComMerid {A : Type u} [isPointed A] (x : A) : (σ x)⁻¹ ⬝ merid x = merid (pointOf A) :=
+  begin apply rewriteComp; symmetry; apply σComMerid end
 end Suspension
 
 end HITs

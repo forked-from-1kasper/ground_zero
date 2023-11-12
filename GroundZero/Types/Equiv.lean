@@ -671,6 +671,10 @@ namespace Equiv
     {α : Ωⁿ(A, a)} (p : a = b) : Ωⁿ(B, u, α^p) → Ωⁿ(B, transport B p⁻¹ u, α) :=
   λ β, fillHaeΩ p (conjugateOverΩ (transportBackAndForward p u)⁻¹ β)
 
+  hott def fillConjugateRevΩ {A : Type u} {B : A → Type v} {a b : A} {u : B a} {n : ℕ}
+    {α : Ωⁿ(A, b)} (p : a = b) : Ωⁿ(B, transport B p u, α) → Ωⁿ(B, u, α^p⁻¹) :=
+  begin induction p; fapply idfun end
+
   hott def apdConjugateΩ {A : Type u} {B : A → Type v} (f : Π x, B x) {a b : A} (p : a = b) {n : ℕ}
     (α : Ωⁿ(A, a)) : apdΩ f (α^p) = conjugateOverΩ (apd f p) (fillΩ p (apdΩ f α)) :=
   begin induction p; reflexivity end
