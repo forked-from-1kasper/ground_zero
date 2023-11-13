@@ -1382,19 +1382,19 @@ namespace HigherSphere
   | Nat.zero   => false
   | Nat.succ _ => north
 
-  hott def surf : Π (n : ℕ), Ω[n + 1](S (n + 1))
+  hott def surf : Π (n : ℕ), Ωⁿ⁺¹(Sⁿ⁺¹)
   | Nat.zero   => Circle.loop
   | Nat.succ n => conjugateΩ (compInv _) (apΩ σ (surf n))
 
-  hott def rec (B : Type u) (b : B) : Π (n : ℕ), Ω[n + 1](B, b) → S (n + 1) → B
+  hott def rec (B : Type u) (b : B) : Π (n : ℕ), Ωⁿ⁺¹(B, b) → Sⁿ⁺¹ → B
   | Nat.zero   => Circle.rec b
   | Nat.succ n => λ ε, Suspension.rec b b (rec (b = b) (idp b) n ε)
 
-  hott theorem recβrule₁ {B : Type u} (b : B) : Π {n : ℕ} (α : Ω[n + 1](B, b)), rec B b n α base = b
+  hott theorem recβrule₁ {B : Type u} (b : B) : Π {n : ℕ} (α : Ωⁿ⁺¹(B, b)), rec B b n α base = b
   | Nat.zero,   _ => idp _
   | Nat.succ _, _ => idp _
 
-  hott lemma σComApRec {B : Type u} (b : B) (n : ℕ) (ε : Ω[n + 2](B, b)) :
+  hott lemma σComApRec {B : Type u} (b : B) (n : ℕ) (ε : Ωⁿ⁺²(B, b)) :
     ap (rec B b (n + 1) ε) ∘ σ ~ rec (b = b) (idp b) n ε :=
   begin
     intro x; transitivity; apply mapFunctoriality;
@@ -1404,7 +1404,7 @@ namespace HigherSphere
     apply ap; apply recβrule₁; apply Id.rid
   end
 
-  hott theorem recβrule₂ {B : Type u} (b : B) : Π (n : ℕ) (α : Ω[n + 1](B, b)),
+  hott theorem recβrule₂ {B : Type u} (b : B) : Π (n : ℕ) (α : Ωⁿ⁺¹(B, b)),
     conjugateΩ (recβrule₁ b α) (apΩ (rec B b n α) (surf n)) = α
   | Nat.zero,   _ => Circle.recβrule₂ _ _
   | Nat.succ n, _ =>
@@ -1423,11 +1423,11 @@ namespace HigherSphere
   begin induction p; reflexivity end
 
   hott lemma recConjugateΩ {A : Type u} {a b : A} (p : a = b)
-    (n : ℕ) (α : Ω[n + 1](A, a)) : rec A b n (α^p) ~ rec A a n α :=
+    (n : ℕ) (α : Ωⁿ⁺¹(A, a)) : rec A b n (α^p) ~ rec A a n α :=
   begin induction p; reflexivity end
 
   hott theorem recComMapΩ {A : Type u} {B : Type v} (φ : A → B) (a : A) :
-    Π (n : ℕ) (α : Ω[n + 1](A, a)), φ ∘ rec A a n α ~ rec B (φ a) n (apΩ φ α)
+    Π (n : ℕ) (α : Ωⁿ⁺¹(A, a)), φ ∘ rec A a n α ~ rec B (φ a) n (apΩ φ α)
   | Nat.zero,   _ => Circle.recComMap _ _ _
   | Nat.succ n, α =>
   begin
@@ -1443,7 +1443,7 @@ namespace HigherSphere
     apply invComp
   end
 
-  noncomputable hott theorem idfunRecΩ : Π (n : ℕ), rec (S (n + 1)) base n (surf n) ~ idfun
+  noncomputable hott theorem idfunRecΩ : Π (n : ℕ), rec Sⁿ⁺¹ base n (surf n) ~ idfun
   | Nat.zero   => Circle.map.nontrivialHmtpy
   | Nat.succ n =>
   begin
@@ -1460,14 +1460,14 @@ namespace HigherSphere
     apply Suspension.σRevComMerid
   end
 
-  noncomputable hott lemma σRecΩ (n : ℕ) : rec (@Id (S (n + 2)) base base) (idp base) n (surf (n + 1)) ~ σ :=
+  noncomputable hott lemma σRecΩ (n : ℕ) : rec (@Id Sⁿ⁺² base base) (idp base) n (surf (n + 1)) ~ σ :=
   begin
     transitivity; apply recConjugateΩ;
     transitivity; symmetry; apply recComMapΩ σ;
     apply Homotopy.rwhs; apply idfunRecΩ
   end
 
-  hott theorem mapExtΩ {B : Type u} : Π (n : ℕ) (φ : S (n + 1) → B), rec B (φ base) n (apΩ φ (surf n)) ~ φ
+  hott theorem mapExtΩ {B : Type u} : Π (n : ℕ) (φ : Sⁿ⁺¹ → B), rec B (φ base) n (apΩ φ (surf n)) ~ φ
   | Nat.zero   => λ _ _, (Circle.mapExt _ _)⁻¹
   | Nat.succ n =>
   begin
@@ -1483,11 +1483,11 @@ namespace HigherSphere
     apply Suspension.σRevComMerid
   end
 
-  hott def indBias (n : ℕ) (B : S (n + 1) → Type u) (b : B base) (ε : Ω[n + 1](B, b, surf n)) :=
+  hott def indBias (n : ℕ) (B : Sⁿ⁺¹ → Type u) (b : B base) (ε : Ωⁿ⁺¹(B, b, surf n)) :=
   rec (Σ x, B x) ⟨base, b⟩ n (sigmaProdΩ (surf n) ε)
 
-  noncomputable hott example (n : ℕ) (B : S (n + 1) → Type u) (b : B base)
-    (ε : Ω[n + 1](B, b, surf n)) (x : S (n + 1)) : (indBias n B b ε x).1 = x :=
+  noncomputable hott example (n : ℕ) (B : Sⁿ⁺¹ → Type u) (b : B base)
+    (ε : Ωⁿ⁺¹(B, b, surf n)) (x : Sⁿ⁺¹) : (indBias n B b ε x).1 = x :=
   begin
     transitivity; apply recComMapΩ;
     transitivity; apply ap (rec _ _ _ · _);
@@ -1495,8 +1495,8 @@ namespace HigherSphere
   end
 
   -- this (longer) proof computes better than the previous one
-  noncomputable hott lemma indBiasPath : Π (n : ℕ) (B : S (n + 1) → Type u)
-    (b : B base) (ε : Ω[n + 1](B, b, surf n)), Π x, (indBias n B b ε x).1 = x
+  noncomputable hott lemma indBiasPath : Π (n : ℕ) (B : Sⁿ⁺¹ → Type u)
+    (b : B base) (ε : Ωⁿ⁺¹(B, b, surf n)), Π x, (indBias n B b ε x).1 = x
   | Nat.zero =>
   begin
     intro B b ε; fapply Circle.ind; reflexivity; apply Id.trans;
@@ -1516,14 +1516,14 @@ namespace HigherSphere
     transitivity; apply mapOverComp;
     transitivity; apply ap (ap Sigma.fst); dsimp [indBias]; apply Suspension.recβrule;
     transitivity; apply recComMapΩ; transitivity; apply ap (rec _ _ _ · _);
-    apply @apFstProdΩ (S (n + 2)) B ⟨base, b⟩ (n + 2) (surf (n + 1)) ε;
+    apply @apFstProdΩ Sⁿ⁺² B ⟨base, b⟩ (n + 2) (surf (n + 1)) ε;
     apply σRecΩ; apply Suspension.σRevComMerid
   end
 
-  hott def ind (n : ℕ) (B : S (n + 1) → Type u) (b : B base) (ε : Ω[n + 1](B, b, surf n)) : Π x, B x :=
+  hott def ind (n : ℕ) (B : Sⁿ⁺¹ → Type u) (b : B base) (ε : Ωⁿ⁺¹(B, b, surf n)) : Π x, B x :=
   λ x, transport B (indBiasPath n B b ε x) (indBias n B b ε x).2
 
-  hott theorem indβrule₁ : Π (n : ℕ) (B : S (n + 1) → Type u) (b : B base) (α : Ω[n + 1](B, b, surf n)), ind n B b α base = b
+  hott theorem indβrule₁ : Π (n : ℕ) (B : Sⁿ⁺¹ → Type u) (b : B base) (α : Ωⁿ⁺¹(B, b, surf n)), ind n B b α base = b
   | Nat.zero,   _, _, _ => idp _
   | Nat.succ _, _, _, _ => idp _
 end HigherSphere

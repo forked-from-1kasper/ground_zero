@@ -891,7 +891,7 @@ namespace Types.Id
   | Nat.zero,   _ => idp _
   | Nat.succ _, _ => apWithHomotopyΩ idmap _ _ ⬝ idmapΩ _ _
 
-  hott lemma conjugateSuccΩ {A : Type u} {a b : A} (p : a = b) (n : ℕ) (α : Ω[n + 1](A, a)) :
+  hott lemma conjugateSuccΩ {A : Type u} {a b : A} (p : a = b) (n : ℕ) (α : Ωⁿ⁺¹(A, a)) :
     α^p = conjugateΩ (apd idp p) (apΩ (transport (λ x, x = x) p) α) :=
   begin induction p; symmetry; apply idmapΩ end
 
@@ -900,7 +900,7 @@ namespace Types.Id
   λ _, transportInvCompComp _ _ ⬝ cancelHigherConjLeft _ _
 
   hott theorem abelianΩ {A : Type u} {a : A} (p : idp a = idp a) :
-    Π (n : ℕ) (α : Ω[n + 1](a = a, idp a)), α^p = α
+    Π (n : ℕ) (α : Ωⁿ⁺¹(a = a, idp a)), α^p = α
   | Nat.zero,   _ => transportAbelian _ _
   | Nat.succ n, _ => conjugateSuccΩ _ _ _ ⬝ ap (conjugateΩ (apd idp p)) (apWithHomotopyΩ (transportAbelian _) _ _) ⬝
                      (conjugateTransΩ _ _ (n + 1) _)⁻¹ ⬝ abelianΩ _ _ _ ⬝ idmapΩ _ _

@@ -193,18 +193,32 @@ declare_syntax_cat superscript
 syntax (name := superscriptNumber) many1(superscriptNumeral) : superscript
 syntax (name := superscriptIdent)  many1(superscriptChar)    : superscript
 
-def parseSuperscript : Lean.Syntax → Lean.MacroM Lean.Term
-| `(superscriptNumber| $stx*) => return parseSupNumber stx
-| `(superscriptIdent| $stx*) => return Lean.mkIdent (parseSupIdent stx)
-| stx => Lean.Macro.throwError "invalid superscript"
+syntax:65 superscript:65 "⁺" superscript:66 : superscript
+syntax:65 superscript:65 "⁻" superscript:66 : superscript
+syntax:max "⁽" superscript "⁾"              : superscript
+
+partial def parseSuperscript : Lean.Syntax → Lean.MacroM Lean.Term
+| `(superscriptNumber| $stx*)   => return parseSupNumber stx
+| `(superscriptIdent| $stx*)    => return Lean.mkIdent (parseSupIdent stx)
+| `(superscript| $stx₁ ⁺ $stx₂) => do `(HAdd.hAdd $(← parseSuperscript stx₁) $(← parseSuperscript stx₂))
+| `(superscript| $stx₁ ⁻ $stx₂) => do `(HSub.hSub $(← parseSuperscript stx₁) $(← parseSuperscript stx₂))
+| `(superscript| ⁽$stx⁾)        => parseSuperscript stx
+| stx                           => Lean.Macro.throwError "invalid superscript"
 
 declare_syntax_cat subscript
 syntax (name := subscriptNumber) many1(subscriptNumeral) : subscript
 syntax (name := subscriptIdent)  many1(subscriptChar)    : subscript
 
-def parseSubscript : Lean.Syntax → Lean.MacroM Lean.Term
-| `(subscriptNumber| $stx*) => return parseSubNumber stx
-| `(subscriptIdent| $stx*) => return Lean.mkIdent (parseSubIdent stx)
-| stx => Lean.Macro.throwError "invalid subscript"
+syntax:65 subscript:65 "₊" subscript:66 : subscript
+syntax:65 subscript:65 "₋" subscript:66 : subscript
+syntax:max "₍" subscript "₎"            : subscript
+
+partial def parseSubscript : Lean.Syntax → Lean.MacroM Lean.Term
+| `(subscriptNumber| $stx*)   => return parseSubNumber stx
+| `(subscriptIdent| $stx*)    => return Lean.mkIdent (parseSubIdent stx)
+| `(subscript| $stx₁ ₊ $stx₂) => do `(HAdd.hAdd $(← parseSubscript stx₁) $(← parseSubscript stx₂))
+| `(subscript| $stx₁ ₋ $stx₂) => do `(HSub.hSub $(← parseSubscript stx₁) $(← parseSubscript stx₂))
+| `(subscript| ₍$stx₎)        => parseSubscript stx
+| stx                         => Lean.Macro.throwError "invalid subscript"
 
 end GroundZero.Meta.Notation

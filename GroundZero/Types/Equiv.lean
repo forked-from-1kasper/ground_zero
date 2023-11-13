@@ -147,7 +147,7 @@ namespace Equiv
   instance : Rewrite Equiv.{u, v} Equiv.{v, w} Equiv.{u, w} := ⟨@trans⟩
 
   def depPath {A : Type u} (B : A → Type v) {a b : A} (p : a = b) (u : B a) (v : B b) :=
-  Equiv.subst p u = v
+  transport B p u = v
 
   notation u " =[" P ", " p "] " v => depPath P p u v
   notation u " =[" p "] " v        => depPath _ p u v
@@ -336,7 +336,7 @@ namespace Equiv
   begin induction η; apply transportComposition end
 
   hott lemma transportInvCompComp {A : Type u} {a b : A} (p : a = b) (q : a = a) :
-    Equiv.transport (λ x, x = x) p q = p⁻¹ ⬝ q ⬝ p :=
+    transport (λ x, x = x) p q = p⁻¹ ⬝ q ⬝ p :=
   begin induction p; symmetry; apply Id.rid end
 
   hott theorem mapFunctoriality {A : Type u} {B : Type v}
@@ -678,6 +678,14 @@ namespace Equiv
   hott def apdConjugateΩ {A : Type u} {B : A → Type v} (f : Π x, B x) {a b : A} (p : a = b) {n : ℕ}
     (α : Ωⁿ(A, a)) : apdΩ f (α^p) = conjugateOverΩ (apd f p) (fillΩ p (apdΩ f α)) :=
   begin induction p; reflexivity end
+
+  hott def revΩ {A : Type u} {a : A} : Π {n : ℕ}, Ωⁿ⁺¹(A, a) → Ωⁿ⁺¹(A, a)
+  | Nat.zero,   p => p⁻¹
+  | Nat.succ n, α => @revΩ (a = a) (idp a) n α
+
+  hott def comΩ {A : Type u} {a : A} : Π {n : ℕ}, Ωⁿ⁺¹(A, a) → Ωⁿ⁺¹(A, a) → Ωⁿ⁺¹(A, a)
+  | Nat.zero,   p, q => p ⬝ q
+  | Nat.succ n, α, β => @comΩ (a = a) (idp a) n α β
 end Equiv
 
 def isQinv {A : Type u} {B : Type v} (f : A → B) (g : B → A) :=
