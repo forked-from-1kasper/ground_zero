@@ -280,6 +280,11 @@ namespace Circle
      ... = transportconst (ua Integer.succEquiv)⁻¹ x : ap (transportconst ·⁻¹ x) (recβrule₂ _ _)
      ... = Integer.pred x                            : ua.transportInvRule _ _
 
+  -- An example of two equal dependent pairs with unequal second components.
+  -- Note that this example depends on the univalence.
+  noncomputable hott example (z : ℤ) : @Id (Σ x, helix x) ⟨base, z⟩ ⟨base, Integer.succ z⟩ :=
+  Sigma.prod loop (transportThere z)
+
   noncomputable hott def decode (x : S¹) : helix x → base = x :=
   begin
     induction x; exact power; apply Theorems.funext; intro x;
@@ -1417,10 +1422,6 @@ namespace HigherSphere
     apply recβrule₁; transitivity; symmetry; apply conjugateTransΩ;
     transitivity; apply ap (conjugateΩ _); apply recβrule₂ _ n; apply abelianΩ
   end
-
-  hott lemma indCoh {A : Type u} (B : A → Type v) {a b : A} (p : a = b) (u : B a) :
-    depPathTransSymm (transport (λ p, u =[B, p] u) (compInv p)⁻¹ (idp u)) = idp (subst p u) :=
-  begin induction p; reflexivity end
 
   hott lemma recConjugateΩ {A : Type u} {a b : A} (p : a = b)
     (n : ℕ) (α : Ωⁿ⁺¹(A, a)) : rec A b n (α^p) ~ rec A a n α :=

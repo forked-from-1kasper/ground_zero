@@ -497,6 +497,17 @@ begin apply hsetRespectsEquiv; apply Types.Equiv.identityEqv; assumption end
 hott def zeroEquiv (A B : 0-Type) := A.1 ≃ B.1
 infix:25 " ≃₀ " => zeroEquiv
 
+section
+  open GroundZero.Types.Equiv
+  open GroundZero.Types
+
+  hott lemma sigmaProdInjHSet {A : Type u} {B : A → Type v} {x : A} {u v : B x}
+    (H : hset A) : @Id (Σ x, B x) ⟨x, u⟩ ⟨x, v⟩ → u = v :=
+  λ p, ap (transport B · u) (H x x (idp x) (ap Sigma.fst p)) ⬝
+       (@transportComp (Σ x, B x) A B ⟨x, u⟩ ⟨x, v⟩ Sigma.fst p u)⁻¹ ⬝
+       apd Sigma.snd p
+end
+
 end Structures
 
 -- http://www.cs.bham.ac.uk/~mhe/truncation-and-extensionality/tiny-library.html
@@ -988,6 +999,18 @@ namespace Types.Id
     let ε := @sigmaProdΩ (w.1 = w.1) (λ p, w.2 =[B, p] w.2) ⟨idp w.1, idp w.2⟩ n α β;
     dsimp [apΩ, sigmaProdΩ]; transitivity; symmetry; apply comApΩ (ap Sigma.fst) Sigma.eqOfSigmaEq n ε;
     transitivity; apply apWithHomotopyΩ; intro; apply Sigma.mapFstOverProd; apply apFstProdΩ
+  end
+
+  hott theorem apOverSigmaΩ {A : Type u} {B : A → Type v} (f : Π x, B x) {a : A} :
+    Π {n : ℕ} (α : Ωⁿ(A, a)), @apΩ A (Σ x, B x) (λ x, ⟨x, f x⟩) a n α = sigmaProdΩ α (apdΩ f α)
+  | Nat.zero,   x => idp _
+  | Nat.succ n, α =>
+  begin
+    dsimp [sigmaProdΩ, apΩ, apdΩ];
+    transitivity; apply apWithHomotopyΩ; apply Sigma.apOverSigma;
+    transitivity; apply @comApΩ (a = a) (Σ p, f a =[p] f a) (@Id (Σ x, B x) ⟨a, f a⟩ ⟨a, f a⟩)
+      (@Sigma.eqOfSigmaEq A B ⟨a, f a⟩ ⟨a, f a⟩) (λ p, ⟨p, apd f p⟩);
+    apply ap; apply apOverSigmaΩ (apd f)
   end
 end Types.Id
 

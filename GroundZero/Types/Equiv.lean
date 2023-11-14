@@ -354,6 +354,11 @@ namespace Equiv
     ap f (p ⬝ q ⬝ r ⬝ s) = ap f p ⬝ ap f q ⬝ ap f r ⬝ ap f s :=
   begin induction p; induction q; induction r; reflexivity end
 
+  hott corollary mapFunctoriality₅ {A : Type u} {B : Type v}
+    {a b c d e f : A} (g : A → B) {p : a = b} {q : b = c} {r : c = d} {s : d = e} {t : e = f} :
+    ap g (p ⬝ q ⬝ r ⬝ s ⬝ t) = ap g p ⬝ ap g q ⬝ ap g r ⬝ ap g s ⬝ ap g t :=
+  begin induction p; induction q; induction r; induction s; reflexivity end
+
   hott lemma transportOverContrMap {A : Type u} {B : Type v} {a b : A} {c : B}
     (f : A → B) (p : a = b) (q : f a = c) :
     transport (λ x, f x = c) p q = ap f p⁻¹ ⬝ q :=
@@ -686,6 +691,40 @@ namespace Equiv
   hott def comΩ {A : Type u} {a : A} : Π {n : ℕ}, Ωⁿ⁺¹(A, a) → Ωⁿ⁺¹(A, a) → Ωⁿ⁺¹(A, a)
   | Nat.zero,   p, q => p ⬝ q
   | Nat.succ n, α, β => @comΩ (a = a) (idp a) n α β
+
+  hott theorem assocΩ {A : Type u} {a : A} : Π {n : ℕ} (α β γ : Ωⁿ⁺¹(A, a)), comΩ α (comΩ β γ) = comΩ (comΩ α β) γ
+  | Nat.zero,   p, q, r => Id.assoc p q r
+  | Nat.succ n, α, β, γ => @assocΩ (a = a) (idp a) n α β γ
+
+  open GroundZero.Types.Id (idΩ)
+
+  hott theorem ridΩ {A : Type u} {a : A} : Π {n : ℕ} (α : Ωⁿ⁺¹(A, a)), comΩ α (idΩ a (n + 1)) = α
+  | Nat.zero,   p => Id.rid p
+  | Nat.succ n, α => @ridΩ (a = a) (idp a) n α
+
+  hott theorem lidΩ {A : Type u} {a : A} : Π {n : ℕ} (α : Ωⁿ⁺¹(A, a)), comΩ (idΩ a (n + 1)) α = α
+  | Nat.zero,   p => Id.lid p
+  | Nat.succ n, α => @lidΩ (a = a) (idp a) n α
+
+  hott theorem revrΩ {A : Type u} {a : A} : Π {n : ℕ} (α : Ωⁿ⁺¹(A, a)), comΩ α (revΩ α) = idΩ a (n + 1)
+  | Nat.zero,   p => Id.compInv p
+  | Nat.succ n, α => @revrΩ (a = a) (idp a) n α
+
+  hott theorem revlΩ {A : Type u} {a : A} : Π {n : ℕ} (α : Ωⁿ⁺¹(A, a)), comΩ (revΩ α) α = idΩ a (n + 1)
+  | Nat.zero,   p => Id.invComp p
+  | Nat.succ n, α => @revlΩ (a = a) (idp a) n α
+
+  hott lemma comDistribΩ {A : Type u} {a b : A} (p : a = b) {n : ℕ}
+    (α β : Ωⁿ⁺¹(A, a)) : comΩ (α^p) (β^p) = (comΩ α β)^p :=
+  begin induction p; reflexivity end
+
+  hott lemma revConjugateΩ {A : Type u} {a b : A} (p : a = b) {n : ℕ}
+    (α : Ωⁿ⁺¹(A, a)) : revΩ (α^p) = (revΩ α)^p :=
+  begin induction p; reflexivity end
+
+  hott corollary abelianComΩ {A : Type u} {a : A} : Π {n : ℕ} (α β : Ωⁿ⁺²(A, a)), comΩ α β = comΩ β α
+  | Nat.zero,   p, q => Whiskering.comm p q
+  | Nat.succ n, α, β => @abelianComΩ (a = a) (idp a) n α β
 end Equiv
 
 def isQinv {A : Type u} {B : Type v} (f : A → B) (g : B → A) :=

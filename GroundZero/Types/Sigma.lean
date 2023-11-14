@@ -40,6 +40,10 @@ namespace Sigma
     intro (q : u = v); induction q; reflexivity
   end
 
+  hott lemma apOverSigma {A : Type u} {B : A → Type v} (f : Π x, B x) {a b : A} (p : a = b) :
+    @ap A (Σ x, B x) a b (λ x, ⟨x, f x⟩) p = Sigma.prod p (apd f p) :=
+  begin induction p; reflexivity end
+
   hott def prodRefl {A : Type u} {B : A → Type v}
     (u : Sigma B) : prod (idp u.1) (idp u.2) = idp u :=
   idp (idp u)
