@@ -875,6 +875,29 @@ namespace Types.Equiv
 
   hott theorem sumEquiv (e₁ : A ≃ A') (e₂ : B ≃ B') : (A + B) ≃ (A' + B') :=
   ⟨Coproduct.bimap e₁.1 e₂.1, sumBiinv e₁.2 e₂.2⟩
+
+  hott def meet {A : Type u} {a b : A} (p : a = b) : @Id (singl a) ⟨a, idp a⟩ ⟨b, p⟩ :=
+  Sigma.prod p (transportComposition p (idp a))
+
+  hott theorem transportMeetPi {X : Type u} {A : X → Type v} {B : Π x, A x → Type w}
+    {a b : X} (p : a = b) (φ : Π (x : A a), B a x) (u : A b) :
+       transport (λ x, Π (a : A x), B x a) p φ u
+    = @transport (Σ x, b = x) (λ w, B w.1 (transport A w.2 u)) ⟨a, p⁻¹⟩ ⟨b, idp b⟩
+                 (meet p⁻¹)⁻¹ (φ (transport A p⁻¹ u)) :=
+  begin induction p; reflexivity end
+
+  hott theorem transportMeetSigma {X : Type u} {A : X → Type v} {B : Π x, A x → Type w}
+    {a b : X} (p : a = b) (w : Σ (x : A a), B a x) :
+       transport (λ x, Σ (a : A x), B x a) p w
+    = ⟨transport A p w.1, @transport (Σ x, a = x) (λ u, B u.1 (transport A u.2 w.1))
+                                     ⟨a, idp a⟩ ⟨b, p⟩ (meet p) w.2⟩ :=
+  begin induction p; reflexivity end
+
+  hott theorem transportMeetPath {X : Type u} {A : X → Type v} {f g : Π x, A x}
+    {a b : X} (p : a = b) (q : f a = g a) :
+      transport (λ x, @Id (A x) (f x) (g x)) p q
+    = (apd f p)⁻¹ ⬝ ap (transport A p) q ⬝ (apd g p) :=
+  begin induction p; symmetry; transitivity; apply Id.rid; apply idmap end
 end Types.Equiv
 
 namespace Types.Id

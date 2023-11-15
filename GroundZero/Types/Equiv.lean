@@ -443,8 +443,8 @@ namespace Equiv
   begin induction p; reflexivity end
 
   hott theorem transportOverSig {A : Type u} {B : Type v}
-    (B : A → B → Type w) {a b : A} (p : a = b) (u : Σ y, B a y) :
-    transport (λ x, Σ y, B x y) p u = ⟨u.1, transport (B · u.1) p u.2⟩ :=
+    (C : A → B → Type w) {a b : A} (p : a = b) (u : Σ y, C a y) :
+    transport (λ x, Σ y, C x y) p u = ⟨u.1, transport (C · u.1) p u.2⟩ :=
   begin induction p; reflexivity end
 
   hott theorem transportOverProduct {A : Type u} (F : A → Type v) (G : A → Type w) {a b : A}
@@ -713,6 +713,10 @@ namespace Equiv
   hott theorem revlΩ {A : Type u} {a : A} : Π {n : ℕ} (α : Ωⁿ⁺¹(A, a)), comΩ (revΩ α) α = idΩ a (n + 1)
   | Nat.zero,   p => Id.invComp p
   | Nat.succ n, α => @revlΩ (a = a) (idp a) n α
+
+  hott theorem involΩ {A : Type u} {a : A} : Π {n : ℕ} (α : Ωⁿ⁺¹(A, a)), revΩ (revΩ α) = α
+  | Nat.zero,   p => Id.invInv p
+  | Nat.succ n, α => @involΩ (a = a) (idp a) n α
 
   hott lemma comDistribΩ {A : Type u} {a b : A} (p : a = b) {n : ℕ}
     (α β : Ωⁿ⁺¹(A, a)) : comΩ (α^p) (β^p) = (comΩ α β)^p :=
