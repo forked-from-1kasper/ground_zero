@@ -82,11 +82,11 @@ namespace Equiv
   hott def forward {A : Type u} {B : Type v} (e : A ≃ B) : A → B := e.fst
   instance forwardCoe {A : Type u} {B : Type v} : CoeFun (A ≃ B) (λ _, A → B) := ⟨forward⟩
 
-  hott def left {A : Type u} {B : Type v} (e : A ≃ B) : B → A := e.2.1.1
+  hott def left  {A : Type u} {B : Type v} (e : A ≃ B) : B → A := e.2.1.1
   hott def right {A : Type u} {B : Type v} (e : A ≃ B) : B → A := e.2.2.1
 
-  hott def leftForward {A : Type u} {B : Type v} (e : A ≃ B) : e.left ∘ e.forward ~ id := e.2.1.2
-  hott def forwardRight {A : Type u} {B : Type v} (e : A ≃ B) : e.forward ∘ e.right ~ id := e.2.2.2
+  hott def leftForward  {A : Type u} {B : Type v} (e : A ≃ B) : e.left    ∘ e.forward ~ id := e.2.1.2
+  hott def forwardRight {A : Type u} {B : Type v} (e : A ≃ B) : e.forward ∘ e.right   ~ id := e.2.2.2
 
   hott def ideqv (A : Type u) : A ≃ A :=
   ⟨idfun, (⟨idfun, idp⟩, ⟨idfun, idp⟩)⟩
