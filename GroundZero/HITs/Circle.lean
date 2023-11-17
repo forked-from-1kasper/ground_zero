@@ -657,9 +657,7 @@ namespace Circle
   begin
     fapply Sigma.mk; intro φ; exact ⟨φ base, ap φ loop⟩; apply Qinv.toBiinv;
     fapply Sigma.mk; intro w; exact rec w.1 w.2; apply Prod.mk;
-    { intro w; fapply Sigma.prod; exact idp w.1; transitivity;
-      apply Equiv.transportInvCompComp; transitivity;
-      apply Id.rid; apply recβrule₂ };
+    { intro; fapply Sigma.prod; reflexivity; apply recβrule₂ };
     { intro φ; symmetry; apply Theorems.funext; apply mapExt }
   end
 
@@ -1482,6 +1480,17 @@ namespace HigherSphere
     apply mapFunctoriality φ; apply ap (ap φ);
     transitivity; apply ap (·⁻¹ ⬝ _); apply σRecΩ;
     apply Suspension.σRevComMerid
+  end
+
+  -- Direct proof of universal property of Sⁿ⁺¹.
+  hott theorem mapLoopEqvΩ {B : Type u} : Π (n : ℕ), (Sⁿ⁺¹ → B) ≃ (Σ (x : B), Ωⁿ⁺¹(B, x))
+  | Nat.zero   => Circle.mapLoopEqv
+  | Nat.succ n =>
+  begin
+    fapply Sigma.mk; intro φ; exact ⟨φ base, apΩ φ (surf (n + 1))⟩; apply Qinv.toBiinv;
+    fapply Sigma.mk; intro w; exact rec B w.1 (n + 1) w.2; apply Prod.mk;
+    { intro; fapply Sigma.prod; reflexivity; apply recβrule₂ };
+    { intro φ; apply Theorems.funext; apply mapExtΩ }
   end
 
   hott def indBias (n : ℕ) (B : Sⁿ⁺¹ → Type u) (b : B base) (ε : Ωⁿ⁺¹(B, b, surf n)) :=

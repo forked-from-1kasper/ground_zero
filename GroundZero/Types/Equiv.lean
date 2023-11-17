@@ -78,6 +78,59 @@ def Equiv (A : Type u) (B : Type v) : Type (max u v) :=
 Σ (f : A → B), Equiv.biinv f
 infix:25 " ≃ " => Equiv
 
+def isQinv {A : Type u} {B : Type v} (f : A → B) (g : B → A) :=
+(f ∘ g ~ idfun) × (g ∘ f ~ idfun)
+
+def qinv {A : Type u} {B : Type v} (f : A → B) :=
+Σ (g : B → A), isQinv f g
+
+-- half adjoint equivalence
+def ishae {A : Type u} {B : Type v} (f : A → B) :=
+Σ (g : B → A) (η : g ∘ f ~ id) (ϵ : f ∘ g ~ id), Π x, ap f (η x) = ϵ (f x)
+
+def fib {A : Type u} {B : Type v} (f : A → B) (y : B) := Σ (x : A), f x = y
+def total {A : Type u} (B : A → Type v) := Σ x, B x
+def fiberwise {A : Type u} (B : A → Type v) := Π x, B x
+
+namespace Qinv
+  open Equiv (biinv)
+  open Id (ap)
+
+  hott def linvInv {A : Type u} {B : Type v}
+    (f : A → B) (g : B → A) (h : B → A)
+    (G : f ∘ g ~ id) (H : h ∘ f ~ id) : g ∘ f ~ id :=
+  let F₁ := λ x, H (g (f x));
+  let F₂ := λ x, ap h (G (f x));
+  λ x, (F₁ x)⁻¹ ⬝ F₂ x ⬝ H x
+
+  hott def rinvInv {A : Type u} {B : Type v}
+    (f : A → B) (g : B → A) (h : B → A)
+    (G : f ∘ g ~ id) (H : h ∘ f ~ id) : f ∘ h ~ id :=
+  let F₁ := λ x, ap (f ∘ h) (G x);
+  let F₂ := λ x, ap f (H (g x));
+  λ x, (F₁ x)⁻¹ ⬝ F₂ x ⬝ G x
+
+  hott def toBiinv {A : Type u} {B : Type v} (f : A → B) (q : qinv f) : biinv f :=
+  (⟨q.1, q.2.2⟩, ⟨q.1, q.2.1⟩)
+
+  hott def ofBiinv {A : Type u} {B : Type v} (f : A → B) (F : biinv f) : qinv f :=
+  ⟨F.2.1, (F.2.2, linvInv f F.2.1 F.1.1 F.2.2 F.1.2)⟩
+
+  hott def ideqv {A : Type u} : qinv (@idfun A) :=
+  ⟨idfun, (idp, idp)⟩
+
+  hott def sym {A : Type u} {B : Type v} {f : A → B} (e : qinv f) : qinv e.1 :=
+  ⟨f, (e.2.2, e.2.1)⟩
+
+  hott def com {A : Type u} {B : Type v} {C : Type w} {g : B → C} {f : A → B} :
+    qinv g → qinv f → qinv (g ∘ f) :=
+  λ e₁ e₂, ⟨e₂.1 ∘ e₁.1, (λ c, ap g (e₂.2.1 (e₁.1 c)) ⬝ e₁.2.1 c,
+                          λ a, ap e₂.1 (e₁.2.2 (f a)) ⬝ e₂.2.2 a)⟩
+
+  hott def toEquiv {A : Type u} {B : Type v} {f : A → B} (e : qinv f) : A ≃ B :=
+  ⟨f, (⟨e.1, e.2.2⟩, ⟨e.1, e.2.1⟩)⟩
+end Qinv
+
 namespace Equiv
   hott def forward {A : Type u} {B : Type v} (e : A ≃ B) : A → B := e.fst
   instance forwardCoe {A : Type u} {B : Type v} : CoeFun (A ≃ B) (λ _, A → B) := ⟨forward⟩
@@ -88,6 +141,43 @@ namespace Equiv
   hott def leftForward  {A : Type u} {B : Type v} (e : A ≃ B) : e.left    ∘ e.forward ~ id := e.2.1.2
   hott def forwardRight {A : Type u} {B : Type v} (e : A ≃ B) : e.forward ∘ e.right   ~ id := e.2.2.2
 
+  hott def forwardLeft {A : Type u} {B : Type v} (e : A ≃ B) : e.forward ∘ e.left ~ idfun :=
+  begin apply Qinv.rinvInv; apply e.forwardRight; apply e.leftForward end
+
+  hott def rightForward {A : Type u} {B : Type v} (e : A ≃ B) : e.right ∘ e.forward ~ idfun :=
+  begin apply Qinv.linvInv; apply e.forwardRight; apply e.leftForward end
+
+  hott def symm {A : Type u} {B : Type v} (f : A ≃ B) : B ≃ A :=
+  Qinv.toEquiv (Qinv.sym (Qinv.ofBiinv f.1 f.2))
+
+  instance : @Symmetric (Type u) (· ≃ ·) := ⟨@Equiv.symm⟩
+
+  hott lemma eqvInj {A : Type u} {B : Type v} (e : A ≃ B)
+    (x y : A) (p : e.forward x = e.forward y) : x = y :=
+  begin
+    transitivity; symmetry; apply e.leftForward;
+    transitivity; apply ap e.left;
+    exact p; apply e.leftForward
+  end
+
+  hott lemma eqvLeftInj {A : Type u} {B : Type v} (e : A ≃ B)
+    (x y : B) (p : e.left x = e.left y) : x = y :=
+  begin
+    transitivity; symmetry; apply e.forwardLeft;
+    transitivity; apply ap e.forward;
+    exact p; apply e.forwardLeft
+  end
+
+  hott lemma eqvRightInj {A : Type u} {B : Type v} (e : A ≃ B)
+    (x y : B) (p : e.right x = e.right y) : x = y :=
+  begin
+    transitivity; symmetry; apply e.forwardRight;
+    transitivity; apply ap e.forward;
+    exact p; apply e.forwardRight
+  end
+end Equiv
+
+namespace Equiv
   hott def ideqv (A : Type u) : A ≃ A :=
   ⟨idfun, (⟨idfun, idp⟩, ⟨idfun, idp⟩)⟩
 
@@ -292,6 +382,10 @@ namespace Equiv
   hott lemma invRewriteComp {A : Type u} {a b c : A}
     {p : a = b} {q : b = c} {r : a = c} (h : p⁻¹ ⬝ r = q) : r = p ⬝ q :=
   begin induction p; apply h end
+
+  hott lemma compRewrite {A : Type u} {a b c : A}
+    {p : a = b} {q : b = c} {r : a = c} (h : p = r ⬝ q⁻¹) : p ⬝ q = r :=
+  begin induction q; exact Id.rid p ⬝ h ⬝ Id.rid r end
 
   hott lemma invCompRewrite {A : Type u} {a b c : A}
     {p : a = b} {q : b = c} {r : a = c} (h : p ⬝ q = r) : p = r ⬝ q⁻¹ :=
@@ -594,6 +688,9 @@ namespace Equiv
   hott def conjugateΩ {A : Type u} {a b : A} (p : a = b) {n : ℕ} : Ωⁿ(A, a) → Ωⁿ(A, b) :=
   transport (λ x, Ωⁿ(A, x)) p
 
+  hott lemma baseEquivΩ {A : Type u} {a b : A} (p : a = b) {n : ℕ} : Ωⁿ(A, a) ≃ Ωⁿ(A, b) :=
+  transport (λ x, Ωⁿ(A, a) ≃ Ωⁿ(A, x)) p (ideqv (Ωⁿ(A, a)))
+
   instance {A : Type u} {a b : A} {n : ℕ} : HPow (Ωⁿ(A, a)) (a = b) (Ωⁿ(A, b)) :=
   ⟨λ p α, conjugateΩ α p⟩
 
@@ -729,96 +826,87 @@ namespace Equiv
   hott corollary abelianComΩ {A : Type u} {a : A} : Π {n : ℕ} (α β : Ωⁿ⁺²(A, a)), comΩ α β = comΩ β α
   | Nat.zero,   p, q => Whiskering.comm p q
   | Nat.succ n, α, β => @abelianComΩ (a = a) (idp a) n α β
+
+  hott example {A : Type u} {a : A} (n : ℕ) : Ωⁿ⁺¹(A, a) ≃ Ωⁿ(Ω¹(A, a), idΩ a 1) :=
+  by apply ideqv
+
+  hott theorem altDefΩ {A : Type u} {a : A} : Π (n : ℕ), Ωⁿ⁺¹(A, a) ≃ Ω¹(Ωⁿ(A, a), idΩ a n)
+  | Nat.zero   => ideqv (a = a)
+  | Nat.succ n => @altDefΩ (a = a) (idp a) n
+
+  section
+    variable {A : Type u} {a : A} (n : ℕ)
+
+    abbrev outΩ : Ωⁿ⁺¹(A, a) → Ω¹(Ωⁿ(A, a), idΩ a n) := (altDefΩ n).forward
+    abbrev inΩ  : Ω¹(Ωⁿ(A, a), idΩ a n) → Ωⁿ⁺¹(A, a) := (altDefΩ n).left
+  end
+
+  hott lemma altDefIdΩ {A : Type u} {a : A} : Π (n : ℕ), altDefΩ n (idΩ (idp a) n) = idp (idΩ a n)
+  | Nat.zero   => idp (idp a)
+  | Nat.succ n => @altDefIdΩ (a = a) (idp a) n
+
+  hott lemma comInvTwice₁ {A : Type u} {a b x y : A} (p : x = a) (q : y = b) (r : a = b) : r = p⁻¹ ⬝ (p ⬝ r ⬝ q⁻¹) ⬝ q :=
+  begin induction p; induction r; symmetry; apply Id.invComp end
+
+  hott lemma comInvTwice₂ {A : Type u} {a b x y : A} (p : a = x) (q : b = y) (r : a = b) : r = p ⬝ (p⁻¹ ⬝ r ⬝ q) ⬝ q⁻¹ :=
+  begin induction p; induction r; symmetry; apply Id.compInv end
+
+  -- HoTT 2.11.1
+  hott theorem apQinvOfQinv {A : Type u} {B : Type v} (φ : A → B) (H : qinv φ) {a b : A} : qinv (@ap A B a b φ) :=
+  begin
+    fapply Sigma.mk; intro ε; exact (H.2.2 _)⁻¹ ⬝ ap H.1 ε ⬝ H.2.2 _; apply Prod.mk;
+    { intro ε; transitivity; apply comInvTwice₁ (H.2.1 (φ a)) (H.2.1 (φ b));
+      transitivity; apply ap (_ ⬝ · ⬝ _);
+      transitivity; apply ap (_ ⬝ · ⬝ _); symmetry; apply idmap;
+      transitivity; symmetry; apply mapWithHomotopy (φ ∘ H.1);
+      transitivity; symmetry; apply mapOverComp φ (φ ∘ H.1);
+      transitivity; apply mapOverComp (H.1 ∘ φ) φ;
+      transitivity; apply ap (ap φ); apply mapWithHomotopy; apply H.2.2;
+      transitivity; apply mapFunctoriality₃; apply ap (_ ⬝ · ⬝ _);
+      transitivity; apply ap (ap φ); apply idmap; apply mapFunctoriality₃;
+      transitivity; apply ap (_ ⬝ · ⬝ _);
+      transitivity; apply bimap (λ p q, _ ⬝ (p ⬝ _ ⬝ _) ⬝ q) <;> apply Id.mapInv;
+      symmetry; apply comInvTwice₂; symmetry; transitivity; symmetry; apply idmap;
+      transitivity; apply mapWithHomotopy; intro; symmetry; apply H.2.1;
+      apply bimap (_ ⬝ · ⬝ ·); apply mapOverComp; apply Id.invInv };
+    { intro ε; symmetry; transitivity; symmetry; apply idmap;
+      transitivity; apply mapWithHomotopy; intro; symmetry; apply H.2.2;
+      apply bimap (_ ⬝ · ⬝ ·); apply mapOverComp; apply Id.invInv }
+  end
+
+  hott corollary apBiinvOfBiinv {A : Type u} {B : Type v} (φ : A → B) (H : biinv φ) {a b : A} : biinv (@ap A B a b φ) :=
+  Qinv.toBiinv _ (apQinvOfQinv φ (Qinv.ofBiinv _ H))
+
+  hott corollary apEquivOnEquiv {A : Type u} {B : Type v} (φ : A ≃ B) {a b : A} : (a = b) ≃ (φ a = φ b) :=
+  ⟨ap φ, apBiinvOfBiinv φ.1 φ.2⟩
+
+  hott lemma loopApEquiv {A : Type u} {B : Type v} (φ : A ≃ B) {a : A} : Π (n : ℕ), Ωⁿ(A, a) ≃ Ωⁿ(B, φ a)
+  | Nat.zero   => φ
+  | Nat.succ n => @loopApEquiv (a = a) (φ a = φ a) (apEquivOnEquiv φ) (idp a) n
+
+  hott corollary addEquivΩ₁ {A : Type u} {a : A} (n : ℕ) : Π (m : ℕ), Ωⁿ⁺ᵐ(A, a) ≃ Ωⁿ(Ωᵐ(A, a), idΩ a m)
+  | Nat.zero   => ideqv (Ωⁿ(A, a))
+  | Nat.succ m => addEquivΩ₁ n m
+
+  hott corollary addEquivΩ₂ {A : Type u} {a : A} (n : ℕ) : Π (m : ℕ), Ωⁿ⁺ᵐ(A, a) ≃ Ωᵐ(Ωⁿ(A, a), idΩ a n)
+  | Nat.zero   => ideqv (Ωⁿ(A, a))
+  | Nat.succ m => Equiv.trans (addEquivΩ₂ n m) (Equiv.trans (loopApEquiv (altDefΩ n) _) (baseEquivΩ (altDefIdΩ _)))
+
+  hott def idOverΩ {A : Type u} {B : A → Type v} {a : A} (b : B a) : Π (n : ℕ), Ωⁿ(B, b, idΩ a n)
+  | Nat.zero   => b
+  | Nat.succ n => @idOverΩ (a = a) (λ p, b =[B, p] b) (idp a) (idp b) n
+
+  hott theorem altDefOverΩ {A : Type u} {B : A → Type v} {a : A} {b : B a} :
+    Π (n : ℕ) (α : Ωⁿ⁺¹(A, a)), Ωⁿ⁺¹(B, b, α) ≃ Ω¹(λ β, Ωⁿ(B, b, β), idOverΩ b n, outΩ n α)
+  | Nat.zero,   p => ideqv (b =[p] b)
+  | Nat.succ n, α => @altDefOverΩ (a = a) (λ p, b =[B, p] b) (idp a) (idp b) n α
+
+  section
+    variable {A : Type u} {B : A → Type v} {a : A} {b : B a} (n : ℕ) (α : Ωⁿ⁺¹(A, a))
+
+    abbrev outOverΩ : Ωⁿ⁺¹(B, b, α) → Ω¹(λ β, Ωⁿ(B, b, β), idOverΩ b n, outΩ n α) := (altDefOverΩ n α).forward
+    abbrev inOverΩ  : Ω¹(λ β, Ωⁿ(B, b, β), idOverΩ b n, outΩ n α) → Ωⁿ⁺¹(B, b, α) := (altDefOverΩ n α).left
+  end
 end Equiv
-
-def isQinv {A : Type u} {B : Type v} (f : A → B) (g : B → A) :=
-(f ∘ g ~ idfun) × (g ∘ f ~ idfun)
-
-def qinv {A : Type u} {B : Type v} (f : A → B) :=
-Σ (g : B → A), isQinv f g
-
-namespace Qinv
-  open Equiv (biinv)
-  open Id (ap)
-
-  hott def linvInv {A : Type u} {B : Type v}
-    (f : A → B) (g : B → A) (h : B → A)
-    (G : f ∘ g ~ id) (H : h ∘ f ~ id) : g ∘ f ~ id :=
-  let F₁ := λ x, H (g (f x));
-  let F₂ := λ x, ap h (G (f x));
-  λ x, (F₁ x)⁻¹ ⬝ F₂ x ⬝ H x
-
-  hott def rinvInv {A : Type u} {B : Type v}
-    (f : A → B) (g : B → A) (h : B → A)
-    (G : f ∘ g ~ id) (H : h ∘ f ~ id) : f ∘ h ~ id :=
-  let F₁ := λ x, ap (f ∘ h) (G x);
-  let F₂ := λ x, ap f (H (g x));
-  λ x, (F₁ x)⁻¹ ⬝ F₂ x ⬝ G x
-
-  hott def toBiinv {A : Type u} {B : Type v} (f : A → B) (q : qinv f) : biinv f :=
-  (⟨q.1, q.2.2⟩, ⟨q.1, q.2.1⟩)
-
-  hott def ofBiinv {A : Type u} {B : Type v} (f : A → B) (F : biinv f) : qinv f :=
-  ⟨F.2.1, (F.2.2, linvInv f F.2.1 F.1.1 F.2.2 F.1.2)⟩
-
-  hott def ideqv {A : Type u} : qinv (@idfun A) :=
-  ⟨idfun, (idp, idp)⟩
-
-  hott def sym {A : Type u} {B : Type v} {f : A → B} (e : qinv f) : qinv e.1 :=
-  ⟨f, (e.2.2, e.2.1)⟩
-
-  hott def com {A : Type u} {B : Type v} {C : Type w} {g : B → C} {f : A → B} :
-    qinv g → qinv f → qinv (g ∘ f) :=
-  λ e₁ e₂, ⟨e₂.1 ∘ e₁.1, (λ c, ap g (e₂.2.1 (e₁.1 c)) ⬝ e₁.2.1 c,
-                          λ a, ap e₂.1 (e₁.2.2 (f a)) ⬝ e₂.2.2 a)⟩
-
-  hott def toEquiv {A : Type u} {B : Type v} {f : A → B} (e : qinv f) : A ≃ B :=
-  ⟨f, (⟨e.1, e.2.2⟩, ⟨e.1, e.2.1⟩)⟩
-end Qinv
-
-namespace Equiv
-  hott def forwardLeft {A : Type u} {B : Type v} (e : A ≃ B) : e.forward ∘ e.left ~ idfun :=
-  begin apply Qinv.rinvInv; apply e.forwardRight; apply e.leftForward end
-
-  hott def rightForward {A : Type u} {B : Type v} (e : A ≃ B) : e.right ∘ e.forward ~ idfun :=
-  begin apply Qinv.linvInv; apply e.forwardRight; apply e.leftForward end
-
-  hott def symm {A : Type u} {B : Type v} (f : A ≃ B) : B ≃ A :=
-  Qinv.toEquiv (Qinv.sym (Qinv.ofBiinv f.1 f.2))
-
-  instance : @Symmetric (Type u) (· ≃ ·) := ⟨@Equiv.symm⟩
-
-  hott lemma eqvInj {A : Type u} {B : Type v} (e : A ≃ B)
-    (x y : A) (p : e.forward x = e.forward y) : x = y :=
-  begin
-    transitivity; symmetry; apply e.leftForward;
-    transitivity; apply ap e.left;
-    exact p; apply e.leftForward
-  end
-
-  hott lemma eqvLeftInj {A : Type u} {B : Type v} (e : A ≃ B)
-    (x y : B) (p : e.left x = e.left y) : x = y :=
-  begin
-    transitivity; symmetry; apply e.forwardLeft;
-    transitivity; apply ap e.forward;
-    exact p; apply e.forwardLeft
-  end
-
-  hott lemma eqvRightInj {A : Type u} {B : Type v} (e : A ≃ B)
-    (x y : B) (p : e.right x = e.right y) : x = y :=
-  begin
-    transitivity; symmetry; apply e.forwardRight;
-    transitivity; apply ap e.forward;
-    exact p; apply e.forwardRight
-  end
-end Equiv
-
--- half adjoint equivalence
-def ishae {A : Type u} {B : Type v} (f : A → B) :=
-Σ (g : B → A) (η : g ∘ f ~ id) (ϵ : f ∘ g ~ id), Π x, ap f (η x) = ϵ (f x)
-
-def fib {A : Type u} {B : Type v} (f : A → B) (y : B) := Σ (x : A), f x = y
-def total {A : Type u} (B : A → Type v) := Σ x, B x
-def fiberwise {A : Type u} (B : A → Type v) := Π x, B x
 
 end GroundZero.Types
