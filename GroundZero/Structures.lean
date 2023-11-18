@@ -1035,6 +1035,43 @@ namespace Types.Id
       (@Sigma.eqOfSigmaEq A B ⟨a, f a⟩ ⟨a, f a⟩) (λ p, ⟨p, apd f p⟩);
     apply ap; apply apOverSigmaΩ (apd f)
   end
+
+  hott def happlyΩ {A : Type u} {B : A → Type v} (φ : Π x, B x) : Π {n : ℕ}, Ωⁿ(Π x, B x, φ) → Π x, Ωⁿ(B x, φ x)
+  | Nat.zero,   f => f
+  | Nat.succ n, H => @happlyΩ A (λ x, φ x = φ x) (λ x, idp (φ x)) n (apΩ happly H)
+
+  hott def funextΩ {A : Type u} {B : A → Type v} (φ : Π x, B x) : Π {n : ℕ}, (Π x, Ωⁿ(B x, φ x)) → Ωⁿ(Π x, B x, φ)
+  | Nat.zero,   f => f
+  | Nat.succ n, H => conjugateΩ Theorems.funextId (apΩ Theorems.funext (@funextΩ A (λ x, φ x = φ x) (λ x, idp (φ x)) n H))
+
+  hott theorem happlyFunextΩ {A : Type u} {B : A → Type v} (φ : Π x, B x) :
+    Π {n : ℕ} (α : Π x, Ωⁿ(B x, φ x)), happlyΩ φ (funextΩ φ α) = α
+  | Nat.zero,   f => idp f
+  | Nat.succ n, H =>
+  begin
+    dsimp [happlyΩ, funextΩ]; transitivity;
+    transitivity; apply ap (happlyΩ _);
+    transitivity; apply apConjugateΩ; apply ap (conjugateΩ _);
+    transitivity; symmetry; apply comApΩ happly; apply apWithHomotopyΩ;
+    apply Theorems.happlyFunext; apply ap (happlyΩ _);
+    transitivity; symmetry; apply conjugateTransΩ; apply bimap; apply idmapΩ;
+    transitivity; apply ap (·⁻¹ ⬝ _); apply Theorems.homotopyIndId; apply Id.invComp;
+    apply @happlyFunextΩ A (λ x, φ x = φ x) (λ x, idp (φ x)) n H
+  end
+
+  hott theorem funextHapplyΩ {A : Type u} {B : A → Type v} (φ : Π x, B x) :
+    Π {n : ℕ} (α : Ωⁿ(Π x, B x, φ)), funextΩ φ (happlyΩ φ α) = α
+  | Nat.zero,   f => idp f
+  | Nat.succ n, H =>
+  begin
+    dsimp [happlyΩ, funextΩ]; transitivity; apply ap (conjugateΩ _);
+    transitivity; apply ap (apΩ _); apply funextHapplyΩ;
+    transitivity; symmetry; apply comApΩ Theorems.funext happly n H;
+    apply apWithHomotopyΩ; apply Theorems.funextHapply;
+    transitivity; symmetry; apply conjugateTransΩ;
+    transitivity; apply ap (conjugateΩ · _);
+    apply Id.invComp; apply idmapΩ
+  end
 end Types.Id
 
 end GroundZero
