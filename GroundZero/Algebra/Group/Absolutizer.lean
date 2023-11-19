@@ -61,7 +61,7 @@ namespace Group
     hott def Absolutizer.comp₂ : φ.inv.ap ∘ φ.ap ~ φ.inv.ap :=
     begin intro x; apply Id.ap G.ι; apply φ.idem end
 
-    noncomputable hott def Absolutizer.mul : ⌈G⌉ → ⌈G⌉ → ⌈G⌉ :=
+    hott def Absolutizer.mul : ⌈G⌉ → ⌈G⌉ → ⌈G⌉ :=
     begin
       fapply HITs.Quotient.lift₂;
       { intros a b; apply HITs.Quotient.elem; exact G.φ (φ.ap a) (φ.ap b) };

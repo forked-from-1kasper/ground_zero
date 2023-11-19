@@ -28,7 +28,7 @@ namespace Real
   Sigma.prod (loop ⬝ loop) (Circle.Ωrecβ₂ false not not ua.negNeg ua.negNeg loop ⬝
                     ap not (Circle.Ωrecβ₂ false not not ua.negNeg ua.negNeg (idp base)))
 
-  noncomputable hott def llinv' : map ∘ rec μ μLoop ~ rec base (loop ⬝ loop) :=
+  noncomputable hott statement mapRecμ : map ∘ rec μ μLoop ~ rec base (loop ⬝ loop) :=
   begin
     fapply ind; exact idp base; apply Id.trans; apply Equiv.transportOverHmtpy;
     transitivity; apply ap (· ⬝ _ ⬝ _); transitivity; apply Id.mapInv; apply ap;
@@ -50,30 +50,6 @@ namespace Real
     transitivity; apply ap (transportconst · b);
     transitivity; apply Id.mapInv; apply ap; apply recβrule₂;
     transitivity; apply transportconstOverInv; apply ua.transportInvRule
-  end
-
-  noncomputable hott def ρ₁ : μ₁ = μ₂ :=
-  Sigma.prod loop (family.transport₁ false)
-
-  noncomputable hott def ρ₂ : μ₁ = μ₂ :=
-  Sigma.prod loop⁻¹ (family.transport₂ false)
-
-  noncomputable hott def ret : S¹ → total :=
-  Suspension.rec μ₁ μ₂ (λ | false => ρ₁ | true => ρ₂)
-
-  noncomputable hott def linv : map ∘ ret ~ idfun :=
-  begin
-    fapply Suspension.ind; reflexivity; apply Suspension.merid true;
-    intro (b : 𝟐); apply Id.trans; apply Equiv.transportOverHmtpy;
-    transitivity; apply ap (· ⬝ _); transitivity; apply Id.rid;
-    transitivity; apply Id.mapInv; apply ap; transitivity; apply Equiv.mapOverComp;
-    apply ap (ap map); apply Suspension.recβrule; induction b;
-    { transitivity; apply ap (· ⬝ _); transitivity; apply ap; apply Sigma.mapFstOverProd;
-      apply Id.explodeInv; transitivity; apply ap (_ ⬝ ·); apply Equiv.idmap;
-      transitivity; apply Id.cancelInvComp; apply Id.invInv };
-    { transitivity; apply ap (· ⬝ _); transitivity; apply ap; apply Sigma.mapFstOverProd;
-      apply Id.invInv; transitivity; apply ap (_ ⬝ ·); apply Equiv.idmap;
-      apply Id.cancelInvComp }
   end
 end Real
 

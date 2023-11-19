@@ -51,8 +51,8 @@ notation "dec⁼" => decEq
 hott def contr (A : Type u) := Σ (a : A), Π b, a = b
 
 inductive hlevel
-| minusTwo
-| succ : hlevel → hlevel
+| minusTwo : hlevel
+| succ     : hlevel → hlevel
 
 notation "ℕ₋₂" => hlevel
 notation "−2"  => hlevel.minusTwo
@@ -113,14 +113,17 @@ begin
   }
 end
 
-hott def contrImplProp {A : Type u} (h : contr A) : prop A :=
-λ a b, (h.2 a)⁻¹ ⬝ (h.2 b)
+hott def contrImplProp {A : Type u} (H : contr A) : prop A :=
+λ a b, (H.2 a)⁻¹ ⬝ (H.2 b)
 
-def emptyIsProp : prop 𝟎 :=
+hott def emptyIsProp : prop 𝟎 :=
 begin intros x y; induction x end
 
-def unitIsProp : prop 𝟏 :=
-begin intros x y; induction x; induction y; reflexivity end
+hott def unitIsContr : contr 𝟏 :=
+⟨★, λ ★, idp ★⟩
+
+hott def unitIsProp : prop 𝟏 :=
+contrImplProp unitIsContr
 
 hott def contrEquivUnit {A : Type u} (h : contr A) : A ≃ 𝟏 :=
 begin

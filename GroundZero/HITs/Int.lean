@@ -62,6 +62,5 @@ namespace Int
     symmetry; transitivity; symmetry; apply Theorems.Nat.assoc;
     apply ap (λ n, n + k); apply Theorems.Nat.comm
   end
-
 end Int
 end GroundZero.HITs

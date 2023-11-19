@@ -4,7 +4,6 @@ digraph dependency_map {
   Structures -> {
     "HITs/Interval",
     "HITs/Merely",
-    "HITs/Trunc",
     "Types/Nat",
     "Modal/Disc",
     "Theorems/UA"
@@ -127,6 +126,7 @@ digraph dependency_map {
     "HITs/Merely" -> {
       "Theorems/Equiv",
       "HITs/Simplicial",
+      "HITs/Trunc",
       "Theorems/Functions"
     }
     "HITs/Moebius"

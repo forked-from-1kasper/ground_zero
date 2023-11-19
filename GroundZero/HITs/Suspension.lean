@@ -37,12 +37,12 @@ namespace Suspension
   hott def rec {A : Type u} {B : Type v} (n s : B) (m : A → n = s) : ∑ A → B :=
   Pushout.rec (λ _, n) (λ _, s) m
 
-  noncomputable hott def indβrule {A : Type u} {B : ∑ A → Type v}
+  hott def indβrule {A : Type u} {B : ∑ A → Type v}
     (n : B north) (s : B south) (m : Π x, n =[merid x] s) (x : A) :
     apd (ind n s m) (merid x) = m x :=
   by apply Pushout.indβrule
 
-  noncomputable hott def recβrule {A : Type u} {B : Type v} (n s : B)
+  hott def recβrule {A : Type u} {B : Type v} (n s : B)
     (m : A → n = s) (x : A) : ap (rec n s m) (merid x) = m x :=
   by apply Pushout.recβrule
 

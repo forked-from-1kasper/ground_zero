@@ -3,7 +3,7 @@ import GroundZero.Proto
 namespace GroundZero.Types
 universe u v
 
-theorem UIP {A : Type u} {a b : A} (p q : a = b) : p = q := by rfl
+hott remark UIP {A : Type u} {a b : A} (p q : a = b) : Eq p q := Eq.refl p
 
 section
   variable (A : Sort u)

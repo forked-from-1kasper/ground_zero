@@ -3,7 +3,7 @@ import GroundZero.HITs.Suspension
 import GroundZero.HITs.Trunc
 
 open GroundZero.Theorems.Functions GroundZero.Theorems.Equiv
-open GroundZero.Types.Equiv (idtoeqv)
+open GroundZero.Types.Equiv (idtoeqv apd)
 open GroundZero.Types.Id (isPointed ap)
 open GroundZero.ua (uaβrule)
 open GroundZero.Structures
@@ -36,19 +36,24 @@ begin apply oneEqvGroupoid.forward; apply ntypeIsSuccNType 0 end
 private structure K1.aux :=
 (val : 𝟏)
 
-def K1 (G : Group) := K1.aux
+attribute [nothott] K1.aux K1.aux.mk K1.aux.recOn K1.aux.rec K1.aux.val
+
+@[hottAxiom] def K1 (G : Group) := K1.aux
 
 namespace K1
   variable {G : Group}
-  attribute [nothott] K1.aux.recOn K1.aux.rec aux.val
 
-  hott def base : K1 G := ⟨★⟩
+  def base : K1 G := ⟨★⟩
 
-  axiom grpd     : groupoid (K1 G)
-  axiom loop     : G.carrier → @Id (K1 G) base base
-  axiom loop.mul : Π (x y : G.carrier), loop (G.φ x y) = loop x ⬝ loop y
+  opaque grpd : groupoid (K1 G) :=
+  λ _ _ _ _, λ (idp _), λ (idp _), idp _
 
-  @[hottAxiom] def ind {C : K1 G → Type v}
+  opaque loop (g : G.carrier) : @Id (K1 G) base base := idp base
+
+  opaque loop.mul (x y : G.carrier) : loop (G.φ x y) = loop x ⬝ loop y :=
+  trustCoherence
+
+  def ind {C : K1 G → Type v}
     (baseπ : C base) (loopπ : Π (x : G.carrier), baseπ =[loop x] baseπ)
     (mulπ : Π (x y : G.carrier),
       loopπ (G.φ x y) =[λ p, baseπ =[p] baseπ, loop.mul x y]
@@ -58,23 +63,27 @@ namespace K1
 
   attribute [eliminator] ind
 
-  @[hottAxiom] def rec {C : Type v} (baseπ : C)
+  def rec {C : Type v} (baseπ : C)
     (loopπ : G.carrier → baseπ = baseπ)
     (mulπ : Π x y, loopπ (G.φ x y) = loopπ x ⬝ loopπ y)
     (groupoidπ : groupoid C) : K1 G → C
   | ⟨★⟩ => baseπ
 
-  axiom indβrule {C : K1 G → Type v}
+  opaque indβrule {C : K1 G → Type v}
     (baseπ : C base) (loopπ : Π (x : G.carrier), baseπ =[loop x] baseπ)
     (mulπ : Π (x y : G.carrier),
       loopπ (G.φ x y) =[λ p, baseπ =[p] baseπ, loop.mul x y]
         loopπ x ⬝′ loopπ y)
     (groupoidπ : Π x, groupoid (C x)) :
-    Π x, Equiv.apd (ind baseπ loopπ mulπ groupoidπ) (loop x) = loopπ x
+    Π x, apd (ind baseπ loopπ mulπ groupoidπ) (loop x) = loopπ x :=
+  λ _, trustCoherence
 
-  axiom recβrule {C : Type v} (baseπ : C) (loopπ : G.carrier → baseπ = baseπ)
+  opaque recβrule {C : Type v} (baseπ : C) (loopπ : G.carrier → baseπ = baseπ)
     (mulπ : Π x y, loopπ (G.φ x y) = loopπ x ⬝ loopπ y) (groupoidπ : groupoid C) :
-    Π x, ap (rec baseπ loopπ mulπ groupoidπ) (loop x) = loopπ x
+    Π x, ap (rec baseπ loopπ mulπ groupoidπ) (loop x) = loopπ x :=
+  λ _, trustCoherence
+
+  attribute [hottAxiom] base grpd loop loop.mul rec ind recβrule indβrule
 
   attribute [irreducible] K1
 
@@ -84,25 +93,24 @@ namespace K1
   def KΩ.one : Ω¹(K1 G)                       := idp base
   def KΩ.inv : Ω¹(K1 G) → Ω¹(K1 G)            := Id.inv
 
-  noncomputable def KΩ (G : Group) : Group :=
+  hott def KΩ (G : Group) : Group :=
   @Group.intro (Ω¹(K1 G)) (grpd _ _) KΩ.mul KΩ.inv KΩ.one
     (λ _ _ _, Id.inv (Id.assoc _ _ _))
     Id.lid Id.rid Id.invComp
 
-  noncomputable def homomorphism : Group.Hom G (KΩ G) :=
+  hott def homomorphism : Group.Hom G (KΩ G) :=
   Group.mkhomo loop loop.mul
 
-  noncomputable def loop.one : @Id Ω¹(K1 G) (loop G.e) (idp base) :=
+  hott def loop.one : @Id Ω¹(K1 G) (loop G.e) (idp base) :=
   Group.homoUnit homomorphism
 
-  noncomputable def loop.inv : Π p, loop (G.ι p) = (loop p)⁻¹ :=
+  hott def loop.inv : Π p, loop (G.ι p) = (loop p)⁻¹ :=
   Group.homoInv homomorphism
 
-  noncomputable hott def family
-    (baseπ : Type u)
+  hott def family (baseπ : Type u)
     (loopπ : G.carrier → baseπ = baseπ)
     (mulπ  : Π x y, loopπ (G.φ x y) = loopπ x ⬝ loopπ y)
-    (setπ  : hset baseπ) : K1 G → (0-Type) :=
+    (setπ  : hset baseπ) : K1 G → 0-Type :=
   begin
     fapply rec;
     { existsi baseπ; apply zeroEqvSet.left; apply setπ };
@@ -114,7 +122,7 @@ namespace K1
     { apply ensIsGroupoid }
   end
 
-  noncomputable hott def code' : K1 G → (0-Type) :=
+  hott def code' : K1 G → 0-Type :=
   begin
     fapply family; exact G.carrier;
     { intro x; apply ua; existsi (G.φ · x); apply Prod.mk <;>
@@ -131,7 +139,7 @@ namespace K1
 
   hott def code (x : K1 G) := (code' x).fst
 
-  noncomputable hott def code.hset (z : K1 G) : hset (code z) :=
+  hott def code.hset (z : K1 G) : hset (code z) :=
   begin
     induction z; apply G.hset; apply setIsProp;
     { apply propIsSet; apply setIsProp };
@@ -140,12 +148,12 @@ namespace K1
       apply setIsProp }
   end
 
-  noncomputable hott def hsetBase : hset (@code G base) := code.hset base
+  hott def hsetBase : hset (@code G base) := code.hset base
 
   hott def encode : Π (z : K1 G), base = z → code z :=
   λ z p, Equiv.transport code p G.e
 
-  noncomputable hott def decode (z : K1 G) : code z → base = z :=
+  hott def decode (z : K1 G) : code z → base = z :=
   begin
     induction z; exact loop;
     case loopπ x =>
@@ -172,7 +180,7 @@ namespace K1
       apply zeroEqvSet.left; apply grpd }
   end
 
-  noncomputable hott def encodeDecode (z : K1 G) :
+  hott lemma encodeDecode (z : K1 G) :
     Π (p : code z), encode z (decode z p) = p :=
   begin
     induction z;
@@ -189,11 +197,11 @@ namespace K1
       intros p q; apply Theorems.funext; intro; apply code.hset }
   end
 
-  noncomputable hott def decodeEncode :
+  hott lemma decodeEncode :
     Π (z : K1 G) (p : base = z), decode z (encode z p) = p :=
   begin intros z p; induction p; apply loop.one end
 
-  noncomputable hott def univ : G ≅ KΩ G :=
+  hott theorem univ : G ≅ KΩ G :=
   begin
     fapply Group.mkiso; exact loop;
     { intros x y; apply loop.mul };

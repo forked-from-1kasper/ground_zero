@@ -1,4 +1,4 @@
-import GroundZero.Support
+import GroundZero.Meta.Trust
 
 open GroundZero.Proto (idfun Identity Identity.elem Identity.elim)
 open GroundZero.Types.Id (ap apΩ)

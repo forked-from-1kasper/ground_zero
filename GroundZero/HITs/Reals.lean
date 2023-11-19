@@ -40,7 +40,7 @@ namespace Reals
 
   attribute [eliminator] ind
 
-  noncomputable hott def indβrule {C : R → Type u}
+  hott def indβrule {C : R → Type u}
     (cz : Π x, C (elem x)) (sz : Π z, cz z =[glue z] cz (Integer.succ z))
     (z : ℤ) : Equiv.apd (ind cz sz) (glue z) = sz z :=
   @Graph.indβrule _ _ C cz (indρ cz sz) _ _ (rel.glue z)
@@ -49,7 +49,7 @@ namespace Reals
     (sz : Π z, cz z = cz (Integer.succ z)) : R → A :=
   ind cz (λ x, Equiv.pathoverOfEq (glue x) (sz x))
 
-  noncomputable hott def recβrule {A : Type u} (cz : ℤ → A)
+  hott def recβrule {A : Type u} (cz : ℤ → A)
     (sz : Π z, cz z = cz (Integer.succ z)) (z : ℤ) :
     ap (rec cz sz) (glue z) = sz z :=
   begin

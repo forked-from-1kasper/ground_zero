@@ -78,14 +78,14 @@ initialize nothott   : TagAttribute ← registerTagAttribute `nothott "Marks a d
 initialize hottAxiom : TagAttribute ← registerTagAttribute `hottAxiom "(Potentially) unsafely marks a definition as safe for HoTT"
 
 def unsafeDecls :=
-[`Quot.lift, `Quot.ind, `Quot.rec, `Classical.choice]
+[`Lean.ofReduceBool, `Lean.ofReduceNat, `Quot.lift, `Quot.ind, `Quot.rec, `Classical.choice]
 
 def checked? (decl : Name) : MetaM Bool := do
-  let env ← getEnv
-  let checked := (hottDecls.getState env).contains decl
-  let isSafe := hottAxiom.hasTag env decl
+  let env         ← getEnv
+  let checked    := (hottDecls.getState env).contains decl
+  let markedSafe := hottAxiom.hasTag env decl
 
-  pure (checked ∨ isSafe)
+  pure (checked ∨ markedSafe)
 
 def checkNotNotHoTT (tag : Syntax) (env : Environment) (decl : Name) : MetaM Unit := do
   if nothott.hasTag env decl ∨ unsafeDecls.contains decl then
@@ -100,6 +100,8 @@ partial def checkDeclAux (chain : List Name) (tag : Syntax) (name : Name) : Meta
     match env.find? name with
     | some (ConstantInfo.recInfo v) =>
       List.forM v.all (checkLargeElim tag chain)
+    | some (ConstantInfo.opaqueInfo v) =>
+      throwErrorAt tag "uses unsafe opaque: {renderChain chain}"
     | some info =>
       match info.value? with
       | some expr => Array.forM (λ n => checkDeclAux (n :: chain) tag n)

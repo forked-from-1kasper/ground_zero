@@ -116,32 +116,37 @@ namespace Group
     private structure Fga.aux (A : Type u) (G : Group) :=
     (val : Marked A G.carrier)
 
+    attribute [nothott] Fga.aux Fga.aux.mk Fga.aux.recOn Fga.aux.rec Fga.aux.val
+
     def Fga (A : Type u) (G : Group) := Fga.aux A G
   end
 
   namespace Fga
     variable {A : Type u}
-    attribute [nothott] Fga.aux.recOn Fga.aux.rec aux.val
 
-    hott def elem : A → Fga A G := aux.mk ∘ Marked.elem
+    def elem : A → Fga A G := aux.mk ∘ Marked.elem
 
-    @[hottAxiom] def φ (g : G.carrier) (x : Fga A G) :=
-    aux.mk (Marked.comp g x.val)
+    def φ (g : G.carrier) (x : Fga A G) : Fga A G :=
+    Fga.aux.mk (Marked.comp g x.val)
 
     axiom unit  : Π (x : Fga A G), φ G.e x = x
-    axiom assoc : Π g h, Π (x : Fga A G), φ g (φ h x) = φ (G.φ g h) x
+    axiom assoc : Π (g h : G.carrier) (x : Fga A G), φ g (φ h x) = φ (G.φ g h) x
 
     axiom ens : Structures.hset (Fga A G)
 
     section
       variable (ψ : G ⮎ A)
 
-      def rec.aux (H : Structures.hset A) : Marked A G.carrier → A
+      @[nothott] def rec.aux (H : Structures.hset A) : Marked A G.carrier → A
       | Marked.elem x   => x
       | Marked.comp g x => ψ.1 g (aux H x)
 
-      @[hottAxiom] def rec (H : Structures.hset A) : Fga A G → A := rec.aux ψ H ∘ @aux.val A G
+      def rec (H : Structures.hset A) : Fga A G → A := rec.aux ψ H ∘ @aux.val A G
     end
+
+    attribute [hottAxiom] Fga elem φ unit assoc ens rec
+
+    attribute [irreducible] Fga
 
     noncomputable hott def act : G ⮎ Fga A G :=
     ⟨φ, (unit, assoc)⟩

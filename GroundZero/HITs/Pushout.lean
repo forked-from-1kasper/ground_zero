@@ -40,7 +40,7 @@ namespace Pushout
     (glueπ : Π x, inlπ (f x) =[glue x] inrπ (g x)) : Π x, P x :=
   begin
     fapply Graph.ind; { intro x; induction x using Sum.casesOn; apply inlπ; apply inrπ };
-    { intros u v H; induction H; apply glueπ }
+    { intros u v H; induction H using rel.casesOn; apply glueπ }
   end
 
   attribute [eliminator] ind
@@ -49,13 +49,13 @@ namespace Pushout
     (glueπ : Π x, inlπ (f x) = inrπ (g x)) : Pushout f g → D :=
   ind inlπ inrπ (λ x, pathoverOfEq (glue x) (glueπ x))
 
-  noncomputable hott def indβrule {P : Pushout f g → Type w}
+  hott def indβrule {P : Pushout f g → Type w}
     (inlπ : Π x, P (inl x)) (inrπ : Π x, P (inr x))
     (glueπ : Π x, inlπ (f x) =[glue x] inrπ (g x)) (x : C) :
     apd (ind inlπ inrπ glueπ) (glue x) = glueπ x :=
   @Graph.indβrule _ (rel f g) _ _ _ _ _ (rel.mk x)
 
-  noncomputable hott def recβrule {D : Type w} (inlπ : A → D) (inrπ : B → D)
+  hott def recβrule {D : Type w} (inlπ : A → D) (inrπ : B → D)
     (glueπ : Π x, inlπ (f x) = inrπ (g x)) (x : C) :
     ap (rec inlπ inrπ glueπ) (glue x) = glueπ x :=
   begin

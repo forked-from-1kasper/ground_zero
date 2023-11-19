@@ -27,17 +27,19 @@ namespace Interval
   hott def i₀ : I := discrete false
   hott def i₁ : I := discrete true
 
-  @[hottAxiom] def seg : i₀ = i₁ :=
-  GroundZero.Support.inclusion (Quot.sound (I.rel.mk false true))
+  @[hottAxiom] opaque seg : i₀ = i₁ :=
+  trustHigherCtor (Quot.sound (I.rel.mk false true))
 
   instance : OfNat I Nat.zero := ⟨i₀⟩
   instance : OfNat I (Nat.succ Nat.zero) := ⟨i₁⟩
 
-  def left := i₀
-  def right := i₁
+  hott def left  := i₀
+  hott def right := i₁
 
-  def zero := i₀
-  def one := i₁
+  hott def zero := i₀
+  hott def one  := i₁
+
+  attribute [reducible] left right zero one
 
   @[hottAxiom, eliminator] def ind {B : I → Type u} (b₀ : B i₀) (b₁ : B i₁) (s : b₀ =[seg] b₁) (x : I) : B x :=
   begin

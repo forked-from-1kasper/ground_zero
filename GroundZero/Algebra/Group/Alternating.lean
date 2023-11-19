@@ -109,8 +109,9 @@ namespace Group
   begin
     fapply GroundZero.HITs.Quotient.rec;
     exact D₃.elim false false false true true true;
-    intros x y H <;> induction x <;> induction y <;>
-    induction H <;> reflexivity; apply Z₂.set
+    intros x y H <;> induction x using D₃.carrier.casesOn <;> induction y using D₃.carrier.casesOn <;>
+    (first | induction H using Proto.Empty.casesOn | induction H using Unit.casesOn; reflexivity);
+    apply Z₂.set
   end
 
   noncomputable hott def Z₂.iso : Z₂ ≅ D₃\A₃ :=

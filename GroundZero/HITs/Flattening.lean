@@ -39,10 +39,10 @@ namespace Flattening
     fapply Sigma.prod; apply Coeq.resp;
     transitivity; apply transportToTransportconst;
     transitivity; apply @ap _ _ (ap (P f g C D) (Coeq.resp x)) _ (transportconst · y);
-    apply Coeq.recβrule (Type w) C (λ x, ua (D x)) x; apply GroundZero.ua.transportRule
+    apply Coeq.recβrule (Type w) C (λ x, ua (D x)) x; apply ua.transportRule
   end
 
-  noncomputable hott def sec : Flattening f g C D → Σ x, P f g C D x :=
+  hott def sec : Flattening f g C D → Σ x, P f g C D x :=
   begin fapply Coeq.rec; intro w; apply iotaφ w.1 w.2; intro w; apply respφ w.1 w.2 end
 end Flattening
 

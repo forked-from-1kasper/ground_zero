@@ -15,6 +15,18 @@ def natSuccUnexpander : Lean.PrettyPrinter.Unexpander
 | `($_ $n) => `($n + 1)
 | _        => throw ()
 
+@[app_unexpander Eq]
+def revertDefaultEq : Lean.PrettyPrinter.Unexpander
+| `($t $a $b) => `($t $a $b)
+| _           => throw ()
+
+@[delab sort]
+def revertDefaultProp : Delab := do {
+  match (← delabSort) with
+  | `(Prop) => `(Sort 0)
+  | stx     => return stx
+}
+
 syntax "Π " many1(ppSpace (binderIdent <|> bracketedBinder)) ", " term : term
 macro_rules | `(Π $xs*, $y) => `(∀ $xs*, $y)
 

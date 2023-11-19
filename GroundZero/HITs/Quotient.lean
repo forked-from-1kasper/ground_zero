@@ -2,6 +2,7 @@ import GroundZero.HITs.Trunc
 import GroundZero.HITs.Graph
 
 open GroundZero.Types.Id (ap)
+open GroundZero.Types.Equiv
 open GroundZero.Structures
 open GroundZero.Theorems
 open GroundZero.Types
@@ -17,9 +18,9 @@ Trunc.elem ∘ Graph.elem
 
 hott def Quot.sound {A : Type u} {R : A → A → Prop v} {a b : A} :
   (R a b).1 → @Id (Quot R) (Quot.elem a) (Quot.elem b) :=
-begin intro H; apply ap Trunc.elem; apply Graph.line; assumption end
+begin intro; dsimp [elem]; apply ap Trunc.elem; apply Graph.line; assumption end
 
-noncomputable hott def Quot.set {A : Type u} {R : A → A → Prop v} : hset (Quot R) :=
+hott def Quot.set {A : Type u} {R : A → A → Prop v} : hset (Quot R) :=
 zeroEqvSet.forward (Trunc.uniq 0)
 
 hott def Quot.ind {A : Type u} {R : A → A → Prop u'} {π : Quot R → Type v}
@@ -30,7 +31,7 @@ begin
   fapply Trunc.ind;
   { fapply Graph.ind; apply elemπ;
     { intros x y H; apply Id.trans;
-      apply Equiv.transportComp;
+      apply transportComp;
       apply lineπ } };
   { intro; apply zeroEqvSet.left; apply set }
 end
@@ -39,7 +40,7 @@ attribute [eliminator] Quot.ind
 
 hott def Quot.rec {A : Type u} {R : A → A → Prop u'} {B : Type v}
   (elemπ : A → B) (lineπ : Π x y, (R x y).fst → elemπ x = elemπ y) (set : hset B) : Quot R → B :=
-@Quot.ind A R (λ _, B) elemπ (λ x y H, Equiv.pathoverOfEq (Quot.sound H) (lineπ x y H)) (λ _, set)
+@Quot.ind A R (λ _, B) elemπ (λ x y H, pathoverOfEq (Quot.sound H) (lineπ x y H)) (λ _, set)
 
 hott def Quot.lift₂ {A : Type u} {R₁ : A → A → Prop u'} {B : Type v} {R₂ : B → B → Prop v'}
   {γ : Type w} (R₁refl : Π x, (R₁ x x).fst) (R₂refl : Π x, (R₂ x x).fst) (f : A → B → γ)
@@ -66,7 +67,7 @@ hott def Quotient.sound {A : Type u} {s : eqrel A} {a b : A} :
   s.apply a b → @Id (Quotient s) (Quotient.elem a) (Quotient.elem b) :=
 Quot.sound
 
-noncomputable hott def Quotient.set {A : Type u} {s : eqrel A} : hset (Quotient s) :=
+hott def Quotient.set {A : Type u} {s : eqrel A} : hset (Quotient s) :=
 by apply Quot.set
 
 hott def Quotient.ind {A : Type u} {s : eqrel A}

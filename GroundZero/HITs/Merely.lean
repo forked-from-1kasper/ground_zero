@@ -3,7 +3,7 @@ import GroundZero.HITs.Colimit
 import GroundZero.Structures
 
 open GroundZero.Types.Equiv (subst apd pathoverFromTrans)
-open GroundZero.Structures (prop contr lemContr)
+open GroundZero.Structures
 open GroundZero.Types.Id
 open GroundZero.Types
 
@@ -70,33 +70,33 @@ namespace Merely
   | Nat.zero   => idp _
   | Nat.succ n => Colimit.glue (exactNth a n) ⬝ nthGlue a n
 
-  hott def inclUniq {A : Type u} {n : ℕ} (a b : Generalized.rep A n) : incl a = incl b :=
+  hott lemma inclUniq {A : Type u} {n : ℕ} (a b : Generalized.rep A n) : incl a = incl b :=
   calc incl a = incl (Generalized.dep A n a) : glue⁻¹
           ... = incl (Generalized.dep A n b) : ap incl (Generalized.glue a b)
           ... = incl b                       : glue
 
-  hott def inclZeroEqIncl {A : Type u} {n : ℕ} (x : A)
+  hott lemma inclZeroEqIncl {A : Type u} {n : ℕ} (x : A)
     (y : Generalized.rep A n) : @incl A 0 x = incl y :=
   calc @incl A 0 x = incl (exactNth x n) : (nthGlue x n)⁻¹
                ... = incl y              : inclUniq (exactNth x n) y
 
-  hott def weaklyConstantAp {A : Type u} {B : Type v} (f : A → B)
+  hott theorem weaklyConstantAp {A : Type u} {B : Type v} (f : A → B)
     {a b : A} (p q : a = b) (H : Π a b, f a = f b) : ap f p = ap f q :=
   let L : Π {u v : A} (r : u = v), (H a u)⁻¹ ⬝ H a v = ap f r :=
   begin intros u v r; induction r; apply Types.Id.invComp end; (L p)⁻¹ ⬝ L q
 
-  hott def congClose {A : Type u} {n : ℕ} {a b : Generalized.rep A n} (p : a = b) :
+  hott lemma congClose {A : Type u} {n : ℕ} {a b : Generalized.rep A n} (p : a = b) :
     glue⁻¹ ⬝ ap incl (ap (Generalized.dep A n) p) ⬝ glue = ap incl p :=
   begin
     induction p; transitivity; { symmetry; apply Id.assoc };
     apply Equiv.rewriteComp; symmetry; apply Id.rid
   end
 
-  hott def congOverPath {A : Type u} {n : ℕ} {a b : Generalized.rep A n}
+  hott theorem congOverPath {A : Type u} {n : ℕ} {a b : Generalized.rep A n}
     (p q : a = b) : ap incl p = ap incl q :=
   weaklyConstantAp incl p q inclUniq
 
-  hott def glueClose {A : Type u} {n : ℕ} {a b : Generalized.rep A n} :
+  hott lemma glueClose {A : Type u} {n : ℕ} {a b : Generalized.rep A n} :
       glue⁻¹ ⬝ ap incl (Generalized.glue (Generalized.dep A n a) (Generalized.dep A n b)) ⬝ glue
     = ap incl (Generalized.glue a b) :=
   begin
@@ -104,11 +104,11 @@ namespace Merely
     apply ap (· ⬝ glue); apply ap; apply congOverPath
   end
 
-  hott def inclUniqClose {A : Type u} {n : ℕ} (a b : Generalized.rep A n) :
+  hott lemma inclUniqClose {A : Type u} {n : ℕ} (a b : Generalized.rep A n) :
     glue⁻¹ ⬝ inclUniq (Generalized.dep A n a) (Generalized.dep A n b) ⬝ glue = inclUniq a b :=
   ap (· ⬝ glue) (ap _ glueClose)
 
-  hott def uniq {A : Type u} : prop ∥A∥ :=
+  hott theorem uniq {A : Type u} : prop ∥A∥ :=
   begin
     apply lemContr; fapply ind;
     { intro x; existsi elem x; fapply Colimit.ind <;> intros n y;
@@ -120,15 +120,18 @@ namespace Merely
         transitivity; symmetry; apply Id.assoc;
         transitivity; symmetry; apply Id.assoc;
         apply ap ((nthGlue x n)⁻¹ ⬝ ·); apply Id.assoc } };
-    { intro x; apply Structures.contrIsProp }
+    { intro x; apply contrIsProp }
   end
+
+  hott corollary hprop {A : Type u} : is-(−1)-type ∥A∥ :=
+  minusOneEqvProp.left uniq
 
   hott def lift {A : Type u} {B : Type v} (f : A → B) : ∥A∥ → ∥B∥ :=
   rec uniq (elem ∘ f)
 
   hott def rec₂ {A : Type u} {B : Type v} {γ : Type w} (H : prop γ)
     (φ : A → B → γ) : ∥A∥ → ∥B∥ → γ :=
-  @rec A (∥B∥ → γ) (Structures.implProp H) (rec H ∘ φ)
+  @rec A (∥B∥ → γ) (implProp H) (rec H ∘ φ)
 
   hott def lift₂ {A : Type u} {B : Type v} {γ : Type w}
     (φ : A → B → γ) : ∥A∥ → ∥B∥ → ∥γ∥ :=

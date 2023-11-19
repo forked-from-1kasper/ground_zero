@@ -16,7 +16,7 @@ def cylinder := S¹ × I
 def C : S¹ → Type := Circle.rec I (idp I)
 def cylinder' := Σ b, C b
 
-noncomputable hott def C.const : Π x, C x = I :=
+hott def C.const : Π x, C x = I :=
 begin
   intro x; induction x; reflexivity; change _ = _;
   transitivity; apply Equiv.transportOverContrMap;
@@ -25,7 +25,7 @@ begin
   apply Circle.recβrule₂; reflexivity
 end
 
-noncomputable hott def cylEqv : cylinder' ≃ cylinder :=
+hott def cylEqv : cylinder' ≃ cylinder :=
 begin
   transitivity;
   { apply Equiv.idtoeqv; apply ap;
