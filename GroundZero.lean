@@ -1,5 +1,4 @@
 import GroundZero.Proto
-import GroundZero.Support
 import GroundZero.Algebra.Basic
 import GroundZero.Algebra.Boolean
 import GroundZero.Algebra.Category
