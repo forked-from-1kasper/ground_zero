@@ -1,5 +1,4 @@
 import GroundZero.Proto
-import GroundZero.Structures
 import GroundZero.Support
 import GroundZero.Algebra.Basic
 import GroundZero.Algebra.Boolean
@@ -56,6 +55,7 @@ import GroundZero.Meta.Basic
 import GroundZero.Meta.HottTheory
 import GroundZero.Meta.Notation
 import GroundZero.Meta.Tactic
+import GroundZero.Meta.Trust
 import GroundZero.Modal.Infinitesimal
 import GroundZero.HITs.Circle
 import GroundZero.HITs.Coequalizer
