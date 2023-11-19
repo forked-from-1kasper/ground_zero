@@ -1,8 +1,8 @@
 import GroundZero.HITs.Pushout
 import GroundZero.Types.Unit
 
-open GroundZero.Types.Id (ap isPointed pointOf)
 open GroundZero.Types.Equiv
+open GroundZero.Types.Id
 open GroundZero.Types
 
 /-
@@ -56,6 +56,22 @@ namespace Suspension
 
   hott lemma σRevComMerid {A : Type u} [isPointed A] (x : A) : (σ x)⁻¹ ⬝ merid x = merid (pointOf A) :=
   begin apply rewriteComp; symmetry; apply σComMerid end
+
+  section
+    variable {A : Type u} [isPointed A] {n : ℕ}
+
+    hott def suspΩ : Ωⁿ(A) → Ωⁿ⁺¹(∑ A) :=
+    λ ε, conjugateΩ (compInv (merid (pointOf A))) (apΩ σ ε)
+
+    hott lemma suspIdΩ : suspΩ (idΩ (pointOf A) n) = idΩ north (n + 1) :=
+    begin transitivity; apply ap (conjugateΩ _); apply apIdΩ; apply conjugateIdΩ end
+
+    hott lemma suspRevΩ (α : Ωⁿ⁺¹(A)) : suspΩ (revΩ α) = revΩ (suspΩ α) :=
+    begin transitivity; apply ap (conjugateΩ _); apply apRevΩ; apply conjugateRevΩ end
+
+    hott lemma suspMultΩ (α β : Ωⁿ⁺¹(A)) : suspΩ (comΩ α β) = comΩ (suspΩ α) (suspΩ β) :=
+    begin transitivity; apply ap (conjugateΩ _); apply apFunctorialityΩ; apply conjugateComΩ end
+  end
 end Suspension
 
 end HITs

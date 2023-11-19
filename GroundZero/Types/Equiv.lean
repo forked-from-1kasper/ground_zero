@@ -907,6 +907,51 @@ namespace Equiv
     abbrev outOverΩ : Ωⁿ⁺¹(B, b, α) → Ω¹(λ β, Ωⁿ(B, b, β), idOverΩ b n, outΩ n α) := (altDefOverΩ n α).forward
     abbrev inOverΩ  : Ω¹(λ β, Ωⁿ(B, b, β), idOverΩ b n, outΩ n α) → Ωⁿ⁺¹(B, b, α) := (altDefOverΩ n α).left
   end
+
+  hott theorem apIdΩ {A : Type u} {B : Type v} (f : A → B) {a : A} : Π {n : ℕ}, apΩ f (idΩ a n) = idΩ (f a) n
+  | Nat.zero   => idp (f a)
+  | Nat.succ n => @apIdΩ (a = a) (f a = f a) (ap f) (idp a) n
+
+  hott theorem apRevΩ {A : Type u} {B : Type v} (f : A → B) {a : A} :
+    Π {n : ℕ} (α : Ωⁿ⁺¹(A, a)), apΩ f (revΩ α) = revΩ (apΩ f α)
+  | Nat.zero,   p => Id.mapInv f p
+  | Nat.succ n, α => @apRevΩ (a = a) (f a = f a) (ap f) (idp a) n α
+
+  hott theorem apFunctorialityΩ {A : Type u} {B : Type v} (f : A → B) {a : A} :
+    Π {n : ℕ} (α β : Ωⁿ⁺¹(A, a)), apΩ f (comΩ α β) = comΩ (apΩ f α) (apΩ f β)
+  | Nat.zero,   _, _ => mapFunctoriality f
+  | Nat.succ n, α, β => @apFunctorialityΩ (a = a) (f a = f a) (ap f) (idp a) n α β
+
+  hott corollary apFunctorialityΩ₃ {A : Type u} {B : Type v} (f : A → B) {a : A} {n : ℕ}
+    (α β γ : Ωⁿ⁺¹(A, a)) : apΩ f (comΩ (comΩ α β) γ) = comΩ (comΩ (apΩ f α) (apΩ f β)) (apΩ f γ) :=
+  begin transitivity; apply apFunctorialityΩ; apply ap (comΩ · _); apply apFunctorialityΩ end
+
+  section
+    variable {A : Type u} {a b : A} (p : a = b) {n : ℕ}
+
+    hott lemma conjugateIdΩ : idΩ a n ^ p = idΩ b n :=
+    begin induction p; reflexivity end
+
+    hott lemma conjugateRevΩ (α : Ωⁿ⁺¹(A, a)) : revΩ α ^ p = revΩ (α ^ p) :=
+    begin induction p; reflexivity end
+
+    hott lemma conjugateComΩ (α β : Ωⁿ⁺¹(A, a)) : comΩ α β ^ p = comΩ (α ^ p) (β ^ p) :=
+    begin induction p; reflexivity end
+  end
+
+  hott lemma transportOverHmtpyΩ {A : Type u} {B : Type v} (f : A → B) {a b : A} {n : ℕ}
+    (p : a = b) (α : Ωⁿ(B, f a)) : transport (λ x, Ωⁿ(B, f x)) p α = conjugateΩ (ap f p) α :=
+  by apply transportComp (λ y, Ωⁿ(B, y)) f
+
+  hott theorem bimapCharacterizationΩ₁ {A : Type u} {B : Type v} {C : Type w} (f : A → B → C) {a : A} {b : B} :
+    Π {n : ℕ} (α : Ωⁿ⁺¹(A, a)) (β : Ωⁿ⁺¹(B, b)), bimapΩ f α β = comΩ (apΩ (f · b) α) (apΩ (f a) β)
+  | Nat.zero,   _, _ => bimapCharacterization f _ _
+  | Nat.succ n, α, β => @bimapCharacterizationΩ₁ (a = a) (b = b) (f a b = f a b) (bimap f) (idp a) (idp b) n α β
+
+  hott theorem bimapCharacterizationΩ₂ {A : Type u} {B : Type v} {C : Type w} (f : A → B → C) {a : A} {b : B} :
+    Π {n : ℕ} (α : Ωⁿ⁺¹(A, a)) (β : Ωⁿ⁺¹(B, b)), bimapΩ f α β = comΩ (apΩ (f a) β) (apΩ (f · b) α)
+  | Nat.zero,   _, _ => bimapCharacterization' f _ _
+  | Nat.succ n, α, β => @bimapCharacterizationΩ₂ (a = a) (b = b) (f a b = f a b) (bimap f) (idp a) (idp b) n α β
 end Equiv
 
 end GroundZero.Types

@@ -925,6 +925,10 @@ namespace Types.Id
   | Nat.zero,   _ => idp _
   | Nat.succ _, _ => apWithHomotopyΩ idmap _ _ ⬝ idmapΩ _ _
 
+  hott lemma constmapΩ {A : Type u} {B : Type v} {a : A} {b : B} : Π (n : ℕ) (α : Ωⁿ(A, a)), apΩ (λ _, b) α = idΩ b n
+  | Nat.zero,   _ => idp _
+  | Nat.succ n, _ => apWithHomotopyΩ constmap _ _ ⬝ constmapΩ _ _
+
   hott lemma conjugateSuccΩ {A : Type u} {a b : A} (p : a = b) (n : ℕ) (α : Ωⁿ⁺¹(A, a)) :
     α^p = conjugateΩ (apd idp p) (apΩ (transport (λ x, x = x) p) α) :=
   begin induction p; symmetry; apply idmapΩ end

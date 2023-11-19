@@ -661,6 +661,18 @@ namespace Circle
     { intro φ; symmetry; apply Theorems.funext; apply mapExt }
   end
 
+  hott theorem loopCircle {A : Type u} (a : A) : Map⁎ ⟨S¹, base⟩ ⟨A, a⟩ ≃ (a = a) :=
+  begin
+    fapply Sigma.mk; intro φ; exact transport (λ x, x = x) φ.2 (ap φ.1 loop); apply Qinv.toBiinv;
+    fapply Sigma.mk; intro p; existsi rec a p; reflexivity; apply Prod.mk;
+    { intro; apply recβrule₂ };
+    { intro ⟨φ, (H : φ base = a)⟩; induction H using J₁;
+      fapply Sigma.prod; symmetry; apply Theorems.funext; apply mapExt;
+      transitivity; apply transportOverContrMap; transitivity; apply Id.rid;
+      transitivity; apply ap (ap _); apply Id.invInv; transitivity; apply Theorems.mapToHapply;
+      transitivity; apply happly; apply Theorems.happlyFunext; reflexivity }
+  end
+
   noncomputable hott lemma recBaseInj {x : S¹} (p q : x = x) (ε : rec x p = rec x q) : p = q :=
   begin
     have θ := ap (subst ε) (recβrule₂ x p)⁻¹ ⬝ apd (λ f, ap f loop) ε ⬝ recβrule₂ x q;
@@ -1378,16 +1390,19 @@ namespace Torus
 end Torus
 
 namespace HigherSphere
-  open GroundZero.HITs.Suspension (north merid σ)
+  open GroundZero.HITs.Suspension (north merid σ suspΩ)
   open GroundZero.Proto (idfun)
 
   hott def base : Π {n : ℕ}, S n
   | Nat.zero   => false
   | Nat.succ _ => north
 
-  hott def surf : Π (n : ℕ), Ωⁿ⁺¹(Sⁿ⁺¹)
-  | Nat.zero   => Circle.loop
-  | Nat.succ n => conjugateΩ (compInv _) (apΩ σ (surf n))
+  hott def diag : Π (n : ℕ), Ω¹(S¹) → Ωⁿ⁺¹(Sⁿ⁺¹)
+  | Nat.zero   => idfun
+  | Nat.succ n => suspΩ ∘ diag n
+
+  hott def surf (n : ℕ) : Ωⁿ⁺¹(Sⁿ⁺¹) :=
+  diag n Circle.loop
 
   hott def rec (B : Type u) (b : B) : Π (n : ℕ), Ωⁿ⁺¹(B, b) → Sⁿ⁺¹ → B
   | Nat.zero   => Circle.rec b
@@ -1482,6 +1497,12 @@ namespace HigherSphere
     apply Suspension.σRevComMerid
   end
 
+  noncomputable hott corollary constRecΩ (n : ℕ) : rec Sⁿ⁺¹ base n (idΩ base (n + 1)) ~ (λ _, base) :=
+  begin
+    transitivity; apply Homotopy.Id; apply ap (rec Sⁿ⁺¹ base n); symmetry;
+    apply constmapΩ (n + 1) (surf n); apply mapExtΩ n (λ _, base)
+  end
+
   -- Direct proof of universal property of Sⁿ⁺¹.
   hott theorem mapLoopEqvΩ {B : Type u} : Π (n : ℕ), (Sⁿ⁺¹ → B) ≃ (Σ (x : B), Ωⁿ⁺¹(B, x))
   | Nat.zero   => Circle.mapLoopEqv
@@ -1491,6 +1512,21 @@ namespace HigherSphere
     fapply Sigma.mk; intro w; exact rec B w.1 (n + 1) w.2; apply Prod.mk;
     { intro; fapply Sigma.prod; reflexivity; apply recβrule₂ };
     { intro φ; apply Theorems.funext; apply mapExtΩ }
+  end
+
+  hott theorem loopSphere {A : Type u} (a : A) : Π (n : ℕ), Map⁎ ⟨Sⁿ⁺¹, base⟩ ⟨A, a⟩ ≃ Ωⁿ⁺¹(A, a)
+  | Nat.zero   => Circle.loopCircle a
+  | Nat.succ n =>
+  begin
+    fapply Sigma.mk; intro φ; exact conjugateΩ φ.2 (apΩ φ.1 (surf (n + 1))); apply Qinv.toBiinv;
+    fapply Sigma.mk; intro ε; existsi rec A a (n + 1) ε; reflexivity; apply Prod.mk;
+    { intro; apply recβrule₂ };
+    { intro ⟨φ, (H : φ base = a)⟩; induction H using J₁;
+      fapply Sigma.prod; apply Theorems.funext; apply mapExtΩ;
+      transitivity; apply transportOverContrMap; transitivity; apply Id.rid;
+      transitivity; apply mapInv; transitivity; apply ap;
+      transitivity; apply Theorems.mapToHapply; apply happly;
+      apply Theorems.happlyFunext; reflexivity }
   end
 
   hott def indBias (n : ℕ) (B : Sⁿ⁺¹ → Type u) (b : B base) (ε : Ωⁿ⁺¹(B, b, surf n)) :=
@@ -1536,6 +1572,13 @@ namespace HigherSphere
   hott theorem indβrule₁ : Π (n : ℕ) (B : Sⁿ⁺¹ → Type u) (b : B base) (α : Ωⁿ⁺¹(B, b, surf n)), ind n B b α base = b
   | Nat.zero,   _, _, _ => idp _
   | Nat.succ _, _, _, _ => idp _
+
+  hott def mult {n : ℕ} {a b : Sⁿ⁺¹} (α : Ωⁿ⁺¹(Sⁿ⁺¹, a)) (β : Ωⁿ⁺¹(Sⁿ⁺¹, b)) : Ωⁿ⁺¹(Sⁿ⁺¹, rec Sⁿ⁺¹ a n α b) :=
+  apΩ (rec Sⁿ⁺¹ a n α) β
+
+  hott corollary recCompΩ {n : ℕ} {a b : Sⁿ⁺¹} (α : Ωⁿ⁺¹(Sⁿ⁺¹, a)) (β : Ωⁿ⁺¹(Sⁿ⁺¹, b)) :
+    rec Sⁿ⁺¹ a n α ∘ rec Sⁿ⁺¹ b n β ~ rec Sⁿ⁺¹ (rec Sⁿ⁺¹ a n α b) n (mult α β) :=
+  by apply recComMapΩ
 end HigherSphere
 
 namespace Sphere
