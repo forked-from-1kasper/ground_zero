@@ -1,5 +1,4 @@
 import GroundZero.HITs.Trunc
-import GroundZero.HITs.Graph
 
 open GroundZero.Types.Id (ap)
 open GroundZero.Types.Equiv
@@ -9,7 +8,7 @@ open GroundZero.Types
 open GroundZero
 
 namespace GroundZero.HITs
-universe u v w u' v'
+universe u v w u' v' w'
 
 hott def Quot {A : Type u} (R : A → A → Prop v) := ∥Graph (λ x y, (R x y).1)∥₀
 

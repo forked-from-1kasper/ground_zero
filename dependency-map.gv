@@ -113,8 +113,7 @@ digraph dependency_map {
       "HITs/Coequalizer",
       "HITs/Colimit",
       "HITs/Generalized",
-      "HITs/Pushout",
-      "HITs/Quotient"
+      "HITs/Pushout"
     }
     "HITs/Interval" -> {
       "Cubical/Cubes",
