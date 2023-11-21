@@ -8,8 +8,8 @@ hott remark UIP {A : Type u} {a b : A} (p q : Eq a b) : Eq p q := Eq.refl p
 section
   variable (A : Sort u)
 
-  instance : @Reflexive A Eq  := ⟨@Eq.refl A⟩
-  instance : @Symmetric A Eq  := ⟨@Eq.symm A⟩
+  instance : @Reflexive  A Eq := ⟨@Eq.refl  A⟩
+  instance : @Symmetric  A Eq := ⟨@Eq.symm  A⟩
   instance : @Transitive A Eq := ⟨@Eq.trans A⟩
 end
 
