@@ -221,8 +221,7 @@ namespace GroundZero.Algebra
       apply Theorems.funext; intro x;
       transitivity; apply Id.ap φ.1;
       transitivity; apply Equiv.substOverInvPath;
-      apply ua.transportInvRule;
-      apply Equiv.forwardLeft
+      apply uaβrev; apply Equiv.forwardLeft
     end
 
     noncomputable hott def uaPreservesOp {Γ Λ : Alg deg} :
@@ -231,7 +230,7 @@ namespace GroundZero.Algebra
       intro ⟨φ, (p, q)⟩ i; apply Id.trans;
       apply transportOverFunctor (λ A, vect A (deg (Sum.inl i))) id;
       apply Theorems.funext; intro v;
-      transitivity; apply ua.transportRule;
+      transitivity; apply uaβ;
       transitivity; apply p.1; apply Id.ap;
       transitivity; apply vect.subst;
       transitivity; apply Id.ap (vect.map · v);
@@ -269,11 +268,11 @@ namespace GroundZero.Algebra
 
     noncomputable hott def Alg.inj {Γ Λ : Alg deg} {φ ψ : Iso Γ Λ} (p : Alg.ua φ = Alg.ua ψ) : φ = ψ :=
     begin
-      apply Iso.eqIffEqEqv; transitivity; symmetry; apply ua.uaβrule;
+      apply Iso.eqIffEqEqv; transitivity; symmetry; apply idtoeqvua;
       transitivity; apply Id.ap; apply Alg.uaext;
       transitivity; apply Id.ap (Equiv.idtoeqv ∘ Alg.eqcar);
       exact p; transitivity; apply Id.ap Equiv.idtoeqv;
-      symmetry; apply Alg.uaext; apply ua.uaβrule
+      symmetry; apply Alg.uaext; apply idtoeqvua
     end
 
     hott def Alg.id {Γ Λ : Alg deg} (p : Γ = Λ) : Iso Γ Λ :=
@@ -291,7 +290,7 @@ namespace GroundZero.Algebra
       change Sigma.prod _ _ = _;
       transitivity; apply transportOverProd;
       transitivity; transitivity; apply transportOverProd;
-      apply ua.reflOnUa; apply Id.ap (Sigma.prod Id.refl);
+      apply uaidp; apply Id.ap (Sigma.prod Id.refl);
       change _ = Id.refl; apply propIsSet;
       apply ntypeIsProp; apply Sigma.prodRefl;
       transitivity; apply Id.ap (Sigma.prod Id.refl);

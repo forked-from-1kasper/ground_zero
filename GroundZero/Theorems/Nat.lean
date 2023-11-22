@@ -15,8 +15,8 @@ namespace Nat
 
   noncomputable hott def natIsSet' : hset ℕ
   | Nat.zero,   Nat.zero,   p, q => transport prop (ua (Nat.recognize 0 0))⁻¹ unitIsProp p q
-  | Nat.succ m, Nat.zero,   p, q => Proto.Empty.elim (ua.succNeqZero p)
-  | Nat.zero,   Nat.succ n, p, q => Proto.Empty.elim (ua.succNeqZero p⁻¹)
+  | Nat.succ m, Nat.zero,   p, q => Proto.Empty.elim (succNeqZero p)
+  | Nat.zero,   Nat.succ n, p, q => Proto.Empty.elim (succNeqZero p⁻¹)
   | Nat.succ m, Nat.succ n, p, q =>
     transport prop (ua (Nat.recognize (m + 1) (n + 1)))⁻¹
       (transport prop (ua (Nat.recognize m n)) (natIsSet' m n)) p q
@@ -26,8 +26,8 @@ namespace Nat
 
   hott def natDecEq : Π (m n : ℕ), dec (m = n)
   | Nat.zero,   Nat.zero   => Sum.inl (idp 0)
-  | Nat.succ m, Nat.zero   => Sum.inr ua.succNeqZero
-  | Nat.zero,   Nat.succ n => Sum.inr (ua.succNeqZero ∘ Id.inv)
+  | Nat.succ m, Nat.zero   => Sum.inr succNeqZero
+  | Nat.zero,   Nat.succ n => Sum.inr (succNeqZero ∘ Id.inv)
   | Nat.succ m, Nat.succ n =>
     match natDecEq m n with
     | Sum.inl p => Sum.inl (ap Nat.succ p)
@@ -81,7 +81,7 @@ namespace Nat
   mulComm (i + j) n ⬝ distribLeft _ _ _ ⬝ bimap Nat.add (mulComm _ _) (mulComm _ _)
 
   hott def oneNeqNPlusTwo (n : ℕ) : ¬(1 = n + 2) :=
-  λ p, ua.succNeqZero (ap Nat.pred p)⁻¹
+  λ p, succNeqZero (ap Nat.pred p)⁻¹
 
   def isEven (n : ℕ) := Σ m, n = m * 2
   def isOdd  (n : ℕ) := Σ m, n = m * 2 + 1
@@ -155,7 +155,7 @@ namespace Nat
   hott def min.zeroRight (n : ℕ) : min n 0 = 0 :=
   begin induction n using Nat.casesOn <;> reflexivity end
 
-  hott def max.neZero {n : ℕ} : ¬(max (n + 1) 0 = 0) := ua.succNeqZero
+  hott def max.neZero {n : ℕ} : ¬(max (n + 1) 0 = 0) := succNeqZero
 
   hott def max.zero : Π n, max n 0 = 0 → n = 0
   | Nat.zero,   _ => idp _

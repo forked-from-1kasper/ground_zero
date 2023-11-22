@@ -48,7 +48,7 @@ namespace «4.1»
     biinv f → Adjoint f ≃ (Π (x : A), idp x = idp x) :=
   begin
     intro e; apply transport (Adjoint · ≃ _);
-    apply ap Sigma.fst (ua.uaβrule ⟨f, e⟩);
+    apply ap Sigma.fst (idtoeqvua ⟨f, e⟩);
     apply adjointIdtoeqv
   end
 end «4.1»
@@ -110,7 +110,7 @@ namespace «4.2»
       transitivity; apply Equiv.mapOverComp Sigma.fst (λ (φ : A → B → Type _), φ a (f a));
       transitivity; apply ap (ap _); apply Sigma.mapFstOverProd;
       transitivity; apply Theorems.mapToHapply₂; apply Theorems.happlyFunextPt₂;
-      transitivity; apply ua.transportRule; show G e₂ (F e₁ (Sigma.snd e₁ a)) = Sigma.snd e₂ a;
+      transitivity; apply uaβ; show G e₂ (F e₁ (Sigma.snd e₁ a)) = Sigma.snd e₂ a;
       transitivity; symmetry; apply Equiv.transportComp (e₂.1.1 a) Sigma.fst (corrPath _ _);
       transitivity; apply Equiv.substSquare; apply Id.invComp; reflexivity }
   end
@@ -333,7 +333,7 @@ namespace «4.6»
     open Circle (base loop rot)
 
     hott def negBoolQinv : qinv not :=
-    ⟨not, (ua.negNeg, ua.negNeg)⟩
+    ⟨not, (negNeg, negNeg)⟩
 
     hott def universeNotASet : ¬(hset Type) :=
     let φ : Σ (f : 𝟐 → 𝟐), qinv f := ⟨not, negBoolQinv⟩;

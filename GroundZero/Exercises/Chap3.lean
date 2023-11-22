@@ -20,7 +20,7 @@ Structures.hsetRespectsEquiv
 -- exercise 3.2
 
 noncomputable hott example (A B : Type u) : hset A → hset B → hset (A + B) :=
-ua.coproductSet
+coproductSet
 
 -- exercise 3.3
 
@@ -190,7 +190,6 @@ end «3.10»
 
 namespace «3.11»
   open HITs.Interval (happly)
-  open ua (negBoolEquiv)
   open HITs
 
   hott lemma negBoolNoFixPoint : Π (x : 𝟐), not x ≠ x
@@ -201,7 +200,7 @@ namespace «3.11»
   begin
     intro f; let p := ua negBoolEquiv;
 
-    let α := λ u, ua.transportRule negBoolEquiv (f 𝟐 u);
+    let α := λ u, uaβ negBoolEquiv (f 𝟐 u);
     let β := λ u, ap (λ w, transport (λ A, A) p (f 𝟐 w))
                      (Merely.uniq u (transport (λ A, ∥A∥) p⁻¹ u));
     let γ := (transportOverFunctor (λ A, ∥A∥) (λ A, A) (f 𝟐) p)⁻¹ ⬝ apd f p;

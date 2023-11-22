@@ -1,4 +1,4 @@
-import GroundZero.Theorems.Equiv
+import GroundZero.Theorems.UA
 open GroundZero.Structures
 
 namespace GroundZero
@@ -72,7 +72,7 @@ noncomputable hott def Ens.ext {A : Type u} {φ ψ : Ens A}
   (H : Π x, x ∈ φ ↔ x ∈ ψ) : φ = ψ :=
 begin
   fapply Sigma.prod; apply Theorems.funext; intro x;
-  { apply GroundZero.ua; apply Structures.propEquivLemma;
+  { apply ua; apply Structures.propEquivLemma;
     apply φ.2; apply ψ.2; apply (H x).left; apply (H x).right };
   { apply piProp; intro; apply propIsProp }
 end

@@ -1,5 +1,4 @@
 import GroundZero.HITs.Interval
-import GroundZero.Theorems.UA
 import GroundZero.HITs.Merely
 
 open GroundZero.Types.Id (ap)
@@ -14,11 +13,11 @@ namespace Theorems.Equiv
 
 universe u v w w' w''
 
-hott def uniqDoesNotAddNewPaths {A : Type u} (a b : ∥A∥)
+hott remark uniqDoesNotAddNewPaths {A : Type u} (a b : ∥A∥)
   (p : a = b) : HITs.Merely.uniq a b = p :=
 propIsSet HITs.Merely.uniq _ _ _ _
 
-hott def propEquiv {A : Type u} (H : prop A) : A ≃ ∥A∥ :=
+hott lemma propEquiv {A : Type u} (H : prop A) : A ≃ ∥A∥ :=
 propEquivLemma H HITs.Merely.uniq HITs.Merely.elem (HITs.Merely.rec H id)
 
 hott def propFromEquiv {A : Type u} : A ≃ ∥A∥ → prop A :=
@@ -160,18 +159,6 @@ end
 hott def propset.Id (A B : Prop) (H : A.1 = B.1) : A = B :=
 Sigma.prod H (propIsProp _ _)
 
-noncomputable hott def propEqProp {A B : Type u} (G : prop B) : prop (A = B) :=
-begin apply propRespectsEquiv; apply GroundZero.ua.univalence A B; apply propEquivProp G end
-
-noncomputable hott def propsetIsSet : hset propset :=
-begin
-  intro ⟨x, H⟩ ⟨y, G⟩; apply transport (λ π, Π (p q : π), p = q);
-  symmetry; apply GroundZero.ua; apply Sigma.sigmaPath;
-  intro ⟨p, p'⟩ ⟨q, q'⟩; fapply Sigma.prod;
-  { apply propEqProp; exact G };
-  { apply propIsSet; apply propIsProp }
-end
-
 hott def hsetEquiv {A : Type u} {B : Type v} (g : hset B) : hset (A ≃ B) :=
 begin
   fapply hsetRespectsSigma;
@@ -179,36 +166,8 @@ begin
   { intro x; apply propIsSet; apply biinvProp }
 end
 
-hott def bool.decode : 𝟐 ≃ 𝟐 → 𝟐 :=
-λ e, e false
-
-hott def bool.encode : 𝟐 → 𝟐 ≃ 𝟐
-| false => ideqv 𝟐
-| true  => ua.negBoolEquiv
-
 hott def zeroEquiv.hset (A B : 0-Type) : hset (A ≃₀ B) :=
 begin apply hsetEquiv; apply zeroEqvSet.forward; exact B.2 end
-
-hott def boolEquivEqvBool : (𝟐 ≃ 𝟐) ≃ 𝟐 :=
-begin
-  existsi bool.decode; fapply Qinv.toBiinv; existsi bool.encode; apply Prod.mk;
-  { intro x; induction x using Bool.casesOn <;> reflexivity };
-  { intro ⟨φ, H⟩; apply equivHmtpyLem; intro x;
-    match boolEqTotal (φ false), boolEqTotal (φ true) with
-    | Sum.inl p₁, Sum.inl q₁ => _
-    | Sum.inr p₂, Sum.inl q₁ => _
-    | Sum.inl p₁, Sum.inr q₂ => _
-    | Sum.inr p₂, Sum.inr q₂ => _;
-    -- TODO: apply “or” here somehow
-    { apply Proto.Empty.elim; apply ffNeqTt;
-      apply eqvInj ⟨φ, H⟩; exact p₁ ⬝ q₁⁻¹ };
-    { transitivity; apply ap (bool.encode · x); apply p₂;
-      symmetry; induction x using Bool.casesOn <;> assumption };
-    { transitivity; apply ap (bool.encode · x); apply p₁;
-      symmetry; induction x using Bool.casesOn <;> assumption };
-    { apply Proto.Empty.elim; apply ffNeqTt;
-      apply eqvInj ⟨φ, H⟩; exact p₂ ⬝ q₂⁻¹ } }
-end
 
 hott def contrQinvFib {A : Type u} {B : Type v} {f : A → B} (e : qinv f) (b : B) : contr (Σ a, b = f a) :=
 begin apply contrRespectsEquiv; apply respectsEquivOverFst (Qinv.toEquiv (Qinv.sym e)) (Id b); apply singl.contr end
@@ -239,50 +198,6 @@ section
 
   example : (qinvOfCorr (corrOfQinv e)).1   = e.1   := by reflexivity
   example : (qinvOfCorr (corrOfQinv e)).2.1 = e.2.1 := by reflexivity
-end
-
-section
-  variable {A : Type u} {B : Type v}
-
-  hott def corrOfBiinv : A ≃ B → Corr A B :=
-  λ e, @corrOfQinv A B ⟨e.1, Qinv.ofBiinv e.1 e.2⟩
-
-  hott def biinvOfCorr : Corr A B → A ≃ B :=
-  λ c, Qinv.toEquiv (qinvOfCorr c).2
-
-  hott def corrLem (R : A → B → Type w) (φ : A → B) (ρ : Π x, R x (φ x))
-    (H : Π x y, R x y → φ x = y) (c : Π (x : A) (y : B) (w : R x y), ρ x =[H x y w] w)
-    (x : A) (y : B) : (φ x = y) ≃ (R x y) :=
-  begin
-    fapply Sigma.mk; { intro p; apply transport (R x) p; apply ρ }; fapply Qinv.toBiinv;
-    fapply Sigma.mk; intro r; exact (H x (φ x) (ρ x))⁻¹ ⬝ H x y r; apply Prod.mk;
-    { intro r; dsimp; transitivity; apply ap; symmetry; apply c x (φ x) (ρ x);
-      transitivity; apply substComp; transitivity; apply ap (subst (H x y r));
-      apply transportForwardAndBack; apply c };
-    { intro p; induction p; apply Id.invComp }
-  end
-
-  noncomputable hott def corrBiinvIdfun : corrOfBiinv ∘ @biinvOfCorr A B ~ idfun :=
-  begin
-    intro w; fapply Sigma.prod;
-    apply Theorems.funext; intro x; apply Theorems.funext; intro y;
-    change (y = (w.2.1 x).1.1) = (w.1 x y); apply ua; apply Equiv.trans;
-    apply inveqv; fapply corrLem w.1 (λ x, (w.2.1 x).1.1) (λ x, (w.2.1 x).1.2)
-      (λ x y ρ, ap Sigma.fst ((w.2.1 x).2 ⟨y, ρ⟩));
-    { intros x y ρ; change _ = _; transitivity; symmetry;
-      apply transportComp (w.1 x) Sigma.fst ((w.2.1 x).2 ⟨y, ρ⟩);
-      apply apd Sigma.snd };
-    apply productProp <;> { apply piProp; intros; apply contrIsProp }
-  end
-
-  hott def biinvCorrIdfun : biinvOfCorr ∘ @corrOfBiinv A B ~ idfun :=
-  begin intro e; fapply equivHmtpyLem; intro; reflexivity end
-
-  noncomputable hott def biinvEquivCorr : Corr A B ≃ (A ≃ B) :=
-  begin
-    existsi biinvOfCorr; fapply Qinv.toBiinv; existsi corrOfBiinv;
-    apply Prod.mk; apply biinvCorrIdfun; apply corrBiinvIdfun
-  end
 end
 
 hott def pathOver {A : Type u} (B : A → Type v) {a b : A} (p : a = b) (u : B a) (v : B b) :=

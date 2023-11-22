@@ -25,7 +25,7 @@ noncomputable hott def helix.loop {G : Group} (z x : G.carrier) :
 begin
   transitivity; apply Equiv.transportToTransportconst;
   transitivity; apply ap (transportconst · x);
-  apply Circle.recβrule₂; apply ua.transportRule
+  apply Circle.recβrule₂; apply uaβ
 end
 
 noncomputable hott def helix.loopInv {G : Group} (z x : G.carrier) :
@@ -34,7 +34,7 @@ begin
   transitivity; apply Equiv.transportToTransportconst;
   transitivity; apply ap (transportconst · x);
   transitivity; apply Id.mapInv; apply ap;
-  apply Circle.recβrule₂; apply ua.transportInvRule
+  apply Circle.recβrule₂; apply uaβrev
 end
 
 noncomputable hott def power.succ {G : Group} (z : G.carrier) :

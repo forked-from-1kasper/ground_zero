@@ -1,17 +1,16 @@
-import GroundZero.Structures
+import GroundZero.Theorems.Equiv
 
+open GroundZero.HITs.Interval (happly)
+open GroundZero.Theorems.Equiv
 open GroundZero.Types.Id (ap)
 open GroundZero.Types.Equiv
 open GroundZero.Structures
 open GroundZero.Types
+open GroundZero.Proto
 
 /-
-  Univalence axiom formulated using equivalence J-rule.
-
-  ua, idtoeqv, compRule, propUniq
+  Univalence axiom: (A ≃ B) ≃ (A = B).
   * HoTT 2.10
-
-  Full univalence: (A ≃ B) ≃ (A = B).
 
   Proof that Type is not a set.
   * HoTT 3.1, example 3.1.9
@@ -19,80 +18,94 @@ open GroundZero.Types
 
 namespace GroundZero
 
-universe u v u' v'
+universe u v w u' v' w'
 
-axiom J {C : Π (A B : Type u), A ≃ B → Type v}
-  (h : Π (A : Type u), C A A (ideqv A))
-  {A B : Type u} (e : A ≃ B) : C A B e
+section
+  variable {A B : Type u} (f : A → B) (g : B → A)
 
-attribute [eliminator] J
-
-axiom Jβrule {C : Π (A B : Type u), A ≃ B → Type v}
-  {h : Π (A : Type u), C A A (ideqv A)} {A : Type u} :
-  J h (ideqv A) = h A
-
-noncomputable hott def Jrule (C : Π (A B : Type u), A ≃ B → Type v)
-  (h : Π (A : Type u), C A A (ideqv A)) {A B : Type u} (e : A ≃ B) : C A B e :=
-J h e
-
-noncomputable hott def ua {A B : Type u} : A ≃ B → A = B :=
-Jrule (λ A B _, A = B) idp
-
-namespace ua
-
-noncomputable hott def reflOnUa (A : Type u) : ua (ideqv A) = idp A :=
-by apply Jβrule
-
-noncomputable hott def transportRule {A B : Type u} (e : A ≃ B) (x : A) :
-  transportconst (ua e) x = e x :=
-begin
-  induction e; transitivity;
-  apply ap (transport id · x);
-  apply reflOnUa; reflexivity
+  axiom uaweak  (H : f ∘ g ~ idfun) (G : g ∘ f ~ idfun) : A = B
+  axiom uaweakβ (H : f ∘ g ~ idfun) (G : g ∘ f ~ idfun) : transportconst (uaweak f g H G) ~ f
 end
 
-noncomputable hott def transportInvRule {A B : Type u} (e : A ≃ B) (x : B) :
-  transportconst (ua e)⁻¹ x = e.left x :=
-begin
-  induction e; transitivity;
-  apply ap (transport id ·⁻¹ x);
-  apply reflOnUa; reflexivity
-end
+noncomputable hott def ua {A B : Type u} (e : A ≃ B) : A = B :=
+uaweak e.forward e.left e.forwardLeft e.leftForward
 
-noncomputable hott def compRule {A B : Type u} (e : A ≃ B) (x : A) : x =[id, ua e] e x :=
-transportRule e x
+noncomputable hott def uaε {A B : Type u} (e : A ≃ B) : A = B :=
+ua e ⬝ (ua (ideqv B))⁻¹
 
-hott def idtoeqvAndId {A : Type u} : idtoeqv (idp A) = ideqv A :=
+noncomputable hott lemma idtoeqvua {A B : Type u} (e : A ≃ B) : idtoeqv (ua e) = e :=
+begin apply equivHmtpyLem; apply uaweakβ end
+
+noncomputable hott lemma uaidtoeqvε {A B : Type u} (p : A = B) : uaε (idtoeqv p) = p :=
+begin induction p; apply Id.compInv end
+
+noncomputable hott theorem univalence (A B : Type u) : (A = B) ≃ (A ≃ B) :=
+⟨idtoeqv, (⟨uaε, uaidtoeqvε⟩, ⟨ua, idtoeqvua⟩)⟩
+
+noncomputable hott corollary uaidtoeqv {A B : Type u} (p : A = B) : ua (idtoeqv p) = p :=
+(univalence A B).rightForward p
+
+hott example {A : Type u} : idtoeqv (idp A) = ideqv A :=
 by reflexivity
 
-noncomputable hott def uaβrule {A B : Type u} (e : A ≃ B) : idtoeqv (ua e) = e :=
-begin induction e; change _ = idtoeqv (idp _); apply ap; apply reflOnUa end
+noncomputable hott corollary uaidp (A : Type u) : ua (ideqv A) = idp A :=
+uaidtoeqv (idp A)
 
-noncomputable hott def propUniq {A B : Type u} (p : A = B) : ua (idtoeqv p) = p :=
-begin induction p; exact Jβrule end
+noncomputable hott theorem uaβ {A B : Type u} (e : A ≃ B) (x : A) : transportconst (ua e) x = e x :=
+happly (ap Equiv.forward (idtoeqvua e)) x
 
-noncomputable hott def univalence (A B : Type u) : (A ≃ B) ≃ (A = B) :=
-⟨ua, (⟨idtoeqv, uaβrule⟩, ⟨idtoeqv, propUniq⟩)⟩
+noncomputable hott theorem uaβrev {A B : Type u} (e : A ≃ B) (x : B) : transportconst (ua e)⁻¹ x = e.left x :=
+happly (ap Equiv.left (idtoeqvua e)) x
 
-noncomputable hott def propext {A B : Type u}
+noncomputable hott remark uaCompRule {A B : Type u} (e : A ≃ B) (x : A) : x =[id, ua e] e x :=
+uaβ e x
+
+noncomputable hott theorem propext {A B : Type u}
   (F : prop A) (G : prop B) : (A ↔ B) → A = B :=
 λ h, ua (propEquivLemma F G h.left h.right)
 
-noncomputable hott def uaTrans {A B γ : Type u} (p : A ≃ B) (q : B ≃ γ) :
-  ua (Equiv.trans p q) = ua p ⬝ ua q :=
+noncomputable hott theorem uacom {A B C : Type u} (p : A ≃ B) (q : B ≃ C) : ua (p.trans q) = ua p ⬝ ua q :=
 begin
-  induction p; induction q; change ua (ideqv _) = _; symmetry;
-  change _ = idp _ ⬝ _; apply ap (· ⬝ ua _); apply reflOnUa
+  fapply (univalence A C).eqvInj; apply equivHmtpyLem;
+  intro x; symmetry; transitivity; apply substComp;
+  transitivity; apply uaβ; transitivity; apply ap q;
+  apply uaβ; symmetry; apply uaβ
 end
+
+noncomputable hott theorem univAlt (A : Type u) : contr (Σ B, A ≃ B) :=
+begin
+  existsi ⟨A, ideqv A⟩; intro w; fapply Sigma.prod; apply ua w.2;
+  transitivity; apply transportMeetSigma; apply equivHmtpyLem; intro x;
+  transitivity; apply happly; apply transportImpl (λ _, A) (λ B, B);
+  transitivity; apply uaβ; apply ap w.2; apply transportOverConstFamily
+end
+
+noncomputable hott corollary uaSinglProp (A : Type u) : prop (Σ B, A ≃ B) :=
+contrImplProp (univAlt A)
+
+namespace Equiv
+  variable {C : Π (A B : Type u), A ≃ B → Type v} (Cidp : Π (A : Type u), C A A (ideqv A))
+
+  noncomputable hott def J {A B : Type u} (e : A ≃ B) : C A B e :=
+  transport (λ (w : Σ B, A ≃ B), C A w.1 w.2) ((univAlt A).2 ⟨B, e⟩) (Cidp A)
+
+  attribute [eliminator] J
+
+  noncomputable hott lemma Jβrule (A : Type u) : J Cidp (ideqv A) = Cidp A :=
+  begin
+    dsimp [J]; transitivity; apply ap (transport _ · _);
+    show _ = idp _; apply propIsSet; apply uaSinglProp; reflexivity
+  end
+end Equiv
 
 hott def isZero : ℕ → 𝟐
 | Nat.zero   => true
 | Nat.succ _ => false
 
-example (h : 0 = 1) : 𝟎 :=
+hott example (h : 0 = 1) : 𝟎 :=
 ffNeqTt (ap isZero h)⁻¹
 
-hott def succNeqZero {n : ℕ} : ¬(Nat.succ n = 0) :=
+hott lemma succNeqZero {n : ℕ} : ¬(Nat.succ n = 0) :=
 λ h, ffNeqTt (ap isZero h)
 
 hott def negNeg : Π x, not (not x) = x
@@ -102,15 +115,15 @@ hott def negNeg : Π x, not (not x) = x
 hott def negBoolEquiv : 𝟐 ≃ 𝟐 :=
 ⟨not, (⟨not, negNeg⟩, ⟨not, negNeg⟩)⟩
 
-noncomputable hott def universeNotASet : ¬(hset Type) :=
+noncomputable hott theorem universeNotASet : ¬(hset Type) :=
 begin
   let p : 𝟐 = 𝟐 := ua negBoolEquiv; let h := transportconst p true;
-  let g : h = false := transportRule negBoolEquiv true;
+  let g : h = false := uaβ negBoolEquiv true;
   intro ε; let f : h = true := ap (transportconst · true) (ε _ _ p (idp 𝟐));
   apply ffNeqTt; exact g⁻¹ ⬝ f
 end
 
-noncomputable hott def coproductSet {A B : Type u}
+noncomputable hott theorem coproductSet {A B : Type u}
   (f : hset A) (g : hset B) : hset (A + B)
 | Coproduct.inl x, Coproduct.inl y =>
   transport prop (ua (@Coproduct.inl.inj' A B x y))⁻¹ (f _ _)
@@ -122,14 +135,14 @@ noncomputable hott def coproductSet {A B : Type u}
   transport prop (ua (@Coproduct.inr.inj' A B x y))⁻¹ (g _ _)
 
 -- exercise 2.17 (i) in HoTT book
-noncomputable hott def productEquiv₁ {A A' B B' : Type u}
+noncomputable hott theorem productEquiv₁ {A A' B B' : Type u}
   (e₁ : A ≃ A') (e₂ : B ≃ B') : (A × B) ≃ (A' × B') :=
 begin
   have p := ua e₁; have q := ua e₂;
   induction p; induction q; apply ideqv
 end
 
-noncomputable hott def productEquiv₂ {A A' B B' : Type u}
+noncomputable hott theorem productEquiv₂ {A A' B B' : Type u}
   (e₁ : A ≃ A') (e₂ : B ≃ B') : (A × B) ≃ (A' × B') :=
 begin induction e₁; induction e₂; reflexivity end
 
@@ -137,7 +150,7 @@ section
   open GroundZero.Types.Product
   variable {A : Type u} {A' : Type v} {B : Type u'} {B' : Type v'}
 
-  hott def productEquiv₃ (e₁ : A ≃ A') (e₂ : B ≃ B') : (A × B) ≃ (A' × B') :=
+  hott theorem productEquiv₃ (e₁ : A ≃ A') (e₂ : B ≃ B') : (A × B) ≃ (A' × B') :=
   prodEquiv e₁ e₂
 end
 
@@ -151,7 +164,7 @@ section
   hott def familyOnBool.ret (φ : Π b, C b) : C false × C true :=
   (φ false, φ true)
 
-  hott def familyOnBool : (C false × C true) ≃ Π b, C b :=
+  hott theorem familyOnBool : (C false × C true) ≃ Π b, C b :=
   begin
     existsi familyOnBool.sec; apply Qinv.toBiinv;
     existsi familyOnBool.ret; apply Prod.mk;
@@ -161,5 +174,95 @@ section
   end
 end
 
-end ua
+namespace Theorems.Equiv
+
+noncomputable hott def propEqProp {A B : Type u} (G : prop B) : prop (A = B) :=
+begin
+  apply propRespectsEquiv.{u, u + 1}; apply Equiv.symm;
+  apply univalence; apply propEquivProp G
+end
+
+noncomputable hott def propsetIsSet : hset propset :=
+begin
+  intro ⟨x, H⟩ ⟨y, G⟩; apply transport (λ π, Π (p q : π), p = q);
+  symmetry; apply GroundZero.ua; apply Sigma.sigmaPath;
+  intro ⟨p, p'⟩ ⟨q, q'⟩; fapply Sigma.prod;
+  { apply propEqProp; exact G };
+  { apply propIsSet; apply propIsProp }
+end
+
+hott def bool.decode : 𝟐 ≃ 𝟐 → 𝟐 :=
+λ e, e false
+
+hott def bool.encode : 𝟐 → 𝟐 ≃ 𝟐
+| false => ideqv 𝟐
+| true  => negBoolEquiv
+
+hott def boolEquivEqvBool : (𝟐 ≃ 𝟐) ≃ 𝟐 :=
+begin
+  existsi bool.decode; fapply Qinv.toBiinv; existsi bool.encode; apply Prod.mk;
+  { intro x; induction x using Bool.casesOn <;> reflexivity };
+  { intro ⟨φ, H⟩; apply equivHmtpyLem; intro x;
+    match boolEqTotal (φ false), boolEqTotal (φ true) with
+    | Sum.inl p₁, Sum.inl q₁ => _
+    | Sum.inr p₂, Sum.inl q₁ => _
+    | Sum.inl p₁, Sum.inr q₂ => _
+    | Sum.inr p₂, Sum.inr q₂ => _;
+    -- TODO: apply “or” here somehow
+    { apply Proto.Empty.elim; apply ffNeqTt;
+      apply eqvInj ⟨φ, H⟩; exact p₁ ⬝ q₁⁻¹ };
+    { transitivity; apply ap (bool.encode · x); apply p₂;
+      symmetry; induction x using Bool.casesOn <;> assumption };
+    { transitivity; apply ap (bool.encode · x); apply p₁;
+      symmetry; induction x using Bool.casesOn <;> assumption };
+    { apply Proto.Empty.elim; apply ffNeqTt;
+      apply eqvInj ⟨φ, H⟩; exact p₂ ⬝ q₂⁻¹ } }
+end
+
+section
+  variable {A : Type u} {B : Type v}
+
+  hott def corrOfBiinv : A ≃ B → Corr A B :=
+  λ e, @corrOfQinv A B ⟨e.1, Qinv.ofBiinv e.1 e.2⟩
+
+  hott def biinvOfCorr : Corr A B → A ≃ B :=
+  λ c, Qinv.toEquiv (qinvOfCorr c).2
+
+  hott def corrLem (R : A → B → Type w) (φ : A → B) (ρ : Π x, R x (φ x))
+    (H : Π x y, R x y → φ x = y) (c : Π (x : A) (y : B) (w : R x y), ρ x =[H x y w] w)
+    (x : A) (y : B) : (φ x = y) ≃ (R x y) :=
+  begin
+    fapply Sigma.mk; { intro p; apply transport (R x) p; apply ρ }; fapply Qinv.toBiinv;
+    fapply Sigma.mk; intro r; exact (H x (φ x) (ρ x))⁻¹ ⬝ H x y r; apply Prod.mk;
+    { intro r; dsimp; transitivity; apply ap; symmetry; apply c x (φ x) (ρ x);
+      transitivity; apply substComp; transitivity; apply ap (subst (H x y r));
+      apply transportForwardAndBack; apply c };
+    { intro p; induction p; apply Id.invComp }
+  end
+
+  noncomputable hott def corrBiinvIdfun : corrOfBiinv ∘ @biinvOfCorr A B ~ idfun :=
+  begin
+    intro w; fapply Sigma.prod;
+    apply Theorems.funext; intro x; apply Theorems.funext; intro y;
+    change (y = (w.2.1 x).1.1) = (w.1 x y); apply ua; apply Equiv.trans;
+    apply inveqv; fapply corrLem w.1 (λ x, (w.2.1 x).1.1) (λ x, (w.2.1 x).1.2)
+      (λ x y ρ, ap Sigma.fst ((w.2.1 x).2 ⟨y, ρ⟩));
+    { intros x y ρ; change _ = _; transitivity; symmetry;
+      apply transportComp (w.1 x) Sigma.fst ((w.2.1 x).2 ⟨y, ρ⟩);
+      apply apd Sigma.snd };
+    apply productProp <;> { apply piProp; intros; apply contrIsProp }
+  end
+
+  hott def biinvCorrIdfun : biinvOfCorr ∘ @corrOfBiinv A B ~ idfun :=
+  begin intro e; fapply equivHmtpyLem; intro; reflexivity end
+
+  noncomputable hott def biinvEquivCorr : Corr A B ≃ (A ≃ B) :=
+  begin
+    existsi biinvOfCorr; fapply Qinv.toBiinv; existsi corrOfBiinv;
+    apply Prod.mk; apply biinvCorrIdfun; apply corrBiinvIdfun
+  end
+end
+
+end Theorems.Equiv
+
 end GroundZero

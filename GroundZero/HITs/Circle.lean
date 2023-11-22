@@ -1,6 +1,6 @@
 import GroundZero.HITs.Suspension
-import GroundZero.Theorems.Equiv
 import GroundZero.Types.Integer
+import GroundZero.Theorems.UA
 
 open GroundZero.HITs.Interval
 open GroundZero.Types.Equiv
@@ -209,7 +209,7 @@ namespace Circle
 
   noncomputable hott theorem loopNeqRefl : ¬(loop = idp base) :=
   begin
-    intro H; apply ua.universeNotASet;
+    intro H; apply universeNotASet;
     intros A B p q; apply (KIffSet Type).left;
     apply loopEqReflImplsUip; assumption
   end
@@ -274,14 +274,14 @@ namespace Circle
           transport helix loop x
         = transportconst (ap helix loop) x        : Equiv.transportComp id helix loop x
     ... = transportconst (ua Integer.succEquiv) x : ap (transportconst · x) (recβrule₂ _ _)
-    ... = Integer.succ x                          : ua.transportRule _ _
+    ... = Integer.succ x                          : uaβ _ _
 
   noncomputable hott theorem transportBack (x : ℤ) := calc
            transport helix loop⁻¹ x
          = transportconst (ap helix loop⁻¹) x        : Equiv.transportComp id helix loop⁻¹ x
      ... = transportconst (ap helix loop)⁻¹ x        : ap (transportconst · x) (Id.mapInv _ _)
      ... = transportconst (ua Integer.succEquiv)⁻¹ x : ap (transportconst ·⁻¹ x) (recβrule₂ _ _)
-     ... = Integer.pred x                            : ua.transportInvRule _ _
+     ... = Integer.pred x                            : uaβrev _ _
 
   -- An example of two equal dependent pairs with unequal second components.
   -- Note that this example depends on the univalence.
@@ -555,7 +555,7 @@ namespace Circle
       transitivity; apply ap (transportconst · zero);
       transitivity; apply mapFunctoriality; apply ap; apply recβrule₂;
       transitivity; apply transportconstOverComposition;
-      transitivity; apply ua.transportRule; apply ap succ;
+      transitivity; apply uaβ; apply ap succ;
       symmetry; apply transportToTransportconst
     end
 
@@ -569,7 +569,7 @@ namespace Circle
       transitivity; apply Id.mapInv; apply ap Id.symm; apply recβrule₂;
       transitivity; apply transportconstOverComposition;
       transitivity; apply transportconstOverInv;
-      transitivity; apply ua.transportInvRule; apply ap pred;
+      transitivity; apply uaβrev; apply ap pred;
       symmetry; apply transportToTransportconst
     end
 
@@ -841,11 +841,11 @@ namespace Circle
 
   hott theorem plusEqZeroRight {n : ℕ} : Π {m : ℕ}, n + m = 0 → m = 0
   | Nat.zero,   _ => idp 0
-  | Nat.succ _, H => Empty.elim (ua.succNeqZero H)
+  | Nat.succ _, H => Empty.elim (succNeqZero H)
 
   hott theorem multEqOneRight : Π (n m : ℕ), n * m = 1 → m = 1
-  | n,          Nat.zero,   H => Empty.elim (ua.succNeqZero H⁻¹)
-  | Nat.zero,   Nat.succ m, H => Empty.elim (ua.succNeqZero (H⁻¹ ⬝ Theorems.Nat.zeroMul _))
+  | n,          Nat.zero,   H => Empty.elim (succNeqZero H⁻¹)
+  | Nat.zero,   Nat.succ m, H => Empty.elim (succNeqZero (H⁻¹ ⬝ Theorems.Nat.zeroMul _))
   | Nat.succ n, Nat.succ m, H => (H⁻¹ ⬝ ap (λ k, Nat.succ k * Nat.succ m)
                                            (plusEqZeroRight (Theorems.Nat.succInj H))
                                       ⬝ Theorems.Nat.oneMul _)⁻¹
@@ -854,7 +854,7 @@ namespace Circle
   multEqOneRight m n (Theorems.Nat.mulComm _ _ ⬝ H)
 
   hott lemma zeroNeqOne : ¬@Id ℤ 0 1 :=
-  λ p, @ua.succNeqZero 0 (Coproduct.inl.encode p)⁻¹
+  λ p, @succNeqZero 0 (Coproduct.inl.encode p)⁻¹
 
   hott theorem degOfRetr (f g : S¹ → S¹) (H : f ∘ g ~ id) : abs (degree f) = 1 :=
   begin
@@ -1022,7 +1022,7 @@ namespace Circle
     hott theorem absOneDec : Π (z : ℤ), abs z = 1 → (z = 1) + (z = -1)
     | Integer.pos n,            H => Coproduct.inl (ap Integer.pos H)
     | Integer.neg Nat.zero,     _ => Coproduct.inr (idp _)
-    | Integer.neg (Nat.succ n), H => Empty.elim (ua.succNeqZero (Theorems.Nat.succInj H))
+    | Integer.neg (Nat.succ n), H => Empty.elim (succNeqZero (Theorems.Nat.succInj H))
 
     hott corollary absOneImplSqrEqOne (z : ℤ) (H : abs z = 1) : z * z = 1 :=
     match absOneDec z H with
@@ -1168,7 +1168,7 @@ namespace Circle
 
     noncomputable hott theorem autEquiv := calc
       (S¹ ≃ S¹) ≃ Σ φ, abs (degree φ) = 1                           : Sigma.respectsEquiv degIffBiinv
-            ... ≃ Σ φ, (degree φ = 1) + (degree φ = auxsucc 1)      : Sigma.respectsEquiv (λ _, absEqEqv 1 ua.succNeqZero)
+            ... ≃ Σ φ, (degree φ = 1) + (degree φ = auxsucc 1)      : Sigma.respectsEquiv (λ _, absEqEqv 1 succNeqZero)
             ... ≃ (Σ φ, degree φ = 1) + (Σ φ, degree φ = auxsucc 1) : sigmaSumDistrib _ _
             ... ≃ S¹ + S¹                                           : sumEquiv (circleEqvDeg _) (circleEqvDeg _)
   end
@@ -1205,8 +1205,8 @@ namespace Circle
 
   noncomputable hott def succNeqIdp : ua (Integer.succEquiv) ≠ idp ℤ :=
   begin
-    intro H; apply @ua.succNeqZero 0; apply @inl.encode ℕ ℕ _ (inl 0);
-    transitivity; symmetry; apply ua.transportRule Integer.succEquiv 0;
+    intro H; apply @succNeqZero 0; apply @inl.encode ℕ ℕ _ (inl 0);
+    transitivity; symmetry; apply uaβ Integer.succEquiv 0;
     apply ap (transportconst · 0) H
   end
 
@@ -1305,7 +1305,7 @@ namespace Circle
       transitivity; apply ap (happly · _); apply indβrule₂; apply happlyFunextPath;
       transitivity; apply transportconstOverComposition;
       transitivity; apply ap (transportconst _); apply meetTransportCoh (ΩHelix π succπ predπ coh₁ coh₂);
-      transitivity; apply ua.transportRule; show subst _ _ = _; transitivity;
+      transitivity; apply uaβ; show subst _ _ = _; transitivity;
 
       apply ap (subst _); transitivity; transitivity; apply happly;
       symmetry; apply apd succπ (compInv loop)⁻¹; apply happly;
@@ -1325,7 +1325,7 @@ namespace Circle
       transitivity; apply ap (transportconst _);
       transitivity; apply transportconstOverComposition;
       transitivity; apply ap (transportconst _); apply meetTransportCoh (ΩHelix π succπ predπ coh₁ coh₂);
-      apply ua.transportInvRule; transitivity; symmetry; apply transportToTransportconst;
+      apply uaβrev; transitivity; symmetry; apply transportToTransportconst;
 
       show transport _ _ (predπ _ _) = _; transitivity;
       apply ap (subst _); transitivity; transitivity; apply happly;
@@ -1535,7 +1535,7 @@ namespace HigherSphere
   hott def indBias (n : ℕ) (B : Sⁿ⁺¹ → Type u) (b : B base) (ε : Ωⁿ⁺¹(B, b, surf n)) :=
   rec (Σ x, B x) ⟨base, b⟩ n (sigmaProdΩ (surf n) ε)
 
-  noncomputable hott example (n : ℕ) (B : Sⁿ⁺¹ → Type u) (b : B base)
+  hott example (n : ℕ) (B : Sⁿ⁺¹ → Type u) (b : B base)
     (ε : Ωⁿ⁺¹(B, b, surf n)) (x : Sⁿ⁺¹) : (indBias n B b ε x).1 = x :=
   begin
     transitivity; apply recComMapΩ;
@@ -1544,7 +1544,7 @@ namespace HigherSphere
   end
 
   -- this (longer) proof computes better than the previous one
-  noncomputable hott lemma indBiasPath : Π (n : ℕ) (B : Sⁿ⁺¹ → Type u)
+  hott lemma indBiasPath : Π (n : ℕ) (B : Sⁿ⁺¹ → Type u)
     (b : B base) (ε : Ωⁿ⁺¹(B, b, surf n)), Π x, (indBias n B b ε x).1 = x
   | Nat.zero =>
   begin

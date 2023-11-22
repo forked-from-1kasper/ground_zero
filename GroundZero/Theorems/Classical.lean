@@ -1,4 +1,4 @@
-import GroundZero.Theorems.Equiv
+import GroundZero.Theorems.UA
 
 open GroundZero.Types.Equiv (transport)
 open GroundZero.Types.Id (ap)
@@ -28,11 +28,10 @@ end
 noncomputable hott def cartesian {A : Type u} (B : A → Type v) :
   hset A → (Π x, hset (B x)) → (Π x, ∥B x∥) → ∥(Π x, B x)∥ :=
 begin
-  intros p q φ; apply transport; apply GroundZero.ua;
+  intros p q φ; apply transport; apply ua;
   change (Σ (φ : Π x, B x), Π (x : A), (𝟏 : Type)) ≃ _;
   transitivity; apply Sigma.const; apply Equiv.trans;
-  { apply GroundZero.ua.productEquiv₃;
-    { reflexivity }; { apply zeroMorphismEqv.{_, _, 1} } };
+  { apply productEquiv₃; reflexivity; apply zeroMorphismEqv.{_, _, 1} };
   apply Equiv.trans; apply Product.comm; apply prodUnitEquiv;
   apply choice B (λ _ _, 𝟏); apply p; apply q;
   { intros; apply unitIsProp }; intro x; fapply HITs.Merely.rec _ _ (φ x);
@@ -69,7 +68,7 @@ section
             { right; intro z; apply ffNeqTt;
               transitivity; exact s'⁻¹; symmetry; transitivity; exact r'⁻¹;
               apply ap; fapply Types.Sigma.prod; apply Theorems.funext;
-              intro x; apply Theorems.Equiv.propset.Id; apply GroundZero.ua.propext;
+              intro x; apply Theorems.Equiv.propset.Id; apply propext;
               apply HITs.Merely.uniq; apply HITs.Merely.uniq; apply Prod.mk <;>
               intro <;> apply HITs.Merely.elem <;> right <;> exact z; apply HITs.Merely.uniq };
             case inr => { left; assumption } };

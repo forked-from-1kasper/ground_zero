@@ -6,7 +6,7 @@ open GroundZero GroundZero.HITs GroundZero.Types
   V, Vproj
   * https://arxiv.org/abs/1712.01800
     Part 6 ‘Rules’, page 66 ‘Univalence’
-  
+
   ua, uabeta
 -/
 
@@ -20,7 +20,7 @@ noncomputable hott def Vproj (i : I) {A B : Type u} (e : A ≃ B) (m : A) : V i 
 @Interval.ind (λ i, V i e) m (e m) (begin
   apply Id.trans;
   apply Interval.transportconstWithSeg (GroundZero.ua e);
-  apply ua.compRule
+  apply uaβ
 end) i
 
 hott def ua {A B : Type u} (e : A ≃ B) : Path (Type u) A B := <i> V i e

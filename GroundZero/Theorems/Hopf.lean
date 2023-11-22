@@ -12,7 +12,7 @@ namespace Real
   open HITs.Circle
 
   -- Real (S⁰ ↪ S¹ ↠ S¹)
-  def family : S¹ → Type := Circle.rec S⁰ (ua ua.negBoolEquiv)
+  def family : S¹ → Type := Circle.rec S⁰ (ua negBoolEquiv)
   def total : Type := Σ x, family x
 
   def inj (x : S⁰) : total := ⟨base, x⟩
@@ -25,8 +25,8 @@ namespace Real
   abbrev μ := μ₁
 
   noncomputable hott def μLoop : μ = μ :=
-  Sigma.prod (loop ⬝ loop) (Circle.Ωrecβ₂ false not not ua.negNeg ua.negNeg loop ⬝
-                    ap not (Circle.Ωrecβ₂ false not not ua.negNeg ua.negNeg (idp base)))
+  Sigma.prod (loop ⬝ loop) (Circle.Ωrecβ₂ false not not negNeg negNeg loop ⬝
+                    ap not (Circle.Ωrecβ₂ false not not negNeg negNeg (idp base)))
 
   noncomputable hott statement mapRecμ : map ∘ rec μ μLoop ~ rec base (loop ⬝ loop) :=
   begin
@@ -41,7 +41,7 @@ namespace Real
   begin
     intro b; transitivity; apply transportToTransportconst;
     transitivity; apply ap (transportconst · b);
-    apply recβrule₂; apply ua.transportRule
+    apply recβrule₂; apply uaβ
   end
 
   noncomputable hott def family.transport₂ : transport family loop⁻¹ ~ not :=
@@ -49,7 +49,7 @@ namespace Real
     intro b; transitivity; apply transportToTransportconst;
     transitivity; apply ap (transportconst · b);
     transitivity; apply Id.mapInv; apply ap; apply recβrule₂;
-    transitivity; apply transportconstOverInv; apply ua.transportInvRule
+    transitivity; apply transportconstOverInv; apply uaβrev
   end
 end Real
 

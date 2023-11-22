@@ -104,7 +104,7 @@ namespace Group
   noncomputable hott def cosetsEq {φ : G.subgroup} (H : G ⊵ φ) : ldiv φ = rdiv φ :=
   begin
     apply Theorems.funext; intro; apply Theorems.funext; intro;
-    apply ua.propext; apply Ens.prop; apply Ens.prop;
+    apply propext; apply Ens.prop; apply Ens.prop;
     apply normalSubgroupCosets H
   end
 

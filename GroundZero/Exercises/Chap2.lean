@@ -1,4 +1,5 @@
 import GroundZero.Theorems.Pullback
+import GroundZero.Theorems.UA
 
 open GroundZero GroundZero.Types
 open GroundZero.Types.Id (ap)

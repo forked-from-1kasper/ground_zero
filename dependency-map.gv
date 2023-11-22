@@ -5,8 +5,7 @@ digraph dependency_map {
     "HITs/Interval",
     "HITs/Merely",
     "Types/Nat",
-    "Modal/Disc",
-    "Theorems/UA"
+    "Modal/Disc"
   }
 
   subgraph Algebra {
@@ -192,17 +191,17 @@ digraph dependency_map {
       "Algebra/Group/Lemmas"
     }
     "Theorems/Equiv" -> {
-      "HITs/Circle",
-      "Types/Ens",
       "Types/Precategory",
-      "Theorems/Classical",
-      "Theorems/Pullback"
+      "Theorems/Pullback",
+      "Theorems/UA"
     }
     "Theorems/Pullback"
     "Theorems/UA" -> {
+      "HITs/Circle",
       "HITs/Flattening",
+      "Types/Ens",
+      "Theorems/Classical",
       "Theorems/Nat",
-      "Theorems/Equiv",
       "Cubical/V"
     }
   }

@@ -1,4 +1,5 @@
 import GroundZero.Theorems.Equiv
+
 open GroundZero GroundZero.Types
 open GroundZero.Structures
 

@@ -5,7 +5,6 @@ import GroundZero.HITs.Trunc
 open GroundZero.Theorems.Functions GroundZero.Theorems.Equiv
 open GroundZero.Types.Equiv (idtoeqv apd)
 open GroundZero.Types.Id (isPointed ap)
-open GroundZero.ua (uaβrule)
 open GroundZero.Structures
 open GroundZero.Types
 open GroundZero
@@ -18,8 +17,8 @@ noncomputable hott def ntypeIsSuccNType (n : ℕ₋₂) :
 begin
   intro ⟨X, p⟩ ⟨Y, p'⟩; apply ntypeRespectsEquiv;
   symmetry; apply Sigma.sigmaPath; fapply ntypeRespectsSigma;
-  { apply ntypeRespectsEquiv; apply ua.univalence X Y;
-    induction n using hlevel.casesOn;
+  { apply ntypeRespectsEquiv.{u, u + 1}; apply Equiv.symm;
+    apply univalence X Y; induction n using hlevel.casesOn;
     { existsi contrTypeEquiv p p'; intro e; fapply Sigma.prod;
       { apply Theorems.funext; intro; apply contrImplProp; exact p' };
       { apply biinvProp } };
@@ -130,7 +129,7 @@ namespace K1
       symmetry; apply Group.cancelRight;
       symmetry; apply Group.cancelLeft };
     { intros x y; symmetry; transitivity;
-      { symmetry; apply ua.uaTrans };
+      { symmetry; apply uacom };
       apply ap ua; fapply Sigma.prod;
       { apply Theorems.funext; intro; apply G.mulAssoc };
       { apply biinvProp } };
@@ -165,7 +164,7 @@ namespace K1
       transitivity; apply Id.mapInv; apply ap;
       transitivity; apply Equiv.mapOverComp;
       transitivity; apply ap; unfold code'; apply recβrule;
-      apply Sigma.mapFstOverProd; apply ua.transportInvRule;
+      apply Sigma.mapFstOverProd; apply uaβrev;
       transitivity; apply Equiv.transportOverInvContrMap;
       transitivity; apply ap; apply Equiv.idmap;
       transitivity; apply ap (· ⬝ loop x); apply loop.mul;
@@ -180,8 +179,7 @@ namespace K1
       apply zeroEqvSet.left; apply grpd }
   end
 
-  hott lemma encodeDecode (z : K1 G) :
-    Π (p : code z), encode z (decode z p) = p :=
+  hott lemma encodeDecode (z : K1 G) : Π (p : code z), encode z (decode z p) = p :=
   begin
     induction z;
     { intro (x : G.carrier); change encode base (loop x) = _;
@@ -190,15 +188,14 @@ namespace K1
       transitivity; apply Equiv.mapOverComp;
       transitivity; apply ap; unfold code'; apply recβrule;
       apply Sigma.mapFstOverProd; transitivity;
-      apply ua.transportRule; apply G.oneMul };
+      apply uaβ; apply G.oneMul };
     { apply Theorems.funext; intro; apply hsetBase };
     { apply propIsSet; apply piProp; intro; apply hsetBase };
     { apply oneEqvGroupoid.forward; apply propIsNType _ 0;
       intros p q; apply Theorems.funext; intro; apply code.hset }
   end
 
-  hott lemma decodeEncode :
-    Π (z : K1 G) (p : base = z), decode z (encode z p) = p :=
+  hott lemma decodeEncode : Π (z : K1 G) (p : base = z), decode z (encode z p) = p :=
   begin intros z p; induction p; apply loop.one end
 
   hott theorem univ : G ≅ KΩ G :=

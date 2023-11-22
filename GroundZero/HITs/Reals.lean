@@ -113,7 +113,7 @@ namespace Reals
              ... = Σ (z : A.1), base = x         : ap Sigma (funext (λ _, ap (· = x) φ.id))
              ... = Σ (z : A.1), helix x          : ap Sigma (funext (λ _, GroundZero.ua (Circle.family x)))
              ... ≃ A.1 × (helix x)               : Sigma.const A.1 (helix x)
-             ... ≃ 𝟏 × (helix x)                 : ua.productEquiv₃ (contrEquivUnit.{_, 0} ⟨A.point, H A.point⟩) (Equiv.ideqv (helix x))
+             ... ≃ 𝟏 × (helix x)                 : productEquiv₃ (contrEquivUnit.{_, 0} ⟨A.point, H A.point⟩) (Equiv.ideqv (helix x))
              ... ≃ helix x                       : prodUnitEquiv (helix x)
 
     noncomputable hott def kerOfHomo : fib φ.ap base ≃ ℤ :=
