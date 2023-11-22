@@ -1,6 +1,6 @@
+import GroundZero.Theorems.Univalence
 import GroundZero.HITs.Suspension
 import GroundZero.Types.Integer
-import GroundZero.Theorems.UA
 
 open GroundZero.HITs.Interval
 open GroundZero.Types.Equiv

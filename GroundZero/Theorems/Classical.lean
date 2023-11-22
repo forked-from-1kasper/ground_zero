@@ -1,4 +1,4 @@
-import GroundZero.Theorems.UA
+import GroundZero.Theorems.Univalence
 
 open GroundZero.Types.Equiv (transport)
 open GroundZero.Types.Id (ap)

@@ -83,4 +83,4 @@ import GroundZero.Theorems.Funext
 import GroundZero.Theorems.Hopf
 import GroundZero.Theorems.Nat
 import GroundZero.Theorems.Ontological
-import GroundZero.Theorems.UA
+import GroundZero.Theorems.Univalence

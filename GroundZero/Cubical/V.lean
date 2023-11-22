@@ -1,5 +1,5 @@
+import GroundZero.Theorems.Univalence
 import GroundZero.Cubical.Path
-import GroundZero.Theorems.UA
 open GroundZero GroundZero.HITs GroundZero.Types
 
 /-

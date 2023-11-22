@@ -193,10 +193,10 @@ digraph dependency_map {
     "Theorems/Equiv" -> {
       "Types/Precategory",
       "Theorems/Pullback",
-      "Theorems/UA"
+      "Theorems/Univalence"
     }
     "Theorems/Pullback"
-    "Theorems/UA" -> {
+    "Theorems/Univalence" -> {
       "HITs/Circle",
       "HITs/Flattening",
       "Types/Ens",

@@ -1,4 +1,4 @@
-import GroundZero.Theorems.UA
+import GroundZero.Theorems.Univalence
 import GroundZero.Types.Nat
 
 open GroundZero.Types.Id (ap)

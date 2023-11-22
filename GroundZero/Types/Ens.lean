@@ -1,4 +1,4 @@
-import GroundZero.Theorems.UA
+import GroundZero.Theorems.Univalence
 open GroundZero.Structures
 
 namespace GroundZero

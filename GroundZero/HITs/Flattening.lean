@@ -1,5 +1,5 @@
+import GroundZero.Theorems.Univalence
 import GroundZero.HITs.Coequalizer
-import GroundZero.Theorems.UA
 
 open GroundZero.Types.Id (ap)
 open GroundZero.Types.Equiv
