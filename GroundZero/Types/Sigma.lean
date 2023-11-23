@@ -58,8 +58,8 @@ namespace Sigma
   end
 
   hott def prodEq {A : Type u} {B : A → Type v} : Π {u v : Sigma B}
-    (p p' : u.1 = v.1) (q : Equiv.subst p u.2 = v.2) (q' : Equiv.subst p' u.2 = v.2)
-    (r : p = p') (s : q =[λ ρ, Equiv.subst ρ u.2 = v.2, r] q'),
+    (p p' : u.1 = v.1) (q : transport B p u.2 = v.2) (q' : transport B p' u.2 = v.2)
+    (r : p = p') (s : q =[λ ρ, transport B ρ u.2 = v.2, r] q'),
     Sigma.prod p q = Sigma.prod p' q' :=
   begin
     intro ⟨x, u⟩ ⟨y, v⟩ (p : x = y) (p' : x = y) q q' r;
@@ -97,8 +97,8 @@ namespace Sigma
     apply Qinv.toBiinv; existsi (λ w, ⟨g w.1, w.2⟩); apply Prod.mk <;> intro w;
     { apply @prod B (C ∘ g) ⟨ρ.1 (g w.1), _⟩ w (ρ.2.1 w.1);
       transitivity; apply Equiv.transportComp;
-      transitivity; symmetry; apply Equiv.substComp;
-      transitivity; apply ap (λ p, Equiv.subst p w.2);
+      transitivity; symmetry; apply Equiv.transportcom;
+      transitivity; apply ap (λ p, transport C p w.2);
       apply Id.compReflIfEq; symmetry; apply ρ.2.2.2; reflexivity };
     { apply prod; apply Equiv.transportBackAndForward }
   end
@@ -112,11 +112,11 @@ namespace Sigma
   end
 
   hott def sigmaEqOfEq {A : Type u} {B : A → Type v} {a b : Σ x, B x}
-    (p : a = b) : (Σ (p : a.1 = b.1), Equiv.subst p a.2 = b.2) :=
+    (p : a = b) : (Σ (p : a.1 = b.1), transport B p a.2 = b.2) :=
   begin induction p; existsi idp a.1; reflexivity end
 
   hott def eqOfSigmaEq {A : Type u} {B : A → Type v} {a b : Σ x, B x}
-    (p : Σ (p : a.1 = b.1), Equiv.subst p a.2 = b.2) : (a = b) :=
+    (p : Σ (p : a.1 = b.1), transport B p a.2 = b.2) : (a = b) :=
   Sigma.prod p.1 p.2
 
   hott def prodRepr {A : Type u} {B : A → Type v} {a b : Σ x, B x} :
@@ -128,7 +128,7 @@ namespace Sigma
   begin intro ⟨a, u⟩ ⟨b, v⟩ ⟨(p : a = b), q⟩; induction p; dsimp at q; induction q; apply idp end
 
   hott def sigmaPath {A : Type u} {B : A → Type v} {a b : Σ x, B x} :
-    (a = b) ≃ (Σ (p : a.1 = b.1), Equiv.subst p a.2 = b.2) :=
+    (a = b) ≃ (Σ (p : a.1 = b.1), transport B p a.2 = b.2) :=
   begin
     existsi sigmaEqOfEq; apply Qinv.toBiinv;
     existsi eqOfSigmaEq; apply Prod.mk; apply reprProd; apply prodRepr

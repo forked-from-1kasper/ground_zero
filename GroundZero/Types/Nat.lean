@@ -1,6 +1,7 @@
 import GroundZero.HITs.Colimit
 import GroundZero.Structures
 
+open GroundZero.Types.Equiv (transport)
 open GroundZero.Types.Id (ap)
 open GroundZero.Structures
 open GroundZero.Types
@@ -72,7 +73,7 @@ hott def r : Π n, code n n
 | Nat.succ n => r n
 
 hott def encode {m n : ℕ} (p : m = n) : code m n :=
-Equiv.subst p (r m)
+transport (code m) p (r m)
 
 hott def decode : Π {m n : ℕ}, code m n → m = n
 | Nat.zero,   Nat.zero,   p => idp 0
@@ -100,6 +101,6 @@ begin
 end
 
 hott def recognize (m n : ℕ) : m = n ≃ code m n :=
-⟨encode, (⟨decode, decodeEncode⟩, ⟨decode, encodeDecode⟩)⟩
+Equiv.intro encode decode decodeEncode encodeDecode
 
 end GroundZero.Types.Nat

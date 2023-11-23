@@ -2,7 +2,7 @@ import GroundZero.HITs.Generalized
 import GroundZero.HITs.Colimit
 import GroundZero.Structures
 
-open GroundZero.Types.Equiv (subst apd pathoverFromTrans)
+open GroundZero.Types.Equiv (transport apd pathoverFromTrans)
 open GroundZero.Structures
 open GroundZero.Types.Id
 open GroundZero.Types
@@ -36,7 +36,7 @@ namespace Merely
     hott def resp : Π (n : ℕ) (x : Generalized.rep A n), B (Colimit.incl x)
     | Nat.zero,   x => elemπ x
     | Nat.succ n, w => @Generalized.ind _ (λ x, B (Colimit.inclusion (n + 1) x))
-                         (λ x, subst (Colimit.glue x)⁻¹ (resp n x))
+                         (λ x, transport B (Colimit.glue x)⁻¹ (resp n x))
                          (λ a b, uniqπ _ _ _) w
 
     hott def ind : Π x, B x :=

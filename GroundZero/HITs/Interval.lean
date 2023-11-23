@@ -64,7 +64,7 @@ namespace Interval
     (f : A → B) (p : a = b) : f a = f b :=
   lam (λ i, f (elim p i))
 
-  noncomputable hott def congRefl {A : Type u} {B : Type v}
+  hott lemma congRefl {A : Type u} {B : Type v}
     {a : A} (f : A → B) : cong f (idp a) = idp (f a) :=
   begin
     transitivity; apply mapOverComp;
@@ -72,11 +72,11 @@ namespace Interval
     apply recβrule; reflexivity
   end
 
-  noncomputable hott def mapEqCong {A : Type u} {B : Type v} {a b : A}
+  hott lemma mapEqCong {A : Type u} {B : Type v} {a b : A}
     (f : A → B) (p : a = b) : ap f p = cong f p :=
   begin induction p; symmetry; apply congRefl end
 
-  noncomputable hott def negNeg : Π x, neg (neg x) = x :=
+  hott lemma negNeg : Π x, neg (neg x) = x :=
   ind (idp i₀) (idp i₁) (calc
     transport (λ x, neg (neg x) = x) seg (idp i₀) =
     (@ap I I i₁ i₀ (neg ∘ neg) seg⁻¹) ⬝ idp i₀ ⬝ seg :
@@ -108,7 +108,7 @@ namespace Interval
   noncomputable hott def twist : I ≃ I :=
   ⟨neg, ⟨⟨neg, negNeg'⟩, ⟨neg, negNeg'⟩⟩⟩
 
-  noncomputable hott def lineRec {A : Type u} (p : I → A) :
+  hott lemma lineRec {A : Type u} (p : I → A) :
     rec (p 0) (p 1) (ap p seg) = p :=
   begin
     apply Theorems.funext; intro x; induction x;
@@ -120,16 +120,16 @@ namespace Interval
     apply recβrule; apply Id.invComp
   end
 
-  noncomputable hott def transportOverSeg {A : Type u}
-    (π : A → Type v) {a b : A} (p : a = b) (u : π a) :
-    @transport I (λ i, π (elim p i)) 0 1 Interval.seg u = subst p u :=
+  hott lemma transportOverSeg {A : Type u}
+    (B : A → Type v) {a b : A} (p : a = b) (u : B a) :
+    @transport I (λ i, B (elim p i)) 0 1 Interval.seg u = transport B p u :=
   begin
     transitivity; apply transportComp;
-    transitivity; apply ap (subst · u);
+    transitivity; apply ap (transport B · u);
     apply recβrule; reflexivity
   end
 
-  noncomputable hott def transportconstWithSeg {A B : Type u} (p : A = B) (x : A) :
+  hott def transportconstWithSeg {A B : Type u} (p : A = B) (x : A) :
     @transport I (elim p) 0 1 seg x = transportconst p x :=
   by apply transportOverSeg id
 end Interval

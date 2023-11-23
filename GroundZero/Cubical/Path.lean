@@ -1,6 +1,7 @@
 import GroundZero.HITs.Interval
 
 open GroundZero.HITs.Interval (i₀ i₁ seg)
+open GroundZero.Types.Equiv (transport)
 open GroundZero.Types GroundZero.HITs
 open GroundZero.Types.Id (ap)
 open GroundZero.Proto (idfun)
@@ -46,12 +47,12 @@ macro "<" is:Lean.Parser.Term.binderIdent+ ">" e:term : term =>
 namespace Path
 
 hott def coe.forward (B : I → Type u) (i : I) (x : B i₀) : B i :=
-Interval.ind x (Equiv.subst Interval.seg x) Id.refl i
+Interval.ind x (transport B Interval.seg x) Id.refl i
 
 hott def coe.back (B : I → Type u) (i : I) (x : B i₁) : B i :=
-Interval.ind (Equiv.subst Interval.seg⁻¹ x) x (begin
-  apply Id.trans; symmetry; apply Equiv.substComp;
-  transitivity; apply ap (Equiv.subst · x);
+Interval.ind (transport B Interval.seg⁻¹ x) x (begin
+  apply Id.trans; symmetry; apply Equiv.transportcom;
+  transitivity; apply ap (transport B · x);
   apply Id.invComp; reflexivity
 end) i
 
@@ -97,11 +98,11 @@ hott def ap {A : Type u} {B : Type v} {a b : A}
   (f : A → B) (p : Path A a b) : Path B (f a) (f b) :=
 <i> f (p @ i)
 
-hott def subst {A : Type u} {B : A → Type v} {a b : A}
-  (p : Path A a b) (x : B a) : B b :=
-coe 0 1 (λ i, B (p @ i)) x
+hott def transport {A : Type u} (B : A → Type v) {a b : A} (p : Path A a b) : B a → B b :=
+coe 0 1 (λ i, B (p @ i))
 
-def transport {A : Type u} (B : A → Type v) {a b : A} (p : Path A a b) : B a → B b := subst p
+abbrev subst {A : Type u} {B : A → Type v} {a b : A} (p : Path A a b) (x : B a) : B b :=
+transport B p x
 
 section
   variable {A B : Type u} (p : Path (Type u) A B)
@@ -134,7 +135,8 @@ section
   --def symmTest : Path (Path A a b) (p⁻¹)⁻¹ p := rfl
 end
 
-hott def com {A : Type u} {a b c : A} (p : Path A a b) (q : Path A b c) : Path A a c := subst q p
+hott def com {A : Type u} {a b c : A} (p : Path A a b) (q : Path A b c) : Path A a c :=
+transport (Path A a) q p
 
 -- this will be replaced by a more general version in future
 hott def kan {A : Type u} {a b c d : A}
@@ -188,7 +190,7 @@ trans (<i> C (p @ i) (meet p i)) h
 end Path
 
 hott def PathP (σ : I → Type u) (a : σ 0) (b : σ 1) :=
-Path (σ 1) (Equiv.subst Interval.seg a) b
+Path (σ 1) (Equiv.transport σ Interval.seg a) b
 
 hott def PathP.lam (σ : I → Type u) (f : Π i, σ i) : PathP σ (f 0) (f 1) :=
 Path.lam (Interval.rec _ _ (Equiv.apd f Interval.seg))

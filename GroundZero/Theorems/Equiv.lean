@@ -139,7 +139,7 @@ end
 
 hott def contrToType {A : Type u} {B : A → Type v}
   (H : contr A) : (Σ x, B x) → B H.1 :=
-λ w, subst (H.2 w.1)⁻¹ w.2
+λ w, transport B (H.2 w.1)⁻¹ w.2
 
 hott def typeToContr {A : Type u} {B : A → Type v}
   (H : contr A) : B H.1 → (Σ x, B x) :=
@@ -151,7 +151,7 @@ begin
   existsi contrToType H; apply Prod.mk <;>
   existsi @typeToContr A B H <;> intro x;
   { fapply Sigma.prod; apply H.2; apply transportBackAndForward };
-  { transitivity; apply ap (subst · x);
+  { transitivity; apply ap (transport B · x);
     apply propIsSet (contrImplProp H) _ _ _ (idp _);
     reflexivity }
 end

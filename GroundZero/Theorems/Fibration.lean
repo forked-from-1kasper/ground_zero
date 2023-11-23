@@ -8,7 +8,7 @@ namespace GroundZero.Theorems.Fibration
 
   hott def forward {A : Type u} {B : A → Type v} (x : A) :
     Types.fib (@Sigma.fst A B) x → B x :=
-  λ ⟨⟨y, u⟩, H⟩, subst H u
+  λ ⟨⟨y, u⟩, H⟩, transport B H u
 
   hott def left {A : Type u} {B : A → Type v} (x : A) (u : B x) :
     Types.fib (@Sigma.fst A B) x :=
@@ -37,7 +37,7 @@ namespace GroundZero.Theorems.Fibration
   infix:60 " ↠ " => Fibration
 
   hott def lifting {A : Type u} {B : A → Type v} (f : I → A) (u : B (f 0)) : @leg (Sigma B) ⟨f 0, u⟩ :=
-  @leg.lam (Sigma B) (λ i, ⟨f i, @Interval.ind (B ∘ f) u (subst seg u) (idp _) i⟩)
+  @leg.lam (Sigma B) (λ i, ⟨f i, @Interval.ind (B ∘ f) u (transport (B ∘ f) seg u) (idp _) i⟩)
 
   hott def typeFamily {A : Type u} (B : A → Type v) : (Σ x, B x) ↠ A :=
   begin existsi Sigma.fst; intro ⟨x, u⟩ f; apply @leg.casesOn A (λ x f, Π u, @leg (Σ x, B x) ⟨x, u⟩) x f; apply lifting end

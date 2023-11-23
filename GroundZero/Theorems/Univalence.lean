@@ -67,7 +67,7 @@ noncomputable hott theorem propext {A B : Type u}
 noncomputable hott theorem uacom {A B C : Type u} (p : A ≃ B) (q : B ≃ C) : ua (p.trans q) = ua p ⬝ ua q :=
 begin
   fapply (univalence A C).eqvInj; apply equivHmtpyLem;
-  intro x; symmetry; transitivity; apply substComp;
+  intro x; symmetry; transitivity; apply transportcom;
   transitivity; apply uaβ; transitivity; apply ap q;
   apply uaβ; symmetry; apply uaβ
 end
@@ -235,7 +235,7 @@ section
     fapply Sigma.mk; { intro p; apply transport (R x) p; apply ρ }; fapply Qinv.toBiinv;
     fapply Sigma.mk; intro r; exact (H x (φ x) (ρ x))⁻¹ ⬝ H x y r; apply Prod.mk;
     { intro r; dsimp; transitivity; apply ap; symmetry; apply c x (φ x) (ρ x);
-      transitivity; apply substComp; transitivity; apply ap (subst (H x y r));
+      transitivity; apply transportcom; transitivity; apply ap (transport (R x) (H x y r));
       apply transportForwardAndBack; apply c };
     { intro p; induction p; apply Id.invComp }
   end

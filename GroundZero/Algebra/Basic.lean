@@ -220,7 +220,6 @@ namespace GroundZero.Algebra
     begin
       apply Theorems.funext; intro x;
       transitivity; apply Id.ap φ.1;
-      transitivity; apply Equiv.substOverInvPath;
       apply uaβrev; apply Equiv.forwardLeft
     end
 
@@ -243,7 +242,7 @@ namespace GroundZero.Algebra
       intro ⟨φ, (p, q)⟩ i; apply Id.trans;
       apply transportOverFunctor (λ A, vect A (deg (Sum.inr i))) (λ _, Prop);
       apply Theorems.funext; intro v;
-      transitivity; apply Id.ap (subst (ua ⟨φ, q⟩));
+      transitivity; apply ap (subst (ua ⟨φ, q⟩));
       transitivity; apply p.2; apply Id.ap (Λ.rel i);
       transitivity; apply vect.subst;
       transitivity; apply Id.ap (vect.map · v);
@@ -279,9 +278,9 @@ namespace GroundZero.Algebra
     begin induction p; reflexivity end
 
     hott def transportOverProd {A : Type u} {B : A → Type v} {u v : Sigma B}
-      (p₁ p₂ : u.1 = v.1) (q : Equiv.subst p₁ u.2 = v.2) (ε : p₁ = p₂) :
+      (p₁ p₂ : u.1 = v.1) (q : transport B p₁ u.2 = v.2) (ε : p₁ = p₂) :
       Sigma.prod p₁ q = Sigma.prod p₂ (@transport (u.1 = v.1)
-        (λ p, Equiv.subst p u.2 = v.2) p₁ p₂ ε q) :=
+        (λ p, transport B p u.2 = v.2) p₁ p₂ ε q) :=
     begin induction ε; reflexivity end
 
     noncomputable hott def Alg.uaβrefl {Γ : Alg deg} : Alg.ua (Iso.refl Γ) = Id.refl :=

@@ -112,7 +112,7 @@ namespace «4.2»
       transitivity; apply Theorems.mapToHapply₂; apply Theorems.happlyFunextPt₂;
       transitivity; apply uaβ; show G e₂ (F e₁ (Sigma.snd e₁ a)) = Sigma.snd e₂ a;
       transitivity; symmetry; apply Equiv.transportComp (e₂.1.1 a) Sigma.fst (corrPath _ _);
-      transitivity; apply Equiv.substSquare; apply Id.invComp; reflexivity }
+      transitivity; apply transport²; apply Id.invComp; reflexivity }
   end
 end «4.2»
 

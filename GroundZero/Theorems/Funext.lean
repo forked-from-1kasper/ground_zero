@@ -1,5 +1,6 @@
 import GroundZero.Types.HEq
 
+open GroundZero.Types.Equiv (apd)
 open GroundZero.Types.Id (ap)
 open GroundZero.Types
 
@@ -27,8 +28,24 @@ namespace Interval
   hott def i₀ : I := discrete false
   hott def i₁ : I := discrete true
 
-  @[hottAxiom] opaque seg : i₀ = i₁ :=
+  opaque seg : i₀ = i₁ :=
   trustHigherCtor (Quot.sound (I.rel.mk false true))
+
+  @[eliminator] def ind {B : I → Type u} (b₀ : B i₀) (b₁ : B i₁) (s : b₀ =[seg] b₁) (x : I) : B x :=
+  begin
+    refine Quot.hrecOn x ?_ ?_; apply λ x, @Bool.casesOn (B ∘ discrete) x b₀ b₁;
+    { intros a b; induction a <;> induction b <;> intro H;
+      { apply HEq.refl };
+      { apply @HEq.fromPathover I B _ _ seg _ _ s };
+      { apply HEq.symm; apply @HEq.fromPathover I B _ _ seg _ _ s };
+      { apply HEq.refl } }
+  end
+
+  opaque indβrule {B : I → Type u} (b₀ : B i₀) (b₁ : B i₁)
+    (s : b₀ =[seg] b₁) : apd (ind b₀ b₁ s) seg = s :=
+  trustCoherence
+
+  attribute [hottAxiom] seg ind indβrule
 
   instance : OfNat I Nat.zero := ⟨i₀⟩
   instance : OfNat I (Nat.succ Nat.zero) := ⟨i₁⟩
@@ -41,23 +58,10 @@ namespace Interval
 
   attribute [reducible] left right zero one
 
-  @[hottAxiom, eliminator] def ind {B : I → Type u} (b₀ : B i₀) (b₁ : B i₁) (s : b₀ =[seg] b₁) (x : I) : B x :=
-  begin
-    refine Quot.hrecOn x ?_ ?_; apply λ x, @Bool.casesOn (B ∘ discrete) x b₀ b₁;
-    { intros a b; induction a <;> induction b <;> intro H;
-      { apply HEq.refl };
-      { apply @HEq.fromPathover I B _ _ seg _ _ s };
-      { apply HEq.symm; apply @HEq.fromPathover I B _ _ seg _ _ s };
-      { apply HEq.refl } }
-  end
-
   @[inline] hott def rec {B : Type u} (b₀ : B) (b₁ : B) (s : b₀ = b₁) : I → B :=
   ind b₀ b₁ (Equiv.pathoverOfEq seg s)
 
-  axiom indβrule {B : I → Type u} (b₀ : B i₀) (b₁ : B i₁)
-    (s : b₀ =[seg] b₁) : Equiv.apd (ind b₀ b₁ s) seg = s
-
-  noncomputable hott def recβrule {B : Type u} (b₀ b₁ : B)
+  hott def recβrule {B : Type u} (b₀ b₁ : B)
     (s : b₀ = b₁) : ap (rec b₀ b₁ s) seg = s :=
   begin
     apply Equiv.pathoverOfEqInj seg; transitivity;

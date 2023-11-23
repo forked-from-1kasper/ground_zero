@@ -695,7 +695,7 @@ hott def vect.map {A : Type u} {B : Type v} (f : A → B) :
 | Nat.succ n => λ v, (f v.1, map f v.2)
 
 section
-  open GroundZero.Types.Equiv (transportOverProduct transport subst)
+  open GroundZero.Types.Equiv (transportOverProduct transport)
   open GroundZero.Types
 
   hott def vect.subst {A B : Type u} (p : A = B) (f : B → A) {n : ℕ} (v : vect A n) :

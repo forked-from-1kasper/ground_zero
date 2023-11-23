@@ -307,11 +307,11 @@ namespace Circle
 
   noncomputable hott lemma windingPos : Π n, winding (power (Integer.pos n)) = Integer.pos n
   | Nat.zero   => idp _
-  | Nat.succ n => substOverPathComp _ _ _ ⬝ transportThere _ ⬝ ap _ (windingPos n)
+  | Nat.succ n => transportcom _ _ _ ⬝ transportThere _ ⬝ ap _ (windingPos n)
 
   noncomputable hott lemma windingNeg : Π n, winding (power (Integer.neg n)) = Integer.neg n
   | Nat.zero   => transportBack _
-  | Nat.succ n => substOverPathComp _ _ _ ⬝ transportBack _ ⬝ ap _ (windingNeg n)
+  | Nat.succ n => transportcom _ _ _ ⬝ transportBack _ ⬝ ap _ (windingNeg n)
 
   noncomputable hott corollary windingPower : Π z, winding (power z) = z
   | Integer.neg n => windingNeg n
@@ -1254,7 +1254,7 @@ namespace Circle
   begin induction p; exact w end
 
   hott def meetTransportCoh {A : Type u} {a b : A} (B : Π x, a = x → Type v) (w : B a (idp a)) (p : a = b) :
-    transportconst (transportPathMap (B a) p p) (transportMeet B w p) = subst (compInv p)⁻¹ w :=
+    transportconst (transportPathMap (B a) p p) (transportMeet B w p) = transport (B a) (compInv p)⁻¹ w :=
   begin induction p; reflexivity end
 
   section
@@ -1275,47 +1275,47 @@ namespace Circle
     hott def ΩEquivSuccInj {z : x = base} {w₁ w₂ : π z} (H : succπ z w₁ = succπ z w₂) : w₁ = w₂ :=
     begin
       transitivity; apply Id.symm; apply coh₁;
-      transitivity; apply ap (subst _ ∘ predπ _);
+      transitivity; apply ap (transport π _ ∘ predπ _);
       apply H; apply coh₁
     end
 
     hott def ΩEquivPredInj {z : x = base} {w₁ w₂ : π z} (H : predπ z w₁ = predπ z w₂) : w₁ = w₂ :=
     begin
       transitivity; apply Id.symm; apply coh₂;
-      transitivity; apply ap (subst _ ∘ succπ _);
+      transitivity; apply ap (transport π _ ∘ succπ _);
       apply H; apply coh₂
     end
 
     hott def ΩSuccEquiv (z : x = base) : π (z ⬝ loop⁻¹) ≃ π z :=
-    ⟨λ H, subst (cancelInvComp z loop) (succπ _ H),
-     (⟨predπ z, λ _, ΩEquivSuccInj π succπ predπ coh₁
-      ((transportForwardAndBack (cancelInvComp _ _) _)⁻¹ ⬝
-        ap (subst _) (coh₂ _ _) ⬝ transportForwardAndBack _ _)⟩,
-      ⟨predπ z, coh₂ _⟩)⟩
+    Equiv.intro (λ H, transport π (cancelInvComp z loop) (succπ _ H)) (predπ z)
+      (λ _, ΩEquivSuccInj π succπ predπ coh₁
+        ((transportForwardAndBack (cancelInvComp _ _) _)⁻¹ ⬝
+          ap (transport _ _) (coh₂ _ _) ⬝ transportForwardAndBack _ _))
+      (coh₂ _)
 
     noncomputable hott def ΩHelix : Π y, x = y → Type u :=
     Circle.ind π (funextPath π π loop (λ z, ua (ΩSuccEquiv π succπ predπ coh₁ coh₂ z)))
 
     noncomputable hott def ΩHelixSucc {z : x = base} (w : π (z ⬝ idp base)) :
         J₁ (λ y r, ΩHelix π succπ predπ coh₁ coh₂ y (z ⬝ r)) w loop
-      = succπ z (subst (rid _) w) :=
+      = succπ z (transport π (rid _) w) :=
     begin
       induction z using J₂; transitivity; apply ΩJDef;
       transitivity; apply ap (transportconst · _);
       transitivity; apply ap (happly · _); apply indβrule₂; apply happlyFunextPath;
       transitivity; apply transportconstOverComposition;
       transitivity; apply ap (transportconst _); apply meetTransportCoh (ΩHelix π succπ predπ coh₁ coh₂);
-      transitivity; apply uaβ; show subst _ _ = _; transitivity;
+      transitivity; apply uaβ; show transport _ _ _ = _; transitivity;
 
-      apply ap (subst _); transitivity; transitivity; apply happly;
+      apply ap (transport _ _); transitivity; transitivity; apply happly;
       symmetry; apply apd succπ (compInv loop)⁻¹; apply happly;
-      apply transportImpl; apply ap (subst _); apply ap (succπ _);
+      apply transportImpl; apply ap (transport _ _); apply ap (succπ _);
       apply transportForwardAndBack; apply compInvCancelCoh
     end
 
     noncomputable hott def ΩHelixPred {z : x = base} (w : π (z ⬝ idp base)) :
         J₁ (λ y r, ΩHelix π succπ predπ coh₁ coh₂ y (z ⬝ r)) w loop⁻¹
-      = predπ z (subst (rid _) w) :=
+      = predπ z (transport π (rid _) w) :=
     begin
       induction z using J₂; transitivity; apply ΩJDef;
       transitivity; apply ap (transportconst · _);
@@ -1328,9 +1328,9 @@ namespace Circle
       apply uaβrev; transitivity; symmetry; apply transportToTransportconst;
 
       show transport _ _ (predπ _ _) = _; transitivity;
-      apply ap (subst _); transitivity; transitivity; apply happly;
+      apply ap (transport _ _); transitivity; transitivity; apply happly;
       symmetry; apply apd predπ (compInv loop⁻¹)⁻¹; apply happly;
-      apply transportImpl; apply ap (subst _); apply ap (predπ _);
+      apply transportImpl; apply ap (transport _ _); apply ap (predπ _);
       apply transportForwardAndBack; apply compInvCancelCoh
     end
   end

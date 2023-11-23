@@ -360,7 +360,7 @@ namespace Category
     intro ⟨b, p⟩ x y q r; transitivity; symmetry;
     apply domHeteroComp (defImplDomCompDef q);
     symmetry; transitivity; symmetry; apply domHeteroComp;
-    apply defImplDomCompDef; apply Equiv.subst r q;
+    apply defImplDomCompDef; apply transport 𝒞.defined r q;
     apply transport (λ z, 𝒞.μ z y = 𝒞.μ z x); exact p;
     transitivity; apply mulAssoc; symmetry;
     transitivity; apply mulAssoc; apply ap; exact r
@@ -371,7 +371,7 @@ namespace Category
     intro ⟨b, p⟩ x y q r; transitivity; symmetry;
     apply codHeteroComp (defImplCodCompDef q);
     symmetry; transitivity; symmetry; apply codHeteroComp;
-    apply defImplCodCompDef; apply Equiv.subst r q;
+    apply defImplCodCompDef; apply transport 𝒞.defined r q;
     apply transport (λ z, 𝒞.μ y z = 𝒞.μ x z); exact p;
     transitivity; symmetry; apply mulAssoc;
     transitivity; apply ap (𝒞.μ · b);

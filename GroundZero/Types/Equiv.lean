@@ -210,9 +210,7 @@ namespace Equiv
 
   section
     variable {A : Type u} {B : A → Type v} {a b : A} (p : a = b)
-
-    abbrev subst    : B a → B b := transport B p
-    abbrev substInv : B b → B a := transport B p⁻¹
+    abbrev subst : B a → B b := transport B p
   end
 
   hott def transportconst {A B : Type u} : A = B → A → B :=
@@ -254,11 +252,11 @@ namespace Equiv
 
   hott def JTrans {A : Type} {a : A} (B : Π x, a = x → Type v)
     {b c : A} (p : a = b) (q : b = c) (w : B a (idp a)) :
-      J₁ B w (p ⬝ q) = J₁ (λ x r, B x (p ⬝ r)) (subst (Id.rid _)⁻¹ (@Id.rec A a B w b p)) q :=
+      J₁ B w (p ⬝ q) = J₁ (λ x r, B x (p ⬝ r)) (transport (B b) (Id.rid _)⁻¹ (@Id.rec A a B w b p)) q :=
   begin induction p; induction q; reflexivity end
 
   hott def compInvCancelCoh {A : Type u} {a b : A} {B : a = b → Type v} (p : a = b) (w : B p) :
-    subst (Id.cancelInvComp p p) (transport (λ r, B (r ⬝ p)) (Id.compInv p)⁻¹ w) = w :=
+    transport B (Id.cancelInvComp p p) (transport (λ r, B (r ⬝ p)) (Id.compInv p)⁻¹ w) = w :=
   begin induction p; reflexivity end
 
   hott def pathoverOfEq {A : Type u} {B : Type v} {a b : A} {a' b' : B}
@@ -284,7 +282,7 @@ namespace Equiv
   hott def idtoeqv {A B : Type u} (p : A = B) : A ≃ B :=
   Equiv.intro (transportconst p) (transportconst p⁻¹) (idtoeqvLinv p) (idtoeqvRinv p)
 
-  hott theorem substComp {A : Type u} {B : A → Type v} {a b c : A} (p : a = b) (q : b = c)
+  hott theorem transportcom {A : Type u} {B : A → Type v} {a b c : A} (p : a = b) (q : b = c)
     (x : B a) : transport B (p ⬝ q) x = transport B q (transport B p x) :=
   begin induction p; induction q; reflexivity end
 
@@ -295,7 +293,7 @@ namespace Equiv
   hott def depTrans {A : Type u} {B : A → Type v}
     {a b c : A} {p : a = b} {q : b = c} {u : B a} {v : B b} {w : B c}
     (r : u =[p] v) (s : v =[q] w): u =[p ⬝ q] w :=
-  substComp p q u ⬝ ap (transport B q) r ⬝ s
+  transportcom p q u ⬝ ap (transport B q) r ⬝ s
 
   infix:60 " ⬝′ " => depTrans
 
@@ -306,14 +304,6 @@ namespace Equiv
   hott def depPathTransSymmCoh {A : Type u} {B : A → Type v} {a b c : A} {p : a = b} {q : c = b}
     {x : B a} {y : B c} : Π (η : x =[p ⬝ q⁻¹] y), depPathTransSymm η ⬝′ depSymm q (idp _) = η :=
   begin induction p; induction q; intro (η : x = y); induction η; apply idp end
-
-  hott theorem substOverPathComp {A : Type u} {B : A → Type v} {a b c : A}
-    (p : a = b) (q : b = c) (x : B a) : transport B (p ⬝ q) x = transport B q (transport B p x) :=
-  begin induction p; reflexivity end
-
-  hott theorem substOverInvPath {A : Type u} {B : A → Type v} {a b : A}
-    (p : a = b) (x : B b) : transport B p⁻¹ x = substInv p x :=
-  by reflexivity
 
   hott def apd {A : Type u} {B : A → Type v} {a b : A}
     (f : Π x, B x) (p : a = b) : transport B p (f a) = f b :=
@@ -328,12 +318,6 @@ namespace Equiv
     @apd A B a c f (p ⬝ q) = apd f p ⬝′ apd f q :=
   begin induction p; induction q; reflexivity end
 
-  hott def substSquare {A : Type u} {B : A → Type v} {a b : A}
-    {p q : a = b} (r : p = q) (u : B a) : transport B p u = transport B q u :=
-  begin induction r; reflexivity end
-
-  notation "subst²" => substSquare
-
   hott def depPathMap {A : Type u} {B : A → Type v} {δ : A → Type w} {a b : A}
     {p : a = b} {u : B a} {v : B b} (g : Π x, B x → δ x) (q : u =[p] v) : g a u =[p] g b v :=
   begin induction p; induction q using Id.casesOn; reflexivity end
@@ -343,14 +327,17 @@ namespace Equiv
     (g : Π x, C x → D (f x)) (q : u =[p] v) : g a u =[ap f p] g b v :=
   begin induction p; induction q using Id.casesOn; apply idp end
 
-  def transportInv {A : Type u} (B : A → Type v) {a b : A} (p : a = b) : B b → B a :=
-  substInv p
-
   def transportSquare {A : Type u} (B : A → Type v) {a b : A}
     {p q : a = b} (r : p = q) (u : B a) : transport B p u = transport B q u :=
-  substSquare r u
+  begin induction r; reflexivity end
 
   notation "transport²" => transportSquare
+
+  abbrev substSquare {A : Type u} {B : A → Type v} {a b : A} {p q : a = b}
+    (r : p = q) (u : B a) : transport B p u = transport B q u :=
+  transport² B r u
+
+  notation "subst²" => substSquare
 
   hott theorem transportComp {A : Type u} {B : Type v}
     (C : B → Type w) {x y : A} (f : A → B) (p : x = y) (u : C (f x)) :
@@ -363,10 +350,10 @@ namespace Equiv
 
   hott theorem transportconstOverComposition {A B C : Type u} (p : A = B) (q : B = C) (x : A) :
     transportconst (p ⬝ q) x = transportconst q (transportconst p x) :=
-  by apply substOverPathComp
+  by apply transportcom
 
   hott theorem transportComposition {A : Type u} {a x₁ x₂ : A}
-    (p : x₁ = x₂) (q : a = x₁) : transport (Id a) p q = q ⬝ p :=
+    (p : x₁ = x₂) (q : a = x₁) : transport (a = ·) p q = q ⬝ p :=
   begin induction p; symmetry; apply Id.rid end
 
   hott theorem transportCompositionRev {A : Type u} {a x₁ x₂ : A}

@@ -2,33 +2,34 @@ import GroundZero.Algebra.Group.Symmetric
 import GroundZero.HITs.Circle
 
 open GroundZero.Structures GroundZero.Types.Equiv
+open GroundZero.HITs.Circle (base loop)
 open GroundZero.Types GroundZero.HITs
 open GroundZero.Types.Id (ap)
 
 namespace GroundZero.Algebra
 
-noncomputable def ZΩ : Group :=
-Group.intro (Circle.isGroupoid Circle.base Circle.base) Id.trans Id.inv Id.refl
+noncomputable hott def ZΩ : Group :=
+Group.intro (Circle.isGroupoid Circle.base Circle.base) Id.trans Id.inv (idp base)
   (λ a b c, (Id.assoc a b c)⁻¹) Id.lid Id.rid Id.invComp
 
-noncomputable def ZΩ.abelian : ZΩ.isCommutative := Circle.comm
+hott def ZΩ.abelian : ZΩ.isCommutative := Circle.comm
 
 hott def helix {G : Group} (z : G.carrier) : S¹ → Type :=
 Circle.rec G.carrier (GroundZero.ua (Group.left G z))
 
 hott def power {G : Group} (z : G.carrier) (p : ZΩ.carrier) : G.carrier :=
-@transport S¹ (helix z) Circle.base Circle.base p G.e
+@transport S¹ (helix z) base base p G.e
 
 -- In cubicaltt these two lemmas will just compute
-noncomputable hott def helix.loop {G : Group} (z x : G.carrier) :
-  transport (helix z) Circle.loop x = G.φ z x :=
+noncomputable hott lemma helix.loop {G : Group} (z x : G.carrier) :
+  transport (helix z) loop x = G.φ z x :=
 begin
   transitivity; apply Equiv.transportToTransportconst;
   transitivity; apply ap (transportconst · x);
   apply Circle.recβrule₂; apply uaβ
 end
 
-noncomputable hott def helix.loopInv {G : Group} (z x : G.carrier) :
+noncomputable hott lemma helix.loopInv {G : Group} (z x : G.carrier) :
   transport (helix z) Circle.loop⁻¹ x = G.φ (G.ι z) x :=
 begin
   transitivity; apply Equiv.transportToTransportconst;
@@ -37,15 +38,15 @@ begin
   apply Circle.recβrule₂; apply uaβrev
 end
 
-noncomputable hott def power.succ {G : Group} (z : G.carrier) :
+noncomputable hott lemma power.succ {G : Group} (z : G.carrier) :
   Π p, power z (Circle.succ p) = G.φ z (power z p) :=
-begin intro p; transitivity; apply Equiv.substComp; apply helix.loop end
+begin intro p; transitivity; apply Equiv.transportcom; apply helix.loop end
 
-noncomputable hott def power.pred {G : Group} (z : G.carrier) :
+noncomputable hott lemma power.pred {G : Group} (z : G.carrier) :
   Π p, power z (Circle.pred p) = G.φ (G.ι z) (power z p) :=
-begin intro p; transitivity; apply Equiv.substComp; apply helix.loopInv end
+begin intro p; transitivity; apply Equiv.transportcom; apply helix.loopInv end
 
-noncomputable hott def power.mul {G : Group} (z : G.carrier) :
+noncomputable hott theorem power.mul {G : Group} (z : G.carrier) :
   Π (p q : ZΩ.carrier), power z (p ⬝ q) = G.φ (power z p) (power z q) :=
 begin
   intro p q; fapply @Circle.Ωind₁ (λ p, power z (p ⬝ q) = G.φ (power z p) (power z q)) <;> clear p;
@@ -70,7 +71,7 @@ Group.mkhomo (power z) (power.mul z)
 noncomputable hott def ZΩ.mul (p q : ZΩ.carrier) : ZΩ.carrier :=
 (@power (Group.S ZΩ.1.zero) (Group.left ZΩ p) q).1 Id.refl
 
-noncomputable hott def power.one {G : Group} : Π p, power G.e p = G.e :=
+noncomputable hott theorem power.one {G : Group} : Π p, power G.e p = G.e :=
 begin
   fapply Circle.Ωind₁; reflexivity;
   { intros p ih; transitivity; apply power.succ;
@@ -81,15 +82,14 @@ begin
     transitivity; apply G.oneMul; exact ih }
 end
 
-hott def power.zero {G : Group} (x : G.carrier) : power x Id.refl = G.e :=
+hott def power.zero {G : Group} (x : G.carrier) : power x (idp base) = G.e :=
 by reflexivity
 
-noncomputable hott def ZΩ.mulZero (p : ZΩ.carrier) :
-  ZΩ.mul p Id.refl = Id.refl :=
+noncomputable hott remark ZΩ.mulZero (p : ZΩ.carrier) : ZΩ.mul p (idp base) = idp base :=
 by reflexivity
 
 -- something is really wrong with this thing
---noncomputable hott def ZΩ.zeroMul (p : ZΩ.carrier) : ZΩ.mul Id.refl p = Id.refl :=
---@ap (Group.S ZΩ.1.zero).carrier ZΩ.carrier _ _ (λ e, e.1 Id.refl) (power.one p)
+--noncomputable hott def ZΩ.zeroMul (p : ZΩ.carrier) : ZΩ.mul (idp base) p = idp base :=
+--@ap (Group.S ZΩ.1.zero).carrier ZΩ.carrier (power (ideqv _) p) (ideqv _) (λ e, e.1 (idp base)) (power.one p)
 
 end GroundZero.Algebra
