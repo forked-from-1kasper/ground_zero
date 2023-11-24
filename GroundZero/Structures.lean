@@ -208,23 +208,16 @@ section
     apply propIsSet (contrImplProp ⟨x, u⟩)
   end
 
-  -- TODO: apply “repeat” tactic
   hott def propIsProp {A : Type u} : prop (prop A) :=
   begin
-    intros f g;
-    apply HITs.Interval.funext; intro;
-    apply HITs.Interval.funext; intro;
-    apply propIsSet; assumption
+    intros f g; repeat first | (apply HITs.Interval.funext; intro)
+                             | (apply propIsSet; assumption)
   end
 
   hott def setIsProp {A : Type u} : prop (hset A) :=
   begin
-    intros f g;
-    apply HITs.Interval.funext; intro;
-    apply HITs.Interval.funext; intro;
-    apply HITs.Interval.funext; intro;
-    apply HITs.Interval.funext; intro;
-    apply setImplGroupoid; assumption
+    intros f g; repeat first | (apply HITs.Interval.funext; intro)
+                             | (apply setImplGroupoid; assumption)
   end
 
   hott def ntypeIsProp : Π (n : hlevel) {A : Type u}, prop (is-n-type A)
@@ -771,25 +764,13 @@ end
 
 hott def eqrel (A : Type u) := Σ φ, @iseqrel A φ
 
--- TODO: repeat
 hott def iseqrel.prop {A : Type u} {R : hrel A} : prop (iseqrel R) :=
 begin
   apply Structures.productProp;
-  { intros f g; apply Theorems.funext;
-    intro x; apply (R x x).2 };
-  apply Structures.productProp;
-  { intros f g;
-    apply Theorems.funext; intro;
-    apply Theorems.funext; intro;
-    apply Theorems.funext; intro;
-    apply (R _ _).2 };
-  { intros f g;
-    apply Theorems.funext; intro;
-    apply Theorems.funext; intro;
-    apply Theorems.funext; intro;
-    apply Theorems.funext; intro;
-    apply Theorems.funext; intro;
-    apply (R _ _).2 }
+  { intros f g; apply Theorems.funext; intro x; apply (R x x).2 };
+  apply Structures.productProp <;>
+  { intros f g; repeat first | (apply Theorems.funext; intro)
+                             | apply (R _ _).2 }
 end
 
 section

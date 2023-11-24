@@ -1,4 +1,9 @@
-import Lean.Parser import Lean.Elab.Command import Lean.PrettyPrinter
+import Lean.Parser import Lean.Parser.Command
+import Lean.Elab.Command import Lean.PrettyPrinter
+import Lean.Elab.DeclUtil
+
+import Lean.Elab.PreDefinition
+
 open Lean.Parser Lean.Parser.Term Lean.Elab.Command
 open Lean.PrettyPrinter.Delaborator
 
@@ -232,5 +237,81 @@ partial def parseSubscript : Lean.Syntax → Lean.MacroM Lean.Term
 | `(subscript| $stx₁ ₋ $stx₂) => do `(HSub.hSub $(← parseSubscript stx₁) $(← parseSubscript stx₂))
 | `(subscript| ₍$stx₎)        => parseSubscript stx
 | stx                         => Lean.Macro.throwError "invalid subscript"
+
+namespace Record
+  open Lean
+
+  def expandBinderIdent : Syntax → CommandElabM Name
+  | `(Lean.binderIdent| $i:ident) => return i.getId
+  | stx                           => throwErrorAt stx "expected ident"
+
+  def expandBEBinder : Syntax → TSyntax `term × TSyntaxArray `Lean.binderIdent
+  | `(bracketedExplicitBinders| ($[$xs]* : $t)) => (t, xs)
+  | _                                           => default
+
+  def withImplicits {α : Type} (xs : Array Expr) (k : MetaM α) : MetaM α :=
+  do {
+    let mut lctx ← getLCtx;
+    for x in xs do {
+      if (lctx.get! x.fvarId!).binderInfo.isExplicit then {
+        lctx := lctx.setBinderInfo x.fvarId! BinderInfo.implicit;
+      }
+    }
+    withReader (λ ctx => {ctx with lctx := lctx}) k
+  }
+
+  def declAccessor (tname fname : Name) (t e : Expr) (lparams : List Name) : Elab.Command.CommandElabM Unit :=
+  do {
+    let bvar ← Elab.Term.mkFreshBinderName;
+
+    let lam ← liftTermElabM <|
+      Meta.forallTelescope t λ xs _ =>
+      do mkAppN (mkConst tname (lparams.map Level.param)) xs
+      |> (mkLambda bvar BinderInfo.default · e)
+      |> Meta.mkLambdaFVars xs
+      |> withImplicits xs;
+
+    let typ ← liftTermElabM (Meta.inferType lam);
+    Elab.Command.liftCoreM <| addAndCompile <| Declaration.defnDecl {
+      name        := tname ++ fname,
+      levelParams := lparams,
+      type        := typ,
+      value       := lam,
+      hints       := ReducibilityHints.abbrev,
+      safety      := DefinitionSafety.safe
+    }
+  }
+
+  abbrev sigfst := mkProj ``Sigma 0
+  abbrev sigsnd := mkProj ``Sigma 1
+
+  elab "record " id:declId sig:optDeclSig " :=" ppSpace fields:(ppSpace bracketedExplicitBinders)+ : command =>
+  do {
+    unless (fields.size > 0) do throwErrorAt id "empty record is disallowed";
+
+    let (e, is) := expandBEBinder fields.back;
+
+    let term ← if is.size > 1 then `(Σ $(fields.pop)* ($is.pop* : $e), $e)
+                              else `(Σ $(fields.pop)*, $e);
+    elabCommand (← `(def $id $sig := $term));
+    if (← get).messages.hasErrors then return;
+
+    let ns ← getCurrNamespace;
+    let tname := ns ++ (id.raw.getArg 0).getId;
+
+    let ci ← getConstInfo tname;
+
+    let ids ← fields.concatMapM λ stx =>
+      Array.mapM expandBinderIdent
+        (expandBEBinder stx).2;
+
+    let mut acc := mkBVar 0;
+    for ident in ids.pop do {
+      declAccessor tname ident ci.type (sigfst acc) ci.levelParams;
+      acc := sigsnd acc;
+    }
+    declAccessor tname ids.back ci.type acc ci.levelParams
+  }
+end Record
 
 end GroundZero.Meta.Notation

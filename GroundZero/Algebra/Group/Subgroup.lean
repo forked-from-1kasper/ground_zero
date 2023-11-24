@@ -38,25 +38,12 @@ namespace Group
 
   hott def isSubgroup.prop (φ : G.subset) : prop (G.isSubgroup φ) :=
   begin
-    apply productProp; apply Ens.prop; apply productProp;
-    -- TODO: fix “repeat” to able handle this case
-    { apply piProp; intro;
-      apply piProp; intro;
-      apply piProp; intro;
-      apply piProp; intro;
-      apply Ens.prop };
-    { apply piProp; intro;
-      apply piProp; intro;
-      apply Ens.prop };
+    apply productProp; apply Ens.prop; apply productProp <;>
+    { repeat first | (apply piProp; intro) | apply Ens.prop }
   end
 
   hott def isNormal.prop (φ : G.subset) : prop (G.isNormal φ) :=
-  begin
-    apply piProp; intro;
-    apply piProp; intro;
-    apply piProp; intro;
-    apply Ens.prop
-  end
+  by repeat first | (apply piProp; intro) | apply Ens.prop
 
   hott def subgroup.ext {φ ψ : G.subgroup} (ρ : φ.set = ψ.set) : φ = ψ :=
   begin fapply Sigma.prod; exact ρ; apply isSubgroup.prop end

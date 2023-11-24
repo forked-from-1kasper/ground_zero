@@ -208,7 +208,6 @@ begin
     | Sum.inr p₂, Sum.inl q₁ => _
     | Sum.inl p₁, Sum.inr q₂ => _
     | Sum.inr p₂, Sum.inr q₂ => _;
-    -- TODO: apply “or” here somehow
     { apply Proto.Empty.elim; apply ffNeqTt;
       apply eqvInj ⟨φ, H⟩; exact p₁ ⬝ q₁⁻¹ };
     { transitivity; apply ap (bool.encode · x); apply p₂;

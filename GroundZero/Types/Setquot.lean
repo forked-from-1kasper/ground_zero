@@ -11,21 +11,9 @@ hott def iseqclass {A : Type u} (R : eqrel A) (φ : Ens A) :=
 
 hott def iseqclass.prop {A : Type u} {R : eqrel A} (φ : Ens A) : prop (iseqclass R φ) :=
 begin
-  apply productProp; apply HITs.Merely.uniq;
-  apply productProp;
-
-  -- TODO: fix this boilerplate
-  apply piProp; intro;
-  apply piProp; intro;
-  apply piProp; intro;
-  apply piProp; intro;
-  apply Ens.prop;
-  
-  apply piProp; intro;
-  apply piProp; intro;
-  apply piProp; intro;
-  apply piProp; intro;
-  apply R.prop
+  apply productProp; apply HITs.Merely.uniq; apply productProp;
+  { repeat first | (apply piProp; intro) | apply Ens.prop };
+  { repeat first | (apply piProp; intro) | apply R.prop }
 end
 
 hott def setquot {A : Type u} (R : eqrel A) :=

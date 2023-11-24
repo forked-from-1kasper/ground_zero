@@ -116,7 +116,6 @@ namespace Merely
       { apply pathoverFromTrans; symmetry; transitivity;
         apply ap (_ ⬝ ·); symmetry; apply inclUniqClose;
         symmetry; transitivity; apply ap (· ⬝ _ ⬝ _); apply Id.explodeInv;
-        -- TODO: use “iterate” here
         transitivity; symmetry; apply Id.assoc;
         transitivity; symmetry; apply Id.assoc;
         apply ap ((nthGlue x n)⁻¹ ⬝ ·); apply Id.assoc } };

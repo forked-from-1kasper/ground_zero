@@ -25,7 +25,7 @@ namespace GroundZero.Algebra
      http://www.math.uchicago.edu/~may/VIGRE/VIGRE2006/PAPERS/Sternberg.pdf
   -/
 
-  structure gis (M : Type u) (G : Group) :=
+  record gis (M : Type u) (G : Group) :=
   (ι     : M → M → G.carrier)
   (trans : Π x y z, G.φ (ι x y) (ι y z) = ι x z)
   (full  : Π g x, contr (Σ y, ι x y = g))
@@ -88,7 +88,7 @@ namespace GroundZero.Algebra
     hott def transInv (x y z : M) : (L.ι x y) * (L.ι z y)⁻¹ = L.ι x z :=
     begin transitivity; apply ap; apply inv; apply L.trans end
 
-    hott def propι : Π g x, prop (Σ y, L.ι x y = g) :=
+    hott corollary propι : Π g x, prop (Σ y, L.ι x y = g) :=
     λ g x, contrImplProp (L.full g x)
 
     hott def fixι : Π g x, Σ y, L.ι x y = g :=
@@ -98,7 +98,7 @@ namespace GroundZero.Algebra
     let q := L.propι (L.ι x y) x ⟨y, Id.refl⟩ ⟨x, L.neut x ⬝ Id.inv p⟩;
     ap Sigma.fst (Id.inv q)
 
-    hott def injιᵣ {x y z : M} : L.ι z x = L.ι z y → x = y :=
+    hott lemma injιᵣ {x y z : M} : L.ι z x = L.ι z y → x = y :=
     begin
       intro p; apply L.zero;
       transitivity; symmetry; apply L.trans x z y;
@@ -106,7 +106,7 @@ namespace GroundZero.Algebra
       transitivity; apply L.trans; apply neut
     end
 
-    hott def injιₗ {x y z : M} : L.ι x z = L.ι y z → x = y :=
+    hott lemma injιₗ {x y z : M} : L.ι x z = L.ι y z → x = y :=
     begin
       intro p; apply L.injιᵣ; apply Group.invInj;
       transitivity; apply inv; symmetry;
@@ -114,8 +114,7 @@ namespace GroundZero.Algebra
       exact Id.inv p
     end
 
-    hott def injεᵣ (x y z : M) (H : hset M) :
-      L.ι z x = L.ι z y ≃ x = y :=
+    hott def injεᵣ (x y z : M) (H : hset M) : (L.ι z x = L.ι z y) ≃ x = y :=
     begin
       apply propEquivLemma; apply G.hset; apply H;
       exact injιᵣ L; intro p; induction p; reflexivity
@@ -123,7 +122,7 @@ namespace GroundZero.Algebra
 
     hott def prod {M₁ : Type u} {M₂ : Type v} {G H : Group} : gis M₁ G → gis M₂ H → gis (M₁ × M₂) (G × H) :=
     begin
-      intros L K; fapply gis.mk;
+      intros L K; refine ⟨?_, ?_, ?_⟩;
       { intros m₁ m₂; fapply Prod.mk;
         exact L.ι m₁.1 m₂.1; exact K.ι m₁.2 m₂.2 };
       { intros x y z; fapply Product.prod;
@@ -159,7 +158,7 @@ namespace GroundZero.Algebra
 
     hott def oct (φ : G.subgroup) := HITs.Quotient (octave L φ)
 
-    hott def normal (φ : G.normal) {a₁ a₂ b₁ b₂ : M}
+    hott theorem normal (φ : G.normal) {a₁ a₂ b₁ b₂ : M}
       (p : L.ι a₁ b₁ ∈ φ.set) (q : L.ι a₂ b₂ ∈ φ.set) : G.φ (L.ι a₁ a₂)⁻¹ (L.ι b₁ b₂) ∈ φ.set :=
     begin
       apply transport (· ∈ φ.set); symmetry;
@@ -423,28 +422,28 @@ namespace GroundZero.Algebra
       variable (N : gis A H) (K : gis B H)
       variable {f : A ≃ B}
 
-      hott def preserving.inv₁ :
+      hott lemma preserving.inv₁ :
         preserving N K f.forward → preserving K N f.left :=
       begin
         intros H a b; transitivity; symmetry; apply H;
         apply bimap <;> apply f.forwardLeft
       end
 
-      hott def preserving.inv₂ :
+      hott lemma preserving.inv₂ :
         preserving N K f.forward → preserving K N f.right :=
       begin
         intros H a b; transitivity; symmetry; apply H;
         apply bimap <;> apply f.forwardRight
       end
 
-      hott def reversing.inv₁ :
+      hott lemma reversing.inv₁ :
         reversing N K f.forward → reversing K N f.left :=
       begin
         intros H a b; transitivity; symmetry; apply H;
         apply bimap <;> apply f.forwardLeft
       end
 
-      hott def reversing.inv₂ :
+      hott lemma reversing.inv₂ :
         reversing N K f.forward → reversing K N f.right :=
       begin
         intros H a b; transitivity; symmetry; apply H;
@@ -456,13 +455,15 @@ namespace GroundZero.Algebra
     λ L, ⟨τ.act L, τ.reg L H⟩
 
     hott def rga.encode : rga M Gᵒᵖ → gis M G :=
-    λ ⟨φ, H⟩, ⟨λ a b, (H a b).1.1, begin
+    λ ⟨φ, H⟩, ⟨λ a b, (H a b).1.1,
+    begin
       intros x y z; apply (regular.elim φ H).2 x;
       transitivity; symmetry; apply φ.2.2;
       transitivity; apply ap; apply (H x y).1.2;
       transitivity; apply (H y z).1.2;
       symmetry; apply (H x z).1.2
-    end, begin
+    end,
+    begin
       intros g x; fapply Sigma.mk;
       { existsi φ.1 g x; apply (regular.elim φ H).2 x;
         apply (H _ _).1.2 };
@@ -472,27 +473,14 @@ namespace GroundZero.Algebra
         { apply G.hset } }
     end⟩
 
-    hott def gis.id : Π (L K : gis M G), L.ι ~ K.ι → L = K :=
+    hott lemma gis.id (L K : gis M G) (H : L.ι ~ K.ι) : L = K :=
     begin
-      intro ⟨φ₁, p₁, q₁⟩ ⟨φ₂, p₂, q₂⟩ p';
-      let p : φ₁ = φ₂ := Theorems.funext p';
-      induction p;
-      let q : p₁ = p₂ := begin
-        -- repeat?
-        apply piProp; intro;
-        apply piProp; intro;
-        apply piProp; intro;
-        apply G.hset
-      end;
-      have r : q₁ = q₂ := begin
-        apply piProp; intro;
-        apply piProp; intro;
-        apply contrIsProp
-      end;
-      induction q; induction r; reflexivity
+      fapply Sigma.prod; apply Theorems.funext H; apply sigProp;
+      { repeat first | (apply piProp; intro) | apply G.hset };
+      { intro; repeat first | (apply piProp; intro) | apply contrIsProp }
     end
 
-    hott def rga.eqv (H : hset M) : rga M Gᵒᵖ ≃ gis M G :=
+    hott theorem rga.eqv (H : hset M) : rga M Gᵒᵖ ≃ gis M G :=
     begin
       existsi rga.encode; apply Prod.mk <;> existsi rga.decode H;
       { intro ⟨φ, p⟩; fapply Sigma.prod;
@@ -515,8 +503,7 @@ namespace GroundZero.Algebra
       apply H; symmetry; apply inv
     end
 
-    hott def reversing.desc (f : M → M) (H : reversing L L f)
-      (m : M) : ρ L m (f m) ~ f :=
+    hott theorem reversing.desc (f : M → M) (H : reversing L L f) (m : M) : ρ L m (f m) ~ f :=
     begin
       intro n; apply @injιᵣ M G L _ _ n;
       transitivity; apply ρ.ι;
@@ -525,7 +512,7 @@ namespace GroundZero.Algebra
       symmetry; apply Group.cancelLeft
     end
 
-    hott def reversing.biinv {f : M → M}
+    hott theorem reversing.biinv {f : M → M}
       (H : reversing L L f) (m : M) : biinv f :=
     transport Equiv.biinv (Theorems.funext (reversing.desc L f H m)) (ρ.biinv L m (f m))
   end gis
@@ -562,7 +549,7 @@ namespace GroundZero.Algebra
     -- Set of tone rows
     def R := Orbits (tr φ)
 
-    def M.dodecaphonic (xs : M A) (r : P A) : Prop :=
+    hott def M.dodecaphonic (xs : M A) (r : P A) : Prop :=
     xs.all (λ x, ⟨x ∈ orbit (tr φ) r, Ens.prop x _⟩)
 
     noncomputable hott def R.dodecaphonic (xs : M A) (r : R φ) : Prop :=
