@@ -59,6 +59,10 @@ notation "−2"  => hlevel.minusTwo
 notation "−1"  => hlevel.succ hlevel.minusTwo
 
 namespace hlevel
+  hott def pred : ℕ₋₂ → ℕ₋₂
+  | −2     => minusTwo
+  | succ n => n
+
   inductive le : hlevel → hlevel → Type
   | refl (a : hlevel)   : le a a
   | step (a b : hlevel) : le a b → le a (succ b)
@@ -86,6 +90,14 @@ namespace hlevel
   | Nat.succ n => hlevel.succ (ofNat n)
 
   instance (n : ℕ) : OfNat ℕ₋₂ n := ⟨ofNat n⟩
+
+  hott def predPred : ℕ → ℕ₋₂
+  | Nat.zero   => −2
+  | Nat.succ n => succ (predPred n)
+
+  hott def succSucc : ℕ₋₂ → ℕ
+  | −2     => Nat.zero
+  | succ n => Nat.succ (succSucc n)
 end hlevel
 
 def isNType : hlevel → Type u → Type u
@@ -112,6 +124,11 @@ begin
     apply ih; assumption
   }
 end
+
+hott def isTruncated {A : Type u} {B : Type v} (n : ℕ₋₂) (f : A → B) :=
+Π (b : B), is-n-type (fib f b)
+
+notation "is-" n "-truncated" => isTruncated n
 
 hott def contrImplProp {A : Type u} (H : contr A) : prop A :=
 λ a b, (H.2 a)⁻¹ ⬝ (H.2 b)
@@ -402,7 +419,7 @@ begin
   apply p; intro x; apply q
 end
 
-hott def piProp {A : Type u} {B : A → Type v}
+hott lemma piProp {A : Type u} {B : A → Type v}
   (H : Π x, prop (B x)) : prop (Π x, B x) :=
 λ f g, HITs.Interval.funext (λ x, H x (f x) (g x))
 

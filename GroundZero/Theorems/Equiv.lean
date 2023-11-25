@@ -84,8 +84,7 @@ begin
   apply ap G; apply H.2; apply H.1
 end
 
-hott def linvContr {A : Type u} {B : Type v}
-  (f : A → B) (H : qinv f) : contr (linv f) :=
+hott lemma linvContr {A : Type u} {B : Type v} (f : A → B) (H : qinv f) : contr (linv f) :=
 begin
   apply contrRespectsEquiv;
   { apply Equiv.symm; apply Sigma.respectsEquiv;
@@ -94,8 +93,7 @@ begin
   fapply compQinv₂; exact H.1; exact H.2
 end
 
-hott def rinvContr {A : Type u} {B : Type v}
-  (f : A → B) (H : qinv f) : contr (rinv f) :=
+hott lemma rinvContr {A : Type u} {B : Type v} (f : A → B) (H : qinv f) : contr (rinv f) :=
 begin
   apply contrRespectsEquiv;
   { apply Equiv.symm; apply Sigma.respectsEquiv;
@@ -104,24 +102,24 @@ begin
   fapply compQinv₁; exact H.1; exact H.2
 end
 
-hott def productContr {A : Type u} {B : Type v} (h : contr A) (g : contr B) : contr (A × B) :=
+hott statement productContr {A : Type u} {B : Type v} (h : contr A) (g : contr B) : contr (A × B) :=
 begin existsi (h.1, g.1); intro p; fapply Product.prod; apply h.2; apply g.2 end
 
-hott def biinvProp {A : Type u} {B : Type v} (f : A → B) : prop (biinv f) :=
+hott theorem biinvProp {A : Type u} {B : Type v} (f : A → B) : prop (biinv f) :=
 begin
   apply lemContr; intro g; apply productContr;
   { apply linvContr; apply Qinv.ofBiinv; assumption };
   { apply rinvContr; apply Qinv.ofBiinv; assumption }
 end
 
-hott def equivHmtpyLem {A : Type u} {B : Type v}
+hott corollary equivHmtpyLem {A : Type u} {B : Type v}
   (f g : A ≃ B) (H : f.forward ~ g.forward) : f = g :=
 begin fapply Sigma.prod; apply Theorems.funext; exact H; apply biinvProp end
 
-hott def propEquivProp {A B : Type u} (G : prop B) : prop (A ≃ B) :=
+hott corollary propEquivProp {A B : Type u} (G : prop B) : prop (A ≃ B) :=
 begin intros f g; apply equivHmtpyLem; intro x; apply G end
 
-hott def propExercise (π : Type u) : prop π ≃ (π ≃ ∥π∥) :=
+hott exercise propExercise (π : Type u) : prop π ≃ (π ≃ ∥π∥) :=
 begin
   existsi @propEquiv π; apply Prod.mk <;> existsi propFromEquiv;
   { intro x; apply propIsProp };

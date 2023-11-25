@@ -141,7 +141,12 @@ digraph dependency_map {
     "HITs/Simplicial"
     "HITs/Suspension" -> { "Algebra/EilenbergMacLane", "HITs/Circle", "HITs/Join" }
     "HITs/Topologization"
-    "HITs/Trunc" -> { "Algebra/EilenbergMacLane", "Algebra/Monoid", "HITs/Quotient" }
+    "HITs/Trunc" -> {
+      "Algebra/EilenbergMacLane",
+      "Algebra/Monoid",
+      "HITs/Quotient",
+      "Theorems/Connectedness"
+    }
     "HITs/Wedge"
   }
 
@@ -192,6 +197,7 @@ digraph dependency_map {
     }
     "Theorems/Equiv" -> {
       "Types/Precategory",
+      "Theorems/Connectedness",
       "Theorems/Pullback",
       "Theorems/Univalence"
     }
