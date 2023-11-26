@@ -1,8 +1,11 @@
 import GroundZero.HITs.Merely
 
+open GroundZero.HITs.Interval (happly funext)
 open GroundZero.Structures.hlevel (succ)
 open GroundZero.Types.Id (ap)
+open GroundZero.Proto (idfun)
 open GroundZero.Structures
+open GroundZero.Types
 
 namespace GroundZero.HITs
 universe u v w
@@ -85,12 +88,30 @@ namespace Trunc
   hott def setEquiv {A : Type u} (H : hset A) : A ≃ ∥A∥₀ :=
   begin apply nthTrunc; apply zeroEqvSet.left; assumption end
 
-  hott def lift {A : Type u} {B : Type v} {n : ℕ₋₂} (f : A → B) : ∥A∥ₙ → ∥B∥ₙ :=
+  hott def ap {A : Type u} {B : Type v} {n : ℕ₋₂} (f : A → B) : ∥A∥ₙ → ∥B∥ₙ :=
   rec (elem ∘ f) (uniq n)
 
-  hott def lift₂ {A : Type u} {B : Type v} {C : Type w}
+  hott def ap₂ {A : Type u} {B : Type v} {C : Type w}
     {n : ℕ₋₂} (f : A → B → C) : ∥A∥ₙ → ∥B∥ₙ → ∥C∥ₙ :=
-  rec (lift ∘ f) (piRespectsNType n (λ _, uniq n))
+  rec (ap ∘ f) (piRespectsNType n (λ _, uniq n))
+
+  hott lemma idmap {A : Type u} {n : ℕ₋₂} : ap idfun ~ @idfun ∥A∥ₙ :=
+  begin
+    fapply ind; intro; apply recβrule; intro;
+    apply hlevel.cumulative; apply uniq
+  end
+
+  hott lemma apCom {A : Type u} {B : Type v} {C : Type w} {n : ℕ₋₂}
+    (f : B → C) (g : A → B) : ap f ∘ ap g ~ @ap A C n (f ∘ g) :=
+  begin
+    fapply ind; intro; transitivity; apply Id.ap (ap _);
+    apply recβrule; transitivity; apply recβrule; symmetry;
+    apply recβrule; intro; apply hlevel.cumulative; apply uniq
+  end
+
+  hott theorem respectsEquiv {A : Type u} {B : Type v} {n : ℕ₋₂} (φ : A ≃ B) : ∥A∥ₙ ≃ ∥B∥ₙ :=
+  ⟨ap φ.forward, (⟨ap φ.left,  (apCom _ _).trans ((happly (Id.ap ap (funext φ.leftForward))).trans  idmap)⟩,
+                  ⟨ap φ.right, (apCom _ _).trans ((happly (Id.ap ap (funext φ.forwardRight))).trans idmap)⟩)⟩
 end Trunc
 
 end GroundZero.HITs

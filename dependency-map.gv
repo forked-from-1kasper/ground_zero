@@ -180,9 +180,8 @@ digraph dependency_map {
     "Theorems/Classical" -> { "Algebra/Category", "Algebra/Orgraph" }
     "Theorems/Fibration" -> { "Theorems/Hopf" }
     "Theorems/Functions" -> {
-      "Algebra/Group/Basic",
-      "HITs/Reals",
       "Modal/Etale",
+      "Theorems/Univalence",
       "Types/Precategory"
     }
     "Theorems/Funext" -> { "Types/Product" }
@@ -197,7 +196,6 @@ digraph dependency_map {
     }
     "Theorems/Equiv" -> {
       "Types/Precategory",
-      "Theorems/Connectedness",
       "Theorems/Pullback",
       "Theorems/Univalence"
     }
@@ -207,6 +205,7 @@ digraph dependency_map {
       "HITs/Flattening",
       "Types/Ens",
       "Theorems/Classical",
+      "Theorems/Connectedness",
       "Theorems/Nat",
       "Cubical/V"
     }

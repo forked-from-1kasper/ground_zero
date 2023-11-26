@@ -188,7 +188,7 @@ namespace Equiv
 
   instance : @Reflexive (Type u) (· ≃ ·) := ⟨ideqv⟩
 
-  hott def inveqv {A : Type u} {a b : A} : (a = b) ≃ (b = a) :=
+  hott lemma inveqv {A : Type u} {a b : A} : (a = b) ≃ (b = a) :=
   ⟨Id.inv, (⟨Id.inv, Id.invInv⟩, ⟨Id.inv, Id.invInv⟩)⟩
 
   hott def biinvTrans {A : Type u} {B : Type v} {C : Type w}
@@ -880,6 +880,29 @@ namespace Equiv
 
   hott corollary apEquivOnEquiv {A : Type u} {B : Type v} (φ : A ≃ B) {a b : A} : (a = b) ≃ (φ a = φ b) :=
   ⟨ap φ, apBiinvOfBiinv φ.1 φ.2⟩
+
+  hott corollary apRightOnEquiv {A : Type u} {B : Type v} (φ : A ≃ B) {a b : B} : (a = b) ≃ (φ.right a = φ.right b) :=
+  apEquivOnEquiv φ.symm
+
+  hott corollary apLeftOnEquiv {A : Type u} {B : Type v} (φ : A ≃ B) {a b : B} : (a = b) ≃ (φ.left a = φ.left b) :=
+  Equiv.trans (apEquivOnEquiv φ.symm) (idtoeqv (bimap _ (φ.leftRight _) (φ.leftRight _))⁻¹)
+
+  hott corollary revEquiv {A : Type u} {a b : A} (p q : a = b) : (p = q) ≃ (p⁻¹ = q⁻¹) :=
+  apEquivOnEquiv inveqv
+
+  hott theorem rewriteCompEquiv {A : Type u} {a b c : A}
+    {p : a = b} {q : b = c} {r : a = c} : (r = p ⬝ q) ≃ (p⁻¹ ⬝ r = q) :=
+  begin induction p; reflexivity end
+
+  hott theorem compRewriteEquiv {A : Type u} {a b c : A}
+    {p : a = b} {q : b = c} {r : a = c} : (p = r ⬝ q⁻¹) ≃ (p ⬝ q = r) :=
+  begin
+    transitivity; apply rewriteCompEquiv;
+    transitivity; apply revEquiv; apply transport (· ≃ _);
+    apply bimap; symmetry; transitivity; apply Id.explodeInv;
+    apply ap (_ ⬝ ·); apply Id.invInv; symmetry; apply Id.invInv;
+    symmetry; transitivity; apply inveqv; apply rewriteCompEquiv
+  end
 
   hott lemma loopApEquiv {A : Type u} {B : Type v} (φ : A ≃ B) {a : A} : Π (n : ℕ), Ωⁿ(A, a) ≃ Ωⁿ(B, φ a)
   | Nat.zero   => φ

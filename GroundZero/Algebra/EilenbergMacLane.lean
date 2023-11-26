@@ -12,26 +12,6 @@ open GroundZero
 namespace GroundZero.Algebra
 universe u v
 
-noncomputable hott def ntypeIsSuccNType (n : ℕ₋₂) :
-  is-(hlevel.succ n)-type (nType.{u} n) :=
-begin
-  intro ⟨X, p⟩ ⟨Y, p'⟩; apply ntypeRespectsEquiv;
-  symmetry; apply Sigma.sigmaPath; fapply ntypeRespectsSigma;
-  { apply ntypeRespectsEquiv.{u, u + 1}; apply Equiv.symm;
-    apply univalence X Y; induction n using hlevel.casesOn;
-    { existsi contrTypeEquiv p p'; intro e; fapply Sigma.prod;
-      { apply Theorems.funext; intro; apply contrImplProp; exact p' };
-      { apply biinvProp } };
-    { fapply ntypeOverEmbedding; exact X → Y; apply propSigmaEmbedding;
-      { intro; apply biinvProp };
-      { apply piRespectsNType (hlevel.succ _);
-        intro; exact p' } } };
-  { intro q; apply Structures.propIsNType; apply ntypeIsProp }
-end
-
-noncomputable hott def ensIsGroupoid : groupoid (0-Type) :=
-begin apply oneEqvGroupoid.forward; apply ntypeIsSuccNType 0 end
-
 private structure K1.aux :=
 (val : 𝟏)
 

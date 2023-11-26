@@ -3,6 +3,7 @@ import GroundZero.Types.Sigma
 import GroundZero.Types.Product
 import GroundZero.Types.Coproduct
 
+open GroundZero.HITs.Interval (happly funext)
 open GroundZero.Types (Coproduct idp fib)
 open GroundZero.Types.Equiv (biinv)
 open GroundZero.Types.Id (ap)
@@ -63,33 +64,22 @@ namespace hlevel
   | −2     => minusTwo
   | succ n => n
 
-  inductive le : hlevel → hlevel → Type
-  | refl (a : hlevel)   : le a a
-  | step (a b : hlevel) : le a b → le a (succ b)
+  inductive le : ℕ₋₂ → ℕ₋₂ → Type
+  | refl (a : ℕ₋₂)   : le a a
+  | step (a b : ℕ₋₂) : le a b → le a (succ b)
 
   infix:50 " ≤ " => le
 
-  hott def le.minusTwo : Π (n : hlevel), −2 ≤ n
+  hott def le.minusTwo : Π (n : ℕ₋₂), −2 ≤ n
   | −2     => le.refl −2
   | succ n => le.step _ _ (minusTwo n)
 
-  noncomputable hott def le.succ (a b : hlevel) (ρ : a ≤ b) : succ a ≤ succ b :=
+  noncomputable hott def le.succ (a b : ℕ₋₂) (ρ : a ≤ b) : succ a ≤ succ b :=
   begin induction ρ; apply le.refl; apply le.step; assumption end
 
-  hott def add : hlevel → hlevel → hlevel
-  | −2,            −2 => −2
-  | −1,            −2 => −2
-  | succ (succ n), −2 => n
-  | n, succ (succ −2) => n
-  | n, succ m         => succ (add n m)
-
-  instance : HAdd hlevel hlevel hlevel := ⟨hlevel.add⟩
-
-  hott def ofNat : ℕ → ℕ₋₂
-  | Nat.zero   => succ (succ −2)
-  | Nat.succ n => hlevel.succ (ofNat n)
-
-  instance (n : ℕ) : OfNat ℕ₋₂ n := ⟨ofNat n⟩
+  hott def addNat : ℕ₋₂ → ℕ → ℕ₋₂
+  | n, 0          => n
+  | n, Nat.succ m => succ (addNat n m)
 
   hott def predPred : ℕ → ℕ₋₂
   | Nat.zero   => −2
@@ -98,6 +88,18 @@ namespace hlevel
   hott def succSucc : ℕ₋₂ → ℕ
   | −2     => Nat.zero
   | succ n => Nat.succ (succSucc n)
+
+  hott def add : ℕ₋₂ → ℕ₋₂ → ℕ₋₂
+  | n, −2            => pred (pred n)
+  | n, −1            => pred n
+  | n, succ (succ m) => addNat n (succSucc m)
+
+  instance : HAdd ℕ₋₂ ℕ₋₂ ℕ₋₂ := ⟨add⟩
+
+  hott def ofNat (n : ℕ) : ℕ₋₂ :=
+  succ (succ (predPred n))
+
+  instance (n : ℕ) : OfNat ℕ₋₂ n := ⟨ofNat n⟩
 end hlevel
 
 def isNType : hlevel → Type u → Type u
@@ -110,6 +112,7 @@ def nType (n : hlevel) : Type (u + 1) :=
 Σ (A : Type u), is-n-type A
 
 notation n "-Type" => nType n
+macro n:term "-Type" l:level : term => `(nType.{$l} $n)
 
 hott def hlevel.cumulative {A : Type u} : Π (n : hlevel), is-n-type A → is-(hlevel.succ n)-type A
 | −2,            H => λ x y, ⟨(H.2 x)⁻¹ ⬝ H.2 y, λ p, begin induction p; apply Types.Id.invComp end⟩
@@ -167,7 +170,7 @@ hott def cozeroMorphismEqv {A : Type u} : (𝟏 → A) ≃ A :=
 familyOverUnit (λ _, A)
 
 hott def terminalArrow {A : Type u} : A ≃ (𝟏 → A) :=
-⟨λ x _, x, Types.Qinv.toBiinv _ ⟨λ φ, φ ★, (λ φ, HITs.Interval.funext (λ ★, idp _), idp)⟩⟩
+⟨λ x _, x, Types.Qinv.toBiinv _ ⟨λ φ, φ ★, (λ φ, funext (λ ★, idp _), idp)⟩⟩
 
 hott def contrTypeEquiv {A : Type u} {B : Type v}
   (p : contr A) (q : contr B) : A ≃ B := calc
@@ -180,21 +183,18 @@ begin existsi Prod.snd; apply Prod.mk <;> existsi Prod.mk ★ <;> { intro; refle
 hott def unitProdEquiv (A : Type u) : A × 𝟏 ≃ A :=
 begin existsi Prod.fst; apply Prod.mk <;> existsi (Prod.mk · ★) <;> { intro x; reflexivity } end
 
-def boolToUniverse : 𝟐 → Type
+hott def boolToUniverse : 𝟐 → Type
 | true  => 𝟏
 | false => 𝟎
 
-hott def ffNeqTt : false ≠ true :=
+hott theorem ffNeqTt : false ≠ true :=
 λ p, Types.Equiv.transport boolToUniverse p⁻¹ ★
 
-hott def functionSpace : ¬(Π (A B : Type), prop (A → B)) :=
-λ H, ffNeqTt (Types.Equiv.Homotopy.Id (H 𝟐 𝟐 id not) false)
+hott remark functionSpace : ¬(Π (A B : Type), prop (A → B)) :=
+λ H, ffNeqTt (happly (H 𝟐 𝟐 id not) false)
 
-hott def autoContr {A : Type u} (x : A) (H : prop (A → A)) : prop A :=
-begin
-  apply contrImplProp; existsi x;
-  apply Types.Equiv.Homotopy.Id; apply H
-end
+hott lemma autoContr {A : Type u} (x : A) (H : prop (A → A)) : prop A :=
+begin apply contrImplProp; existsi x; apply happly; apply H end
 
 section
   open Types.Equiv Types.Id

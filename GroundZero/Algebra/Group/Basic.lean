@@ -1,4 +1,3 @@
-import GroundZero.Theorems.Functions
 import GroundZero.Algebra.Basic
 
 open GroundZero.Types.Equiv (bimap biinv transport)

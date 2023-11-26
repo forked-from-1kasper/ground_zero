@@ -1,3 +1,4 @@
+import GroundZero.Theorems.Functions
 import GroundZero.Theorems.Equiv
 
 open GroundZero.HITs.Interval (happly)
@@ -261,6 +262,26 @@ section
     apply Prod.mk; apply biinvCorrIdfun; apply corrBiinvIdfun
   end
 end
+
+noncomputable hott theorem ntypeIsSuccNType (n : ℕ₋₂) : is-(hlevel.succ n)-type (n-Type u) :=
+begin
+  intro ⟨X, p⟩ ⟨Y, p'⟩; apply ntypeRespectsEquiv;
+  symmetry; apply Sigma.sigmaPath; fapply ntypeRespectsSigma;
+  { apply ntypeRespectsEquiv.{u, u + 1}; apply Equiv.symm;
+    apply univalence X Y; induction n using hlevel.casesOn;
+    { existsi contrTypeEquiv p p'; intro e; fapply Sigma.prod;
+      { apply Theorems.funext; intro; apply contrImplProp; exact p' };
+      { apply biinvProp } };
+    { fapply Functions.ntypeOverEmbedding; exact X → Y;
+      apply Functions.propSigmaEmbedding;
+      { intro; apply biinvProp };
+      { apply piRespectsNType (hlevel.succ _);
+        intro; exact p' } } };
+  { intro q; apply Structures.propIsNType; apply ntypeIsProp }
+end
+
+noncomputable hott corollary ensIsGroupoid : groupoid (0-Type) :=
+begin apply oneEqvGroupoid.forward; apply ntypeIsSuccNType 0 end
 
 end Theorems.Equiv
 

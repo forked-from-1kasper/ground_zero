@@ -80,7 +80,7 @@ namespace Sigma
     (f : Π x, η x → ε x) (w : Σ x, η x) : (Σ x, ε x) :=
   ⟨w.1, f w.1 w.2⟩
 
-  hott def respectsEquiv {A : Type v} {η : A → Type u} {ε : A → Type w}
+  hott def respectsEquiv {A : Type u} {η : A → Type v} {ε : A → Type w}
     (e : Π x, η x ≃ ε x) : (Σ x, η x) ≃ (Σ x, ε x) :=
   begin
     existsi (map (λ x, (e x).forward)); apply Prod.mk;

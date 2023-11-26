@@ -1,4 +1,3 @@
-import GroundZero.Theorems.Functions
 import GroundZero.HITs.Circle
 
 open GroundZero.Theorems.Functions (injective)

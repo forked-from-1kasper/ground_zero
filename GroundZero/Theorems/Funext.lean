@@ -1,7 +1,7 @@
 import GroundZero.Types.HEq
 
-open GroundZero.Types.Equiv (apd)
 open GroundZero.Types.Id (ap)
+open GroundZero.Types.Equiv
 open GroundZero.Types
 
 /-
@@ -78,10 +78,14 @@ namespace Interval
 
   hott def happly {A : Type u} {B : A → Type v}
     {f g : Π x, B x} (p : f = g) : f ~ g :=
-  Equiv.transport (λ g, f ~ g) p (Equiv.Homotopy.id f)
+  transport (λ g, f ~ g) p (Homotopy.id f)
 
-  hott def happlyRev {A : Type u} {B : A → Type v}
-    {f g : Π x, B x} (p : f = g) : happly p⁻¹ = Equiv.Homotopy.symm _ _ (happly p) :=
+  hott lemma happlyRev {A : Type u} {B : A → Type v}
+    {f g : Π x, B x} (p : f = g) : happly p⁻¹ = Homotopy.symm _ _ (happly p) :=
+  begin induction p; reflexivity end
+
+  hott lemma happlyCom {A : Type u} {B : A → Type v} {f g h : Π x, B x}
+    (p : f = g) (q : g = h) : happly (p ⬝ q) = Homotopy.trans (happly p) (happly q) :=
   begin induction p; reflexivity end
 
   hott def mapHapply {A : Type u} {B : Type v} {C : Type w} {a b : A} {c : B}
