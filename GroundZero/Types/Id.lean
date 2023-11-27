@@ -54,7 +54,7 @@ namespace Id
   infixl:60 " ⬝ " => trans
   postfix:max "⁻¹" => symm
 
-  hott def JSymm {A : Type} {a b : A} (B : Π x, b = x → Type v)
+  hott lemma JSymm {A : Type} {a b : A} (B : Π x, b = x → Type v)
     (p : a = b) (w : B b (idp b)) : J₁ B w p⁻¹ = J₂ (λ x q, B x q⁻¹) w p :=
   begin induction p; reflexivity end
 
@@ -70,7 +70,7 @@ namespace Id
   hott def invComp {A : Type u} {a b : A} (p : a = b) : p⁻¹ ⬝ p = idp b :=
   begin induction p; reflexivity end
 
-  hott def reflTwice {A : Type u} {a b : A} (p : a = b) : idp a ⬝ p ⬝ idp b = p :=
+  hott remark reflTwice {A : Type u} {a b : A} (p : a = b) : idp a ⬝ p ⬝ idp b = p :=
   by apply rid
 
   hott def explodeInv {A : Type u} {a b c : A} (p : a = b) (q : b = c) : (p ⬝ q)⁻¹ = q⁻¹ ⬝ p⁻¹ :=
@@ -79,40 +79,34 @@ namespace Id
   hott def invInv {A : Type u} {a b : A} (p : a = b) : (p⁻¹)⁻¹ = p :=
   begin induction p; reflexivity end
 
-  hott def invEqIfEqInv {A : Type u} {a b : A} {p : a = b} {q : b = a} : p⁻¹ = q → p = q⁻¹ :=
+  hott lemma invEqIfEqInv {A : Type u} {a b : A} {p : a = b} {q : b = a} : p⁻¹ = q → p = q⁻¹ :=
   begin induction p; intro η; induction η; reflexivity end
 
-  hott def eqEnvIfInvEq {A : Type u} {a b : A} {p : a = b} {q : b = a} : p = q⁻¹ → p⁻¹ = q :=
+  hott lemma eqEnvIfInvEq {A : Type u} {a b : A} {p : a = b} {q : b = a} : p = q⁻¹ → p⁻¹ = q :=
   λ η => @invEqIfEqInv A b a p⁻¹ q⁻¹ (invInv p ⬝ η) ⬝ invInv q
 
-  hott def assoc {A : Type u} {a b c d : A} (p : a = b) (q : b = c) (r : c = d) :
-    p ⬝ (q ⬝ r) = (p ⬝ q) ⬝ r :=
+  hott def assoc {A : Type u} {a b c d : A} (p : a = b) (q : b = c) (r : c = d) : p ⬝ (q ⬝ r) = (p ⬝ q) ⬝ r :=
   begin induction p; reflexivity end
 
-  hott def mpr {A B : Type u} (p : A = B) : B → A :=
-  begin induction p; intro x; exact x end
-
-  hott def ap {A : Type u} {B : Type v} {a b : A}
-    (f : A → B) (p : a = b) : f a = f b :=
+  hott def ap {A : Type u} {B : Type v} {a b : A} (f : A → B) (p : a = b) : f a = f b :=
   begin induction p; reflexivity end
 
   hott lemma invInj {A : Type u} {a b : A} {p q : a = b} (α : p⁻¹ = q⁻¹) : p = q :=
   (invInv p)⁻¹ ⬝ ap (·⁻¹) α ⬝ invInv q
 
-  hott def cancelCompInv {A : Type u} {a b c : A} (p : a = b) (q : b = c) : (p ⬝ q) ⬝ q⁻¹ = p :=
+  hott corollary cancelCompInv {A : Type u} {a b c : A} (p : a = b) (q : b = c) : (p ⬝ q) ⬝ q⁻¹ = p :=
   (assoc p q q⁻¹)⁻¹ ⬝ ap (trans p) (compInv q) ⬝ rid p
 
-  hott def cancelInvComp {A : Type u} {a b c : A} (p : a = b) (q : c = b) : (p ⬝ q⁻¹) ⬝ q = p :=
+  hott corollary cancelInvComp {A : Type u} {a b c : A} (p : a = b) (q : c = b) : (p ⬝ q⁻¹) ⬝ q = p :=
   (assoc p q⁻¹ q)⁻¹ ⬝ ap (trans p) (invComp q) ⬝ rid p
 
-  hott def compInvCancel {A : Type u} {a b c : A} (p : a = b) (q : a = c) : p ⬝ (p⁻¹ ⬝ q) = q :=
+  hott corollary compInvCancel {A : Type u} {a b c : A} (p : a = b) (q : a = c) : p ⬝ (p⁻¹ ⬝ q) = q :=
   assoc p p⁻¹ q ⬝ ap (· ⬝ q) (compInv p)
 
-  hott def invCompCancel {A : Type u} {a b c : A} (p : a = b) (q : b = c) : p⁻¹ ⬝ (p ⬝ q) = q :=
+  hott corollary invCompCancel {A : Type u} {a b c : A} (p : a = b) (q : b = c) : p⁻¹ ⬝ (p ⬝ q) = q :=
   assoc p⁻¹ p q ⬝ ap (· ⬝ q) (invComp p)
 
-  hott def mapInv {A : Type u} {B : Type v} {a b : A}
-    (f : A → B) (p : a = b) : ap f p⁻¹ = (ap f p)⁻¹ :=
+  hott theorem mapInv {A : Type u} {B : Type v} {a b : A} (f : A → B) (p : a = b) : ap f p⁻¹ = (ap f p)⁻¹ :=
   begin induction p; reflexivity end
 
   hott def transCancelLeft {A : Type u} {a b c : A}
@@ -133,12 +127,15 @@ namespace Id
 
     hott def ap3 {α β : p = q} (f : A → B) (r : α = β) : ap² f α = ap² f β := ap (ap² f) r
     notation "ap³" => ap3
+
+    hott def ap4 {α β : p = q} {r s : α = β} (f : A → B) (ε : r = s) : ap³ f r = ap³ f s := ap (ap³ f) ε
+    notation "ap⁴" => ap4
   end
 
-  hott def compReflIfEq {A : Type u} {a b : A} (p q : a = b) : p = q → p⁻¹ ⬝ q = idp b :=
+  hott lemma compReflIfEq {A : Type u} {a b : A} (p q : a = b) : p = q → p⁻¹ ⬝ q = idp b :=
   begin intro A; induction A; apply invComp end
 
-  hott def eqIfCompRefl {A : Type u} {a b : A} (p q : a = b) : p⁻¹ ⬝ q = idp b → p = q :=
+  hott lemma eqIfCompRefl {A : Type u} {a b : A} (p q : a = b) : p⁻¹ ⬝ q = idp b → p = q :=
   begin intro α; induction p; exact α⁻¹ end
 
   class isPointed (A : Type u) := (point : A)
