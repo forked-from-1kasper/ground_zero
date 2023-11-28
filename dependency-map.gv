@@ -102,7 +102,8 @@ digraph dependency_map {
       "Algebra/Group/Z",
       "Theorems/Hopf",
       "HITs/Moebius",
-      "HITs/Reals"
+      "HITs/Reals",
+      "HITs/Sphere"
     }
     "HITs/Coequalizer" -> { "HITs/Flattening" }
     "HITs/Colimit" -> { "HITs/Merely", "Types/Nat" }
@@ -139,6 +140,7 @@ digraph dependency_map {
     }
     "HITs/Reals"
     "HITs/Simplicial"
+    "HITs/Sphere"
     "HITs/Suspension" -> { "Algebra/EilenbergMacLane", "HITs/Circle", "HITs/Join" }
     "HITs/Topologization"
     "HITs/Trunc" -> {
@@ -178,6 +180,7 @@ digraph dependency_map {
 
   subgraph Theorems {
     "Theorems/Classical" -> { "Algebra/Category", "Algebra/Orgraph" }
+    "Theorems/Connectedness"
     "Theorems/Fibration" -> { "Theorems/Hopf" }
     "Theorems/Functions" -> {
       "Modal/Etale",
