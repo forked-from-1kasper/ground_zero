@@ -27,21 +27,21 @@ begin cases p; cases q; apply idp end
 
 attribute [eliminator] Id.casesOn
 
-hott def J₁ {A : Type u} {a : A} (B : Π (b : A), a = b → Type v)
+hott definition J₁ {A : Type u} {a : A} (B : Π (b : A), a = b → Type v)
   (Bidp : B a (idp a)) {b : A} (p : a = b) : B b p :=
 @Id.casesOn A a B b p Bidp
 
-hott def J₂ {A : Type u} {b : A} (B : Π (a : A), a = b → Type v)
+hott definition J₂ {A : Type u} {b : A} (B : Π (a : A), a = b → Type v)
   (Bidp : B b (idp b)) {a : A} (p : a = b) : B a p :=
 begin induction p; apply Bidp end
 
 namespace Id
   @[match_pattern] abbrev refl {A : Type u} {a : A} : a = a := idp a
 
-  hott def symm {A : Type u} {a b : A} (p : a = b) : b = a :=
+  hott definition symm {A : Type u} {a b : A} (p : a = b) : b = a :=
   begin induction p; apply idp end
 
-  hott def trans {A : Type u} {a b c : A}
+  hott definition trans {A : Type u} {a b c : A}
     (p : a = b) (q : b = c) : a = c :=
   begin induction p; apply q end
 
@@ -49,7 +49,7 @@ namespace Id
   instance (A : Type u) : Symmetric  (@Id A) := ⟨@symm A⟩
   instance (A : Type u) : Transitive (@Id A) := ⟨@trans A⟩
 
-  hott def inv {A : Type u} {a b : A} (p : a = b) : b = a := symm p
+  hott definition inv {A : Type u} {a b : A} (p : a = b) : b = a := symm p
 
   infixl:60 " ⬝ " => trans
   postfix:max "⁻¹" => symm
@@ -58,25 +58,25 @@ namespace Id
     (p : a = b) (w : B b (idp b)) : J₁ B w p⁻¹ = J₂ (λ x q, B x q⁻¹) w p :=
   begin induction p; reflexivity end
 
-  hott def lid {A : Type u} {a b : A} (p : a = b) : idp a ⬝ p = p :=
+  hott definition lid {A : Type u} {a b : A} (p : a = b) : idp a ⬝ p = p :=
   begin induction p; reflexivity end
 
-  hott def rid {A : Type u} {a b : A} (p : a = b) : p ⬝ idp b = p :=
+  hott definition rid {A : Type u} {a b : A} (p : a = b) : p ⬝ idp b = p :=
   begin induction p; reflexivity end
 
-  hott def compInv {A : Type u} {a b : A} (p : a = b) : p ⬝ p⁻¹ = idp a :=
+  hott definition compInv {A : Type u} {a b : A} (p : a = b) : p ⬝ p⁻¹ = idp a :=
   begin induction p; reflexivity end
 
-  hott def invComp {A : Type u} {a b : A} (p : a = b) : p⁻¹ ⬝ p = idp b :=
+  hott definition invComp {A : Type u} {a b : A} (p : a = b) : p⁻¹ ⬝ p = idp b :=
   begin induction p; reflexivity end
 
   hott remark reflTwice {A : Type u} {a b : A} (p : a = b) : idp a ⬝ p ⬝ idp b = p :=
   by apply rid
 
-  hott def explodeInv {A : Type u} {a b c : A} (p : a = b) (q : b = c) : (p ⬝ q)⁻¹ = q⁻¹ ⬝ p⁻¹ :=
+  hott definition explodeInv {A : Type u} {a b c : A} (p : a = b) (q : b = c) : (p ⬝ q)⁻¹ = q⁻¹ ⬝ p⁻¹ :=
   begin induction p; induction q; reflexivity end
 
-  hott def invInv {A : Type u} {a b : A} (p : a = b) : (p⁻¹)⁻¹ = p :=
+  hott definition invInv {A : Type u} {a b : A} (p : a = b) : (p⁻¹)⁻¹ = p :=
   begin induction p; reflexivity end
 
   hott lemma invEqIfEqInv {A : Type u} {a b : A} {p : a = b} {q : b = a} : p⁻¹ = q → p = q⁻¹ :=
@@ -85,10 +85,10 @@ namespace Id
   hott lemma eqEnvIfInvEq {A : Type u} {a b : A} {p : a = b} {q : b = a} : p = q⁻¹ → p⁻¹ = q :=
   λ η => @invEqIfEqInv A b a p⁻¹ q⁻¹ (invInv p ⬝ η) ⬝ invInv q
 
-  hott def assoc {A : Type u} {a b c d : A} (p : a = b) (q : b = c) (r : c = d) : p ⬝ (q ⬝ r) = (p ⬝ q) ⬝ r :=
+  hott definition assoc {A : Type u} {a b c d : A} (p : a = b) (q : b = c) (r : c = d) : p ⬝ (q ⬝ r) = (p ⬝ q) ⬝ r :=
   begin induction p; reflexivity end
 
-  hott def ap {A : Type u} {B : Type v} {a b : A} (f : A → B) (p : a = b) : f a = f b :=
+  hott definition ap {A : Type u} {B : Type v} {a b : A} (f : A → B) (p : a = b) : f a = f b :=
   begin induction p; reflexivity end
 
   hott lemma invInj {A : Type u} {a b : A} {p q : a = b} (α : p⁻¹ = q⁻¹) : p = q :=
@@ -109,11 +109,11 @@ namespace Id
   hott theorem mapInv {A : Type u} {B : Type v} {a b : A} (f : A → B) (p : a = b) : ap f p⁻¹ = (ap f p)⁻¹ :=
   begin induction p; reflexivity end
 
-  hott def transCancelLeft {A : Type u} {a b c : A}
+  hott definition transCancelLeft {A : Type u} {a b c : A}
     (r : a = b) (p q : b = c) : r ⬝ p = r ⬝ q → p = q :=
   begin intro μ; induction r; exact μ end
 
-  hott def transCancelRight {A : Type u} {a b c : A} (r : b = c) (p q : a = b) : p ⬝ r = q ⬝ r → p = q :=
+  hott definition transCancelRight {A : Type u} {a b c : A} (r : b = c) (p q : a = b) : p ⬝ r = q ⬝ r → p = q :=
   begin
     intro μ; induction r; transitivity; { symmetry; apply rid };
     symmetry; transitivity; { symmetry; apply rid }; exact μ⁻¹
@@ -122,13 +122,13 @@ namespace Id
   section
     variable {A : Type u} {B : Type v} {a b : A} {p q : a = b}
 
-    hott def ap2 (f : A → B) (r : p = q) : ap f p = ap f q := ap (ap f) r
+    hott definition ap2 (f : A → B) (r : p = q) : ap f p = ap f q := ap (ap f) r
     notation "ap²" => ap2
 
-    hott def ap3 {α β : p = q} (f : A → B) (r : α = β) : ap² f α = ap² f β := ap (ap² f) r
+    hott definition ap3 {α β : p = q} (f : A → B) (r : α = β) : ap² f α = ap² f β := ap (ap² f) r
     notation "ap³" => ap3
 
-    hott def ap4 {α β : p = q} {r s : α = β} (f : A → B) (ε : r = s) : ap³ f r = ap³ f s := ap (ap³ f) ε
+    hott definition ap4 {α β : p = q} {r s : α = β} (f : A → B) (ε : r = s) : ap³ f r = ap³ f s := ap (ap³ f) ε
     notation "ap⁴" => ap4
   end
 
@@ -140,9 +140,9 @@ namespace Id
 
   class isPointed (A : Type u) := (point : A)
 
-  hott def pointOf (A : Type u) [isPointed A] : A := isPointed.point
+  hott definition pointOf (A : Type u) [isPointed A] : A := isPointed.point
 
-  hott def Pointed := Σ (A : Type u), A
+  hott definition Pointed := Σ (A : Type u), A
 
   macro "Type⁎" : term => `(Pointed)
   macro "Type⁎" n:(ppSpace level:max) : term => `(Pointed.{$n})
@@ -158,7 +158,7 @@ namespace Id
   abbrev Pointed.space : Type⁎ u → Type u := Sigma.fst
   abbrev Pointed.point : Π (A : Type⁎ u), A.space := Sigma.snd
 
-  def Pointed.Map (A B : Type⁎) :=
+  hott definition Pointed.Map (A B : Type⁎) :=
   Σ (f : A.space → B.space), f A.point = B.point
 
   notation "Map⁎" => Pointed.Map
@@ -170,7 +170,7 @@ namespace Id
     def id : φ.ap A.point = B.point := φ.snd
   end Pointed.Map
 
-  hott def Loop {B : Type u} (b : B) : ℕ → Type u
+  hott definition Loop {B : Type u} (b : B) : ℕ → Type u
   | Nat.zero   => B
   | Nat.succ n => Loop (idp b) n
 
@@ -204,11 +204,11 @@ namespace Id
     }
   end
 
-  hott def idΩ {B : Type u} (b : B) : Π n, Ωⁿ(B, b)
+  hott definition idΩ {B : Type u} (b : B) : Π n, Ωⁿ(B, b)
   | Nat.zero   => b
   | Nat.succ n => idΩ (idp b) n
 
-  hott def apΩ {A : Type u} {B : Type v} (f : A → B) {a : A} : Π {n : ℕ}, Ωⁿ(A, a) → Ωⁿ(B, f a)
+  hott definition apΩ {A : Type u} {B : Type v} (f : A → B) {a : A} : Π {n : ℕ}, Ωⁿ(A, a) → Ωⁿ(B, f a)
   | Nat.zero   => f
   | Nat.succ _ => apΩ (ap f)
 end Id
@@ -220,10 +220,10 @@ namespace Not
   prefix:90 (priority := high) "¬" => Not
   infix:50 (priority := high) " ≠ " => Neq
 
-  def absurd {A : Type u} {B : Type v} (h : A) (g : ¬A) : B :=
+  hott definition absurd {A : Type u} {B : Type v} (h : A) (g : ¬A) : B :=
   nomatch (g h)
 
-  def univ : (𝟎 : Type u) → (𝟎 : Type v) :=
+  hott definition univ : (𝟎 : Type u) → (𝟎 : Type v) :=
   λ e, nomatch e
 end Not
 
@@ -232,22 +232,22 @@ namespace Whiskering
 
   variable {A : Type u} {a b c : A}
 
-  hott def rwhs {p q : a = b} (ν : p = q) (r : b = c) : p ⬝ r = q ⬝ r :=
+  hott definition rwhs {p q : a = b} (ν : p = q) (r : b = c) : p ⬝ r = q ⬝ r :=
   begin induction r; apply (Id.rid p) ⬝ ν ⬝ (Id.rid q)⁻¹ end
 
   infix:60 " ⬝ᵣ " => rwhs
 
-  hott def lwhs {r s : b = c} (q : a = b) (κ : r = s) : q ⬝ r = q ⬝ s :=
+  hott definition lwhs {r s : b = c} (q : a = b) (κ : r = s) : q ⬝ r = q ⬝ s :=
   begin induction q; exact (Id.lid r) ⬝ κ ⬝ (Id.lid s)⁻¹ end
 
   infix:60 " ⬝ₗ " => lwhs
 
   variable {p q : a = b} {r s : b = c}
 
-  hott def horizontalComp₁ (ν : p = q) (κ : r = s) := (ν ⬝ᵣ r) ⬝ (q ⬝ₗ κ)
+  hott definition horizontalComp₁ (ν : p = q) (κ : r = s) := (ν ⬝ᵣ r) ⬝ (q ⬝ₗ κ)
   infix:65 " ⋆ " => horizontalComp₁
 
-  hott def horizontalComp₂ (ν : p = q) (κ : r = s) := (p ⬝ₗ κ) ⬝ (ν ⬝ᵣ s)
+  hott definition horizontalComp₂ (ν : p = q) (κ : r = s) := (p ⬝ₗ κ) ⬝ (ν ⬝ᵣ s)
   infix:65 " ⋆′ " => horizontalComp₂
 
   hott lemma compUniq (ν : p = q) (κ : r = s) : ν ⋆ κ = ν ⋆′ κ :=

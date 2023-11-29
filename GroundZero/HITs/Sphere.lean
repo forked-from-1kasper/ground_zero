@@ -15,18 +15,18 @@ namespace HigherSphere
   open GroundZero.HITs.Suspension (north merid σ suspΩ)
   open GroundZero.Proto (idfun)
 
-  hott def base : Π {n : ℕ}, S n
+  hott definition base : Π {n : ℕ}, S n
   | Nat.zero   => false
   | Nat.succ _ => north
 
-  hott def diag : Π (n : ℕ), Ω¹(S¹) → Ωⁿ⁺¹(Sⁿ⁺¹)
+  hott definition diag : Π (n : ℕ), Ω¹(S¹) → Ωⁿ⁺¹(Sⁿ⁺¹)
   | Nat.zero   => idfun
   | Nat.succ n => suspΩ ∘ diag n
 
-  hott def surf (n : ℕ) : Ωⁿ⁺¹(Sⁿ⁺¹) :=
+  hott definition surf (n : ℕ) : Ωⁿ⁺¹(Sⁿ⁺¹) :=
   diag n Circle.loop
 
-  hott def rec (B : Type u) (b : B) : Π (n : ℕ), Ωⁿ⁺¹(B, b) → Sⁿ⁺¹ → B
+  hott definition rec (B : Type u) (b : B) : Π (n : ℕ), Ωⁿ⁺¹(B, b) → Sⁿ⁺¹ → B
   | Nat.zero   => Circle.rec b
   | Nat.succ n => λ ε, Suspension.rec b b (rec (b = b) (idp b) n ε)
 
@@ -151,7 +151,7 @@ namespace HigherSphere
       apply Theorems.happlyFunext; reflexivity }
   end
 
-  hott def indBias (n : ℕ) (B : Sⁿ⁺¹ → Type u) (b : B base) (ε : Ωⁿ⁺¹(B, b, surf n)) :=
+  hott definition indBias (n : ℕ) (B : Sⁿ⁺¹ → Type u) (b : B base) (ε : Ωⁿ⁺¹(B, b, surf n)) :=
   rec (Σ x, B x) ⟨base, b⟩ n (sigmaProdΩ (surf n) ε)
 
   hott example (n : ℕ) (B : Sⁿ⁺¹ → Type u) (b : B base)
@@ -188,14 +188,14 @@ namespace HigherSphere
     apply σRecΩ; apply Suspension.σRevComMerid
   end
 
-  hott def ind (n : ℕ) (B : Sⁿ⁺¹ → Type u) (b : B base) (ε : Ωⁿ⁺¹(B, b, surf n)) : Π x, B x :=
+  hott definition ind (n : ℕ) (B : Sⁿ⁺¹ → Type u) (b : B base) (ε : Ωⁿ⁺¹(B, b, surf n)) : Π x, B x :=
   λ x, transport B (indBiasPath n B b ε x) (indBias n B b ε x).2
 
   hott theorem indβrule₁ : Π (n : ℕ) (B : Sⁿ⁺¹ → Type u) (b : B base) (α : Ωⁿ⁺¹(B, b, surf n)), ind n B b α base = b
   | Nat.zero,   _, _, _ => idp _
   | Nat.succ _, _, _, _ => idp _
 
-  hott def mult {n : ℕ} {a b : Sⁿ⁺¹} (α : Ωⁿ⁺¹(Sⁿ⁺¹, a)) (β : Ωⁿ⁺¹(Sⁿ⁺¹, b)) : Ωⁿ⁺¹(Sⁿ⁺¹, rec Sⁿ⁺¹ a n α b) :=
+  hott definition mult {n : ℕ} {a b : Sⁿ⁺¹} (α : Ωⁿ⁺¹(Sⁿ⁺¹, a)) (β : Ωⁿ⁺¹(Sⁿ⁺¹, b)) : Ωⁿ⁺¹(Sⁿ⁺¹, rec Sⁿ⁺¹ a n α b) :=
   apΩ (rec Sⁿ⁺¹ a n α) β
 
   hott corollary recCompΩ {n : ℕ} {a b : Sⁿ⁺¹} (α : Ωⁿ⁺¹(Sⁿ⁺¹, a)) (β : Ωⁿ⁺¹(Sⁿ⁺¹, b)) :
@@ -206,15 +206,15 @@ end HigherSphere
 namespace Sphere
   open GroundZero.HITs.Suspension (σ)
 
-  hott def base : S² := HigherSphere.base
+  hott definition base : S² := HigherSphere.base
 
-  hott def surf : idp base = idp base :=
+  hott definition surf : idp base = idp base :=
   HigherSphere.surf 1
 
   section
     variable {B : Type u} (b : B) (ε : idp b = idp b)
 
-    hott def rec : S² → B := HigherSphere.rec B b 1 ε
+    hott definition rec : S² → B := HigherSphere.rec B b 1 ε
 
     hott corollary recβrule₁ : rec b ε base = b := idp b
 
@@ -222,20 +222,20 @@ namespace Sphere
     HigherSphere.recβrule₂ b 1 ε
   end
 
-  hott def cup : S¹ → S¹ → S² :=
+  hott definition cup : S¹ → S¹ → S² :=
   Circle.rec (λ _, base) (Theorems.funext σ)
 end Sphere
 
 namespace Glome
-  hott def base : S³ := HigherSphere.base
+  hott definition base : S³ := HigherSphere.base
 
-  hott def surf : idp (idp base) = idp (idp base) :=
+  hott definition surf : idp (idp base) = idp (idp base) :=
   HigherSphere.surf 2
 
   section
     variable {B : Type u} (b : B) (ε : idp (idp b) = idp (idp b))
 
-    hott def rec : S³ → B := HigherSphere.rec B b 2 ε
+    hott definition rec : S³ → B := HigherSphere.rec B b 2 ε
 
     hott corollary recβrule₁ : rec b ε base = b := idp b
 
