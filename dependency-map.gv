@@ -73,6 +73,7 @@ digraph dependency_map {
 
   subgraph Types {
     "Types/Category"
+    "Types/CellComplex"
     "Types/Coproduct" -> { Structures }
     "Types/Id" -> { Support }
     "Types/Ens" -> { "Algebra/Basic", "Types/Setquot" }
@@ -140,8 +141,12 @@ digraph dependency_map {
     }
     "HITs/Reals"
     "HITs/Simplicial"
-    "HITs/Sphere"
-    "HITs/Suspension" -> { "Algebra/EilenbergMacLane", "HITs/Circle", "HITs/Join" }
+    "HITs/Sphere" -> { "Types/CellComplex" }
+    "HITs/Suspension" -> {
+      "Algebra/EilenbergMacLane",
+      "HITs/Circle",
+      "HITs/Join"
+    }
     "HITs/Topologization"
     "HITs/Trunc" -> {
       "Algebra/EilenbergMacLane",
