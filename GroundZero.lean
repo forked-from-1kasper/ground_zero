@@ -37,6 +37,7 @@ import GroundZero.Exercises.Chap1
 import GroundZero.Exercises.Chap2
 import GroundZero.Exercises.Chap3
 import GroundZero.Types.Category
+import GroundZero.Types.CellComplex
 import GroundZero.Types.Coproduct
 import GroundZero.Types.Ens
 import GroundZero.Types.Equiv
