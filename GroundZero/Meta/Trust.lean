@@ -21,8 +21,8 @@ def Quot.withUseOf {X : Type u} {R : X → X → Sort 0} {A : Type v} {B : Type 
 λ y, (@Quot.lift X R (A × B) (λ _, (a, b)) (λ _ _ _, rfl) y).2
 
 section
-  variable (X : Type u) (R : X → X → Sort 0) (A : Type u) (B : Type w) (a : A) (b₁ b₂ : B)
-  #failure @Quot.withUseOf X R A B a b₁ ≡ @Quot.withUseOf X R A B a b₂
+  variable (X : Type u) (R : X → X → Sort 0) (A : Type u) (B : Type w) (a₁ a₂ : A) (b : B)
+  #failure @Quot.withUseOf X R A B a₁ b ≡ @Quot.withUseOf X R A B a₂ b
 end
 
 /--
@@ -33,6 +33,22 @@ end
   in Lean 4 due to the availability of definitional eta for them.
 -/
 def Opaque (A : Type u) := @Quot A (λ _ _, False)
+
+namespace EtaFailure
+  inductive Opaque (A : Type u)
+  | intro : A → Opaque A
+
+  def withUseOf {X : Type u} {A : Type v} {B : Type w} (a : A) (b : B) : Opaque X → B :=
+  λ y, (@Opaque.casesOn X (λ _, A × B) y (λ _, (a, b))).2
+
+  variable (X : Type u) (A : Type u) (B : Type w) (a₁ a₂ : A) (b : B)
+
+  #success @withUseOf X A B a₁ b ≡ @withUseOf X A B a₂ b
+
+  variable (x : Opaque X)
+  #success @withUseOf X A B a₁ b x ≡ b
+  #success @withUseOf X A B a₂ b x ≡ b
+end EtaFailure
 
 namespace Opaque
   def intro {A : Type u} : A → Opaque A := Quot.mk (λ _ _, False)
