@@ -314,4 +314,37 @@ namespace Record
   }
 end Record
 
+namespace Defeq
+  open Lean
+
+  def elabTypeSpec {ks : SyntaxNodeKinds} :=
+  Option.mapM (λ (stx : TSyntax ks), Elab.Term.elabType stx.raw[1])
+
+  elab "#success " σ₁:term tag:" ≡ " σ₂:term τ:(typeSpec)? : command =>
+  Elab.Command.runTermElabM fun _ => do {
+    let T  ← elabTypeSpec τ;
+    let τ₁ ← Elab.Term.elabTerm σ₁ T;
+    let τ₂ ← Elab.Term.elabTerm σ₂ T;
+
+    Elab.Term.synthesizeSyntheticMVarsNoPostponing;
+    let τ₁ ← Elab.Term.levelMVarToParam (← instantiateMVars τ₁);
+    let τ₂ ← Elab.Term.levelMVarToParam (← instantiateMVars τ₂);
+
+    unless (← Meta.isDefEq τ₁ τ₂) do throwErrorAt tag s!"{← Meta.ppExpr τ₁} ≠ {← Meta.ppExpr τ₂}"
+  }
+
+  elab "#failure " σ₁:term tag:" ≡ " σ₂:term τ:(typeSpec)? : command =>
+  Elab.Command.runTermElabM fun _ => do {
+    let T  ← elabTypeSpec τ;
+    let τ₁ ← Elab.Term.elabTerm σ₁ T;
+    let τ₂ ← Elab.Term.elabTerm σ₂ T;
+
+    Elab.Term.synthesizeSyntheticMVarsNoPostponing;
+    let τ₁ ← Elab.Term.levelMVarToParam (← instantiateMVars τ₁);
+    let τ₂ ← Elab.Term.levelMVarToParam (← instantiateMVars τ₂);
+
+    if (← Meta.isDefEq τ₁ τ₂) then throwErrorAt tag s!"{← Meta.ppExpr τ₁} ≡ {← Meta.ppExpr τ₂}"
+  }
+end Defeq
+
 end GroundZero.Meta.Notation

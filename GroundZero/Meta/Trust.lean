@@ -11,10 +11,19 @@ universe u v w w'
 
   This is crucial in the definition of induction principles for HITs as there are
   *provably* unequal functions that definitionally agree on all point constructors
-  (for example see `HITs/Circle.lean`).
+  (for examples see `HITs/Circle.lean`).
+
+  See also:
+  * https://github.com/gebner/hott3/blob/7ead7a8a2503049eacd45cbff6587802bae2add2/src/hott/init/hit.lean#L119-L129.
+  * “The HoTT Library: A formalization of homotopy type theory in Coq” (https://arxiv.org/pdf/1610.04591.pdf), section 4.
 -/
 def Quot.withUseOf {X : Type u} {R : X → X → Sort 0} {A : Type v} {B : Type w} (a : A) (b : B) : Quot R → B :=
 λ y, (@Quot.lift X R (A × B) (λ _, (a, b)) (λ _ _ _, rfl) y).2
+
+section
+  variable (X : Type u) (R : X → X → Sort 0) (A : Type u) (B : Type w) (a : A) (b₁ b₂ : B)
+  #failure @Quot.withUseOf X R A B a b₁ ≡ @Quot.withUseOf X R A B a b₂
+end
 
 /--
   Behaves just like structure with one field of a given type `A`, but lacks definitional eta.
