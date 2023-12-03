@@ -23,29 +23,26 @@ def I : Type := Quot I.rel
 def Interval := I
 
 namespace Interval
-  hott def discrete : 𝟐 → I := Quot.mk I.rel
+  hott def ofBool : 𝟐 → I := Quot.mk I.rel
 
-  hott def i₀ : I := discrete false
-  hott def i₁ : I := discrete true
+  hott def i₀ : I := ofBool false
+  hott def i₁ : I := ofBool true
 
   opaque seg : i₀ = i₁ :=
   trustHigherCtor (Quot.sound (I.rel.mk false true))
 
   @[eliminator] def ind {B : I → Type u} (b₀ : B i₀) (b₁ : B i₁) (s : b₀ =[seg] b₁) (x : I) : B x :=
-  begin
-    refine Quot.hrecOn x ?_ ?_; apply λ x, @Bool.casesOn (B ∘ discrete) x b₀ b₁;
-    { intros a b; induction a <;> induction b <;> intro H;
-      { apply HEq.refl };
-      { apply @HEq.fromPathover I B _ _ seg _ _ s };
-      { apply HEq.symm; apply @HEq.fromPathover I B _ _ seg _ _ s };
-      { apply HEq.refl } }
-  end
+  Quot.withUseOf s (Quot.hrecOn x (λ | false => b₀ | true => b₁)
+    (λ | false, false, _ => HEq.refl _
+       | false, true,  _ => HEq.fromPathover seg s
+       | true,  false, _ => HEq.symm (HEq.fromPathover seg s)
+       | true,  true,  _ => HEq.refl _)) x
 
   opaque indβrule {B : I → Type u} (b₀ : B i₀) (b₁ : B i₁)
     (s : b₀ =[seg] b₁) : apd (ind b₀ b₁ s) seg = s :=
   trustCoherence
 
-  attribute [hottAxiom] seg ind indβrule
+  attribute [hottAxiom] I seg ind indβrule
 
   instance : OfNat I Nat.zero := ⟨i₀⟩
   instance : OfNat I (Nat.succ Nat.zero) := ⟨i₁⟩

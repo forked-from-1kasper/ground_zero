@@ -39,7 +39,7 @@ namespace Interval
   happly (transportOverPi _ _ _) x
 
   hott def boolToInterval (φ : 𝟐 → 𝟐 → 𝟐) (a b : I) : I :=
-  lift (λ x, lift (discrete ∘ φ x) intervalProp b) intervalProp a
+  lift (λ x, lift (ofBool ∘ φ x) intervalProp b) intervalProp a
 
   hott def neg : I → I := rec i₁ i₀ seg⁻¹
   instance : Neg I := ⟨neg⟩

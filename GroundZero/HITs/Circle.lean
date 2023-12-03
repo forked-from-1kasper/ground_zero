@@ -668,7 +668,7 @@ namespace Circle
   begin
     fapply Sigma.mk; intro φ; exact transport (λ x, x = x) φ.2 (ap φ.1 loop); apply Qinv.toBiinv;
     fapply Sigma.mk; intro p; existsi rec a p; reflexivity; apply Prod.mk;
-    { intro; apply recβrule₂ };
+    { apply recβrule₂ };
     { intro ⟨φ, (H : φ base = a)⟩; induction H using J₁;
       fapply Sigma.prod; symmetry; apply Theorems.funext; apply mapExt;
       transitivity; apply transportOverContrMap; transitivity; apply Id.rid;
@@ -1068,10 +1068,17 @@ namespace Circle
     variable (f : S¹ → S¹)
 
     noncomputable hott corollary translationMap (H : degree f = 1) : f ~ μ (f base) :=
-    begin transitivity; apply μDupDecom; apply Homotopy.rwhs; apply map.nontrivialHmtpy end
+    begin
+      transitivity; apply μDupDecom; apply Homotopy.rwhs;
+      transitivity; apply happly; apply ap (rec base);
+      apply ap power; exact H; apply map.nontrivialHmtpy
+    end
 
     noncomputable hott corollary reflectionMap (H : degree f = -1) : f ~ μ (f base) ∘ inv :=
-    by apply μDupDecom
+    begin
+      transitivity; apply μDupDecom; apply Homotopy.rwhs; apply happly; apply ap (rec base);
+      transitivity; apply ap power; exact H; reflexivity
+    end
 
     noncomputable hott theorem translationMapBiinv (H : degree f = 1) : biinv f :=
     begin
@@ -1126,7 +1133,10 @@ namespace Circle
     fapply Sigma.mk; intro w; exact w.1 base; apply Qinv.toBiinv;
     fapply Sigma.mk; intro x; existsi rec x (Loop.power (rot x) z); apply degPowerRot;
     apply Prod.intro; intro; reflexivity; intro w; fapply Sigma.prod;
-    symmetry; apply Theorems.funext; apply mapExt; apply Integer.set
+    symmetry; apply Theorems.funext; transitivity; apply mapExt;
+    apply happly; apply ap (rec (w.1 base)); symmetry;
+    transitivity; apply ap (Loop.power _); exact w.2⁻¹;
+    apply windPower; apply Integer.set
   end
 
   section

@@ -32,20 +32,23 @@ namespace Group
     | inv x   => G.ι (eval x)
   end Exp
 
-  private structure F.aux (α : Type u) :=
-  (val : Exp α)
+  private def F.aux (α : Type u) := Opaque (Exp α)
+
+  attribute [nothott] F.aux
 
   def F.carrier (α : Type u) := F.aux α
 
   namespace F
-    attribute [nothott] F.aux.recOn F.aux.rec aux.val
-
     variable {ε : Type u}
-    hott def unit : F.carrier ε := ⟨Exp.unit⟩
-    hott def elem : ε → F.carrier ε := λ x, ⟨Exp.elem x⟩
 
-    @[hottAxiom] def mul (x y : F.carrier ε) : F.carrier ε := ⟨Exp.mul x.val y.val⟩
-    @[hottAxiom] def inv (x : F.carrier ε)   : F.carrier ε := ⟨Exp.inv x.val⟩
+    def unit : F.carrier ε := Opaque.intro Exp.unit
+    def elem : ε → F.carrier ε := Opaque.intro ∘ Exp.elem
+
+    def mul (x y : F.carrier ε) : F.carrier ε :=
+    Opaque.intro (Exp.mul x.value y.value)
+
+    def inv (x : F.carrier ε) : F.carrier ε :=
+    Opaque.intro (Exp.inv x.value)
 
     instance : Mul (F.carrier ε) := ⟨mul⟩
     instance : OfNat (F.carrier ε) (Nat.succ Nat.zero) := ⟨unit⟩
@@ -54,16 +57,14 @@ namespace Group
     axiom oneMul       (a : F.carrier ε) : mul unit a = a
     axiom mulOne       (a : F.carrier ε) : mul a unit = a
     axiom mulLeftInv   (a : F.carrier ε) : mul (inv a) a = unit
+    axiom ens                            : Structures.hset (F.carrier ε)
 
-    axiom ens : Structures.hset (F.carrier ε)
+    def rec (G : Group) (f : ε → G.carrier) (x : F.carrier ε) : G.carrier :=
+    Exp.eval G f x.value
 
-    @[hottAxiom] def rec (G : Group) (f : ε → G.carrier) (x : F.carrier ε) :=
-    Exp.eval G f x.val
-
-    @[hottAxiom, eliminator] noncomputable def ind
-      {π : F.carrier ε → Type v}
+    @[eliminator] def ind {π : F.carrier ε → Type v}
       (setπ : Π x, Structures.hset (π x))
-      (u : π unit) (η : Π {x}, π (elem x))
+      (u : π unit) (η : Π x, π (elem x))
       (m : Π {x y}, π x → π y → π (mul x y))
       (i : Π {x}, π x → π (inv x))
       (mulAssoc : Π {x y z : F.carrier ε} (a : π x) (b : π y) (c : π z),
@@ -72,13 +73,15 @@ namespace Group
       (mulOne : Π {x : F.carrier ε} (a : π x), m a u =[mulOne x] a)
       (mulLeftInv : Π {x : F.carrier ε} (a : π x),
         m (i a) a =[mulLeftInv x] u) : Π x, π x :=
-    begin
-      intro ⟨x⟩; induction x; exact u; apply η;
-      apply m; assumption; assumption;
-      apply i; assumption
-    end
-
+    let rec ev : Π x, π (Opaque.intro x)
+    | Exp.unit    => u
+    | Exp.elem x  => η x
+    | Exp.inv x   => i (ev x)
+    | Exp.mul x y => m (ev x) (ev y);
+    λ x, Quot.withUseOf (setπ, @mulAssoc, @oneMul, @mulOne, @mulLeftInv) (Opaque.ind ev x) x
   end F
+
+  attribute [hottAxiom] F.carrier F.unit F.elem F.mul F.inv F.rec F.ind
 
   noncomputable def F (ε : Type u) : Group :=
   @Group.intro (F.carrier ε) F.ens F.mul F.inv F.unit F.mulAssoc F.oneMul F.mulOne F.mulLeftInv

@@ -12,17 +12,16 @@ open GroundZero
 namespace GroundZero.Algebra
 universe u v
 
-private structure K1.aux :=
-(val : 𝟏)
+private def K1.aux := Opaque 𝟏
 
-attribute [nothott] K1.aux K1.aux.mk K1.aux.recOn K1.aux.rec K1.aux.val
+attribute [nothott] K1.aux
 
 @[hottAxiom] def K1 (G : Group) := K1.aux
 
 namespace K1
   variable {G : Group}
 
-  def base : K1 G := ⟨★⟩
+  def base : K1 G := Opaque.intro ★
 
   opaque grpd : groupoid (K1 G) :=
   λ _ _ _ _, λ (idp _), λ (idp _), idp _
@@ -32,29 +31,21 @@ namespace K1
   opaque loop.mul (x y : G.carrier) : loop (G.φ x y) = loop x ⬝ loop y :=
   trustCoherence
 
-  def ind {C : K1 G → Type v}
-    (baseπ : C base) (loopπ : Π (x : G.carrier), baseπ =[loop x] baseπ)
-    (mulπ : Π (x y : G.carrier),
-      loopπ (G.φ x y) =[λ p, baseπ =[p] baseπ, loop.mul x y]
-        loopπ x ⬝′ loopπ y)
-    (groupoidπ : Π x, groupoid (C x)) : Π x, C x
-  | ⟨★⟩ => baseπ
+  def ind {C : K1 G → Type v} (baseπ : C base) (loopπ : Π (x : G.carrier), baseπ =[loop x] baseπ)
+    (mulπ : Π (x y : G.carrier), loopπ (G.φ x y) =[λ p, baseπ =[p] baseπ, loop.mul x y] loopπ x ⬝′ loopπ y)
+    (groupoidπ : Π x, groupoid (C x)) : Π x, C x :=
+  λ x, Quot.withUseOf (loopπ, mulπ, groupoidπ) (Opaque.ind (λ ★, baseπ) x) x
 
   attribute [eliminator] ind
 
-  def rec {C : Type v} (baseπ : C)
-    (loopπ : G.carrier → baseπ = baseπ)
+  def rec {C : Type v} (baseπ : C) (loopπ : G.carrier → baseπ = baseπ)
     (mulπ : Π x y, loopπ (G.φ x y) = loopπ x ⬝ loopπ y)
-    (groupoidπ : groupoid C) : K1 G → C
-  | ⟨★⟩ => baseπ
+    (groupoidπ : groupoid C) : K1 G → C :=
+  λ x, Quot.withUseOf (loopπ, mulπ, groupoidπ) (Opaque.elim (λ ★, baseπ) x) x
 
-  opaque indβrule {C : K1 G → Type v}
-    (baseπ : C base) (loopπ : Π (x : G.carrier), baseπ =[loop x] baseπ)
-    (mulπ : Π (x y : G.carrier),
-      loopπ (G.φ x y) =[λ p, baseπ =[p] baseπ, loop.mul x y]
-        loopπ x ⬝′ loopπ y)
-    (groupoidπ : Π x, groupoid (C x)) :
-    Π x, apd (ind baseπ loopπ mulπ groupoidπ) (loop x) = loopπ x :=
+  opaque indβrule {C : K1 G → Type v} (baseπ : C base) (loopπ : Π (x : G.carrier), baseπ =[loop x] baseπ)
+    (mulπ : Π (x y : G.carrier), loopπ (G.φ x y) =[λ p, baseπ =[p] baseπ, loop.mul x y] loopπ x ⬝′ loopπ y)
+    (groupoidπ : Π x, groupoid (C x)) : Π x, apd (ind baseπ loopπ mulπ groupoidπ) (loop x) = loopπ x :=
   λ _, trustCoherence
 
   opaque recβrule {C : Type v} (baseπ : C) (loopπ : G.carrier → baseπ = baseπ)
@@ -62,7 +53,7 @@ namespace K1
     Π x, ap (rec baseπ loopπ mulπ groupoidπ) (loop x) = loopπ x :=
   λ _, trustCoherence
 
-  attribute [hottAxiom] base grpd loop loop.mul rec ind recβrule indβrule
+  attribute [hottAxiom] K1 base grpd loop loop.mul rec ind recβrule indβrule
 
   attribute [irreducible] K1
 

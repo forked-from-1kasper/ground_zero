@@ -10,9 +10,9 @@ open GroundZero.Types
 namespace GroundZero.HITs
 universe u v w
 
-private structure Trunc.aux (n : ℕ₋₂) (A : Type u) := (val : A)
+private def Trunc.aux (n : ℕ₋₂) (A : Type u) := Opaque A
 
-attribute [nothott] Trunc.aux Trunc.aux.mk Trunc.aux.recOn Trunc.aux.rec Trunc.aux.val
+attribute [nothott] Trunc.aux
 
 def Trunc : ℕ₋₂ → Type u → Type u
 | −2,            A => 𝟏
@@ -25,7 +25,7 @@ namespace Trunc
   def elem : Π {n : ℕ₋₂} (x : A), Trunc n A
   | −2,            _ => ★
   | −1,            x => Merely.elem x
-  | succ (succ n), x => @Trunc.aux.mk n A x
+  | succ (succ n), x => Opaque.intro x
 
   opaque uniq (n : ℕ₋₂) : is-n-type (Trunc n A) :=
   match n with
@@ -38,7 +38,7 @@ namespace Trunc
   match n with
   | −2            => λ x, (uniqπ x).1
   | −1            => Merely.ind elemπ (λ _, minusOneEqvProp.forward (uniqπ _))
-  | succ (succ n) => λ (Trunc.aux.mk x), elemπ x
+  | succ (succ n) => λ x, Quot.withUseOf uniqπ (Opaque.ind elemπ x) x
 
   attribute [hottAxiom] Trunc elem uniq ind
 

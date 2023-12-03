@@ -1,7 +1,47 @@
 import GroundZero.Types.Id
 open GroundZero.Types
 
-universe u
+universe u v w w'
+
+/--
+  `Quot.withUseOf a b x` isn’t definitionally equal to `b` unless `x` is an constructor (i.e. `Quot.mk a`).
+
+  It’s used to ensure that `Quot.withUseOf a₁ b x` and `Quot.withUseOf a₂ b x` aren’t
+  definitionally equal unless `a₁` and `a₂` are.
+
+  This is crucial in the definition of induction principles for HITs as there are
+  *provably* unequal functions that definitionally agree on all point constructors
+  (for example see `HITs/Circle.lean`).
+-/
+def Quot.withUseOf {X : Type u} {R : X → X → Sort 0} {A : Type v} {B : Type w} (a : A) (b : B) : Quot R → B :=
+λ y, (@Quot.lift X R (A × B) (λ _, (a, b)) (λ _ _ _, rfl) y).2
+
+/--
+  Behaves just like structure with one field of a given type `A`, but lacks definitional eta.
+
+  Useful for defining HITs through Dan Licata’s trick (see https://github.com/gebner/hott3),
+  because it seems impossible to define combinator similar to `Quot.withUseOf` for private structures
+  in Lean 4 due to the availability of definitional eta for them.
+-/
+def Opaque (A : Type u) := @Quot A (λ _ _, False)
+
+namespace Opaque
+  def intro {A : Type u} : A → Opaque A := Quot.mk (λ _ _, False)
+
+  def elim {A : Type u} {B : Type v} (f : A → B) : Opaque A → B :=
+  Quot.lift f (λ _ _ ε, nomatch ε)
+
+  def elim₂ {A : Type u} {B : Type v} {C : Type w} (f : A → B → C) : Opaque A → Opaque B → C :=
+  elim (elim ∘ f)
+
+  def elim₃ {A : Type u} {B : Type v} {C : Type w} {D : Type w} (f : A → B → C → D) : Opaque A → Opaque B → Opaque C → D :=
+  elim (elim₂ ∘ f)
+
+  def value {A : Type u} : Opaque A → A := elim (λ x, x)
+
+  def ind {A : Type u} {B : Opaque A → Type v} (f : Π x, B (intro x)) : Π x, B x :=
+  λ x, Quot.hrecOn x f (λ _ _ ε, nomatch ε)
+end Opaque
 
 namespace GroundZero
   /--
