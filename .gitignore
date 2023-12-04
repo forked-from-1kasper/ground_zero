@@ -4,3 +4,4 @@
 *.a
 /build
 /lean_packages
+/.lake
