@@ -121,7 +121,7 @@ def declDef := leading_parser
   Parser.ppIndent optDeclSig >> declVal >> optDefDeriving >> terminationSuffix
 
 def decl        := leading_parser declTok >> declId >> declDef
-def declExample := leading_parser "example " >> declDef
+def declExample := leading_parser ("example " <|> "counterexample ") >> declDef
 
 @[command_parser] def hott :=
 leading_parser declModifiers false >> "hott " >> (decl <|> declExample)

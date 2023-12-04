@@ -19,7 +19,7 @@ Structures.hsetRespectsEquiv
 
 -- exercise 3.2
 
-noncomputable hott example (A B : Type u) : hset A → hset B → hset (A + B) :=
+hott example (A B : Type u) : hset A → hset B → hset (A + B) :=
 coproductSet
 
 -- exercise 3.3

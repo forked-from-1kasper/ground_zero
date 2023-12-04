@@ -18,49 +18,49 @@ namespace Interval
       { apply HEq.refl }; { exact s }; { exact HEq.symm s }; { apply HEq.refl } }
   end
 
-  hott def lift {B : Type u} (φ : 𝟐 → B) (H : prop B) : I → B :=
+  hott definition lift {B : Type u} (φ : 𝟐 → B) (H : prop B) : I → B :=
   rec (φ false) (φ true) (H _ _)
 
-  hott def contrLeft : Π i, i₀ = i :=
-  Interval.ind (idp i₀) seg (begin apply pathoverFromTrans; apply Id.lid end)
+  hott definition contrLeft : Π i, i₀ = i :=
+  Interval.ind (idp i₀) seg (pathoverFromTrans seg (idp i₀) seg (idp seg))
 
-  hott def contrRight : Π i, i₁ = i :=
-  Interval.ind seg⁻¹ (idp i₁) (begin apply pathoverFromTrans; apply Id.invComp end)
+  hott definition contrRight : Π i, i₁ = i :=
+  Interval.ind seg⁻¹ (idp i₁) (pathoverFromTrans seg seg⁻¹ (idp i₁) (Id.invComp seg))
 
-  hott def intervalContr : contr I := ⟨i₁, contrRight⟩
+  hott theorem intervalContr : contr I := ⟨i₁, contrRight⟩
 
-  hott def intervalProp : prop I :=
+  hott corollary intervalProp : prop I :=
   contrImplProp intervalContr
 
-  hott def transportOverHmtpy {A : Type u} {B : Type v} {C : Type w}
+  hott lemma transportOverHmtpy {A : Type u} {B : Type v} {C : Type w}
     (f : A → B) (g₁ g₂ : B → C) (h : A → C) (p : g₁ = g₂) (H : g₁ ∘ f ~ h) (x : A) :
        transport (λ (g : B → C), g ∘ f ~ h) p H x
     = @transport (B → C) (λ (g : B → C), g (f x) = h x) g₁ g₂ p (H x) :=
   happly (transportOverPi _ _ _) x
 
-  hott def boolToInterval (φ : 𝟐 → 𝟐 → 𝟐) (a b : I) : I :=
+  hott definition boolToInterval (φ : 𝟐 → 𝟐 → 𝟐) (a b : I) : I :=
   lift (λ x, lift (ofBool ∘ φ x) intervalProp b) intervalProp a
 
-  hott def neg : I → I := rec i₁ i₀ seg⁻¹
+  hott definition neg : I → I := rec i₁ i₀ seg⁻¹
   instance : Neg I := ⟨neg⟩
 
-  hott def min (a b : I) : I :=
+  hott definition min (a b : I) : I :=
   lift (λ | false => i₀ | true => a) intervalProp b
 
-  hott def max (a b : I) : I :=
+  hott definition max (a b : I) : I :=
   lift (λ | false => a | true => i₁) intervalProp b
 
   infix:70 " ∧ " => min
   infix:70 " ∨ " => max
 
-  hott def elim {A : Type u} {a b : A} (p : a = b) : I → A := rec a b p
-  hott def lam  {A : Type u} (f : I → A) : f 0 = f 1 := ap f seg
+  hott definition elim {A : Type u} {a b : A} (p : a = b) : I → A := rec a b p
+  hott definition lam  {A : Type u} (f : I → A) : f 0 = f 1 := ap f seg
 
-  hott def connAnd {A : Type u} {a b : A}
+  hott definition connAnd {A : Type u} {a b : A}
     (p : a = b) : Π i, a = elim p i :=
   λ i, lam (λ j, elim p (i ∧ j))
 
-  hott def cong {A : Type u} {B : Type v} {a b : A}
+  hott definition cong {A : Type u} {B : Type v} {a b : A}
     (f : A → B) (p : a = b) : f a = f b :=
   lam (λ i, f (elim p i))
 
@@ -102,10 +102,10 @@ namespace Interval
             apply Id.rid end
     ... = idp i₁ : by apply Id.invComp)
 
-  hott def negNeg' (x : I) : neg (neg x) = x :=
+  hott lemma negNeg' (x : I) : neg (neg x) = x :=
   (connAnd seg⁻¹ (neg x))⁻¹ ⬝ contrRight x
 
-  noncomputable hott def twist : I ≃ I :=
+  hott definition twist : I ≃ I :=
   ⟨neg, ⟨⟨neg, negNeg'⟩, ⟨neg, negNeg'⟩⟩⟩
 
   hott lemma lineRec {A : Type u} (p : I → A) :
@@ -129,7 +129,7 @@ namespace Interval
     apply recβrule; reflexivity
   end
 
-  hott def transportconstWithSeg {A B : Type u} (p : A = B) (x : A) :
+  hott corollary transportconstWithSeg {A B : Type u} (p : A = B) (x : A) :
     @transport I (elim p) 0 1 seg x = transportconst p x :=
   by apply transportOverSeg id
 end Interval

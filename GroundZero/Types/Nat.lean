@@ -11,6 +11,10 @@ namespace GroundZero.Types.Nat
 
 universe u v w
 
+hott definition ind {C : ℕ → Type u} (zero : C 0) (succ : Π n, C n → C (n + 1)) : Π n, C n
+| Nat.zero   => zero
+| Nat.succ n => succ n (ind zero succ n)
+
 def glue : ℕ → ℕ + 𝟏
 | Nat.zero   => Coproduct.inr ★
 | Nat.succ n => Coproduct.inl n
@@ -19,14 +23,14 @@ def peelOff : ℕ + 𝟏 → ℕ
 | Coproduct.inr _ => Nat.zero
 | Coproduct.inl n => Nat.succ n
 
-hott def closedNat : ℕ ≃ ℕ + 𝟏 :=
+hott lemma closedNat : ℕ ≃ ℕ + 𝟏 :=
 begin
   existsi glue; apply Prod.mk <;> existsi peelOff <;> intro n;
   { induction n using Nat.casesOn <;> reflexivity };
   { induction n using Sum.casesOn <;> reflexivity }
 end
 
-hott def equivAddition {A : Type u} {B : Type v} (C : Type w) (e : A ≃ B) : A + C ≃ B + C :=
+hott theorem equivAddition {A : Type u} {B : Type v} (C : Type w) (e : A ≃ B) : A + C ≃ B + C :=
 begin
   let f : A + C → B + C := λ x, match x with
   | Coproduct.inl a => Coproduct.inl (e a)
@@ -42,7 +46,7 @@ begin
     apply ap Sum.inl; apply e.forwardLeft; reflexivity }
 end
 
-example : ℕ ≃ (ℕ + 𝟏) + 𝟏 :=
+hott example : ℕ ≃ (ℕ + 𝟏) + 𝟏 :=
 begin transitivity; exact closedNat; apply equivAddition; exact closedNat end
 
 hott def natPlusUnit : Π n, ℕ ≃ pt ℕ n
@@ -81,14 +85,14 @@ hott def decode : Π {m n : ℕ}, code m n → m = n
 | Nat.zero,   Nat.succ n, p => Proto.Empty.elim p
 | Nat.succ m, Nat.succ n, p => ap Nat.succ (decode p)
 
-hott def decodeEncodeIdp : Π m, decode (encode (idp m)) = idp m
+hott lemma decodeEncodeIdp : Π m, decode (encode (idp m)) = idp m
 | Nat.zero   => idp _
 | Nat.succ m => ap _ (decodeEncodeIdp m)
 
-hott def decodeEncode {m n : ℕ} (p : m = n) : decode (encode p) = p :=
+hott corollary decodeEncode {m n : ℕ} (p : m = n) : decode (encode p) = p :=
 begin induction p; apply decodeEncodeIdp end
 
-hott def encodeDecode : Π {m n : ℕ} (p : code m n), encode (decode p) = p
+hott lemma encodeDecode : Π {m n : ℕ} (p : code m n), encode (decode p) = p
 | Nat.zero,   Nat.zero,   ★ => idp ★
 | Nat.succ m, Nat.zero,   p => Proto.Empty.elim p
 | Nat.zero,   Nat.succ n, p => Proto.Empty.elim p
@@ -100,7 +104,7 @@ begin
   apply encodeDecode
 end
 
-hott def recognize (m n : ℕ) : m = n ≃ code m n :=
+hott theorem recognize (m n : ℕ) : m = n ≃ code m n :=
 Equiv.intro encode decode decodeEncode encodeDecode
 
 end GroundZero.Types.Nat

@@ -103,11 +103,11 @@ namespace Coproduct
     recognize x (inl y)
   end inr
 
-  hott def code {A B : Type u} : A + B → A + B → Type u
+  hott definition code {A B : Type u} : A + B → A + B → Type u
   | inl a => inl.code a
   | inr b => inr.code b
 
-  hott def pathSum {A B : Type u} (z₁ z₂ : A + B) (p : code z₁ z₂) : z₁ = z₂ :=
+  hott definition pathSum {A B : Type u} (z₁ z₂ : A + B) (p : code z₁ z₂) : z₁ = z₂ :=
   begin
     induction z₁ using Sum.casesOn <;> induction z₂ using Sum.casesOn;
     apply ap; assumption; apply Proto.Empty.elim p;

@@ -13,13 +13,14 @@ namespace Theorems
 namespace Nat
   universe u
 
-  noncomputable hott def natIsSet' : hset ℕ
-  | Nat.zero,   Nat.zero,   p, q => transport prop (ua (Nat.recognize 0 0))⁻¹ unitIsProp p q
-  | Nat.succ m, Nat.zero,   p, q => Proto.Empty.elim (succNeqZero p)
-  | Nat.zero,   Nat.succ n, p, q => Proto.Empty.elim (succNeqZero p⁻¹)
-  | Nat.succ m, Nat.succ n, p, q =>
-    transport prop (ua (Nat.recognize (m + 1) (n + 1)))⁻¹
-      (transport prop (ua (Nat.recognize m n)) (natIsSet' m n)) p q
+  hott lemma codeIsProp : Π n m, prop (Nat.code n m)
+  | Nat.zero,   Nat.zero   => unitIsProp
+  | Nat.succ n, Nat.zero   => emptyIsProp
+  | Nat.zero,   Nat.succ m => emptyIsProp
+  | Nat.succ n, Nat.succ m => codeIsProp n m
+
+  hott theorem natIsSet' : hset ℕ :=
+  λ n m, propRespectsEquiv (Nat.recognize n m).symm (codeIsProp n m)
 
   def succInj {n m : ℕ} : Nat.succ n = Nat.succ m → n = m :=
   Nat.decode ∘ Nat.encode

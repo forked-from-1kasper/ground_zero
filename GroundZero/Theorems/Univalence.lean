@@ -124,16 +124,15 @@ begin
   apply ffNeqTt; exact g⁻¹ ⬝ f
 end
 
-noncomputable hott theorem coproductSet {A B : Type u}
-  (f : hset A) (g : hset B) : hset (A + B)
+hott theorem coproductSet {A B : Type u} (f : hset A) (g : hset B) : hset (A + B)
 | Coproduct.inl x, Coproduct.inl y =>
-  transport prop (ua (@Coproduct.inl.inj' A B x y))⁻¹ (f _ _)
+  propRespectsEquiv (@Coproduct.inl.inj' A B x y).symm (f _ _)
 | Coproduct.inl x, Coproduct.inr y =>
-  transport prop (ua (@Coproduct.inl.inlInr A B x y))⁻¹ emptyIsProp
+  propRespectsEquiv (@Coproduct.inl.inlInr A B x y).symm emptyIsProp
 | Coproduct.inr x, Coproduct.inl y =>
-  transport prop (ua (@Coproduct.inr.inrInl A B x y))⁻¹ emptyIsProp
+  propRespectsEquiv (@Coproduct.inr.inrInl A B x y).symm emptyIsProp
 | Coproduct.inr x, Coproduct.inr y =>
-  transport prop (ua (@Coproduct.inr.inj' A B x y))⁻¹ (g _ _)
+  propRespectsEquiv (@Coproduct.inr.inj' A B x y).symm (g _ _)
 
 -- exercise 2.17 (i) in HoTT book
 noncomputable hott theorem productEquiv₁ {A A' B B' : Type u}
