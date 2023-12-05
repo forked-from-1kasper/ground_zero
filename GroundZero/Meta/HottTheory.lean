@@ -96,7 +96,7 @@ partial def checkDeclAux (chain : List Name) (tag : Syntax) (name : Name) : Meta
   let env ← getEnv
 
   if ¬(← checked? name) then
-    checkNotNotHoTT tag env name
+    checkNotNotHoTT tag env name;
     match env.find? name with
     | some (ConstantInfo.recInfo v) =>
       List.forM v.all (checkLargeElim tag chain)
@@ -104,31 +104,42 @@ partial def checkDeclAux (chain : List Name) (tag : Syntax) (name : Name) : Meta
       throwErrorAt tag "uses unsafe opaque: {renderChain chain}"
     | some info =>
       match info.value? with
+      | none      => return ()
       | some expr => Array.forM (λ n => checkDeclAux (n :: chain) tag n)
                                 expr.getUsedConstants
-      | none => return ()
     | none => throwError "unknown identifier “{name}”"
   else return ()
 
 def checkDecl := checkDeclAux []
 
-def declTok : Parser.Parser :=
+def defTok := leading_parser
     "def "         <|> "definition " <|> "theorem "   <|> "lemma "
 <|> "proposition " <|> "corollary "  <|> "principle " <|> "claim "
 <|> "statement "   <|> "paradox "    <|> "remark "    <|> "exercise "
 
-def declDef := leading_parser
-  Parser.ppIndent optDeclSig >> declVal >> optDefDeriving >> terminationSuffix
+/--
+  `reducible` and `inline` attributes are automatically added to abbreviations.
+-/
+def abbrevTok := leading_parser "abbrev " <|> "abbreviation "
 
-def decl        := leading_parser declTok >> declId >> declDef
-def declExample := leading_parser ("example " <|> "counterexample ") >> declDef
+def exampleTok := leading_parser "example " <|> "counterexample "
+
+def declDef     := leading_parser Parser.ppIndent optDeclSig >> declVal >> optDefDeriving >> terminationSuffix
+def decl        := leading_parser (defTok <|> abbrevTok) >> declId >> declDef
+def declExample := leading_parser exampleTok >> declDef
+
+/--
+  Adds declaration and throws an error whenever it uses singleton elimination and/or
+  any other principle (i.e. global choice) inconsistent with HoTT.
+-/
+def hottPrefix := leading_parser "hott "
 
 @[command_parser] def hott :=
-leading_parser declModifiers false >> "hott " >> (decl <|> declExample)
+leading_parser declModifiers false >> hottPrefix >> (decl <|> declExample)
 
-open Elab.Command
+open Elab Elab.Command
 
-def defAndCheck (tag declMods declId declDef : Syntax) : CommandElabM Unit := do {
+def defAndCheck (tag declMods declId declDef : Syntax) : CommandElabM Name := do {
   let ns ← getCurrNamespace;
   let declName := ns ++ declId[0].getId;
 
@@ -141,22 +152,28 @@ def defAndCheck (tag declMods declId declDef : Syntax) : CommandElabM Unit := do
     liftTermElabM (checkDecl tag declName);
     modifyEnv (λ env => hottDecls.addEntry env declName)
   }
+
+  return declName
 }
+
+def abbrevAttrs : Array Attribute :=
+#[{name := `inline}, {name := `reducible}]
 
 @[command_elab «hott»] def elabHoTT : CommandElab :=
 λ stx => do {
-  let #[mods, _, cmd] := stx.getArgs | throwError "invalid declaration";
+  let #[mods, _, cmd] := stx.getArgs | throwError "incomplete declaration";
 
   match cmd.getArgs with
-  | #[_, declId, declDef] => defAndCheck declId mods declId declDef
-  | #[tok, declDef]       => do {
-    withoutModifyingEnv do {
-      #[mkIdentFrom tok `_example, mkNullNode]
-      |> mkNode ``Parser.Command.declId
-      |> (defAndCheck tok mods · declDef)
-    }
+  | #[tok, declId, declDef] => do {
+    let declName ← defAndCheck declId mods declId declDef;
+    if tok.isOfKind ``abbrevTok then liftTermElabM (Term.applyAttributes declName abbrevAttrs)
   }
-  | _ => throwError "invalid definition"
+  | #[tok, declDef] =>
+    withoutModifyingEnv do {
+      let declId := mkNode ``declId #[mkIdentFrom tok `_example, mkNullNode];
+      discard (defAndCheck tok mods declId declDef)
+    }
+  | _ => throwError "invalid declaration"
 }
 
 end GroundZero.Meta.HottTheory

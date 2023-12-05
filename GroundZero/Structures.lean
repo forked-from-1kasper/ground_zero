@@ -14,16 +14,16 @@ universe u v w k r w' w''
 
 namespace Structures
 
-hott def isLoop {A : Type u} {a : A} (p : a = a) := ¬(p = idp a)
+hott definition isLoop {A : Type u} {a : A} (p : a = a) := ¬(p = idp a)
 
-hott def prop (A : Type u) := Π (a b : A), a = b
-hott def hset (A : Type u) := Π (a b : A) (p q : a = b), p = q
+hott definition prop (A : Type u) := Π (a b : A), a = b
+hott definition hset (A : Type u) := Π (a b : A) (p q : a = b), p = q
 
-hott def groupoid (A : Type u) :=
-Π (a b : A) (p q : a = b) (A B : p = q), A = B
+hott definition groupoid (A : Type u) :=
+Π (a b : A) (p q : a = b) (α β : p = q), α = β
 
-hott def propset := Σ (A : Type u), prop A
-hott def hsetset := Σ (A : Type u), hset A
+hott definition propset := Σ (A : Type u), prop A
+hott definition hsetset := Σ (A : Type u), hset A
 
 macro (priority := high) "Prop" : term => `(propset)
 macro (priority := high) "Prop" n:(ppSpace level:max) : term => `(propset.{$n})
@@ -102,23 +102,23 @@ namespace hlevel
   instance (n : ℕ) : OfNat ℕ₋₂ n := ⟨ofNat n⟩
 end hlevel
 
-def isNType : hlevel → Type u → Type u
+hott definition isNType : hlevel → Type u → Type u
 | −2            => contr
 | hlevel.succ n => λ A, Π (x y : A), isNType n (x = y)
 
 notation "is-" n "-type" => isNType n
 
-def nType (n : hlevel) : Type (u + 1) :=
+hott definition nType (n : hlevel) : Type (u + 1) :=
 Σ (A : Type u), is-n-type A
 
 notation n "-Type" => nType n
 macro n:term "-Type" l:level : term => `(nType.{$l} $n)
 
-hott def hlevel.cumulative {A : Type u} : Π (n : hlevel), is-n-type A → is-(hlevel.succ n)-type A
+hott lemma hlevel.cumulative {A : Type u} : Π (n : hlevel), is-n-type A → is-(hlevel.succ n)-type A
 | −2,            H => λ x y, ⟨(H.2 x)⁻¹ ⬝ H.2 y, λ p, begin induction p; apply Types.Id.invComp end⟩
 | hlevel.succ n, H => λ x y, cumulative n (H x y)
 
-noncomputable hott def hlevel.strongCumulative (n m : hlevel) (ρ : n ≤ m) :
+noncomputable hott corollary hlevel.strongCumulative (n m : hlevel) (ρ : n ≤ m) :
   Π {A : Type u}, (is-n-type A) → (is-m-type A) :=
 begin
   induction ρ; intros; assumption;
@@ -128,37 +128,37 @@ begin
   }
 end
 
-hott def isTruncated {A : Type u} {B : Type v} (n : ℕ₋₂) (f : A → B) :=
+hott definition isTruncated {A : Type u} {B : Type v} (n : ℕ₋₂) (f : A → B) :=
 Π (b : B), is-n-type (fib f b)
 
 notation "is-" n "-truncated" => isTruncated n
 
-hott def contrImplProp {A : Type u} (H : contr A) : prop A :=
+hott lemma contrImplProp {A : Type u} (H : contr A) : prop A :=
 λ a b, (H.2 a)⁻¹ ⬝ (H.2 b)
 
-hott def emptyIsProp : prop 𝟎 :=
+hott theorem emptyIsProp : prop 𝟎 :=
 begin intros x y; induction x end
 
-hott def unitIsContr : contr 𝟏 :=
+hott theorem unitIsContr : contr 𝟏 :=
 ⟨★, λ ★, idp ★⟩
 
-hott def unitIsProp : prop 𝟏 :=
+hott corollary unitIsProp : prop 𝟏 :=
 contrImplProp unitIsContr
 
-hott def contrEquivUnit {A : Type u} (h : contr A) : A ≃ 𝟏 :=
+hott lemma contrEquivUnit {A : Type u} (H : contr A) : A ≃ 𝟏 :=
 begin
   existsi (λ _, ★); apply Types.Qinv.toBiinv;
-  existsi (λ _, h.1) <;> apply Prod.mk <;> intro x;
-  induction x; reflexivity; apply h.2
+  existsi (λ _, H.1) <;> apply Prod.mk <;> intro x;
+  induction x; reflexivity; apply H.2
 end
 
-hott def zeroMorphismContr {A : Type u} : contr (A → 𝟏) :=
+hott lemma zeroMorphismContr {A : Type u} : contr (A → 𝟏) :=
 ⟨λ _, ★, λ f, HITs.Interval.funext (λ x, unitIsProp ★ (f x))⟩
 
-hott def zeroMorphismEqv {A : Type u} : (A → 𝟏) ≃ 𝟏 :=
+hott lemma zeroMorphismEqv {A : Type u} : (A → 𝟏) ≃ 𝟏 :=
 contrEquivUnit zeroMorphismContr
 
-hott def familyOverUnit (C : 𝟏 → Type u) : (Π x, C x) ≃ (C ★) :=
+hott lemma familyOverUnit (C : 𝟏 → Type u) : (Π x, C x) ≃ (C ★) :=
 begin
   fapply Sigma.mk; { intro φ; apply φ }; apply Types.Qinv.toBiinv;
   fapply Sigma.mk; { intros c x; induction x; exact c };
@@ -166,26 +166,25 @@ begin
   { intro ψ; apply HITs.Interval.funext; intro x; induction x; reflexivity }
 end
 
-hott def cozeroMorphismEqv {A : Type u} : (𝟏 → A) ≃ A :=
+hott lemma cozeroMorphismEqv {A : Type u} : (𝟏 → A) ≃ A :=
 familyOverUnit (λ _, A)
 
-hott def terminalArrow {A : Type u} : A ≃ (𝟏 → A) :=
+hott lemma terminalArrow {A : Type u} : A ≃ (𝟏 → A) :=
 ⟨λ x _, x, Types.Qinv.toBiinv _ ⟨λ φ, φ ★, (λ φ, funext (λ ★, idp _), idp)⟩⟩
 
-hott def contrTypeEquiv {A : Type u} {B : Type v}
-  (p : contr A) (q : contr B) : A ≃ B := calc
-      A ≃ 𝟏 : contrEquivUnit.{_, 0} p
-    ... ≃ B : Types.Equiv.symm (contrEquivUnit q)
+hott lemma contrTypeEquiv {A : Type u} {B : Type v}
+  (H : contr A) (G : contr B) : A ≃ B := calc
+      A ≃ 𝟏 : contrEquivUnit.{_, 0} H
+    ... ≃ B : (contrEquivUnit G).symm
 
-hott def prodUnitEquiv (A : Type u) : 𝟏 × A ≃ A :=
+hott lemma prodUnitEquiv (A : Type u) : 𝟏 × A ≃ A :=
 begin existsi Prod.snd; apply Prod.mk <;> existsi Prod.mk ★ <;> { intro; reflexivity } end
 
-hott def unitProdEquiv (A : Type u) : A × 𝟏 ≃ A :=
+hott lemma unitProdEquiv (A : Type u) : A × 𝟏 ≃ A :=
 begin existsi Prod.fst; apply Prod.mk <;> existsi (Prod.mk · ★) <;> { intro x; reflexivity } end
 
-hott def boolToUniverse : 𝟐 → Type
-| true  => 𝟏
-| false => 𝟎
+hott definition boolToUniverse : 𝟐 → Type
+| true => 𝟏 | false => 𝟎
 
 hott theorem ffNeqTt : false ≠ true :=
 λ p, Types.Equiv.transport boolToUniverse p⁻¹ ★
@@ -199,25 +198,18 @@ begin apply contrImplProp; existsi x; apply happly; apply H end
 section
   open Types.Equiv Types.Id
 
-  hott def propIsSet {A : Type u} (r : prop A) : hset A :=
-  begin
-    intros x y p q; have g := r x; apply Types.Id.trans;
-    symmetry; apply rewriteComp;
-    exact (apd g p)⁻¹ ⬝ transportComposition p (g x);
-    induction q; apply invComp
-  end
+  hott theorem propIsSet {A : Type u} (r : prop A) : hset A :=
+  λ x y p q, transCancelLeft _ _ _ ((transportComposition p (r x x))⁻¹ ⬝
+                                    apd (r x) p ⬝ (apd (r x) q)⁻¹ ⬝
+                                    transportComposition q (r x x))
 
-  hott def setImplGroupoid {A : Type u} (r : hset A) : groupoid A :=
-  begin
-    intros a b p q η μ; have g := r _ _ p; apply Types.Id.trans;
-    symmetry; apply rewriteComp; transitivity; symmetry; exact apd g η;
-    apply transportComposition; induction μ; apply invComp
-  end
+  hott corollary setImplGroupoid {A : Type u} (r : hset A) : groupoid A :=
+  begin intro a b; apply propIsSet; apply r end
 
-  hott def emptyIsSet : hset 𝟎 := propIsSet emptyIsProp
-  hott def unitIsSet  : hset 𝟏 := propIsSet unitIsProp
+  hott corollary emptyIsSet : hset 𝟎 := propIsSet emptyIsProp
+  hott corollary unitIsSet  : hset 𝟏 := propIsSet unitIsProp
 
-  hott def contrIsProp {A : Type u} : prop (contr A) :=
+  hott theorem contrIsProp {A : Type u} : prop (contr A) :=
   begin
     intro ⟨x, u⟩ ⟨y, v⟩; have p := u y;
     induction p; apply ap;
@@ -225,37 +217,36 @@ section
     apply propIsSet (contrImplProp ⟨x, u⟩)
   end
 
-  hott def propIsProp {A : Type u} : prop (prop A) :=
+  hott lemma propIsProp {A : Type u} : prop (prop A) :=
   begin
     intros f g; repeat first | (apply HITs.Interval.funext; intro)
                              | (apply propIsSet; assumption)
   end
 
-  hott def setIsProp {A : Type u} : prop (hset A) :=
+  hott lemma setIsProp {A : Type u} : prop (hset A) :=
   begin
     intros f g; repeat first | (apply HITs.Interval.funext; intro)
                              | (apply setImplGroupoid; assumption)
   end
 
-  hott def ntypeIsProp : Π (n : hlevel) {A : Type u}, prop (is-n-type A)
+  hott lemma ntypeIsProp : Π (n : hlevel) {A : Type u}, prop (is-n-type A)
   | −2            => contrIsProp
   | hlevel.succ n => λ p q, HITs.Interval.funext (λ x, HITs.Interval.funext (λ y, ntypeIsProp n _ _))
 
-  hott def functionToContr {A : Type u} : prop (A → contr A) :=
+  hott lemma functionToContr {A : Type u} : prop (A → contr A) :=
   begin intros f g; apply HITs.Interval.funext; intro x; apply contrIsProp end
 end
 
-hott def retract (B : Type u) (A : Type v) :=
+hott definition retract (B : Type u) (A : Type v) :=
 Σ (r : A → B) (s : B → A), r ∘ s ~ id
 
-hott def retract.section {B : Type u} {A : Type v} (w : retract B A) : B → A := w.2.1
+hott definition retract.section {B : Type u} {A : Type v} (w : retract B A) : B → A := w.2.1
 
-hott def contrRetract {A : Type u} {B : Type v} : retract B A → contr A → contr B :=
+hott lemma contrRetract {A : Type u} {B : Type v} : retract B A → contr A → contr B :=
 λ ⟨r, s, ε⟩ ⟨a₀, p⟩, ⟨r a₀, λ b, ap r (p (s b)) ⬝ (ε b)⟩
 
-hott def retract.path {A : Type u} {B : Type v} :
-  Π (H : retract B A) {a b : B},
-  retract (a = b) (H.section a = H.section b) :=
+hott definition retract.path {A : Type u} {B : Type v} :
+  Π (H : retract B A) {a b : B}, retract (a = b) (H.section a = H.section b) :=
 λ ⟨r, s, ε⟩ a b, ⟨λ q, (ε a)⁻¹ ⬝ (@ap A B _ _ r q) ⬝ (ε b), ap s,
 begin
   intro p; transitivity; symmetry; apply Types.Id.assoc;
@@ -266,23 +257,30 @@ begin
   apply ap (· ⬝ ε b); apply Types.Equiv.mapOverComp
 end⟩
 
-hott def equivRespectsRetraction : Π {n : ℕ₋₂} {A : Type u} {B : Type v},
+hott theorem equivRespectsRetraction : Π {n : ℕ₋₂} {A : Type u} {B : Type v},
   retract B A → is-n-type A → is-n-type B
 | −2            => contrRetract
 | hlevel.succ n => λ G H a b, equivRespectsRetraction (retract.path G) (H _ _)
 
-hott def equivInducesRetraction {A : Type u} {B : Type v} : A ≃ B → retract B A :=
+hott corollary equivInducesRetraction {A : Type u} {B : Type v} : A ≃ B → retract B A :=
 λ ⟨f, (_, ⟨g, ε⟩)⟩, ⟨f, g, ε⟩
 
-hott def ntypeRespectsEquiv (n : ℕ₋₂) {A : Type u} {B : Type v} :
+hott theorem ntypeRespectsEquiv (n : ℕ₋₂) {A : Type u} {B : Type v} :
   A ≃ B → is-n-type A → is-n-type B :=
 equivRespectsRetraction ∘ equivInducesRetraction
 
-hott def ntypeRespectsSigma : Π (n : ℕ₋₂) {A : Type u} {B : A → Type v},
+hott theorem ntypeRespectsSigma : Π (n : ℕ₋₂) {A : Type u} {B : A → Type v},
   is-n-type A → (Π x, is-n-type (B x)) → is-n-type (Σ x, B x)
 | −2            => λ ⟨a₀, p⟩ B, ⟨⟨a₀, (B a₀).1⟩, λ ⟨a, b⟩, Types.Sigma.prod (p a) (contrImplProp (B a) _ _)⟩
 | hlevel.succ n => λ A B p q, ntypeRespectsEquiv n (Types.Equiv.symm Types.Sigma.sigmaPath)
                                 (ntypeRespectsSigma n (A p.1 q.1) (λ x, B q.1 _ _))
+
+hott corollary ntypeRespectsProd (n : ℕ₋₂) {A : Type u} {B : Type v} :
+  is-n-type A → is-n-type B → is-n-type (A × B) :=
+begin
+  intro G H; apply ntypeRespectsEquiv; apply Types.Sigma.const;
+  apply ntypeRespectsSigma; exact G; intro; exact H
+end
 
 inductive propSquash (A : Type u) : Sort 0
 | elem : A → propSquash A
@@ -307,52 +305,52 @@ Lift.elem ∘ Squash.prop (propSquash.elem ∘ f)
 
 def K (A : Type u) := Π (a : A) (p : a = a), p = idp a
 
-hott def KIffSet (A : Type u) : K A ↔ hset A :=
+hott lemma KIffSet (A : Type u) : K A ↔ hset A :=
 begin
   fapply Prod.mk;
   { intros H x y p q; induction q; apply H };
   { intros H a p; apply H }
 end
 
-hott def lemProp {A : Type u} (h : A → prop A) : prop A :=
+hott lemma lemProp {A : Type u} (h : A → prop A) : prop A :=
 λ a, h a a
 
-hott def lemContr {A : Type u} (h : A → contr A) : prop A :=
+hott lemma lemContr {A : Type u} (h : A → contr A) : prop A :=
 λ a, contrImplProp (h a) a
 
 def isContrFiber {A : Type u} {B : Type v} (f : A → B) :=
 Π (y : B), contr (fib f y)
 
-hott def propEquivLemma {A : Type u} {B : Type v}
+hott lemma propEquivLemma {A : Type u} {B : Type v}
   (F : prop A) (G : prop B) (f : A → B) (g : B → A) : A ≃ B :=
 ⟨f, (⟨g, λ _, F _ _⟩, ⟨g, λ _, G _ _⟩)⟩
 
-hott def propIffLemma {A : Type u} {B : Type v} : prop A → prop B → A ↔ B → A ≃ B :=
+hott corollary propIffLemma {A : Type u} {B : Type v} : prop A → prop B → A ↔ B → A ≃ B :=
 λ F G φ, propEquivLemma F G φ.1 φ.2
 
-hott def minusTwoEqvContr {A : Type u} : (is-(−2)-type A) ≃ contr A :=
+hott statement minusTwoEqvContr {A : Type u} : (is-(−2)-type A) ≃ contr A :=
 by reflexivity
 
-hott def minusOneEqvProp {A : Type u} : (is-(−1)-type A) ≃ prop A :=
+hott lemma minusOneEqvProp {A : Type u} : (is-(−1)-type A) ≃ prop A :=
 begin
   apply propEquivLemma; apply ntypeIsProp; apply propIsProp;
   { intros H a b; exact (H a b).1 };
   { intros H a b; existsi H a b; apply propIsSet H }
 end
 
-hott def equivFunext {A : Type u} {η : A → Type v} {μ : A → Type w}
-  (H : Π x, η x ≃ μ x) : (Π x, η x) ≃ (Π x, μ x) :=
+hott theorem equivFunext {A : Type u} {B : A → Type v} {C : A → Type w}
+  (H : Π x, B x ≃ C x) : (Π x, B x) ≃ (Π x, C x) :=
 begin
-  existsi (λ (f : Π x, η x) (x : A), (H x).forward (f x)); apply Prod.mk;
-  { existsi (λ (f : Π x, μ x) (x : A), (H x).left (f x));
+  existsi (λ (f : Π x, B x) (x : A), (H x).forward (f x)); apply Prod.mk;
+  { existsi (λ (f : Π x, C x) (x : A), (H x).left (f x));
     intro f; apply HITs.Interval.funext;
     intro x; apply (H x).leftForward };
-  { existsi (λ (f : Π x, μ x) (x : A), (H x).right (f x));
+  { existsi (λ (f : Π x, C x) (x : A), (H x).right (f x));
     intro f; apply HITs.Interval.funext;
     intro x; apply (H x).forwardRight }
 end
 
-hott def zeroEqvSet {A : Type u} : (is-0-type A) ≃ hset A := calc
+hott lemma zeroEqvSet {A : Type u} : (is-0-type A) ≃ hset A := calc
   (is-0-type A) ≃ (Π (x y : A), is-(−1)-type (x = y)) : by reflexivity
             ... ≃ (Π (x y : A), prop (x = y)) :
                   begin apply equivFunext; intro x;
@@ -360,7 +358,7 @@ hott def zeroEqvSet {A : Type u} : (is-0-type A) ≃ hset A := calc
                         apply minusOneEqvProp end
             ... ≃ hset A : by reflexivity
 
-hott def oneEqvGroupoid {A : Type u} : (is-1-type A) ≃ groupoid A := calc
+hott lemma oneEqvGroupoid {A : Type u} : (is-1-type A) ≃ groupoid A := calc
   (is-1-type A) ≃ (Π (x y : A), is-0-type (x = y)) : by reflexivity
             ... ≃ (Π (x y : A), hset (x = y)) :
                    begin apply equivFunext; intro x;
@@ -368,20 +366,17 @@ hott def oneEqvGroupoid {A : Type u} : (is-1-type A) ≃ groupoid A := calc
                          apply zeroEqvSet end
             ... ≃ groupoid A : by reflexivity
 
-hott def propIsNType {A : Type u} (H : prop A) : Π n, is-(hlevel.succ n)-type A
+hott lemma propIsNType {A : Type u} (H : prop A) : Π n, is-(hlevel.succ n)-type A
 | −2            => minusOneEqvProp.left H
 | hlevel.succ n => hlevel.cumulative (hlevel.succ n) (propIsNType H n)
 
-hott def hsetRespectsEquiv {A : Type u} {B : Type v} :
-  A ≃ B → hset A → hset B :=
+hott corollary hsetRespectsEquiv {A : Type u} {B : Type v} : A ≃ B → hset A → hset B :=
 begin
-  intros e H; apply zeroEqvSet.forward;
-  apply ntypeRespectsEquiv 0 e;
-  apply zeroEqvSet.left;
-  assumption
+  intros e H; apply zeroEqvSet.forward; apply ntypeRespectsEquiv 0 e;
+  apply zeroEqvSet.left; assumption
 end
 
-hott def hsetRespectsSigma {A : Type u} {B : A → Type v}
+hott corollary hsetRespectsSigma {A : Type u} {B : A → Type v}
   (H : hset A) (G : Π x, hset (B x)) : hset (Σ x, B x) :=
 begin
   apply zeroEqvSet.forward; apply ntypeRespectsSigma 0;
@@ -389,8 +384,7 @@ begin
   { intro x; apply zeroEqvSet.left; apply G }
 end
 
-hott def propRespectsEquiv {A : Type u} {B : Type v} :
-  A ≃ B → prop A → prop B :=
+hott corollary propRespectsEquiv {A : Type u} {B : Type v} : A ≃ B → prop A → prop B :=
 begin
   intros e H; apply minusOneEqvProp.forward;
   apply ntypeRespectsEquiv −1 e;
@@ -398,42 +392,34 @@ begin
   assumption
 end
 
-hott def contrRespectsEquiv {A : Type u} {B : Type v} :
-  A ≃ B → contr A → contr B :=
+hott corollary contrRespectsEquiv {A : Type u} {B : Type v} : A ≃ B → contr A → contr B :=
 ntypeRespectsEquiv −2
 
-hott def productProp {A : Type u} {B : Type v}
-  (h : prop A) (g : prop B) : prop (A × B) :=
-begin
-  intro ⟨x₁, y₁⟩ ⟨x₂, y₂⟩;
-  have p := h x₁ x₂; have q := g y₁ y₂;
-  induction p; induction q; reflexivity
-end
+hott theorem productProp {A : Type u} {B : Type v} (H : prop A) (G : prop B) : prop (A × B) :=
+begin intro ⟨x₁, y₁⟩ ⟨x₂, y₂⟩; apply Types.Product.prod; apply H; apply G end
 
-hott def prodHset {A : Type u} {B : Type v}
-  (p : hset A) (q : hset B) : hset (A × B) :=
+hott corollary prodHset {A : Type u} {B : Type v}
+  (H : hset A) (G : hset B) : hset (A × B) :=
 begin
-  apply hsetRespectsEquiv;
-  apply Types.Sigma.const;
-  apply hsetRespectsSigma;
-  apply p; intro x; apply q
+  apply hsetRespectsEquiv; apply Types.Sigma.const;
+  apply hsetRespectsSigma; apply H; intro x; apply G
 end
 
 hott lemma piProp {A : Type u} {B : A → Type v}
   (H : Π x, prop (B x)) : prop (Π x, B x) :=
 λ f g, HITs.Interval.funext (λ x, H x (f x) (g x))
 
-hott def sigProp {A : Type u} {B : A → Type v}
+hott lemma sigProp {A : Type u} {B : A → Type v}
   (H : prop A) (G : Π x, prop (B x)) : prop (Σ x, B x) :=
 begin intros w₁ w₂; fapply Types.Sigma.prod; apply H; apply G end
 
-hott def implProp {A : Type u} {B : Type v} (H : prop B) : prop (A → B) :=
+hott corollary implProp {A : Type u} {B : Type v} (H : prop B) : prop (A → B) :=
 piProp (λ _, H)
 
-hott def notIsProp {A : Type u} : prop (¬ A) :=
+hott corollary notIsProp {A : Type u} : prop (¬ A) :=
 implProp emptyIsProp
 
-hott def reflMereRel {A : Type u} (R : A → A → Type v) (h : Π x y, prop (R x y))
+hott lemma reflMereRel {A : Type u} (R : A → A → Type v) (h : Π x y, prop (R x y))
   (ρ : Π x, R x x) (f : Π x y, R x y → x = y) : hset A :=
 begin
   apply (KIffSet _).left; intros a p;
@@ -443,7 +429,7 @@ begin
   transitivity; apply ap (f a a) (h _ _ _ (ρ a)); symmetry; apply Types.Id.rid
 end
 
-hott def doubleNegEq {A : Type u} (h : Π (x y : A), ¬¬(x = y) → x = y) : hset A :=
+hott lemma doubleNegEq {A : Type u} (h : Π (x y : A), ¬¬(x = y) → x = y) : hset A :=
 begin
   fapply reflMereRel;
   { intros x y; exact ¬¬(x = y) };
@@ -452,14 +438,14 @@ begin
   { exact h }
 end
 
-hott def lemToDoubleNeg {A : Type u} : dec A → (¬¬A → A)
+hott lemma lemToDoubleNeg {A : Type u} : dec A → (¬¬A → A)
 | Sum.inl x => λ _, x
 | Sum.inr t => λ g, Proto.Empty.elim (g t)
 
-hott def Hedberg {A : Type u} : dec⁼ A → hset A :=
+hott theorem Hedberg {A : Type u} : dec⁼ A → hset A :=
 begin intro H; apply doubleNegEq; intros x y; apply lemToDoubleNeg; apply H x y end
 
-hott def boolEqTotal (x : 𝟐) : (x = false) + (x = true) :=
+hott remark boolEqTotal (x : 𝟐) : (x = false) + (x = true) :=
 begin induction x using Bool.casesOn; left; reflexivity; right; reflexivity end
 
 hott lemma boolDecEq (x y : 𝟐) : dec (x = y) :=
@@ -494,10 +480,10 @@ end
 
 section
   open GroundZero.Types
-  hott def zeroPath {A B : 0-Type} (p : A.fst = B.fst) : A = B :=
+  hott definition zeroPath {A B : 0-Type} (p : A.fst = B.fst) : A = B :=
   begin fapply Sigma.prod; exact p; apply ntypeIsProp end
 
-  hott def zeroPathRefl (A : 0-Type) : @zeroPath A A (idp A.1) = idp A :=
+  hott lemma zeroPathRefl (A : 0-Type) : @zeroPath A A (idp A.1) = idp A :=
   begin
     transitivity; apply ap (Sigma.prod (idp _)); change _ = idp _;
     apply propIsSet (ntypeIsProp 0); apply Sigma.prodRefl
@@ -507,7 +493,7 @@ end
 hott def Identity.ens {A : Type u} (H : hset A) : hset (Proto.Identity A) :=
 begin apply hsetRespectsEquiv; apply Types.Equiv.identityEqv; assumption end
 
-hott def zeroEquiv (A B : 0-Type) := A.1 ≃ B.1
+hott definition zeroEquiv (A B : 0-Type) := A.1 ≃ B.1
 infix:25 " ≃₀ " => zeroEquiv
 
 section
@@ -525,21 +511,20 @@ end Structures
 
 -- http://www.cs.bham.ac.uk/~mhe/truncation-and-extensionality/tiny-library.html
 -- http://www.cs.bham.ac.uk/~mhe/truncation-and-extensionality/hsetfunext.html
-def singl {A : Type u} (a : A) :=
-Σ b, a = b
+hott definition singl {A : Type u} (a : A) := Σ b, a = b
 
 namespace singl
-  def trivialLoop {A : Type u} (a : A) : singl a :=
+  hott definition trivialLoop {A : Type u} (a : A) : singl a :=
   ⟨a, by reflexivity⟩
 
-  hott def pathFromTrivialLoop {A : Type u} {a b : A}
+  hott definition pathFromTrivialLoop {A : Type u} {a b : A}
     (r : a = b) : trivialLoop a = ⟨b, r⟩ :=
   begin induction r; reflexivity end
 
-  hott def contr {A : Type u} (a : A) : Structures.contr (singl a) :=
+  hott definition contr {A : Type u} (a : A) : Structures.contr (singl a) :=
   ⟨trivialLoop a, λ t, pathFromTrivialLoop t.2⟩
 
-  hott def prop {A : Type u} (a : A) : Structures.prop (singl a) :=
+  hott definition prop {A : Type u} (a : A) : Structures.prop (singl a) :=
   Structures.contrImplProp (contr a)
 end singl
 
@@ -568,23 +553,23 @@ namespace Theorems
       apply weak; intro x; apply singl.contr
     end
 
-    variable (f : Π x, B x) {π : Π g (h : f ~ g), Type w} (r : π f (Homotopy.id f))
-    hott def homotopyInd (g : Π x, B x) (h : f ~ g) : π g h :=
-    @transport (Σ g, f ~ g) (λ (p : Σ g, f ~ g), π p.fst p.snd)
-      ⟨f, Homotopy.id f⟩ ⟨g, h⟩
-      (contrImplProp (isContrSigmaHomotopy f) _ _) r
+    variable (f : Π x, B x) {C : Π g, f ~ g → Type w} (r : C f (Homotopy.id f))
+
+    hott definition homotopyInd (g : Π x, B x) (h : f ~ g) : C g h :=
+    @transport (Σ g, f ~ g) (λ (p : Σ g, f ~ g), C p.fst p.snd)
+      ⟨f, Homotopy.id f⟩ ⟨g, h⟩ (contrImplProp (isContrSigmaHomotopy f) _ _) r
 
     hott lemma homotopyIndId : homotopyInd f r f (Homotopy.id f) = r :=
     begin
       transitivity; apply ap
-        (λ p, @transport (Σ g, f ~ g) (λ p, π p.fst p.snd)
+        (λ p, @transport (Σ g, f ~ g) (λ p, C p.fst p.snd)
            ⟨f, Homotopy.id f⟩ ⟨f, Homotopy.id f⟩ p r);
       change _ = idp _; apply propIsSet; apply contrImplProp;
       apply isContrSigmaHomotopy; reflexivity
     end
   end
 
-  hott def funext {A : Type u} {B : A → Type v}
+  hott definition funext {A : Type u} {B : A → Type v}
     {f g : Π x, B x} : (f ~ g) → (f = g) :=
   @homotopyInd _ _ f (λ g x, f = g) (idp _) g
 
@@ -623,61 +608,61 @@ namespace Theorems
     transitivity; apply ap; apply Id.invComp; reflexivity
   end
 
-  hott def mapToHapply {A : Type u} {B : A → Type v}
+  hott lemma mapToHapply {A : Type u} {B : A → Type v}
     (c : A) (f g : Π x, B x) (p : f = g) :
     ap (λ (f : Π x, B x), f c) p = happly p c :=
   begin induction p; reflexivity end
 
-  hott def mapToHapply₂ {A : Type u} {B : A → Type v} {C : Π x, B x → Type w}
+  hott lemma mapToHapply₂ {A : Type u} {B : A → Type v} {C : Π x, B x → Type w}
     (c₁ : A) (c₂ : B c₁) (f g : Π (x : A) (y : B x), C x y) (p : f = g) :
     ap (λ f, f c₁ c₂) p = happly (happly p c₁) c₂ :=
   begin induction p; reflexivity end
 
-  hott def mapToHapply₃ {A : Type u} {B : A → Type v} {C : Π x, B x → Type w}
+  hott lemma mapToHapply₃ {A : Type u} {B : A → Type v} {C : Π x, B x → Type w}
     {D : Π x y, C x y → Type w'} (c₁ : A) (c₂ : B c₁) (c₃ : C c₁ c₂) (f g : Π x y z, D x y z) (p : f = g) :
     ap (λ f, f c₁ c₂ c₃) p = happly (happly (happly p c₁) c₂) c₃ :=
   begin induction p; reflexivity end
 
-  hott def mapToHapply₄ {A : Type u} {B : A → Type v} {C : Π x, B x → Type w}
+  hott lemma mapToHapply₄ {A : Type u} {B : A → Type v} {C : Π x, B x → Type w}
     {D : Π (x : A) (y : B x), C x y → Type w'} {E : Π (x : A) (y : B x) (z : C x y), D x y z → Type w''}
     (c₁ : A) (c₂ : B c₁) (c₃ : C c₁ c₂) (c₄ : D c₁ c₂ c₃) (f g : Π x y z w, E x y z w) (p : f = g) :
     ap (λ f, f c₁ c₂ c₃ c₄) p = happly (happly (happly (happly p c₁) c₂) c₃) c₄ :=
   begin induction p; reflexivity end
 
-  hott def happlyFunextPt {A : Type u} {B : A → Type v} {f g : Π x, B x} (H : f ~ g) (x : A) : happly (funext H) x = H x :=
+  hott lemma happlyFunextPt {A : Type u} {B : A → Type v} {f g : Π x, B x} (H : f ~ g) (x : A) : happly (funext H) x = H x :=
   begin apply happly; apply happlyFunext end
 
-  hott def happlyFunextPt₂ {A : Type u} {B : A → Type v} {C : Π x, B x → Type w}
+  hott lemma happlyFunextPt₂ {A : Type u} {B : A → Type v} {C : Π x, B x → Type w}
     {f g : Π x y, C x y} (H : Π x y, f x y = g x y) (c₁ : A) (c₂ : B c₁) :
     happly (happly (funext (λ x, funext (H x))) c₁) c₂ = H c₁ c₂ :=
   begin transitivity; apply ap (happly · c₂); apply happlyFunextPt; apply happlyFunextPt end
 
-  hott def happlyFunextPt₃ {A : Type u} {B : A → Type v} {C : Π x, B x → Type w}
+  hott lemma happlyFunextPt₃ {A : Type u} {B : A → Type v} {C : Π x, B x → Type w}
     {D : Π x y, C x y → Type w'} {f g : Π x y z, D x y z}
     (H : Π x y z, f x y z = g x y z) (c₁ : A) (c₂ : B c₁) (c₃ : C c₁ c₂) :
     happly (happly (happly (funext (λ x, funext (λ y, funext (H x y)))) c₁) c₂) c₃ = H c₁ c₂ c₃ :=
   begin transitivity; apply ap (happly · c₃); apply happlyFunextPt₂; apply happlyFunextPt end
 
-  hott def happlyFunextPt₄ {A : Type u} {B : A → Type v} {C : Π x, B x → Type w}
+  hott lemma happlyFunextPt₄ {A : Type u} {B : A → Type v} {C : Π x, B x → Type w}
     {D : Π x y, C x y → Type w'} {E : Π x y z, D x y z → Type w''} {f g : Π x y z w, E x y z w}
     (H : Π x y z w, f x y z w = g x y z w) (c₁ : A) (c₂ : B c₁) (c₃ : C c₁ c₂) (c₄ : D c₁ c₂ c₃) :
     happly (happly (happly (happly (funext (λ x, funext (λ y, funext (λ z, funext (H x y z))))) c₁) c₂) c₃) c₄ = H c₁ c₂ c₃ c₄ :=
   begin transitivity; apply ap (happly · c₄); apply happlyFunextPt₃; apply happlyFunextPt end
 
-  hott def happlyRevPt {A : Type u} {B : A → Type v} {f g : Π x, B x} (p : f = g) (x : A) :
+  hott lemma happlyRevPt {A : Type u} {B : A → Type v} {f g : Π x, B x} (p : f = g) (x : A) :
     happly p⁻¹ x = Homotopy.symm f g (happly p) x :=
   begin apply happly; apply HITs.Interval.happlyRev end
 end Theorems
 
 namespace Structures
-  hott def piRespectsNType :
+  hott theorem piRespectsNType :
     Π (n : ℕ₋₂) {A : Type u} {B : A → Type v},
       (Π x, is-n-type (B x)) → is-n-type (Π x, B x)
   | −2            => λ H, ⟨λ x, (H x).1, λ φ, Theorems.funext (λ x, (H x).2 (φ x))⟩
   | hlevel.succ n => λ H f g, ntypeRespectsEquiv n (Types.Equiv.symm Theorems.full)
                                 (piRespectsNType n (λ x, H x _ _))
 
-  hott def piHset {A : Type u} {B : A → Type v}
+  hott corollary piHset {A : Type u} {B : A → Type v}
     (H : Π x, hset (B x)) : hset (Π x, B x) :=
   begin
     apply zeroEqvSet.forward; apply piRespectsNType 0;

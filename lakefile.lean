@@ -84,12 +84,13 @@ section
     let fd := child.stdin;
 
     fd.putStrLn "digraph dependencyMap {";
+    fd.putStrLn "  splines=polyline";
     for (A, B) in edges do
       fd.putStrLn s!"  \"{A}\" -> \"{B}\""
     fd.putStrLn "}";
 
     let (_, child) ← child.takeStdin;
-    let _ ← child.wait
+    discard child.wait
   }
 end
 
