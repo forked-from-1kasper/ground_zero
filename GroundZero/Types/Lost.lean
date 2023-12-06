@@ -18,7 +18,7 @@ inductive Lost (A : Type u)
 namespace Lost
 
 hott def code {A : Type u} : Lost A → 𝟎
-| cons _ z => code z
+| cons x xs => code xs
 
 hott def isZero {A : Type u} : Lost A ≃ 𝟎 :=
 uninhabitedType code
