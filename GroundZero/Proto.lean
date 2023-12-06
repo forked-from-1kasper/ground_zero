@@ -35,7 +35,7 @@ notation "𝟎" => Empty
 notation "𝟐" => Bool
 notation "ℕ" => Nat
 
-hott definition Empty.elim {A : Sort u} (xs : Empty) : A :=
+hott definition Empty.elim {A : Sort u} (xs : 𝟎) : A :=
 nomatch xs
 
 hott definition Bool.elim {A : Sort u} : A → A → 𝟐 → A :=

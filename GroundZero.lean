@@ -37,6 +37,7 @@ import GroundZero.Exercises.Chap1
 import GroundZero.Exercises.Chap2
 import GroundZero.Exercises.Chap3
 import GroundZero.Exercises.Chap4
+import GroundZero.Exercises.Chap5
 import GroundZero.HITs.Circle
 import GroundZero.HITs.Coequalizer
 import GroundZero.HITs.Colimit
