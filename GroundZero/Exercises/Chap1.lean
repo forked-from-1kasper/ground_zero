@@ -95,10 +95,10 @@ namespace Coproduct'
   hott def ind : Π x, C x
   | ⟨false, a⟩ => u a | ⟨true, b⟩ => v b
 
-  hott def indB₁ (a : A) : ind C u v (inl a) = u a :=
+  hott def indβ₁ (a : A) : ind C u v (inl a) = u a :=
   by reflexivity
 
-  hott def indB₂ (b : B) : ind C u v (inr b) = v b :=
+  hott def indβ₂ (b : B) : ind C u v (inr b) = v b :=
   by reflexivity
 end Coproduct'
 
@@ -124,7 +124,7 @@ namespace Product'
   hott def ind : Π x, π x :=
   λ x, transport π (η x) (φ (pr₁ x) (pr₂ x))
 
-  hott def indB (a : A) (b : B) : ind π φ (mk a b) = φ a b :=
+  hott def indβ (a : A) (b : B) : ind π φ (mk a b) = φ a b :=
   begin
     transitivity; apply ap (transport π · (φ a b));
     transitivity; apply ap Theorems.funext; change _ = (λ x, idp (mk a b x));

@@ -929,7 +929,7 @@ namespace Types.Id
   | Nat.succ n, _ => conjugateSuccΩ _ _ _ ⬝ ap (conjugateΩ (apd idp p)) (apWithHomotopyΩ (transportAbelian _) _ _) ⬝
                      (conjugateTransΩ _ _ (n + 1) _)⁻¹ ⬝ abelianΩ _ _ _ ⬝ idmapΩ _ _
 
-  hott def comApΩ {A : Type u} {B : Type v} {C : Type w} (f : B → C) (g : A → B) {a : A} :
+  hott definition comApΩ {A : Type u} {B : Type v} {C : Type w} (f : B → C) (g : A → B) {a : A} :
     Π (n : ℕ) (α : Ωⁿ(A, a)), apΩ (f ∘ g) α = apΩ f (apΩ g α)
   | Nat.zero,   _ => idp _
   | Nat.succ _, _ => apWithHomotopyΩ (mapOverComp _ _) _ _ ⬝ comApΩ (ap f) (ap g) _ _
@@ -943,7 +943,7 @@ namespace Types.Id
   | Nat.zero,   _ => idp _
   | Nat.succ n, α => apdWithHomotopyΩ (apdDiag f φ) n α ⬝ apdDiagΩ (apd f) (biapd φ) n α
 
-  hott def comApdΩ {A : Type u} {B : Type v} {C : B → Type w} (f : Π x, C x) (g : A → B) {x : A} :
+  hott definition comApdΩ {A : Type u} {B : Type v} {C : B → Type w} (f : Π x, C x) (g : A → B) {x : A} :
     Π (n : ℕ) (α : Ωⁿ(A, x)), apdΩ (λ x, f (g x)) α = overApΩ C g n α (apdΩ f (apΩ g α))
   | Nat.zero,   _ => idp _
   | Nat.succ n, α => apdWithHomotopyΩ (apdOverComp _ _) _ _ ⬝ apdDiagΩ (λ p, apd f (ap g p)) (pathOverAp g) n α ⬝
@@ -999,7 +999,7 @@ namespace Types.Id
     (n : ℕ) (α : Ωⁿ(A, x)) : underApΩ C g n α (apdΩ (λ x, f (g x)) α) = apdΩ f (apΩ g α) :=
   begin transitivity; apply ap (underApΩ C g n α); apply comApdΩ; apply pathUnderApCohΩ end
 
-  hott def sigmaProdΩ {A : Type u} {B : A → Type v} {w : Σ x, B x} :
+  hott definition sigmaProdΩ {A : Type u} {B : A → Type v} {w : Σ x, B x} :
     Π {n : ℕ} (α : Ωⁿ(A, w.1)) (β : Ωⁿ(B, w.2, α)), Ωⁿ(Σ x, B x, w)
   | Nat.zero,   x, y => ⟨x, y⟩
   | Nat.succ n, α, β => apΩ Sigma.eqOfSigmaEq (@sigmaProdΩ (w.1 = w.1) (λ p, w.2 =[B, p] w.2) ⟨idp w.1, idp w.2⟩ n α β)
@@ -1026,11 +1026,11 @@ namespace Types.Id
     apply ap; apply apOverSigmaΩ (apd f)
   end
 
-  hott def happlyΩ {A : Type u} {B : A → Type v} (φ : Π x, B x) : Π {n : ℕ}, Ωⁿ(Π x, B x, φ) → Π x, Ωⁿ(B x, φ x)
+  hott definition happlyΩ {A : Type u} {B : A → Type v} (φ : Π x, B x) : Π {n : ℕ}, Ωⁿ(Π x, B x, φ) → Π x, Ωⁿ(B x, φ x)
   | Nat.zero,   f => f
   | Nat.succ n, H => @happlyΩ A (λ x, φ x = φ x) (λ x, idp (φ x)) n (apΩ happly H)
 
-  hott def funextΩ {A : Type u} {B : A → Type v} (φ : Π x, B x) : Π {n : ℕ}, (Π x, Ωⁿ(B x, φ x)) → Ωⁿ(Π x, B x, φ)
+  hott definition funextΩ {A : Type u} {B : A → Type v} (φ : Π x, B x) : Π {n : ℕ}, (Π x, Ωⁿ(B x, φ x)) → Ωⁿ(Π x, B x, φ)
   | Nat.zero,   f => f
   | Nat.succ n, H => conjugateΩ Theorems.funextId (apΩ Theorems.funext (@funextΩ A (λ x, φ x = φ x) (λ x, idp (φ x)) n H))
 
@@ -1061,6 +1061,29 @@ namespace Types.Id
     transitivity; symmetry; apply conjugateTransΩ;
     transitivity; apply ap (conjugateΩ · _);
     apply Id.invComp; apply idmapΩ
+  end
+
+  hott definition prodΩ {A : Type u} {B : Type v} {w : A × B} :
+    Π {n : ℕ} (α : Ωⁿ(A, w.1)) (β : Ωⁿ(B, w.2)), Ωⁿ(A × B, w)
+  | Nat.zero,   x, y => (x, y)
+  | Nat.succ n, α, β => apΩ Product.eqOfProdEq (@prodΩ (w.1 = w.1) (w.2 = w.2) (idp w.1, idp w.2) n α β)
+
+  section
+    open Prod (pr₁ pr₂)
+
+    hott lemma apFstΩ {A : Type u} {B : Type v} {w : A × B} :
+      Π {n : ℕ} (α : Ωⁿ(A, w.1)) (β : Ωⁿ(B, w.2)), apΩ pr₁ (prodΩ α β) = α
+    | Nat.zero,   x, y => idp x
+    | Nat.succ n, α, β => (comApΩ (ap pr₁) Product.eqOfProdEq n (@prodΩ (w.1 = w.1) (w.2 = w.2) (idp w.1, idp w.2) n α β))⁻¹ ⬝
+                          apWithHomotopyΩ Product.apFst _ _ ⬝
+                          apFstΩ _ _
+
+    hott lemma apSndΩ {A : Type u} {B : Type v} {w : A × B} :
+      Π {n : ℕ} (α : Ωⁿ(A, w.1)) (β : Ωⁿ(B, w.2)), apΩ pr₂ (prodΩ α β) = β
+    | Nat.zero,   x, y => idp y
+    | Nat.succ n, α, β => (comApΩ (ap pr₂) Product.eqOfProdEq n (@prodΩ (w.1 = w.1) (w.2 = w.2) (idp w.1, idp w.2) n α β))⁻¹ ⬝
+                          apWithHomotopyΩ Product.apSnd _ _ ⬝
+                          apSndΩ _ _
   end
 end Types.Id
 
