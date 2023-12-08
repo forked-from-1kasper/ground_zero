@@ -3,7 +3,7 @@ open GroundZero.Cubical
 
 /-
   This example on Lean.
-  https://tonpa.guru/stream/2017/2017-10-31%20Доказательство%20коммутативности%20в%20кубике.txt
+  https://github.com/mortberg/cubicaltt/blob/9baa6f2491cc61dbd4fd81d58323c04100381451/examples/nat.ctt#L52-L57
 -/
 
 namespace GroundZero.Cubical.Cubicaltt

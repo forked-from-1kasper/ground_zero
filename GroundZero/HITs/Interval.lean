@@ -10,14 +10,6 @@ universe u v w
 
 namespace HITs
 namespace Interval
-  def hrec (B : I → Type u) (b₀ : B 0) (b₁ : B 1) (s : HEq b₀ b₁) (x : I) : B x :=
-  begin
-    fapply Quot.hrecOn x;
-    { intro b; induction b using Bool.casesOn; exact b₀; exact b₁ };
-    { intros a b R; induction a using Bool.casesOn <;> induction b using Bool.casesOn;
-      { apply HEq.refl }; { exact s }; { exact HEq.symm s }; { apply HEq.refl } }
-  end
-
   hott definition lift {B : Type u} (φ : 𝟐 → B) (H : prop B) : I → B :=
   rec (φ false) (φ true) (H _ _)
 
@@ -53,8 +45,17 @@ namespace Interval
   infix:70 " ∧ " => min
   infix:70 " ∨ " => max
 
-  hott definition elim {A : Type u} {a b : A} (p : a = b) : I → A := rec a b p
-  hott definition lam  {A : Type u} (f : I → A) : f 0 = f 1 := ap f seg
+  hott abbreviation elim {A : Type u} {a b : A} (p : a = b) : I → A := rec a b p
+
+  hott definition lam {A : Type u} (f : I → A) : f 0 = f 1 := ap f seg
+
+  hott lemma mapExt {A : Type u} (f : I → A) : rec (f 0) (f 1) (ap f seg) ~ f :=
+  begin
+    fapply ind; reflexivity; reflexivity; apply Id.trans;
+    apply Equiv.transportOverHmtpy; transitivity; apply ap (· ⬝ _);
+    transitivity; apply Id.rid; transitivity; apply Id.mapInv;
+    apply ap; apply recβrule; apply Id.invComp
+  end
 
   hott definition connAnd {A : Type u} {a b : A}
     (p : a = b) : Π i, a = elim p i :=

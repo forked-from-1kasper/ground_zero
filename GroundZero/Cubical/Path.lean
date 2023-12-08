@@ -1,7 +1,7 @@
 import GroundZero.HITs.Interval
 
+open GroundZero.Types.Equiv (transport apd)
 open GroundZero.HITs.Interval (i₀ i₁ seg)
-open GroundZero.Types.Equiv (transport)
 open GroundZero.Types GroundZero.HITs
 open GroundZero.Types.Id (ap)
 open GroundZero.Proto (idfun)
@@ -15,28 +15,52 @@ open GroundZero.Proto (idfun)
 -/
 
 namespace GroundZero.Cubical
-universe u v
+universe u v w
 
 inductive Path (A : Type u) : A → A → Type u
 | lam (f : I → A) : Path A (f 0) (f 1)
 
-def LineP (σ : I → Type u) := Π (i : I), σ i
-def Line (A : Type u) := I → A
-def Line.refl {A : Type u} (a : A) : Line A := λ _, a
+hott abbreviation LineP (σ : I → Type u) := Π (i : I), σ i
 
-hott def decode {A : Type u} {a b : A} (p : a = b) : Path A a b :=
+hott abbreviation Line (A : Type u) := I → A
+
+hott definition Line.refl {A : Type u} (a : A) : Line A := λ _, a
+
+hott definition decode {A : Type u} {a b : A} (p : a = b) : Path A a b :=
 Path.lam (Interval.elim p)
 
-hott def elim {A : Type u} {a b : A} (p : Path A a b) : I → A :=
+hott definition elim {A : Type u} {a b : A} (p : Path A a b) : I → A :=
 @Path.casesOn A (λ _ _ _, I → A) a b p (@idfun (I → A))
 
-hott def encode {A : Type u} {a b : A} (p : Path A a b) : a = b :=
+hott definition encode {A : Type u} {a b : A} (p : Path A a b) : a = b :=
 @Path.casesOn A (λ a b _, a = b) a b p (ap · seg)
 
-noncomputable hott def encodeDecode {A : Type u} {a b : A} (p : a = b) : encode (decode p) = p :=
+hott lemma encodeDecode {A : Type u} {a b : A} (p : a = b) : encode (decode p) = p :=
 by apply Interval.recβrule
 
-hott def Path.compute {A : Type u} {a b : A} (p : Path A a b) : I → A :=
+hott lemma transportFunext {A : Type u} {B : Type v} {C : B → Type w} {f g : A → B} (H : f ~ g) {x : A}
+  (u : C (f x)) : transport (λ (f : A → B), C (f x)) (Theorems.funext H) u = transport C (H x) u :=
+begin
+  transitivity; apply Equiv.transportComp; apply ap (transport _ · _);
+  transitivity; apply Theorems.mapToHapply; apply Interval.happly; apply Theorems.happlyFunext
+end
+
+hott lemma decodeEncode {A : Type u} {a b : A} (p : Path A a b) : decode (encode p) = p :=
+begin
+  induction p using Path.casesOn; symmetry; transitivity; symmetry;
+  apply apd Path.lam; apply Theorems.funext; apply Interval.mapExt;
+
+  transitivity; apply Equiv.transportDiag₁ (λ (f g : I → A), Path A (f 0) (g 1));
+  transitivity; apply transportFunext; apply @transportFunext I A (Path A · _)
+end
+
+hott corollary equivPath {A : Type u} (a b : A) : Path A a b ≃ (a = b) :=
+Equiv.intro encode decode decodeEncode encodeDecode
+
+hott corollary ofEncode {A : Type u} {a b : A} (p q : Path A a b) : encode p = encode q → p = q :=
+(equivPath a b).eqvInj p q
+
+hott definition Path.compute {A : Type u} {a b : A} (p : Path A a b) : I → A :=
 Interval.rec a b (encode p)
 
 infix:60 " @ " => Path.compute
@@ -46,153 +70,180 @@ macro "<" is:Lean.Parser.Term.binderIdent+ ">" e:term : term =>
 
 namespace Path
 
-hott def coe.forward (B : I → Type u) (i : I) (x : B i₀) : B i :=
-Interval.ind x (transport B Interval.seg x) Id.refl i
+hott definition coe.forward (B : I → Type u) (i : I) (x : B i₀) : B i :=
+Interval.ind x (transport B seg x) (idp _) i
 
-hott def coe.back (B : I → Type u) (i : I) (x : B i₁) : B i :=
-Interval.ind (transport B Interval.seg⁻¹ x) x (begin
+hott definition coe.back (B : I → Type u) (i : I) (x : B i₁) : B i :=
+Interval.ind (transport B seg⁻¹ x) x (begin
   apply Id.trans; symmetry; apply Equiv.transportcom;
   transitivity; apply ap (transport B · x);
   apply Id.invComp; reflexivity
 end) i
 
-hott def coe (i k : I) (B : I → Type u) : B i → B k :=
+hott definition coe (i k : I) (B : I → Type u) : B i → B k :=
 coe.forward (λ i, B i → B k) i (coe.forward B k)
 
-hott def coeInv (i k : I) (B : I → Type u) : B i → B k :=
+hott definition coeInv (i k : I) (B : I → Type u) : B i → B k :=
 coe.back (λ i, B i → B k) i (coe.back B k)
 
 notation "coe⁻¹" => coeInv
 
-hott def refl {A : Type u} (a : A) : Path A a a := <_> a
+hott definition refl {A : Type u} (a : A) : Path A a a := <_> a
 instance (A : Type u) : Reflexive (Path A) := ⟨refl⟩
 
-hott def rfl {A : Type u} {a : A} : Path A a a := <_> a
+hott definition rfl {A : Type u} {a : A} : Path A a a := <_> a
 
-hott def symm {A : Type u} {a b : A} (p : Path A a b) : Path A b a :=
+hott definition symm {A : Type u} {a b : A} (p : Path A a b) : Path A b a :=
 coe 1 0 (λ i, Path A b (p @ i)) rfl
 
 instance (A : Type u) : Symmetric (Path A) := ⟨@symm A⟩
 
-hott def seg : Path I i₀ i₁ := <i> i
+hott definition neg : I → I := Interval.elim seg⁻¹
 
-def neg (x : I) : I := (symm seg) @ x
 prefix:65 "−" => neg
 
 example {A : Type u} {a b : A} (p : Path A a b) : Path A b a :=
 <i> p @ −i
 
-hott def homotopy {A : Type u} {B : A → Type v} (f g : Π x, B x) :=
+hott definition homotopy {A : Type u} {B : A → Type v} (f g : Π x, B x) :=
 Π x, Path (B x) (f x) (g x)
 infix:50 " ~′ " => homotopy
 
-hott def homotopyEquality {A : Type u} {B : A → Type v}
+hott definition homotopyEquality {A : Type u} {B : A → Type v}
   {f g : Π x, B x} (p : f ~′ g) : f ~ g :=
 λ x, encode (p x)
 
-hott def funext {A : Type u} {B : A → Type v}
+hott definition funext {A : Type u} {B : A → Type v}
   {f g : Π x, B x} (p : f ~′ g) : Path (Π x, B x) f g :=
 <i> λ x, (p x) @ i
 
-hott def ap {A : Type u} {B : Type v} {a b : A}
+hott definition apf {A : Type u} {B : Type v} {a b : A}
   (f : A → B) (p : Path A a b) : Path B (f a) (f b) :=
 <i> f (p @ i)
 
-hott def transport {A : Type u} (B : A → Type v) {a b : A} (p : Path A a b) : B a → B b :=
+hott definition coerce {A : Type u} (B : A → Type v) {a b : A} (p : Path A a b) : B a → B b :=
 coe 0 1 (λ i, B (p @ i))
-
-abbrev subst {A : Type u} {B : A → Type v} {a b : A} (p : Path A a b) (x : B a) : B b :=
-transport B p x
 
 section
   variable {A B : Type u} (p : Path (Type u) A B)
 
-  hott def trans : A → B := coe 0 1 (λ i, p @ i)
-  hott def transNeg : B → A := coe 1 0 (λ i, p @ i)
-  hott def transBack : A → B := coe⁻¹ 0 1 (λ i, p @ i)
+  hott definition trans     : A → B := coe   0 1 (λ i, p @ i)
+  hott definition transNeg  : B → A := coe   1 0 (λ i, p @ i)
+  hott definition transBack : A → B := coe⁻¹ 0 1 (λ i, p @ i)
 end
 
 notation "trans⁻¹" => transBack
 
-hott def transK {A B : Type u} (p : Path (Type u) A B) (x : A) :
+hott definition transK {A B : Type u} (p : Path (Type u) A B) (x : A) :
   Path A x (transNeg p (trans p x)) :=
 <i> coe i 0 (λ i, p @ i) (coe 0 i (λ i, p @ i) x)
 
-hott def idtoeqv {A B : Type u} (p : Path (Type u) A B) : A ≃ B :=
+hott definition idtoeqv {A B : Type u} (p : Path (Type u) A B) : A ≃ B :=
 trans (<i> A ≃ p @ i) (Equiv.ideqv A)
 
 section
   variable {A : Type u} {a b : A} (p : Path A a b)
 
-  hott def testEta : Path (Path A a b) p p := rfl
-  hott def face₀ : A := p @ 0
-  hott def face₁ : A := p @ 1
+  hott definition testEta : Path (Path A a b) p p := rfl
+  hott definition face₀ : A := p @ 0
+  hott definition face₁ : A := p @ 1
 
-  hott def compTest₀ : Path A (p @ 0) a := rfl
-  hott def compTest₁ : Path A (p @ 1) b := rfl
+  hott definition compTest₀ : Path A (p @ 0) a := rfl
+  hott definition compTest₁ : Path A (p @ 1) b := rfl
 
   -- fails, because this requires −(−i) ≡ i
-  --def symmTest : Path (Path A a b) (p⁻¹)⁻¹ p := rfl
+  --hott definition symmTest : Path (Path A a b) (p⁻¹)⁻¹ p := rfl
 end
 
-hott def com {A : Type u} {a b c : A} (p : Path A a b) (q : Path A b c) : Path A a c :=
-transport (Path A a) q p
+hott definition com {A : Type u} {a b c : A} (p : Path A a b) (q : Path A b c) : Path A a c :=
+coerce (Path A a) q p
 
 -- this will be replaced by a more general version in future
-hott def kan {A : Type u} {a b c d : A}
+hott definition kan {A : Type u} {a b c d : A}
   (bottom : Path A b c) (left : Path A b a) (right : Path A c d) : Path A a d :=
 com (com (symm left) bottom) right
 
-hott def kanOp {A : Type u} {a b : A} (p : Path A a a) (q : Path A a b) : Path A b b :=
+hott definition kanOp {A : Type u} {a b : A} (p : Path A a a) (q : Path A a b) : Path A b b :=
 kan p q q
 
-hott def intervalContrLeft  (i : I) : Path I i₀ i := coe 0 i (Path I i₀) rfl
-hott def intervalContrRight (i : I) : Path I i₁ i := coe 1 i (Path I i₁) rfl
+hott definition intervalContrLeft  (i : I) : Path I i₀ i := coe 0 i (Path I i₀) rfl
+hott definition intervalContrRight (i : I) : Path I i₁ i := coe 1 i (Path I i₁) rfl
 
-hott def connAnd {A : Type u} {a b : A} (p : Path A a b) :
-  LineP (λ i, Path A a (p @ i)) :=
-λ i, <j> p @ i ∧ j
+section
+  variable {A : Type u} {a b : A} (p : Path A a b)
 
-hott def connOr {A : Type u} {a b : A}
-  (p : Path A a b) : LineP (λ i, Path A (p @ i) b) :=
-λ i, <j> p @ i ∨ j
-
-def singl {A : Type u} (a : A) :=
-Σ (x : A), Path A a x
-
-def eta {A : Type u} (a : A) : singl a := ⟨a, refl a⟩
-
-@[hottAxiom] def meet {A : Type u} {a b : A} (p : Path A a b) :
-  LineP (λ i, Path A a (p @ i)) :=
-begin
-  fapply Interval.hrec; exact refl a; exact p;
-  induction p using Path.casesOn;
-  apply HEq.map lam; apply Theorems.funext;
-  intro; apply Id.ap; apply Interval.contrLeft
+  hott definition connAnd : LineP (λ i, Path A a (p @ i)) := λ i, <j> p @ i ∧ j
+  hott definition connOr  : LineP (λ i, Path A (p @ i) b) := λ i, <j> p @ i ∨ j
 end
+
+hott definition singl {A : Type u} (a : A) := Σ (x : A), Path A a x
+hott definition eta   {A : Type u} (a : A) : singl a := ⟨a, refl a⟩
+
+hott lemma encodeRefl {A : Type u} (a : A) : encode (refl a) = idp a :=
+by apply Equiv.constmap
+
+hott corollary decodeIdp {A : Type u} (a : A) : decode (idp a) = refl a :=
+ap decode (encodeRefl a)⁻¹ ⬝ decodeEncode (refl a)
+
+hott lemma coerceβ {A : Type u} (B : A → Type v) {a : A} (u : B a) : coerce B (refl a) u = u :=
+begin
+  transitivity; apply Equiv.transportComp B;
+  transitivity; apply ap (transport _ · _);
+  transitivity; apply Interval.recβrule;
+  apply Equiv.constmap; reflexivity
+end
+
+hott lemma coerceReflDecode {A : Type u} {a b : A} (p : a = b) : coerce (Path A a) (decode p) (refl a) = decode p :=
+begin
+  induction p; transitivity; apply ap (coerce _ · _); apply decodeIdp;
+  transitivity; apply coerceβ; symmetry; apply decodeIdp
+end
+
+hott lemma coerceRefl {A : Type u} {a b : A} (p : Path A a b) : coerce (Path A a) p (refl a) = p :=
+begin
+  transitivity; apply ap (coerce _ · _); symmetry; apply decodeEncode;
+  transitivity; apply coerceReflDecode; apply decodeEncode
+end
+
+hott corollary coml {A : Type u} {a b : A} (p : Path A a b) : com (refl a) p = p :=
+by apply coerceRefl
+
+hott corollary comr {A : Type u} {a b : A} (p : Path A a b) : com p (refl b) = p :=
+by apply coerceβ
+
+hott lemma coerceDecode {A : Type u} {B : A → Type v} {a b : A} (p : a = b) (u : B a) : transport B p u = coerce B (decode p) u :=
+begin induction p; symmetry; transitivity; apply ap (coerce B · _); apply decodeIdp; apply coerceβ end
+
+hott definition meet {A : Type u} {a b : A} (p : Path A a b) : LineP (λ i, Path A a (p @ i)) :=
+Interval.ind (refl a) p
+(begin
+  apply Id.trans; apply Equiv.transportComp; transitivity; apply ap (Equiv.transport _ · _);
+  apply Interval.recβrule; transitivity; apply coerceDecode; transitivity;
+  apply ap (coerce _ · _); apply decodeEncode; apply coerceRefl
+end)
 
 /-
 This doesn’t pass typechecking.
 
-def J {A : Type u} {a : A} {C : Π (b : A), a ⇝ b → Type u}
-  (h : C a (refl a)) (b : A) (p : a ⇝ b) : C b (<i> p @ i) :=
-coe (λ i, C (p # i) (connAnd p i)) h i₁
+hott definition J {A : Type u} {a : A} {C : Π (b : A), Path A a b → Type u}
+  (h : C a (refl a)) (b : A) (p : Path A a b) : C b (<i> p @ i) :=
+coe 0 1 (λ i, C (p @ i) (connAnd p i)) h i₁
 
-def J {A : Type u} {a : A} {C : Π (b : A), a ⇝ b → Type u}
-  (h : C a (refl a)) (b : A) (p : a ⇝ b) : C b (<i> p @ i) :=
+hott definition J {A : Type u} {a : A} {C : Π (b : A), Path A a b → Type u}
+  (h : C a (refl a)) (b : A) (p : Path A a b) : C b (<i> p @ i) :=
 transport (<i> C (p @ i) (<j> p @ i ∧ j)) h
 -/
 
-hott def J {A : Type u} {a : A} (C : Π b, Path A a b → Type v)
+hott definition J {A : Type u} {a : A} (C : Π b, Path A a b → Type v)
   (h : C a (refl a)) {b : A} (p : Path A a b) : C b p :=
 trans (<i> C (p @ i) (meet p i)) h
 
 end Path
 
-hott def PathP (σ : I → Type u) (a : σ 0) (b : σ 1) :=
-Path (σ 1) (Equiv.transport σ Interval.seg a) b
+hott definition PathP (σ : I → Type u) (a : σ 0) (b : σ 1) :=
+Path (σ 1) (transport σ seg a) b
 
-hott def PathP.lam (σ : I → Type u) (f : Π i, σ i) : PathP σ (f 0) (f 1) :=
-Path.lam (Interval.rec _ _ (Equiv.apd f Interval.seg))
+hott definition PathP.lam (σ : I → Type u) (f : Π i, σ i) : PathP σ (f 0) (f 1) :=
+Path.lam (Interval.elim (apd f seg))
 
 end GroundZero.Cubical

@@ -15,29 +15,23 @@ open GroundZero GroundZero.HITs GroundZero.Types
 namespace GroundZero.Cubical
 universe u v
 
-hott def V (i : I) {A B : Type u} (e : A ≃ B) : Type u :=
+hott definition V (i : I) {A B : Type u} (e : A ≃ B) : Type u :=
 Interval.rec A B (ua e) i
 
-noncomputable hott def Vproj (i : I) {A B : Type u} (e : A ≃ B) (m : A) : V i e :=
+hott definition Vproj (i : I) {A B : Type u} (e : A ≃ B) (m : A) : V i e :=
 @Interval.ind (λ i, V i e) m (e m) (transportconstWithSeg (ua e) m ⬝ uaβ e m) i
 
-hott def ua {A B : Type u} (e : A ≃ B) : Path (Type u) A B := <i> V i e
+hott definition ua {A B : Type u} (e : A ≃ B) : Path (Type u) A B := <i> V i e
 
-noncomputable hott def uabeta {A B : Type u} (e : A ≃ B) (m : A) :
+hott definition uabeta {A B : Type u} (e : A ≃ B) (m : A) :
   Path B (coe⁻¹ 0 1 (λ i, V i e) m) (e.1 m) :=
 <i> coe⁻¹ i 1 (λ i, V i e) (Vproj i e m)
 
-hott def univalence.elim {A B : Type u} (p : Path (Type u) A B) : A ≃ B :=
+hott definition univalence.elim {A B : Type u} (p : Path (Type u) A B) : A ≃ B :=
 Path.coe 0 1 (λ i, A ≃ p @ i) (Equiv.ideqv A)
 
-hott def iso {A B : Type u} (f : A → B) (g : B → A)
+hott definition iso {A B : Type u} (f : A → B) (g : B → A)
   (F : f ∘ g ~′ id) (G : g ∘ f ~′ id) : Path (Type u) A B :=
 ua ⟨f, Qinv.toBiinv f ⟨g, ⟨Path.homotopyEquality F, Path.homotopyEquality G⟩⟩⟩
-
-hott def negNeg (x : I) : Path I (Path.neg (Path.neg x)) x :=
-Path.com (Path.symm (Path.connAnd (Path.symm Path.seg) (Path.neg x))) (Path.intervalContrRight x)
-
-hott def twist : Path Type I I :=
-iso Path.neg Path.neg negNeg negNeg
 
 end GroundZero.Cubical
