@@ -102,7 +102,7 @@ hott definition neg : I → I := Interval.elim seg⁻¹
 
 prefix:65 "−" => neg
 
-example {A : Type u} {a b : A} (p : Path A a b) : Path A b a :=
+hott example {A : Type u} {a b : A} (p : Path A a b) : Path A b a :=
 <i> p @ −i
 
 hott definition homotopy {A : Type u} {B : A → Type v} (f g : Π x, B x) :=
@@ -187,39 +187,64 @@ ap decode (encodeRefl a)⁻¹ ⬝ decodeEncode (refl a)
 
 hott lemma coerceβ {A : Type u} (B : A → Type v) {a : A} (u : B a) : coerce B (refl a) u = u :=
 begin
-  transitivity; apply Equiv.transportComp B;
-  transitivity; apply ap (transport _ · _);
-  transitivity; apply Interval.recβrule;
-  apply Equiv.constmap; reflexivity
+  transitivity; apply Equiv.transportComp B; transitivity; apply ap (transport _ · _);
+  transitivity; apply Interval.recβrule; apply Equiv.constmap; reflexivity
 end
 
-hott lemma coerceReflDecode {A : Type u} {a b : A} (p : a = b) : coerce (Path A a) (decode p) (refl a) = decode p :=
-begin
-  induction p; transitivity; apply ap (coerce _ · _); apply decodeIdp;
-  transitivity; apply coerceβ; symmetry; apply decodeIdp
+section
+  variable {A : Type u} {a b : A}
+
+  hott lemma coerceReflDecode (p : a = b) : coerce (Path A a) (decode p) (refl a) = decode p :=
+  begin
+    induction p; transitivity; apply ap (coerce _ · _); apply decodeIdp;
+    transitivity; apply coerceβ; symmetry; apply decodeIdp
+  end
+
+  hott corollary coerceRefl (p : Path A a b) : coerce (Path A a) p (refl a) = p :=
+  begin
+    transitivity; apply ap (coerce _ · _); symmetry; apply decodeEncode;
+    transitivity; apply coerceReflDecode; apply decodeEncode
+  end
+
+  hott lemma coerceComRevDecode (p : a = b) : coerce (Path A · b) (decode p) (decode p) = refl b :=
+  begin
+    induction p; transitivity; apply ap (coerce _ · _); apply decodeIdp;
+    transitivity; apply coerceβ; apply decodeIdp
+  end
+
+  hott corollary coerceComRev (p : Path A a b) : coerce (Path A · b) p p = refl b :=
+  begin transitivity; apply ap (coerce _ · _); symmetry; apply decodeEncode; apply coerceComRevDecode end
 end
 
-hott lemma coerceRefl {A : Type u} {a b : A} (p : Path A a b) : coerce (Path A a) p (refl a) = p :=
-begin
-  transitivity; apply ap (coerce _ · _); symmetry; apply decodeEncode;
-  transitivity; apply coerceReflDecode; apply decodeEncode
+section
+  variable {A : Type u} {a b : A} (p : Path A a b)
+
+  hott corollary coml : com (refl a) p = p := by apply coerceRefl
+  hott corollary comr : com p (refl b) = p := by apply coerceβ
 end
 
-hott corollary coml {A : Type u} {a b : A} (p : Path A a b) : com (refl a) p = p :=
-by apply coerceRefl
+section
+  variable {A : Type u} {B : A → Type v} {a b : A}
 
-hott corollary comr {A : Type u} {a b : A} (p : Path A a b) : com p (refl b) = p :=
-by apply coerceβ
+  hott lemma coerceDecode (p : a = b) (u : B a) : transport B p u = coerce B (decode p) u :=
+  begin induction p; symmetry; transitivity; apply ap (coerce B · _); apply decodeIdp; apply coerceβ end
 
-hott lemma coerceDecode {A : Type u} {B : A → Type v} {a b : A} (p : a = b) (u : B a) : transport B p u = coerce B (decode p) u :=
-begin induction p; symmetry; transitivity; apply ap (coerce B · _); apply decodeIdp; apply coerceβ end
+  hott corollary transportEncode (p : Path A a b) (u : B a) : transport B (encode p) u = coerce B p u :=
+  begin transitivity; apply coerceDecode; apply ap (coerce _ · _); apply decodeEncode end
+end
 
 hott definition meet {A : Type u} {a b : A} (p : Path A a b) : LineP (λ i, Path A a (p @ i)) :=
 Interval.ind (refl a) p
 (begin
-  apply Id.trans; apply Equiv.transportComp; transitivity; apply ap (Equiv.transport _ · _);
-  apply Interval.recβrule; transitivity; apply coerceDecode; transitivity;
-  apply ap (coerce _ · _); apply decodeEncode; apply coerceRefl
+  apply Id.trans; apply Equiv.transportComp; transitivity; apply ap (transport _ · _);
+  apply Interval.recβrule; transitivity; apply transportEncode; apply coerceRefl
+end)
+
+hott definition join {A : Type u} {a b : A} (p : Path A a b) : LineP (λ i, Path A (p @ i) b) :=
+Interval.ind p (refl b)
+(begin
+  apply Id.trans; apply Equiv.transportComp (Path A · b); transitivity; apply ap (transport _ · _);
+  apply Interval.recβrule; transitivity; apply transportEncode; apply coerceComRev
 end)
 
 /-
@@ -235,8 +260,8 @@ transport (<i> C (p @ i) (<j> p @ i ∧ j)) h
 -/
 
 hott definition J {A : Type u} {a : A} (C : Π b, Path A a b → Type v)
-  (h : C a (refl a)) {b : A} (p : Path A a b) : C b p :=
-trans (<i> C (p @ i) (meet p i)) h
+  (H : C a (refl a)) {b : A} (p : Path A a b) : C b p :=
+trans (<i> C (p @ i) (meet p i)) H
 
 end Path
 

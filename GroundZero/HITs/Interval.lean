@@ -14,17 +14,17 @@ namespace Interval
   rec (φ false) (φ true) (H _ _)
 
   hott definition contrLeft : Π i, i₀ = i :=
-  Interval.ind (idp i₀) seg (pathoverFromTrans seg (idp i₀) seg (idp seg))
+  ind (idp i₀) seg (pathoverFromTrans seg (idp i₀) seg (idp seg))
 
   hott definition contrRight : Π i, i₁ = i :=
-  Interval.ind seg⁻¹ (idp i₁) (pathoverFromTrans seg seg⁻¹ (idp i₁) (Id.invComp seg))
+  ind seg⁻¹ (idp i₁) (pathoverFromTrans seg seg⁻¹ (idp i₁) (Id.invComp seg))
 
   hott theorem intervalContr : contr I := ⟨i₁, contrRight⟩
 
   hott corollary intervalProp : prop I :=
   contrImplProp intervalContr
 
-  hott lemma transportOverHmtpy {A : Type u} {B : Type v} {C : Type w}
+  hott corollary transportOverHmtpy {A : Type u} {B : Type v} {C : Type w}
     (f : A → B) (g₁ g₂ : B → C) (h : A → C) (p : g₁ = g₂) (H : g₁ ∘ f ~ h) (x : A) :
        transport (λ (g : B → C), g ∘ f ~ h) p H x
     = @transport (B → C) (λ (g : B → C), g (f x) = h x) g₁ g₂ p (H x) :=
@@ -109,21 +109,11 @@ namespace Interval
   hott definition twist : I ≃ I :=
   ⟨neg, ⟨⟨neg, negNeg'⟩, ⟨neg, negNeg'⟩⟩⟩
 
-  hott lemma lineRec {A : Type u} (p : I → A) :
-    rec (p 0) (p 1) (ap p seg) = p :=
-  begin
-    apply Theorems.funext; intro x; induction x;
-    reflexivity; reflexivity; change _ = _;
-    transitivity; apply Equiv.transportOverHmtpy;
-    transitivity; apply ap (· ⬝ ap p seg);
-    transitivity; apply Id.rid;
-    transitivity; apply Id.mapInv; apply ap;
-    apply recβrule; apply Id.invComp
-  end
+  hott corollary lineRec {A : Type u} (f : I → A) : rec (f 0) (f 1) (ap f seg) = f :=
+  begin apply Theorems.funext; apply mapExt; end
 
-  hott lemma transportOverSeg {A : Type u}
-    (B : A → Type v) {a b : A} (p : a = b) (u : B a) :
-    @transport I (λ i, B (elim p i)) 0 1 Interval.seg u = transport B p u :=
+  hott lemma transportOverSeg {A : Type u} (B : A → Type v) {a b : A} (p : a = b) (u : B a) :
+    @transport I (λ i, B (elim p i)) 0 1 seg u = transport B p u :=
   begin
     transitivity; apply transportComp;
     transitivity; apply ap (transport B · u);
