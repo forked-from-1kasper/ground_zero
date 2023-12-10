@@ -33,8 +33,7 @@ namespace Trunc
   | −1            => Merely.hprop
   | succ (succ n) => λ _ _, propIsNType (λ _ _, trustCoherence) n
 
-  @[eliminator] def ind {B : Trunc n A → Type v} (elemπ : Π x, B (elem x))
-    (uniqπ : Π x, is-n-type (B x)) : Π x, B x :=
+  @[eliminator] def ind {B : Trunc n A → Type v} (elemπ : Π x, B (elem x)) (uniqπ : Π x, is-n-type (B x)) : Π x, B x :=
   match n with
   | −2            => λ x, (uniqπ x).1
   | −1            => Merely.ind elemπ (λ _, minusOneEqvProp.forward (uniqπ _))
@@ -50,10 +49,11 @@ namespace Trunc
   macro:max "∥" A:term "∥" n:subscript : term => do
     `(Trunc $(← Meta.Notation.parseSubscript n) $A)
 
-  macro "|" x:term "|" n:subscript : term => do
-    `(@Trunc.elem _ $(← Meta.Notation.parseSubscript n) $x)
+  -- See https://leanprover.zulipchat.com/#narrow/stream/270676-lean4/topic/absolute.20value
+  macro:max atomic("|" noWs) x:term noWs "|" n:subscript : term =>
+    do `(@Trunc.elem _ $(← Meta.Notation.parseSubscript n) $x)
 
-  hott lemma indβrule {B : ∥A∥ₙ → Type v} (elemπ : Π x, B (elem x))
+  hott lemma indβrule {B : ∥A∥ₙ → Type v} (elemπ : Π x, B |x|ₙ)
     (uniqπ : Π x, is-n-type (B x)) (x : A) : ind elemπ uniqπ (elem x) = elemπ x :=
   begin
     match n with | −2 => _ | −1 => _ | succ (succ n) => _;
@@ -63,13 +63,13 @@ namespace Trunc
   section
     variable {B : Type v} (elemπ : A → B) (uniqπ : is-n-type B)
 
-    hott def rec : ∥A∥ₙ → B := @ind A n (λ _, B) elemπ (λ _, uniqπ)
+    hott definition rec : ∥A∥ₙ → B := @ind A n (λ _, B) elemπ (λ _, uniqπ)
 
     hott corollary recβrule (x : A) : rec elemπ uniqπ (elem x) = elemπ x :=
     by apply indβrule
   end
 
-  hott def elemClose {B : Type v} (G : is-n-type B)
+  hott definition elemClose {B : Type v} (G : is-n-type B)
     (f g : ∥A∥ₙ → B) (H : f ∘ elem = g ∘ elem) : f = g :=
   begin
     apply Theorems.funext; fapply ind <;> intro x;
@@ -77,7 +77,7 @@ namespace Trunc
     { apply hlevel.cumulative; assumption }
   end
 
-  hott def nthTrunc (H : is-n-type A) : A ≃ ∥A∥ₙ :=
+  hott definition nthTrunc (H : is-n-type A) : A ≃ ∥A∥ₙ :=
   begin
     existsi elem; apply Prod.mk <;> existsi rec id H;
     { intro; apply recβrule; };
@@ -85,13 +85,13 @@ namespace Trunc
       apply Theorems.funext; intro; apply ap elem; apply recβrule; }
   end
 
-  hott def setEquiv {A : Type u} (H : hset A) : A ≃ ∥A∥₀ :=
+  hott definition setEquiv {A : Type u} (H : hset A) : A ≃ ∥A∥₀ :=
   begin apply nthTrunc; apply zeroEqvSet.left; assumption end
 
-  hott def ap {A : Type u} {B : Type v} {n : ℕ₋₂} (f : A → B) : ∥A∥ₙ → ∥B∥ₙ :=
+  hott definition ap {A : Type u} {B : Type v} {n : ℕ₋₂} (f : A → B) : ∥A∥ₙ → ∥B∥ₙ :=
   rec (elem ∘ f) (uniq n)
 
-  hott def ap₂ {A : Type u} {B : Type v} {C : Type w}
+  hott definition ap₂ {A : Type u} {B : Type v} {C : Type w}
     {n : ℕ₋₂} (f : A → B → C) : ∥A∥ₙ → ∥B∥ₙ → ∥C∥ₙ :=
   rec (ap ∘ f) (piRespectsNType n (λ _, uniq n))
 

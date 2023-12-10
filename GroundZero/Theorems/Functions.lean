@@ -26,16 +26,14 @@ hott def Ran {A : Type u} {B : Type v} (f : A → B) :=
 total (fibInh f)
 
 hott def cut {A : Type u} {B : Type v} (f : A → B) : A → Ran f :=
-λ x, ⟨f x, Merely.elem ⟨x, idp (f x)⟩⟩
+λ x, ⟨f x, |⟨x, idp (f x)⟩|⟩
 
 hott def cutIsSurj {A : Type u} {B : Type v} (f : A → B) : surjective (cut f) :=
 begin
   intro ⟨x, (H : ∥_∥)⟩; induction H;
-  case elemπ G => {
-    apply Merely.elem; existsi G.1;
-    fapply Sigma.prod; exact G.2;
-    apply Merely.uniq
-  };
+  case elemπ G =>
+  { apply Merely.elem; existsi G.1; fapply Sigma.prod;
+    exact G.2; apply Merely.uniq };
   apply Merely.uniq
 end
 
@@ -52,9 +50,8 @@ begin
   { intro; reflexivity }
 end
 
-hott def ranConst {A : Type u} (a : A) {B : Type v} (b : B) :
-  Ran (Function.const A b) :=
-⟨b, Merely.elem ⟨a, idp b⟩⟩
+hott def ranConst {A : Type u} (a : A) {B : Type v} (b : B) : Ran (Function.const A b) :=
+⟨b, |⟨a, idp b⟩|⟩
 
 hott def ranConstEqv {A : Type u} (a : A) {B : Type v}
   (H : hset B) (b : B) : Ran (Function.const A b) ≃ 𝟏 :=

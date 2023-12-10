@@ -22,7 +22,7 @@ def Quot.withUseOf {X : Type u} {R : X → X → Sort 0} {A : Type v} {B : Type 
 
 section
   variable (X : Type u) (R : X → X → Sort 0) (A : Type u) (B : Type w) (a₁ a₂ : A) (b : B)
-  #failure @Quot.withUseOf X R A B a₁ b ≡ @Quot.withUseOf X R A B a₂ b
+  #failure @Quot.withUseOf X R A B a₁ b ≡ @Quot.withUseOf X R A B a₂ b : Quot R → B
 end
 
 /--
@@ -43,11 +43,11 @@ namespace EtaFailure
 
   variable (X : Type u) (A : Type u) (B : Type w) (a₁ a₂ : A) (b : B)
 
-  #success @withUseOf X A B a₁ b ≡ @withUseOf X A B a₂ b
+  #success @withUseOf X A B a₁ b ≡ @withUseOf X A B a₂ b : Opaque X → B
 
   variable (x : Opaque X)
-  #success @withUseOf X A B a₁ b x ≡ b
-  #success @withUseOf X A B a₂ b x ≡ b
+  #success @withUseOf X A B a₁ b x ≡ b : B
+  #success @withUseOf X A B a₂ b x ≡ b : B
 end EtaFailure
 
 namespace Opaque

@@ -45,7 +45,7 @@ namespace «5.3»
   hott definition ez₂ : E         := e
   hott definition es₂ : ℕ → E → E := λ n _, e
 
-  #failure @es₁ E ≡ @es₂ E e : ℕ → E
+  #failure @es₁ E ≡ @es₂ E e : ℕ → E → E
 
   hott definition f : ℕ → E :=
   λ _, e

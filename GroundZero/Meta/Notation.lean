@@ -66,7 +66,7 @@ section
   }
 end
 
-macro "begin " ts:sepBy1(tactic, ";", "; ", allowTrailingSep) i:"end" : term =>
+macro "begin " ts:sepBy(tactic, ";", "; ", allowTrailingSep) i:"end" : term =>
   `(by { $[($ts:tactic)]* }%$i)
 
 declare_syntax_cat superscriptNumeral
@@ -323,8 +323,8 @@ namespace Defeq
   elab "#success " σ₁:term tag:" ≡ " σ₂:term τ:(typeSpec)? : command =>
   Elab.Command.runTermElabM fun _ => do {
     let T  ← elabTypeSpec τ;
-    let τ₁ ← Elab.Term.elabTerm σ₁ T;
-    let τ₂ ← Elab.Term.elabTerm σ₂ T;
+    let τ₁ ← Elab.Term.elabTermEnsuringType σ₁ T;
+    let τ₂ ← Elab.Term.elabTermEnsuringType σ₂ T;
 
     Elab.Term.synthesizeSyntheticMVarsNoPostponing;
     let τ₁ ← Elab.Term.levelMVarToParam (← instantiateMVars τ₁);
@@ -336,8 +336,8 @@ namespace Defeq
   elab "#failure " σ₁:term tag:" ≡ " σ₂:term τ:(typeSpec)? : command =>
   Elab.Command.runTermElabM fun _ => do {
     let T  ← elabTypeSpec τ;
-    let τ₁ ← Elab.Term.elabTerm σ₁ T;
-    let τ₂ ← Elab.Term.elabTerm σ₂ T;
+    let τ₁ ← Elab.Term.elabTermEnsuringType σ₁ T;
+    let τ₂ ← Elab.Term.elabTermEnsuringType σ₂ T;
 
     Elab.Term.synthesizeSyntheticMVarsNoPostponing;
     let τ₁ ← Elab.Term.levelMVarToParam (← instantiateMVars τ₁);
