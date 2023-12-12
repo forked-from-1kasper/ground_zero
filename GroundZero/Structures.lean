@@ -4,10 +4,10 @@ import GroundZero.Types.Product
 import GroundZero.Types.Coproduct
 
 open GroundZero.HITs.Interval (happly funext)
-open GroundZero.Types (Coproduct idp fib)
 open GroundZero.Types.Equiv (biinv)
 open GroundZero.Types.Id (ap)
 open GroundZero.Types.Unit
+open GroundZero.Types
 
 namespace GroundZero
 universe u v w k r w' w''
@@ -269,11 +269,14 @@ hott theorem ntypeRespectsEquiv (n : ℕ₋₂) {A : Type u} {B : Type v} :
   A ≃ B → is-n-type A → is-n-type B :=
 equivRespectsRetraction ∘ equivInducesRetraction
 
+hott lemma contrRespectsSigma {A : Type u} {B : A → Type v} :
+  contr A → (Π x, contr (B x)) → contr (Σ x, B x) :=
+λ ⟨a₀, p⟩ w, ⟨⟨a₀, (w a₀).1⟩, λ ⟨a, b⟩, Sigma.prod (p a) (contrImplProp (w a) _ _)⟩
+
 hott theorem ntypeRespectsSigma : Π (n : ℕ₋₂) {A : Type u} {B : A → Type v},
   is-n-type A → (Π x, is-n-type (B x)) → is-n-type (Σ x, B x)
-| −2            => λ ⟨a₀, p⟩ B, ⟨⟨a₀, (B a₀).1⟩, λ ⟨a, b⟩, Types.Sigma.prod (p a) (contrImplProp (B a) _ _)⟩
-| hlevel.succ n => λ A B p q, ntypeRespectsEquiv n (Types.Equiv.symm Types.Sigma.sigmaPath)
-                                (ntypeRespectsSigma n (A p.1 q.1) (λ x, B q.1 _ _))
+| −2            => contrRespectsSigma
+| hlevel.succ n => λ A B p q, ntypeRespectsEquiv n Sigma.sigmaPath.symm (ntypeRespectsSigma n (A p.1 q.1) (λ x, B q.1 _ _))
 
 hott corollary ntypeRespectsProd (n : ℕ₋₂) {A : Type u} {B : Type v} :
   is-n-type A → is-n-type B → is-n-type (A × B) :=

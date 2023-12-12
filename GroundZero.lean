@@ -79,6 +79,7 @@ import GroundZero.Theorems.Nat
 import GroundZero.Theorems.Ontological
 import GroundZero.Theorems.Pullback
 import GroundZero.Theorems.Univalence
+import GroundZero.Theorems.Weak
 import GroundZero.Types.Category
 import GroundZero.Types.CellComplex
 import GroundZero.Types.Coproduct
