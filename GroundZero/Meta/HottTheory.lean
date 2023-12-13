@@ -1,9 +1,12 @@
 import Lean.Elab
 
+open Lean.Parser
 open Lean.Parser.Command
-open Lean Std
+open Lean Lean.Elab Lean.Elab.Command
 
 universe u v w
+
+macro "run_cmd " σs:doSeq : command => `(#eval show CommandElabM Unit from do $σs)
 
 /-
   Original implementation:
@@ -12,67 +15,41 @@ universe u v w
 
 namespace GroundZero.Meta.HottTheory
 
-partial def instArgsAux : LocalContext → Expr → MetaM (LocalContext × Expr)
-| lctx, e => do
-  let τ ← Meta.inferType e >>= Meta.whnf;
-  if τ.isForall then do
-    let varId ← mkFreshFVarId
-    let lctx' := lctx.mkLocalDecl varId τ.bindingName! τ.bindingDomain! τ.bindingInfo!
+def typeOf (c : Name) : MetaM Expr := do {
+  let some info := (← getEnv).constants.find? c
+    | throwError "unknown identifier “{c}”";
+  return info.type
+}
 
-    withReader (λ ctx => { ctx with lctx := lctx' }) do
-      mkFVar varId
-      |> mkApp e
-      |> instArgsAux lctx'
-  else return (lctx, e)
+def isProof (e : Expr) : MetaM Bool :=
+Expr.isProp <$> Meta.inferType e
 
-def instArgs (e : Expr) : MetaM (LocalContext × Expr) := do
-  let ctx ← read; instArgsAux ctx.lctx e
-
-def isProp : LocalContext → Expr → MetaM Bool :=
-λ lctx e =>
-  withReader (λ ctx => { ctx with lctx := lctx })
-    (Expr.isProp <$> Meta.inferType e)
-
-def isProof : LocalContext → Expr → MetaM Bool :=
-λ lctx e => Meta.inferType e >>= isProp lctx
-
-def mkNumMetaUnivs : Nat → MetaM (List Level)
-|   0   => return []
-| n + 1 => do
-  let id ← mkFreshLMVarId;
-  let xs ← mkNumMetaUnivs n;
-  return (mkLevelMVar id :: xs)
-
-def const (c : Name) : MetaM Expr := do
-  let env ← getEnv;
-  match env.constants.find? c with
-  | some info => do
-    let num := info.levelParams.length;
-    let levels ← mkNumMetaUnivs num;
-    return mkConst c levels
-  | none => throwError "unknown identifier “{c}”"
-
-def uncurry {A : Type u} {B : Type v} {C : Type w} : (A → B → C) → (A × B → C) :=
-λ f (a, b) => f a b
-
-def hasLargeElim (type : Name) : MetaM Bool := do
-  let typeFormerIsProp ← const type >>= instArgs >>= uncurry isProp;
-  let elimIsProp ← const (type ++ `rec) >>= instArgs >>= uncurry isProof;
+def hasLargeElim (type : Name) : MetaM Bool := do {
+  let typeFormerIsProp ← Meta.forallTelescopeReducing (← typeOf type) (λ xs e => return Expr.isProp e);
+  let elimIsProp ← Meta.forallTelescopeReducing (← typeOf (type ++ `rec)) (λ xs e => isProof e);
   return (typeFormerIsProp ∧ ¬elimIsProp)
+}
+
+section
+  @[inline] def guardb {f : Type → Type u} [Alternative f] (b : Bool) : f Unit :=
+  if b then pure () else failure
+
+  run_cmd { let ns := [``Eq, ``HEq, ``False]; liftTermElabM <|
+            ns.forM (λ n => hasLargeElim n >>= guardb) }
+end
 
 def renderChain : List Name → String :=
 String.intercalate " <- " ∘ List.map toString
 
-def checkLargeElim (tag : Syntax) (chain : List Name) (name : Name) : MetaM Unit := do
-  let largeElim? ← hasLargeElim name;
-  if largeElim? then throwErrorAt tag "uses large eliminator: {renderChain chain}"
+def checkLargeElim (tag : Syntax) (chain : List Name) (name : Name) : MetaM Unit :=
+do if (← hasLargeElim name) then throwErrorAt tag "uses large eliminator: {renderChain chain}"
 
 initialize hottDecls : SimplePersistentEnvExtension Name NameSet ←
-  registerSimplePersistentEnvExtension {
-    name          := `hottDecls
-    addEntryFn    := NameSet.insert
-    addImportedFn := fun es => mkStateFromImportedEntries NameSet.insert {} es
-  }
+registerSimplePersistentEnvExtension {
+  name          := `hottDecls
+  addEntryFn    := NameSet.insert
+  addImportedFn := mkStateFromImportedEntries NameSet.insert {}
+}
 
 initialize nothott   : TagAttribute ← registerTagAttribute `nothott "Marks a defintion as unsafe for HoTT"
 initialize hottAxiom : TagAttribute ← registerTagAttribute `hottAxiom "(Potentially) unsafely marks a definition as safe for HoTT"
@@ -80,22 +57,22 @@ initialize hottAxiom : TagAttribute ← registerTagAttribute `hottAxiom "(Potent
 def unsafeDecls :=
 [`Lean.ofReduceBool, `Lean.ofReduceNat, `Quot.lift, `Quot.ind, `Quot.rec, `Classical.choice]
 
-def checked? (decl : Name) : MetaM Bool := do
-  let env         ← getEnv
-  let checked    := (hottDecls.getState env).contains decl
-  let markedSafe := hottAxiom.hasTag env decl
+def checked? (decl : Name) : MetaM Bool := do {
+  let env         ← getEnv;
+  let checked    := (hottDecls.getState env).contains decl;
+  let markedSafe := hottAxiom.hasTag env decl;
 
   pure (checked ∨ markedSafe)
+}
 
-def checkNotNotHoTT (tag : Syntax) (env : Environment) (decl : Name) : MetaM Unit := do
-  if nothott.hasTag env decl ∨ unsafeDecls.contains decl then
-    throwErrorAt tag "marked as [nothott]: {decl}"
-  else return ()
+def checkNotNotHoTT (tag : Syntax) (env : Environment) (decl : Name) : MetaM Unit :=
+do if nothott.hasTag env decl ∨ unsafeDecls.contains decl then
+  throwErrorAt tag "marked as [nothott]: {decl}"
 
-partial def checkDeclAux (chain : List Name) (tag : Syntax) (name : Name) : MetaM Unit := do
-  let env ← getEnv
+partial def checkDeclAux (chain : List Name) (tag : Syntax) (name : Name) : MetaM Unit := do {
+  let env ← getEnv;
 
-  if ¬(← checked? name) then
+  if ¬(← checked? name) then {
     checkNotNotHoTT tag env name;
     match env.find? name with
     | some (ConstantInfo.recInfo v) =>
@@ -108,9 +85,10 @@ partial def checkDeclAux (chain : List Name) (tag : Syntax) (name : Name) : Meta
       | some expr => Array.forM (λ n => checkDeclAux (n :: chain) tag n)
                                 expr.getUsedConstants
     | none => throwError "unknown identifier “{name}”"
-  else return ()
+  } else return ()
+}
 
-def checkDecl := checkDeclAux []
+def checkDecl (tag : Syntax) (name : Name) := checkDeclAux [name] tag name
 
 def defTok := leading_parser
     "def "         <|> "definition " <|> "theorem "   <|> "lemma "
@@ -127,6 +105,7 @@ def exampleTok := leading_parser "example " <|> "counterexample "
 def declDef     := leading_parser Parser.ppIndent optDeclSig >> declVal >> optDefDeriving >> terminationSuffix
 def decl        := leading_parser (defTok <|> abbrevTok) >> declId >> declDef
 def declExample := leading_parser exampleTok >> declDef
+def declCheck   := leading_parser "check " >> Parser.many1 Parser.ident
 
 /--
   Adds declaration and throws an error whenever it uses singleton elimination and/or
@@ -135,9 +114,12 @@ def declExample := leading_parser exampleTok >> declDef
 def hottPrefix := leading_parser "hott "
 
 @[command_parser] def hott :=
-leading_parser declModifiers false >> hottPrefix >> (decl <|> declExample)
+leading_parser declModifiers false >> hottPrefix >> (decl <|> declExample <|> declCheck)
 
-open Elab Elab.Command
+def checkAndMark (tag : Syntax) (name : Name) : CommandElabM Unit := do {
+  liftTermElabM (checkDecl tag name);
+  modifyEnv (λ env => hottDecls.addEntry env name)
+}
 
 def defAndCheck (tag declMods declId declDef : Syntax) : CommandElabM Name := do {
   let ns ← getCurrNamespace;
@@ -148,10 +130,7 @@ def defAndCheck (tag declMods declId declDef : Syntax) : CommandElabM Name := do
   |> (mkNode `Lean.Parser.Command.declaration #[declMods, ·])
   |> elabDeclaration;
 
-  if (← getEnv).contains declName then do {
-    liftTermElabM (checkDecl tag declName);
-    modifyEnv (λ env => hottDecls.addEntry env declName)
-  }
+  if (← getEnv).contains declName then checkAndMark tag declName
 
   return declName
 }
@@ -163,17 +142,22 @@ def abbrevAttrs : Array Attribute :=
 λ stx => do {
   let #[mods, _, cmd] := stx.getArgs | throwError "incomplete declaration";
 
-  match cmd.getArgs with
-  | #[tok, declId, declDef] => do {
+  if cmd.isOfKind ``decl then do {
+    let #[tok, declId, declDef] := cmd.getArgs | throwError "invalid declaration";
     let declName ← defAndCheck declId mods declId declDef;
     if tok.isOfKind ``abbrevTok then liftTermElabM (Term.applyAttributes declName abbrevAttrs)
   }
-  | #[tok, declDef] =>
-    withoutModifyingEnv do {
-      let declId := mkNode ``declId #[mkIdentFrom tok `_example, mkNullNode];
-      discard (defAndCheck tok mods declId declDef)
-    }
-  | _ => throwError "invalid declaration"
+
+  if cmd.isOfKind ``declExample then withoutModifyingEnv do {
+    let #[tok, declDef] := cmd.getArgs | throwError "invalid example";
+    let declId := mkNode ``declId #[mkIdentFrom tok `_example, mkNullNode];
+    discard (defAndCheck tok mods declId declDef)
+  }
+
+  if cmd.isOfKind ``declCheck then do {
+    let #[_, decls] := cmd.getArgs | throwError "invalid “check” statement";
+    decls.getArgs.forM (λ stx => resolveGlobalConstNoOverload stx >>= checkAndMark stx)
+  }
 }
 
 end GroundZero.Meta.HottTheory
