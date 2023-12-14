@@ -10,7 +10,9 @@ open GroundZero.Types
 
   Directed version is given in the “A Type-Theoretical Definition of Weak ω-Categories”, Eric Finster, Samuel Mimram.
   * https://arxiv.org/abs/1706.02866
-  * https://github.com/ericfinster/catt.io/
+  * https://github.com/ericfinster/catt.io
+  * https://github.com/ericfinster/catt
+  * https://github.com/smimram/catt
   * https://github.com/thibautbenjamin/catt
 -/
 
