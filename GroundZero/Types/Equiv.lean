@@ -296,7 +296,7 @@ namespace Equiv
 
   hott definition depTrans {A : Type u} {B : A → Type v}
     {a b c : A} {p : a = b} {q : b = c} {u : B a} {v : B b} {w : B c}
-    (r : u =[p] v) (s : v =[q] w): u =[p ⬝ q] w :=
+    (r : u =[p] v) (s : v =[q] w) : u =[p ⬝ q] w :=
   transportcom p q u ⬝ ap (transport B q) r ⬝ s
 
   infix:60 " ⬝′ " => depTrans
@@ -684,6 +684,10 @@ namespace Equiv
     (ψ : Π x, B₂ x → B₃ x) (φ : Π x, B₁ x → B₂ x) {a b : A} {u : B₁ a} {v : B₁ b}
     (p : a = b) (q : u =[B₁, p] v) : biapd (λ x, ψ x ∘ φ x) p q = biapd ψ p (biapd φ p q) :=
   begin induction p; apply mapOverComp end
+
+  hott lemma apdDiag {A : Type u} {B : A → Type v} {C : A → Type w} (f : Π x, B x) (φ : Π x, B x → C x)
+    {a b : A} (p : a = b) : apd (λ x, φ x (f x)) p = biapd φ p (apd f p) :=
+  begin induction p; reflexivity end
 
   hott definition bimapΩ {A : Type u} {B : Type v} {C : Type w} (f : A → B → C) {a : A} {b : B} :
     Π {n : ℕ}, Ωⁿ(A, a) → Ωⁿ(B, b) → Ωⁿ(C, f a b)

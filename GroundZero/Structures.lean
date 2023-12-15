@@ -49,7 +49,9 @@ hott def decEq (A : Type u) := Π (a b : A), dec (a = b)
 
 notation "dec⁼" => decEq
 
-hott def contr (A : Type u) := Σ (a : A), Π b, a = b
+hott definition contr (A : Type u) := Σ (a : A), Π b, a = b
+
+hott remark inhContr {A : Type u} : contr A → A := Sigma.fst
 
 inductive hlevel
 | minusTwo : hlevel
@@ -100,6 +102,7 @@ namespace hlevel
   succ (succ (predPred n))
 
   instance (n : ℕ) : OfNat ℕ₋₂ n := ⟨ofNat n⟩
+  instance : Coe ℕ ℕ₋₂ := ⟨ofNat⟩
 end hlevel
 
 hott definition isNType : hlevel → Type u → Type u
@@ -937,10 +940,6 @@ namespace Types.Id
   | Nat.zero,   _ => idp _
   | Nat.succ _, _ => apWithHomotopyΩ (mapOverComp _ _) _ _ ⬝ comApΩ (ap f) (ap g) _ _
 
-  hott lemma apdDiag {A : Type u} {B : A → Type v} {C : A → Type w} (f : Π x, B x) (φ : Π x, B x → C x)
-    {a b : A} (p : a = b) : apd (λ x, φ x (f x)) p = biapd φ p (apd f p) :=
-  begin induction p; reflexivity end
-
   hott lemma apdDiagΩ {A : Type u} {B : A → Type v} {C : A → Type w} (f : Π x, B x) (φ : Π x, B x → C x) {x : A} :
     Π (n : ℕ) (α : Ωⁿ(A, x)), apdΩ (λ x, φ x (f x)) α = biapdΩ φ n α (apdΩ f α)
   | Nat.zero,   _ => idp _
@@ -1088,6 +1087,17 @@ namespace Types.Id
                           apWithHomotopyΩ Product.apSnd _ _ ⬝
                           apSndΩ _ _
   end
+
+  open GroundZero.Structures
+
+  hott lemma levelStableΩ {A : Type u} {a : A} (k : ℕ₋₂) : Π {n : ℕ}, is-k-type A → is-k-type Ωⁿ(A, a)
+  | Nat.zero,   H => H
+  | Nat.succ n, H => @levelStableΩ (a = a) (idp a) k n (hlevel.cumulative k H a a)
+
+  hott lemma levelOverΩ {A : Type u} {B : A → Type v} {a : A} {b : B a} (k : ℕ₋₂) :
+    Π {n : ℕ}, (Π x, is-k-type (B x)) → Π (α : Ωⁿ(A, a)), is-k-type Ωⁿ(B, b, α)
+  | Nat.zero,   H, x => H x
+  | Nat.succ n, H, α => @levelOverΩ (a = a) (λ p, b =[B, p] b) (idp a) (idp b) k n (λ p, hlevel.cumulative k (H a) _ _) α
 end Types.Id
 
 end GroundZero

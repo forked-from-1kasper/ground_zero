@@ -34,8 +34,11 @@ section
   @[inline] def guardb {f : Type → Type u} [Alternative f] (b : Bool) : f Unit :=
   if b then pure () else failure
 
-  run_cmd { let ns := [``Eq, ``HEq, ``False]; liftTermElabM <|
-            ns.forM (λ n => hasLargeElim n >>= guardb) }
+  run_cmd { let xs := [``Eq, ``HEq, ``False, ``True, ``And, ``Iff, ``Acc, ``Subsingleton];
+            liftTermElabM <| xs.forM (λ n => hasLargeElim n >>= guardb) }
+
+  run_cmd { let ys := [``Or, ``Exists, ``Subtype, ``Quot];
+            liftTermElabM <| ys.forM (λ n => hasLargeElim n >>= guardb ∘ not) }
 end
 
 def renderChain : List Name → String :=
