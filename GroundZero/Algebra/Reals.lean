@@ -148,7 +148,7 @@ namespace GroundZero.Algebra
     apply (Theorems.Equiv.propEquiv _).left;
     apply Merely.lift _ (@connected.total R.κ _ x y);
     { intro H; induction H; left; assumption;
-      match @Classical.lem (x = y) (R.hset _ _) with
+      match @Classical.lem _ (x = y) (R.hset _ _) with
       | Sum.inl p₁ => _ | Sum.inr p₂ => _;
       left; induction p₁; apply @reflexive.refl R.κ;
       right; apply Prod.mk; intro r; apply p₂;

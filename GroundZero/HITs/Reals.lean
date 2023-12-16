@@ -130,7 +130,7 @@ namespace Reals
   hott def cis : R → S¹ := rec (λ _, base) (λ _, loop)
 
   noncomputable hott def Euler : fib cis base ≃ ℤ :=
-  @kerOfHomo ⟨R, 0⟩ dist ⟨cis, idp base⟩
+  @kerOfHomo _ ⟨R, 0⟩ dist ⟨cis, idp base⟩
 
   -- Another (more tricky) proof, but it does not use R contractibility
   noncomputable hott def helixOverCis (x : R) : helix (cis x) = ℤ :=

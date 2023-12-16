@@ -92,7 +92,7 @@ namespace K1
     { apply ensIsGroupoid }
   end
 
-  hott def code' : K1 G → 0-Type :=
+  noncomputable hott def code' : K1 G → 0-Type :=
   begin
     fapply family; exact G.carrier;
     { intro x; apply ua; existsi (G.φ · x); apply Prod.mk <;>
@@ -118,7 +118,7 @@ namespace K1
       apply setIsProp }
   end
 
-  hott def hsetBase : hset (@code G base) := code.hset base
+  hott def hsetBase : hset (@code _ G base) := code.hset base
 
   hott def encode : Π (z : K1 G), base = z → code z :=
   λ z p, Equiv.transport code p G.e

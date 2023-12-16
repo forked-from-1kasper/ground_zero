@@ -24,8 +24,8 @@ universe u v w u' v' w'
 section
   variable {A B : Type u} (f : A → B) (g : B → A)
 
-  axiom uaweak  (H : f ∘ g ~ idfun) (G : g ∘ f ~ idfun) : A = B
-  axiom uaweakβ (H : f ∘ g ~ idfun) (G : g ∘ f ~ idfun) : transportconst (uaweak f g H G) ~ f
+  hott axiom uaweak  (H : f ∘ g ~ idfun) (G : g ∘ f ~ idfun) : A = B
+  hott axiom uaweakβ (H : f ∘ g ~ idfun) (G : g ∘ f ~ idfun) : transportconst (uaweak f g H G) ~ f
 end
 
 noncomputable hott def ua {A B : Type u} (e : A ≃ B) : A = B :=

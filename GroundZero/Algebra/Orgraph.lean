@@ -196,7 +196,7 @@ namespace GroundZero.Algebra
     fapply GroundZero.HITs.Merely.rec _ _ (@connected.total T.κ _ _ _);
     change T.carrier; exact -b; change T.carrier; exact -a; apply T.κ.prop;
     { intro ih; induction ih; assumption;
-      match @Classical.lem (a = b) (T.hset _ _) with | Sum.inl r₁ => _ | Sum.inr r₂ => _;
+      match @Classical.lem _ (a = b) (T.hset _ _) with | Sum.inl r₁ => _ | Sum.inr r₂ => _;
       apply eqImplReflRel T.κ; symmetry; apply ap T.τ.neg r₁;
       apply Empty.elim; apply (_ : T.σ 0 0).1; reflexivity;
       apply Equiv.transportconst; apply Equiv.bimap;

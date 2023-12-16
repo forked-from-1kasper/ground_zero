@@ -13,6 +13,8 @@ macro "run_cmd " σs:doSeq : command => `(#eval show CommandElabM Unit from do $
   https://github.com/gebner/hott3/blob/master/src/hott/init/meta/support.lean
 -/
 
+@[class] axiom GroundZero : Type
+
 namespace GroundZero.Meta.HottTheory
 
 def typeOf (c : Name) : MetaM Expr := do {
@@ -109,6 +111,7 @@ def declDef     := leading_parser Parser.ppIndent optDeclSig >> declVal >> optDe
 def decl        := leading_parser (defTok <|> abbrevTok) >> declId >> declDef
 def declExample := leading_parser exampleTok >> declDef
 def declCheck   := leading_parser "check " >> Parser.many1 Parser.ident
+def declAxiom   := leading_parser "axiom " >> declId >> ppIndent declSig
 
 /--
   Adds declaration and throws an error whenever it uses singleton elimination and/or
@@ -117,20 +120,25 @@ def declCheck   := leading_parser "check " >> Parser.many1 Parser.ident
 def hottPrefix := leading_parser "hott "
 
 @[command_parser] def hott :=
-leading_parser declModifiers false >> hottPrefix >> (decl <|> declExample <|> declCheck)
+leading_parser declModifiers false >> hottPrefix >> (decl <|> declExample <|> declCheck <|> declAxiom)
 
 def checkAndMark (tag : Syntax) (name : Name) : CommandElabM Unit := do {
   liftTermElabM (checkDecl tag name);
   modifyEnv (λ env => hottDecls.addEntry env name)
 }
 
+def axiomInstBinder := mkNode ``Term.instBinder #[mkAtom "[", mkNullNode, mkIdent ``GroundZero, mkAtom "]"]
+def axiomBracketedBinderF : TSyntax ``Term.bracketedBinderF := ⟨axiomInstBinder.raw⟩
+
 def defAndCheck (tag declMods declId declDef : Syntax) : CommandElabM Name := do {
   let ns ← getCurrNamespace;
   let declName := ns ++ declId[0].getId;
 
-  declDef.setKind `Lean.Parser.Command.«def»
-  |> (Syntax.setArgs · (Array.append #[mkAtom "def ", declId] declDef.getArgs))
-  |> (mkNode `Lean.Parser.Command.declaration #[declMods, ·])
+  withScope (λ scope => {scope with varDecls := scope.varDecls.insertAt! 0 axiomBracketedBinderF,
+                                    varUIds  := scope.varUIds.insertAt! 0 Name.anonymous}) <|
+  declDef.setKind ``Command.«def»
+  |>.setArgs (Array.append #[mkAtom "def ", declId] declDef.getArgs)
+  |> (mkNode ``Command.declaration #[declMods, ·])
   |> elabDeclaration;
 
   if (← getEnv).contains declName then checkAndMark tag declName
@@ -160,6 +168,16 @@ def abbrevAttrs : Array Attribute :=
   if cmd.isOfKind ``declCheck then do {
     let #[_, decls] := cmd.getArgs | throwError "invalid “check” statement";
     decls.getArgs.forM (λ stx => resolveGlobalConstNoOverload stx >>= checkAndMark stx)
+  }
+
+  if cmd.isOfKind ``declAxiom then do {
+    let #[_, declId, declSig] := cmd.getArgs | throwError "invalid “axiom” statement";
+    let modifiedSig := declSig.modifyArg 0 (·.modifyArgs (·.insertAt! 0 axiomInstBinder));
+
+    cmd.setKind ``Command.«axiom»
+    |>.setArgs #[mkAtom "axiom ", declId, modifiedSig]
+    |> (mkNode ``Command.declaration #[mods, ·])
+    |> elabDeclaration;
   }
 }
 

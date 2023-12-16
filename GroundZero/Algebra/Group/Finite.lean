@@ -211,7 +211,7 @@ namespace Group
         ... = G.φ (G.φ g₂ x₂) (G.ι x₁) : ap (G.φ · (G.ι x₁)) (p.2⁻¹ ⬝ q.2)
         ... = G.φ g₂ (G.φ x₂ (G.ι x₁)) : G.mulAssoc _ _ _;
       transitivity; { symmetry; apply coset.assoc };
-      apply ap; apply @coset.idem.{u, v} G φ;
+      apply ap; apply @coset.idem.{u, v} _ G φ;
       apply φ.mul; exact q.1; apply φ.inv; exact p.1
     end
   end

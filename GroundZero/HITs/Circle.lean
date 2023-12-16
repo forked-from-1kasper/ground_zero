@@ -21,7 +21,7 @@ namespace HITs
 
 universe u v w
 
-hott def suspEmpty : ∑ 𝟎 ≃ 𝟐 :=
+hott lemma suspEmpty : ∑ 𝟎 ≃ 𝟐 :=
 let f : ∑ 𝟎 → 𝟐 :=
 Suspension.rec false true Proto.Empty.elim;
 let g : 𝟐 → ∑ 𝟎 :=
@@ -531,9 +531,9 @@ namespace Circle
   | Integer.pos n => natPow x n
   | Integer.neg n => natPow (inv x) (n + 1)
 
-  def uarec {A : Type u} (φ : A ≃ A) : S¹ → Type u := rec A (ua φ)
+  hott definition uarec {A : Type u} (φ : A ≃ A) : S¹ → Type u := rec A (ua φ)
 
-  abbrev Ωhelix {A : Type u} {succ pred : A → A} (p : succ ∘ pred ~ id) (q : pred ∘ succ ~ id) : S¹ → Type u :=
+  hott abbreviation Ωhelix {A : Type u} {succ pred : A → A} (p : succ ∘ pred ~ id) (q : pred ∘ succ ~ id) : S¹ → Type u :=
   uarec ⟨succ, ⟨pred, q⟩, ⟨pred, p⟩⟩
 
   hott def Ωrec {x : S¹} {A : Type u} (zero : A) (succ pred : A → A)
@@ -700,7 +700,7 @@ namespace Circle
   ap (wind x) (recβrule₂ x p)
 
   hott corollary degreeToWinding : Π (p : Ω¹(S¹)), degree (rec base p) = winding p :=
-  @degreeToWind base
+  @degreeToWind _ base
 
   -- so path between basepoints must be natural over loops to obtain required homotopy
   hott lemma endoHmtpyCriterion {a b : S¹} (r : a = b) (p : a = a) (q : b = b)
@@ -1041,7 +1041,7 @@ namespace Circle
        It also means that we cannot drop “f (f base) = base” condition in the previous lemma,
        so the next theorem cannot be proved this way outside of ∥·∥.
     -/
-    hott proposition sqrIdfunNonHmtpy : ¬(Π f, abs (degree f) = 1 → f ∘ f ~ idfun) :=
+    noncomputable hott proposition sqrIdfunNonHmtpy : ¬(Π f, abs (degree f) = 1 → f ∘ f ~ idfun) :=
     λ H, μNotLinv (λ x, H (μ x) (ap abs (μDegree x)))
 
     noncomputable hott corollary sqrIdfunMerelyHmtpy : Π f, abs (degree f) = 1 → ∥f ∘ f ~ idfun∥ :=
@@ -1378,39 +1378,40 @@ namespace Circle
   end
 end Circle
 
-def Torus := S¹ × S¹
+hott definition Torus := S¹ × S¹
 notation "T²" => Torus
 
 namespace Torus
   open Types.Product
-  def b : T² := ⟨Circle.base, Circle.base⟩
 
-  def inj₁ : S¹ → T² := Prod.mk Circle.base
-  def inj₂ : S¹ → T² := (Prod.mk · Circle.base)
+  hott definition b : T² := ⟨Circle.base, Circle.base⟩
+
+  hott definition inj₁ : S¹ → T² := Prod.mk Circle.base
+  hott definition inj₂ : S¹ → T² := (Prod.mk · Circle.base)
 
   -- poloidal and toroidal directions
-  def p : b = b := prod (idp Circle.base) Circle.loop
-  def q : b = b := prod Circle.loop (idp Circle.base)
+  hott definition p : b = b := prod (idp Circle.base) Circle.loop
+  hott definition q : b = b := prod Circle.loop (idp Circle.base)
 
-  hott def Φ {π : Type u} {x x' y y' : π}
+  hott definition Φ {π : Type u} {x x' y y' : π}
     (α : x = x') (β : y = y') :
     prod (idp x) β ⬝ prod α (idp y') =
     prod α (idp y) ⬝ prod (idp x') β :=
   begin induction α; induction β; reflexivity end
 
-  hott def t : p ⬝ q = q ⬝ p :=
+  hott definition t : p ⬝ q = q ⬝ p :=
   Φ Circle.loop Circle.loop
 end Torus
 
 end HITs
 
 namespace Types.Integer
-  noncomputable def succPath := GroundZero.ua Integer.succEquiv
+  noncomputable hott definition succPath := ua Integer.succEquiv
 
-  noncomputable def shift : ℤ → ℤ = ℤ :=
+  noncomputable hott definition shift : ℤ → ℤ = ℤ :=
   HITs.Loop.power succPath
 
-  noncomputable hott def shiftComp (z : ℤ) :
+  noncomputable hott definition shiftComp (z : ℤ) :
     shift z ⬝ succPath = shift (Integer.succ z) :=
   HITs.Loop.powerComp succPath z
 end Types.Integer

@@ -16,6 +16,7 @@ end
 inductive Id {A : Type u} : A → A → Type u
 | idp (a : A) : Id a a
 
+attribute [eliminator] Id.casesOn
 export Id (idp)
 
 infix:50 (priority := high) " = " => Id
@@ -24,8 +25,6 @@ infix:50 (priority := high) " = " => Id
 hott example {A : Type u} {a b : A} (p q : a = b) : p = q :=
 begin cases p; cases q; apply idp end
 -/
-
-attribute [eliminator] Id.casesOn
 
 hott definition J₁ {A : Type u} {a : A} (B : Π (b : A), a = b → Type v)
   (Bidp : B a (idp a)) {b : A} (p : a = b) : B b p :=

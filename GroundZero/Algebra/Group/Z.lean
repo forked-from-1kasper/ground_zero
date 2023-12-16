@@ -49,7 +49,7 @@ begin intro p; transitivity; apply Equiv.transportcom; apply helix.loopInv end
 noncomputable hott theorem power.mul {G : Group} (z : G.carrier) :
   Π (p q : ZΩ.carrier), power z (p ⬝ q) = G.φ (power z p) (power z q) :=
 begin
-  intro p q; fapply @Circle.Ωind₁ (λ p, power z (p ⬝ q) = G.φ (power z p) (power z q)) <;> clear p;
+  intro p q; fapply @Circle.Ωind₁ _ (λ p, power z (p ⬝ q) = G.φ (power z p) (power z q)) <;> clear p;
   { symmetry; apply G.oneMul };
   { intros p ih; transitivity; apply ap; transitivity;
     symmetry; apply Id.assoc; transitivity; apply ap (Id.trans p);
@@ -69,7 +69,7 @@ noncomputable hott def ZΩ.rec {G : Group} (z : G.carrier) : Group.Hom ZΩ G :=
 Group.mkhomo (power z) (power.mul z)
 
 noncomputable hott def ZΩ.mul (p q : ZΩ.carrier) : ZΩ.carrier :=
-(@power (Group.S ZΩ.1.zero) (Group.left ZΩ p) q).1 Id.refl
+(@power _ (Group.S ZΩ.1.zero) (Group.left ZΩ p) q).1 Id.refl
 
 noncomputable hott theorem power.one {G : Group} : Π p, power G.e p = G.e :=
 begin
