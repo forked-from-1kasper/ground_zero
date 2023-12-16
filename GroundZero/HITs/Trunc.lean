@@ -14,7 +14,7 @@ private def Trunc.aux (n : ℕ₋₂) (A : Type u) := Opaque A
 
 attribute [nothott] Trunc.aux
 
-def Trunc : ℕ₋₂ → Type u → Type u
+hott axiom Trunc : ℕ₋₂ → Type u → Type u
 | −2,            A => 𝟏
 | −1,            A => ∥A∥
 | succ (succ n), A => Trunc.aux n A
@@ -22,24 +22,22 @@ def Trunc : ℕ₋₂ → Type u → Type u
 namespace Trunc
   variable {A : Type u} {n : ℕ₋₂}
 
-  def elem : Π {n : ℕ₋₂} (x : A), Trunc n A
+  hott axiom elem : Π {n : ℕ₋₂} (x : A), Trunc n A
   | −2,            _ => ★
   | −1,            x => Merely.elem x
   | succ (succ n), x => Opaque.intro x
 
-  opaque uniq (n : ℕ₋₂) : is-n-type (Trunc n A) :=
+  hott opaque uniq (n : ℕ₋₂) : is-n-type (Trunc n A) :=
   match n with
   | −2            => unitIsContr
   | −1            => Merely.hprop
   | succ (succ n) => λ _ _, propIsNType (λ _ _, trustCoherence) n
 
-  @[eliminator] def ind {B : Trunc n A → Type v} (elemπ : Π x, B (elem x)) (uniqπ : Π x, is-n-type (B x)) : Π x, B x :=
+  @[eliminator] hott axiom ind {B : Trunc n A → Type v} (elemπ : Π x, B (elem x)) (uniqπ : Π x, is-n-type (B x)) : Π x, B x :=
   match n with
   | −2            => λ x, (uniqπ x).1
   | −1            => Merely.ind elemπ (λ _, minusOneEqvProp.forward (uniqπ _))
   | succ (succ n) => λ x, Quot.withUseOf uniqπ (Opaque.ind elemπ x) x
-
-  attribute [hottAxiom] Trunc elem uniq ind
 
   attribute [irreducible] Trunc
 

@@ -19,16 +19,16 @@ universe u v w
 inductive I.rel : 𝟐 → 𝟐 → Prop
 | intro : rel false true
 
-def I : Type := Quot I.rel
-abbrev Interval := I
+hott axiom I : Type := Quot I.rel
+hott abbreviation Interval := I
 
 namespace Interval
-  def ofBool : 𝟐 → I := Quot.mk I.rel
+  hott axiom ofBool : 𝟐 → I := Quot.mk I.rel
 
-  def i₀ : I := ofBool false
-  def i₁ : I := ofBool true
+  hott definition i₀ : I := ofBool false
+  hott definition i₁ : I := ofBool true
 
-  opaque seg : i₀ = i₁ :=
+  hott opaque seg : i₀ = i₁ :=
   trustHigherCtor (Quot.sound I.rel.intro)
 
   def hrec (B : I → Type u) (b₀ : B i₀) (b₁ : B i₁) (s : HEq b₀ b₁) (x : I) : B x :=
@@ -38,16 +38,14 @@ namespace Interval
        | true,  false, _ => HEq.symm s
        | true,  true,  _ => HEq.refl b₁)
 
-  @[eliminator] def ind {B : I → Type u} (b₀ : B i₀) (b₁ : B i₁) (s : b₀ =[seg] b₁) (x : I) : B x :=
+  @[eliminator] hott axiom ind {B : I → Type u} (b₀ : B i₀) (b₁ : B i₁) (s : b₀ =[seg] b₁) (x : I) : B x :=
   Quot.withUseOf s (hrec B b₀ b₁ (HEq.fromPathover seg s) x) x
 
-  opaque indβrule {B : I → Type u} (b₀ : B i₀) (b₁ : B i₁)
+  hott opaque indβrule {B : I → Type u} (b₀ : B i₀) (b₁ : B i₁)
     (s : b₀ =[seg] b₁) : apd (ind b₀ b₁ s) seg = s :=
   trustCoherence
 
   attribute [irreducible] I
-
-  attribute [hottAxiom] ofBool I i₀ i₁ seg ind indβrule
 
   instance : OfNat I Nat.zero := ⟨i₀⟩
   instance : OfNat I (Nat.succ Nat.zero) := ⟨i₁⟩
