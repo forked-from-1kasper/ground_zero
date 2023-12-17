@@ -4,14 +4,29 @@ open Lean.Parser
 open Lean.Parser.Command
 open Lean Lean.Elab Lean.Elab.Command
 
-universe u v w
-
-macro "run_cmd " σs:doSeq : command => `(#eval show CommandElabM Unit from do $σs)
-
 /-
   Original implementation:
   https://github.com/gebner/hott3/blob/master/src/hott/init/meta/support.lean
 -/
+
+universe u v w
+
+macro "run_cmd " σs:doSeq : command => `(#eval show CommandElabM Unit from do $σs)
+
+section
+  variable {A : Type} {M : Type → Type}
+
+  def Lean.Expr.forConstsM [Monad M] (e : Expr) (f : Name → M Unit) : M Unit :=
+  e.foldConsts (pure ()) (λ n eff => do { f n; eff })
+
+  @[inline] def Option.forM [Pure M] : Option A → (A → M Unit) → M Unit
+  | none,   _ => pure ()
+  | some x, f => f x
+end
+
+def Lean.ConstantInfo.isAxiomInfo : ConstantInfo → Bool
+| .axiomInfo _ => true
+| _            => false
 
 /--
   Dummy type used to track axioms inconsistent with Lean by default (i.e. univalence).
@@ -75,6 +90,9 @@ registerSimplePersistentEnvExtension {
 initialize nothott   : TagAttribute ← registerTagAttribute `nothott "Marks a defintion as unsafe for HoTT"
 initialize hottAxiom : TagAttribute ← registerTagAttribute `hottAxiom "(Potentially) unsafely marks a definition as safe for HoTT"
 
+initialize prohibitedAxioms : SimpleScopedEnvExtension Name NameSet ←
+registerSimpleScopedEnvExtension { addEntry := NameSet.insert, initial := NameSet.empty };
+
 def unsafeDecls :=
 [`Lean.ofReduceBool, `Lean.ofReduceNat, `Quot.lift, `Quot.ind, `Quot.rec, `Classical.choice]
 
@@ -91,8 +109,9 @@ do if nothott.hasTag env decl ∨ unsafeDecls.contains decl then
   throwErrorAt tag "marked as [nothott]: {decl}"
 
 partial def checkDeclAux (chain : List Name) (tag : Syntax) (name : Name) : MetaM Unit := do {
-  let env ← getEnv;
+  let checkExpr (e : Expr) := e.forConstsM λ n => checkDeclAux (n :: chain) tag n;
 
+  let env ← getEnv;
   if ¬(← checked? name) then {
     checkNotNotHoTT tag env name;
     match env.find? name with
@@ -100,16 +119,22 @@ partial def checkDeclAux (chain : List Name) (tag : Syntax) (name : Name) : Meta
       List.forM v.all (checkLargeElim tag chain)
     | some (ConstantInfo.opaqueInfo v) =>
       throwErrorAt tag "uses unsafe opaque: {renderChain chain}"
-    | some info =>
-      match info.value? with
-      | none      => return ()
-      | some expr => Array.forM (λ n => checkDeclAux (n :: chain) tag n)
-                                expr.getUsedConstants
+    | some info => info.value?.forM checkExpr
     | none => throwError "unknown identifier “{name}”"
   } else return ()
 }
 
-def checkDecl (tag : Syntax) (name : Name) := checkDeclAux [name] tag name
+def checkDecl (tag : Syntax) (name : Name) := do {
+  checkDeclAux [name] tag name;
+
+  let env ← getEnv; let prohibited := prohibitedAxioms.getState env;
+  if ¬prohibited.isEmpty then {
+    let (_, s) := ((CollectAxioms.collect name).run env).run {};
+
+    s.axioms.forM λ n => do if prohibited.contains n then
+      throwErrorAt tag "“{n}” is prohibited in the current scope."
+  }
+}
 
 def defTok := leading_parser
     "def "         <|> "definition " <|> "theorem "   <|> "lemma "
@@ -130,6 +155,15 @@ def axiomTok := leading_parser "axiom "
 def checkTok := leading_parser "check "
 
 /--
+  Prohibits usage of given axioms in the current scope.
+
+  Motivated by:
+  * https://leanprover.zulipchat.com/#narrow/stream/113489-new-members/topic/intuitionistic.20logic/near/224368423
+  * https://github.com/leanprover-community/mathlib/issues/10954
+-/
+def prohibitTok := leading_parser "prohibit "
+
+/--
   Adds opaque definition and marks it as `[hottAxiom]`.
   Used to define higher constructors of HITs.
 
@@ -137,13 +171,14 @@ def checkTok := leading_parser "check "
 -/
 def opaqueTok := leading_parser "opaque "
 
-def declDef     := leading_parser ppIndent optDeclSig >> declVal >> optDefDeriving >> terminationSuffix
-def decl        := leading_parser (defTok <|> abbrevTok) >> declId >> declDef
-def declExample := leading_parser exampleTok >> declDef
-def declCheck   := leading_parser checkTok >> Parser.many1 Parser.ident
-def declAxiom   := leading_parser axiomTok >> declId >> ppIndent declSig >>
-                   Parser.optional (declVal >> optDefDeriving >> terminationSuffix)
-def declOpaque  := leading_parser opaqueTok >> declId >> ppIndent declSig >> Parser.optional declValSimple
+def declDef      := leading_parser ppIndent optDeclSig >> declVal >> optDefDeriving >> terminationSuffix
+def decl         := leading_parser (defTok <|> abbrevTok) >> declId >> declDef
+def declExample  := leading_parser exampleTok >> declDef
+def declCheck    := leading_parser checkTok >> Parser.many1 Parser.ident
+def declProhibit := leading_parser prohibitTok >> Parser.many1 Parser.ident
+def declAxiom    := leading_parser axiomTok >> declId >> ppIndent declSig >>
+                    Parser.optional (declVal >> optDefDeriving >> terminationSuffix)
+def declOpaque   := leading_parser opaqueTok >> declId >> ppIndent declSig >> Parser.optional declValSimple
 
 /--
   Adds declaration and throws an error whenever it uses singleton elimination and/or
@@ -152,7 +187,8 @@ def declOpaque  := leading_parser opaqueTok >> declId >> ppIndent declSig >> Par
 def hottPrefix := leading_parser "hott "
 
 @[command_parser] def hott :=
-leading_parser declModifiers false >> hottPrefix >> (decl <|> declExample <|> declCheck <|> declAxiom <|> declOpaque)
+leading_parser declModifiers false >> hottPrefix >> (decl <|> declExample <|> declCheck
+                                            <|> declAxiom <|> declOpaque  <|> declProhibit)
 
 def checkAndMark (tag : Syntax) (name : Name) : CommandElabM Unit := do {
   liftTermElabM (checkDecl tag name);
@@ -234,6 +270,20 @@ def abbrevAttrs : Array Attribute :=
 
     let ns ← getCurrNamespace; let declName := ns ++ declId[0].getId;
     liftTermElabM (Term.applyAttributes declName #[{name := `hottAxiom}])
+  }
+
+  if cmd.isOfKind ``declProhibit then do {
+    let #[_, decls] := cmd.getArgs | throwError "invalid “prohibit” statement";
+
+    let env ← getEnv;
+    decls.getArgs.forM λ stx => do {
+      let n ← resolveGlobalConstNoOverload stx;
+
+      if ¬(env.constants.find! n).isAxiomInfo then
+        throwErrorAt stx "“{n}” expected to be an axiom.";
+
+      setEnv (prohibitedAxioms.addLocalEntry env n)
+    }
   }
 }
 
