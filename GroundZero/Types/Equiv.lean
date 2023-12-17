@@ -986,4 +986,13 @@ namespace Equiv
   | Nat.succ n, α, β => @bimapCharacterizationΩ₂ (a = a) (b = b) (f a b = f a b) (bimap f) (idp a) (idp b) n α β
 end Equiv
 
+inductive Resize (A : Type u) : Type (max u v)
+| intro : A → Resize A
+
+hott definition Resize.elim {A : Type u} : Resize A → A
+| intro w => w
+
+hott theorem Resize.equiv (A : Type u) : A ≃ Resize.{u, v} A :=
+Equiv.intro Resize.intro Resize.elim idp idp
+
 end GroundZero.Types

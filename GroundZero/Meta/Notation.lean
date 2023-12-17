@@ -330,7 +330,7 @@ namespace Defeq
     let τ₁ ← Elab.Term.levelMVarToParam (← instantiateMVars τ₁);
     let τ₂ ← Elab.Term.levelMVarToParam (← instantiateMVars τ₂);
 
-    unless (← Meta.isDefEq τ₁ τ₂) do throwErrorAt tag s!"{← Meta.ppExpr τ₁} ≠ {← Meta.ppExpr τ₂}"
+    unless (← Meta.isDefEqGuarded τ₁ τ₂) do throwErrorAt tag s!"{← Meta.ppExpr τ₁} ≠ {← Meta.ppExpr τ₂}"
   }
 
   elab "#failure " σ₁:term tag:" ≡ " σ₂:term τ:(typeSpec)? : command =>
@@ -343,7 +343,7 @@ namespace Defeq
     let τ₁ ← Elab.Term.levelMVarToParam (← instantiateMVars τ₁);
     let τ₂ ← Elab.Term.levelMVarToParam (← instantiateMVars τ₂);
 
-    if (← Meta.isDefEq τ₁ τ₂) then throwErrorAt tag s!"{← Meta.ppExpr τ₁} ≡ {← Meta.ppExpr τ₂}"
+    if (← Meta.isDefEqGuarded τ₁ τ₂) then throwErrorAt tag s!"{← Meta.ppExpr τ₁} ≡ {← Meta.ppExpr τ₂}"
   }
 end Defeq
 

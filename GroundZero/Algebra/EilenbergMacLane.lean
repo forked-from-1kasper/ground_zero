@@ -12,7 +12,7 @@ open GroundZero
 namespace GroundZero.Algebra
 universe u v
 
-hott axiom K1 (G : Group) : Type := Opaque 𝟏
+hott axiom K1 (G : Group.{u}) : Type u := Opaque 𝟏
 
 namespace K1
   variable {G : Group}
@@ -173,13 +173,13 @@ namespace K1
   end
 end K1
 
-hott def ItS (A : Type) : ℕ → Type
+hott definition ItS (A : Type u) : ℕ → Type u
 |      0     => A
 | Nat.succ n => ∑ (ItS A n)
 
 open GroundZero.HITs (Trunc)
 
-hott def K (G : Group) (n : ℕ) :=
-Trunc (hlevel.ofNat (n + 1)) (ItS (K1 G) n)
+hott definition K (G : Group) (n : ℕ) :=
+∥ItS (K1 G) n∥ₙ₊₁
 
 end GroundZero.Algebra

@@ -137,15 +137,6 @@ end «3.9»
 namespace «3.10»
   open «3.9»
 
-  inductive Resize (A : Type u) : Type (max u v)
-  | intro : A → Resize A
-
-  hott def Resize.elim {A : Type u} : Resize A → A
-  | intro w => w
-
-  hott theorem Resize.equiv (A : Type u) : A ≃ Resize.{u, v} A :=
-  ⟨Resize.intro, Qinv.toBiinv _ ⟨Resize.elim, (λ (Resize.intro _), idp _, idp)⟩⟩
-
   hott lemma Resize.prop {A : Type u} (H : prop A) : prop (Resize.{u, v} A) :=
   Structures.propRespectsEquiv.{u, max u v} (Resize.equiv A) H
 
