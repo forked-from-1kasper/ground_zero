@@ -7,6 +7,7 @@ open GroundZero.Types.Equiv
 open GroundZero.Structures
 open GroundZero.Types.Id
 open GroundZero.Types
+open GroundZero.Proto
 
 /-
   Circle S¹ as Higher Inductive Type.
@@ -217,6 +218,19 @@ namespace Circle
   noncomputable hott corollary ineqMerid : ¬(@Id (@Id S¹ base₁ base₂) (merid false) (merid true)) :=
   begin intro ε; apply loopNeqRefl; transitivity; apply ap (_ ⬝ ·⁻¹); apply ε; apply Id.compInv end
 
+  hott lemma constRec {A : Type u} (a : A) : Π z, rec a (idp a) z = a :=
+  begin
+    fapply ind; reflexivity; apply Id.trans; apply transportOverContrMap;
+    transitivity; apply Id.rid; apply recβrule₃
+  end
+
+  hott lemma idfunRec : rec base loop ~ idfun :=
+  begin
+    fapply ind; reflexivity; apply Id.trans; apply Equiv.transportOverHmtpy;
+    transitivity; apply bimap; transitivity; apply Id.rid;
+    apply recβrule₃; apply idmap; apply Id.invComp
+  end
+
   namespace map
     def trivial    : S¹ → S¹ := rec base (idp base)
     def nontrivial : S¹ → S¹ := rec base loop
@@ -228,20 +242,10 @@ namespace Circle
     end
 
     hott def trivialHmtpy : trivial ~ (λ _, base) :=
-    begin
-      intro x; induction x; reflexivity; apply Id.trans; apply transportOverContrMap;
-      transitivity; apply ap (· ⬝ idp base); transitivity; apply Id.mapInv;
-      apply ap; apply recβrule₂; reflexivity
-    end
+    by apply constRec
 
     hott def nontrivialHmtpy : nontrivial ~ id :=
-    begin
-      intro x; induction x; reflexivity;
-      apply Id.trans; apply transportOverInvolution;
-      transitivity; apply ap (· ⬝ idp base ⬝ loop);
-      transitivity; apply Id.mapInv; apply ap; apply recβrule₂;
-      transitivity; symmetry; apply Id.assoc; apply Id.invComp
-    end
+    by apply idfunRec
 
     noncomputable hott def nontrivialNotHmtpy : ¬(nontrivial = (λ _, base)) :=
     λ p, trivialNotHmtpy (Theorems.funext trivialHmtpy ⬝ p⁻¹ ⬝
@@ -598,7 +602,7 @@ namespace Circle
 
   hott def oneMult (p : Ω¹(S¹)) : mult loop p = p :=
   begin
-    transitivity; apply mapWithHomotopy; apply map.nontrivialHmtpy;
+    transitivity; apply mapWithHomotopy; apply idfunRec;
     transitivity; apply idConjRevIfComm; apply comm; apply idmap
   end
 
@@ -658,10 +662,11 @@ namespace Circle
 
   hott theorem mapLoopEqv {B : Type u} : (S¹ → B) ≃ (Σ (x : B), x = x) :=
   begin
-    fapply Sigma.mk; intro φ; exact ⟨φ base, ap φ loop⟩; apply Qinv.toBiinv;
-    fapply Sigma.mk; intro w; exact rec w.1 w.2; apply Prod.mk;
-    { intro; fapply Sigma.prod; reflexivity; apply recβrule₂ };
-    { intro φ; symmetry; apply Theorems.funext; apply mapExt }
+    fapply Equiv.intro;
+    { intro φ; exact ⟨φ base, ap φ loop⟩ };
+    { intro w; exact rec w.1 w.2 };
+    { intro φ; symmetry; apply Theorems.funext; apply mapExt };
+    { intro; fapply Sigma.prod; reflexivity; apply recβrule₂ }
   end
 
   hott theorem loopCircle {A : Type u} (a : A) : Map⁎ ⟨S¹, base⟩ ⟨A, a⟩ ≃ (a = a) :=
@@ -702,15 +707,41 @@ namespace Circle
   hott corollary degreeToWinding : Π (p : Ω¹(S¹)), degree (rec base p) = winding p :=
   @degreeToWind _ base
 
+  hott lemma eqRecOfHom {A : Type u} {a b : A} (r : a = b)
+    {p : a = a} {q : b = b} (ε : p ⬝ r = r ⬝ q) : rec a p = rec b q :=
+  begin induction r; apply ap (rec a); exact (Id.rid p)⁻¹ ⬝ ε end
+
   -- so path between basepoints must be natural over loops to obtain required homotopy
-  hott lemma endoHmtpyCriterion {a b : S¹} (r : a = b) (p : a = a) (q : b = b)
-    (ε : p ⬝ r = r ⬝ q) : rec a p ~ rec b q :=
-  begin
-    fapply ind; exact r; apply Id.trans; apply Equiv.transportOverHmtpy;
-    transitivity; apply ap (· ⬝ _ ⬝ _); apply Id.mapInv;
-    transitivity; apply bimap (λ p q, p ⬝ r ⬝ q);
-    apply ap; apply recβrule₂; apply recβrule₂;
-    apply idConjIfComm; symmetry; exact ε
+  hott corollary endoHmtpyCriterion {A : Type u} {a b : A} (r : a = b)
+    (p : a = a) (q : b = b) (ε : p ⬝ r = r ⬝ q) : rec a p ~ rec b q :=
+  begin apply happly; apply eqRecOfHom r ε end
+
+  section
+    variable {A : Type u}
+
+    hott definition loopOf {a : A} (p : a = a) : Σ (x : A), x = x := ⟨a, p⟩
+
+    hott lemma eqEquivSquare (f g : S¹ → A) := calc
+          f = g
+        ≃ @Id (Σ x, x = x) (loopOf (ap f loop)) (loopOf (ap g loop))
+        : apEquivOnEquiv mapLoopEqv
+    ... ≃ Σ (r : f base = g base), ap f loop =[λ x, x = x, r] ap g loop
+        : Sigma.sigmaPath
+    ... ≃ Σ (r : f base = g base), r⁻¹ ⬝ (ap f loop ⬝ r) = ap g loop
+        : Sigma.respectsEquiv (λ _, idtoeqv (ap (· = ap g loop) (transportInvCompComp _ _ ⬝ (Id.assoc _ _ _)⁻¹)))
+    ... ≃ Σ (r : f base = g base), ap f loop ⬝ r = r ⬝ ap g loop
+        : Sigma.respectsEquiv (λ _, rewriteCompEquiv.symm)
+
+    hott corollary recEqSquare {a b : A} (p : a = a) (q : b = b) := calc
+          rec a p = rec b q
+        ≃ Σ (r : a = b), ap (rec a p) loop ⬝ r = r ⬝ ap (rec b q) loop
+        : eqEquivSquare (rec a p) (rec b q)
+    ... ≃ Σ (r : a = b), p ⬝ r = r ⬝ q
+        : Sigma.respectsEquiv (λ r, idtoeqv (bimap (· ⬝ r = r ⬝ ·) (recβrule₂ a p) (recβrule₂ b q)))
+
+    hott corollary homEqSquare {A : Type u} {a b : A} (p : a = a) (q : b = b) := calc
+    rec a p ~ rec b q ≃ rec a p = rec b q              : Theorems.full.symm
+                  ... ≃ (Σ (r : a = b), p ⬝ r = r ⬝ q) : recEqSquare p q
   end
 
   hott def roll (x : S¹) : Ω¹(S¹) → x = x :=
@@ -822,14 +853,14 @@ namespace Circle
     noncomputable hott lemma degOne : degree idfun = 1 :=
     begin
       transitivity; apply ap degree; apply Theorems.funext;
-      symmetry; apply map.nontrivialHmtpy; transitivity;
+      symmetry; apply idfunRec; transitivity;
       apply degreeToWind; apply windingPower 1
     end
 
     noncomputable hott lemma degZero : degree (λ _, base) = 0 :=
     begin
       transitivity; apply ap degree; apply Theorems.funext;
-      symmetry; apply map.trivialHmtpy; apply degreeToWind
+      symmetry; apply constRec; apply degreeToWind
     end
 
     noncomputable hott lemma degMinusOne : degree inv = -1 :=
@@ -1071,7 +1102,7 @@ namespace Circle
     begin
       transitivity; apply μDupDecom; apply Homotopy.rwhs;
       transitivity; apply happly; apply ap (rec base);
-      apply ap power; exact H; apply map.nontrivialHmtpy
+      apply ap power; exact H; apply idfunRec
     end
 
     noncomputable hott corollary reflectionMap (H : degree f = -1) : f ~ μ (f base) ∘ inv :=
@@ -1376,6 +1407,36 @@ namespace Circle
       apply ap; apply transportBackAndForward
     end
   end
+
+  open GroundZero.Theorems
+
+  hott lemma hubSpokesEquiv {A : Type u} {a : A} (p : a = a) := calc
+       (Σ (x₀ : A), Π (z : S¹), rec a p z = x₀)
+      ≃ Σ (x₀ : A), Π (z : S¹), rec a p z = rec x₀ (idp x₀) z
+      : Sigma.respectsEquiv (λ _, equivFunext (λ z, idtoeqv (ap (rec a p z = ·) (constRec _ _)⁻¹)))
+  ... ≃ Σ (x₀ : A) (ε : a = x₀), p ⬝ ε = ε ⬝ idp x₀
+      : Sigma.respectsEquiv (λ x₀, homEqSquare p (idp x₀))
+  ... ≃ Σ (x₀ : A) (ε : a = x₀), p ⬝ ε = ε
+      : Sigma.respectsEquiv (λ x₀, Sigma.respectsEquiv (λ ε, idtoeqv (ap (p ⬝ ε = ·) (Id.rid ε))))
+  ... ≃ Σ (w : Σ x₀, a = x₀), p ⬝ w.2 = w.2
+      : Sigma.assoc (λ w, p ⬝ w.2 = w.2)
+  ... ≃ (p ⬝ idp a = idp a)
+      : Equiv.contrFamily (singl.contr a)
+  ... = (p = idp a)
+      : ap (· = idp a) (Id.rid p)
+
+  hott remark hubSpokesNonEquiv {A : Type u} {a : A} (p : a = a) := calc
+        (Π (z : S¹), rec a p z = a)
+      ≃ (Π (z : S¹), rec a p z = rec a (idp a) z)
+      : equivFunext (λ z, idtoeqv (ap (rec a p z = ·) (constRec _ _)⁻¹))
+  ... ≃ Σ (ε : a = a), p ⬝ ε = ε ⬝ idp a
+      : homEqSquare p (idp a)
+  ... ≃ Σ (ε : a = a), p ⬝ ε = idp a ⬝ ε
+      : Sigma.respectsEquiv (λ ε, idtoeqv (ap (p ⬝ ε = ·) (Id.rid ε)))
+  ... ≃ Σ (ε : a = a), p = idp a
+      : Sigma.respectsEquiv (λ _, cancelRightEquiv)
+  ... ≃ (a = a) × (p = idp a)
+      : Sigma.const (a = a) (p = idp a)
 end Circle
 
 hott definition Torus := S¹ × S¹

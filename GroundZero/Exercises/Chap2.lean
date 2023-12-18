@@ -172,16 +172,9 @@ Coproduct.depUnivProperty A B (λ _, X)
 
 -- exercise 2.10
 
-hott def sigma.assoc (A : Type u) (B : A → Type v) (C : (Σ x, B x) → Type w) :
+hott example (A : Type u) (B : A → Type v) (C : (Σ x, B x) → Type w) :
   (Σ x, Σ y, C ⟨x, y⟩) ≃ (Σ p, C p) :=
-begin
-  fapply Sigma.mk; { intro w; existsi ⟨w.1, w.2.1⟩; exact w.2.2 };
-  apply Qinv.toBiinv; fapply Sigma.mk;
-  { intro w; existsi w.1.1; existsi w.1.2; apply transport C;
-    symmetry; exact Sigma.uniq w.1; exact w.2 }; apply Prod.mk;
-  { intro ⟨⟨a, b⟩, c⟩; reflexivity };
-  { intro ⟨a, ⟨b, c⟩⟩; reflexivity }
-end
+Sigma.assoc C
 
 -- exercise 2.11
 

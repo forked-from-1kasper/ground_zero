@@ -72,9 +72,8 @@ namespace Equiv
     linv f × rinv f
   end
 
-  hott definition homotopySquare {A : Type u} {B : Type v}
-    {f g : A → B} (H : f ~ g) {x y : A} (p : x = y) :
-    H x ⬝ ap g p = ap f p ⬝ H y :=
+  hott definition homotopySquare {A : Type u} {B : Type v} {f g : A → B}
+    (H : f ~ g) {x y : A} (p : x = y) : H x ⬝ ap g p = ap f p ⬝ H y :=
   begin induction p; apply Id.rid end
 end Equiv
 
@@ -911,6 +910,14 @@ namespace Equiv
     apply ap (_ ⬝ ·); apply Id.invInv; symmetry; apply Id.invInv;
     symmetry; transitivity; apply inveqv; apply rewriteCompEquiv
   end
+
+  hott theorem cancelRightEquiv {A : Type u} {a b c : A}
+    {p q : a = b} {r : b = c} : (p ⬝ r = q ⬝ r) ≃ (p = q) :=
+  begin induction r; apply idtoeqv; apply bimap <;> apply Id.rid end
+
+  hott theorem cancelLeftEquiv {A : Type u} {a b c : A}
+    {p : a = b} {q r : b = c} : (p ⬝ q = p ⬝ r) ≃ (q = r) :=
+  begin induction p; apply ideqv end
 
   hott lemma loopApEquiv {A : Type u} {B : Type v} (φ : A ≃ B) {a : A} : Π (n : ℕ), Ωⁿ(A, a) ≃ Ωⁿ(B, φ a)
   | Nat.zero   => φ

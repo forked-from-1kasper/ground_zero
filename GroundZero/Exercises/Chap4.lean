@@ -25,7 +25,7 @@ namespace «4.1»
 
   hott lemma adjointIdfun (A : Type u) : Adjoint (@idfun A) ≃ (Π (x : A), idp x = idp x) :=
   begin
-    apply Equiv.trans; apply sigma.assoc (A → A) (λ g, g ~ idfun) (λ w, Σ (ε : w.1 ~ idfun), (Π x, ap idfun (w.2 x) = ε x) × (Π y, ap w.1 (ε y) = w.2 (w.1 y)));
+    apply Equiv.trans; apply @Sigma.assoc (A → A) (λ g, g ~ idfun) (λ w, Σ (ε : w.1 ~ idfun), (Π x, ap idfun (w.2 x) = ε x) × (Π y, ap w.1 (ε y) = w.2 (w.1 y)));
     apply Equiv.trans; apply Theorems.Equiv.contrFamily;
     apply Structures.contrRespectsEquiv; apply Sigma.respectsEquiv;
     intro; apply Equiv.trans; apply Equiv.inveqv;
@@ -33,7 +33,7 @@ namespace «4.1»
     show (Σ (ε : idfun ~ idfun), (Π x, idp x = ε x) × (Π y, ap idfun (ε y) = idp y)) ≃ _;
 
     apply Equiv.trans; apply Sigma.respectsEquiv; intro; symmetry; apply Sigma.const;
-    apply Equiv.trans; apply sigma.assoc (idfun ~ idfun) (λ ε, Π x, idp x = ε x) (λ w, Π y, ap idfun (w.1 y) = idp y);
+    apply Equiv.trans; apply @Sigma.assoc (idfun ~ idfun) (λ ε, Π x, idp x = ε x) (λ w, Π y, ap idfun (w.1 y) = idp y);
     apply Equiv.trans; apply Theorems.Equiv.contrFamily;
     apply Structures.contrRespectsEquiv; apply Sigma.respectsEquiv;
     intro; apply Theorems.full; apply singl.contr; reflexivity
@@ -162,7 +162,7 @@ namespace «4.3»
     apply ideqv; apply Equiv.trans; symmetry; apply Theorems.full;
     apply Equiv.inveqv; apply ideqv;
     symmetry; apply Sigma.const; apply Equiv.trans;
-    apply sigma.assoc (B → A) (λ g, e.1 = g) (λ w, w.1 ∘ f ~ idfun);
+    apply @Sigma.assoc (B → A) (λ g, e.1 = g) (λ w, w.1 ∘ f ~ idfun);
     apply Equiv.trans; apply Theorems.Equiv.contrFamily; apply singl.contr;
 
     apply Structures.equivFunext; intro x;
@@ -202,10 +202,10 @@ namespace «4.4»
     fib (mapProd f g) w' ≃ Σ (e : fib f w'.1), fib (g e.1) (transport B' e.2⁻¹ w'.2) :=
   begin
     transitivity; apply Sigma.respectsEquiv.{_, _, max u' v'}; intro; apply Sigma.sigmaPath;
-    transitivity; symmetry; apply sigma.assoc;
+    transitivity; symmetry; apply Sigma.assoc;
     transitivity; apply Sigma.respectsEquiv.{_, _, max v u' v'}; intro x;
     apply bisigmaComm (B x) (f x = w'.1) (λ y p, transport B' p (g x y) = w'.2);
-    transitivity; apply sigma.assoc A (λ x, f x = w'.1) (λ e, Σ (y : B e.1), transport B' e.2 (g e.1 y) = w'.2);
+    transitivity; apply @Sigma.assoc A (λ x, f x = w'.1) (λ e, Σ (y : B e.1), transport B' e.2 (g e.1 y) = w'.2);
     apply Sigma.respectsEquiv; intro e; apply Sigma.respectsEquiv; intro;
     transitivity; apply transportEmbdEqv e.2⁻¹; apply transport (· = _ ≃ _ = _);
     symmetry; apply Equiv.transportForwardAndBack; reflexivity
@@ -232,7 +232,7 @@ namespace «4.4»
   hott theorem «4.4.ii» (c : C) : fib (g ∘ f) c ≃ Σ (w : fib g c), fib f w.1 :=
   begin
     apply Equiv.symm; apply Equiv.trans;
-    apply sigma.assoc (fib g c) (λ _, A) (λ w, f w.2 = w.1.1);
+    apply @Sigma.assoc (fib g c) (λ _, A) (λ w, f w.2 = w.1.1);
     apply Equiv.trans; fapply Theorems.Equiv.respectsEquivOverFst;
 
     exact (Σ (a : A) (b : B), g b = c);
@@ -242,9 +242,9 @@ namespace «4.4»
       { intro w; existsi ⟨w.2.1, w.2.2⟩; exact w.1 };
       apply Prod.mk <;> intro <;> reflexivity };
 
-    apply Equiv.trans; symmetry; apply sigma.assoc;
+    apply Equiv.trans; symmetry; apply Sigma.assoc;
     apply Sigma.respectsEquiv; intro a;
-    apply Equiv.trans; symmetry; apply sigma.assoc;
+    apply Equiv.trans; symmetry; apply Sigma.assoc;
     apply Equiv.trans; apply Sigma.respectsEquiv;
     intro b; apply Sigma.const (g b = c) (f a = b);
 
