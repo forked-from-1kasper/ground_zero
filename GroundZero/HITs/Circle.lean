@@ -1410,6 +1410,15 @@ namespace Circle
 
   open GroundZero.Theorems
 
+  /--
+    This equivalence informally states that filling in a loop is the same as adding
+    a new point x₀, the hub, and spokes f z = x₀ for every z : S¹, similar
+    to the spokes in a wheel. This means that in a higher inductive type, we can
+    replace a 2-path constructor p = idp x by a new point constructor x₀ : A and
+    a family of 1-path constructors Π (z : S¹), f z = x₀.
+
+    From “Homotopy Type Theory in Lean”, https://arxiv.org/abs/1704.06781.
+  -/
   hott lemma hubSpokesEquiv {A : Type u} {a : A} (p : a = a) := calc
        (Σ (x₀ : A), Π (z : S¹), rec a p z = x₀)
       ≃ Σ (x₀ : A), Π (z : S¹), rec a p z = rec x₀ (idp x₀) z
@@ -1425,6 +1434,15 @@ namespace Circle
   ... = (p = idp a)
       : ap (· = idp a) (Id.rid p)
 
+  /--
+    One might question the need for introducing the hub point x₀ : A; why couldn’t we
+    instead simply add paths continuously relating the boundary of the disc to a point
+    on that boundary?
+
+    The problem is that the specified path from a : A to itself may not be reflexivity.
+
+    HoTT book, remark 6.7.1.
+  -/
   hott remark hubSpokesNonEquiv {A : Type u} {a : A} (p : a = a) := calc
         (Π (z : S¹), rec a p z = a)
       ≃ (Π (z : S¹), rec a p z = rec a (idp a) z)
