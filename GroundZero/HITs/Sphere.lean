@@ -1,4 +1,5 @@
 import GroundZero.HITs.Circle
+import GroundZero.HITs.Trunc
 
 open GroundZero.HITs.Interval
 open GroundZero.Types.Equiv
@@ -12,7 +13,7 @@ namespace HITs
 universe u v w
 
 namespace HigherSphere
-  open GroundZero.HITs.Suspension (north merid σ suspΩ)
+  open GroundZero.HITs.Suspension (north south merid σ suspΩ)
   open GroundZero.Proto (idfun)
 
   hott definition base : Π {n : ℕ}, S n
@@ -136,19 +137,24 @@ namespace HigherSphere
     { intro φ; apply Theorems.funext; apply mapExtΩ }
   end
 
+  hott definition ofMap {A : Type u} {a : A} {n : ℕ} : Map⁎ ⟨Sⁿ⁺¹, base⟩ ⟨A, a⟩ → Ωⁿ⁺¹(A, a) :=
+  λ φ, conjugateΩ φ.2 (apΩ φ.1 (surf n))
+
+  hott definition toMap {A : Type u} {a : A} {n : ℕ} : Ωⁿ⁺¹(A, a) → Map⁎ ⟨Sⁿ⁺¹, base⟩ ⟨A, a⟩ :=
+  λ ε, ⟨rec A a n ε, recβrule₁ a ε⟩
+
   hott theorem loopSphere {A : Type u} (a : A) : Π (n : ℕ), Map⁎ ⟨Sⁿ⁺¹, base⟩ ⟨A, a⟩ ≃ Ωⁿ⁺¹(A, a)
   | Nat.zero   => Circle.loopCircle a
   | Nat.succ n =>
   begin
-    fapply Sigma.mk; intro φ; exact conjugateΩ φ.2 (apΩ φ.1 (surf (n + 1))); apply Qinv.toBiinv;
-    fapply Sigma.mk; intro ε; existsi rec A a (n + 1) ε; reflexivity; apply Prod.mk;
-    { intro; apply recβrule₂ };
+    fapply Equiv.intro; exact ofMap; exact toMap;
     { intro ⟨φ, (H : φ base = a)⟩; induction H using J₁;
       fapply Sigma.prod; apply Theorems.funext; apply mapExtΩ;
       transitivity; apply transportOverContrMap; transitivity; apply Id.rid;
       transitivity; apply mapInv; transitivity; apply ap;
       transitivity; apply Theorems.mapToHapply; apply happly;
-      apply Theorems.happlyFunext; reflexivity }
+      apply Theorems.happlyFunext; reflexivity };
+    { intro ε; apply recβrule₂ a (n + 1) ε }
   end
 
   hott definition indBias (n : ℕ) (B : Sⁿ⁺¹ → Type u) (b : B base) (ε : Ωⁿ⁺¹(B, b, surf n)) :=
@@ -201,6 +207,26 @@ namespace HigherSphere
   hott corollary recCompΩ {n : ℕ} {a b : Sⁿ⁺¹} (α : Ωⁿ⁺¹(Sⁿ⁺¹, a)) (β : Ωⁿ⁺¹(Sⁿ⁺¹, b)) :
     rec Sⁿ⁺¹ a n α ∘ rec Sⁿ⁺¹ b n β ~ rec Sⁿ⁺¹ (rec Sⁿ⁺¹ a n α b) n (mult α β) :=
   by apply recComMapΩ
+
+  hott definition irot {n : ℕ} : Π x, Ωⁿ⁺¹(∥Sⁿ⁺¹∥ₙ₊₁, x) :=
+  Trunc.ind
+    (ind n _ (apΩ Trunc.elem (surf n))
+      (match n with
+      | Nat.zero   => Equiv.transportOverHmtpy _ _ _ _ ⬝ ap (· ⬝ _ ⬝ _) (Id.mapInv _ _) ⬝ ap (· ⬝ apΩ Trunc.elem (surf Nat.zero)) (Id.invComp _)
+      | Nat.succ n => inOverΩ _ _ (propRespectsEquiv (Equiv.altDefOverΩ _ _).symm
+                                                     (zeroEqvSet.forward (levelOverΩ _ (λ _, zeroTypeLoop (Trunc.uniq _) _) _) _ _) _ _)))
+    (λ _, levelStableΩ _ (Trunc.uniq _))
+
+  hott definition code {n : ℕ} : Sⁿ⁺² → Type :=
+  rec Type ∥Sⁿ⁺¹∥ₙ₊₁ (n + 1)
+    (conjugateΩ (uaidp ∥Sⁿ⁺¹∥ₙ₊₁) (apΩ ua (sigmaProdΩ (funextΩ idfun irot)
+      (inOverΩ _ _ (minusOneEqvProp.forward (levelOverΩ −1 (λ _, minusOneEqvProp.left (Theorems.Equiv.biinvProp _)) _) _ _)))))
+
+  hott lemma codeHLevel {n : ℕ} : Π (x : Sⁿ⁺²), is-(n + 1)-type (code x) :=
+  ind _ _ (Trunc.uniq _) (inOverΩ _ _ (minusOneEqvProp.forward (levelOverΩ −1 (λ _, minusOneEqvProp.left (ntypeIsProp _)) _) _ _))
+
+  hott definition encode {n : ℕ} : Π (x : Sⁿ⁺²), ∥base = x∥ₙ₊₁ → code x :=
+  λ x, Trunc.rec (λ ε, transport code ε |base|ₙ₊₁) (codeHLevel x)
 end HigherSphere
 
 namespace Sphere

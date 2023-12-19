@@ -1098,6 +1098,13 @@ namespace Types.Id
     Π {n : ℕ}, (Π x, is-k-type (B x)) → Π (α : Ωⁿ(A, a)), is-k-type Ωⁿ(B, b, α)
   | Nat.zero,   H, x => H x
   | Nat.succ n, H, α => @levelOverΩ (a = a) (λ p, b =[B, p] b) (idp a) (idp b) k n (λ p, hlevel.cumulative k (H a) _ _) α
+
+  hott lemma zeroTypeLoop {A : Type u} : Π {n : ℕ}, is-n-type A → Π x, is-0-type Ωⁿ(A, x)
+  | Nat.zero,   H, _ => H
+  | Nat.succ n, H, a => @zeroTypeLoop (a = a) n (H a a) (idp a)
+
+  hott corollary hsetLoop {A : Type u} {n : ℕ} (H : is-n-type A) : Π x, hset Ωⁿ(A, x) :=
+  λ x, zeroEqvSet.forward (zeroTypeLoop H x)
 end Types.Id
 
 end GroundZero
