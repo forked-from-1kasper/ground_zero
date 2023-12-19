@@ -150,7 +150,7 @@ namespace Id
     open Lean.PrettyPrinter.Delaborator
 
     @[delab app.GroundZero.Types.Id.Pointed]
-    def delabPropSet : Delab :=
+    def delabPointed : Delab :=
     Meta.Notation.delabCustomSort `(Type⁎) (λ n, `(Type⁎ $n))
   end
 

@@ -22,76 +22,56 @@ namespace HITs
 
 universe u v w
 
-hott lemma suspEmpty : ∑ 𝟎 ≃ 𝟐 :=
-let f : ∑ 𝟎 → 𝟐 :=
-Suspension.rec false true Proto.Empty.elim;
-let g : 𝟐 → ∑ 𝟎 :=
-λ | false => Suspension.north
-  | true  => Suspension.south;
-begin
-  existsi f; apply Prod.mk <;> existsi g;
-  { intro z; induction z; reflexivity; reflexivity;
-    apply Proto.Empty.elim; assumption };
-  { intro b; induction b using Bool.casesOn <;> reflexivity }
+section
+  open Suspension (north south rec ind)
+
+  hott lemma suspEmpty : ∑ 𝟎 ≃ 𝟐 :=
+  Equiv.intro (rec false true Empty.elim)
+              (λ | false => north | true => south)
+              (ind (idp north) (idp south) (λ ε, nomatch ε))
+              (λ | false => idp false | true => idp true)
 end
 
 namespace Loop
   variable {A : Type u} {a : A}
 
-  def pos (p : a = a) : ℕ → a = a
-  | Nat.zero   => idp a
-  | Nat.succ n => pos p n ⬝ p
+  hott definition power (p : a = a) : ℤ → a = a :=
+  Integer.recsp (idp a) (· ⬝ p) (· ⬝ p⁻¹)
 
-  def neg (p : a = a) : ℕ → a = a
-  | Nat.zero   => p⁻¹
-  | Nat.succ n => neg p n ⬝ p⁻¹
+  hott corollary powerComp (p : a = a) (z : ℤ) : power p z ⬝ p = power p (Integer.succ z) :=
+  begin symmetry; apply Integer.recspβ₂; intro; apply Id.cancelInvComp end
 
-  def power (p : a = a) : ℤ → a = a
-  | Integer.pos n => pos p n
-  | Integer.neg n => neg p n
+  hott corollary powerCompPred (p : a = a) (z : ℤ) : power p z ⬝ p⁻¹ = power p (Integer.pred z) :=
+  begin symmetry; apply Integer.recspβ₃; intro; apply Id.cancelCompInv end
 
-  hott def powerComp (p : a = a) : Π z, power p z ⬝ p = power p (Integer.succ z)
-  | Integer.neg Nat.zero     => Id.invComp _
-  | Integer.neg (Nat.succ n) => (Id.assoc _ _ _)⁻¹ ⬝ ap (neg p n ⬝ ·) (Id.invComp _) ⬝ Id.rid _
-  | Integer.pos _            => idp _
-
-  hott def powerCompPred (p : a = a) : Π z, power p z ⬝ p⁻¹ = power p (Integer.pred z)
-  | Integer.neg _            => idp _
-  | Integer.pos Nat.zero     => idp _
-  | Integer.pos (Nat.succ n) => (Id.assoc _ _ _)⁻¹ ⬝ ap (pos p n ⬝ ·) (Id.compInv _) ⬝ Id.rid _
-
-  hott def compPowerPos (p : a = a) : Π n, p ⬝ power p (Integer.pos n) = power p (Integer.succ (Integer.pos n))
+  hott lemma compPowerPos (p : a = a) : Π n, p ⬝ power p (Integer.pos n) = power p (Integer.succ (Integer.pos n))
   | Nat.zero   => Id.rid _
   | Nat.succ n => Id.assoc _ _ _ ⬝ ap (· ⬝ p) (compPowerPos p n)
 
-  hott def compPowerNeg (p : a = a) : Π n, p ⬝ power p (Integer.neg n) = power p (Integer.succ (Integer.neg n))
+  hott lemma compPowerNeg (p : a = a) : Π n, p ⬝ power p (Integer.neg n) = power p (Integer.succ (Integer.neg n))
   | Nat.zero   => Id.compInv _
-  | Nat.succ n => begin
+  | Nat.succ n =>
+  begin
     transitivity; apply Id.assoc;
     symmetry; apply Equiv.invCompRewrite;
     symmetry; transitivity; apply compPowerNeg p n;
     symmetry; apply powerComp
   end
 
-  hott def compPower (p : a = a) : Π z, p ⬝ power p z = power p (Integer.succ z)
-  | Integer.neg n => compPowerNeg p n
-  | Integer.pos m => compPowerPos p m
+  hott lemma compPower (p : a = a) : Π z, p ⬝ power p z = power p (Integer.succ z)
+  | .neg n => compPowerNeg p n
+  | .pos m => compPowerPos p m
 
-  hott def compPowerPred (p : a = a) : Π z, p⁻¹ ⬝ power p z = power p (Integer.pred z)
-  | Integer.neg Nat.zero     => idp _
-  | Integer.neg (Nat.succ n) => begin apply Equiv.rewriteComp; symmetry; apply compPower end
-  | Integer.pos Nat.zero     => Id.rid _
-  | Integer.pos (Nat.succ n) => begin apply Equiv.rewriteComp; symmetry; apply compPower end
+  hott corollary compPowerPred (p : a = a) (z : ℤ) : p⁻¹ ⬝ power p z = power p (Integer.pred z) :=
+  Equiv.rewriteComp (compPower p _ ⬝ ap (power p) (Integer.succPred z))⁻¹
 
-  hott def compPowerComm (p : a = a) (z : ℤ) :
-    p ⬝ power p z = power p z ⬝ p :=
+  hott corollary compPowerComm (p : a = a) (z : ℤ) : p ⬝ power p z = power p z ⬝ p :=
   compPower p z ⬝ (powerComp p z)⁻¹
 
-  hott def invCompPowerComm (p : a = a) (z : ℤ) :
-    p⁻¹ ⬝ power p z = power p z ⬝ p⁻¹ :=
+  hott corollary invCompPowerComm (p : a = a) (z : ℤ) : p⁻¹ ⬝ power p z = power p z ⬝ p⁻¹ :=
   compPowerPred p z ⬝ (powerCompPred p z)⁻¹
 
-  hott def powerComm (p : a = a) (x y : ℤ) : power p x ⬝ power p y = power p y ⬝ power p x :=
+  hott theorem powerComm (p : a = a) (x y : ℤ) : power p x ⬝ power p y = power p y ⬝ power p x :=
   begin
     fapply @Integer.indsp (λ x, Π y, power p x ⬝ power p y = power p y ⬝ power p x) _ _ _ x <;> clear x;
     { intro y; symmetry; apply Id.rid };
@@ -115,16 +95,11 @@ namespace Loop
   end
 end Loop
 
-hott def S : ℕ → Type
+hott definition S : ℕ → Type
 | Nat.zero   => 𝟐
 | Nat.succ n => ∑ (S n)
 
-def S.lift : Π n, S n → S (n + 1)
-| Nat.zero,   false => Suspension.north
-| Nat.zero,   true  => Suspension.south
-| Nat.succ _, z     => Suspension.rec Suspension.north Suspension.south (λ _, Suspension.merid z) z
-
-macro:max "S" n:superscript : term => do `(GroundZero.HITs.S $(← Meta.Notation.parseSuperscript n))
+macro:max "S" noWs n:superscript : term => do `(GroundZero.HITs.S $(← Meta.Notation.parseSuperscript n))
 
 instance (n : ℕ) : isPointed Sⁿ :=
 ⟨match n with
@@ -133,56 +108,57 @@ instance (n : ℕ) : isPointed Sⁿ :=
 
 macro:max "S" : term => `(GroundZero.HITs.S)
 
-def Circle := S¹
+hott abbreviation Circle := S¹
 
 namespace Circle
   -- https://github.com/leanprover/lean2/blob/master/hott/homotopy/Circle.hlean
 
   open GroundZero.HITs.Suspension (north south merid)
 
-  hott def base₁ : S¹ := north
-  hott def base₂ : S¹ := south
+  hott abbreviation base₁ : S¹ := north
+  hott abbreviation base₂ : S¹ := south
 
-  hott def seg₁ : base₁ = base₂ := merid false
-  hott def seg₂ : base₁ = base₂ := merid true
+  hott definition seg₁ : base₁ = base₂ := merid false
+  hott definition seg₂ : base₁ = base₂ := merid true
 
-  hott def ind₂ {B : S¹ → Type u} (b₁ : B base₁) (b₂ : B base₂)
+  hott definition ind₂ {B : S¹ → Type u} (b₁ : B base₁) (b₂ : B base₂)
     (ℓ₁ : b₁ =[seg₁] b₂) (ℓ₂ : b₁ =[seg₂] b₂) : Π x, B x :=
   Suspension.ind b₁ b₂ (λ | false => ℓ₁ | true => ℓ₂)
 
-  hott def base : S¹ := base₁
-  hott def loop : base = base := seg₂ ⬝ seg₁⁻¹
+  hott definition base : S¹ := base₁
+  hott definition loop : base = base := seg₂ ⬝ seg₁⁻¹
 
-  abbrev loop₁ : base₁ = base₁ := loop
-  hott def loop₂ : base₂ = base₂ := seg₁⁻¹ ⬝ seg₂
+  hott abbreviation loop₁ : base₁ = base₁ := loop
 
-  hott def rec {B : Type u} (b : B) (ℓ : b = b) : S¹ → B :=
+  hott definition loop₂ : base₂ = base₂ := seg₁⁻¹ ⬝ seg₂
+
+  hott definition rec {B : Type u} (b : B) (ℓ : b = b) : S¹ → B :=
   Suspension.rec b b (λ | false => idp b | true => ℓ)
 
-  hott def recβrule₁ {B : Type u} (b : B) (ℓ : b = b) : rec b ℓ base = b :=
+  hott definition recβrule₁ {B : Type u} (b : B) (ℓ : b = b) : rec b ℓ base = b :=
   idp b
 
-  hott def recβrule₂ {B : Type u} (b : B) (ℓ : b = b) := calc
+  hott definition recβrule₂ {B : Type u} (b : B) (ℓ : b = b) := calc
           ap (rec b ℓ) loop
         = ap (rec b ℓ) seg₂ ⬝ ap (rec b ℓ) seg₁⁻¹   : Equiv.mapFunctoriality _
     ... = ap (rec b ℓ) seg₂ ⬝ (ap (rec b ℓ) seg₁)⁻¹ : ap (_ ⬝ ·) (Id.mapInv _ _)
     ... = ℓ ⬝ (idp b)⁻¹                             : bimap (· ⬝ ·⁻¹) (Suspension.recβrule _ _ _ _) (Suspension.recβrule _ _ _ _)
     ... = ℓ                                         : Id.rid _
 
-  hott def recβrule₃ {B : Type u} (b : B) (ℓ : b = b) := calc
+  hott definition recβrule₃ {B : Type u} (b : B) (ℓ : b = b) := calc
             ap (rec b ℓ) loop⁻¹
           = (ap (rec b ℓ) loop)⁻¹ : Id.mapInv _ _
       ... = ℓ⁻¹                   : ap Id.inv (recβrule₂ _ _)
 
-  hott def ind {B : S¹ → Type u} (b : B base) (ℓ : b =[loop] b) : Π (x : S¹), B x :=
+  hott definition ind {B : S¹ → Type u} (b : B base) (ℓ : b =[loop] b) : Π (x : S¹), B x :=
   ind₂ b (transport B seg₁ b) (idp _) (depPathTransSymm ℓ)
 
   attribute [eliminator] ind
 
-  hott def indβrule₁ {B : S¹ → Type u} (b : B base) (ℓ : b =[loop] b) : ind b ℓ base = b :=
+  hott definition indβrule₁ {B : S¹ → Type u} (b : B base) (ℓ : b =[loop] b) : ind b ℓ base = b :=
   idp b
 
-  hott def indβrule₂ {B : S¹ → Type u} (b : B base) (ℓ : b =[loop] b) : apd (ind b ℓ) loop = ℓ :=
+  hott definition indβrule₂ {B : S¹ → Type u} (b : B base) (ℓ : b =[loop] b) : apd (ind b ℓ) loop = ℓ :=
   begin
     dsimp [ind, ind₂];
     transitivity; apply apdFunctoriality;
@@ -191,10 +167,10 @@ namespace Circle
     apply Suspension.indβrule; apply depPathTransSymmCoh
   end
 
-  hott def indΩ {B : S¹ → Type u} (b : B base) (H : Π x, prop (B x)) : Π x, B x :=
+  hott definition indΩ {B : S¹ → Type u} (b : B base) (H : Π x, prop (B x)) : Π x, B x :=
   begin fapply ind; exact b; apply H end
 
-  hott def indΩ₂ {B : S¹ → S¹ → Type u} (b : B base base) (H : Π x y, prop (B x y)) : Π x y, B x y :=
+  hott definition indΩ₂ {B : S¹ → S¹ → Type u} (b : B base base) (H : Π x y, prop (B x y)) : Π x y, B x y :=
   begin
     fapply indΩ; fapply indΩ; exact b; intro;
     apply H; intro; apply piProp; apply H
@@ -232,47 +208,48 @@ namespace Circle
   end
 
   namespace map
-    def trivial    : S¹ → S¹ := rec base (idp base)
-    def nontrivial : S¹ → S¹ := rec base loop
+    hott definition trivial    : S¹ → S¹ := rec base (idp base)
+    hott definition nontrivial : S¹ → S¹ := rec base loop
 
-    noncomputable hott def trivialNotHmtpy : ¬(trivial = id) :=
+    noncomputable hott statement trivialNotHmtpy : ¬(trivial = id) :=
     begin
       intro p; apply loopNeqRefl; transitivity; symmetry; apply idmap;
       apply transport (λ f, ap f loop = idp (f base)) p; apply Circle.recβrule₂
     end
 
-    hott def trivialHmtpy : trivial ~ (λ _, base) :=
+    hott definition trivialHmtpy : trivial ~ (λ _, base) :=
     by apply constRec
 
-    hott def nontrivialHmtpy : nontrivial ~ id :=
+    hott definition nontrivialHmtpy : nontrivial ~ id :=
     by apply idfunRec
 
-    noncomputable hott def nontrivialNotHmtpy : ¬(nontrivial = (λ _, base)) :=
+    noncomputable hott statement nontrivialNotHmtpy : ¬(nontrivial = (λ _, base)) :=
     λ p, trivialNotHmtpy (Theorems.funext trivialHmtpy ⬝ p⁻¹ ⬝
                           Theorems.funext nontrivialHmtpy)
   end map
 
-  def succ (l : Ω¹(S¹)) : Ω¹(S¹) := l ⬝ loop
-  def pred (l : Ω¹(S¹)) : Ω¹(S¹) := l ⬝ loop⁻¹
+  hott definition succ (l : Ω¹(S¹)) : Ω¹(S¹) := l ⬝ loop
+  hott definition pred (l : Ω¹(S¹)) : Ω¹(S¹) := l ⬝ loop⁻¹
 
-  def zero   := idp base
-  def one    := succ zero
-  def two    := succ one
-  def three  := succ two
-  def fourth := succ three
+  hott abbreviation zero   := idp base
+  hott abbreviation one    := succ zero
+  hott abbreviation two    := succ one
+  hott abbreviation three  := succ two
+  hott abbreviation fourth := succ three
 
-  hott def helix : S¹ → Type :=
+  hott definition helix : S¹ → Type :=
   rec ℤ (ua Integer.succEquiv)
 
-  def power : ℤ → Ω¹(S¹) := Loop.power loop
+  hott definition power : ℤ → Ω¹(S¹) :=
+  Loop.power loop
 
-  hott def encode (x : S¹) (p : base = x) : helix x :=
+  hott definition encode (x : S¹) (p : base = x) : helix x :=
   transport helix p (Integer.pos 0)
 
   hott example : power 2 = loop ⬝ loop :=
   by reflexivity
 
-  hott def winding : base = base → ℤ := encode base
+  hott definition winding : base = base → ℤ := encode base
 
   noncomputable hott theorem transportThere (x : ℤ) := calc
           transport helix loop x
@@ -292,7 +269,7 @@ namespace Circle
   noncomputable hott example (z : ℤ) : @Id (Σ x, helix x) ⟨base, z⟩ ⟨base, Integer.succ z⟩ :=
   Sigma.prod loop (transportThere z)
 
-  hott def decode (x : S¹) : helix x → base = x :=
+  hott definition decode (x : S¹) : helix x → base = x :=
   begin
     induction x; exact power; apply Theorems.funext; intro x;
     transitivity; apply happly (transportCharacterization power loop) x;
@@ -329,35 +306,35 @@ namespace Circle
 
   noncomputable hott theorem fundamentalGroup : Ω¹(S¹) = ℤ := ua (family base)
 
-  hott def loopHset : hset (base = base) :=
+  hott definition loopHset : hset (base = base) :=
   transport hset fundamentalGroup⁻¹ Integer.set
 
   noncomputable hott example : winding (loop ⬝ loop) = 2 := windingPower 2
   noncomputable hott example : winding loop = 1          := windingPower 1
   noncomputable hott example : winding loop⁻¹ = -1       := windingPower (Integer.neg 0)
 
-  hott def rot : Π (x : S¹), x = x :=
+  hott definition rot : Π (x : S¹), x = x :=
   begin
     fapply ind; exact loop; apply Id.trans; apply transportInvCompComp;
     change _ = idp _ ⬝ loop; apply ap (· ⬝ loop); apply Id.invComp
   end
 
-  hott def μₑ : S¹ → S¹ ≃ S¹ :=
+  hott definition μₑ : S¹ → S¹ ≃ S¹ :=
   Circle.rec (ideqv S¹) (Sigma.prod (Theorems.funext rot) (Theorems.Equiv.biinvProp _ _ _))
 
-  hott def μ (x : S¹) : S¹ → S¹ := (μₑ x).forward
+  hott definition μ (x : S¹) : S¹ → S¹ := (μₑ x).forward
 
-  hott def μLoop : ap μ loop = Theorems.funext rot :=
+  hott definition μLoop : ap μ loop = Theorems.funext rot :=
   begin
     transitivity; apply mapOverComp;
     transitivity; apply ap; apply recβrule₂;
     apply Sigma.mapFstOverProd
   end
 
-  hott def turn : S¹ → S¹ := rec base loop
-  hott def inv  : S¹ → S¹ := rec base loop⁻¹
+  hott definition turn : S¹ → S¹ := rec base loop
+  hott definition inv  : S¹ → S¹ := rec base loop⁻¹
 
-  hott def invol (x : S¹) : inv (inv x) = x :=
+  hott lemma invol (x : S¹) : inv (inv x) = x :=
   let invₚ := @ap S¹ S¹ base base (inv ∘ inv);
   begin
     induction x; reflexivity; apply calc
@@ -372,17 +349,17 @@ namespace Circle
         ... = idp base                        : Id.invComp _
   end
 
-  hott def unitLeft (x : S¹) : μ base x = x := idp x
+  hott lemma unitLeft (x : S¹) : μ base x = x := idp x
 
-  hott def μRight : ap (μ base) loop = loop := Equiv.idmap _
+  hott lemma μRight : ap (μ base) loop = loop := Equiv.idmap _
 
-  hott def μLeft := calc
-          ap (μ · base) loop
-        = happly (ap μ loop) base             : Interval.mapHapply _ _
-    ... = (happly ∘ Theorems.funext) rot base : ap (λ f, happly f base) μLoop
-    ... = loop                                : happly (Theorems.happlyFunext _ _ rot) base
+  hott lemma μLeft := calc
+        ap (μ · base) loop
+      = happly (ap μ loop) base             : Interval.mapHapply _ _
+  ... = (happly ∘ Theorems.funext) rot base : ap (λ f, happly f base) μLoop
+  ... = loop                                : happly (Theorems.happlyFunext _ _ rot) base
 
-  hott def unitRight (x : S¹) : μ x base = x :=
+  hott lemma unitRight (x : S¹) : μ x base = x :=
   begin
     induction x; reflexivity; change _ = _;
     transitivity; apply transportOverInvolution (μ · base);
@@ -392,14 +369,14 @@ namespace Circle
     apply Id.rid; apply Id.invComp
   end
 
-  hott def μLeftApLem {x : S¹} (p : base = x) :
+  hott lemma μLeftApLem {x : S¹} (p : base = x) :
     ap (μ · base) p = transport (base = ·) (unitRight x)⁻¹ p :=
   begin induction p; reflexivity end
 
-  hott def μLeftAp  (p : Ω¹(S¹)) : ap (μ · base) p = p := μLeftApLem p
-  hott def μRightAp (p : Ω¹(S¹)) : ap (μ base)   p = p := Equiv.idmap p
+  hott lemma μLeftAp  (p : Ω¹(S¹)) : ap (μ · base) p = p := μLeftApLem p
+  hott lemma μRightAp (p : Ω¹(S¹)) : ap (μ base)   p = p := Equiv.idmap p
 
-  hott def unitComm (x : S¹) : μ base x = μ x base := (unitRight x)⁻¹
+  hott corollary unitComm (x : S¹) : μ base x = μ x base := (unitRight x)⁻¹
 
   hott theorem mulInv (x : S¹) : base = μ x (inv x) :=
   begin
@@ -414,7 +391,7 @@ namespace Circle
   end
 
   -- https://github.com/mortberg/cubicaltt/blob/master/examples/helix.ctt#L207
-  hott def lemSetTorus {π : S¹ → S¹ → Type u} (setπ : hset (π base base))
+  hott lemma lemSetTorus {π : S¹ → S¹ → Type u} (setπ : hset (π base base))
     (f : Π y, π base y) (g : Π x, π x base) (p : f base = g base) : Π x y, π x y :=
   begin
     intro x; induction x; exact f; change _ = _; transitivity;
@@ -422,7 +399,7 @@ namespace Circle
     transitivity; apply ap; exact p; transitivity; apply apd; exact p⁻¹; apply setπ
   end
 
-  hott def isGroupoid : groupoid S¹ :=
+  hott theorem isGroupoid : groupoid S¹ :=
   begin
     intros a b; change hset (a = b);
     fapply @indΩ (λ a, Π b, hset (a = b)) _ _ a <;> clear a;
@@ -469,7 +446,7 @@ namespace Circle
   ⬝ Loop.powerComm Circle.loop (winding x) (winding y)
   ⬝ Equiv.bimap Id.trans (powerOfWinding y) (powerOfWinding x)
 
-  noncomputable hott def Ωind₁ {π : Ω¹(S¹) → Type u}
+  noncomputable hott definition Ωind₁ {π : Ω¹(S¹) → Type u}
     (zeroπ : π (idp base)) (succπ : Π x, π x → π (x ⬝ loop))
     (predπ : Π x, π x → π (x ⬝ loop⁻¹)) : Π x, π x :=
   begin
@@ -484,7 +461,7 @@ namespace Circle
       apply predπ; exact ih }
   end
 
-  noncomputable hott def Ωind₂ {π : Ω¹(S¹) → Type u}
+  noncomputable hott definition Ωind₂ {π : Ω¹(S¹) → Type u}
     (zeroπ : π (idp base)) (succπ : Π x, π x → π (loop ⬝ x))
     (predπ : Π x, π x → π (loop⁻¹ ⬝ x)) : Π x, π x :=
   begin
@@ -493,23 +470,23 @@ namespace Circle
     { intros x ih; apply transport π; apply comm; apply predπ; exact ih }
   end
 
-  noncomputable hott def transComm {z : S¹} : Π (p q : z = z), p ⬝ q = q ⬝ p :=
+  noncomputable hott definition transComm {z : S¹} : Π (p q : z = z), p ⬝ q = q ⬝ p :=
   begin
     induction z; apply comm; apply Theorems.funext; intro;
     apply Theorems.funext; intro; apply isGroupoid
   end
 
-  noncomputable hott def transportOverCircle {z : S¹} {f g : S¹ → S¹} {p : f = g}
+  noncomputable hott lemma transportOverCircle {z : S¹} {f g : S¹ → S¹} {p : f = g}
     (μ : f z = f z) (η : f z = g z) : @transport (S¹ → S¹) (λ φ, φ z = φ z) f g p μ = η⁻¹ ⬝ μ ⬝ η :=
   begin induction p; symmetry; apply idConjIfComm; apply transComm end
 
-  def halfway.φ : I → S¹ :=
+  hott definition halfway.φ : I → S¹ :=
   λ i, Interval.elim loop (i ∧ Interval.neg i)
 
-  def halfway : base = base :=
+  hott definition halfway : base = base :=
   Interval.lam halfway.φ
 
-  hott def halfway.const : halfway.φ ~ λ _, base :=
+  hott definition halfway.const : halfway.φ ~ λ _, base :=
   begin
     intro x; induction x; reflexivity; reflexivity; change _ = _;
     transitivity; apply transportOverContrMap;
@@ -521,17 +498,17 @@ namespace Circle
     apply Interval.intervalProp; reflexivity
   end
 
-  hott def halfway.trivial : halfway = idp base :=
+  hott definition halfway.trivial : halfway = idp base :=
   begin
     transitivity; apply Equiv.mapWithHomotopy; apply halfway.const;
     transitivity; apply Id.rid; apply constmap
   end
 
-  def natPow (x : S¹) : ℕ → S¹
+  hott definition natPow (x : S¹) : ℕ → S¹
   | Nat.zero   => base
   | Nat.succ n => μ x (natPow x n)
 
-  def pow (x : S¹) : ℤ → S¹
+  hott definition pow (x : S¹) : ℤ → S¹
   | Integer.pos n => natPow x n
   | Integer.neg n => natPow (inv x) (n + 1)
 
@@ -540,7 +517,7 @@ namespace Circle
   hott abbreviation Ωhelix {A : Type u} {succ pred : A → A} (p : succ ∘ pred ~ id) (q : pred ∘ succ ~ id) : S¹ → Type u :=
   uarec ⟨succ, ⟨pred, q⟩, ⟨pred, p⟩⟩
 
-  hott def Ωrec {x : S¹} {A : Type u} (zero : A) (succ pred : A → A)
+  hott definition Ωrec {x : S¹} {A : Type u} (zero : A) (succ pred : A → A)
     (p : succ ∘ pred ~ id) (q : pred ∘ succ ~ id) : base = x → Ωhelix p q x :=
   λ r, @transport S¹ (Ωhelix p q) base x r zero
 
@@ -588,31 +565,31 @@ namespace Circle
     ap (Ωrec _ _ _ _ _) (comm _ _) ⬝ Ωrecβ₃ _ _ _ _ _ _
   end
 
-  hott def mult {a b : S¹} (p : a = a) (q : b = b) : rec a p b = rec a p b :=
+  hott definition mult {a b : S¹} (p : a = a) (q : b = b) : rec a p b = rec a p b :=
   ap (rec a p) q
 
-  hott def multZero {a b : S¹} (p : a = a) : mult p (idp b) = idp (rec a p b) :=
+  hott remark multZero {a b : S¹} (p : a = a) : mult p (idp b) = idp (rec a p b) :=
   idp (idp (rec a p b))
 
-  hott def multOne {a : S¹} (p : a = a) : mult p loop = p :=
+  hott corollary multOne {a : S¹} (p : a = a) : mult p loop = p :=
   by apply recβrule₂
 
-  hott def multMinusOne {a : S¹} (p : a = a) : mult p loop⁻¹ = p⁻¹ :=
+  hott lemma multMinusOne {a : S¹} (p : a = a) : mult p loop⁻¹ = p⁻¹ :=
   begin transitivity; apply mapInv; apply ap; apply recβrule₂ end
 
-  hott def oneMult (p : Ω¹(S¹)) : mult loop p = p :=
+  hott lemma oneMult (p : Ω¹(S¹)) : mult loop p = p :=
   begin
     transitivity; apply mapWithHomotopy; apply idfunRec;
     transitivity; apply idConjRevIfComm; apply comm; apply idmap
   end
 
-  hott def multSucc (p q : Ω¹(S¹)) : mult p (succ q) = mult p q ⬝ p :=
+  hott lemma multSucc (p q : Ω¹(S¹)) : mult p (succ q) = mult p q ⬝ p :=
   begin transitivity; apply mapFunctoriality; apply ap; apply recβrule₂ end
 
-  hott def multDistrRight (p q r : Ω¹(S¹)) : mult p (q ⬝ r) = mult p q ⬝ mult p r :=
+  hott lemma multDistrRight (p q r : Ω¹(S¹)) : mult p (q ⬝ r) = mult p q ⬝ mult p r :=
   by apply mapFunctoriality
 
-  hott def add (f g : S¹ → S¹) := λ x, μ (f x) (g x)
+  hott definition add (f g : S¹ → S¹) := λ x, μ (f x) (g x)
 
   hott theorem recAdd {a b : S¹} (p : a = a) (q : b = b) :
     add (rec a p) (rec b q) ~ rec (μ a b) (bimap μ p q) :=
@@ -671,26 +648,22 @@ namespace Circle
 
   hott theorem loopCircle {A : Type u} (a : A) : Map⁎ ⟨S¹, base⟩ ⟨A, a⟩ ≃ (a = a) :=
   begin
-    fapply Sigma.mk; intro φ; exact transport (λ x, x = x) φ.2 (ap φ.1 loop); apply Qinv.toBiinv;
-    fapply Sigma.mk; intro p; existsi rec a p; reflexivity; apply Prod.mk;
-    { apply recβrule₂ };
+    fapply Equiv.intro;
+    { intro φ; exact transport (λ x, x = x) φ.2 (ap φ.1 loop) };
+    { intro p; existsi rec a p; reflexivity };
     { intro ⟨φ, (H : φ base = a)⟩; induction H using J₁;
       fapply Sigma.prod; symmetry; apply Theorems.funext; apply mapExt;
       transitivity; apply transportOverContrMap; transitivity; apply Id.rid;
       transitivity; apply ap (ap _); apply Id.invInv; transitivity; apply Theorems.mapToHapply;
-      transitivity; apply happly; apply Theorems.happlyFunext; reflexivity }
+      transitivity; apply happly; apply Theorems.happlyFunext; reflexivity };
+    { apply recβrule₂ };
   end
 
+  -- somewhat surprisingly commutativity of Ω¹(S¹) arises out of nowhere
   noncomputable hott lemma recBaseInj {x : S¹} (p q : x = x) (ε : rec x p = rec x q) : p = q :=
-  begin
-    have θ := ap (subst ε) (recβrule₂ x p)⁻¹ ⬝ apd (λ f, ap f loop) ε ⬝ recβrule₂ x q;
-    apply transport (p = ·) θ _⁻¹; transitivity; apply Equiv.transportOverHmtpy;
-    -- somewhat surprisingly commutativity of Ω¹(S¹) arises out of nowhere
-    transitivity; apply ap (· ⬝ _ ⬝ _); apply Id.mapInv;
-    apply idConjIfComm; apply transComm
-  end
+  (recβrule₂ x p)⁻¹ ⬝ transCancelLeft _ _ _ (homotopySquare (happly ε) loop ⬝ transComm _ _)⁻¹ ⬝ recβrule₂ x q
 
-  hott def wind : Π (x : S¹), x = x → ℤ :=
+  hott definition wind : Π (x : S¹), x = x → ℤ :=
   begin
     fapply ind; exact winding; apply Id.trans; apply Equiv.transportCharacterization;
     apply Theorems.funext; intro p; transitivity; apply Equiv.transportOverConstFamily;
@@ -698,7 +671,7 @@ namespace Circle
     apply idConjIfComm; apply comm
   end
 
-  hott def degree : (S¹ → S¹) → ℤ :=
+  hott definition degree : (S¹ → S¹) → ℤ :=
   λ φ, wind (φ base) (ap φ loop)
 
   hott lemma degreeToWind {x : S¹} (p : x = x) : degree (rec x p) = wind x p :=
@@ -744,12 +717,12 @@ namespace Circle
                   ... ≃ (Σ (r : a = b), p ⬝ r = r ⬝ q) : recEqSquare p q
   end
 
-  hott def roll (x : S¹) : Ω¹(S¹) → x = x :=
+  hott definition roll (x : S¹) : Ω¹(S¹) → x = x :=
   λ p, ap (rec x (rot x)) p
 
   open GroundZero.Proto (idfun)
 
-  hott def unroll : Π (x : S¹), x = x → Ω¹(S¹) :=
+  hott definition unroll : Π (x : S¹), x = x → Ω¹(S¹) :=
   begin
     fapply ind; exact idfun; apply Id.trans; apply Equiv.transportCharacterization;
     apply Theorems.funext; intro p; transitivity; apply Equiv.transportOverConstFamily;
@@ -934,27 +907,15 @@ namespace Circle
   noncomputable hott lemma windPower : Π {x : S¹} (p : x = x), Loop.power (rot x) (wind x p) = p :=
   begin fapply ind; apply powerOfWinding; apply piProp; intro; apply isGroupoid end
 
-  hott lemma loopPowerConjLeft {a b : S¹} (p : a = a) (ε : a = b) (z : ℤ) :
-    Loop.power (ε⁻¹ ⬝ p ⬝ ε) z = ε⁻¹ ⬝ Loop.power p z ⬝ ε :=
-  begin
-    induction z using Integer.indsp;
-    { symmetry; transitivity; apply ap (· ⬝ _); apply Id.rid; apply Id.invComp };
-    { transitivity; symmetry; apply Loop.powerComp; transitivity; apply ap (· ⬝ _); assumption;
-      transitivity; symmetry; apply Id.assoc; transitivity; apply ap (_ ⬝ ·);
-      transitivity; apply Id.assoc; apply ap (· ⬝ _); apply Id.compInvCancel;
-      transitivity; apply Id.assoc; apply ap (· ⬝ ε); transitivity; symmetry;
-      apply Id.assoc; apply ap (ε⁻¹ ⬝ ·); apply Loop.powerComp };
-    { transitivity; symmetry; apply Loop.powerCompPred; transitivity; apply ap (· ⬝ _); assumption;
-      transitivity; symmetry; apply Id.assoc; transitivity; apply ap (_ ⬝ ·);
-      transitivity; transitivity; apply ap (_ ⬝ ·); apply Id.explodeInv;
-      transitivity; apply Id.compInvCancel; apply Id.explodeInv; apply ap (_ ⬝ ·);
-      apply Id.invInv; transitivity; apply Id.assoc; apply ap (· ⬝ ε); transitivity; symmetry;
-      apply Id.assoc; apply ap (ε⁻¹ ⬝ ·); apply Loop.powerCompPred }
-  end
+  section
+    variable {a b : S¹} (p : a = a) (ε : a = b) (z : ℤ)
 
-  hott corollary loopPowerConjComm {a b : S¹} (p : a = a) (ε : a = b) (z : ℤ) :
-    Loop.power p z ⬝ ε = ε ⬝ Loop.power (ε⁻¹ ⬝ p ⬝ ε) z :=
-  begin apply invRewriteComp; transitivity; apply Id.assoc; symmetry; apply loopPowerConjLeft end
+    hott lemma loopPowerConjLeft : Loop.power (ε⁻¹ ⬝ p ⬝ ε) z = ε⁻¹ ⬝ Loop.power p z ⬝ ε :=
+    begin induction ε; transitivity; apply ap (Loop.power · _); apply Id.rid; symmetry; apply Id.rid end
+
+    hott corollary loopPowerConjComm : Loop.power p z ⬝ ε = ε ⬝ Loop.power (ε⁻¹ ⬝ p ⬝ ε) z :=
+    invRewriteComp (Id.assoc _ _ _ ⬝ (loopPowerConjLeft _ _ _)⁻¹)
+  end
 
   hott corollary loopPowerConjRight {a b : S¹} (p : b = b) (ε : a = b) (z : ℤ) :
     Loop.power (ε ⬝ p ⬝ ε⁻¹) z = ε ⬝ Loop.power p z ⬝ ε⁻¹ :=
@@ -1013,7 +974,7 @@ namespace Circle
     apply powerOfWinding; apply piProp; intro; apply isGroupoid
   end
 
-  hott def dup (φ : S¹ → S¹) := rec base (power (degree φ))
+  hott definition dup (φ : S¹ → S¹) := rec base (power (degree φ))
 
   noncomputable hott theorem μDef (x : S¹) : μ x ~ rec x (rot x) :=
   begin
@@ -1063,14 +1024,14 @@ namespace Circle
     noncomputable hott lemma sqrIdfunHmtpy (f : S¹ → S¹) (H : abs (degree f) = 1) (ε : f (f base) = base) : f ∘ f ~ idfun :=
     begin apply idfunIfDegOne; exact ε; transitivity; apply degCom; apply absOneImplSqrEqOne; exact H end
 
-    /- It doesn’t mean that classically these maps are not homotopic,
-       but that this homotopy cannot be chosen continously.
+    /-- It doesn’t mean that classically these maps are not homotopic,
+        but that this homotopy cannot be chosen continously.
 
-       This is similar to the fact that we cannot construct “Π x, base = x”,
-       but we can construct “Π x, ∥base = x∥”.
+        This is similar to the fact that we cannot construct “Π x, base = x”,
+        but we can construct “Π x, ∥base = x∥”.
 
-       It also means that we cannot drop “f (f base) = base” condition in the previous lemma,
-       so the next theorem cannot be proved this way outside of ∥·∥.
+        It also means that we cannot drop “f (f base) = base” condition in the previous lemma,
+        so the next theorem cannot be proved this way outside of ∥·∥.
     -/
     noncomputable hott proposition sqrIdfunNonHmtpy : ¬(Π f, abs (degree f) = 1 → f ∘ f ~ idfun) :=
     λ H, μNotLinv (λ x, H (μ x) (ap abs (μDegree x)))
@@ -1078,15 +1039,15 @@ namespace Circle
     noncomputable hott corollary sqrIdfunMerelyHmtpy : Π f, abs (degree f) = 1 → ∥f ∘ f ~ idfun∥ :=
     λ f H, Merely.lift (sqrIdfunHmtpy f H) (circleConnected (f (f base)))
 
-    /- It’s interesting that this construction of f⁻¹ is not very explicit
-       as it was produced inside of ∥·∥, so it’s not definitionally
-       in the form “rec x p” as we may expect.
+    /-- It’s interesting that this construction of f⁻¹ is not very explicit
+        as it was produced inside of ∥·∥, so it’s not definitionally
+        in the form “rec x p” as we may expect.
 
-       So this proof is to some extent “non-constructive”, however degree of the inverse
-       map obtained from this proof should normalize in CTT as well as degree
-       of any other concrete map S¹ → S¹.
+        So this proof is to some extent “non-constructive”, however degree of the inverse
+        map obtained from this proof should normalize in CTT as well as degree
+        of any other concrete map S¹ → S¹.
 
-       For the more explicit construction see below.
+        For the more explicit construction see below (`biinvOfDegOneHmtpy'`).
     -/
     noncomputable hott theorem biinvOfDegOneHmtpy (f : S¹ → S¹) (H : abs (degree f) = 1) : biinv f :=
     begin
@@ -1217,7 +1178,7 @@ namespace Circle
   section
     variable {B : Type u} (b : B) (p q : b = b) (H : p ⬝ q = q ⬝ p)
 
-    hott def birec : S¹ → S¹ → B :=
+    hott definition birec : S¹ → S¹ → B :=
     begin
       fapply @rec (S¹ → B) (rec b p); apply Theorems.funext;
       fapply Circle.ind; exact q; change _ = _; transitivity;
@@ -1225,17 +1186,17 @@ namespace Circle
       apply recβrule₃; apply recβrule₂; apply idConjIfComm; exact H⁻¹
     end
 
-    hott def birecβrule₁ : ap (birec b p q H base) loop = p :=
+    hott definition birecβrule₁ : ap (birec b p q H base) loop = p :=
     by apply recβrule₂
 
-    hott def birecβrule₂ : ap (birec b p q H · base) loop = q :=
+    hott definition birecβrule₂ : ap (birec b p q H · base) loop = q :=
     begin
       transitivity; apply Interval.mapHapply;
       transitivity; apply ap (happly · base); apply recβrule₂;
       apply happly (Theorems.happlyFunext _ _ _) base
     end
 
-    hott def birecBimap : bimap (birec b p q H) loop loop = p ⬝ q :=
+    hott definition birecBimap : bimap (birec b p q H) loop loop = p ⬝ q :=
     begin
       transitivity; apply Equiv.bimapCharacterization';
       apply bimap; apply birecβrule₁; apply birecβrule₂
@@ -1244,43 +1205,43 @@ namespace Circle
 
   open GroundZero.Types.Coproduct
 
-  noncomputable hott def succNeqIdp : ua (Integer.succEquiv) ≠ idp ℤ :=
+  noncomputable hott lemma succNeqIdp : ua (Integer.succEquiv) ≠ idp ℤ :=
   begin
     intro H; apply @succNeqZero 0; apply @inl.encode ℕ ℕ _ (inl 0);
     transitivity; symmetry; apply uaβ Integer.succEquiv 0;
     apply ap (transportconst · 0) H
   end
 
-  noncomputable hott def helixNontriv : helix ≠ (λ _, ℤ) :=
+  noncomputable hott lemma helixNontriv : helix ≠ (λ _, ℤ) :=
   begin
     intro H; apply succNeqIdp; transitivity; symmetry; apply recβrule₂;
     apply transport (λ φ, ap φ loop = idp (φ base)) H⁻¹; apply constmap
   end
 
-  noncomputable hott def loopSpaceNontriv : ¬(Π (x y : S¹), (x = y) ≃ ℤ) :=
+  noncomputable hott proposition loopSpaceNontriv : ¬(Π (x y : S¹), (x = y) ≃ ℤ) :=
   begin
     intro H; apply helixNontriv; apply Theorems.funext; intro y;
     apply ua; transitivity; symmetry; apply family; apply H
   end
 
-  hott def funextPath {A : Type u} {B : Type v} {a b c : A} (f : a = b → B) (g : a = c → B)
+  hott definition funextPath {A : Type u} {B : Type v} {a b c : A} (f : a = b → B) (g : a = c → B)
     (p : b = c) (η : Π q, f (q ⬝ p⁻¹) = g q) : f =[λ x, a = x → B, p] g :=
   begin
     induction p; apply Theorems.funext; intro; transitivity;
     apply ap; apply Id.symm; apply Id.rid; apply η
   end
 
-  hott def transportPathMap {A : Type u} {B : Type v} {a b c : A} (φ : a = b → B) (p : b = c) (q : a = c) :
+  hott lemma transportPathMap {A : Type u} {B : Type v} {a b c : A} (φ : a = b → B) (p : b = c) (q : a = c) :
     transport (λ x, a = x → B) p φ q = φ (q ⬝ p⁻¹) :=
   begin induction p; induction q; reflexivity end
 
   section
     variable {A : Type u} {B : Type v} {a b c : A} {f : a = b → B} {g : a = c → B} {p : b = c} (φ : Π r, f (r ⬝ p⁻¹) = g r)
 
-    hott def happlyFunextPath {q : a = c} : happly (funextPath f g p φ) q = transportPathMap f p q ⬝ φ q :=
+    hott lemma happlyFunextPath {q : a = c} : happly (funextPath f g p φ) q = transportPathMap f p q ⬝ φ q :=
     begin induction p; induction q; apply Interval.happly (Theorems.happlyFunext _ _ _) end
 
-    hott def happlyRevFunextPath {q : b = a} :
+    hott lemma happlyRevFunextPath {q : b = a} :
         happly (depSymm p (funextPath f g p φ)) q⁻¹
       = transportPathMap g p⁻¹ q⁻¹ ⬝ (φ (q⁻¹ ⬝ p⁻¹⁻¹))⁻¹ ⬝ ap f (cancelInvComp _ _) :=
     begin
@@ -1290,20 +1251,20 @@ namespace Circle
     end
   end
 
-  hott def transportMeet {A : Type u} {a : A} (B : Π x, a = x → Type v)
+  hott lemma transportMeet {A : Type u} {a : A} (B : Π x, a = x → Type v)
     (w : B a (idp a)) {b : A} (p : a = b) : transport (λ x, a = x → Type v) p (B a) p :=
   begin induction p; exact w end
 
-  hott def meetTransportCoh {A : Type u} {a b : A} (B : Π x, a = x → Type v) (w : B a (idp a)) (p : a = b) :
+  hott definition meetTransportCoh {A : Type u} {a b : A} (B : Π x, a = x → Type v) (w : B a (idp a)) (p : a = b) :
     transportconst (transportPathMap (B a) p p) (transportMeet B w p) = transport (B a) (compInv p)⁻¹ w :=
   begin induction p; reflexivity end
 
   section
     variable {A : Type u} {a : A} (B : Π x, a = x → Type v) (w : B a (idp a)) {b : A} (p : a = b)
 
-    hott def ΩJ := transportconst (happly (apd B p) p) (transportMeet B w p)
+    hott definition ΩJ := transportconst (happly (apd B p) p) (transportMeet B w p)
 
-    hott def ΩJDef : J₁ B w p = ΩJ B w p :=
+    hott definition ΩJDef : J₁ B w p = ΩJ B w p :=
     begin induction p; reflexivity end
   end
 
@@ -1313,31 +1274,31 @@ namespace Circle
              (coh₁ : Π p z, predπ _ (succπ p z) =[cancelCompInv _ _] z)
              (coh₂ : Π p z, succπ _ (predπ p z) =[cancelInvComp _ _] z)
 
-    hott def ΩEquivSuccInj {z : x = base} {w₁ w₂ : π z} (H : succπ z w₁ = succπ z w₂) : w₁ = w₂ :=
+    hott lemma ΩEquivSuccInj {z : x = base} {w₁ w₂ : π z} (H : succπ z w₁ = succπ z w₂) : w₁ = w₂ :=
     begin
       transitivity; apply Id.symm; apply coh₁;
       transitivity; apply ap (transport π _ ∘ predπ _);
       apply H; apply coh₁
     end
 
-    hott def ΩEquivPredInj {z : x = base} {w₁ w₂ : π z} (H : predπ z w₁ = predπ z w₂) : w₁ = w₂ :=
+    hott lemma ΩEquivPredInj {z : x = base} {w₁ w₂ : π z} (H : predπ z w₁ = predπ z w₂) : w₁ = w₂ :=
     begin
       transitivity; apply Id.symm; apply coh₂;
       transitivity; apply ap (transport π _ ∘ succπ _);
       apply H; apply coh₂
     end
 
-    hott def ΩSuccEquiv (z : x = base) : π (z ⬝ loop⁻¹) ≃ π z :=
+    hott definition ΩSuccEquiv (z : x = base) : π (z ⬝ loop⁻¹) ≃ π z :=
     Equiv.intro (λ H, transport π (cancelInvComp z loop) (succπ _ H)) (predπ z)
       (λ _, ΩEquivSuccInj π succπ predπ coh₁
         ((transportForwardAndBack (cancelInvComp _ _) _)⁻¹ ⬝
           ap (transport _ _) (coh₂ _ _) ⬝ transportForwardAndBack _ _))
       (coh₂ _)
 
-    noncomputable hott def ΩHelix : Π y, x = y → Type u :=
+    noncomputable hott definition ΩHelix : Π y, x = y → Type u :=
     Circle.ind π (funextPath π π loop (λ z, ua (ΩSuccEquiv π succπ predπ coh₁ coh₂ z)))
 
-    noncomputable hott def ΩHelixSucc {z : x = base} (w : π (z ⬝ idp base)) :
+    noncomputable hott lemma ΩHelixSucc {z : x = base} (w : π (z ⬝ idp base)) :
         J₁ (λ y r, ΩHelix π succπ predπ coh₁ coh₂ y (z ⬝ r)) w loop
       = succπ z (transport π (rid _) w) :=
     begin
@@ -1354,7 +1315,7 @@ namespace Circle
       apply transportForwardAndBack; apply compInvCancelCoh
     end
 
-    noncomputable hott def ΩHelixPred {z : x = base} (w : π (z ⬝ idp base)) :
+    noncomputable hott lemma ΩHelixPred {z : x = base} (w : π (z ⬝ idp base)) :
         J₁ (λ y r, ΩHelix π succπ predπ coh₁ coh₂ y (z ⬝ r)) w loop⁻¹
       = predπ z (transport π (rid _) w) :=
     begin
@@ -1383,13 +1344,13 @@ namespace Circle
              (coh₂ : Π p z, succπ _ (predπ p z) =[cancelInvComp _ _] z)
 
     -- https://github.com/ncfavier/cubical-experiments/blob/998602175a25def84b927b5071dac208aea38d7d/Shapes.agda#L52-L68
-    noncomputable hott def Ωind (z : Ω¹(S¹)) : π z :=
+    noncomputable hott definition Ωind (z : Ω¹(S¹)) : π z :=
     J₁ (ΩHelix π succπ predπ coh₁ coh₂) zeroπ z
 
-    noncomputable hott def Ωindβ₁ : Ωind zeroπ succπ predπ coh₁ coh₂ (idp base) = zeroπ :=
+    noncomputable hott lemma Ωindβ₁ : Ωind zeroπ succπ predπ coh₁ coh₂ (idp base) = zeroπ :=
     by reflexivity
 
-    noncomputable hott def Ωindβ₂ (z : Ω¹(S¹)) :
+    noncomputable hott lemma Ωindβ₂ (z : Ω¹(S¹)) :
         Ωind zeroπ succπ predπ coh₁ coh₂ (z ⬝ loop)
       = succπ z (Ωind zeroπ succπ predπ coh₁ coh₂ z) :=
     begin
@@ -1398,7 +1359,7 @@ namespace Circle
       apply ap; apply transportBackAndForward
     end
 
-    noncomputable hott def Ωindβ₃ (z : Ω¹(S¹)) :
+    noncomputable hott lemma Ωindβ₃ (z : Ω¹(S¹)) :
         Ωind zeroπ succπ predπ coh₁ coh₂ (z ⬝ loop⁻¹)
       = predπ z (Ωind zeroπ succπ predπ coh₁ coh₂ z) :=
     begin
