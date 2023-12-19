@@ -156,7 +156,7 @@ namespace GroundZero.Algebra
         apply L.trans a b c; apply φ.mul <;> assumption }
     end
 
-    hott def oct (φ : G.subgroup) := HITs.Quotient (octave L φ)
+    hott def oct (φ : G.subgroup) := Relquot (octave L φ)
 
     hott theorem normal (φ : G.normal) {a₁ a₂ b₁ b₂ : M}
       (p : L.ι a₁ b₁ ∈ φ.set) (q : L.ι a₂ b₂ ∈ φ.set) : G.φ (L.ι a₁ a₂)⁻¹ (L.ι b₁ b₂) ∈ φ.set :=
@@ -554,7 +554,7 @@ namespace GroundZero.Algebra
 
     noncomputable hott def R.dodecaphonic (xs : M A) (r : R φ) : Prop :=
     begin
-      fapply HITs.Quotient.rec _ _ _ r;
+      fapply Relquot.rec _ _ _ r;
       { exact M.dodecaphonic φ xs };
       { intros x y p; fapply Theorems.Equiv.propset.Id;
         apply GroundZero.ua; apply equivFunext;

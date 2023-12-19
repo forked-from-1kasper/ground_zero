@@ -19,36 +19,38 @@ universe u v w
 
 inductive Reals.rel : ℤ → ℤ → Type
 | glue (x : ℤ) : rel x (Integer.succ x)
-hott def Reals := Graph Reals.rel
 
-hott def R := Reals
+hott definition Reals := Quotient Reals.rel
+
+hott definition R := Reals
 
 namespace Reals
-  hott def elem : ℤ → R := Graph.elem
-  hott def glue (z : ℤ) : elem z = elem (Integer.succ z) :=
-  Graph.line (rel.glue z)
+  hott definition elem : ℤ → R := Quotient.elem
 
-  hott def indρ {C : R → Type u} (cz : Π x, C (elem x))
+  hott definition glue (z : ℤ) : elem z = elem (Integer.succ z) :=
+  Quotient.line (rel.glue z)
+
+  hott definition indρ {C : R → Type u} (cz : Π x, C (elem x))
     (sz : Π z, cz z =[glue z] cz (Integer.succ z))
-    (x y : ℤ) (ρ : rel x y) : cz x =[Graph.line ρ] cz y :=
+    (x y : ℤ) (ρ : rel x y) : cz x =[Quotient.line ρ] cz y :=
   begin induction ρ using rel.casesOn; apply sz end
 
-  hott def ind {C : R → Type u} (cz : Π x, C (elem x))
+  hott definition ind {C : R → Type u} (cz : Π x, C (elem x))
     (sz : Π z, cz z =[glue z] cz (Integer.succ z)) (u : R) : C u :=
-  Graph.ind cz (indρ cz sz) u
+  Quotient.ind cz (indρ cz sz) u
 
   attribute [eliminator] ind
 
-  hott def indβrule {C : R → Type u}
+  hott definition indβrule {C : R → Type u}
     (cz : Π x, C (elem x)) (sz : Π z, cz z =[glue z] cz (Integer.succ z))
     (z : ℤ) : Equiv.apd (ind cz sz) (glue z) = sz z :=
-  @Graph.indβrule _ _ C cz (indρ cz sz) _ _ (rel.glue z)
+  @Quotient.indβrule _ _ C cz (indρ cz sz) _ _ (rel.glue z)
 
-  hott def rec {A : Type u} (cz : ℤ → A)
+  hott definition rec {A : Type u} (cz : ℤ → A)
     (sz : Π z, cz z = cz (Integer.succ z)) : R → A :=
   ind cz (λ x, Equiv.pathoverOfEq (glue x) (sz x))
 
-  hott def recβrule {A : Type u} (cz : ℤ → A)
+  hott definition recβrule {A : Type u} (cz : ℤ → A)
     (sz : Π z, cz z = cz (Integer.succ z)) (z : ℤ) :
     ap (rec cz sz) (glue z) = sz z :=
   begin
@@ -57,22 +59,22 @@ namespace Reals
     transitivity; apply indβrule; reflexivity
   end
 
-  hott def positive : Π n, elem 0 = elem (Integer.pos n)
+  hott definition positive : Π n, elem 0 = elem (Integer.pos n)
   | Nat.zero   => idp (elem 0)
   | Nat.succ n => positive n ⬝ glue (Integer.pos n)
 
-  hott def negative : Π n, elem 0 = elem (Integer.neg n)
+  hott definition negative : Π n, elem 0 = elem (Integer.neg n)
   | Nat.zero   => (glue (Integer.neg 0))⁻¹
   | Nat.succ n => negative n ⬝ (glue (Integer.neg (n + 1)))⁻¹
 
-  hott def center : Π z, elem 0 = elem z
+  hott definition center : Π z, elem 0 = elem z
   | Integer.pos n => positive n
   | Integer.neg n => negative n
 
-  hott def vect (u v : ℤ) : elem u = elem v :=
+  hott definition vect (u v : ℤ) : elem u = elem v :=
   (center u)⁻¹ ⬝ center v
 
-  hott def contractible : contr R :=
+  hott theorem contractible : contr R :=
   ⟨elem 0, @ind (elem 0 = ·) center (begin
     intro z; change _ = _; transitivity;
     apply Equiv.transportComposition; match z with
@@ -84,14 +86,11 @@ namespace Reals
       apply Id.rid }
   end)⟩
 
-  hott def dist : Π (u v : R), u = v :=
+  hott definition dist : Π (u v : R), u = v :=
   Structures.contrImplProp contractible
 
-  hott def lift (f : ℤ → ℤ) : R → R :=
+  hott definition lift (f : ℤ → ℤ) : R → R :=
   rec (elem ∘ f) (λ _, dist _ _)
-
-  hott def operator (f : ℤ → ℤ → ℤ) : R → R → R :=
-  rec (lift ∘ f) (λ _, Theorems.funext (λ _, dist _ _))
 
   instance (n : ℕ) : OfNat R n := ⟨elem (Integer.pos n)⟩
 
@@ -99,14 +98,14 @@ namespace Reals
     variable {A : Type⁎} (H : prop A.space)
     variable (φ : Map⁎ A ⟨S¹, base⟩)
 
-    hott def helixOverHomo (x : A.1) : helix (φ.ap x) = ℤ :=
+    hott lemma helixOverHomo (x : A.1) : helix (φ.ap x) = ℤ :=
     begin
       transitivity; apply ap (helix ∘ φ.ap);
       apply H x A.point; change _ = helix base;
       apply ap helix; apply φ.id
     end
 
-    noncomputable hott def fibOfHomo (x : S¹) := calc
+    noncomputable hott lemma fibOfHomo (x : S¹) := calc
       fib φ.ap x ≃ Σ (z : A.1), φ.ap z = x       : Equiv.ideqv (fib φ.ap x)
              ... = Σ (z : A.1), φ.ap A.point = x : ap Sigma (funext (λ z, ap (φ.ap · = x) (H z A.point)))
              ... = Σ (z : A.1), base = x         : ap Sigma (funext (λ _, ap (· = x) φ.id))
@@ -115,7 +114,7 @@ namespace Reals
              ... ≃ 𝟏 × (helix x)                 : productEquiv₃ (contrEquivUnit.{_, 0} ⟨A.point, H A.point⟩) (Equiv.ideqv (helix x))
              ... ≃ helix x                       : prodUnitEquiv (helix x)
 
-    noncomputable hott def kerOfHomo : fib φ.ap base ≃ ℤ :=
+    noncomputable hott corollary kerOfHomo : fib φ.ap base ≃ ℤ :=
     fibOfHomo H φ base
   end
 
@@ -127,13 +126,13 @@ namespace Reals
        |          |
        R ════════ R
   -/
-  hott def cis : R → S¹ := rec (λ _, base) (λ _, loop)
+  hott definition cis : R → S¹ := rec (λ _, base) (λ _, loop)
 
-  noncomputable hott def Euler : fib cis base ≃ ℤ :=
+  noncomputable hott theorem Euler : fib cis base ≃ ℤ :=
   @kerOfHomo _ ⟨R, 0⟩ dist ⟨cis, idp base⟩
 
   -- Another (more tricky) proof, but it does not use R contractibility
-  noncomputable hott def helixOverCis (x : R) : helix (cis x) = ℤ :=
+  noncomputable hott lemma helixOverCis (x : R) : helix (cis x) = ℤ :=
   begin
     induction x;
     case cz x => { apply (Integer.shift x)⁻¹ };
@@ -157,43 +156,26 @@ namespace Reals
     }
   end
 
-  hott def phiEqvBaseImplContr {A : Type u} {x : A}
+  hott lemma phiEqvBaseImplContr {A : Type u} {x : A}
     (H : Π (φ : A → S¹), φ x = base) : contr S¹ :=
   ⟨base, λ y, (H (λ _, y))⁻¹⟩
 
-  hott def phiNeqBaseImplFalse {A : Type u} {x : A} (φ : A → S¹) : ¬¬(φ x = base) :=
+  hott lemma phiNeqBaseImplFalse {A : Type u} {x : A} (φ : A → S¹) : ¬¬(φ x = base) :=
   begin induction φ x; intro p; apply p; reflexivity; apply implProp; apply emptyIsProp end
 
-  hott def lemInfImplDnegInf (H : LEM∞) {A : Type u} (G : ¬¬A) : A :=
+  hott lemma lemInfImplDnegInf (H : LEM∞) {A : Type u} (G : ¬¬A) : A :=
   match H A with
   | Sum.inl x => x
   | Sum.inr y => Proto.Empty.elim (G y)
 
-  noncomputable hott def circleNotHset : ¬(hset S¹) :=
+  noncomputable hott remark circleNotHset : ¬(hset S¹) :=
   begin intro H; apply Circle.loopNeqRefl; apply H end
 
-  noncomputable hott def lemInfDisproved : ¬LEM∞ :=
+  noncomputable hott proposition lemInfDisproved : ¬LEM∞ :=
   begin
     intro H; apply circleNotHset; apply propIsSet; apply contrImplProp;
     apply phiEqvBaseImplContr; intro φ; apply lemInfImplDnegInf H;
     apply phiNeqBaseImplFalse φ; exact R; exact 0
-  end
-
-  noncomputable hott def cisFamily : (R → S¹) ≃ S¹ :=
-  @transport Type (λ A, (A → S¹) ≃ S¹) 𝟏 R
-    (ua (contrEquivUnit contractible))⁻¹ cozeroMorphismEqv
-
-  hott def countable (A : Type u) :=
-  ∥(Σ (f : A → ℕ), injective f)∥
-
-  noncomputable hott def circleUncountable : ¬(countable S¹) :=
-  begin
-    fapply HITs.Merely.rec; apply emptyIsProp;
-    intro ⟨f, H⟩; apply circleNotHset;
-    apply propIsSet; intros x y; apply H;
-    induction x; induction y; reflexivity;
-    apply Theorems.Nat.natIsSet;
-    apply Theorems.Nat.natIsSet
   end
 end Reals
 

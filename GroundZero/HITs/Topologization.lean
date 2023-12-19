@@ -15,17 +15,17 @@ namespace GroundZero.HITs
   | η₀ {a b : A} (R : ρ a b) : rel A ρ (D.core.ρ R 0) (D.core.ε a)
   | η₁ {a b : A} (R : ρ a b) : rel A ρ (D.core.ρ R 1) (D.core.ε b)
 
-  def D (A : Type u) (ρ : A → A → Type v) := Graph (D.rel A ρ)
+  hott definition D (A : Type u) (ρ : A → A → Type v) := Quotient (D.rel A ρ)
 
   section
     variable {A : Type u} {r : A → A → Type v}
-    hott def D.ε : A → D A r := Graph.elem ∘ D.core.ε
-    hott def D.ρ {a b : A} (R : r a b) : 𝕀 → D A r := Graph.elem ∘ D.core.ρ R
+    hott def D.ε : A → D A r := Quotient.elem ∘ D.core.ε
+    hott def D.ρ {a b : A} (R : r a b) : 𝕀 → D A r := Quotient.elem ∘ D.core.ρ R
 
-    noncomputable hott def D.η₀ {a b : A} (R : r a b) : D.ρ R 0 = D.ε a :=
-    Graph.line (D.rel.η₀ R)
+    noncomputable hott definition D.η₀ {a b : A} (R : r a b) : D.ρ R 0 = D.ε a :=
+    Quotient.line (D.rel.η₀ R)
 
-    noncomputable hott def D.η₁ {a b : A} (R : r a b) : D.ρ R 1 = D.ε b :=
-    Graph.line (D.rel.η₁ R)
+    noncomputable hott definition D.η₁ {a b : A} (R : r a b) : D.ρ R 1 = D.ε b :=
+    Quotient.line (D.rel.η₁ R)
   end
 end GroundZero.HITs

@@ -6,6 +6,7 @@ open GroundZero.Types.Id (ap)
 open GroundZero.Structures
 open GroundZero.Types
 open GroundZero.Proto
+open GroundZero.HITs
 open GroundZero
 
 /-
@@ -82,13 +83,13 @@ namespace Group
 
   noncomputable def abelComm : (Abelianization G).isCommutative :=
   begin
-    intro (a : HITs.Quotient _) (b : HITs.Quotient _);
+    intro (a : Relquot _) (b : Relquot _);
     apply @commutes (Abelianization G); induction a; case elemπ a =>
     { induction b; case elemπ b =>
-      { apply Factor.sound; intros y H; apply H.2.2; apply HITs.Merely.elem;
+      { apply Factor.sound; intros y H; apply H.2.2; apply Merely.elem;
         existsi (a, b); reflexivity };
-      apply HITs.Quotient.set; apply propIsSet; apply HITs.Quotient.set };
-      apply HITs.Quotient.set; apply propIsSet; apply HITs.Quotient.set
+      apply Relquot.set; apply propIsSet; apply Relquot.set };
+      apply Relquot.set; apply propIsSet; apply Relquot.set
   end
 
   section
@@ -126,7 +127,7 @@ namespace Group
 
   noncomputable hott def Abelianization.homomorphism {G A : Group} (ρ : A.isCommutative) (f : Hom G A) : Hom Gᵃᵇ A :=
   mkhomo (Abelianization.rec ρ f) (begin
-    intro (a : HITs.Quotient _) (b : HITs.Quotient _);
+    intro (a : Relquot _) (b : Relquot _);
     induction a; induction b; apply homoMul;
     apply A.hset; apply propIsSet; apply A.hset;
     apply A.hset; apply propIsSet; apply A.hset

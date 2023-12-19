@@ -10,46 +10,46 @@ open GroundZero
 namespace GroundZero.HITs
 universe u v w u' v' w'
 
-hott def Quot {A : Type u} (R : A → A → Prop v) := ∥Graph (λ x y, (R x y).1)∥₀
+hott definition Setquot {A : Type u} (R : A → A → Prop v) := ∥Quotient (λ x y, (R x y).1)∥₀
 
-hott def Quot.elem {A : Type u} {R : A → A → Prop v} : A → Quot R :=
-Trunc.elem ∘ Graph.elem
+hott definition Setquot.elem {A : Type u} {R : A → A → Prop v} : A → Setquot R :=
+Trunc.elem ∘ Quotient.elem
 
-hott def Quot.sound {A : Type u} {R : A → A → Prop v} {a b : A} :
-  (R a b).1 → @Id (Quot R) (Quot.elem a) (Quot.elem b) :=
-begin intro; dsimp [elem]; apply ap Trunc.elem; apply Graph.line; assumption end
+hott definition Setquot.sound {A : Type u} {R : A → A → Prop v} {a b : A} :
+  (R a b).1 → @Id (Setquot R) (Setquot.elem a) (Setquot.elem b) :=
+begin intro; dsimp [elem]; apply ap Trunc.elem; apply Quotient.line; assumption end
 
-hott def Quot.set {A : Type u} {R : A → A → Prop v} : hset (Quot R) :=
+hott lemma Setquot.set {A : Type u} {R : A → A → Prop v} : hset (Setquot R) :=
 zeroEqvSet.forward (Trunc.uniq 0)
 
-hott def Quot.ind {A : Type u} {R : A → A → Prop u'} {π : Quot R → Type v}
-  (elemπ : Π x, π (Quot.elem x))
-  (lineπ : Π x y H, elemπ x =[Quot.sound H] elemπ y)
+hott definition Setquot.ind {A : Type u} {R : A → A → Prop u'} {π : Setquot R → Type v}
+  (elemπ : Π x, π (Setquot.elem x))
+  (lineπ : Π x y H, elemπ x =[Setquot.sound H] elemπ y)
   (set   : Π x, hset (π x)) : Π x, π x :=
 begin
   fapply Trunc.ind;
-  { fapply Graph.ind; apply elemπ;
+  { fapply Quotient.ind; apply elemπ;
     { intros x y H; apply Id.trans;
       apply transportComp;
       apply lineπ } };
   { intro; apply zeroEqvSet.left; apply set }
 end
 
-attribute [eliminator] Quot.ind
+attribute [eliminator] Setquot.ind
 
-hott def Quot.rec {A : Type u} {R : A → A → Prop u'} {B : Type v}
-  (elemπ : A → B) (lineπ : Π x y, (R x y).fst → elemπ x = elemπ y) (set : hset B) : Quot R → B :=
-@Quot.ind A R (λ _, B) elemπ (λ x y H, pathoverOfEq (Quot.sound H) (lineπ x y H)) (λ _, set)
+hott definition Setquot.rec {A : Type u} {R : A → A → Prop u'} {B : Type v}
+  (elemπ : A → B) (lineπ : Π x y, (R x y).fst → elemπ x = elemπ y) (set : hset B) : Setquot R → B :=
+@Setquot.ind A R (λ _, B) elemπ (λ x y H, pathoverOfEq (Setquot.sound H) (lineπ x y H)) (λ _, set)
 
-hott def Quot.lift₂ {A : Type u} {R₁ : A → A → Prop u'} {B : Type v} {R₂ : B → B → Prop v'}
+hott definition Setquot.lift₂ {A : Type u} {R₁ : A → A → Prop u'} {B : Type v} {R₂ : B → B → Prop v'}
   {γ : Type w} (R₁refl : Π x, (R₁ x x).fst) (R₂refl : Π x, (R₂ x x).fst) (f : A → B → γ)
-  (h : hset γ) (p : Π a₁ a₂ b₁ b₂, (R₁ a₁ b₁).fst → (R₂ a₂ b₂).fst → f a₁ a₂ = f b₁ b₂) : Quot R₁ → Quot R₂ → γ :=
+  (h : hset γ) (p : Π a₁ a₂ b₁ b₂, (R₁ a₁ b₁).fst → (R₂ a₂ b₂).fst → f a₁ a₂ = f b₁ b₂) : Setquot R₁ → Setquot R₂ → γ :=
 begin
-  fapply @Quot.rec A R₁ (Quot R₂ → γ);
-  { intro x; fapply Quot.rec; exact f x;
+  fapply @Setquot.rec A R₁ (Setquot R₂ → γ);
+  { intro x; fapply Setquot.rec; exact f x;
     { intros y₁ y₂ H; apply p; apply R₁refl; exact H };
     { assumption } };
-  { intros x y H; apply Theorems.funext; fapply Quot.ind;
+  { intros x y H; apply Theorems.funext; fapply Setquot.ind;
     { intro z; apply p; assumption; apply R₂refl };
     { intros; apply h };
     { intros; apply Structures.propIsSet; apply h } };
@@ -57,47 +57,47 @@ begin
     intros; apply zeroEqvSet.left; apply h }
 end
 
-hott def Quotient {A : Type u} (s : eqrel A) := Quot s.rel
+hott definition Relquot {A : Type u} (s : eqrel A) := Setquot s.rel
 
-hott def Quotient.elem {A : Type u} {s : eqrel A} : A → Quotient s :=
-Quot.elem
+hott definition Relquot.elem {A : Type u} {s : eqrel A} : A → Relquot s :=
+Setquot.elem
 
-hott def Quotient.sound {A : Type u} {s : eqrel A} {a b : A} :
-  s.apply a b → @Id (Quotient s) (Quotient.elem a) (Quotient.elem b) :=
-Quot.sound
+hott definition Relquot.sound {A : Type u} {s : eqrel A} {a b : A} :
+  s.apply a b → @Id (Relquot s) (Relquot.elem a) (Relquot.elem b) :=
+Setquot.sound
 
-hott def Quotient.set {A : Type u} {s : eqrel A} : hset (Quotient s) :=
-by apply Quot.set
+hott corollary Relquot.set {A : Type u} {s : eqrel A} : hset (Relquot s) :=
+by apply Setquot.set
 
-hott def Quotient.ind {A : Type u} {s : eqrel A}
-  {π : Quotient s → Type v}
-  (elemπ : Π x, π (Quotient.elem x))
-  (lineπ : Π x y H, elemπ x =[Quotient.sound H] elemπ y)
+hott definition Relquot.ind {A : Type u} {s : eqrel A}
+  {π : Relquot s → Type v}
+  (elemπ : Π x, π (Relquot.elem x))
+  (lineπ : Π x y H, elemπ x =[Relquot.sound H] elemπ y)
   (set   : Π x, hset (π x)) : Π x, π x :=
-Quot.ind elemπ lineπ set
+Setquot.ind elemπ lineπ set
 
-attribute [eliminator] Quotient.ind
+attribute [eliminator] Relquot.ind
 
-hott def Quotient.indProp {A : Type u} {s : eqrel A}
-  {π : Quotient s → Type v} (elemπ : Π x, π (Quotient.elem x))
+hott definition Relquot.indProp {A : Type u} {s : eqrel A}
+  {π : Relquot s → Type v} (elemπ : Π x, π (Relquot.elem x))
   (propπ : Π x, prop (π x)) : Π x, π x :=
 begin
   intro x; induction x; apply elemπ; apply propπ;
   apply Structures.propIsSet; apply propπ
 end
 
-hott def Quotient.rec {A : Type u} {B : Type v} {s : eqrel A}
+hott definition Relquot.rec {A : Type u} {B : Type v} {s : eqrel A}
   (elemπ : A → B)
   (lineπ : Π x y, s.apply x y → elemπ x = elemπ y)
-  (set   : hset B) : Quotient s → B :=
-by apply Quot.rec <;> assumption
+  (set   : hset B) : Relquot s → B :=
+by apply Setquot.rec <;> assumption
 
-hott def Quotient.lift₂ {A : Type u} {B : Type v} {γ : Type w}
+hott definition Relquot.lift₂ {A : Type u} {B : Type v} {γ : Type w}
   {s₁ : eqrel A} {s₂ : eqrel B} (f : A → B → γ) (h : hset γ)
   (p : Π a₁ a₂ b₁ b₂, s₁.apply a₁ b₁ → s₂.apply a₂ b₂ → f a₁ a₂ = f b₁ b₂) :
-  Quotient s₁ → Quotient s₂ → γ :=
+  Relquot s₁ → Relquot s₂ → γ :=
 begin
-  fapply Quot.lift₂; apply s₁.iseqv.fst; apply s₂.iseqv.fst;
+  fapply Setquot.lift₂; apply s₁.iseqv.fst; apply s₂.iseqv.fst;
   repeat { assumption }
 end
 

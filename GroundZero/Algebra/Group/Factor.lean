@@ -6,6 +6,7 @@ open GroundZero.Types.Id (ap)
 open GroundZero.Structures
 open GroundZero.Types
 open GroundZero.Proto
+open GroundZero.HITs
 open GroundZero
 
 /- Factor/Quotient group (as Quotient type). -/
@@ -53,15 +54,15 @@ namespace Group
   end⟩
 
   def factorLeft (G : Group) (φ : G.subgroup) :=
-  HITs.Quotient (factorEqrelLeft φ)
+  Relquot (factorEqrelLeft φ)
 
   def factorRight (G : Group) (φ : G.subgroup) :=
-  HITs.Quotient (factorEqrelRight φ)
+  Relquot (factorEqrelRight φ)
 
   noncomputable hott def factorSymm (φ : G.subgroup) (ρ : G ⊵ φ) :
     factorLeft G φ = factorRight G φ :=
   begin
-    apply ap GroundZero.HITs.Quotient; apply GroundZero.eqrel.eq;
+    apply ap Relquot; apply GroundZero.eqrel.eq;
     apply Theorems.funext; intro; apply Theorems.funext; intro;
     fapply Types.Sigma.prod; change ldiv φ _ _ = rdiv φ _ _;
     apply HITs.Interval.happly; apply HITs.Interval.happly;
@@ -69,7 +70,7 @@ namespace Group
   end
 
   hott def Factor.incl {φ : G.subgroup} : G.carrier → factorLeft G φ :=
-  GroundZero.HITs.Quotient.elem
+  Relquot.elem
 
   section
     variable {φ : G.normal}
@@ -77,11 +78,11 @@ namespace Group
     noncomputable hott def Factor.mul :
       factorLeft G φ → factorLeft G φ → factorLeft G φ :=
     begin
-      fapply GroundZero.HITs.Quotient.lift₂;
+      fapply Relquot.lift₂;
       { intros a b; exact Factor.incl (a * b) };
-      { apply GroundZero.HITs.Quotient.set };
+      { apply Relquot.set };
       { intros a b c d p q;
-        apply GroundZero.HITs.Quotient.sound;
+        apply Relquot.sound;
         change _ ∈ φ.set; apply transport (· ∈ φ.set);
         apply calc
              b⁻¹ * (a⁻¹ * c * (d * b⁻¹)) * b
@@ -113,54 +114,54 @@ namespace Group
 
     noncomputable hott def Factor.mulOne : Π (x : factorLeft G φ), Factor.mul x Factor.one = x :=
     begin
-      fapply @HITs.Quotient.indProp;
-      { intro x; apply HITs.Quotient.sound;
+      fapply @Relquot.indProp;
+      { intro x; apply Relquot.sound;
         apply transport (· ∈ φ.set); apply calc
             e = x⁻¹ * x       : Id.inv (G.mulLeftInv x)
           ... = e * x⁻¹ * x   : ap (G.φ · x) (Id.inv (G.oneMul x⁻¹))
           ... = e⁻¹ * x⁻¹ * x : ap (λ y, y * x⁻¹ * x) unitInv
           ... = (x * e)⁻¹ * x : ap (G.φ · x) (Id.inv (invExplode x e));
         apply φ.1.unit };
-      { intros; apply HITs.Quotient.set }
+      { intros; apply Relquot.set }
     end
 
     noncomputable hott def Factor.oneMul : Π (x : factorLeft G φ), Factor.mul Factor.one x = x :=
     begin
-      fapply HITs.Quotient.indProp;
-      { intro; change HITs.Quotient.elem _ = _;
+      fapply Relquot.indProp;
+      { intro; change Relquot.elem _ = _;
         apply ap; apply G.oneMul };
-      { intros; apply HITs.Quotient.set }
+      { intros; apply Relquot.set }
     end
 
     noncomputable hott def Factor.assoc : Π (x y z : factorLeft G φ),
       Factor.mul (Factor.mul x y) z = Factor.mul x (Factor.mul y z) :=
     begin
-      intro (x : HITs.Quotient _) (y : HITs.Quotient _) (z : HITs.Quotient _);
+      intro (x : Relquot _) (y : Relquot _) (z : Relquot _);
       induction x; induction y; induction z;
       apply ap Factor.incl; apply G.mulAssoc;
       -- ???
-      apply HITs.Quotient.set; apply propIsSet; apply HITs.Quotient.set;
-      apply HITs.Quotient.set; apply propIsSet; apply HITs.Quotient.set;
-      apply HITs.Quotient.set; apply propIsSet; apply HITs.Quotient.set
+      apply Relquot.set; apply propIsSet; apply Relquot.set;
+      apply Relquot.set; apply propIsSet; apply Relquot.set;
+      apply Relquot.set; apply propIsSet; apply Relquot.set
     end
 
     noncomputable hott def Factor.inv : factorLeft G φ → factorLeft G φ :=
     begin
-      fapply GroundZero.HITs.Quotient.rec;
+      fapply Relquot.rec;
       { intro x; exact Factor.incl x⁻¹ };
-      { intros u v H; apply GroundZero.HITs.Quotient.sound;
+      { intros u v H; apply Relquot.sound;
         apply transport (· ∈ φ.set); symmetry;
         apply ap (G.φ · v⁻¹); apply invInv;
         apply (normalSubgroupCosets φ.2).left; exact H };
-      { apply GroundZero.HITs.Quotient.set }
+      { apply Relquot.set }
     end
 
     noncomputable hott def Factor.leftInv :
       Π (x : factorLeft G φ), Factor.mul (Factor.inv x) x = Factor.one :=
     begin
-      intro (x : HITs.Quotient _); induction x;
+      intro (x : Relquot _); induction x;
       apply ap Factor.incl; apply G.mulLeftInv;
-      apply HITs.Quotient.set; apply propIsSet; apply HITs.Quotient.set
+      apply Relquot.set; apply propIsSet; apply Relquot.set
     end
   end
 
@@ -168,7 +169,7 @@ namespace Group
     variable (H : Group) (φ : H.normal)
 
     noncomputable hott def Factor : Group :=
-    @Group.intro (factorLeft H φ) HITs.Quotient.set Factor.mul Factor.inv Factor.one
+    @Group.intro (factorLeft H φ) Relquot.set Factor.mul Factor.inv Factor.one
       Factor.assoc Factor.oneMul Factor.mulOne Factor.leftInv
   end
 
@@ -177,14 +178,14 @@ namespace Group
   hott def Factor.sound {φ : G.normal} {x : G.carrier} (H : x ∈ φ.set) :
     @Id (factorLeft G φ) (Factor.incl x) Factor.one :=
   begin
-    apply HITs.Quotient.sound; apply transport (· ∈ φ.set);
+    apply Relquot.sound; apply transport (· ∈ φ.set);
     symmetry; apply ldivByUnit; apply φ.1.inv; assumption
   end
 
   hott def Factor.lift {H : Group} (f : Hom G H) {φ : G.normal}
     (p : Π x, x ∈ φ.set → f.fst x = H.e) : factorLeft G φ → H.carrier :=
   begin
-    fapply HITs.Quotient.rec; exact f.1;
+    fapply Relquot.rec; exact f.1;
     { intros x y q; apply eqOfDivEq; change H.φ _ _ = _;
       transitivity; apply ap (H.φ · (f.1 y));
       symmetry; apply homoInv f; transitivity;
@@ -196,7 +197,7 @@ namespace Group
 
   hott def triv.decode : factorLeft G (triv G) → G.carrier :=
   begin
-    fapply HITs.Quotient.rec; exact id;
+    fapply Relquot.rec; exact id;
     { intro x y (p : _ = _); apply invInj;
       apply eqInvOfMulEqOne; exact Id.inv p };
     apply G.hset
@@ -208,8 +209,8 @@ namespace Group
     { intros x y; reflexivity };
     apply Prod.mk <;> existsi triv.decode;
     { intro; reflexivity };
-    { fapply HITs.Quotient.indProp <;> intro;
-      reflexivity; apply HITs.Quotient.set }
+    { fapply Relquot.indProp <;> intro;
+      reflexivity; apply Relquot.set }
   end
 
   hott def univ.decode : 𝟏 → factorLeft G (univ G) := λ _, Factor.one
@@ -218,9 +219,9 @@ namespace Group
     contr (factorLeft G (univ G)) :=
   begin
     existsi univ.decode.{_, 1, 1} ★;
-    fapply HITs.Quotient.indProp <;> intro;
-    { apply HITs.Quotient.sound; apply ★ };
-    { apply HITs.Quotient.set }
+    fapply Relquot.indProp <;> intro;
+    { apply Relquot.sound; apply ★ };
+    { apply Relquot.set }
   end
 
   noncomputable hott def univProp : prop (factorLeft G (univ G)) :=
@@ -238,23 +239,23 @@ namespace Group
 
     noncomputable hott def Factor.transfer (f : φ.set ⊆ ψ.set) : (G\φ).carrier → (G\ψ).carrier :=
     begin
-      fapply HITs.Quotient.rec;
+      fapply Relquot.rec;
       { exact Factor.incl };
-      { intros x y H; apply HITs.Quotient.sound; apply f; exact H };
-      { apply HITs.Quotient.set }
+      { intros x y H; apply Relquot.sound; apply f; exact H };
+      { apply Relquot.set }
     end
 
     noncomputable hott def Factor.iso (f : φ.set ⊆ ψ.set) (g : ψ.set ⊆ φ.set) : G\φ ≅ G\ψ :=
     begin
       fapply mkiso; exact Factor.transfer f;
-      { intro (x : HITs.Quotient _) (y : HITs.Quotient _);
+      { intro (x : Relquot _) (y : Relquot _);
         induction x; induction y; reflexivity;
-        apply HITs.Quotient.set; apply propIsSet; apply HITs.Quotient.set;
-        apply HITs.Quotient.set; apply propIsSet; apply HITs.Quotient.set };
-      { apply Prod.mk <;> existsi Factor.transfer g <;> fapply HITs.Quotient.indProp;
+        apply Relquot.set; apply propIsSet; apply Relquot.set;
+        apply Relquot.set; apply propIsSet; apply Relquot.set };
+      { apply Prod.mk <;> existsi Factor.transfer g <;> fapply Relquot.indProp;
         -- “repeat” don’t work here too
-        intro; reflexivity; intros; apply HITs.Quotient.set;
-        intro; reflexivity; intros; apply HITs.Quotient.set }
+        intro; reflexivity; intros; apply Relquot.set;
+        intro; reflexivity; intros; apply Relquot.set }
     end
   end
 end Group

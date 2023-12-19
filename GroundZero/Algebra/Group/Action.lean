@@ -4,6 +4,7 @@ import GroundZero.HITs.Quotient
 open GroundZero.Types.Id (ap)
 open GroundZero.Structures
 open GroundZero.Types
+open GroundZero.HITs
 open GroundZero
 
 namespace GroundZero.Algebra
@@ -97,7 +98,7 @@ namespace Group
   begin intros c G; apply φ.trans; apply φ.symm p; exact G end
 
   hott def Orbits {A : Type u} (φ : G ⮎ A) :=
-  HITs.Quotient φ.eqrel
+  Relquot φ.eqrel
 
   hott def transitive {A : Type u} (φ : G ⮎ A) :=
   Π a b, ∥(Σ g, φ.fst g a = b)∥

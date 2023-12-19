@@ -14,7 +14,7 @@ namespace GroundZero.HITs
 hott def Int.rel (w₁ w₂ : ℕ × ℕ) : Type :=
 w₁.1 + w₂.2 = w₁.2 + w₂.1
 
-hott def Int := Graph Int.rel
+hott def Int := Quotient Int.rel
 local notation "ℤ" => Int
 
 namespace Nat.Product
@@ -32,8 +32,8 @@ end Nat.Product
 namespace Int
   universe u v
 
-  def mk : ℕ × ℕ → ℤ := Graph.elem
-  def elem (a b : ℕ) : ℤ := Graph.elem (a, b)
+  def mk : ℕ × ℕ → ℤ := Quotient.elem
+  def elem (a b : ℕ) : ℤ := Quotient.elem (a, b)
 
   def pos (n : ℕ) := mk (n, 0)
   instance (n : ℕ) : OfNat ℤ n := ⟨pos n⟩
@@ -41,17 +41,17 @@ namespace Int
   def neg (n : ℕ) := mk (0, n)
 
   hott def glue {a b c d : ℕ} (H : a + d = b + c) : mk (a, b) = mk (c, d) :=
-  Graph.line H
+  Quotient.line H
 
   hott def ind {C : ℤ → Type u} (mkπ : Π x, C (mk x))
     (glueπ : Π {a b c d : ℕ} (H : a + d = b + c),
       mkπ (a, b) =[glue H] mkπ (c, d)) (x : ℤ) : C x :=
-  begin fapply Graph.ind; exact mkπ; intros x y H; apply glueπ end
+  begin fapply Quotient.ind; exact mkπ; intros x y H; apply glueπ end
 
   hott def rec {C : Type u} (mkπ : ℕ × ℕ → C)
     (glueπ : Π {a b c d : ℕ} (H : a + d = b + c),
       mkπ (a, b) = mkπ (c, d)) : ℤ → C :=
-  begin fapply Graph.rec; exact mkπ; intros x y H; apply glueπ H end
+  begin fapply Quotient.rec; exact mkπ; intros x y H; apply glueπ H end
 
   instance : Neg Int :=
   ⟨rec (λ x, mk ⟨x.2, x.1⟩) (λ H, glue H⁻¹)⟩

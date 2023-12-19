@@ -5,6 +5,7 @@ open GroundZero.Types.Id (ap)
 open GroundZero.Structures
 open GroundZero.Types
 open GroundZero.Proto
+open GroundZero.HITs
 open GroundZero
 
 /-
@@ -107,7 +108,7 @@ namespace Group
 
   hott def Z₂.decode : factorLeft D₃ A₃ → Z₂.carrier :=
   begin
-    fapply GroundZero.HITs.Quotient.rec;
+    fapply Relquot.rec;
     exact D₃.elim false false false true true true;
     intros x y H <;> induction x using D₃.carrier.casesOn <;> induction y using D₃.carrier.casesOn <;>
     (first | induction H using Proto.Empty.casesOn | induction H using Unit.casesOn; reflexivity);
@@ -120,11 +121,11 @@ namespace Group
     { intros x y; induction x <;> induction y <;> reflexivity };
     apply Prod.mk <;> existsi Z₂.decode;
     { intro x; induction x <;> reflexivity };
-    { fapply HITs.Quotient.ind;
-      { intro x; induction x <;> apply HITs.Quotient.sound <;> exact ★ };
-      { intros x y H; apply HITs.Quotient.set };
+    { fapply Relquot.ind;
+      { intro x; induction x <;> apply Relquot.sound <;> exact ★ };
+      { intros x y H; apply Relquot.set };
       { intro; apply Structures.propIsSet;
-        apply HITs.Quotient.set } }
+        apply Relquot.set } }
   end
 end Group
 

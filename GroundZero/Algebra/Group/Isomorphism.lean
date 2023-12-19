@@ -6,6 +6,7 @@ open GroundZero.Types.Id (ap)
 open GroundZero.Structures
 open GroundZero.Types
 open GroundZero.Proto
+open GroundZero.HITs
 open GroundZero
 
 /-
@@ -27,7 +28,7 @@ namespace Group
 
     hott def ker.encode {φ : Hom G H} : factorLeft G (ker φ) → im.carrier φ :=
     begin
-      fapply HITs.Quotient.rec;
+      fapply Relquot.rec;
       { intro x; existsi φ.fst x;
         apply HITs.Merely.elem; existsi x; reflexivity };
       { intro x y (p : _ = _); fapply Sigma.prod; transitivity;
@@ -41,16 +42,16 @@ namespace Group
     noncomputable hott def ker.encodeInj {φ : Hom G H} :
       Π (x y : factorLeft G (ker φ)), ker.encode x = ker.encode y → x = y :=
     begin
-      fapply @HITs.Quotient.indProp _ _ (λ x, Π y, ker.encode x = ker.encode y → x = y) <;> intro x;
-      { fapply @HITs.Quotient.indProp _ _ (λ y, ker.encode _ = ker.encode y → _ = y) <;> intro y;
-        { intro p; apply HITs.Quotient.sound;
+      fapply @Relquot.indProp _ _ (λ x, Π y, ker.encode x = ker.encode y → x = y) <;> intro x;
+      { fapply @Relquot.indProp _ _ (λ y, ker.encode _ = ker.encode y → _ = y) <;> intro y;
+        { intro p; apply Relquot.sound;
           change _ = _; transitivity; apply homoMul;
           transitivity; apply ap (H.φ · (φ.1 y));
           apply homoInv; apply mulEqOneOfInvEq;
           transitivity; apply invInv;
           apply (Sigma.sigmaEqOfEq p).1 };
-        { apply implProp; apply HITs.Quotient.set } };
-      { apply piProp; intro; apply implProp; apply HITs.Quotient.set }
+        { apply implProp; apply Relquot.set } };
+      { apply piProp; intro; apply implProp; apply Relquot.set }
     end
 
     hott def ker.incl {φ : Hom G H} : G.carrier → factorLeft G (ker φ) :=
@@ -81,11 +82,11 @@ namespace Group
     begin
       fapply mkiso; exact ker.decode;
       { intro ⟨a, (A : ∥_∥)⟩ ⟨b, (B : ∥_∥)⟩; induction A; induction B;
-        reflexivity; apply HITs.Quotient.set; apply HITs.Quotient.set };
+        reflexivity; apply Relquot.set; apply Relquot.set };
       apply Prod.mk <;> existsi ker.encode;
       { intro x; apply (ker.decodeSigma x).2 };
-      { fapply GroundZero.HITs.Quotient.indProp; intro;
-        reflexivity; intro; apply HITs.Quotient.set }
+      { fapply Relquot.indProp; intro;
+        reflexivity; intro; apply Relquot.set }
     end
   end
 

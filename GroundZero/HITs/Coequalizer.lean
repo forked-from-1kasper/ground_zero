@@ -13,32 +13,32 @@ section
   inductive Coeq.rel : B → B → Type (max u v)
   | intro : Π x, rel (f x) (g x)
 
-  def Coeq := Graph (Coeq.rel f g)
+  hott definition Coeq := Quotient (Coeq.rel f g)
 end
 
 namespace Coeq
   variable {A : Type u} {B : Type v} {f g : A → B}
 
-  hott def iota : B → Coeq f g := Graph.elem
+  hott definition iota : B → Coeq f g := Quotient.elem
 
-  hott def resp : Π x, @Id (Coeq f g) (iota (f x)) (iota (g x)) :=
-  λ x, Graph.line (Coeq.rel.intro x)
+  hott definition resp : Π x, @Id (Coeq f g) (iota (f x)) (iota (g x)) :=
+  λ x, Quotient.line (Coeq.rel.intro x)
 
-  hott def ind (C : Coeq f g → Type w) (i : Π x, C (iota x))
+  hott definition ind (C : Coeq f g → Type w) (i : Π x, C (iota x))
     (ρ : Π x, i (f x) =[resp x] i (g x)) : Π x, C x :=
-  begin fapply Graph.ind; apply i; intros x y H; induction H using rel.casesOn; apply ρ end
+  begin fapply Quotient.ind; apply i; intros x y H; induction H using rel.casesOn; apply ρ end
 
   attribute [eliminator] ind
 
-  hott def indβrule (C : Coeq f g → Type w) (i : Π x, C (iota x))
+  hott definition indβrule (C : Coeq f g → Type w) (i : Π x, C (iota x))
     (ρ : Π x, i (f x) =[resp x] i (g x)) (x : A) : apd (ind C i ρ) (resp x) = ρ x :=
-  @Graph.indβrule _ (rel f g) _ _ _ _ _ (rel.intro x)
+  @Quotient.indβrule _ (rel f g) _ _ _ _ _ (rel.intro x)
 
-  hott def rec (C : Type w) (i : B → C) (ρ : Π x, i (f x) = i (g x)) : Coeq f g → C :=
+  hott definition rec (C : Type w) (i : B → C) (ρ : Π x, i (f x) = i (g x)) : Coeq f g → C :=
   ind (λ _, C) i (λ x, pathoverOfEq (resp x) (ρ x))
 
-  hott def recβrule (C : Type w) (i : B → C)
-    (ρ : Π x, i (f x) = i (g x)) : Π x, ap (rec C i ρ) (resp x) = ρ x :=
+  hott definition recβrule (C : Type w) (i : B → C) (ρ : Π x, i (f x) = i (g x)) :
+    Π x, ap (rec C i ρ) (resp x) = ρ x :=
   begin
     intro x; apply pathoverOfEqInj (resp x);
     transitivity; symmetry; apply apdOverConstantFamily;

@@ -3,6 +3,7 @@ import GroundZero.HITs.Quotient
 
 open GroundZero.Types.Id (ap)
 open GroundZero.Types
+open GroundZero.HITs
 open GroundZero
 
 namespace GroundZero.Algebra
@@ -12,7 +13,7 @@ namespace Group
   variable {G : Group}
 
   hott def «Sosnitsky construction» (G : Group) :=
-  @HITs.Quotient G.carrier
+  @Relquot G.carrier
     ⟨λ g h, ⟨∥(g = h) + (g = G.ι h)∥, HITs.Merely.uniq⟩,
     begin
       apply Prod.mk;
@@ -33,18 +34,18 @@ namespace Group
   notation "⌈" G "⌉" => «Sosnitsky construction» G
 
   hott def Absolutizer (G : Group.{u}) :=
-  Σ (φ : ⌈G⌉ → G.carrier), φ ∘ HITs.Quotient.elem ∘ φ ~ φ
+  Σ (φ : ⌈G⌉ → G.carrier), φ ∘ Relquot.elem ∘ φ ~ φ
 
   section
     variable (φ : Absolutizer G)
-    def Absolutizer.ap := φ.fst ∘ HITs.Quotient.elem
+    def Absolutizer.ap := φ.fst ∘ Relquot.elem
 
     hott def Absolutizer.idem : φ.ap ∘ φ.ap ~ φ.ap :=
-    λ x, φ.snd (HITs.Quotient.elem x)
+    λ x, φ.snd (Relquot.elem x)
 
     hott def Absolutizer.even : φ.ap ∘ G.ι ~ φ.ap :=
     begin
-      intro; apply Id.ap φ.1; apply HITs.Quotient.sound;
+      intro; apply Id.ap φ.1; apply Relquot.sound;
       apply HITs.Merely.elem; right; reflexivity
     end
 
@@ -63,14 +64,14 @@ namespace Group
 
     hott def Absolutizer.mul : ⌈G⌉ → ⌈G⌉ → ⌈G⌉ :=
     begin
-      fapply HITs.Quotient.lift₂;
-      { intros a b; apply HITs.Quotient.elem; exact G.φ (φ.ap a) (φ.ap b) };
-      { apply HITs.Quotient.set };
+      fapply Relquot.lift₂;
+      { intros a b; apply Relquot.elem; exact G.φ (φ.ap a) (φ.ap b) };
+      { apply Relquot.set };
       { intro a₁ a₂ b₁ b₂ (p : ∥_∥); induction p;
         case elemπ p =>
         { intro (q : ∥_∥); induction q;
           case elemπ q =>
-          { apply Id.ap HITs.Quotient.elem; apply Equiv.bimap;
+          { apply Id.ap Relquot.elem; apply Equiv.bimap;
             { induction p using Sum.casesOn;
               { apply Id.ap; assumption };
               { transitivity; apply Id.ap; assumption;
@@ -79,12 +80,12 @@ namespace Group
               { apply Id.ap; assumption };
               { transitivity; apply Id.ap; assumption;
                 apply Absolutizer.even } } };
-          apply HITs.Quotient.set };
-        apply Structures.piProp; intro; apply HITs.Quotient.set }
+          apply Relquot.set };
+        apply Structures.piProp; intro; apply Relquot.set }
     end
 
     hott def Absolutizer.one : ⌈G⌉ :=
-    HITs.Quotient.elem G.e
+    Relquot.elem G.e
   end
 end Group
 

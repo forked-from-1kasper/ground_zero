@@ -4,6 +4,7 @@ open GroundZero.Types.Equiv (transport)
 open GroundZero.Types.Id (ap)
 open GroundZero.Structures
 open GroundZero.Types
+open GroundZero.HITs
 open GroundZero
 
 namespace GroundZero.Algebra
@@ -306,10 +307,10 @@ namespace Ring
 
   noncomputable def Factor.mul : factorLeft T⁺ φ → factorLeft T⁺ φ → factorLeft T⁺ φ :=
   begin
-    fapply HITs.Quotient.lift₂;
-    { intros a b; apply HITs.Quotient.elem; exact T.ψ a b };
-    { apply HITs.Quotient.set };
-    { intros a₁ a₂ b₁ b₂ p q; apply HITs.Quotient.sound; apply transport (· ∈ φ.set);
+    fapply Relquot.lift₂;
+    { intros a b; apply Relquot.elem; exact T.ψ a b };
+    { apply Relquot.set };
+    { intros a₁ a₂ b₁ b₂ p q; apply Relquot.sound; apply transport (· ∈ φ.set);
       { let φ' := T⁺.leftDiv;
         change T.φ (φ' (T.ψ a₁ a₂) (T.ψ a₁ b₂)) (φ' (T.ψ a₁ b₂) (T.ψ b₁ b₂)) = _;
         transitivity; apply T⁺.mulAssoc;

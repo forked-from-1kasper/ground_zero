@@ -7,14 +7,14 @@ open GroundZero.Types
 namespace GroundZero.HITs
 universe u v w
 
-inductive Graph.rel {A : Type u} (R : A → A → Type v) : A → A → Prop
+inductive Quotient.rel {A : Type u} (R : A → A → Type v) : A → A → Prop
 | line {n m : A} : R n m → rel R n m
 
-hott axiom Graph {A : Type u} (R : A → A → Type v) : Type (max u v) :=
-Resize.{u, v} (Quot (Graph.rel R))
+hott axiom Quotient {A : Type u} (R : A → A → Type v) : Type (max u v) :=
+Resize.{u, v} (Quot (Quotient.rel R))
 
-namespace Graph
-  hott axiom elem {A : Type u} {R : A → A → Type w} : A → Graph R :=
+namespace Quotient
+  hott axiom elem {A : Type u} {R : A → A → Type w} : A → Quotient R :=
   Resize.intro ∘ Quot.mk (rel R)
 
   hott opaque line {A : Type u} {R : A → A → Type w} {x y : A}
@@ -22,28 +22,28 @@ namespace Graph
   trustHigherCtor (congrArg Resize.intro (Quot.sound (rel.line H)))
 
   hott axiom rec {A : Type u} {B : Type v} {R : A → A → Type w}
-    (f : A → B) (H : Π x y, R x y → f x = f y) : Graph R → B :=
-  λ x, Quot.withUseOf H (Quot.lift f (λ a b, λ (Graph.rel.line ε), elimEq (H a b ε)) x.elim) x.elim
+    (f : A → B) (H : Π x y, R x y → f x = f y) : Quotient R → B :=
+  λ x, Quot.withUseOf H (Quot.lift f (λ a b, λ (rel.line ε), elimEq (H a b ε)) x.elim) x.elim
 
-  @[eliminator] hott axiom ind {A : Type u} {R : A → A → Type v} {B : Graph R → Type w}
+  @[eliminator] hott axiom ind {A : Type u} {R : A → A → Type v} {B : Quotient R → Type w}
     (f : Π x, B (elem x)) (ε : Π x y H, f x =[line H] f y) : Π x, B x :=
-  λ x, Quot.withUseOf ε (@Quot.hrecOn A (Graph.rel R) (B ∘ Resize.intro) x.elim f
-    (λ a b, λ (Graph.rel.line H), HEq.fromPathover (line H) (ε a b H))) x.elim
+  λ x, Quot.withUseOf ε (@Quot.hrecOn A (rel R) (B ∘ Resize.intro) x.elim f
+    (λ a b, λ (rel.line H), HEq.fromPathover (line H) (ε a b H))) x.elim
 
   hott opaque recβrule {A : Type u} {B : Type v} {R : A → A → Type w}
     (f : A → B) (ε : Π x y, R x y → f x = f y) {x y : A}
     (g : R x y) : ap (rec f ε) (line g) = ε x y g :=
   trustCoherence
 
-  hott opaque indβrule {A : Type u} {R : A → A → Type v} {B : Graph R → Type w}
+  hott opaque indβrule {A : Type u} {R : A → A → Type v} {B : Quotient R → Type w}
     (f : Π x, B (elem x)) (ε : Π x y H, f x =[line H] f y)
     {x y : A} (g : R x y) : apd (ind f ε) (line g) = ε x y g :=
   trustCoherence
 
-  attribute [irreducible] Graph
+  attribute [irreducible] Quotient
 
   section
-    variable {A : Type u} {R : A → A → Type v} {B : Graph R → Type w}
+    variable {A : Type u} {R : A → A → Type v} {B : Quotient R → Type w}
              (f : Π x, B (elem x)) (ε₁ ε₂ : Π x y H, f x =[line H] f y)
 
     #failure ind f ε₁ ≡ ind f ε₂
@@ -55,6 +55,6 @@ namespace Graph
 
     #failure rec f ε₁ ≡ rec f ε₂
   end
-end Graph
+end Quotient
 
 end GroundZero.HITs
