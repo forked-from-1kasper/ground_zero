@@ -1,5 +1,5 @@
 import GroundZero.Algebra.Group.Subgroup
-import GroundZero.HITs.Quotient
+import GroundZero.HITs.Setquot
 
 open GroundZero.Types.Equiv (biinv transport)
 open GroundZero.Types.Id (ap)

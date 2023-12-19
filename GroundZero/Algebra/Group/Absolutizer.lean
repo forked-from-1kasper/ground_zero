@@ -1,5 +1,5 @@
 import GroundZero.Algebra.Group.Basic
-import GroundZero.HITs.Quotient
+import GroundZero.HITs.Setquot
 
 open GroundZero.Types.Id (ap)
 open GroundZero.Types

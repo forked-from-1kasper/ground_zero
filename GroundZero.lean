@@ -43,7 +43,6 @@ import GroundZero.HITs.Coequalizer
 import GroundZero.HITs.Colimit
 import GroundZero.HITs.Flattening
 import GroundZero.HITs.Generalized
-import GroundZero.HITs.Graph
 import GroundZero.HITs.Int
 import GroundZero.HITs.Interval
 import GroundZero.HITs.Join
@@ -52,6 +51,7 @@ import GroundZero.HITs.Moebius
 import GroundZero.HITs.Pushout
 import GroundZero.HITs.Quotient
 import GroundZero.HITs.Reals
+import GroundZero.HITs.Setquot
 import GroundZero.HITs.Simplicial
 import GroundZero.HITs.Sphere
 import GroundZero.HITs.Suspension

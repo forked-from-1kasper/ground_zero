@@ -1,4 +1,4 @@
-import GroundZero.HITs.Graph
+import GroundZero.HITs.Quotient
 open GroundZero.Types.Equiv (pathoverOfEq)
 
 /-
