@@ -27,7 +27,7 @@ namespace Trunc
   | −1,            x => Merely.elem x
   | succ (succ n), x => Opaque.intro x
 
-  hott opaque uniq (n : ℕ₋₂) : is-n-type (Trunc n A) :=
+  hott opaque axiom uniq (n : ℕ₋₂) : is-n-type (Trunc n A) :=
   match n with
   | −2            => unitIsContr
   | −1            => Merely.hprop
@@ -52,7 +52,7 @@ namespace Trunc
     do `(@Trunc.elem _ $(← Meta.Notation.parseSubscript n) $x)
 
   hott lemma indβrule {B : ∥A∥ₙ → Type v} (elemπ : Π x, B |x|ₙ)
-    (uniqπ : Π x, is-n-type (B x)) (x : A) : ind elemπ uniqπ (elem x) = elemπ x :=
+    (uniqπ : Π x, is-n-type (B x)) (x : A) : ind elemπ uniqπ |x|ₙ = elemπ x :=
   begin
     match n with | −2 => _ | −1 => _ | succ (succ n) => _;
     apply (uniqπ (elem x)).2; reflexivity; reflexivity
@@ -63,7 +63,7 @@ namespace Trunc
 
     hott definition rec : ∥A∥ₙ → B := @ind A n (λ _, B) elemπ (λ _, uniqπ)
 
-    hott corollary recβrule (x : A) : rec elemπ uniqπ (elem x) = elemπ x :=
+    hott corollary recβrule (x : A) : rec elemπ uniqπ |x|ₙ = elemπ x :=
     by apply indβrule
   end
 
@@ -92,6 +92,14 @@ namespace Trunc
   hott definition ap₂ {A : Type u} {B : Type v} {C : Type w}
     {n : ℕ₋₂} (f : A → B → C) : ∥A∥ₙ → ∥B∥ₙ → ∥C∥ₙ :=
   rec (ap ∘ f) (piRespectsNType n (λ _, uniq n))
+
+  hott corollary apβrule {A : Type u} {B : Type v} {n : ℕ₋₂}
+    {f : A → B} (a : A) : ap f |a|ₙ = |f a|ₙ :=
+  by apply recβrule
+
+  hott corollary apβrule₂ {A : Type u} {B : Type v} {C : Type w}
+    {n : ℕ₋₂} {f : A → B → C} (a : A) (b : B) : ap₂ f |a|ₙ |b|ₙ = |f a b|ₙ :=
+  begin transitivity; apply happly; apply recβrule; apply apβrule end
 
   hott lemma idmap {A : Type u} {n : ℕ₋₂} : ap idfun ~ @idfun ∥A∥ₙ :=
   begin

@@ -17,7 +17,7 @@ namespace Quotient
   hott axiom elem {A : Type u} {R : A → A → Type w} : A → Quotient R :=
   Resize.intro ∘ Quot.mk (rel R)
 
-  hott opaque line {A : Type u} {R : A → A → Type w} {x y : A}
+  hott opaque axiom line {A : Type u} {R : A → A → Type w} {x y : A}
     (H : R x y) : @elem A R x = @elem A R y :=
   trustHigherCtor (congrArg Resize.intro (Quot.sound (rel.line H)))
 
@@ -30,12 +30,12 @@ namespace Quotient
   λ x, Quot.withUseOf ε (@Quot.hrecOn A (rel R) (B ∘ Resize.intro) x.elim f
     (λ a b, λ (rel.line H), HEq.fromPathover (line H) (ε a b H))) x.elim
 
-  hott opaque recβrule {A : Type u} {B : Type v} {R : A → A → Type w}
+  hott opaque axiom recβrule {A : Type u} {B : Type v} {R : A → A → Type w}
     (f : A → B) (ε : Π x y, R x y → f x = f y) {x y : A}
     (g : R x y) : ap (rec f ε) (line g) = ε x y g :=
   trustCoherence
 
-  hott opaque indβrule {A : Type u} {R : A → A → Type v} {B : Quotient R → Type w}
+  hott opaque axiom indβrule {A : Type u} {R : A → A → Type v} {B : Quotient R → Type w}
     (f : Π x, B (elem x)) (ε : Π x y H, f x =[line H] f y)
     {x y : A} (g : R x y) : apd (ind f ε) (line g) = ε x y g :=
   trustCoherence

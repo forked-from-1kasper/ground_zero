@@ -28,7 +28,7 @@ namespace Interval
   hott definition i₀ : I := ofBool false
   hott definition i₁ : I := ofBool true
 
-  hott opaque seg : i₀ = i₁ :=
+  hott opaque axiom seg : i₀ = i₁ :=
   trustHigherCtor (Quot.sound I.rel.intro)
 
   def hrec (B : I → Type u) (b₀ : B i₀) (b₁ : B i₁) (s : HEq b₀ b₁) (x : I) : B x :=
@@ -41,7 +41,7 @@ namespace Interval
   @[eliminator] hott axiom ind {B : I → Type u} (b₀ : B i₀) (b₁ : B i₁) (s : b₀ =[seg] b₁) (x : I) : B x :=
   Quot.withUseOf s (hrec B b₀ b₁ (HEq.fromPathover seg s) x) x
 
-  hott opaque indβrule {B : I → Type u} (b₀ : B i₀) (b₁ : B i₁)
+  hott opaque axiom indβrule {B : I → Type u} (b₀ : B i₀) (b₁ : B i₁)
     (s : b₀ =[seg] b₁) : apd (ind b₀ b₁ s) seg = s :=
   trustCoherence
 

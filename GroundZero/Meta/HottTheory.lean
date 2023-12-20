@@ -115,12 +115,10 @@ partial def checkDeclAux (chain : List Name) (tag : Syntax) (name : Name) : Meta
   if ¬(← checked? name) then {
     checkNotNotHoTT tag env name;
     match env.find? name with
-    | some (ConstantInfo.recInfo v) =>
-      List.forM v.all (checkLargeElim tag chain)
-    | some (ConstantInfo.opaqueInfo v) =>
-      throwErrorAt tag "uses unsafe opaque: {renderChain chain}"
-    | some info => info.value?.forM checkExpr
-    | none => throwError "unknown identifier “{name}”"
+    | some (ConstantInfo.recInfo v)    => List.forM v.all (checkLargeElim tag chain)
+    | some (ConstantInfo.opaqueInfo v) => checkExpr v.value
+    | some info                        => info.value?.forM checkExpr
+    | none                             => throwError "unknown identifier “{name}”"
   } else return ()
 }
 
@@ -164,10 +162,8 @@ def checkTok := leading_parser "check "
 def prohibitTok := leading_parser "prohibit "
 
 /--
-  Adds opaque definition and marks it as `[hottAxiom]`.
+  Adds opaque definition and checks it or marks it as `[hottAxiom]` if needed.
   Used to define higher constructors of HITs.
-
-  Note that declaration is **not checked** to be consistent with HoTT.
 -/
 def opaqueTok := leading_parser "opaque "
 
@@ -178,7 +174,8 @@ def declCheck    := leading_parser checkTok >> Parser.many1 Parser.ident
 def declProhibit := leading_parser prohibitTok >> Parser.many1 Parser.ident
 def declAxiom    := leading_parser axiomTok >> declId >> ppIndent declSig >>
                     Parser.optional (declVal >> optDefDeriving >> terminationSuffix)
-def declOpaque   := leading_parser opaqueTok >> declId >> ppIndent declSig >> Parser.optional declValSimple
+def declOpaque   := leading_parser opaqueTok >> Parser.optional "axiom " >> declId >>
+                    ppIndent declSig >> Parser.optional declValSimple
 
 /--
   Adds declaration and throws an error whenever it uses singleton elimination and/or
@@ -262,14 +259,17 @@ def abbrevAttrs : Array Attribute :=
   }
 
   if cmd.isOfKind ``declOpaque then do {
-    let #[_, declId, _, _] := cmd.getArgs | throwError "invalid “opaque” statement";
+    let #[tok, axiom?, declId, declSig, declVal] := cmd.getArgs | throwError "invalid “opaque” statement";
 
     withHoTTScope <| cmd.setKind ``Command.«opaque»
+    |>.setArgs #[mkAtom "opaque ", declId, declSig, declVal]
     |> (mkNode ``Command.declaration #[mods, ·])
     |> elabDeclaration;
 
     let ns ← getCurrNamespace; let declName := ns ++ declId[0].getId;
-    liftTermElabM (Term.applyAttributes declName #[{name := `hottAxiom}])
+
+    if axiom?.isNone then checkAndMark tok declName
+    else liftTermElabM (Term.applyAttributes declName #[{name := `hottAxiom}])
   }
 
   if cmd.isOfKind ``declProhibit then do {

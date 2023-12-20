@@ -19,12 +19,12 @@ namespace K1
 
   hott axiom base : K1 G := Opaque.intro ★
 
-  hott opaque grpd : groupoid (K1 G) :=
+  hott opaque axiom grpd : groupoid (K1 G) :=
   λ _ _ _ _, λ (idp _), λ (idp _), idp _
 
-  hott opaque loop (g : G.carrier) : @Id (K1 G) base base := idp base
+  hott opaque axiom loop (g : G.carrier) : @Id (K1 G) base base := idp base
 
-  hott opaque loop.mul (x y : G.carrier) : loop (G.φ x y) = loop x ⬝ loop y :=
+  hott opaque axiom loop.mul (x y : G.carrier) : loop (G.φ x y) = loop x ⬝ loop y :=
   trustCoherence
 
   hott axiom ind {C : K1 G → Type v} (baseπ : C base) (loopπ : Π (x : G.carrier), baseπ =[loop x] baseπ)
@@ -39,12 +39,12 @@ namespace K1
     (groupoidπ : groupoid C) : K1 G → C :=
   λ x, Quot.withUseOf (loopπ, mulπ, groupoidπ) (Opaque.elim (λ ★, baseπ) x) x
 
-  hott opaque indβrule {C : K1 G → Type v} (baseπ : C base) (loopπ : Π (x : G.carrier), baseπ =[loop x] baseπ)
+  hott opaque axiom indβrule {C : K1 G → Type v} (baseπ : C base) (loopπ : Π (x : G.carrier), baseπ =[loop x] baseπ)
     (mulπ : Π (x y : G.carrier), loopπ (G.φ x y) =[λ p, baseπ =[p] baseπ, loop.mul x y] loopπ x ⬝′ loopπ y)
     (groupoidπ : Π x, groupoid (C x)) : Π x, apd (ind baseπ loopπ mulπ groupoidπ) (loop x) = loopπ x :=
   λ _, trustCoherence
 
-  hott opaque recβrule {C : Type v} (baseπ : C) (loopπ : G.carrier → baseπ = baseπ)
+  hott opaque axiom recβrule {C : Type v} (baseπ : C) (loopπ : G.carrier → baseπ = baseπ)
     (mulπ : Π x y, loopπ (G.φ x y) = loopπ x ⬝ loopπ y) (groupoidπ : groupoid C) :
     Π x, ap (rec baseπ loopπ mulπ groupoidπ) (loop x) = loopπ x :=
   λ _, trustCoherence
