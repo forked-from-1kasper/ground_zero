@@ -15,19 +15,19 @@ hott definition ind {C : ℕ → Type u} (zero : C 0) (succ : Π n, C n → C (n
 | Nat.zero   => zero
 | Nat.succ n => succ n (ind zero succ n)
 
-def glue : ℕ → ℕ + 𝟏
+hott definition inw : ℕ → ℕ + 𝟏
 | Nat.zero   => Coproduct.inr ★
 | Nat.succ n => Coproduct.inl n
 
-def peelOff : ℕ + 𝟏 → ℕ
+hott definition outw : ℕ + 𝟏 → ℕ
 | Coproduct.inr _ => Nat.zero
 | Coproduct.inl n => Nat.succ n
 
-hott lemma closedNat : ℕ ≃ ℕ + 𝟏 :=
+hott lemma natUnitEqv : ℕ ≃ ℕ + 𝟏 :=
 begin
-  existsi glue; apply Prod.mk <;> existsi peelOff <;> intro n;
-  { induction n using Nat.casesOn <;> reflexivity };
-  { induction n using Sum.casesOn <;> reflexivity }
+  fapply Equiv.intro; exact inw; exact outw;
+  { intro n; induction n using Nat.casesOn <;> reflexivity };
+  { intro n; induction n using Sum.casesOn <;> reflexivity }
 end
 
 hott theorem equivAddition {A : Type u} {B : Type v} (C : Type w) (e : A ≃ B) : A + C ≃ B + C :=
@@ -47,39 +47,40 @@ begin
 end
 
 hott example : ℕ ≃ (ℕ + 𝟏) + 𝟏 :=
-begin transitivity; exact closedNat; apply equivAddition; exact closedNat end
+begin transitivity; exact natUnitEqv; apply equivAddition; exact natUnitEqv end
 
-hott def natPlusUnit : Π n, ℕ ≃ pt ℕ n
+hott definition natPlusUnit : Π n, ℕ ≃ pt ℕ n
 | Nat.zero   => Equiv.ideqv _
-| Nat.succ n => Equiv.trans closedNat (equivAddition 𝟏 (natPlusUnit n))
+| Nat.succ n => Equiv.trans natUnitEqv (equivAddition 𝟏 (natPlusUnit n))
 
-hott def liftUnit (n : ℕ) : pt 𝟏 n → pt 𝟏 (n + 1) :=
+hott definition liftUnit (n : ℕ) : pt 𝟏 n → pt 𝟏 (n + 1) :=
 Coproduct.inl
 
-hott def liftToTop (x : 𝟏) : Π n, pt 𝟏 n
+hott definition liftToTop (x : 𝟏) : Π n, pt 𝟏 n
 | Nat.zero   => x
 | Nat.succ n => Coproduct.inl (liftToTop x n)
 
-hott def Iterated := HITs.Colimit (pt 𝟏) liftUnit
+hott definition Iterated :=
+HITs.Colimit (pt 𝟏) liftUnit
 
-def Iterated.encode : ℕ → Iterated
+hott definition Iterated.encode : ℕ → Iterated
 | Nat.zero   => HITs.Colimit.inclusion 0 ★
 | Nat.succ n => HITs.Colimit.inclusion (n + 1) (Coproduct.inr ★)
 
-hott def code : ℕ → ℕ → Type
+hott definition code : ℕ → ℕ → Type
 | Nat.zero,   Nat.zero   => 𝟏
 | Nat.succ m, Nat.zero   => 𝟎
 | Nat.zero,   Nat.succ n => 𝟎
 | Nat.succ m, Nat.succ n => code m n
 
-hott def r : Π n, code n n
+hott definition r : Π n, code n n
 | Nat.zero   => ★
 | Nat.succ n => r n
 
-hott def encode {m n : ℕ} (p : m = n) : code m n :=
+hott definition encode {m n : ℕ} (p : m = n) : code m n :=
 transport (code m) p (r m)
 
-hott def decode : Π {m n : ℕ}, code m n → m = n
+hott definition decode : Π {m n : ℕ}, code m n → m = n
 | Nat.zero,   Nat.zero,   p => idp 0
 | Nat.succ m, Nat.zero,   p => Proto.Empty.elim p
 | Nat.zero,   Nat.succ n, p => Proto.Empty.elim p

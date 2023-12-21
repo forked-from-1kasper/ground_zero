@@ -16,11 +16,11 @@ namespace GroundZero.Types
   −2 = neg 1
 -/
 
-def Integer := ℕ + ℕ
+hott definition Integer := ℕ + ℕ
 notation "ℤ" => Integer
 
-@[match_pattern] def Integer.pos : ℕ → ℤ := Coproduct.inl
-@[match_pattern] def Integer.neg : ℕ → ℤ := Coproduct.inr
+@[match_pattern] hott definition Integer.pos : ℕ → ℤ := Coproduct.inl
+@[match_pattern] hott definition Integer.neg : ℕ → ℤ := Coproduct.inr
 
 instance (n : ℕ) : OfNat ℤ n := ⟨Integer.pos n⟩
 
@@ -30,19 +30,19 @@ instance : ToString ℤ :=
 ⟨λ | pos n => toString n
    | neg n => "-" ++ toString (n + 1)⟩
 
-hott def auxsucc : ℕ → ℤ
+hott definition auxsucc : ℕ → ℤ
 | Nat.zero   => pos 0
 | Nat.succ n => neg n
 
-hott def succ : ℤ → ℤ
+hott definition succ : ℤ → ℤ
 | neg u => auxsucc u
 | pos v => pos (v + 1)
 
-hott def auxpred : ℕ → ℤ
+hott definition auxpred : ℕ → ℤ
 | Nat.zero   => neg 0
 | Nat.succ n => pos n
 
-hott def pred : ℤ → ℤ
+hott definition pred : ℤ → ℤ
 | neg u => neg (u + 1)
 | pos v => auxpred v
 
@@ -56,7 +56,7 @@ hott lemma predSucc : Π z, pred (succ z) = z
 | neg (Nat.succ _) => idp _
 | pos _            => idp _
 
-hott def succEquiv : ℤ ≃ ℤ :=
+hott definition succEquiv : ℤ ≃ ℤ :=
 ⟨succ, (⟨pred, predSucc⟩, ⟨pred, succPred⟩)⟩
 
 section
@@ -68,15 +68,15 @@ section
            (coh₁ : Π p z, πpred _ (πsucc p z) =[predSucc _] z)
            (coh₂ : Π p z, πsucc _ (πpred p z) =[succPred _] z)
 
-  hott def indpos : Π n, π (pos n)
+  hott definition indpos : Π n, π (pos n)
   | Nat.zero   => π₀
   | Nat.succ n => πsucc (pos n) (indpos n)
 
-  hott def indneg : Π n, π (neg n)
+  hott definition indneg : Π n, π (neg n)
   | Nat.zero   => πpred 0 π₀
   | Nat.succ n => πpred (neg n) (indneg n)
 
-  hott def indsp : Π z, π z
+  hott definition indsp : Π z, π z
   | neg n => indneg π₀ πpred n
   | pos n => indpos π₀ πsucc n
 
@@ -102,15 +102,15 @@ section
            (coh₁ : πpred ∘ πsucc ~ id)
            (coh₂ : πsucc ∘ πpred ~ id)
 
-  hott def recpos : ℕ → π
+  hott definition recpos : ℕ → π
   | Nat.zero   => π₀
   | Nat.succ n => πsucc (recpos n)
 
-  hott def recneg : ℕ → π
+  hott definition recneg : ℕ → π
   | Nat.zero   => πpred π₀
   | Nat.succ n => πpred (recneg n)
 
-  hott def recsp : ℤ → π
+  hott definition recsp : ℤ → π
   | neg n => recneg π₀ πpred n
   | pos n => recpos π₀ πsucc n
 
@@ -128,27 +128,27 @@ section
   | pos (Nat.succ n) => (coh₁ _)⁻¹
 end
 
-hott def abs : ℤ → ℕ
+hott definition abs : ℤ → ℕ
 | pos n => n
 | neg n => n + 1
 
-hott def add : ℤ → ℤ → ℤ :=
+hott definition add : ℤ → ℤ → ℤ :=
 λ z, recsp z succ pred
 
 instance : Add ℤ := ⟨add⟩
 
-hott def negate : ℤ → ℤ
+hott definition negate : ℤ → ℤ
 | pos n => auxsucc n
 | neg n => pos (n + 1)
 
 instance : Neg ℤ := ⟨negate⟩
 
-hott def sgn : ℤ → ℤ
+hott definition sgn : ℤ → ℤ
 | pos Nat.zero     =>  0
 | pos (Nat.succ n) =>  1
 | neg n            => -1
 
-hott def sub (x y : ℤ) := x + (-y)
+hott definition sub (x y : ℤ) := x + (-y)
 instance : Sub ℤ := ⟨sub⟩
 
 hott lemma plusSucc (i j : ℤ) : i + succ j = succ (i + j) :=
@@ -198,7 +198,7 @@ begin
     assumption; symmetry; apply predPlus }
 end
 
-hott def diff : ℕ → ℕ → ℤ
+hott definition diff : ℕ → ℕ → ℤ
 | m,          Nat.zero   => pos m
 | Nat.zero,   Nat.succ n => neg n
 | Nat.succ m, Nat.succ n => diff m n
@@ -246,13 +246,13 @@ hott lemma diffAddRight (n : ℕ) : Π (m : ℕ), diff m (n + m) = auxsucc n
 hott theorem set : hset ℤ :=
 Hedberg (decCoproduct Nat.natDecEq Nat.natDecEq)
 
-hott def succToAdd (z : ℤ) : z + 1 = succ z :=
+hott corollary succToAdd (z : ℤ) : z + 1 = succ z :=
 by reflexivity
 
-hott def predToSub (z : ℤ) : z - 1 = pred z :=
+hott corollary predToSub (z : ℤ) : z - 1 = pred z :=
 by apply plusPred z 0
 
-hott def mul : ℤ → ℤ → ℤ :=
+hott definition mul : ℤ → ℤ → ℤ :=
 λ i, recsp 0 (λ j, j + i) (λ j, j - i)
 
 instance : Mul ℤ := ⟨mul⟩

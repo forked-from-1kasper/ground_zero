@@ -8,6 +8,7 @@ open GroundZero.Types.Equiv (biinv)
 open GroundZero.Types.Id (ap)
 open GroundZero.Types.Unit
 open GroundZero.Types
+open GroundZero.Proto
 
 namespace GroundZero
 universe u v w k r w' w''
@@ -43,9 +44,9 @@ section
   Meta.Notation.delabCustomSort `(Set) (λ n, `(Set $n))
 end
 
-hott def dec (A : Type u) := A + ¬A
+hott definition dec (A : Type u) := A + ¬A
 
-hott def decEq (A : Type u) := Π (a b : A), dec (a = b)
+hott definition decEq (A : Type u) := Π (a b : A), dec (a = b)
 
 notation "dec⁼" => decEq
 
@@ -62,7 +63,7 @@ notation "−2"  => hlevel.minusTwo
 notation "−1"  => hlevel.succ hlevel.minusTwo
 
 namespace hlevel
-  hott def pred : ℕ₋₂ → ℕ₋₂
+  hott definition pred : ℕ₋₂ → ℕ₋₂
   | −2     => minusTwo
   | succ n => n
 
@@ -72,33 +73,33 @@ namespace hlevel
 
   infix:50 " ≤ " => le
 
-  hott def le.minusTwo : Π (n : ℕ₋₂), −2 ≤ n
+  hott definition le.minusTwo : Π (n : ℕ₋₂), −2 ≤ n
   | −2     => le.refl −2
   | succ n => le.step _ _ (minusTwo n)
 
-  noncomputable hott def le.succ (a b : ℕ₋₂) (ρ : a ≤ b) : succ a ≤ succ b :=
+  noncomputable hott definition le.succ (a b : ℕ₋₂) (ρ : a ≤ b) : succ a ≤ succ b :=
   begin induction ρ; apply le.refl; apply le.step; assumption end
 
   hott def addNat : ℕ₋₂ → ℕ → ℕ₋₂
   | n, 0          => n
   | n, Nat.succ m => succ (addNat n m)
 
-  hott def predPred : ℕ → ℕ₋₂
+  hott definition predPred : ℕ → ℕ₋₂
   | Nat.zero   => −2
   | Nat.succ n => succ (predPred n)
 
-  hott def succSucc : ℕ₋₂ → ℕ
+  hott definition succSucc : ℕ₋₂ → ℕ
   | −2     => Nat.zero
   | succ n => Nat.succ (succSucc n)
 
-  hott def add : ℕ₋₂ → ℕ₋₂ → ℕ₋₂
+  hott definition add : ℕ₋₂ → ℕ₋₂ → ℕ₋₂
   | n, −2            => pred (pred n)
   | n, −1            => pred n
   | n, succ (succ m) => addNat n (succSucc m)
 
   instance : HAdd ℕ₋₂ ℕ₋₂ ℕ₋₂ := ⟨add⟩
 
-  hott def ofNat (n : ℕ) : ℕ₋₂ :=
+  hott definition ofNat (n : ℕ) : ℕ₋₂ :=
   succ (succ (predPred n))
 
   instance (n : ℕ) : OfNat ℕ₋₂ n := ⟨ofNat n⟩
@@ -294,22 +295,23 @@ inductive propSquash (A : Type u) : Sort 0
 inductive Lift (A : Sort 0) : Type
 | elem : A → Lift A
 
-def Squash := Lift ∘ propSquash
+hott definition Squash := Lift ∘ propSquash
 
-def Squash.elem {A : Type u} : A → Squash A :=
+hott definition Squash.elem {A : Type u} : A → Squash A :=
 Lift.elem ∘ propSquash.elem
 
-def Squash.uniq {A : Type u} : Π (a b : Squash A), a = b :=
+hott definition Squash.uniq {A : Type u} : Π (a b : Squash A), a = b :=
 λ (Lift.elem _) (Lift.elem _), idp _
 
-def Squash.prop {A : Type u} {B : Sort 0} (f : A → B) : Squash A → B :=
+hott definition Squash.prop {A : Type u} {B : Sort 0} (f : A → B) : Squash A → B :=
 λ (Lift.elem (propSquash.elem x)), f x
 
-def Squash.Lift {A : Type u} {B : Type v}
+hott definition Squash.Lift {A : Type u} {B : Type v}
   (f : A → B) : Squash A → Squash B :=
 Lift.elem ∘ Squash.prop (propSquash.elem ∘ f)
 
-def K (A : Type u) := Π (a : A) (p : a = a), p = idp a
+hott definition K (A : Type u) :=
+Π (a : A) (p : a = a), p = idp a
 
 hott lemma KIffSet (A : Type u) : K A ↔ hset A :=
 begin
@@ -324,7 +326,7 @@ hott lemma lemProp {A : Type u} (h : A → prop A) : prop A :=
 hott lemma lemContr {A : Type u} (h : A → contr A) : prop A :=
 λ a, contrImplProp (h a) a
 
-def isContrFiber {A : Type u} {B : Type v} (f : A → B) :=
+hott definition isContrFiber {A : Type u} {B : Type v} (f : A → B) :=
 Π (y : B), contr (fib f y)
 
 hott lemma propEquivLemma {A : Type u} {B : Type v}
@@ -496,7 +498,7 @@ section
   end
 end
 
-hott def Identity.ens {A : Type u} (H : hset A) : hset (Proto.Identity A) :=
+hott definition Identity.ens {A : Type u} (H : hset A) : hset (Identity A) :=
 begin apply hsetRespectsEquiv; apply Types.Equiv.identityEqv; assumption end
 
 hott definition zeroEquiv (A B : 0-Type) := A.1 ≃ B.1
@@ -676,21 +678,21 @@ namespace Structures
   end
 end Structures
 
-hott def iter (A B : Type) : ℕ → Type
+hott definition iter (A B : Type) : ℕ → Type
 | Nat.zero   => B
 | Nat.succ n => Coproduct (iter A B n) A
 
-hott def pt := iter 𝟏
+hott definition pt := iter 𝟏
 
-hott def vect (A : Type u) : ℕ → Type u
+hott definition vect (A : Type u) : ℕ → Type u
 | Nat.zero   => 𝟏
 | Nat.succ n => A × vect A n
 
-hott def vect.const {A : Type u} (a : A) : Π n, vect A n
+hott definition vect.const {A : Type u} (a : A) : Π n, vect A n
 | Nat.zero   => ★
 | Nat.succ n => (a, const a n)
 
-hott def vect.map {A : Type u} {B : Type v} (f : A → B) :
+hott definition vect.map {A : Type u} {B : Type v} (f : A → B) :
   Π {n : ℕ}, vect A n → vect B n
 | Nat.zero   => λ _, ★
 | Nat.succ n => λ v, (f v.1, map f v.2)
@@ -699,49 +701,50 @@ section
   open GroundZero.Types.Equiv (transportOverProduct transport)
   open GroundZero.Types
 
-  hott def vect.subst {A B : Type u} (p : A = B) (f : B → A) {n : ℕ} (v : vect A n) :
+  hott lemma vect.subst {A B : Type u} (p : A = B) (f : B → A) {n : ℕ} (v : vect A n) :
     vect.map f (transport (vect · n) p v) = vect.map (f ∘ transport id p) v :=
   begin induction p; reflexivity end
 end
 
-hott def vect.idfunc {A : Type u} : Π {n : ℕ} (f : A → A)
+hott theorem vect.idfunc {A : Type u} : Π {n : ℕ} (f : A → A)
   (H : f ~ id) (v : vect A n), vect.map f v = v
 | Nat.zero,   f, H, v => idp v
-| Nat.succ n, f, H, v => Types.Product.prod (H v.1) (idfunc f H v.2)
+| Nat.succ n, f, H, v => Product.prod (H v.1) (idfunc f H v.2)
 
-hott def vect.id {A : Type u} {n : ℕ} (v : vect A n) : vect.map id v = v :=
+hott corollary vect.id {A : Type u} {n : ℕ} (v : vect A n) : vect.map id v = v :=
 begin apply vect.idfunc; reflexivity end
 
-hott def vect.comp {A : Type u} {B : Type v} {γ : Type w} :
+hott theorem vect.comp {A : Type u} {B : Type v} {γ : Type w} :
   Π {n : ℕ} (f : A → B) (g : B → γ) (v : vect A n), vect.map g (vect.map f v) = vect.map (g ∘ f) v
 | Nat.zero,   f, g, v => idp _
-| Nat.succ n, f, g, v => Types.Product.prod (idp _) (comp f g v.2)
+| Nat.succ n, f, g, v => Product.prod (idp _) (comp f g v.2)
 
-hott def vect.constMap {A : Type u} {B : Type v} (a : A) (f : A → B) :
+hott lemma vect.constMap {A : Type u} {B : Type v} (a : A) (f : A → B) :
   Π {n : ℕ}, vect.map f (vect.const a n) = vect.const (f a) n
 | Nat.zero   => idp _
-| Nat.succ n => Types.Product.prod (idp _) (constMap a f)
+| Nat.succ n => Product.prod (idp _) (constMap a f)
 
-hott def Finite := iter 𝟏 𝟎
-@[match_pattern] def Finite.zero {n : ℕ} : Finite (n + 1) := Sum.inr ★
-@[match_pattern] def Finite.succ {n : ℕ} : Finite n → Finite (n + 1) := Sum.inl
+hott definition Finite := iter 𝟏 𝟎
+
+@[match_pattern] hott definition Finite.zero {n : ℕ} : Finite (n + 1) := Sum.inr ★
+@[match_pattern] hott definition Finite.succ {n : ℕ} : Finite n → Finite (n + 1) := Sum.inl
 
 open Structures (prop propset)
-hott def hrel (A : Type u) := A → A → Prop v
+hott definition hrel (A : Type u) := A → A → Prop v
 
-def LEMinf := Π (A : Type u), A + ¬A
+hott definition LEMinf := Π (A : Type u), A + ¬A
 macro "LEM∞" : term => `(LEMinf)
 macro "LEM∞" n:level : term => `(LEMinf.{$n})
 
-def LEMprop := Π (A : Type u), prop A → A + ¬A
+hott definition LEMprop := Π (A : Type u), prop A → A + ¬A
 macro "LEM₋₁" : term => `(LEMprop)
 macro "LEM₋₁" n:level : term => `(LEMprop.{$n})
 
-def DNEGinf := Π (A : Type u), ¬¬A → A
+hott definition DNEGinf := Π (A : Type u), ¬¬A → A
 macro "DNEG∞" : term => `(DNEGinf)
 macro "DNEG∞" n:level : term => `(DNEGinf.{$n})
 
-def DNEGprop := Π (A : Type u), prop A → ¬¬A → A
+hott definition DNEGprop := Π (A : Type u), prop A → ¬¬A → A
 macro "DNEG₋₁" : term => `(DNEGprop)
 macro "DNEG₋₁" n:level : term => `(DNEGprop.{$n})
 
@@ -763,16 +766,16 @@ end Structures
 section
   variable {A : Type u} (R : hrel A)
 
-  def isrefl  := Π a, (R a a).1
-  def issymm  := Π a b, (R a b).1 → (R b a).1
-  def istrans := Π a b c, (R a b).1 → (R b c).1 → (R a c).1
+  hott definition isrefl  := Π a, (R a a).1
+  hott definition issymm  := Π a b, (R a b).1 → (R b a).1
+  hott definition istrans := Π a b c, (R a b).1 → (R b c).1 → (R a c).1
 
-  def iseqrel := isrefl R × issymm R × istrans R
+  hott definition iseqrel := isrefl R × issymm R × istrans R
 end
 
-hott def eqrel (A : Type u) := Σ φ, @iseqrel A φ
+hott definition eqrel (A : Type u) := Σ φ, @iseqrel A φ
 
-hott def iseqrel.prop {A : Type u} {R : hrel A} : prop (iseqrel R) :=
+hott definition iseqrel.prop {A : Type u} {R : hrel A} : prop (iseqrel R) :=
 begin
   apply Structures.productProp;
   { intros f g; apply Theorems.funext; intro x; apply (R x x).2 };
@@ -784,60 +787,58 @@ end
 section
   variable {A : Type u} (R : eqrel.{u, v} A)
 
-  hott def eqrel.rel : hrel A := R.1
-  hott def eqrel.iseqv : iseqrel R.rel := R.2
+  hott definition eqrel.rel : hrel A := R.1
+  hott definition eqrel.iseqv : iseqrel R.rel := R.2
 
-  hott def eqrel.apply (a b : A) : Type v :=
+  hott definition eqrel.apply (a b : A) : Type v :=
   (R.rel a b).1
 
-  hott def eqrel.prop (a b : A) : prop (R.apply a b) :=
+  hott definition eqrel.prop (a b : A) : prop (R.apply a b) :=
   (R.rel a b).2
 
   -- Accessors
-  hott def eqrel.refl (a : A) : R.apply a a :=
+  hott definition eqrel.refl (a : A) : R.apply a a :=
   R.2.1 a
 
-  hott def eqrel.symm {a b : A} : R.apply a b → R.apply b a :=
+  hott definition eqrel.symm {a b : A} : R.apply a b → R.apply b a :=
   R.2.2.1 a b
 
-  hott def eqrel.trans {a b c : A} :
-    R.apply a b → R.apply b c → R.apply a c :=
+  hott definition eqrel.trans {a b c : A} : R.apply a b → R.apply b c → R.apply a c :=
   R.2.2.2 a b c
 end
 
-hott def eqrel.eq {A : Type u} {x y : eqrel A} (p : x.rel = y.rel) : x = y :=
+hott definition eqrel.eq {A : Type u} {x y : eqrel A} (p : x.rel = y.rel) : x = y :=
 begin apply Types.Sigma.prod p; apply iseqrel.prop end
 
-hott def iffOverPi {A : Type u} {B : A → Type v} {B' : A → Type w}
+hott definition iffOverPi {A : Type u} {B : A → Type v} {B' : A → Type w}
   (φ : Π x, B x ↔ B' x) : (Π x, B x) ↔ (Π x, B' x) :=
 begin apply Prod.mk; { intros f x; apply (φ x).left; apply f }; { intros g x; apply (φ x).right; apply g } end
 
-hott def hcommSquare (P : Type k) (A : Type u) (B : Type v) (C : Type w) :=
+hott definition hcommSquare (P : Type k) (A : Type u) (B : Type v) (C : Type w) :=
 Σ (f : A → C) (g : B → C) (h : P → A) (k : P → B), f ∘ h = g ∘ k
 
-hott def pullback {A : Type u} {B : Type v}
-  (C : Type w) (f : A → C) (g : B → C) :=
+hott definition pullback {A : Type u} {B : Type v} (C : Type w) (f : A → C) (g : B → C) :=
 Σ (p : A × B), f p.1 = g p.2
 
 namespace hcommSquare
   variable {P : Type k} {A : Type u} {B : Type v} {C : Type w}
 
-  def top   (η : hcommSquare P A B C) : P → A := η.2.2.1
-  def bot   (η : hcommSquare P A B C) : B → C := η.2.1
-  def left  (η : hcommSquare P A B C) : P → B := η.2.2.2.1
-  def right (η : hcommSquare P A B C) : A → C := η.1
+  hott definition top   (η : hcommSquare P A B C) : P → A := η.2.2.1
+  hott definition bot   (η : hcommSquare P A B C) : B → C := η.2.1
+  hott definition left  (η : hcommSquare P A B C) : P → B := η.2.2.2.1
+  hott definition right (η : hcommSquare P A B C) : A → C := η.1
 
-  def naturality (η : hcommSquare P A B C) : η.right ∘ η.top = η.bot ∘ η.left := η.2.2.2.2
+  hott definition naturality (η : hcommSquare P A B C) : η.right ∘ η.top = η.bot ∘ η.left := η.2.2.2.2
 
-  hott def induced (η : hcommSquare P A B C) (X : Type r) :
+  hott definition induced (η : hcommSquare P A B C) (X : Type r) :
     (X → P) → @pullback (X → A) (X → B) (X → C) (λ f, right η ∘ f) (λ g, bot η ∘ g) :=
   λ φ, ⟨(top η ∘ φ, left η ∘ φ), @ap (P → C) (X → C) (right η ∘ top η) (bot η ∘ left η) (· ∘ φ) η.naturality⟩
 
-  hott def isPullback (η : hcommSquare P A B C) :=
+  hott definition isPullback (η : hcommSquare P A B C) :=
   Π (X : Type (max u v w k)), biinv (induced η X)
 end hcommSquare
 
-hott def pullbackSquare (P : Type k) (A : Type u) (B : Type v) (C : Type w) :=
+hott definition pullbackSquare (P : Type k) (A : Type u) (B : Type v) (C : Type w) :=
 Σ (η : hcommSquare P A B C), η.isPullback
 
 namespace Types.Equiv
@@ -845,7 +846,7 @@ namespace Types.Equiv
   universe u' v'
 
   -- 1-1 correspondence
-  def Corr (A : Type u) (B : Type v) :=
+  hott definition Corr (A : Type u) (B : Type v) :=
   Σ (R : A → B → Type w), (Π a, contr (Σ b, R a b)) × (Π b, contr (Σ a, R a b))
 
   open GroundZero.Types
@@ -868,7 +869,7 @@ namespace Types.Equiv
   hott theorem sumEquiv (e₁ : A ≃ A') (e₂ : B ≃ B') : (A + B) ≃ (A' + B') :=
   ⟨Coproduct.bimap e₁.1 e₂.1, sumBiinv e₁.2 e₂.2⟩
 
-  hott def meet {A : Type u} {a b : A} (p : a = b) : @Id (singl a) ⟨a, idp a⟩ ⟨b, p⟩ :=
+  hott definition meet {A : Type u} {a b : A} (p : a = b) : @Id (singl a) ⟨a, idp a⟩ ⟨b, p⟩ :=
   Sigma.prod p (transportComposition p (idp a))
 
   hott theorem transportMeetPi {X : Type u} {A : X → Type v} {B : Π x, A x → Type w}
@@ -1104,7 +1105,7 @@ namespace Types.Id
   | Nat.succ n, H, a => @zeroTypeLoop (a = a) n (H a a) (idp a)
 
   hott corollary hsetLoop {A : Type u} {n : ℕ} (H : is-n-type A) : Π x, hset Ωⁿ(A, x) :=
-  λ x, zeroEqvSet.forward (zeroTypeLoop H x)
+  λ x, zeroEqvSet (zeroTypeLoop H x)
 end Types.Id
 
 end GroundZero

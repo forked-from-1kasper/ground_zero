@@ -165,8 +165,8 @@ namespace Id
   namespace Pointed.Map
     variable {A B : Type⁎} (φ : Map⁎ A B)
 
-    def ap : A.space → B.space := φ.fst
-    def id : φ.ap A.point = B.point := φ.snd
+    hott abbreviation ap : A.space → B.space      := φ.fst
+    hott abbreviation id : φ.ap A.point = B.point := φ.snd
   end Pointed.Map
 
   hott definition Loop {B : Type u} (b : B) : ℕ → Type u
@@ -212,8 +212,8 @@ namespace Id
   | Nat.succ _ => apΩ (ap f)
 end Id
 
-def Not (A : Type u) : Type u := A → (𝟎 : Type)
-def Neq {A : Type u} (a b : A) := Not (Id a b)
+hott definition Not (A : Type u) : Type u := A → (𝟎 : Type)
+hott definition Neq {A : Type u} (a b : A) := Not (Id a b)
 
 namespace Not
   prefix:90 (priority := high) "¬" => Not

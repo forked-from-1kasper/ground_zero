@@ -4,7 +4,8 @@ open GroundZero.Proto (idfun Identity Identity.elem Identity.elim)
 open GroundZero.Types.Id (ap apΩ)
 
 universe u v w k
-def AS {A : Type u} {B : Type v} {C : Type w} (x : A → B → C) (y : A → B) (z : A) := x z (y z)
+
+hott definition AS {A : Type u} {B : Type v} {C : Type w} (x : A → B → C) (y : A → B) (z : A) := x z (y z)
 
 section
   variable {A : Type u} {B : Type v}
@@ -77,23 +78,28 @@ namespace Equiv
   begin induction p; apply Id.rid end
 end Equiv
 
-def Equiv (A : Type u) (B : Type v) : Type (max u v) :=
+hott definition Equiv (A : Type u) (B : Type v) : Type (max u v) :=
 Σ (f : A → B), Equiv.biinv f
 infix:25 " ≃ " => Equiv
 
-def isQinv {A : Type u} {B : Type v} (f : A → B) (g : B → A) :=
-(f ∘ g ~ idfun) × (g ∘ f ~ idfun)
+section
+  variable {A : Type u} {B : Type v}
 
-def qinv {A : Type u} {B : Type v} (f : A → B) :=
-Σ (g : B → A), isQinv f g
+  hott definition isQinv (f : A → B) (g : B → A) :=
+  (f ∘ g ~ idfun) × (g ∘ f ~ idfun)
 
--- half adjoint equivalence
-def ishae {A : Type u} {B : Type v} (f : A → B) :=
-Σ (g : B → A) (η : g ∘ f ~ id) (ϵ : f ∘ g ~ id), Π x, ap f (η x) = ϵ (f x)
+  hott definition qinv (f : A → B) :=
+  Σ (g : B → A), isQinv f g
 
-def fib {A : Type u} {B : Type v} (f : A → B) (y : B) := Σ (x : A), f x = y
-def total {A : Type u} (B : A → Type v) := Σ x, B x
-def fiberwise {A : Type u} (B : A → Type v) := Π x, B x
+  -- half adjoint equivalence
+  hott definition ishae (f : A → B) :=
+  Σ (g : B → A) (η : g ∘ f ~ id) (ϵ : f ∘ g ~ id), Π x, ap f (η x) = ϵ (f x)
+end
+
+hott definition fib {A : Type u} {B : Type v} (f : A → B) (y : B) := Σ (x : A), f x = y
+
+hott definition total {A : Type u} (B : A → Type v) := Σ x, B x
+hott definition fiberwise {A : Type u} (B : A → Type v) := Π x, B x
 
 namespace Qinv
   open Equiv (biinv)
@@ -219,13 +225,6 @@ namespace Equiv
   hott definition transportconst {A B : Type u} : A = B → A → B :=
   transport idfun
 
-  def transportconstInv {A B : Type u} : A = B → B → A :=
-  transportconst ∘ Id.symm
-
-  hott definition transportconstOverInv {A B : Type u} (p : A = B) :
-    Π x, transportconst p⁻¹ x = transportconstInv p x :=
-  begin intro x; reflexivity end
-
   hott definition happlyEqv {A : Type u} {B : Type v} {f g : A ≃ B}
     (p : f = g) : f.forward ~ g.forward :=
   begin induction p; reflexivity end
@@ -240,7 +239,7 @@ namespace Equiv
 
   instance : Rewrite Equiv.{u, v} Equiv.{v, w} Equiv.{u, w} := ⟨@trans⟩
 
-  def depPath {A : Type u} (B : A → Type v) {a b : A} (p : a = b) (u : B a) (v : B b) :=
+  hott definition depPath {A : Type u} (B : A → Type v) {a b : A} (p : a = b) (u : B a) (v : B b) :=
   transport B p u = v
 
   notation u " =[" P ", " p "] " v => depPath P p u v
@@ -516,7 +515,7 @@ namespace Equiv
     (f : A → B) (p : a = b) : apd f p = pathoverOfEq p (ap f p) :=
   begin induction p; reflexivity end
 
-  def reflPathover {A : Type u} {B : Type v} {a : A} {x y : B} (p : x =[λ _, B, idp a] y) : x = y := p
+  hott definition reflPathover {A : Type u} {B : Type v} {a : A} {x y : B} (p : x =[λ _, B, idp a] y) : x = y := p
 
   hott lemma pathoverInv {A : Type u} {B : Type v} (a : A) {x y : B} (p : x = y) :
     reflPathover (pathoverOfEq (idp a) p) = p :=

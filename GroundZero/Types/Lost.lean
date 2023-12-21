@@ -4,7 +4,7 @@ namespace GroundZero.Types
 
 universe u
 
-hott def uninhabitedType {A : Type u} (f : A → 𝟎) : A ≃ 𝟎 :=
+hott definition uninhabitedType {A : Type u} (f : A → 𝟎) : A ≃ 𝟎 :=
 begin
   apply Sigma.mk f; apply Qinv.toBiinv;
   apply Sigma.mk (@Proto.Empty.elim A);
@@ -17,10 +17,10 @@ inductive Lost (A : Type u)
 
 namespace Lost
 
-hott def code {A : Type u} : Lost A → 𝟎
+hott definition code {A : Type u} : Lost A → 𝟎
 | cons x xs => code xs
 
-hott def isZero {A : Type u} : Lost A ≃ 𝟎 :=
+hott definition isZero {A : Type u} : Lost A ≃ 𝟎 :=
 uninhabitedType code
 
 end Lost
