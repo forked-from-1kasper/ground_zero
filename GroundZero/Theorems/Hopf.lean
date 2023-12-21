@@ -48,8 +48,8 @@ namespace Real
   begin
     intro b; transitivity; apply transportToTransportconst;
     transitivity; apply ap (transportconst · b);
-    transitivity; apply Id.mapInv; apply ap; apply recβrule₂;
-    transitivity; apply transportconstOverInv; apply uaβrev
+    transitivity; apply Id.mapInv; apply ap;
+    apply recβrule₂; apply uaβrev
   end
 end Real
 

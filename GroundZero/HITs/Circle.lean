@@ -549,7 +549,6 @@ namespace Circle
       transitivity; apply mapFunctoriality; apply ap;
       transitivity; apply Id.mapInv; apply ap Id.symm; apply recβrule₂;
       transitivity; apply transportconstOverComposition;
-      transitivity; apply transportconstOverInv;
       transitivity; apply uaβrev; apply ap pred;
       symmetry; apply transportToTransportconst
     end
