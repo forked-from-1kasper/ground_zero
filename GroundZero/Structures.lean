@@ -97,6 +97,36 @@ namespace hlevel
   | n, −1            => pred n
   | n, succ (succ m) => addNat n (succSucc m)
 
+  hott lemma predPredSuccSucc : Π n, predPred (succSucc n) = n
+  | −2     => idp −2
+  | succ n => ap succ (predPredSuccSucc n)
+
+  hott lemma succSuccPredPred : Π k, succSucc (predPred k) = k
+  | Nat.zero   => idp 0
+  | Nat.succ k => ap Nat.succ (succSuccPredPred k)
+
+  hott lemma addNatMinusTwo : Π n, addNat −2 n = predPred n
+  | Nat.zero   => idp −2
+  | Nat.succ n => ap succ (addNatMinusTwo n)
+
+  hott lemma addNatMinusOne : Π n, addNat −1 n = succ (predPred n)
+  | Nat.zero   => idp −1
+  | Nat.succ n => ap succ (addNatMinusOne n)
+
+  hott corollary minusTwoAdd : Π n, add −2 n = pred (pred n)
+  | −2            => idp −2
+  | −1            => idp −2
+  | succ (succ n) => addNatMinusTwo (succSucc n) ⬝ predPredSuccSucc n
+
+  hott corollary minusOneAdd : Π n, add −1 n = pred n
+  | −2            => idp −2
+  | −1            => idp −2
+  | succ (succ n) => addNatMinusOne (succSucc n) ⬝ ap succ (predPredSuccSucc n)
+
+  hott lemma addNatToAdd : Π n m, addNat n (succSucc m) = predPred (succSucc n + succSucc m)
+  | n, −2     => (predPredSuccSucc n)⁻¹
+  | n, succ m => ap succ (addNatToAdd n m)
+
   instance : HAdd ℕ₋₂ ℕ₋₂ ℕ₋₂ := ⟨add⟩
 
   hott definition ofNat (n : ℕ) : ℕ₋₂ :=
@@ -119,7 +149,7 @@ notation n "-Type" => nType n
 macro n:term "-Type" l:level : term => `(nType.{$l} $n)
 
 hott lemma hlevel.cumulative {A : Type u} : Π (n : hlevel), is-n-type A → is-(hlevel.succ n)-type A
-| −2,            H => λ x y, ⟨(H.2 x)⁻¹ ⬝ H.2 y, λ p, begin induction p; apply Types.Id.invComp end⟩
+| −2,            H => λ x y, ⟨(H.2 x)⁻¹ ⬝ H.2 y, λ p, begin induction p; apply Id.invComp end⟩
 | hlevel.succ n, H => λ x y, cumulative n (H x y)
 
 noncomputable hott corollary hlevel.strongCumulative (n m : hlevel) (ρ : n ≤ m) :

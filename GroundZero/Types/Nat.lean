@@ -1,9 +1,7 @@
-import GroundZero.HITs.Colimit
 import GroundZero.Structures
 
 open GroundZero.Types.Equiv (transport)
 open GroundZero.Types.Id (ap)
-open GroundZero.Structures
 open GroundZero.Types
 open GroundZero
 
@@ -39,7 +37,7 @@ begin
   | Coproduct.inl b => Coproduct.inl (e.left b)
   | Coproduct.inr c => Coproduct.inr c;
 
-  existsi f; apply Prod.mk <;> existsi g;
+  fapply Equiv.intro; exact f; exact g;
   { intro x; induction x using Sum.casesOn;
     apply ap Sum.inl; apply e.leftForward; reflexivity };
   { intro x; induction x using Sum.casesOn;
@@ -59,13 +57,6 @@ Coproduct.inl
 hott definition liftToTop (x : 𝟏) : Π n, pt 𝟏 n
 | Nat.zero   => x
 | Nat.succ n => Coproduct.inl (liftToTop x n)
-
-hott definition Iterated :=
-HITs.Colimit (pt 𝟏) liftUnit
-
-hott definition Iterated.encode : ℕ → Iterated
-| Nat.zero   => HITs.Colimit.inclusion 0 ★
-| Nat.succ n => HITs.Colimit.inclusion (n + 1) (Coproduct.inr ★)
 
 hott definition code : ℕ → ℕ → Type
 | Nat.zero,   Nat.zero   => 𝟏
