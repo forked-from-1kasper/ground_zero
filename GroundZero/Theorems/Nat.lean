@@ -356,4 +356,18 @@ namespace UnitList
 end UnitList
 
 end Theorems
+
+namespace Structures
+open GroundZero.Theorems
+
+namespace hlevel
+  hott corollary comm : Π n m, add n m = add m n
+  | n, −2            => (minusTwoAdd n)⁻¹
+  | n, −1            => (minusOneAdd n)⁻¹
+  | n, succ (succ m) => addNatToAdd _ _ ⬝ ap predPred (Nat.comm _ _) ⬝
+                        (addNatToAdd _ _)⁻¹ ⬝ (addSuccSucc m n)⁻¹
+end hlevel
+
+end Structures
+
 end GroundZero

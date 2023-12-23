@@ -127,6 +127,15 @@ namespace hlevel
   | n, −2     => (predPredSuccSucc n)⁻¹
   | n, succ m => ap succ (addNatToAdd n m)
 
+  hott lemma addNatSuccSucc : Π n m, addNat (succ (succ n)) m = succ (succ (addNat n m))
+  | n, Nat.zero   => idp (succ (succ n))
+  | n, Nat.succ m => ap succ (addNatSuccSucc n m)
+
+  hott lemma addSuccSucc : Π n m, add (succ (succ n)) m = addNat n (succSucc m)
+  | n, −2            => idp n
+  | n, −1            => idp (succ n)
+  | n, succ (succ m) => addNatSuccSucc n (succSucc m)
+
   instance : HAdd ℕ₋₂ ℕ₋₂ ℕ₋₂ := ⟨add⟩
 
   hott definition ofNat (n : ℕ) : ℕ₋₂ :=
