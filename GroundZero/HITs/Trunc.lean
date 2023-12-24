@@ -4,6 +4,7 @@ open GroundZero.HITs.Interval (happly funext)
 open GroundZero.Structures.hlevel (succ)
 open GroundZero.Types.Id (ap)
 open GroundZero.Proto (idfun)
+open GroundZero.Types.Equiv
 open GroundZero.Structures
 open GroundZero.Types
 
@@ -118,6 +119,10 @@ namespace Trunc
   hott theorem respectsEquiv {A : Type u} {B : Type v} {n : ℕ₋₂} (φ : A ≃ B) : ∥A∥ₙ ≃ ∥B∥ₙ :=
   ⟨ap φ.forward, (⟨ap φ.left,  (apCom _ _).trans ((happly (Id.ap ap (funext φ.leftForward))).trans  idmap)⟩,
                   ⟨ap φ.right, (apCom _ _).trans ((happly (Id.ap ap (funext φ.forwardRight))).trans idmap)⟩)⟩
+
+  hott lemma transportOverTrunc {A : Type u} {n : ℕ₋₂} {B : A → Type v} {a b : A}
+    (p : a = b) (u : ∥B a∥ₙ) : transport (∥B ·∥ₙ) p u = Trunc.ap (transport B p) u :=
+  begin induction p; symmetry; apply Trunc.idmap end
 end Trunc
 
 end GroundZero.HITs

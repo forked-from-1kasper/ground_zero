@@ -1145,6 +1145,41 @@ namespace Types.Id
 
   hott corollary hsetLoop {A : Type u} {n : ℕ} (H : is-n-type A) : Π x, hset Ωⁿ(A, x) :=
   λ x, zeroEqvSet (zeroTypeLoop H x)
+
+  hott definition loopOverProp {A : Type u} {B : A → Type v} (H : Π x, prop (B x))
+    {n : ℕ} {a : A} {b : B a} {α : Ωⁿ⁺¹(A, a)} : Ωⁿ⁺¹(B, b, α) :=
+  inOverΩ _ _ (minusOneEqvProp.forward (levelOverΩ −1 (λ _, minusOneEqvProp.left (H _)) _) _ _)
+
+  hott definition loopOverHSet {A : Type u} {B : A → Type v} (H : Π x, hset (B x))
+    {n : ℕ} {a : A} {b : B a} {α : Ωⁿ⁺²(A, a)} : Ωⁿ⁺²(B, b, α) :=
+  inOverΩ _ _ (propRespectsEquiv (Equiv.altDefOverΩ _ _).symm
+    (zeroEqvSet.forward (levelOverΩ 0 (λ _, zeroEqvSet.left (H _)) _) _ _) _ _)
+
+  hott definition loopPropNType {A : Type u} : Π {n : ℕ} (H : is-n-type A) (a : A), prop Ωⁿ⁺¹(A, a)
+  | Nat.zero,   H, _ => zeroEqvSet.forward H _ _
+  | Nat.succ n, H, a => @loopPropNType (a = a) n (H a a) (idp a)
+
+  hott definition loopOverPropNType {A : Type u} {B : A → Type v} :
+    Π {n : ℕ} (H : Π x, is-n-type (B x)) {a : A} {b : B a} {α : Ωⁿ⁺¹(A, a)}, prop Ωⁿ⁺¹(B, b, α)
+  | Nat.zero,   H, _, _ => zeroEqvSet.forward (H _) _ _
+  | Nat.succ n, H, a, _ => @loopOverPropNType (a = a) _ n (λ _, H _ _ _) _ _ _
+
+  hott definition loopOverNType {A : Type u} {B : A → Type v} {n : ℕ} (H : Π x, is-n-type (B x))
+    {a : A} {b : B a} {α : Ωⁿ⁺²(A, a)} : Ωⁿ⁺²(B, b, α) :=
+  inOverΩ _ _ (loopOverPropNType H _ _)
+
+  hott definition ofApEqΩ {A : Type u} (B : A → Type v) {a : A} {b : B a} :
+    Π {n : ℕ} {α : Ωⁿ⁺¹(A, a)}, apΩ (transport B · b) α = idΩ b n → Ωⁿ⁺¹(B, b, α)
+  | Nat.zero,   α, β => β
+  | Nat.succ n, α, β =>
+  begin
+    apply @ofApEqΩ (a = a) (λ p, b =[B, p] b) (idp a) (idp b) n α;
+    apply Id.trans; apply apWithHomotopyΩ; intro;
+    transitivity; apply transportOverContrMap;
+    transitivity; apply rid; apply mapInv;
+    transitivity; apply comApΩ Id.inv;
+    transitivity; apply ap (apΩ _); exact β; apply apIdΩ;
+  end
 end Types.Id
 
 end GroundZero

@@ -5,6 +5,7 @@ open GroundZero.HITs.Interval
 open GroundZero.Types.Equiv
 open GroundZero.Structures
 open GroundZero.Types.Id
+open GroundZero.Theorems
 open GroundZero.Types
 
 namespace GroundZero
@@ -16,7 +17,7 @@ namespace HigherSphere
   open GroundZero.HITs.Suspension (north south merid σ suspΩ)
   open GroundZero.Proto (idfun)
 
-  hott definition base : Π {n : ℕ}, S n
+  hott definition base : Π {n : ℕ}, Sⁿ
   | Nat.zero   => false
   | Nat.succ _ => north
 
@@ -208,22 +209,23 @@ namespace HigherSphere
     rec Sⁿ⁺¹ a n α ∘ rec Sⁿ⁺¹ b n β ~ rec Sⁿ⁺¹ (rec Sⁿ⁺¹ a n α b) n (mult α β) :=
   by apply recComMapΩ
 
-  hott definition irot {n : ℕ} : Π x, Ωⁿ⁺¹(∥Sⁿ⁺¹∥ₙ₊₁, x) :=
+  hott definition rotε {n : ℕ} : Π x, Ωⁿ⁺¹(∥Sⁿ⁺¹∥ₙ₊₁, x) :=
   Trunc.ind
     (ind n _ (apΩ Trunc.elem (surf n))
       (match n with
-      | Nat.zero   => Equiv.transportOverHmtpy _ _ _ _ ⬝ ap (· ⬝ _ ⬝ _) (Id.mapInv _ _) ⬝ ap (· ⬝ apΩ Trunc.elem (surf Nat.zero)) (Id.invComp _)
-      | Nat.succ n => inOverΩ _ _ (propRespectsEquiv (Equiv.altDefOverΩ _ _).symm
-                                                     (zeroEqvSet.forward (levelOverΩ _ (λ _, zeroTypeLoop (Trunc.uniq _) _) _) _ _) _ _)))
+      | Nat.zero   => Equiv.transportOverHmtpy _ _ _ _ ⬝ ap (· ⬝ _ ⬝ _) (Id.mapInv _ _) ⬝
+                      ap (· ⬝ apΩ Trunc.elem (surf Nat.zero)) (Id.invComp _)
+      | Nat.succ n => loopOverHSet (λ _, hsetLoop (Trunc.uniq _) _)))
     (λ _, levelStableΩ _ (Trunc.uniq _))
 
   hott definition code {n : ℕ} : Sⁿ⁺² → Type :=
   rec Type ∥Sⁿ⁺¹∥ₙ₊₁ (n + 1)
-    (conjugateΩ (uaidp ∥Sⁿ⁺¹∥ₙ₊₁) (apΩ ua (sigmaProdΩ (funextΩ idfun irot)
-      (inOverΩ _ _ (minusOneEqvProp.forward (levelOverΩ −1 (λ _, minusOneEqvProp.left (Theorems.Equiv.biinvProp _)) _) _ _)))))
+    (conjugateΩ (uaidp ∥Sⁿ⁺¹∥ₙ₊₁)
+                (apΩ ua (sigmaProdΩ (funextΩ idfun rotε)
+                                    (loopOverProp (λ _, Equiv.biinvProp _)))))
 
   hott lemma codeHLevel {n : ℕ} : Π (x : Sⁿ⁺²), is-(n + 1)-type (code x) :=
-  ind _ _ (Trunc.uniq _) (inOverΩ _ _ (minusOneEqvProp.forward (levelOverΩ −1 (λ _, minusOneEqvProp.left (ntypeIsProp _)) _) _ _))
+  ind _ _ (Trunc.uniq _) (loopOverProp (λ _, ntypeIsProp _))
 
   hott definition encode {n : ℕ} : Π (x : Sⁿ⁺²), ∥base = x∥ₙ₊₁ → code x :=
   λ x, Trunc.rec (λ ε, transport code ε |base|ₙ₊₁) (codeHLevel x)

@@ -818,6 +818,10 @@ namespace Equiv
   | Nat.zero,   p => Id.invComp p
   | Nat.succ n, α => @revlΩ (a = a) (idp a) n α
 
+  hott lemma idrevΩ {A : Type u} {a : A} : Π {n : ℕ}, revΩ (idΩ a (n + 1)) = idΩ a (n + 1)
+  | Nat.zero   => idp (idp a)
+  | Nat.succ n => @idrevΩ (a = a) (idp a) n
+
   hott theorem involΩ {A : Type u} {a : A} : Π {n : ℕ} (α : Ωⁿ⁺¹(A, a)), revΩ (revΩ α) = α
   | Nat.zero,   p => Id.invInv p
   | Nat.succ n, α => @involΩ (a = a) (idp a) n α
