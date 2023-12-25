@@ -59,26 +59,4 @@ hott definition Homotopy {A : Type u} (a : A) (n : ℕ) : Group :=
   Homotopy.mul Homotopy.inv Homotopy.unit Homotopy.isAssoc
   Homotopy.hasLeftUnit Homotopy.hasLeftInverse
 
-def zws := Char.mk 0x200B (by decide)
-def ZWS := leading_parser zws.toString
-
-macro:max "π" noWs ZWS noWs n:subscript noWs "(" τ:term ")" : term => do
-  `(Homotopy (pointOf $τ) (Nat.pred $(← Meta.Notation.parseSubscript n)))
-
-macro:max "π" noWs ZWS noWs n:subscript noWs "(" τ:term ", " ε:term ")" : term => do
-  `(@Homotopy $τ $ε (Nat.pred $(← Meta.Notation.parseSubscript n)))
-
-macro:max "π" noWs "[" n:term "]" "(" τ:term ")" : term => do
-  `(Homotopy (pointOf $τ) (Nat.pred $n))
-
-macro:max "π" noWs "[" n:term "]" "(" τ:term ", " ε:term ")" : term => do
-  `(@Homotopy $τ $ε (Nat.pred $n))
-
-variable (A : Type) (a : A) (n : ℕ)
-
-#check π[2](A, a)
---#check πₙ(A, a)
-
-#check λ n, π​ₙ₊₂(A, a)
-
 end GroundZero.Algebra
