@@ -22,20 +22,20 @@ namespace Prering
   | Sum.inl mul     => 2
 end Prering
 
-def Prering : Type (u + 1) :=
+hott definition Prering : Type (u + 1) :=
 Alg.{0, 0, u, 0} Prering.signature
 
 namespace Overring
-  def signature : Prering.Arity + 𝟏 → ℕ
+  hott definition signature : Prering.Arity + 𝟏 → ℕ
   | Sum.inl v => Prering.signature (Sum.inl v)
   | Sum.inr _ => 2
 end Overring
 
-def Overring : Type (max u v + 1) :=
+hott definition Overring : Type (max u v + 1) :=
 Alg.{0, 0, u, v} Overring.signature
 
 namespace Prering
-  hott def intro {α : Type u} (H : hset α)
+  hott definition intro {α : Type u} (H : hset α)
     (φ ψ : α → α → α) (ι : α → α) (e : α) : Prering :=
   ⟨zeroeqv H,
     (λ | Arity.nullary => λ _, e
@@ -44,26 +44,26 @@ namespace Prering
        | Arity.mul     => λ (a, b, _), ψ a b,
      λ z, nomatch z)⟩
 
-  def zero (T : Prering) : T.carrier :=
+  hott abbreviation zero (T : Prering) : T.carrier :=
   T.op Arity.nullary ★
 
-  def neg (T : Prering) : T.carrier → T.carrier :=
+  hott abbreviation neg (T : Prering) : T.carrier → T.carrier :=
   λ x, T.op Arity.unary (x, ★)
 
-  def φ (T : Prering) : T.carrier → T.carrier → T.carrier :=
+  hott abbreviation φ (T : Prering) : T.carrier → T.carrier → T.carrier :=
   λ x y, T.op Arity.add (x, y, ★)
 
-  def ψ (T : Prering) : T.carrier → T.carrier → T.carrier :=
+  hott abbreviation ψ (T : Prering) : T.carrier → T.carrier → T.carrier :=
   λ x y, T.op Arity.mul (x, y, ★)
 
-  hott def magma (T : Prering) : Magma :=
+  hott definition magma (T : Prering) : Magma :=
   Magma.intro T.hset T.φ
 end Prering
 
 namespace Overring
   open Prering (Arity)
 
-  hott def intro {α : Type u} (H : hset α) (φ ψ : α → α → α)
+  hott definition intro {α : Type u} (H : hset α) (φ ψ : α → α → α)
     (ι : α → α) (e : α) (ρ : α → α → Prop) : Overring :=
   ⟨zeroeqv H,
     (λ | Arity.nullary => λ _, e
@@ -72,19 +72,19 @@ namespace Overring
        | Arity.mul     => λ (a, b, _), ψ a b,
      λ | ★             => λ (a, b, _), ρ a b)⟩
 
-  def rel (T : Overring) (x y : T.carrier) : Prop := Alg.rel T ★ (x, y, ★)
-  def ρ (T : Overring) (x y : T.carrier) := (T.rel x y).1
+  hott definition rel (T : Overring) (x y : T.carrier) : Prop := Alg.rel T ★ (x, y, ★)
 
-  def σ (T : Overring) (x y : T.carrier) := ¬(x = y) × T.ρ x y
+  hott abbreviation ρ (T : Overring) (x y : T.carrier) := (T.rel x y).1
 
-  hott def τ (T : Overring) : Prering :=
+  hott definition σ (T : Overring) (x y : T.carrier) := ¬(x = y) × T.ρ x y
+
+  hott definition τ (T : Overring) : Prering :=
   ⟨T.1, (T.2.1, λ z, nomatch z)⟩
 end Overring
 
 class ring (T : Prering) :=
 (addAssoc     : Π a b c, T.φ (T.φ a b) c = T.φ a (T.φ b c))
 (zeroAdd      : Π a, T.φ T.zero a = a)
-(addZero      : Π a, T.φ a T.zero = a)
 (addLeftNeg   : Π a, T.φ (T.neg a) a = T.zero)
 (addComm      : Π a b, T.φ a b = T.φ b a)
 (distribLeft  : Π a b c, T.ψ a (T.φ b c) = T.φ (T.ψ a b) (T.ψ a c))
@@ -94,8 +94,8 @@ section
   variable (T : Prering)
   def Prering.sub (x y : T.carrier) := T.φ x (T.neg y)
 
-  hott def Prering.additive (T : Prering) [ring T] : Group :=
-  Group.intro T.hset T.φ T.neg T.zero ring.addAssoc ring.zeroAdd ring.addZero ring.addLeftNeg
+  hott definition Prering.additive (T : Prering) [ring T] : Group :=
+  Group.intro T.hset T.φ T.neg T.zero ring.addAssoc ring.zeroAdd ring.addLeftNeg
 
   postfix:max "⁺" => Prering.additive
 
@@ -141,46 +141,48 @@ end
 namespace Prering
   variable (T : Prering) [ring T]
 
-  hott def addAssoc (a b c : T.carrier) : (a + b) + c = a + (b + c) :=
+  hott definition addAssoc (a b c : T.carrier) : (a + b) + c = a + (b + c) :=
   ring.addAssoc a b c
 
-  hott def zeroAdd (a : T.carrier) : 0 + a = a :=
+  hott definition zeroAdd (a : T.carrier) : 0 + a = a :=
   ring.zeroAdd a
 
-  hott def addZero (a : T.carrier) : a + 0 = a :=
-  ring.addZero a
+  hott definition addZero (a : T.carrier) : a + 0 = a :=
+  ring.addComm a 0 ⬝ ring.zeroAdd a
 
-  hott def addComm (a b : T.carrier) : a + b = b + a :=
+  hott definition addComm (a b : T.carrier) : a + b = b + a :=
   ring.addComm a b
 
-  hott def addLeftNeg (a : T.carrier) : (-a) + a = 0 :=
+  hott definition addLeftNeg (a : T.carrier) : (-a) + a = 0 :=
   ring.addLeftNeg a
 
-  hott def distribLeft (a b c : T.carrier) : a * (b + c) = a * b + a * c :=
+  hott definition distribLeft (a b c : T.carrier) : a * (b + c) = a * b + a * c :=
   ring.distribLeft a b c
 
-  hott def distribRight (a b c : T.carrier) : (a + b) * c = a * c + b * c :=
+  hott definition distribRight (a b c : T.carrier) : (a + b) * c = a * c + b * c :=
   ring.distribRight a b c
+
+  attribute [irreducible] addAssoc zeroAdd addZero addComm addLeftNeg distribLeft distribRight
 end Prering
 
 section
   variable {T : Prering} [ring T]
 
-  hott def ring.mulZero (a : T.carrier) : a * 0 = 0 :=
+  hott definition ring.mulZero (a : T.carrier) : a * 0 = 0 :=
   begin
     apply @Group.unitOfSqr T⁺; transitivity;
     symmetry; apply ring.distribLeft;
     apply ap (T.ψ a); apply T.zeroAdd
   end
 
-  hott def ring.zeroMul (a : T.carrier) : 0 * a = 0 :=
+  hott definition ring.zeroMul (a : T.carrier) : 0 * a = 0 :=
   begin
     apply @Group.unitOfSqr T⁺; transitivity;
     symmetry; apply T.distribRight;
     apply ap (· * a); apply T.addZero
   end
 
-  hott def ring.mulNeg (a b : T.carrier) : a * (-b) = -(a * b) :=
+  hott definition ring.mulNeg (a b : T.carrier) : a * (-b) = -(a * b) :=
   begin
     apply @Group.eqInvOfMulEqOne T⁺; transitivity;
     symmetry; apply T.distribLeft; transitivity;
@@ -188,20 +190,24 @@ section
     apply ring.mulZero
   end
 
-  hott def ring.negMul (a b : T.carrier) : (-a) * b = -(a * b) :=
+  hott definition ring.negMul (a b : T.carrier) : (-a) * b = -(a * b) :=
   begin
     apply @Group.eqInvOfMulEqOne T⁺; transitivity;
     symmetry; apply T.distribRight; transitivity;
     apply ap (· * b); apply T.addLeftNeg; apply ring.zeroMul
   end
 
-  hott def ring.subDistribLeft (a b c : T.carrier) := calc
+  attribute [irreducible] ring.mulZero ring.zeroMul ring.mulNeg ring.negMul
+
+  hott lemma ring.subDistribLeft (a b c : T.carrier) := calc
     a * (b - c) = a * b + a * (-c) : T.distribLeft a b (T.neg c)
             ... = a * b - a * c    : ap (T.φ (T.ψ a b)) (ring.mulNeg a c)
 
-  hott def ring.subDistribRight (a b c : T.carrier) := calc
+  hott lemma ring.subDistribRight (a b c : T.carrier) := calc
     (a - b) * c = a * c + (-b) * c : T.distribRight a (T.neg b) c
             ... = a * c - b * c    : ap (T.φ (T.ψ a c)) (ring.negMul b c)
+
+  attribute [irreducible] ring.subDistribLeft ring.subDistribRight
 end
 
 class ring.assoc (T : Prering) :=
@@ -231,7 +237,7 @@ class ring.divisible (T : Prering) extends ring T, ring.hasInv T, ring.monoid T 
 class field (T : Prering) extends ring.assoc T, ring.divisible T, ring.comm T :=
 (nontrivial : T.isproper 1)
 
-hott def ring.minusOneSqr (T : Prering) [ring T] [ring.monoid T] : @Id T.carrier ((-1) * (-1)) 1 :=
+hott lemma ring.minusOneSqr (T : Prering) [ring T] [ring.monoid T] : @Id T.carrier ((-1) * (-1)) 1 :=
 begin
   transitivity; apply ring.mulNeg;
   transitivity; apply ap T.neg;
@@ -239,7 +245,7 @@ begin
   apply @Group.invInv T⁺
 end
 
-hott def field.properMul {T : Prering} [field T] {a b : T.carrier} :
+hott lemma field.properMul {T : Prering} [field T] {a b : T.carrier} :
   T.isproper a → T.isproper b → T.isproper (a * b) :=
 begin
   intros p q r; apply @field.nontrivial T _;
@@ -253,36 +259,36 @@ begin
   transitivity; apply ap; exact r; apply ring.mulZero
 end
 
-hott def field.propInv {T : Prering} [field T] {a : T.carrier} : T.isproper a → T.isproper a⁻¹ :=
+attribute [irreducible] ring.minusOneSqr field.properMul
+
+hott definition field.propInv {T : Prering} [field T] {a : T.carrier} : T.isproper a → T.isproper a⁻¹ :=
 begin
   intros p q; apply @field.nontrivial T _;
   transitivity; { symmetry; apply ring.divisible.mulLeftInv a p };
   transitivity; apply ap (· * a); exact q; apply ring.zeroMul
 end
 
-hott def field.mul (T : Prering) [field T] :
+hott definition field.mul (T : Prering) [field T] :
   T.proper → T.proper → T.proper :=
 λ ⟨a, p⟩ ⟨b, q⟩, ⟨T.ψ a b, field.properMul p q⟩
 
-hott def field.rev (T : Prering) [field T] : T.proper → T.proper :=
+hott definition field.rev (T : Prering) [field T] : T.proper → T.proper :=
 λ ⟨a, p⟩, ⟨a⁻¹, field.propInv p⟩
 
-hott def ring.properEq {T : Prering.{u}} [ring T]
+hott lemma ring.properEq {T : Prering.{u}} [ring T]
   {x y : T.proper} (p : x.fst = y.fst) : x = y :=
 begin fapply Sigma.prod; exact p; apply notIsProp end
 
-hott def multiplicative (T : Prering) [field T] : Group :=
+hott definition multiplicative (T : Prering) [field T] : Group :=
 Group.intro T.properHset (field.mul T) (field.rev T) ⟨ring.hasOne.one, field.nontrivial⟩
   (λ ⟨a, p⟩ ⟨b, q⟩ ⟨c, r⟩, ring.properEq (ring.assoc.mulAssoc a b c))
   (λ ⟨a, p⟩, ring.properEq (ring.monoid.oneMul a))
-  (λ ⟨a, p⟩, ring.properEq (ring.monoid.mulOne a))
   (λ ⟨a, p⟩, ring.properEq (ring.divisible.mulLeftInv a p))
 
 postfix:max "ˣ" => multiplicative
 
 -- voilà, no need to repeat a bunch of lemmas
-hott def field.mulRightInv (T : Prering) [field T] {x : T.carrier}
-  (p : T.isproper x) : x * x⁻¹ = 1 :=
+hott corollary field.mulRightInv (T : Prering) [field T] {x : T.carrier} (p : T.isproper x) : x * x⁻¹ = 1 :=
 ap Sigma.fst (Tˣ.mulRightInv ⟨x, p⟩)
 
 class Lid (T : Prering) [ring T] (φ : T⁺.subgroup) :=
@@ -302,10 +308,10 @@ instance ideal.auto (T : Prering) [ring T]
 namespace Ring
   variable (T : Prering) [ring T] (φ : T⁺.subgroup) [ideal T φ]
 
-  hott def normal : T⁺ ⊵ φ :=
+  hott definition normal : T⁺ ⊵ φ :=
   Group.abelianSubgroupIsNormal T⁺ T.addComm φ
 
-  noncomputable def Factor.mul : factorLeft T⁺ φ → factorLeft T⁺ φ → factorLeft T⁺ φ :=
+  noncomputable hott definition Factor.mul : factorLeft T⁺ φ → factorLeft T⁺ φ → factorLeft T⁺ φ :=
   begin
     fapply Relquot.lift₂;
     { intros a b; apply Relquot.elem; exact T.ψ a b };

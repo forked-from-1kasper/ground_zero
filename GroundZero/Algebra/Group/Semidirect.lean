@@ -9,7 +9,7 @@ namespace GroundZero.Algebra
 
 namespace Group
   -- Outer semidirect product
-  hott def Semidirect {N H : Group} (φ : Group.Hom H (Aut N)) : Group :=
+  hott definition Semidirect {N H : Group} (φ : Hom H (Aut N)) : Group :=
   @Group.intro (N.carrier × H.carrier) (prodHset N.hset H.hset)
     (λ (n₁, h₁) (n₂, h₂), (N.φ n₁ ((φ.fst h₁).fst n₂), H.φ h₁ h₂))
     (λ (n, h), ⟨(φ.1 (H.ι h)).1 (N.ι n), H.ι h⟩) (N.e, H.e)
@@ -29,12 +29,6 @@ namespace Group
         transitivity; apply HITs.Interval.happly;
         apply ap; apply homoUnit; reflexivity };
       { apply H.oneMul }
-    end)
-    (λ (n, h), begin
-      apply Product.prod;
-      { transitivity; apply ap (N.φ n);
-        apply isoUnit (φ.1 h); apply N.mulOne };
-      { apply H.mulOne }
     end)
     (λ ⟨n, h⟩, begin
       apply Product.prod;

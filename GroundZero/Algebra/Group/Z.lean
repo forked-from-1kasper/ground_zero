@@ -8,16 +8,16 @@ open GroundZero.Types.Id (ap)
 
 namespace GroundZero.Algebra
 
-noncomputable hott def ZΩ : Group :=
+noncomputable hott definition ZΩ : Group :=
 Group.intro (Circle.isGroupoid Circle.base Circle.base) Id.trans Id.inv (idp base)
-  (λ a b c, (Id.assoc a b c)⁻¹) Id.lid Id.rid Id.invComp
+  (λ a b c, (Id.assoc a b c)⁻¹) Id.lid Id.invComp
 
-hott def ZΩ.abelian : ZΩ.isCommutative := Circle.comm
+hott definition ZΩ.abelian : ZΩ.isCommutative := Circle.comm
 
-hott def helix {G : Group} (z : G.carrier) : S¹ → Type :=
+hott definition helix {G : Group} (z : G.carrier) : S¹ → Type :=
 Circle.rec G.carrier (GroundZero.ua (Group.left G z))
 
-hott def power {G : Group} (z : G.carrier) (p : ZΩ.carrier) : G.carrier :=
+hott definition power {G : Group} (z : G.carrier) (p : ZΩ.carrier) : G.carrier :=
 @transport S¹ (helix z) base base p G.e
 
 -- In cubicaltt these two lemmas will just compute
@@ -65,10 +65,10 @@ begin
     apply ap (G.φ · _); symmetry; apply power.pred }
 end
 
-noncomputable hott def ZΩ.rec {G : Group} (z : G.carrier) : Group.Hom ZΩ G :=
+noncomputable hott definition ZΩ.rec {G : Group} (z : G.carrier) : Group.Hom ZΩ G :=
 Group.mkhomo (power z) (power.mul z)
 
-noncomputable hott def ZΩ.mul (p q : ZΩ.carrier) : ZΩ.carrier :=
+noncomputable hott definition ZΩ.mul (p q : ZΩ.carrier) : ZΩ.carrier :=
 (@power _ (Group.S ZΩ.1.zero) (Group.left ZΩ p) q).1 Id.refl
 
 noncomputable hott theorem power.one {G : Group} : Π p, power G.e p = G.e :=
@@ -82,7 +82,7 @@ begin
     transitivity; apply G.oneMul; exact ih }
 end
 
-hott def power.zero {G : Group} (x : G.carrier) : power x (idp base) = G.e :=
+hott definition power.zero {G : Group} (x : G.carrier) : power x (idp base) = G.e :=
 by reflexivity
 
 noncomputable hott remark ZΩ.mulZero (p : ZΩ.carrier) : ZΩ.mul p (idp base) = idp base :=

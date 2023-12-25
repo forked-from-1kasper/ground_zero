@@ -25,7 +25,7 @@ namespace Group
   namespace Exp
     variable {α : Type u} (G : Group) (f : α → G.carrier)
 
-    hott def eval : Exp α → G.carrier
+    hott definition eval : Exp α → G.carrier
     | unit    => G.e
     | elem x  => f x
     | mul x y => G.φ (eval x) (eval y)
@@ -55,7 +55,6 @@ namespace Group
 
     axiom mulAssoc (a b c : F.carrier ε) : mul (mul a b) c = mul a (mul b c)
     axiom oneMul       (a : F.carrier ε) : mul unit a = a
-    axiom mulOne       (a : F.carrier ε) : mul a unit = a
     axiom mulLeftInv   (a : F.carrier ε) : mul (inv a) a = unit
     axiom ens                            : Structures.hset (F.carrier ε)
 
@@ -70,7 +69,6 @@ namespace Group
       (mulAssoc : Π {x y z : F.carrier ε} (a : π x) (b : π y) (c : π z),
         m (m a b) c =[mulAssoc x y z] m a (m b c))
       (oneMul : Π {x : F.carrier ε} (a : π x), m u a =[oneMul x] a)
-      (mulOne : Π {x : F.carrier ε} (a : π x), m a u =[mulOne x] a)
       (mulLeftInv : Π {x : F.carrier ε} (a : π x),
         m (i a) a =[mulLeftInv x] u) : Π x, π x :=
     let rec ev : Π x, π (Opaque.intro x)
@@ -78,13 +76,13 @@ namespace Group
     | Exp.elem x  => η x
     | Exp.inv x   => i (ev x)
     | Exp.mul x y => m (ev x) (ev y);
-    λ x, Quot.withUseOf (setπ, @mulAssoc, @oneMul, @mulOne, @mulLeftInv) (Opaque.ind ev x) x
+    λ x, Quot.withUseOf (setπ, @mulAssoc, @oneMul, @mulLeftInv) (Opaque.ind ev x) x
   end F
 
   attribute [hottAxiom] F.carrier F.unit F.elem F.mul F.inv F.rec F.ind
 
   noncomputable def F (ε : Type u) : Group :=
-  @Group.intro (F.carrier ε) F.ens F.mul F.inv F.unit F.mulAssoc F.oneMul F.mulOne F.mulLeftInv
+  @Group.intro (F.carrier ε) F.ens F.mul F.inv F.unit F.mulAssoc F.oneMul F.mulLeftInv
 
   attribute [irreducible] F.carrier
 
@@ -95,38 +93,32 @@ namespace Group
     local postfix:max (priority := high) "⁻¹" => G.ι
     local notation "e" => G.e
 
-    hott def recMul (f : ε → G.carrier) (x y : F.carrier ε) :
-      rec G f (mul x y) = rec G f x * rec G f y :=
+    hott remark recMul (f : ε → G.carrier) (x y : F.carrier ε) : rec G f (mul x y) = rec G f x * rec G f y :=
     by reflexivity
 
-    hott def recInv (f : ε → G.carrier) (x : F.carrier ε) :
-      rec G f (inv x) = (rec G f x)⁻¹ :=
+    hott remark recInv (f : ε → G.carrier) (x : F.carrier ε) : rec G f (inv x) = (rec G f x)⁻¹ :=
     by reflexivity
 
-    hott def recOne (f : ε → G.carrier) : rec G f unit = e :=
+    hott remark recOne (f : ε → G.carrier) : rec G f unit = e :=
     by reflexivity
 
-    noncomputable hott def homomorphism (f : ε → G.carrier) : Hom (F ε) G :=
+    noncomputable hott definition homomorphism (f : ε → G.carrier) : Hom (F ε) G :=
     mkhomo (rec G f) (recMul f)
 
-    noncomputable def recβrule₁ {a b c : F.carrier ε} (f : ε → G.carrier) :
+    noncomputable hott remark recβrule₁ {a b c : F.carrier ε} (f : ε → G.carrier) :
       ap (rec G f) (mulAssoc a b c) =
         G.mulAssoc (rec G f a) (rec G f b) (rec G f c) :=
     by apply G.hset
 
-    noncomputable def recβrule₂ {a : F.carrier ε} (f : ε → G.carrier) :
+    noncomputable hott remark recβrule₂ {a : F.carrier ε} (f : ε → G.carrier) :
       ap (rec G f) (oneMul a) = G.oneMul (rec G f a) :=
     by apply G.hset
 
-    noncomputable def recβrule₃ {a : F.carrier ε} (f : ε → G.carrier) :
-      ap (rec G f) (mulOne a) = G.mulOne (rec G f a) :=
-    by apply G.hset
-
-    noncomputable def recβrule₄ {a : F.carrier ε} (f : ε → G.carrier) :
+    noncomputable hott remark recβrule₄ {a : F.carrier ε} (f : ε → G.carrier) :
       ap (rec G f) (mulLeftInv a) = G.mulLeftInv (rec G f a) :=
     by apply G.hset
 
-    noncomputable hott def indΩ {π : F.carrier ε → Type v}
+    noncomputable hott definition indΩ {π : F.carrier ε → Type v}
       (propπ : Π x, prop (π x))
       (u : π unit) (η : Π {x}, π (elem x))
       (m : Π {x y}, π x → π y → π (mul x y))

@@ -3,10 +3,11 @@ import GroundZero.HITs.Suspension
 import GroundZero.HITs.Trunc
 
 open GroundZero.Theorems.Functions GroundZero.Theorems.Equiv
-open GroundZero.Types.Equiv (idtoeqv apd)
+open GroundZero.Types.Equiv (idtoeqv apd transport)
 open GroundZero.Types.Id (isPointed ap)
 open GroundZero.Structures
 open GroundZero.Types
+
 open GroundZero
 
 namespace GroundZero.Algebra
@@ -53,25 +54,24 @@ namespace K1
 
   instance : isPointed (K1 G) := ⟨base⟩
 
-  hott def KΩ.mul : Ω¹(K1 G) → Ω¹(K1 G) → Ω¹(K1 G) := λ p q, p ⬝ q
-  hott def KΩ.one : Ω¹(K1 G)                       := idp base
-  hott def KΩ.inv : Ω¹(K1 G) → Ω¹(K1 G)            := Id.inv
+  hott definition KΩ.mul : Ω¹(K1 G) → Ω¹(K1 G) → Ω¹(K1 G) := λ p q, p ⬝ q
+  hott definition KΩ.one : Ω¹(K1 G)                       := idp base
+  hott definition KΩ.inv : Ω¹(K1 G) → Ω¹(K1 G)            := Id.inv
 
-  hott def KΩ (G : Group) : Group :=
+  hott definition KΩ (G : Group) : Group :=
   @Group.intro (Ω¹(K1 G)) (grpd _ _) KΩ.mul KΩ.inv KΩ.one
-    (λ _ _ _, Id.inv (Id.assoc _ _ _))
-    Id.lid Id.rid Id.invComp
+    (λ _ _ _, Id.inv (Id.assoc _ _ _)) Id.lid Id.invComp
 
-  hott def homomorphism : Group.Hom G (KΩ G) :=
+  hott definition homomorphism : Group.Hom G (KΩ G) :=
   Group.mkhomo loop loop.mul
 
-  hott def loop.one : @Id Ω¹(K1 G) (loop G.e) (idp base) :=
+  hott definition loop.one : @Id Ω¹(K1 G) (loop G.e) (idp base) :=
   Group.homoUnit homomorphism
 
-  hott def loop.inv : Π p, loop (G.ι p) = (loop p)⁻¹ :=
+  hott definition loop.inv : Π p, loop (G.ι p) = (loop p)⁻¹ :=
   Group.homoInv homomorphism
 
-  hott def family (baseπ : Type u)
+  hott definition family (baseπ : Type u)
     (loopπ : G.carrier → baseπ = baseπ)
     (mulπ  : Π x y, loopπ (G.φ x y) = loopπ x ⬝ loopπ y)
     (setπ  : hset baseπ) : K1 G → 0-Type :=
@@ -86,7 +86,7 @@ namespace K1
     { apply ensIsGroupoid }
   end
 
-  noncomputable hott def code' : K1 G → 0-Type :=
+  noncomputable hott definition code' : K1 G → 0-Type :=
   begin
     fapply family; exact G.carrier;
     { intro x; apply ua; existsi (G.φ · x); apply Prod.mk <;>
@@ -101,9 +101,9 @@ namespace K1
     apply G.hset
   end
 
-  hott def code (x : K1 G) := (code' x).fst
+  hott definition code (x : K1 G) := (code' x).1
 
-  hott def code.hset (z : K1 G) : hset (code z) :=
+  hott lemma code.hset (z : K1 G) : hset (code z) :=
   begin
     induction z; apply G.hset; apply setIsProp;
     { apply propIsSet; apply setIsProp };
@@ -112,12 +112,14 @@ namespace K1
       apply setIsProp }
   end
 
-  hott def hsetBase : hset (@code _ G base) := code.hset base
+  attribute [irreducible] code.hset
 
-  hott def encode : Π (z : K1 G), base = z → code z :=
-  λ z p, Equiv.transport code p G.e
+  hott definition hsetBase : hset (@code _ G base) := code.hset base
 
-  hott def decode (z : K1 G) : code z → base = z :=
+  hott definition encode : Π (z : K1 G), base = z → code z :=
+  λ z p, transport code p G.e
+
+  hott definition decode (z : K1 G) : code z → base = z :=
   begin
     induction z; exact loop;
     case loopπ x =>

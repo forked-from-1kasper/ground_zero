@@ -32,11 +32,11 @@ namespace Group
 
   open D₃.carrier
 
-  hott def D₃.inv : D₃.carrier → D₃.carrier
+  hott definition D₃.inv : D₃.carrier → D₃.carrier
   | R₀ => R₀ | R₁ => R₂ | R₂ => R₁
   | S₀ => S₀ | S₁ => S₁ | S₂ => S₂
 
-  hott def D₃.mul : D₃.carrier → D₃.carrier → D₃.carrier
+  hott definition D₃.mul : D₃.carrier → D₃.carrier → D₃.carrier
   | R₀, R₀ => R₀ | R₀, R₁ => R₁ | R₀, R₂ => R₂
   | R₀, S₀ => S₀ | R₀, S₁ => S₁ | R₀, S₂ => S₂
   | R₁, R₀ => R₁ | R₁, R₁ => R₂ | R₁, R₂ => R₀
@@ -53,10 +53,10 @@ namespace Group
   instance D₃.hasOne : OfNat D₃.carrier (Nat.succ Nat.zero) := ⟨R₀⟩
   instance D₃.hasMul : Mul D₃.carrier := ⟨D₃.mul⟩
 
-  def D₃.elim {β : Type u} (b₁ b₂ b₃ b₄ b₅ b₆ : β) (d : D₃.carrier) : β :=
+  hott definition D₃.elim {β : Type u} (b₁ b₂ b₃ b₄ b₅ b₆ : β) (d : D₃.carrier) : β :=
   @D₃.carrier.casesOn (λ _, β) d b₁ b₂ b₃ b₄ b₅ b₆
 
-  hott def D₃ : Group :=
+  hott definition D₃ : Group :=
   begin
     fapply Group.intro; exact D₃.carrier; apply Hedberg;
     intros x y; induction x <;> induction y <;>
@@ -73,14 +73,14 @@ namespace Group
     repeat { intro a; induction a <;> reflexivity }
   end
 
-  hott def A₃.set : D₃.subset :=
+  hott definition A₃.set : D₃.subset :=
   ⟨D₃.elim 𝟏 𝟏 𝟏 𝟎 𝟎 𝟎, begin
     intro (x : D₃.carrier); induction x <;>
     first | apply Structures.unitIsProp
           | apply Structures.emptyIsProp
   end⟩
 
-  hott def A₃ : D₃.normal :=
+  hott definition A₃ : D₃.normal :=
   ⟨begin
     fapply Group.subgroup.mk; exact A₃.set; apply ★;
     { intro (a : D₃.carrier) (b : D₃.carrier) p q;
@@ -100,13 +100,13 @@ namespace Group
            | induction p using Proto.Empty.casesOn) <;> apply ★
   end⟩
 
-  def D₃.inj : D₃.carrier → factorLeft D₃ A₃ := @Factor.incl D₃ A₃
+  hott definition D₃.inj : D₃.carrier → factorLeft D₃ A₃ := @Factor.incl D₃ A₃
 
-  hott def Z₂.encode : Z₂.carrier → factorLeft D₃ A₃
+  hott definition Z₂.encode : Z₂.carrier → factorLeft D₃ A₃
   | false => D₃.inj R₀
   | true  => D₃.inj S₀
 
-  hott def Z₂.decode : factorLeft D₃ A₃ → Z₂.carrier :=
+  hott definition Z₂.decode : factorLeft D₃ A₃ → Z₂.carrier :=
   begin
     fapply Relquot.rec;
     exact D₃.elim false false false true true true;
@@ -115,7 +115,7 @@ namespace Group
     apply Z₂.set
   end
 
-  noncomputable hott def Z₂.iso : Z₂ ≅ D₃\A₃ :=
+  noncomputable hott definition Z₂.iso : Z₂ ≅ D₃\A₃ :=
   begin
     fapply mkiso; exact Z₂.encode;
     { intros x y; induction x <;> induction y <;> reflexivity };

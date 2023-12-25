@@ -26,32 +26,32 @@ namespace Group
   local infix:70 (priority := high) " ^ " => conjugate (G := G)
   local infix:70 (priority := high) " / " => rightDiv (G := G)
 
-  hott def isNormal (G : Group) (φ : G.subset) :=
+  hott definition isNormal (G : Group) (φ : G.subset) :=
   Π g h, G.φ g h ∈ φ → G.φ h g ∈ φ
 
   notation:50 φ " ⊴ " G => isNormal G (subgroup.set φ)
   notation:50 G " ⊵ " φ => isNormal G (subgroup.set φ)
 
-  hott def normal (G : Group) := Σ (φ : G.subgroup), G ⊵ φ
+  hott definition normal (G : Group) := Σ (φ : G.subgroup), G ⊵ φ
 
-  hott def normal.set {G : Group} (φ : G.normal) := φ.1.set
+  hott definition normal.set {G : Group} (φ : G.normal) := φ.1.set
 
-  hott def isSubgroup.prop (φ : G.subset) : prop (G.isSubgroup φ) :=
+  hott lemma isSubgroup.prop (φ : G.subset) : prop (G.isSubgroup φ) :=
   begin
     apply productProp; apply Ens.prop; apply productProp <;>
     { repeat first | (apply piProp; intro) | apply Ens.prop }
   end
 
-  hott def isNormal.prop (φ : G.subset) : prop (G.isNormal φ) :=
+  hott lemma isNormal.prop (φ : G.subset) : prop (G.isNormal φ) :=
   by repeat first | (apply piProp; intro) | apply Ens.prop
 
-  hott def subgroup.ext {φ ψ : G.subgroup} (ρ : φ.set = ψ.set) : φ = ψ :=
+  hott lemma subgroup.ext {φ ψ : G.subgroup} (ρ : φ.set = ψ.set) : φ = ψ :=
   begin fapply Sigma.prod; exact ρ; apply isSubgroup.prop end
 
-  hott def normal.ext {φ ψ : G.normal} (ρ : φ.set = ψ.set) : φ = ψ :=
+  hott lemma normal.ext {φ ψ : G.normal} (ρ : φ.set = ψ.set) : φ = ψ :=
   begin fapply Sigma.prod; apply subgroup.ext ρ; apply isNormal.prop end
 
-  hott def isNormalSubgroup.conj {φ : G.subgroup} (H : G ⊵ φ)
+  hott lemma isNormalSubgroup.conj {φ : G.subgroup} (H : G ⊵ φ)
     (n g : G.carrier) : n ∈ φ.set → (n ^ g) ∈ φ.set :=
   begin
     intro h; change (g⁻¹ * n * g) ∈ φ.set; apply transport (· ∈ φ.set);
@@ -59,7 +59,7 @@ namespace Group
     apply transport (· ∈ φ.set); apply cancelRight; assumption
   end
 
-  hott def conjugateEqv {φ : G.subgroup} (H : G ⊵ φ) (n g : G.carrier) :
+  hott lemma conjugateEqv {φ : G.subgroup} (H : G ⊵ φ) (n g : G.carrier) :
     @conjugate G n g ∈ φ.set → @conjugateRev G n g ∈ φ.set :=
   begin
     intro h; apply H;
@@ -71,7 +71,7 @@ namespace Group
     apply H; assumption
   end
 
-  hott def normalSubgroupCosets {φ : G.subgroup} (H : G ⊵ φ) {x y : G.carrier} : ldiv φ x y ↔ rdiv φ x y :=
+  hott lemma normalSubgroupCosets {φ : G.subgroup} (H : G ⊵ φ) {x y : G.carrier} : ldiv φ x y ↔ rdiv φ x y :=
   begin
     apply Prod.mk <;> intro h;
     { change (x * y⁻¹) ∈ φ.set; apply transport (· ∈ φ.set);
@@ -88,7 +88,7 @@ namespace Group
       apply mulInvInv; apply φ.inv; assumption }
   end
 
-  noncomputable hott def cosetsEq {φ : G.subgroup} (H : G ⊵ φ) : ldiv φ = rdiv φ :=
+  noncomputable hott proposition cosetsEq {φ : G.subgroup} (H : G ⊵ φ) : ldiv φ = rdiv φ :=
   begin
     apply Theorems.funext; intro; apply Theorems.funext; intro;
     apply propext; apply Ens.prop; apply Ens.prop;
@@ -98,41 +98,38 @@ namespace Group
   section
     variable {H : Group.{u}} {φ : Group.subgroup.{u, v} H}
 
-    hott def Subgroup.mul (x y : φ.subtype) : φ.subtype :=
+    hott definition Subgroup.mul (x y : φ.subtype) : φ.subtype :=
     begin existsi H.φ x.1 y.1; apply φ.mul; apply x.2; apply y.2 end
     local infixl:70 " ∗ " => Subgroup.mul (H := H) (φ := φ)
 
-    hott def Subgroup.inv (x : φ.subtype) : φ.subtype :=
+    hott definition Subgroup.inv (x : φ.subtype) : φ.subtype :=
     begin existsi H.ι x.1; apply φ.inv; apply x.2 end
     local postfix:80 (priority := high) "⁻¹" => Subgroup.inv (H := H) (φ := φ)
 
-    hott def Subgroup.unit : φ.subtype := ⟨H.e, φ.unit⟩
+    hott definition Subgroup.unit : φ.subtype := ⟨H.e, φ.unit⟩
     local notation "e" => Subgroup.unit (H := H) (φ := φ)
 
-    hott def Subgroup.set : Structures.hset φ.subtype :=
+    hott lemma Subgroup.set : Structures.hset φ.subtype :=
     begin apply Ens.hset; apply Alg.hset end
 
-    hott def Subgroup.mulAssoc (x y z : φ.subtype) : (x ∗ y) ∗ z = x ∗ (y ∗ z) :=
+    hott lemma Subgroup.mulAssoc (x y z : φ.subtype) : (x ∗ y) ∗ z = x ∗ (y ∗ z) :=
     begin fapply Types.Sigma.prod; apply H.mulAssoc; apply Ens.prop end
 
-    hott def Subgroup.oneMul (x : φ.subtype) : e ∗ x = x :=
+    hott lemma Subgroup.oneMul (x : φ.subtype) : e ∗ x = x :=
     begin fapply Types.Sigma.prod; apply H.oneMul; apply Ens.prop end
 
-    hott def Subgroup.mulOne (x : φ.subtype) : x ∗ e = x :=
-    begin fapply Types.Sigma.prod; apply H.mulOne; apply Ens.prop end
-
-    hott def Subgroup.mulLeftInv (x : φ.subtype) : x⁻¹ ∗ x = e :=
+    hott lemma Subgroup.mulLeftInv (x : φ.subtype) : x⁻¹ ∗ x = e :=
     begin fapply Types.Sigma.prod; apply H.mulLeftInv; apply Ens.prop end
 
-    hott def Subgroup (H : Group) (φ : H.subgroup) : Group :=
+    hott definition Subgroup (H : Group) (φ : H.subgroup) : Group :=
     @Group.intro φ.subtype Subgroup.set Subgroup.mul Subgroup.inv Subgroup.unit
-      Subgroup.mulAssoc Subgroup.oneMul Subgroup.mulOne Subgroup.mulLeftInv
+      Subgroup.mulAssoc Subgroup.oneMul Subgroup.mulLeftInv
   end
 
-  hott def Subgroup.ext : Π (φ ψ : G.subgroup), φ.set = ψ.set → Subgroup G φ = Subgroup G ψ :=
+  hott corollary Subgroup.ext : Π (φ ψ : G.subgroup), φ.set = ψ.set → Subgroup G φ = Subgroup G ψ :=
   begin intro ⟨φ, p⟩ ⟨ψ, q⟩ r; apply ap (Subgroup G); apply subgroup.ext r end
 
-  hott def inter (φ ψ : G.subgroup) : subgroup (Subgroup G ψ) :=
+  hott definition inter (φ ψ : G.subgroup) : subgroup (Subgroup G ψ) :=
   begin
     fapply Group.subgroup.mk;
     exact ⟨λ x, x.fst ∈ φ.set, λ x, Ens.prop x.fst φ.set⟩;
@@ -143,24 +140,24 @@ namespace Group
       apply φ.inv; assumption }
   end
 
-  hott def abelianSubgroupIsNormal (G : Group) (ρ : G.isCommutative) (φ : G.subgroup) : G ⊵ φ :=
+  hott remark abelianSubgroupIsNormal (G : Group) (ρ : G.isCommutative) (φ : G.subgroup) : G ⊵ φ :=
   begin intros g h p; apply transport (· ∈ φ.set); apply ρ; assumption end
 
-  hott def abelianSubgroupIsAbelian (G : Group) (ρ : G.isCommutative)
+  hott remark abelianSubgroupIsAbelian (G : Group) (ρ : G.isCommutative)
     (φ : G.subgroup) : (Subgroup G φ).isCommutative :=
   begin intro ⟨a, p⟩ ⟨b, q⟩; fapply Sigma.prod; apply ρ; apply Ens.prop end
 
-  hott def Hom.surj (φ : G.subgroup) : Hom (Subgroup G φ) G :=
+  hott definition Hom.surj (φ : G.subgroup) : Hom (Subgroup G φ) G :=
   mkhomo Sigma.fst (λ ⟨a, _⟩ ⟨b, _⟩, idp (a * b))
 
   section
     variable {H : Group} (φ : Hom G H)
     local infixl:70 " ∗ " => H.φ
 
-    hott def ker.aux := λ g, φ.fst g = H.e
-    hott def kerIsProp (x : G.carrier) : prop (ker.aux φ x) := H.hset _ _
+    hott definition ker.aux := λ g, φ.fst g = H.e
+    hott lemma kerIsProp (x : G.carrier) : prop (ker.aux φ x) := H.hset _ _
 
-    hott def ker : G.normal :=
+    hott definition ker : G.normal :=
     ⟨Group.subgroup.mk ⟨ker.aux φ, kerIsProp φ⟩
       (homoUnit φ)
       (begin
@@ -183,11 +180,11 @@ namespace Group
                 ... = H.e                 : Group.mulRightInv _
     end⟩
 
-    hott def Ker := (ker φ).set.subtype
+    hott definition Ker := (ker φ).set.subtype
 
-    hott def im.carrier := (im φ.fst).subtype
+    hott definition im.carrier := (im φ.fst).subtype
 
-    hott def im : H.subgroup :=
+    hott definition im : H.subgroup :=
     Group.subgroup.mk (Algebra.im φ.1)
       (HITs.Merely.elem ⟨e, homoUnit φ⟩)
       (begin
@@ -207,7 +204,7 @@ namespace Group
       end)
   end
 
-  hott def zentrum (G : Group.{u}) : G.normal :=
+  hott definition zentrum (G : Group.{u}) : G.normal :=
   ⟨begin
     fapply @Group.subgroup.mk G;
     exact ⟨λ z, Π g, G.φ z g = G.φ g z, begin
@@ -237,7 +234,7 @@ namespace Group
     apply q; symmetry; apply r
   end⟩
 
-  hott def triv (G : Group) : G.normal :=
+  hott definition triv (G : Group) : G.normal :=
   ⟨begin
     fapply Group.subgroup.mk;
     exact ⟨λ x, G.e = x, λ _, G.hset _ _⟩;
@@ -257,13 +254,13 @@ namespace Group
     symmetry; apply ap (G.φ · g); assumption
   end⟩
 
-  hott def univ (G : Group) : G.normal :=
+  hott definition univ (G : Group) : G.normal :=
   ⟨begin fapply Group.subgroup.mk; exact Ens.univ G.carrier; all_goals { intros; apply ★ } end,
    begin intros g h p; apply ★ end⟩
 
   instance : Coe G.normal G.subgroup := ⟨Sigma.fst⟩
 
-  hott def univIso (G : Group) : G ≅ Subgroup G (univ G) :=
+  hott definition univIso (G : Group) : G ≅ Subgroup G (univ G) :=
   begin
     fapply mkiso; { intro x; existsi x; exact ★ };
     { intros x y; reflexivity }; apply Types.Qinv.toBiinv;
@@ -271,7 +268,7 @@ namespace Group
     { intro ⟨_, _⟩; reflexivity }; { reflexivity }
   end
 
-  hott def intersect (φ ψ : G.subgroup) : G.subgroup :=
+  hott definition intersect (φ ψ : G.subgroup) : G.subgroup :=
   begin
     fapply Group.subgroup.mk; exact (Ens.inter φ.set ψ.set);
     { apply Prod.mk; apply φ.unit; apply ψ.unit };
@@ -283,7 +280,7 @@ namespace Group
       apply ψ.inv; assumption }
   end
 
-  hott def mul (φ ψ : G.subset) : G.subset :=
+  hott definition mul (φ ψ : G.subset) : G.subset :=
   ⟨λ a, ∥(Σ x y, x ∈ φ × y ∈ ψ × x * y = a)∥, λ _, HITs.Merely.uniq⟩
 end Group
 

@@ -21,15 +21,15 @@ namespace Group
   local postfix:max (priority := high) "⁻¹" => G.ι
   local notation "e" => G.e
 
-  hott def factorLeftRel (φ : G.subgroup) :
+  hott definition factorLeftRel (φ : G.subgroup) :
     G.carrier → G.carrier → Prop :=
   λ x y, ⟨ldiv φ x y, Ens.prop _ _⟩
 
-  hott def factorRightRel (φ : G.subgroup) :
+  hott definition factorRightRel (φ : G.subgroup) :
     G.carrier → G.carrier → Prop :=
   λ x y, ⟨rdiv φ x y, Ens.prop _ _⟩
 
-  hott def factorEqrelLeft (φ : G.subgroup) : eqrel G.carrier :=
+  hott definition factorEqrelLeft (φ : G.subgroup) : eqrel G.carrier :=
   ⟨factorLeftRel φ,
   begin
     apply Prod.mk;
@@ -41,7 +41,7 @@ namespace Group
       apply chainLdiv x y z; apply φ.mul <;> assumption }
   end⟩
 
-  hott def factorEqrelRight (φ : G.subgroup) : eqrel G.carrier :=
+  hott definition factorEqrelRight (φ : G.subgroup) : eqrel G.carrier :=
   ⟨factorRightRel φ,
   begin
     apply Prod.mk;
@@ -53,13 +53,13 @@ namespace Group
       apply chainRdiv x y z; apply φ.mul <;> assumption }
   end⟩
 
-  def factorLeft (G : Group) (φ : G.subgroup) :=
+  hott definition factorLeft (G : Group) (φ : G.subgroup) :=
   Relquot (factorEqrelLeft φ)
 
-  def factorRight (G : Group) (φ : G.subgroup) :=
+  hott definition factorRight (G : Group) (φ : G.subgroup) :=
   Relquot (factorEqrelRight φ)
 
-  noncomputable hott def factorSymm (φ : G.subgroup) (ρ : G ⊵ φ) :
+  noncomputable hott lemma factorSymm (φ : G.subgroup) (ρ : G ⊵ φ) :
     factorLeft G φ = factorRight G φ :=
   begin
     apply ap Relquot; apply GroundZero.eqrel.eq;
@@ -69,14 +69,13 @@ namespace Group
     apply cosetsEq ρ; apply propIsProp
   end
 
-  hott def Factor.incl {φ : G.subgroup} : G.carrier → factorLeft G φ :=
+  hott definition Factor.incl {φ : G.subgroup} : G.carrier → factorLeft G φ :=
   Relquot.elem
 
   section
     variable {φ : G.normal}
 
-    noncomputable hott def Factor.mul :
-      factorLeft G φ → factorLeft G φ → factorLeft G φ :=
+    noncomputable hott definition Factor.mul : factorLeft G φ → factorLeft G φ → factorLeft G φ :=
     begin
       fapply Relquot.lift₂;
       { intros a b; exact Factor.incl (a * b) };
@@ -110,22 +109,9 @@ namespace Group
           apply φ.1.inv; apply (normalSubgroupCosets φ.2).left; exact q } }
     end
 
-    hott def Factor.one : factorLeft G φ := Factor.incl e
+    hott definition Factor.one : factorLeft G φ := Factor.incl e
 
-    noncomputable hott def Factor.mulOne : Π (x : factorLeft G φ), Factor.mul x Factor.one = x :=
-    begin
-      fapply @Relquot.indProp;
-      { intro x; apply Relquot.sound;
-        apply transport (· ∈ φ.set); apply calc
-            e = x⁻¹ * x       : Id.inv (G.mulLeftInv x)
-          ... = e * x⁻¹ * x   : ap (G.φ · x) (Id.inv (G.oneMul x⁻¹))
-          ... = e⁻¹ * x⁻¹ * x : ap (λ y, y * x⁻¹ * x) unitInv
-          ... = (x * e)⁻¹ * x : ap (G.φ · x) (Id.inv (invExplode x e));
-        apply φ.1.unit };
-      { intros; apply Relquot.set }
-    end
-
-    noncomputable hott def Factor.oneMul : Π (x : factorLeft G φ), Factor.mul Factor.one x = x :=
+    noncomputable hott lemma Factor.oneMul : Π (x : factorLeft G φ), Factor.mul Factor.one x = x :=
     begin
       fapply Relquot.indProp;
       { intro; change Relquot.elem _ = _;
@@ -133,7 +119,7 @@ namespace Group
       { intros; apply Relquot.set }
     end
 
-    noncomputable hott def Factor.assoc : Π (x y z : factorLeft G φ),
+    noncomputable hott lemma Factor.assoc : Π (x y z : factorLeft G φ),
       Factor.mul (Factor.mul x y) z = Factor.mul x (Factor.mul y z) :=
     begin
       intro (x : Relquot _) (y : Relquot _) (z : Relquot _);
@@ -145,7 +131,7 @@ namespace Group
       apply Relquot.set; apply propIsSet; apply Relquot.set
     end
 
-    noncomputable hott def Factor.inv : factorLeft G φ → factorLeft G φ :=
+    noncomputable hott lemma Factor.inv : factorLeft G φ → factorLeft G φ :=
     begin
       fapply Relquot.rec;
       { intro x; exact Factor.incl x⁻¹ };
@@ -156,8 +142,7 @@ namespace Group
       { apply Relquot.set }
     end
 
-    noncomputable hott def Factor.leftInv :
-      Π (x : factorLeft G φ), Factor.mul (Factor.inv x) x = Factor.one :=
+    noncomputable hott lemma Factor.leftInv : Π (x : factorLeft G φ), Factor.mul (Factor.inv x) x = Factor.one :=
     begin
       intro (x : Relquot _); induction x;
       apply ap Factor.incl; apply G.mulLeftInv;
@@ -168,21 +153,21 @@ namespace Group
   section
     variable (H : Group) (φ : H.normal)
 
-    noncomputable hott def Factor : Group :=
+    noncomputable hott definition Factor : Group :=
     @Group.intro (factorLeft H φ) Relquot.set Factor.mul Factor.inv Factor.one
-      Factor.assoc Factor.oneMul Factor.mulOne Factor.leftInv
+      Factor.assoc Factor.oneMul Factor.leftInv
   end
 
   infix:70 " \\ " => Factor
 
-  hott def Factor.sound {φ : G.normal} {x : G.carrier} (H : x ∈ φ.set) :
+  hott lemma Factor.sound {φ : G.normal} {x : G.carrier} (H : x ∈ φ.set) :
     @Id (factorLeft G φ) (Factor.incl x) Factor.one :=
   begin
     apply Relquot.sound; apply transport (· ∈ φ.set);
     symmetry; apply ldivByUnit; apply φ.1.inv; assumption
   end
 
-  hott def Factor.lift {H : Group} (f : Hom G H) {φ : G.normal}
+  hott definition Factor.lift {H : Group} (f : Hom G H) {φ : G.normal}
     (p : Π x, x ∈ φ.set → f.fst x = H.e) : factorLeft G φ → H.carrier :=
   begin
     fapply Relquot.rec; exact f.1;
@@ -193,9 +178,9 @@ namespace Group
     apply H.hset
   end
 
-  hott def triv.encode : G.carrier → factorLeft G (triv G) := Factor.incl
+  hott definition triv.encode : G.carrier → factorLeft G (triv G) := Factor.incl
 
-  hott def triv.decode : factorLeft G (triv G) → G.carrier :=
+  hott definition triv.decode : factorLeft G (triv G) → G.carrier :=
   begin
     fapply Relquot.rec; exact id;
     { intro x y (p : _ = _); apply invInj;
@@ -203,7 +188,7 @@ namespace Group
     apply G.hset
   end
 
-  noncomputable hott def triv.factor : G ≅ G\triv G :=
+  noncomputable hott theorem triv.factor : G ≅ G\triv G :=
   begin
     fapply mkiso; exact triv.encode;
     { intros x y; reflexivity };
@@ -213,10 +198,9 @@ namespace Group
       reflexivity; apply Relquot.set }
   end
 
-  hott def univ.decode : 𝟏 → factorLeft G (univ G) := λ _, Factor.one
+  hott definition univ.decode : 𝟏 → factorLeft G (univ G) := λ _, Factor.one
 
-  noncomputable hott def univContr :
-    contr (factorLeft G (univ G)) :=
+  noncomputable hott lemma univContr : contr (factorLeft G (univ G)) :=
   begin
     existsi univ.decode.{_, 1, 1} ★;
     fapply Relquot.indProp <;> intro;
@@ -224,10 +208,10 @@ namespace Group
     { apply Relquot.set }
   end
 
-  noncomputable hott def univProp : prop (factorLeft G (univ G)) :=
+  noncomputable hott lemma univProp : prop (factorLeft G (univ G)) :=
   contrImplProp univContr
 
-  noncomputable hott def univFactor : Z₁ ≅ G\univ G :=
+  noncomputable hott theorem univFactor : Z₁ ≅ G\univ G :=
   begin
     fapply mkiso; exact univ.decode; intros a b; apply univProp;
     apply Prod.mk <;> existsi (λ _, ★) <;> intro;
@@ -237,7 +221,7 @@ namespace Group
   section
     variable {φ : G.normal} {ψ : G.normal}
 
-    noncomputable hott def Factor.transfer (f : φ.set ⊆ ψ.set) : (G\φ).carrier → (G\ψ).carrier :=
+    noncomputable hott definition Factor.transfer (f : φ.set ⊆ ψ.set) : (G\φ).carrier → (G\ψ).carrier :=
     begin
       fapply Relquot.rec;
       { exact Factor.incl };
@@ -245,7 +229,7 @@ namespace Group
       { apply Relquot.set }
     end
 
-    noncomputable hott def Factor.iso (f : φ.set ⊆ ψ.set) (g : ψ.set ⊆ φ.set) : G\φ ≅ G\ψ :=
+    noncomputable hott definition Factor.iso (f : φ.set ⊆ ψ.set) (g : ψ.set ⊆ φ.set) : G\φ ≅ G\ψ :=
     begin
       fapply mkiso; exact Factor.transfer f;
       { intro (x : Relquot _) (y : Relquot _);
