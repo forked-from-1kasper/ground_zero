@@ -13,6 +13,7 @@ import GroundZero.Algebra.Group.Differential
 import GroundZero.Algebra.Group.Factor
 import GroundZero.Algebra.Group.Finite
 import GroundZero.Algebra.Group.Free
+import GroundZero.Algebra.Group.Homotopy
 import GroundZero.Algebra.Group.Isomorphism
 import GroundZero.Algebra.Group.Lemmas
 import GroundZero.Algebra.Group.Limited
