@@ -11,19 +11,19 @@ open GroundZero
 
 namespace GroundZero.HITs
 
-hott def Int.rel (w₁ w₂ : ℕ × ℕ) : Type :=
+hott definition Int.rel (w₁ w₂ : ℕ × ℕ) : Type :=
 w₁.1 + w₂.2 = w₁.2 + w₂.1
 
-hott def Int := Quotient Int.rel
+hott definition Int := Quotient Int.rel
 local notation "ℤ" => Int
 
 namespace Nat.Product
-  def add (x y : ℕ × ℕ) : ℕ × ℕ :=
+  hott definition add (x y : ℕ × ℕ) : ℕ × ℕ :=
   (x.1 + y.1, x.2 + y.2)
 
   instance : Add (ℕ × ℕ) := ⟨add⟩
 
-  def mul (x y : ℕ × ℕ) : ℕ × ℕ :=
+  hott definition mul (x y : ℕ × ℕ) : ℕ × ℕ :=
   (x.1 * y.1 + x.2 * y.2, x.1 * y.2 + x.2 * y.1)
 
   instance : Mul (ℕ × ℕ) := ⟨mul⟩
@@ -32,23 +32,23 @@ end Nat.Product
 namespace Int
   universe u v
 
-  def mk : ℕ × ℕ → ℤ := Quotient.elem
-  def elem (a b : ℕ) : ℤ := Quotient.elem (a, b)
+  hott definition mk : ℕ × ℕ → ℤ := Quotient.elem
+  hott definition elem (a b : ℕ) : ℤ := Quotient.elem (a, b)
 
-  def pos (n : ℕ) := mk (n, 0)
+  hott definition pos (n : ℕ) := mk (n, 0)
   instance (n : ℕ) : OfNat ℤ n := ⟨pos n⟩
 
-  def neg (n : ℕ) := mk (0, n)
+  hott definition neg (n : ℕ) := mk (0, n)
 
-  hott def glue {a b c d : ℕ} (H : a + d = b + c) : mk (a, b) = mk (c, d) :=
+  hott definition glue {a b c d : ℕ} (H : a + d = b + c) : mk (a, b) = mk (c, d) :=
   Quotient.line H
 
-  hott def ind {C : ℤ → Type u} (mkπ : Π x, C (mk x))
+  hott definition ind {C : ℤ → Type u} (mkπ : Π x, C (mk x))
     (glueπ : Π {a b c d : ℕ} (H : a + d = b + c),
       mkπ (a, b) =[glue H] mkπ (c, d)) (x : ℤ) : C x :=
   begin fapply Quotient.ind; exact mkπ; intros x y H; apply glueπ end
 
-  hott def rec {C : Type u} (mkπ : ℕ × ℕ → C)
+  hott definition rec {C : Type u} (mkπ : ℕ × ℕ → C)
     (glueπ : Π {a b c d : ℕ} (H : a + d = b + c),
       mkπ (a, b) = mkπ (c, d)) : ℤ → C :=
   begin fapply Quotient.rec; exact mkπ; intros x y H; apply glueπ H end
@@ -56,7 +56,7 @@ namespace Int
   instance : Neg Int :=
   ⟨rec (λ x, mk ⟨x.2, x.1⟩) (λ H, glue H⁻¹)⟩
 
-  hott def addRight (a b k : ℕ) : mk (a, b) = mk (a + k, b + k) :=
+  hott definition addRight (a b k : ℕ) : mk (a, b) = mk (a + k, b + k) :=
   begin
     apply glue; transitivity; symmetry; apply Theorems.Nat.assoc;
     symmetry; transitivity; symmetry; apply Theorems.Nat.assoc;

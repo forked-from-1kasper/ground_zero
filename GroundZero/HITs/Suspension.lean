@@ -13,7 +13,7 @@ open GroundZero.Types
 namespace GroundZero
 namespace HITs
 
-def Suspension.{u} (A : Type u) :=
+hott definition Suspension.{u} (A : Type u) :=
 @Pushout.{0, 0, u} 𝟏 𝟏 A (λ _, ★) (λ _, ★)
 
 notation "∑ " => Suspension
@@ -22,33 +22,33 @@ namespace Suspension
   -- https://github.com/leanprover/lean2/blob/master/hott/homotopy/susp.hlean
   universe u v
 
-  hott def north {A : Type u} : ∑ A := Pushout.inl ★
-  hott def south {A : Type u} : ∑ A := Pushout.inr ★
+  hott definition north {A : Type u} : ∑ A := Pushout.inl ★
+  hott definition south {A : Type u} : ∑ A := Pushout.inr ★
 
-  hott def merid {A : Type u} (x : A) : @Id (∑ A) north south :=
+  hott definition merid {A : Type u} (x : A) : @Id (∑ A) north south :=
   Pushout.glue x
 
-  hott def ind {A : Type u} {B : ∑ A → Type v} (n : B north) (s : B south)
+  hott definition ind {A : Type u} {B : ∑ A → Type v} (n : B north) (s : B south)
     (m : Π x, n =[merid x] s) : Π x, B x :=
   Pushout.ind (λ ★, n) (λ ★, s) m
 
   attribute [eliminator] ind
 
-  hott def rec {A : Type u} {B : Type v} (n s : B) (m : A → n = s) : ∑ A → B :=
+  hott definition rec {A : Type u} {B : Type v} (n s : B) (m : A → n = s) : ∑ A → B :=
   Pushout.rec (λ _, n) (λ _, s) m
 
-  hott def indβrule {A : Type u} {B : ∑ A → Type v}
+  hott definition indβrule {A : Type u} {B : ∑ A → Type v}
     (n : B north) (s : B south) (m : Π x, n =[merid x] s) (x : A) :
     apd (ind n s m) (merid x) = m x :=
   by apply Pushout.indβrule
 
-  hott def recβrule {A : Type u} {B : Type v} (n s : B)
+  hott definition recβrule {A : Type u} {B : Type v} (n s : B)
     (m : A → n = s) (x : A) : ap (rec n s m) (merid x) = m x :=
   by apply Pushout.recβrule
 
   instance (A : Type u) : isPointed (∑ A) := ⟨north⟩
 
-  hott def σ {A : Type u} [isPointed A] : A → Ω¹(∑ A) :=
+  hott definition σ {A : Type u} [isPointed A] : A → Ω¹(∑ A) :=
   λ x, merid x ⬝ (merid (pointOf A))⁻¹
 
   hott lemma σComMerid {A : Type u} [isPointed A] (x : A) : σ x ⬝ merid (pointOf A) = merid x :=
