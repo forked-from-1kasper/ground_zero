@@ -18,78 +18,80 @@ open GroundZero.Proto
 namespace GroundZero.HITs.Infinitesimal
 universe u v w
 
-axiom Im : Type u → Type u
+hott axiom Im (A : Type u) : Type u := Opaque A
+
 notation "ℑ" => Im
 
-axiom ι {A : Type u} : A → ℑ A
-axiom μ {A : Type u} : ℑ (ℑ A) → ℑ A
-
-axiom μcom {A : Type u} : μ ∘ ι ~ @idfun (ℑ A)
-axiom ιcoh {A : Type u} : ι ∘ μ ~ @idfun (ℑ (ℑ A))
-
 section
-  variable {A : Type u} {B : ℑ A → Type v}
+  variable {A : Type u}
 
-  axiom Im.ind (f : Π x, ℑ (B (ι x))) : Π x, ℑ (B x)
-  axiom Im.indβrule {f : Π x, ℑ (B (ι x))} (a : A) : Im.ind f (ι a) = f a
+  hott axiom ι : A → ℑ A := Opaque.intro
+  hott axiom μ : ℑ (ℑ A) → ℑ A := Opaque.value
+
+  hott axiom Im.ind {B : ℑ A → Type v} (f : Π x, ℑ (B (ι x))) : Π x, ℑ (B x) := Opaque.ind f
+
+  hott axiom κ {a b : ℑ A} : ℑ (a = b) → a = b := Opaque.value
 end
 
-axiom κ {A : Type u} {a b : ℑ A} : ℑ (a = b) → a = b
-axiom κ.idp {A : Type u} {a : ℑ A} : κ (ι (idp a)) = idp a
+hott definition Im.indβrule {A : Type u} {B : ℑ A → Type v} {f : Π x, ℑ (B (ι x))} (a : A) : Im.ind f (ι a) = f a :=
+idp (f a)
 
-noncomputable hott def κ.right {A : Type u} {a b : ℑ A} : @κ A a b ∘ ι ~ idfun :=
-@Id.rec (ℑ A) a (λ b p, κ (ι p) = p) κ.idp b
+hott definition μcom {A : Type u} : μ ∘ ι ~ @idfun (ℑ A) :=
+idp
 
-noncomputable hott def κ.left {A : Type u} {a b : ℑ A} : ι ∘ @κ A a b ~ idfun :=
+hott definition ιcoh {A : Type u} : ι ∘ μ ~ @idfun (ℑ (ℑ A)) :=
+λ w, κ (@Im.ind (ℑ A) (λ x, ι (μ x) = x) (λ x, ι (idp (ι x))) w)
+
+hott definition κ.right {A : Type u} {a b : ℑ A} : @κ A a b ∘ ι ~ idfun :=
+idp
+
+hott definition κ.left {A : Type u} {a b : ℑ A} : ι ∘ @κ A a b ~ idfun :=
 λ ρ, κ (@Im.ind (a = b) (λ ρ, ι (κ ρ) = ρ) (λ p, ι (ap ι (κ.right p))) ρ)
 
-hott def isCoreduced (A : Type u) := biinv (@ι A)
+hott definition isCoreduced (A : Type u) := biinv (@ι A)
 
-noncomputable hott def Im.coreduced (A : Type u) : isCoreduced (ℑ A) :=
+hott definition Im.coreduced (A : Type u) : isCoreduced (ℑ A) :=
 Qinv.toBiinv ι ⟨μ, (ιcoh, μcom)⟩
 
-noncomputable hott def Im.idCoreduced {A : Type u} (a b : ℑ A) : isCoreduced (a = b) :=
+hott definition Im.idCoreduced {A : Type u} (a b : ℑ A) : isCoreduced (a = b) :=
 Qinv.toBiinv ι ⟨κ, (κ.left, κ.right)⟩
 
-noncomputable hott def Im.indε {A : Type u} {B : ℑ A → Type v} (η : Π i, isCoreduced (B i))
-  (f : Π x, B (ι x)) : Π x, B x :=
+hott definition Im.indε {A : Type u} {B : ℑ A → Type v}
+  (η : Π i, isCoreduced (B i)) (f : Π x, B (ι x)) : Π x, B x :=
 λ a, (η a).1.1 (@Im.ind A B (λ x, ι (f x)) a)
 
-noncomputable def Im.indεβrule {A : Type u} {B : ℑ A → Type v} (η : Π i, isCoreduced (B i))
-  (f : Π x, B (ι x)) : Π x, Im.indε η f (ι x) = f x :=
-λ a, ap (η (ι a)).1.1 (Im.indβrule a) ⬝ (η (ι a)).1.2 (f a)
+hott definition Im.indεβrule {A : Type u} {B : ℑ A → Type v}
+  (η : Π i, isCoreduced (B i)) (f : Π x, B (ι x)) : Π x, Im.indε η f (ι x) = f x :=
+λ x, (η (ι x)).1.2 (f x)
 
-noncomputable section
+section
   variable {A : Type u} {B : Type v} (f : A → ℑ B)
 
-  hott def Im.rec : Im A → ℑ B := Im.ind f
-  hott def Im.recβrule : Π x, Im.rec f (ι x) = f x := Im.indβrule
+  hott definition Im.rec : Im A → ℑ B := Im.ind f
+  hott definition Im.recβrule : Π x, Im.rec f (ι x) = f x := Im.indβrule
 end
 
-noncomputable section
+section
   variable {A : Type u} {B : Type v} (η : isCoreduced B) (f : A → B)
 
-  hott def Im.recε : Im A → B := Im.indε (λ _, η) f
+  hott definition Im.recε : Im A → B := Im.indε (λ _, η) f
 
-  hott def Im.recεβrule : Π x, Im.recε η f (ι x) = f x :=
+  hott definition Im.recεβrule : Π x, Im.recε η f (ι x) = f x :=
   Im.indεβrule (λ _, η) f
 end
 
-noncomputable section
+section
   variable {A : Type u} {B : Type v} (f : A → B)
 
-  hott def Im.ap : ℑ A → ℑ B := Im.rec (ι ∘ f)
-
-  hott def Im.naturality (x : A) : Im.ap f (ι x) = ι (f x) := Im.recβrule _ x
+  hott definition Im.ap : ℑ A → ℑ B := Im.rec (ι ∘ f)
+  hott definition Im.naturality (x : A) : Im.ap f (ι x) = ι (f x) := idp (ι (f x))
 end
 
-noncomputable hott def Im.apIdfun {A : Type u} : @idfun (ℑ A) ~ Im.ap idfun :=
-Im.indε (λ _, Im.idCoreduced _ _) (λ _, (Im.naturality idfun _)⁻¹)
+hott definition Im.apIdfun {A : Type u} : Im.ap idfun ~ @idfun (ℑ A) :=
+Im.indε (λ _, Im.idCoreduced _ _) (λ x, idp (ι x))
 
-noncomputable hott def Im.apCom {A : Type u} {B : Type v} {C : Type w}
+hott definition Im.apCom {A : Type u} {B : Type v} {C : Type w}
   (f : B → C) (g : A → B) : Im.ap (f ∘ g) ~ Im.ap f ∘ Im.ap g :=
-Im.indε (λ _, Im.idCoreduced _ _) (λ _, Im.naturality _ _
-                                     ⬝ (Im.naturality f _)⁻¹
-                                     ⬝  Id.ap (ap f) (Im.naturality g _)⁻¹)
+Im.indε (λ _, Im.idCoreduced _ _) (λ x, idp (ι (f (g x))))
 
 end GroundZero.HITs.Infinitesimal
