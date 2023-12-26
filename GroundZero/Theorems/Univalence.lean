@@ -87,7 +87,7 @@ contrImplProp (univAlt A)
 namespace Equiv
   variable {C : Π (A B : Type u), A ≃ B → Type v} (Cidp : Π (A : Type u), C A A (ideqv A))
 
-  noncomputable hott def J {A B : Type u} (e : A ≃ B) : C A B e :=
+  noncomputable hott definition J {A B : Type u} (e : A ≃ B) : C A B e :=
   transport (λ (w : Σ B, A ≃ B), C A w.1 w.2) ((univAlt A).2 ⟨B, e⟩) (Cidp A)
 
   attribute [eliminator] J
@@ -99,7 +99,7 @@ namespace Equiv
   end
 end Equiv
 
-hott def isZero : ℕ → 𝟐
+hott definition isZero : ℕ → 𝟐
 | Nat.zero   => true
 | Nat.succ _ => false
 
@@ -109,11 +109,11 @@ ffNeqTt (ap isZero h)⁻¹
 hott lemma succNeqZero {n : ℕ} : ¬(Nat.succ n = 0) :=
 λ h, ffNeqTt (ap isZero h)
 
-hott def negNeg : Π x, not (not x) = x
+hott definition negNeg : Π x, not (not x) = x
 | true  => idp true
 | false => idp false
 
-hott def negBoolEquiv : 𝟐 ≃ 𝟐 :=
+hott definition negBoolEquiv : 𝟐 ≃ 𝟐 :=
 ⟨not, (⟨not, negNeg⟩, ⟨not, negNeg⟩)⟩
 
 noncomputable hott theorem universeNotASet : ¬(hset Type) :=
@@ -157,11 +157,11 @@ end
 section
   variable {C : 𝟐 → Type u}
 
-  hott def familyOnBool.sec (w : C false × C true) : Π b, C b
+  hott definition familyOnBool.sec (w : C false × C true) : Π b, C b
   | false => w.1
   | true  => w.2
 
-  hott def familyOnBool.ret (φ : Π b, C b) : C false × C true :=
+  hott definition familyOnBool.ret (φ : Π b, C b) : C false × C true :=
   (φ false, φ true)
 
   hott theorem familyOnBool : (C false × C true) ≃ Π b, C b :=
@@ -176,29 +176,29 @@ end
 
 namespace Theorems.Equiv
 
-noncomputable hott def propEqProp {A B : Type u} (G : prop B) : prop (A = B) :=
+noncomputable hott definition propEqProp {A B : Type u} (G : prop B) : prop (A = B) :=
 begin
   apply propRespectsEquiv.{u, u + 1}; apply Equiv.symm;
   apply univalence; apply propEquivProp G
 end
 
-noncomputable hott def propsetIsSet : hset propset :=
+noncomputable hott theorem propsetIsSet : hset propset :=
 begin
   intro ⟨x, H⟩ ⟨y, G⟩; apply transport (λ π, Π (p q : π), p = q);
-  symmetry; apply GroundZero.ua; apply Sigma.sigmaPath;
+  symmetry; apply ua; apply Sigma.sigmaPath;
   intro ⟨p, p'⟩ ⟨q, q'⟩; fapply Sigma.prod;
   { apply propEqProp; exact G };
   { apply propIsSet; apply propIsProp }
 end
 
-hott def bool.decode : 𝟐 ≃ 𝟐 → 𝟐 :=
+hott definition bool.decode : 𝟐 ≃ 𝟐 → 𝟐 :=
 λ e, e false
 
-hott def bool.encode : 𝟐 → 𝟐 ≃ 𝟐
+hott definition bool.encode : 𝟐 → 𝟐 ≃ 𝟐
 | false => ideqv 𝟐
 | true  => negBoolEquiv
 
-hott def boolEquivEqvBool : (𝟐 ≃ 𝟐) ≃ 𝟐 :=
+hott exercise boolEquivEqvBool : (𝟐 ≃ 𝟐) ≃ 𝟐 :=
 begin
   existsi bool.decode; fapply Qinv.toBiinv; existsi bool.encode; apply Prod.mk;
   { intro x; induction x using Bool.casesOn <;> reflexivity };
@@ -221,13 +221,13 @@ end
 section
   variable {A : Type u} {B : Type v}
 
-  hott def corrOfBiinv : A ≃ B → Corr A B :=
+  hott definition corrOfBiinv : A ≃ B → Corr A B :=
   λ e, @corrOfQinv A B ⟨e.1, Qinv.ofBiinv e.1 e.2⟩
 
-  hott def biinvOfCorr : Corr A B → A ≃ B :=
+  hott definition biinvOfCorr : Corr A B → A ≃ B :=
   λ c, Qinv.toEquiv (qinvOfCorr c).2
 
-  hott def corrLem (R : A → B → Type w) (φ : A → B) (ρ : Π x, R x (φ x))
+  hott lemma corrLem (R : A → B → Type w) (φ : A → B) (ρ : Π x, R x (φ x))
     (H : Π x y, R x y → φ x = y) (c : Π (x : A) (y : B) (w : R x y), ρ x =[H x y w] w)
     (x : A) (y : B) : (φ x = y) ≃ (R x y) :=
   begin
@@ -239,7 +239,7 @@ section
     { intro p; induction p; apply Id.invComp }
   end
 
-  noncomputable hott def corrBiinvIdfun : corrOfBiinv ∘ @biinvOfCorr A B ~ idfun :=
+  noncomputable hott lemma corrBiinvIdfun : corrOfBiinv ∘ @biinvOfCorr A B ~ idfun :=
   begin
     intro w; fapply Sigma.prod;
     apply Theorems.funext; intro x; apply Theorems.funext; intro y;
@@ -252,10 +252,10 @@ section
     apply productProp <;> { apply piProp; intros; apply contrIsProp }
   end
 
-  hott def biinvCorrIdfun : biinvOfCorr ∘ @corrOfBiinv A B ~ idfun :=
+  hott proposition biinvCorrIdfun : biinvOfCorr ∘ @corrOfBiinv A B ~ idfun :=
   begin intro e; fapply equivHmtpyLem; intro; reflexivity end
 
-  noncomputable hott def biinvEquivCorr : Corr A B ≃ (A ≃ B) :=
+  noncomputable hott theorem biinvEquivCorr : Corr A B ≃ (A ≃ B) :=
   begin
     existsi biinvOfCorr; fapply Qinv.toBiinv; existsi corrOfBiinv;
     apply Prod.mk; apply biinvCorrIdfun; apply corrBiinvIdfun

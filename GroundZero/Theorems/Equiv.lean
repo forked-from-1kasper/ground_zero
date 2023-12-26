@@ -20,17 +20,17 @@ propIsSet HITs.Merely.uniq _ _ _ _
 hott lemma propEquiv {A : Type u} (H : prop A) : A ≃ ∥A∥ :=
 propEquivLemma H HITs.Merely.uniq HITs.Merely.elem (HITs.Merely.rec H id)
 
-hott def propFromEquiv {A : Type u} : A ≃ ∥A∥ → prop A :=
+hott lemma propFromEquiv {A : Type u} : A ≃ ∥A∥ → prop A :=
 begin
   intro ⟨f, (⟨g, A⟩, _)⟩ a b; transitivity;
   exact (A a)⁻¹; symmetry; transitivity; exact (A b)⁻¹;
   apply ap g; exact HITs.Merely.uniq (f b) (f a)
 end
 
-hott def hmtpyRewrite {A : Type u} (f : A → A) (H : f ~ id) (x : A) : H (f x) = ap f (H x) :=
+hott definition hmtpyRewrite {A : Type u} (f : A → A) (H : f ~ id) (x : A) : H (f x) = ap f (H x) :=
 begin have p := (Theorems.funext H)⁻¹; induction p; symmetry; apply Equiv.idmap end
 
-hott def qinvImplsIshae {A : Type u} {B : Type v} (f : A → B) : qinv f → ishae f :=
+hott theorem qinvImplsIshae {A : Type u} {B : Type v} (f : A → B) : qinv f → ishae f :=
 begin
   intro ⟨g, ⟨ε, η⟩⟩; let ε' := λ b, (ε (f (g b)))⁻¹ ⬝ (ap f (η (g b)) ⬝ ε b);
   existsi g; existsi η; existsi ε'; intro x; symmetry; transitivity;
@@ -39,21 +39,21 @@ begin
   symmetry; apply @homotopySquare A B (f ∘ g ∘ f) f (λ x, ε (f x)) (g (f x)) x (η x)
 end
 
-hott def respectsEquivOverFst {A : Type u} {B : Type v}
+hott corollary respectsEquivOverFst {A : Type u} {B : Type v}
   (φ : A ≃ B) (C : A → Type w) : (Σ x, C x) ≃ (Σ x, C (φ.left x)) :=
 begin
   fapply Sigma.replaceIshae; apply qinvImplsIshae; existsi φ.1;
   apply Prod.mk; apply φ.leftForward; apply φ.forwardLeft
 end
 
-hott def fibEq {A : Type u} {B : Type v} (f : A → B) {y : B} {a b : A}
-  (p : f a = y) (q : f b = y) : (Σ (γ : a = b), ap f γ ⬝ q = p) → @Id (fib f y) ⟨a, p⟩ ⟨b, q⟩ :=
+hott definition fibEq {A : Type u} {B : Type v} (f : A → B) {y : B} {a b : A} (p : f a = y) (q : f b = y) :
+  (Σ (γ : a = b), ap f γ ⬝ q = p) → @Id (fib f y) ⟨a, p⟩ ⟨b, q⟩ :=
 begin
   intro ⟨γ, r⟩; fapply Sigma.prod; exact γ; transitivity; apply transportOverContrMap;
   transitivity; apply ap (· ⬝ p); apply Id.mapInv; apply rewriteComp; exact r⁻¹
 end
 
-hott def ishaeImplContrFib {A : Type u} {B : Type v}
+hott theorem ishaeImplContrFib {A : Type u} {B : Type v}
   (f : A → B) : ishae f → Π y, contr (fib f y) :=
 begin
   intro ⟨g, η, ε, τ⟩ y; existsi ⟨g y, ε y⟩; intro ⟨x, p⟩; apply fibEq;
@@ -67,7 +67,7 @@ begin
   symmetry; apply idmap; apply homotopySquare
 end
 
-hott def compQinv₁ {A : Type u} {B : Type v} {C : Type w}
+hott lemma compQinv₁ {A : Type u} {B : Type v} {C : Type w}
   (f : A → B) (g : B → A) (H : isQinv f g) :
   @qinv (C → A) (C → B) (f ∘ ·) :=
 begin
@@ -75,7 +75,7 @@ begin
   apply Theorems.funext <;> intro; apply H.1; apply H.2
 end
 
-hott def compQinv₂ {A : Type u} {B : Type v} {C : Type w}
+hott lemma compQinv₂ {A : Type u} {B : Type v} {C : Type w}
   (f : A → B) (g : B → A) (H : isQinv f g) :
   @qinv (B → C) (A → C) (· ∘ f) :=
 begin
@@ -127,24 +127,24 @@ begin
     intro x; apply HITs.Merely.uniq }
 end
 
-hott def lemContrInv {A : Type u} (h : prop A) (x : A) : contr A := ⟨x, h x⟩
+hott lemma lemContrInv {A : Type u} (H : prop A) (x : A) : contr A := ⟨x, H x⟩
 
-hott def lemContrEquiv {A : Type u} : (prop A) ≃ (A → contr A) :=
+hott proposition lemContrEquiv {A : Type u} : (prop A) ≃ (A → contr A) :=
 begin
   apply propEquivLemma; apply propIsProp; apply functionToContr;
   apply lemContrInv; apply lemContr
 end
 
-hott def contrToType {A : Type u} {B : A → Type v}
+hott definition contrToType {A : Type u} {B : A → Type v}
   (H : contr A) : (Σ x, B x) → B H.1 :=
 λ w, transport B (H.2 w.1)⁻¹ w.2
 
-hott def typeToContr {A : Type u} {B : A → Type v}
+hott definition typeToContr {A : Type u} {B : A → Type v}
   (H : contr A) : B H.1 → (Σ x, B x) :=
 λ u, ⟨H.1, u⟩
 
 -- HoTT 3.20
-hott def contrFamily {A : Type u} {B : A → Type v} (H : contr A) : (Σ x, B x) ≃ B H.1 :=
+hott theorem contrFamily {A : Type u} {B : A → Type v} (H : contr A) : (Σ x, B x) ≃ B H.1 :=
 begin
   existsi contrToType H; apply Prod.mk <;>
   existsi @typeToContr A B H <;> intro x;
@@ -154,36 +154,36 @@ begin
     reflexivity }
 end
 
-hott def propset.Id (A B : Prop) (H : A.1 = B.1) : A = B :=
+hott lemma propset.Id (A B : Prop) (H : A.1 = B.1) : A = B :=
 Sigma.prod H (propIsProp _ _)
 
-hott def hsetEquiv {A : Type u} {B : Type v} (g : hset B) : hset (A ≃ B) :=
+hott corollary hsetEquiv {A : Type u} {B : Type v} (g : hset B) : hset (A ≃ B) :=
 begin
   fapply hsetRespectsSigma;
   { apply piHset; intro x; assumption };
   { intro x; apply propIsSet; apply biinvProp }
 end
 
-hott def zeroEquiv.hset (A B : 0-Type) : hset (A ≃₀ B) :=
+hott corollary zeroEquiv.hset (A B : 0-Type) : hset (A ≃₀ B) :=
 begin apply hsetEquiv; apply zeroEqvSet.forward; exact B.2 end
 
-hott def contrQinvFib {A : Type u} {B : Type v} {f : A → B} (e : qinv f) (b : B) : contr (Σ a, b = f a) :=
+hott lemma contrQinvFib {A : Type u} {B : Type v} {f : A → B} (e : qinv f) (b : B) : contr (Σ a, b = f a) :=
 begin apply contrRespectsEquiv; apply respectsEquivOverFst (Qinv.toEquiv (Qinv.sym e)) (Id b); apply singl.contr end
 
-hott def propQinvFib {A : Type u} {B : Type v} {f : A → B} (e : qinv f) (b : B) : prop (Σ a, b = f a) :=
+hott lemma propQinvFib {A : Type u} {B : Type v} {f : A → B} (e : qinv f) (b : B) : prop (Σ a, b = f a) :=
 contrImplProp (contrQinvFib e b)
 
-hott def corrRev {A : Type u} {B : Type v} : Corr A B → Corr B A :=
+hott definition corrRev {A : Type u} {B : Type v} : Corr A B → Corr B A :=
 λ w, ⟨λ a b, w.1 b a, (w.2.2, w.2.1)⟩
 
-hott def corrOfQinv {A : Type u} {B : Type v} : (Σ f, @qinv A B f) → Corr A B :=
+hott definition corrOfQinv {A : Type u} {B : Type v} : (Σ f, @qinv A B f) → Corr A B :=
 begin
   intro w; existsi (λ a b, b = w.1 a); apply Prod.mk <;> intros;
   apply contrRespectsEquiv; apply Sigma.hmtpyInvEqv; apply singl.contr;
   apply contrQinvFib; exact w.2
 end
 
-hott def qinvOfCorr {A : Type u} {B : Type v} : Corr A B → (Σ f, @qinv A B f) :=
+hott definition qinvOfCorr {A : Type u} {B : Type v} : Corr A B → (Σ f, @qinv A B f) :=
 begin
   intro w; fapply Sigma.mk; intro a; apply (w.2.1 a).1.1;
   fapply Sigma.mk; intro b; apply (w.2.2 b).1.1; apply Prod.mk;
@@ -198,10 +198,10 @@ section
   example : (qinvOfCorr (corrOfQinv e)).2.1 = e.2.1 := by reflexivity
 end
 
-hott def pathOver {A : Type u} (B : A → Type v) {a b : A} (p : a = b) (u : B a) (v : B b) :=
+hott definition pathOver {A : Type u} (B : A → Type v) {a b : A} (p : a = b) (u : B a) (v : B b) :=
 Σ (φ : Π x y, x = y → B x → B y), φ a b p u = v × Π x, φ x x (idp x) ~ idfun
 
-hott def pathOverCharacterization {A : Type u} {B : A → Type v} {a b : A}
+hott theorem pathOverCharacterization {A : Type u} {B : A → Type v} {a b : A}
   (p : a = b) (u : B a) (v : B b) : (u =[p] v) ≃ pathOver B p u v :=
 begin
   fapply Sigma.mk; { intro q; existsi @transport A B; apply Prod.mk; exact q; intro; apply idp };
@@ -231,7 +231,7 @@ begin
   { induction p; reflexivity }
 end
 
-hott def replaceIshaeUnderPi {A : Type u} {B : Type v} {C : A → Type w}
+hott theorem replaceIshaeUnderPi {A : Type u} {B : Type v} {C : A → Type w}
   (g : B → A) (e : ishae g) : (Π x, C x) ≃ (Π x, C (g x)) :=
 begin
   fapply Sigma.mk; intro φ x; exact φ (g x); fapply Qinv.toBiinv;
@@ -242,7 +242,7 @@ begin
   { intro φ; apply Theorems.funext; intro; apply apd }
 end
 
-hott def replaceQinvUnderPi {A : Type u} {B : Type v} {C : A → Type w}
+hott corollary replaceQinvUnderPi {A : Type u} {B : Type v} {C : A → Type w}
   (g : B → A) : qinv g → (Π x, C x) ≃ (Π x, C (g x)) :=
 replaceIshaeUnderPi g ∘ qinvImplsIshae g
 
