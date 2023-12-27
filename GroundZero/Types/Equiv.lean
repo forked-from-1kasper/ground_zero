@@ -994,6 +994,15 @@ namespace Equiv
     Π {n : ℕ} (α : Ωⁿ⁺¹(A, a)) (β : Ωⁿ⁺¹(B, b)), bimapΩ f α β = comΩ (apΩ (f a) β) (apΩ (f · b) α)
   | Nat.zero,   _, _ => bimapCharacterization' f _ _
   | Nat.succ n, α, β => @bimapCharacterizationΩ₂ (a = a) (b = b) (f a b = f a b) (bimap f) (idp a) (idp b) n α β
+
+  hott lemma apEqIdp {A : Type u} {B : Type v} (f : A → B)
+    {a : A} (p : a = a) (H : Π x, f x = f a) : ap f p = idp (f a) :=
+  mapWithHomotopy _ _ H p ⬝ ap (_ ⬝ · ⬝ _) (constmap _) ⬝ idConjRevIfComm _ _ _ (Id.rid _)⁻¹
+
+  hott lemma apEqIdΩ {A : Type u} {B : Type v} (f : A → B) {a : A} :
+    Π {n : ℕ} (α : Ωⁿ(A, a)) (H : Π x, f x = f a), apΩ f α = idΩ (f a) n
+  | Nat.zero,   x, H => H x
+  | Nat.succ n, α, H => @apEqIdΩ (a = a) (f a = f a) (ap f) (idp a) n α (λ p, apEqIdp f p H)
 end Equiv
 
 inductive Resize (A : Type u) : Type (max u v)
