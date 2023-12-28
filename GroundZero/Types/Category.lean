@@ -1,54 +1,57 @@
 import GroundZero.Types.Precategory
+
+open GroundZero.Types.Precategory (idtoiso)
 open GroundZero.Types.Equiv
 open GroundZero.Structures
 
 namespace GroundZero.Types
 universe u v
 
-hott definition Category (A : Type u) :=
-Σ (𝒞 : Precategory A), Π a b, biinv (@Precategory.idtoiso A 𝒞 a b)
+hott definition Category :=
+Σ (A : Precategory), Π a b, biinv (@idtoiso A a b)
 
 namespace Category
-  variable {A : Type u} (𝒞 : Category A)
+  variable (A : Category)
 
-  hott abbreviation hom := 𝒞.1.hom
+  hott abbreviation obj := A.1.obj
+  hott abbreviation hom := A.1.hom
 
-  hott definition set : Π (x y : A), hset (hom 𝒞 x y) := 𝒞.1.set
+  hott definition set : Π (x y : A.obj), hset (hom A x y) := A.1.set
 
   attribute [irreducible] set
 
-  hott abbreviation id : Π {a : A}, hom 𝒞 a a := 𝒞.1.id
+  hott abbreviation id : Π {a : A.obj}, hom A a a := A.1.id
 
-  hott abbreviation comp {A : Type u} {𝒞 : Category A} {a b c : A}
-    (f : hom 𝒞 b c) (g : hom 𝒞 a b) : hom 𝒞 a c :=
-  𝒞.1.comp f g
+  hott abbreviation comp {A : Category} {a b c : A.obj}
+    (f : hom A b c) (g : hom A a b) : hom A a c :=
+  A.1.com f g
 
   local infix:60 " ∘ " => comp
 
-  hott abbreviation idLeft  : Π {a b : A} (f : hom 𝒞 a b), f = id 𝒞 ∘ f := 𝒞.1.idLeft
-  hott abbreviation idRight : Π {a b : A} (f : hom 𝒞 a b), f = f ∘ id 𝒞 := 𝒞.1.idRight
-  hott abbreviation assoc   : Π {a b c d : A} (f : hom 𝒞 a b) (g : hom 𝒞 b c) (h : hom 𝒞 c d), h ∘ (g ∘ f) = (h ∘ g) ∘ f := 𝒞.1.assoc
+  hott abbreviation lu    : Π {a b : A.obj} (f : hom A a b), id A ∘ f = f := A.1.lu
+  hott abbreviation ru    : Π {a b : A.obj} (f : hom A a b), f ∘ id A = f := A.1.ru
+  hott abbreviation assoc : Π {a b c d : A.obj} (f : hom A a b) (g : hom A b c) (h : hom A c d), h ∘ (g ∘ f) = (h ∘ g) ∘ f := A.1.assoc
 
-  hott abbreviation iso (a b : A) := Precategory.iso 𝒞.1 a b
+  hott abbreviation iso (a b : A.obj) := Precategory.iso A.1 a b
 
-  hott abbreviation idtoiso {a b : A} : a = b → iso 𝒞 a b :=
-  Precategory.idtoiso 𝒞.1
+  hott abbreviation idtoiso {a b : A.obj} : a = b → iso A a b :=
+  Precategory.idtoiso A.1
 
-  hott definition univalence {a b : A} : (a = b) ≃ (iso 𝒞 a b) :=
-  ⟨idtoiso 𝒞, 𝒞.snd a b⟩
+  hott definition univalence {a b : A.obj} : (a = b) ≃ (iso A a b) :=
+  ⟨idtoiso A, A.snd a b⟩
 
-  hott definition ua {a b : A} : iso 𝒞 a b → a = b :=
-  (univalence 𝒞).left
+  hott definition ua {a b : A.obj} : iso A a b → a = b :=
+  (univalence A).left
 
-  hott definition uaβrule₁ {a b : A} (φ : iso 𝒞 a b) : idtoiso 𝒞 (ua 𝒞 φ) = φ :=
-  (univalence 𝒞).forwardLeft φ
+  hott definition uaβrule₁ {a b : A.obj} (φ : iso A a b) : idtoiso A (ua A φ) = φ :=
+  (univalence A).forwardLeft φ
 
-  hott definition uaβrule₂ {a b : A} (φ : a = b) : ua 𝒞 (idtoiso 𝒞 φ) = φ :=
-  (univalence 𝒞).leftForward φ
+  hott definition uaβrule₂ {a b : A.obj} (φ : a = b) : ua A (idtoiso A φ) = φ :=
+  (univalence A).leftForward φ
 
-  hott definition Mor {A : Type u} (𝒞 : Category A) := Σ (x y : A), hom 𝒞 x y
+  hott definition Mor (A : Category) := Σ (x y : A.obj), hom A x y
 
-  hott definition twoOutOfThree {a b c : A} (g : hom 𝒞 b c) (f : hom 𝒞 a b) (K : Π (x y : A), hom 𝒞 x y → Type v) :=
+  hott definition twoOutOfThree {a b c : A.obj} (g : hom A b c) (f : hom A a b) (K : Π (x y : A.obj), hom A x y → Type v) :=
   (K a b f → K b c g → K a c (g ∘ f)) × (K a c (g ∘ f) → K b c g → K a b f) × (K a b f → K a c (g ∘ f) → K b c g)
 end Category
 
