@@ -73,13 +73,13 @@ namespace «3.8»
            (ii  : Π (f : A → B), isequiv f → qinv f)
            (iii : Π (f : A → B), prop (isequiv f))
 
-  hott def i₂ (f : A → B) : qinv f → ∥qinv f∥ :=
+  hott definition i₂ (f : A → B) : qinv f → ∥qinv f∥ :=
   Merely.elem
 
-  hott def ii₂ (f : A → B) : ∥qinv f∥ → qinv f :=
+  hott definition ii₂ (f : A → B) : ∥qinv f∥ → qinv f :=
   ii f ∘ Merely.rec (iii f) idfun ∘ Merely.lift (i f)
 
-  hott def iii₂ (f : A → B) : prop ∥qinv f∥ :=
+  hott definition iii₂ (f : A → B) : prop ∥qinv f∥ :=
   Merely.uniq
 
   hott theorem isequivEqvMerelyQinv (f : A → B) : isequiv f ≃ ∥qinv f∥ :=
@@ -93,21 +93,21 @@ namespace «3.9»
   section
     variable {A : Type u} {H : prop A} {lem : LEM₋₁}
 
-    hott def lemTrue (x : A) : lem A H = Sum.inl x :=
+    hott definition lemTrue (x : A) : lem A H = Sum.inl x :=
     match lem A H with
     | Sum.inl y => ap Sum.inl (H y x)
     | Sum.inr φ => Empty.elim (φ x)
 
-    hott def lemFalse (φ : ¬A) : lem A H = Sum.inr φ :=
+    hott definition lemFalse (φ : ¬A) : lem A H = Sum.inr φ :=
     match lem A H with
     | Sum.inl x => Empty.elim (φ x)
     | Sum.inr ψ => ap Sum.inr (Structures.notIsProp ψ φ)
   end
 
-  hott def Ωelim (lem : LEM₋₁ u) : Prop u → 𝟐 :=
+  hott definition Ωelim (lem : LEM₋₁ u) : Prop u → 𝟐 :=
   λ w, Coproduct.elim (λ _, true) (λ _, false) (lem w.1 w.2)
 
-  hott def Ωintro : 𝟐 → Prop :=
+  hott definition Ωintro : 𝟐 → Prop :=
   Bool.elim ⟨𝟎, Structures.emptyIsProp⟩ ⟨𝟏, Structures.unitIsProp⟩
 
   hott lemma propsetInhIsProp (A : Prop) : prop A.1 := A.2
@@ -140,7 +140,7 @@ namespace «3.10»
   hott lemma Resize.prop {A : Type u} (H : prop A) : prop (Resize.{u, v} A) :=
   Structures.propRespectsEquiv.{u, max u v} (Resize.equiv A) H
 
-  hott def ResizeΩ : Prop u → Prop (max u v) :=
+  hott definition ResizeΩ : Prop u → Prop (max u v) :=
   λ w, ⟨Resize.{u, v} w.1, Resize.prop w.2⟩
 
   hott lemma lemCumulativity (lem : LEM₋₁ (max u v)) : LEM₋₁ u :=
@@ -261,20 +261,20 @@ namespace «3.14»
   open «3.11»
   open «3.9»
 
-  hott def dn.intro {A : Type u} : A → ¬¬A :=
+  hott definition dn.intro {A : Type u} : A → ¬¬A :=
   λ x φ, φ x
 
-  hott def dn.rec (lem : LEM₋₁ v) {A : Type u} {B : Type v} : prop B → (A → B) → (¬¬A → B) :=
+  hott definition dn.rec (lem : LEM₋₁ v) {A : Type u} {B : Type v} : prop B → (A → B) → (¬¬A → B) :=
   λ H f, Coproduct.elim (λ b _, b) (λ φ g, Empty.elim (g (φ ∘ f))) (lem B H)
 
-  hott def dn.recβrule (lem : LEM₋₁ v) {A : Type u} {B : Type v} {H : prop B}
+  hott definition dn.recβrule (lem : LEM₋₁ v) {A : Type u} {B : Type v} {H : prop B}
     {f : A → B} (x : A) : dn.rec lem H f (dn.intro x) = f x :=
   H _ _
 
-  hott def dnImplMerely (lem : LEM₋₁ u) {A : Type u} : ¬¬A → ∥A∥ :=
+  hott definition dnImplMerely (lem : LEM₋₁ u) {A : Type u} : ¬¬A → ∥A∥ :=
   dn.rec lem HITs.Merely.uniq HITs.Merely.elem
 
-  hott def lemMerelyEqvDef (lem : LEM₋₁ u) {A : Type u} : ¬¬A ≃ ∥A∥ :=
+  hott definition lemMerelyEqvDef (lem : LEM₋₁ u) {A : Type u} : ¬¬A ≃ ∥A∥ :=
   Structures.propEquivLemma Structures.notIsProp HITs.Merely.uniq (dnImplMerely lem) merelyImplDn
 end «3.14»
 
@@ -286,14 +286,15 @@ namespace «3.15»
 
   variable (RES : qinv ResizeΩ.{0, v})
 
-  hott def Merely (A : Type u) := Π (P : Prop 0), (A → P.1) → P.1
+  hott definition Merely (A : Type u) :=
+  Π (P : Prop 0), (A → P.1) → P.1
 
-  hott def Merely.elem {A : Type u} : A → Merely A :=
+  hott definition Merely.elem {A : Type u} : A → Merely A :=
   λ x P f, f x
 
   -- judgmental computation rule??
   -- https://github.com/HoTT/Coq-HoTT/pull/1678#issuecomment-1334818499
-  hott def Merely.rec {A : Type u} {B : Type v} (H : prop B) (f : A → B) (φ : Merely A) : B :=
+  hott definition Merely.rec {A : Type u} {B : Type v} (H : prop B) (f : A → B) (φ : Merely A) : B :=
   transport Sigma.fst (RES.2.1 ⟨B, H⟩)
     (Resize.intro.{0, v} (φ (RES.1 ⟨B, H⟩) (λ x, Resize.elim.{0, v}
       (transport Sigma.fst (RES.2.1 ⟨B, H⟩)⁻¹ (f x)))))
@@ -372,7 +373,7 @@ namespace «3.17»
            (uniq   : Π A, prop (Merely A))
            (mrec   : Π A B, prop B → (A → B) → (Merely A → B))
 
-  def mind {A : Type u} (B : Merely A → Type v) (H : Π x, prop (B x)) (f : Π x, B (elem A x)) : Π x, B x :=
+  hott definition mind {A : Type u} (B : Merely A → Type v) (H : Π x, prop (B x)) (f : Π x, B (elem A x)) : Π x, B x :=
   λ x, mrec A (B x) (H x) (λ y, transport B (uniq A (elem A y) x) (f y)) x
 end «3.17»
 
@@ -407,11 +408,11 @@ namespace «3.19»
   variable {P : ℕ → Type u} (H : Π n, prop (P n)) (G : Π n, dec (P n))
   open GroundZero.HITs
 
-  hott def BSA (n : ℕ) : ℕ → ℕ
+  hott definition BSA (n : ℕ) : ℕ → ℕ
   | Nat.zero   => n
   | Nat.succ m => Coproduct.elim (λ _, n) (λ _, BSA (Nat.succ n) m) (G n)
 
-  hott def BS := BSA G Nat.zero
+  hott definition BS := BSA G Nat.zero
 
   hott lemma BSP (n m : ℕ) : P (n + m) → P (BSA G n m) :=
   begin
@@ -490,7 +491,7 @@ namespace «3.22»
   open GroundZero.Theorems.Nat
   open GroundZero.HITs
 
-  hott def fin.fsuc {n : ℕ} (m : fin n) : fin (n + 1) :=
+  hott definition fin.fsuc {n : ℕ} (m : fin n) : fin (n + 1) :=
   ⟨m.1, le.step (m.1 + 1) n m.2⟩
 
   hott lemma step (n : ℕ) (Y : fin (n + 1) → Type u)
@@ -511,20 +512,20 @@ namespace «3.23»
   open GroundZero.Structures
   open GroundZero.HITs
 
-  hott def choice {A : Type u} (G : dec A) : A → Type u :=
+  hott definition choice {A : Type u} (G : dec A) : A → Type u :=
   λ x, Coproduct.elim (x = ·) (λ φ, Empty.elim (φ x)) G
 
-  hott def decMerely {A : Type u} (G : dec A) : Type u :=
+  hott definition decMerely {A : Type u} (G : dec A) : Type u :=
   Σ x, choice G x
 
-  hott def decMerely.elem {A : Type u} (G : dec A) : A → decMerely G :=
+  hott definition decMerely.elem {A : Type u} (G : dec A) : A → decMerely G :=
   begin
     intro x; induction G using Sum.casesOn;
     case inl y => { existsi y; apply idp };
     case inr φ => { apply Empty.elim (φ x) }
   end
 
-  hott def decMerely.uniq {A : Type u} (G : dec A) : prop (decMerely G) :=
+  hott definition decMerely.uniq {A : Type u} (G : dec A) : prop (decMerely G) :=
   begin
     induction G using Sum.casesOn;
     case inl _ => { intro w₁ w₂; fapply Sigma.prod;
@@ -535,7 +536,7 @@ namespace «3.23»
     case inr φ => { intro w₁ w₂; apply Empty.elim (φ w₁.1) }
   end
 
-  hott def decMerely.dec {A : Type u} (G : dec A) : dec (@decMerely A G) :=
+  hott definition decMerely.dec {A : Type u} (G : dec A) : dec (@decMerely A G) :=
   begin
     induction G using Sum.casesOn;
     case inl x => { left; existsi x; apply idp };
@@ -576,9 +577,9 @@ namespace «3.24»
   | Nat.zero,   Nat.succ m => emptyIsProp
   | Nat.succ n, Nat.succ m => codeProp n m
 
-  hott def encodeDecode {m n : ℕ} (p : Nat.code m n) : Nat.encode (Nat.decode p) = p :=
+  hott definition encodeDecode {m n : ℕ} (p : Nat.code m n) : Nat.encode (Nat.decode p) = p :=
   codeProp _ _ _ _
 
-  hott def recognize (m n : ℕ) : m = n ≃ Nat.code m n :=
-  ⟨Nat.encode, (⟨Nat.decode, Nat.decodeEncode⟩, ⟨Nat.decode, encodeDecode⟩)⟩
+  hott theorem recognize (m n : ℕ) : m = n ≃ Nat.code m n :=
+  Equiv.intro Nat.encode Nat.decode Nat.decodeEncode Nat.encodeDecode
 end «3.24»

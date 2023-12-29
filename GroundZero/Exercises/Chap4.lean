@@ -20,7 +20,7 @@ namespace «4.1»
   open GroundZero.Structures (prop)
   open GroundZero.Types.Id (ap)
 
-  def Adjoint {A : Type u} {B : Type v} (f : A → B) :=
+  hott definition Adjoint {A : Type u} {B : Type v} (f : A → B) :=
   Σ (g : B → A) (η : g ∘ f ~ idfun) (ε : f ∘ g ~ idfun), (Π x, ap f (η x) = ε (f x)) × (Π y, ap g (ε y) = η (g y))
 
   hott lemma adjointIdfun (A : Type u) : Adjoint (@idfun A) ≃ (Π (x : A), idp x = idp x) :=
@@ -66,7 +66,7 @@ namespace «4.2»
   noncomputable hott example : Corr A B ≃ (A ≃ B) :=
   Theorems.Equiv.biinvEquivCorr
 
-  hott def isequiv (f : A → B) := Σ (ρ : Corr A B), Π x, ρ.1 x (f x)
+  hott definition isequiv (f : A → B) := Σ (ρ : Corr A B), Π x, ρ.1 x (f x)
 
   hott theorem «4.2.i» (f : A → B) : qinv f → isequiv f :=
   begin
@@ -80,13 +80,13 @@ namespace «4.2»
     apply Theorems.funext; intro x; exact ap Sigma.fst ((w.1.2.1 x).2 ⟨f x, w.2 x⟩);
   end
 
-  hott def corrPath {f : A → B} (e : isequiv f) {a : A} {b : B} :=
+  hott definition corrPath {f : A → B} (e : isequiv f) {a : A} {b : B} :=
   λ r, contrImplProp (e.1.2.1 a) ⟨f a, e.2 a⟩ ⟨b, r⟩
 
-  hott def F {f : A → B} (e : isequiv f) {a : A} {b : B} : e.1.1 a b → f a = b :=
+  hott definition F {f : A → B} (e : isequiv f) {a : A} {b : B} : e.1.1 a b → f a = b :=
   λ r, ap Sigma.fst (corrPath e r)
 
-  hott def G {f : A → B} (e : isequiv f) {a : A} {b : B} : f a = b → e.1.1 a b :=
+  hott definition G {f : A → B} (e : isequiv f) {a : A} {b : B} : f a = b → e.1.1 a b :=
   λ p, transport (e.1.1 a) p (e.2 a)
 
   hott lemma isequivRel {f : A → B} (e : isequiv f) {a : A} {b : B} : (e.1.1 a b) ≃ (f a = b) :=
@@ -182,7 +182,7 @@ namespace «4.4»
   hott lemma bisigmaComm (A : Type u) (B : Type v) (C : A → B → Type w) : (Σ x y, C x y) ≃ (Σ y x, C x y) :=
   ⟨λ w, ⟨w.2.1, w.1, w.2.2⟩, Qinv.toBiinv _ ⟨λ w, ⟨w.2.1, w.1, w.2.2⟩, (idp, idp)⟩⟩
 
-  hott def mapProd {A : Type u} {A' : Type u'} {B : A → Type v} {B' : A' → Type v'}
+  hott definition mapProd {A : Type u} {A' : Type u'} {B : A → Type v} {B' : A' → Type v'}
     (f : A → A') (g : Π x, B x → B' (f x)) : (Σ x, B x) → (Σ y, B' y) :=
   λ w, ⟨f w.1, g w.1 w.2⟩
 
@@ -213,7 +213,7 @@ namespace «4.4»
 
   variable {A : Type u} {B : Type v} {C : Type w} (f : A → B) (g : B → C) (b : B)
 
-  hott def naturalMap : fib (g ∘ f) (g b) → fib g (g b) :=
+  hott definition naturalMap : fib (g ∘ f) (g b) → fib g (g b) :=
   λ w, ⟨f w.1, w.2⟩
 
   hott theorem «4.4.i» : fib (naturalMap f g b) ⟨b, idp (g b)⟩ ≃ fib f b :=
@@ -309,7 +309,7 @@ namespace «4.6»
   open GroundZero.Structures
   open GroundZero.HITs
 
-  hott def idtoqinv {A B : Type u} : A = B → Σ (f : A → B), qinv f :=
+  hott definition idtoqinv {A B : Type u} : A = B → Σ (f : A → B), qinv f :=
   λ p, transport (λ X, Σ (f : A → X), qinv f) p ⟨idfun, ⟨idfun, (idp, idp)⟩⟩
 
   -- 4.6.i
@@ -332,10 +332,10 @@ namespace «4.6»
     variable (uaq : Π (A B : Type), qinv (@idtoqinv A B))
     open Circle (base loop rot)
 
-    hott def negBoolQinv : qinv not :=
+    hott definition negBoolQinv : qinv not :=
     ⟨not, (negNeg, negNeg)⟩
 
-    hott def universeNotASet : ¬(hset Type) :=
+    hott definition universeNotASet : ¬(hset Type) :=
     let φ : Σ (f : 𝟐 → 𝟐), qinv f := ⟨not, negBoolQinv⟩;
     let ψ : Σ (f : 𝟐 → 𝟐), qinv f := ⟨idfun, Qinv.ideqv⟩;
 
@@ -344,7 +344,7 @@ namespace «4.6»
     let g : idtoqinv p = ψ := ap idtoqinv (ε _ _ p (idp 𝟐));
     ffNeqTt (Interval.happly (ap Sigma.fst (f⁻¹ ⬝ g)) true)
 
-    noncomputable hott def loopNeqRefl : loop ≠ idp base :=
+    noncomputable hott definition loopNeqRefl : loop ≠ idp base :=
     begin
       intro H; apply universeNotASet uaq;
       intros A B p q; apply (KIffSet Type).left;
