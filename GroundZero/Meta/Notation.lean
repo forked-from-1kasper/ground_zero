@@ -32,6 +32,8 @@ def revertDefaultProp : Delab := do {
   | stx     => return stx
 }
 
+macro "variables " vs:(ppSpace bracketedBinder)* : command => `(variable $vs*)
+
 syntax "Π " many1(ppSpace (binderIdent <|> bracketedBinder)) ", " term : term
 macro_rules | `(Π $xs*, $y) => `(∀ $xs*, $y)
 

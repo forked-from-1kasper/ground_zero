@@ -149,12 +149,12 @@ hott definition isNType : hlevel → Type u → Type u
 | −2            => contr
 | hlevel.succ n => λ A, Π (x y : A), isNType n (x = y)
 
-notation "is-" n "-type" => isNType n
+notation "is-" n:max "-type" => isNType n
 
 hott definition nType (n : hlevel) : Type (u + 1) :=
 Σ (A : Type u), is-n-type A
 
-notation n "-Type" => nType n
+notation n:max "-Type" => nType n
 macro n:term "-Type" l:level : term => `(nType.{$l} $n)
 
 hott lemma hlevel.cumulative {A : Type u} : Π (n : hlevel), is-n-type A → is-(hlevel.succ n)-type A
