@@ -2,10 +2,10 @@ import GroundZero.Theorems.Univalence
 import GroundZero.Types.Nat
 
 open GroundZero.Types.Id (ap)
-open GroundZero.Proto (idfun)
 open GroundZero.Types.Equiv
 open GroundZero.Structures
 open GroundZero.Types
+open GroundZero.Proto
 
 namespace GroundZero
 namespace Theorems
@@ -154,7 +154,7 @@ namespace Nat
 
   hott lemma max.zero : Π n, max n 0 = 0 → n = 0
   | Nat.zero,   _ => idp _
-  | Nat.succ n, p => Proto.Empty.elim (max.neZero p)
+  | Nat.succ n, p => Empty.elim (max.neZero p)
 
   hott corollary le.prop (n m : ℕ) : prop (n ≤ m) := natIsSet _ _
 
@@ -207,7 +207,7 @@ namespace Nat
 
   hott lemma minMax : Π (m n : ℕ), max m n = n → min m n = m
   | Nat.zero,   Nat.zero,   p => idp _
-  | Nat.succ m, Nat.zero,   p => Proto.Empty.elim (max.neZero p)
+  | Nat.succ m, Nat.zero,   p => Empty.elim (max.neZero p)
   | Nat.zero,   Nat.succ n, p => idp _
   | Nat.succ m, Nat.succ n, p => ap Nat.succ (minMax m n (ap Nat.pred p))
 
@@ -245,10 +245,13 @@ namespace Nat
   hott lemma le.empty (m n : ℕ) : m ≤ n → ¬(n + 1 ≤ m) :=
   begin intros p q; apply le.neSucc n; transitivity; exact q; exact p end
 
+  hott lemma le.ofNotLe (m n : ℕ) (H : ¬(n + 1 ≤ m)) : m ≤ n :=
+  match le.dec m n with | Sum.inl r₁ => r₁ | Sum.inr r₂ => Empty.elim (H r₂)
+
   hott lemma le.neqSucc {n m : ℕ} (p : n ≠ m + 1) (q : n ≤ m + 1) : n ≤ m :=
   match le.dec n m with
   | Sum.inl r₁ => r₁
-  | Sum.inr r₂ => Proto.Empty.elim (p (le.asymm q r₂))
+  | Sum.inr r₂ => Empty.elim (p (le.asymm q r₂))
 
   hott lemma le.leSucc : Π (n : ℕ), n ≤ n + 1
   | Nat.zero   => idp _
@@ -321,6 +324,97 @@ namespace Nat
   hott lemma dist.translation (n m : ℕ) : Π k, dist n m = dist (n + k) (m + k)
   | Nat.zero   => idp _
   | Nat.succ k => translation n m k
+
+  namespace Example
+    hott axiom explode {P : Sort 0} : False → P := @False.rec (λ _, P)
+
+    hott axiom Leibnitz {A : Type u} (a : A) (P : Π (b : A), Eq a b → Sort 0)
+      (ref : P a rfl) (b : A) (H : Eq a b) : P b H :=
+    @Eq.rec A a P ref b H
+
+    hott axiom left  {P Q : Sort 0} : P ∧ Q → P := λ ⟨p, _⟩, p
+    hott axiom right {P Q : Sort 0} : P ∧ Q → Q := λ ⟨_, q⟩, q
+
+    hott lemma stdLeOf : Π {n m : ℕ}, le n m → LE.le n m
+    | n, Nat.zero,   H => @Id.casesOn ℕ n (λ m _, LE.le n m) 0 ((max.zeroRight n)⁻¹ ⬝ H) (Nat.le_refl n)
+    | n, Nat.succ m, H =>
+      match natDecEq n (m + 1) with
+      | Sum.inl q₁ => @Id.casesOn ℕ n (λ m _, LE.le n m) (m + 1) q₁ (Nat.le_refl n)
+      | Sum.inr q₂ => Nat.le_step (@stdLeOf n m (le.neqSucc q₂ H))
+
+    hott theorem stdLeTrans {n m k : ℕ} (H : LE.le n m) : LE.le m k → LE.le n k :=
+    @Nat.le.rec m (λ k _, LE.le n k) H (λ _ G, Nat.le_step G) k
+
+    hott lemma stdLePred : Π (n : ℕ), LE.le (Nat.pred n) n
+    | Nat.zero   => Nat.le_refl 0
+    | Nat.succ n => Nat.le_succ n
+
+    hott lemma stdLeZero : Π (n : ℕ), LE.le 0 n
+    | Nat.zero   => Nat.le_refl 0
+    | Nat.succ n => Nat.le_step (stdLeZero n)
+
+    hott lemma stdPredLePred {n m : ℕ} : LE.le n m → LE.le (Nat.pred n) (Nat.pred m) :=
+    @Nat.le.rec n (λ m _, LE.le (Nat.pred n) (Nat.pred m)) (Nat.le_refl _) (λ H _, stdLeTrans (stdLePred n) H) m
+
+    hott theorem stdNoLeOneZero : Not (LE.le 1 0) :=
+    @Nat.le.rec 1 (λ | Nat.zero, _ => False | Nat.succ _, _ => True) True.intro (λ _ _, True.intro) 0
+
+    hott theorem stdNoLeSucc : Π {n : ℕ}, Not (LE.le (n + 1) n)
+    | Nat.zero,   H => stdNoLeOneZero H
+    | Nat.succ n, H => @stdNoLeSucc n (@stdPredLePred (n + 2) (n + 1) H)
+
+    hott lemma stdLeRev {n m : ℕ} (H : LE.le (m + 1) n) : Not (LE.le n m) :=
+    λ G, @stdNoLeSucc m (stdLeTrans H G)
+
+    hott theorem natDecLE (n m : ℕ) : Decidable (LE.le n m) :=
+    match le.dec n m with
+    | Sum.inl q₁ => Decidable.isTrue (stdLeOf q₁)
+    | Sum.inr q₂ => Decidable.isFalse (stdLeRev (stdLeOf q₂))
+
+    hott definition absurd {P Q : Sort 0} : P → Not P → Q :=
+    λ H₁ H₂, explode (H₂ H₁)
+
+    hott theorem decideEqTrue {P : Sort 0} : [Decidable P] → P → Eq (decide P) true
+    | isTrue  _,  _  => rfl
+    | isFalse H₁, H₂ => absurd H₂ H₁
+
+    hott theorem decideEqFalse {P : Sort 0} : [Decidable P] → Not P → Eq (decide P) false
+    | isTrue  H₁, H₂ => absurd H₁ H₂
+    | isFalse _,  _  => rfl
+
+    hott lemma trueNeqFalse : Not (Eq false true) :=
+    Leibnitz false (λ | false, _ => True | true, _ => False) True.intro true
+
+    hott lemma symmEq {A : Type u} {a b : A} : Eq a b → Eq b a :=
+    Leibnitz a (λ c _, Eq c a) rfl b
+
+    hott theorem neTrueOfEqFalse : Π {b : 𝟐}, Eq b false → Not (Eq b true)
+    | false, H, G => trueNeqFalse G
+    | true,  H, G => trueNeqFalse (symmEq H)
+
+    hott theorem ofDecideEqTrue {P : Sort 0} [inst : Decidable P] (H₂ : Eq (decide P) true) : P :=
+    match (generalizing := false) inst with
+    | isTrue  H₁ => H₁
+    | isFalse H₁ => absurd H₂ (neTrueOfEqFalse (decideEqFalse H₁))
+
+    hott implementation Nat.decLe           ← natDecLE
+    hott implementation decide_eq_true      ← decideEqTrue
+    hott implementation decide_eq_false     ← decideEqFalse
+    hott implementation ne_true_of_eq_false ← neTrueOfEqFalse
+    hott implementation of_decide_eq_true   ← ofDecideEqTrue
+    hott implementation Nat.le_trans        ← stdLeTrans
+
+    hott theorem isValidChar_UInt32 {n : ℕ} : n.isValidChar → LT.lt n UInt32.size
+    | Or.inl H => Nat.lt_trans H (by decide)
+    | Or.inr G => Nat.lt_trans (right G) (by decide)
+
+    hott definition charOfNatAux (n : ℕ) (h : n.isValidChar) : Char :=
+    { val := ⟨{ val := n, isLt := isValidChar_UInt32 h }⟩, valid := h }
+
+    hott implementation Char.ofNatAux ← charOfNatAux
+
+    hott check Char.ofNat
+  end Example
 end Nat
 
 namespace UnitList

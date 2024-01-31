@@ -167,6 +167,12 @@ def prohibitTok := leading_parser "prohibit "
 -/
 def opaqueTok := leading_parser "opaque "
 
+/--
+  Provides an evidence of compatibility of the given declaration with HoTT environment.
+  Correctness of implementation is leaved up to user.
+-/
+def implTok := leading_parser "implementation "
+
 def declDef      := leading_parser ppIndent optDeclSig >> declVal >> optDefDeriving >> terminationSuffix
 def decl         := leading_parser (defTok <|> abbrevTok) >> declId >> declDef
 def declExample  := leading_parser exampleTok >> declDef
@@ -176,6 +182,7 @@ def declAxiom    := leading_parser axiomTok >> declId >> ppIndent declSig >>
                     Parser.optional (declVal >> optDefDeriving >> terminationSuffix)
 def declOpaque   := leading_parser opaqueTok >> Parser.optional "axiom " >> declId >>
                     ppIndent declSig >> Parser.optional declValSimple
+def declImpl     := leading_parser implTok >> Parser.ident >> Term.leftArrow >> Parser.ident
 
 /--
   Adds declaration and throws an error whenever it uses singleton elimination and/or
@@ -184,13 +191,15 @@ def declOpaque   := leading_parser opaqueTok >> Parser.optional "axiom " >> decl
 def hottPrefix := leading_parser "hott "
 
 @[command_parser] def hott :=
-leading_parser declModifiers false >> hottPrefix >> (decl <|> declExample <|> declCheck
-                                            <|> declAxiom <|> declOpaque  <|> declProhibit)
+leading_parser declModifiers false >> hottPrefix >> (decl <|> declExample <|> declCheck <|> declAxiom <|> declOpaque <|> declProhibit <|> declImpl)
 
 def checkAndMark (tag : Syntax) (name : Name) : CommandElabM Unit := do {
   liftTermElabM (checkDecl tag name);
   modifyEnv (λ env => hottDecls.addEntry env name)
 }
+
+def markHoTTAxiom (name : Name) : CommandElabM Unit :=
+liftTermElabM (Term.applyAttributes name #[{name := `hottAxiom}])
 
 def axiomInstBinder := mkNode ``Term.instBinder #[mkAtom "[", mkNullNode, mkIdent ``GroundZero, mkAtom "]"]
 def axiomBracketedBinderF : TSyntax ``Term.bracketedBinderF := ⟨axiomInstBinder.raw⟩
@@ -238,7 +247,7 @@ def abbrevAttrs : Array Attribute :=
 
   if cmd.isOfKind ``declCheck then do {
     let #[_, decls] := cmd.getArgs | throwError "invalid “check” statement";
-    decls.getArgs.forM (λ stx => resolveGlobalConstNoOverload stx >>= checkAndMark stx)
+    decls.getArgs.forM (λ stx => resolveGlobalConstNoOverloadWithInfo stx >>= checkAndMark stx)
   }
 
   if cmd.isOfKind ``declAxiom then do {
@@ -254,7 +263,7 @@ def abbrevAttrs : Array Attribute :=
       let optDecl := (declSig.setKind ``optDeclSig).modifyArg 1 (mkNullNode #[·]) ;
       let declName ← declDef.modifyArgs (·.insertAt! 0 optDecl)
                      |> defHoTT declId mods declId;
-      liftTermElabM (Term.applyAttributes declName #[{name := `hottAxiom}])
+      markHoTTAxiom declName
     }
   }
 
@@ -267,9 +276,7 @@ def abbrevAttrs : Array Attribute :=
     |> elabDeclaration;
 
     let ns ← getCurrNamespace; let declName := ns ++ declId[0].getId;
-
-    if axiom?.isNone then checkAndMark tok declName
-    else liftTermElabM (Term.applyAttributes declName #[{name := `hottAxiom}])
+    if axiom?.isNone then checkAndMark tok declName else markHoTTAxiom declName
   }
 
   if cmd.isOfKind ``declProhibit then do {
@@ -277,13 +284,43 @@ def abbrevAttrs : Array Attribute :=
 
     let env ← getEnv;
     decls.getArgs.forM λ stx => do {
-      let n ← resolveGlobalConstNoOverload stx;
+      let n ← resolveGlobalConstNoOverloadWithInfo stx;
 
       if ¬(env.constants.find! n).isAxiomInfo then
         throwErrorAt stx "“{n}” expected to be an axiom.";
 
       setEnv (prohibitedAxioms.addLocalEntry env n)
     }
+  }
+
+  if cmd.isOfKind ``declImpl then do {
+    let #[_, implOfStx, _, implFnStx] := cmd.getArgs | throwError "invalid “implementation” statement";
+
+    let implOfName ← resolveGlobalConstNoOverloadWithInfo implOfStx;
+    let implFnName ← resolveGlobalConstNoOverloadWithInfo implFnStx
+
+    -- see https://github.com/leanprover/lean4/blob/fcb30c269bdbca7eac75fc5c5d62841db3d2f592/src/Lean/Compiler/ImplementedByAttr.lean#L13-L30
+    if implOfName = implFnName then {
+      throwError "invalid `hott implementation` argument “{implOfStx}”, function cannot be implemented by itself"
+    }
+
+    let implOfDecl ← getConstInfo implOfName;
+    let implFnDecl ← getConstInfo implFnName;
+
+    unless implOfDecl.levelParams.length = implFnDecl.levelParams.length do {
+      throwError "invalid `hott implementation` argument “{implFnStx}”, “{implFnStx}” has {implFnDecl.levelParams.length} universe level parameter(s), but “{implOfStx}” has {implOfDecl.levelParams.length}"
+    }
+
+    let implOfType := implOfDecl.type
+    let implFnType ← implOfDecl.levelParams.map mkLevelParam
+                     |> Core.instantiateTypeLevelParams implFnDecl
+                     |> liftCoreM;
+
+    unless ← liftTermElabM (Meta.isDefEq implOfType implFnType) do {
+      throwError "invalid `hott implementation` argument “{implFnStx}”, “{implFnStx}” has type{indentExpr implFnType}\nbut “{implOfStx}” has type{indentExpr implOfType}"
+    };
+
+    checkAndMark implFnStx implFnName; modifyEnv (λ env => hottDecls.addEntry env implOfName)
   }
 }
 
