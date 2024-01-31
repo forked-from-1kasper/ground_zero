@@ -36,7 +36,7 @@ There are also HITs that cannot be constructed this way. These HITs are defined 
 
 ## License
 
-Copyright © 2018–2023 Siegmentation Fault &lt;siegmentationfault@yandex.ru&gt;
+Copyright © 2018–2024 Siegmentation Fault &lt;siegmentationfault@yandex.ru&gt;
 
 Licensed under the Apache License, Version 2.0 (the “License”);
 you may not use this project except in compliance with the License.
