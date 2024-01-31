@@ -173,13 +173,13 @@ def opaqueTok := leading_parser "opaque "
 -/
 def implTok := leading_parser "implementation "
 
-def declDef      := leading_parser ppIndent optDeclSig >> declVal >> optDefDeriving >> terminationSuffix
+def declDef      := leading_parser ppIndent optDeclSig >> declVal >> optDefDeriving
 def decl         := leading_parser (defTok <|> abbrevTok) >> declId >> declDef
 def declExample  := leading_parser exampleTok >> declDef
 def declCheck    := leading_parser checkTok >> Parser.many1 Parser.ident
 def declProhibit := leading_parser prohibitTok >> Parser.many1 Parser.ident
 def declAxiom    := leading_parser axiomTok >> declId >> ppIndent declSig >>
-                    Parser.optional (declVal >> optDefDeriving >> terminationSuffix)
+                    Parser.optional (declVal >> optDefDeriving)
 def declOpaque   := leading_parser opaqueTok >> Parser.optional "axiom " >> declId >>
                     ppIndent declSig >> Parser.optional declValSimple
 def declImpl     := leading_parser implTok >> Parser.ident >> Term.leftArrow >> Parser.ident
