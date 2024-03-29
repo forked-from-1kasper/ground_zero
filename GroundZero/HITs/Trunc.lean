@@ -34,7 +34,7 @@ namespace Trunc
   | −1            => Merely.hprop
   | succ (succ n) => λ _ _, propIsNType (λ _ _, trustCoherence) n
 
-  @[eliminator] hott axiom ind {B : Trunc n A → Type v} (elemπ : Π x, B (elem x)) (uniqπ : Π x, is-n-type (B x)) : Π x, B x :=
+  @[induction_eliminator] hott axiom ind {B : Trunc n A → Type v} (elemπ : Π x, B (elem x)) (uniqπ : Π x, is-n-type (B x)) : Π x, B x :=
   match n with
   | −2            => λ x, (uniqπ x).1
   | −1            => Merely.ind elemπ (λ _, minusOneEqvProp.forward (uniqπ _))

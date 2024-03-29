@@ -443,8 +443,8 @@ namespace «4.8»
     { intro w; existsi Bool.elim w.1.1 w.1.2;
       intro b₁ b₂ p; match b₁, b₂ with
       | false, false => { reflexivity }
-      | false, true  => { apply Empty.elim; apply w.2; exact p }
-      | true,  false => { apply Empty.elim; apply w.2; exact p⁻¹ }
+      | false, true  => { apply explode; apply w.2; exact p }
+      | true,  false => { apply explode; apply w.2; exact p⁻¹ }
       | true,  true  => { reflexivity } };
     apply Prod.mk;
     { intro w; apply Sigma.prod; apply notIsProp; reflexivity };
@@ -469,12 +469,12 @@ namespace «4.8»
       | false, false => { fapply Sigma.mk; intro; reflexivity; apply Prod.mk;
                           { intro; apply contrImplProp; apply w.2.2.1 };
                           { intro; apply boolIsSet } }
-      | false, true  => { fapply Sigma.mk; intro p; apply Empty.elim; apply w.2.1 p; apply Prod.mk;
-                          { intro p; apply Empty.elim; apply w.2.1 p };
-                          { intro; apply Empty.elim; apply ffNeqTt; assumption } }
-      | true,  false => { fapply Sigma.mk; intro p; apply Empty.elim; apply w.2.1 p⁻¹; apply Prod.mk;
-                          { intro p; apply Empty.elim; apply w.2.1 p⁻¹ };
-                          { intro; apply Empty.elim; apply ffNeqTt; symmetry; assumption } }
+      | false, true  => { fapply Sigma.mk; intro p; apply explode; apply w.2.1 p; apply Prod.mk;
+                          { intro p; apply explode; apply w.2.1 p };
+                          { intro; apply explode; apply ffNeqTt; assumption } }
+      | true,  false => { fapply Sigma.mk; intro p; apply explode; apply w.2.1 p⁻¹; apply Prod.mk;
+                          { intro p; apply explode; apply w.2.1 p⁻¹ };
+                          { intro; apply explode; apply ffNeqTt; symmetry; assumption } }
       | true,  true  => { fapply Sigma.mk; intro; reflexivity; apply Prod.mk;
                           { intro; apply contrImplProp; apply w.2.2.2 };
                           { intro; apply boolIsSet } } };

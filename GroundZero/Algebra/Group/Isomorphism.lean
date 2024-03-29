@@ -60,11 +60,10 @@ namespace Group
     noncomputable hott def ker.decodeSigma {φ : Hom G H} :
       Π (x : im.carrier φ), fib ker.encode x :=
     begin
-      intro ⟨x, (p : ∥_∥)⟩; induction p; case elemπ z =>
-      { existsi ker.incl z.1; fapply Types.Sigma.prod;
+      apply Sigma.Ind; intro x; fapply Merely.ind;
+      { intro z; existsi ker.incl z.1; fapply Types.Sigma.prod;
         apply z.2; apply HITs.Merely.uniq };
-      case uniqπ p q =>
-      { fapply Types.Sigma.prod;
+      { intro w p q; fapply Types.Sigma.prod;
         { apply ker.encodeInj; transitivity;
           exact p.2; symmetry; exact q.2 };
         { apply Ens.hset; apply H.hset } }

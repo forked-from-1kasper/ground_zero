@@ -32,7 +32,7 @@ namespace Wedge
     (glueπ : inlπ A.2 =[glue] inrπ B.2) : Π x, C x :=
   Pushout.ind inlπ inrπ (λ ★, glueπ)
 
-  attribute [eliminator] ind
+  attribute [induction_eliminator] ind
 
   hott definition rec {C : Type u} (inlπ : A.1 → C) (inrπ : B.1 → C)
     (glueπ : inlπ A.2 = inrπ B.2) : A ∨ B → C :=

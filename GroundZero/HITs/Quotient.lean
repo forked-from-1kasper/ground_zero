@@ -25,7 +25,7 @@ namespace Quotient
     (f : A → B) (H : Π x y, R x y → f x = f y) : Quotient R → B :=
   λ x, Quot.withUseOf H (Quot.lift f (λ a b, λ (rel.line ε), elimEq (H a b ε)) x.elim) x.elim
 
-  @[eliminator] hott axiom ind {A : Type u} {R : A → A → Type v} {B : Quotient R → Type w}
+  @[induction_eliminator] hott axiom ind {A : Type u} {R : A → A → Type v} {B : Quotient R → Type w}
     (f : Π x, B (elem x)) (ε : Π x y H, f x =[line H] f y) : Π x, B x :=
   λ x, Quot.withUseOf ε (@Quot.hrecOn A (rel R) (B ∘ Resize.intro) x.elim f
     (λ a b, λ (rel.line H), HEq.fromPathover (line H) (ε a b H))) x.elim

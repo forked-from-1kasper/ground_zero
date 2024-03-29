@@ -133,8 +133,8 @@ namespace «2.8»
 
   hott definition ρ : Π {x y : A + B}, Coproduct.code x y → Coproduct.code (φ g h x) (φ g h y)
   | Sum.inl _, Sum.inl _, p => ap _ p
-  | Sum.inr _, Sum.inl _, p => Empty.elim p
-  | Sum.inl _, Sum.inr _, p => Empty.elim p
+  | Sum.inr _, Sum.inl _, p => explode p
+  | Sum.inl _, Sum.inr _, p => explode p
   | Sum.inr _, Sum.inr _, p => ap _ p
 
   hott definition mapPathSum (x y : A + B) : Π p,
@@ -148,8 +148,8 @@ namespace «2.8»
     | Sum.inr x, Sum.inr y => _;
 
     { intro (p : x = y); induction p; reflexivity };
-    { intro; apply Empty.elim; assumption };
-    { intro; apply Empty.elim; assumption };
+    { intro; apply explode; assumption };
+    { intro; apply explode; assumption };
     { intro (p : x = y); induction p; reflexivity }
   end
 end «2.8»

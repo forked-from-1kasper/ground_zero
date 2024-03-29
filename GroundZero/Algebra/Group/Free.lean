@@ -61,7 +61,7 @@ namespace Group
     def rec (G : Group) (f : ε → G.carrier) (x : F.carrier ε) : G.carrier :=
     Exp.eval G f x.value
 
-    @[eliminator] def ind {π : F.carrier ε → Type v}
+    @[induction_eliminator] def ind {π : F.carrier ε → Type v}
       (setπ : Π x, Structures.hset (π x))
       (u : π unit) (η : Π x, π (elem x))
       (m : Π {x y}, π x → π y → π (mul x y))

@@ -31,13 +31,6 @@ section
   (intro (a : A) (b : B) (c : C) : ρ a b → η b c → μ a c)
 end
 
--- https://github.com/leanprover-community/mathlib4/blob/master/Mathlib/Lean/Expr/Basic.lean#L100-L109
-def Lean.Expr.constName (e : Expr) : Name :=
-e.constName?.getD Name.anonymous
-
-def Lean.Expr.getAppFnArgs (e : Expr) : Name × Array Expr :=
-withApp e λ e a => (e.constName, a)
-
 namespace GroundZero.Meta.Tactic
 
 -- https://github.com/leanprover-community/mathlib4/blob/master/Mathlib/Tactic/Ring.lean#L411-L419
@@ -69,17 +62,6 @@ section
   elab "symmetry"     : tactic => applyOnBinRel `symmetry     `Symmetric
   elab "transitivity" : tactic => applyOnBinRel `transitivity `Transitive
 end
-
--- https://github.com/leanprover-community/mathlib4/blob/master/Mathlib/Tactic/Basic.lean
--- Author: Mario Carneiro
-syntax "iterate" (ppSpace num)? ppSpace tacticSeq : tactic
-macro_rules
-  | `(tactic|iterate $seq:tacticSeq) =>
-    `(tactic|try ($seq:tacticSeq); iterate $seq:tacticSeq)
-  | `(tactic|iterate $n $seq:tacticSeq) =>
-    match n.raw.toNat with
-    |   0   => `(tactic| skip)
-    | n + 1 => `(tactic|($seq:tacticSeq); iterate $(quote n) $seq:tacticSeq)
 
 elab "fapply " e:term : tactic =>
   Elab.Tactic.evalApplyLikeTactic (MVarId.apply (cfg := {newGoals := Meta.ApplyNewGoals.all})) e

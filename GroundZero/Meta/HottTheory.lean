@@ -18,10 +18,6 @@ section
 
   def Lean.Expr.forConstsM [Monad M] (e : Expr) (f : Name → M Unit) : M Unit :=
   e.foldConsts (pure ()) (λ n eff => do { f n; eff })
-
-  @[inline] def Option.forM [Pure M] : Option A → (A → M Unit) → M Unit
-  | none,   _ => pure ()
-  | some x, f => f x
 end
 
 def Lean.ConstantInfo.isAxiomInfo : ConstantInfo → Bool
@@ -212,7 +208,7 @@ def defHoTT (tag declMods declId declDef : Syntax) : CommandElabM Name := do {
   let ns ← getCurrNamespace;
   let declName := ns ++ declId[0].getId;
 
-  withHoTTScope <| declDef.setKind ``Command.«def»
+  withHoTTScope <| declDef.setKind ``Command.definition
   |>.setArgs (Array.append #[mkAtom "def ", declId] declDef.getArgs)
   |> (mkNode ``Command.declaration #[declMods, ·])
   |> elabDeclaration;
@@ -247,7 +243,7 @@ def abbrevAttrs : Array Attribute :=
 
   if cmd.isOfKind ``declCheck then do {
     let #[_, decls] := cmd.getArgs | throwError "invalid “check” statement";
-    decls.getArgs.forM (λ stx => resolveGlobalConstNoOverloadWithInfo stx >>= checkAndMark stx)
+    decls.getArgs.forM (λ stx => resolveGlobalConstNoOverload stx >>= checkAndMark stx)
   }
 
   if cmd.isOfKind ``declAxiom then do {
@@ -284,7 +280,7 @@ def abbrevAttrs : Array Attribute :=
 
     let env ← getEnv;
     decls.getArgs.forM λ stx => do {
-      let n ← resolveGlobalConstNoOverloadWithInfo stx;
+      let n ← resolveGlobalConstNoOverload stx;
 
       if ¬(env.constants.find! n).isAxiomInfo then
         throwErrorAt stx "“{n}” expected to be an axiom.";
@@ -296,8 +292,8 @@ def abbrevAttrs : Array Attribute :=
   if cmd.isOfKind ``declImpl then do {
     let #[_, implOfStx, _, implFnStx] := cmd.getArgs | throwError "invalid “implementation” statement";
 
-    let implOfName ← resolveGlobalConstNoOverloadWithInfo implOfStx;
-    let implFnName ← resolveGlobalConstNoOverloadWithInfo implFnStx
+    let implOfName ← resolveGlobalConstNoOverload implOfStx;
+    let implFnName ← resolveGlobalConstNoOverload implFnStx
 
     -- see https://github.com/leanprover/lean4/blob/fcb30c269bdbca7eac75fc5c5d62841db3d2f592/src/Lean/Compiler/ImplementedByAttr.lean#L13-L30
     if implOfName = implFnName then {

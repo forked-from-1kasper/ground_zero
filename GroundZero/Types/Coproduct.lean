@@ -1,6 +1,7 @@
 import GroundZero.Types.Equiv
 
 open GroundZero.Types.Id (ap)
+open GroundZero.Proto
 
 namespace GroundZero.Types
 universe u v w w'
@@ -9,7 +10,7 @@ hott definition Coproduct (A : Type u) (B : Type v) := Sum A B
 
 infixl:65 " + " => Coproduct
 
-attribute [eliminator] Sum.casesOn
+attribute [induction_eliminator] Sum.casesOn
 
 namespace Coproduct
   variable {A : Type u} {B : Type v}
@@ -44,7 +45,7 @@ namespace Coproduct
 
     hott definition decode {a₀ : A} : Π {x : A + B} (c : code a₀ x), inl a₀ = x
     | inl a, c => ap inl c
-    | inr b, c => Proto.Empty.elim c
+    | inr b, c => explode c
 
     hott statement decodeEncode {a₀ : A} {x : A + B}
       (p : inl a₀ = x) : decode (encode p) = p :=
@@ -78,7 +79,7 @@ namespace Coproduct
     Equiv.transport (code b₀) p (idp b₀)
 
     hott definition decode {b₀ : B} : Π {x : A + B} (c : code b₀ x), inr b₀ = x
-    | inl a, c => Proto.Empty.elim c
+    | inl a, c => explode c
     | inr b, c => ap inr c
 
     hott statement decodeEncode {b₀ : B} {x : A + B}
@@ -111,8 +112,8 @@ namespace Coproduct
   hott definition pathSum {A B : Type u} (z₁ z₂ : A + B) (p : code z₁ z₂) : z₁ = z₂ :=
   begin
     induction z₁ using Sum.casesOn <;> induction z₂ using Sum.casesOn;
-    apply ap; assumption; apply Proto.Empty.elim p;
-    apply Proto.Empty.elim p; apply ap; assumption
+    apply ap; assumption; apply explode p;
+    apply explode p; apply ap; assumption
   end
 end Coproduct
 

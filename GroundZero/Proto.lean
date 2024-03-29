@@ -8,7 +8,7 @@ hott definition idfun {A : Sort u} : A → A :=
 
 inductive Empty : Type u
 
-attribute [eliminator] Empty.casesOn
+attribute [induction_eliminator] Empty.casesOn
 
 hott definition Iff (A : Type u) (B : Type v) := (A → B) × (B → A)
 
@@ -35,7 +35,7 @@ notation "𝟎" => Empty
 notation "𝟐" => Bool
 notation "ℕ" => Nat
 
-hott definition Empty.elim {A : Sort u} (xs : 𝟎) : A :=
+hott definition explode {A : Sort u} (xs : 𝟎) : A :=
 nomatch xs
 
 hott definition Bool.elim {A : Sort u} : A → A → 𝟐 → A :=
@@ -47,7 +47,7 @@ notation (priority := low) "⊥" => Bottom
 inductive Identity (A : Type u)
 | elem : A → Identity A
 
-attribute [eliminator] Identity.casesOn
+attribute [induction_eliminator] Identity.casesOn
 
 hott definition Identity.elim {A : Type u} : Identity A → A
 | Identity.elem a => a

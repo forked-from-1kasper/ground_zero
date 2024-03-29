@@ -96,11 +96,11 @@ namespace «3.9»
     hott definition lemTrue (x : A) : lem A H = Sum.inl x :=
     match lem A H with
     | Sum.inl y => ap Sum.inl (H y x)
-    | Sum.inr φ => Empty.elim (φ x)
+    | Sum.inr φ => explode (φ x)
 
     hott definition lemFalse (φ : ¬A) : lem A H = Sum.inr φ :=
     match lem A H with
-    | Sum.inl x => Empty.elim (φ x)
+    | Sum.inl x => explode (φ x)
     | Sum.inr ψ => ap Sum.inr (Structures.notIsProp ψ φ)
   end
 
@@ -113,7 +113,7 @@ namespace «3.9»
   hott lemma propsetInhIsProp (A : Prop) : prop A.1 := A.2
 
   hott lemma Ωlinv (lem : LEM₋₁) : Ωelim lem ∘ Ωintro ~ idfun
-  | false => ap (Coproduct.elim _ _) (lemFalse Empty.elim)
+  | false => ap (Coproduct.elim _ _) (lemFalse explode)
   | true  => ap (Coproduct.elim _ _) (lemTrue ★)
 
   noncomputable hott lemma Ωrinv (lem : LEM₋₁) : Ωintro ∘ Ωelim lem ~ idfun :=
@@ -125,7 +125,7 @@ namespace «3.9»
     fapply Sigma.mk; exact x; intro y; apply w.2;
 
     transitivity; apply ap; apply ap (Bool.elim _ _); apply ap (Coproduct.elim _ _);
-    apply lemFalse φ; symmetry; apply ua; apply uninhabitedType; exact Empty.elim ∘ φ
+    apply lemFalse φ; symmetry; apply ua; apply uninhabitedType; exact explode ∘ φ
   end
 
   noncomputable hott theorem lemImplPropEqvBool (lem : LEM₋₁) : Prop u ≃ 𝟐 :=
@@ -159,7 +159,7 @@ namespace «3.10»
   begin
     intro b; transitivity; apply ap Ωintro; apply Ωlinv; apply Equiv.propset.Id;
     symmetry; apply ua; induction b using Bool.casesOn;
-    { apply uninhabitedType; exact Empty.elim ∘ Resize.elim };
+    { apply uninhabitedType; exact explode ∘ Resize.elim };
     { apply Structures.contrEquivUnit; existsi Resize.intro ★;
       intro (Resize.intro b); apply ap; apply Structures.unitIsProp }
   end
@@ -212,7 +212,7 @@ end «3.11»
 
 namespace «3.12»
   hott lemma implOfSum {A : Type u} {B : Type v} : (¬A) + B → A → B
-  | Sum.inl φ => Empty.elim ∘ φ
+  | Sum.inl φ => explode ∘ φ
   | Sum.inr b => λ _, b
 
   hott theorem WC (lem : LEM₋₁ u) : Π (A : Type u), ∥(∥A∥ → A)∥ :=
@@ -233,7 +233,7 @@ namespace «3.13»
   hott lemma LEMinfImplDNInf (lem : LEM∞ u) {A : Type u} : ∥A∥ → A :=
   match lem A with
   | Sum.inl a => λ _, a
-  | Sum.inr φ => λ w, Empty.elim (@merelyImplDn A w φ)
+  | Sum.inr φ => λ w, explode (@merelyImplDn A w φ)
 
   -- see lemma 3.8.2
   hott theorem LEMinfImplCartesian (lem : LEM∞ v) (A : Type u) (B : A → Type v) :
@@ -251,7 +251,7 @@ namespace «3.13»
   hott lemma LEMinfDual (lem : LEM∞ v) {A : Type u} {B : A → Type v} : ¬(Σ x, ¬B x) → Π x, B x :=
   λ φ x, match lem (B x) with
   | Sum.inl b => b
-  | Sum.inr ψ => Empty.elim (φ ⟨x, ψ⟩)
+  | Sum.inr ψ => explode (φ ⟨x, ψ⟩)
 end «3.13»
 
 -- exercise 3.14
@@ -265,7 +265,7 @@ namespace «3.14»
   λ x φ, φ x
 
   hott definition dn.rec (lem : LEM₋₁ v) {A : Type u} {B : Type v} : prop B → (A → B) → (¬¬A → B) :=
-  λ H f, Coproduct.elim (λ b _, b) (λ φ g, Empty.elim (g (φ ∘ f))) (lem B H)
+  λ H f, Coproduct.elim (λ b _, b) (λ φ g, explode (g (φ ∘ f))) (lem B H)
 
   hott definition dn.recβrule (lem : LEM₋₁ v) {A : Type u} {B : Type v} {H : prop B}
     {f : A → B} (x : A) : dn.rec lem H f (dn.intro x) = f x :=
@@ -321,7 +321,7 @@ namespace «3.16.1»
   hott lemma dn.intro (lem : LEM₋₁ v) : (Π x, ¬¬(Y x)) → ¬¬(Π x, Y x) :=
   λ φ f, f (λ x, match lem (Y x) (G x) with
   | Sum.inl y => y
-  | Sum.inr g => Empty.elim (φ x g))
+  | Sum.inr g => explode (φ x g))
 
   hott theorem dn.comm (lem : LEM₋₁ v) : ¬¬(Π x, Y x) ≃ (Π x, ¬¬(Y x)) :=
   begin
@@ -387,7 +387,7 @@ namespace «3.18»
     apply Prod.mk; intro lem P H nnp;
     induction lem P H using Sum.casesOn;
     case inl p  => { exact p };
-    case inr np => { apply Empty.elim (nnp np) };
+    case inr np => { apply explode (nnp np) };
 
     intro dneg P H; apply dneg; apply propEM H; intro npnp;
     apply npnp; right; intro p; apply npnp; left; exact p
@@ -502,7 +502,7 @@ namespace «3.22»
                  @transport _ Y (fin.fsuc m') m (Sigma.prod (idp m.1) (Nat.le.prop _ _ _ _)) (prev m')
 
   hott theorem finAC : Π (n : ℕ) (Y : fin n → Type u), (Π x, ∥Y x∥) → ∥Π x, Y x∥
-  | Nat.zero,   Y, _ => Merely.elem (λ k, Empty.elim (Nat.max.neZero k.2))
+  | Nat.zero,   Y, _ => Merely.elem (λ k, explode (Nat.max.neZero k.2))
   | Nat.succ n, Y, H => Merely.lift₂ (step n Y) (finAC n (Y ∘ fin.fsuc) (λ m, H (fin.fsuc m))) (H (fin.fmax n))
 end «3.22»
 
@@ -513,7 +513,7 @@ namespace «3.23»
   open GroundZero.HITs
 
   hott definition choice {A : Type u} (G : dec A) : A → Type u :=
-  λ x, Coproduct.elim (x = ·) (λ φ, Empty.elim (φ x)) G
+  λ x, Coproduct.elim (x = ·) (λ φ, explode (φ x)) G
 
   hott definition decMerely {A : Type u} (G : dec A) : Type u :=
   Σ x, choice G x
@@ -522,7 +522,7 @@ namespace «3.23»
   begin
     intro x; induction G using Sum.casesOn;
     case inl y => { existsi y; apply idp };
-    case inr φ => { apply Empty.elim (φ x) }
+    case inr φ => { apply explode (φ x) }
   end
 
   hott definition decMerely.uniq {A : Type u} (G : dec A) : prop (decMerely G) :=
@@ -533,7 +533,7 @@ namespace «3.23»
                     { transitivity; apply transportCompositionRev;
                       apply Equiv.rewriteComp; symmetry;
                       apply Id.cancelInvComp } };
-    case inr φ => { intro w₁ w₂; apply Empty.elim (φ w₁.1) }
+    case inr φ => { intro w₁ w₂; apply explode (φ w₁.1) }
   end
 
   hott definition decMerely.dec {A : Type u} (G : dec A) : dec (@decMerely A G) :=

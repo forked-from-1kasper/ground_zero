@@ -39,7 +39,7 @@ namespace GroundZero.Algebra
   class order (Γ : Orgraph) extends reflexive Γ, antisymmetric Γ, transitive Γ
 
   def Overring.κ (T : Overring) : Orgraph :=
-  ⟨T.1, (λ z, nomatch z, T.2.2)⟩
+  ⟨T.1, (λ z, explode z, T.2.2)⟩
 
   class connected (Γ : Orgraph) :=
   (total : Π x y, ∥Γ.ρ x y + Γ.ρ y x∥)
@@ -91,7 +91,7 @@ namespace GroundZero.Algebra
   begin
     fapply GroundZero.HITs.Merely.rec _ _ (@connected.total T.κ _ _ _);
     change T.carrier; exact 0; change T.carrier; exact 1; apply T.κ.prop;
-    { intro z; induction z using Sum.casesOn; assumption; apply Empty.elim;
+    { intro z; induction z using Sum.casesOn; assumption; apply explode;
       apply @field.nontrivial T.τ _; apply @antisymmetric.asymm T.κ;
       assumption; apply Equiv.transport; apply ring.minusOneSqr;
       apply orfield.leOverMul <;>
@@ -198,7 +198,7 @@ namespace GroundZero.Algebra
     { intro ih; induction ih; assumption;
       match @Classical.lem _ (a = b) (T.hset _ _) with | Sum.inl r₁ => _ | Sum.inr r₂ => _;
       apply eqImplReflRel T.κ; symmetry; apply ap T.τ.neg r₁;
-      apply Empty.elim; apply (_ : T.σ 0 0).1; reflexivity;
+      apply explode; apply (_ : T.σ 0 0).1; reflexivity;
       apply Equiv.transportconst; apply Equiv.bimap;
       apply @Group.mulRightInv T.τ⁺; exact a;
       apply @Group.mulRightInv T.τ⁺; exact b;

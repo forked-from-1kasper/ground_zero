@@ -1,4 +1,5 @@
 import GroundZero.Types.Equiv
+open GroundZero.Proto
 
 namespace GroundZero.Types
 
@@ -7,7 +8,7 @@ universe u
 hott definition uninhabitedType {A : Type u} (f : A → 𝟎) : A ≃ 𝟎 :=
 begin
   apply Sigma.mk f; apply Qinv.toBiinv;
-  apply Sigma.mk (@Proto.Empty.elim A);
+  apply Sigma.mk (@explode A);
   apply Prod.mk <;> intro x;
   induction x; induction f x
 end

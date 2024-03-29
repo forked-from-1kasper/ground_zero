@@ -39,7 +39,7 @@ namespace Colimit
     { intros u v H; induction H; apply glueπ }
   end
 
-  attribute [eliminator] ind
+  attribute [induction_eliminator] ind
 
   hott definition rec {B : Type v} (inclπ : Π (n : ℕ), A n → B)
     (glueπ : Π (n : ℕ) (x : A n), inclπ (n + 1) (f n x) = inclπ n x) : Colimit A f → B :=

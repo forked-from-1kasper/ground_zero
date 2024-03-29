@@ -154,7 +154,7 @@ namespace Nat
 
   hott lemma max.zero : Π n, max n 0 = 0 → n = 0
   | Nat.zero,   _ => idp _
-  | Nat.succ n, p => Empty.elim (max.neZero p)
+  | Nat.succ n, p => explode (max.neZero p)
 
   hott corollary le.prop (n m : ℕ) : prop (n ≤ m) := natIsSet _ _
 
@@ -207,7 +207,7 @@ namespace Nat
 
   hott lemma minMax : Π (m n : ℕ), max m n = n → min m n = m
   | Nat.zero,   Nat.zero,   p => idp _
-  | Nat.succ m, Nat.zero,   p => Empty.elim (max.neZero p)
+  | Nat.succ m, Nat.zero,   p => explode (max.neZero p)
   | Nat.zero,   Nat.succ n, p => idp _
   | Nat.succ m, Nat.succ n, p => ap Nat.succ (minMax m n (ap Nat.pred p))
 
@@ -246,12 +246,12 @@ namespace Nat
   begin intros p q; apply le.neSucc n; transitivity; exact q; exact p end
 
   hott lemma le.ofNotLe (m n : ℕ) (H : ¬(n + 1 ≤ m)) : m ≤ n :=
-  match le.dec m n with | Sum.inl r₁ => r₁ | Sum.inr r₂ => Empty.elim (H r₂)
+  match le.dec m n with | Sum.inl r₁ => r₁ | Sum.inr r₂ => explode (H r₂)
 
   hott lemma le.neqSucc {n m : ℕ} (p : n ≠ m + 1) (q : n ≤ m + 1) : n ≤ m :=
   match le.dec n m with
   | Sum.inl r₁ => r₁
-  | Sum.inr r₂ => Empty.elim (p (le.asymm q r₂))
+  | Sum.inr r₂ => explode (p (le.asymm q r₂))
 
   hott lemma le.leSucc : Π (n : ℕ), n ≤ n + 1
   | Nat.zero   => idp _

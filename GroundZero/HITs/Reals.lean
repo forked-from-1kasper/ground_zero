@@ -7,6 +7,7 @@ open GroundZero.HITs.Circle
 open GroundZero.Structures
 open GroundZero.Types.Id
 open GroundZero.Types
+open GroundZero.Proto
 open GroundZero
 
 /-
@@ -39,7 +40,7 @@ namespace Reals
     (sz : Π z, cz z =[glue z] cz (Integer.succ z)) (u : R) : C u :=
   Quotient.ind cz (indρ cz sz) u
 
-  attribute [eliminator] ind
+  attribute [induction_eliminator] ind
 
   hott definition indβrule {C : R → Type u}
     (cz : Π x, C (elem x)) (sz : Π z, cz z =[glue z] cz (Integer.succ z))
@@ -166,7 +167,7 @@ namespace Reals
   hott lemma lemInfImplDnegInf (H : LEM∞) {A : Type u} (G : ¬¬A) : A :=
   match H A with
   | Sum.inl x => x
-  | Sum.inr y => Proto.Empty.elim (G y)
+  | Sum.inr y => explode (G y)
 
   noncomputable hott remark circleNotHset : ¬(hset S¹) :=
   begin intro H; apply Circle.loopNeqRefl; apply H end

@@ -6,7 +6,7 @@ universe u
 inductive Unit : Type u
 | star : Unit
 
-attribute [eliminator] Unit.casesOn
+attribute [induction_eliminator] Unit.casesOn
 
 notation "𝟏" => Unit
 notation "★" => Unit.star

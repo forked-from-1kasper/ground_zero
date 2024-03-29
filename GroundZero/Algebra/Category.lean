@@ -35,7 +35,7 @@ namespace Precategory
       | Arity.left    => λ (a, _), dom a
       | Arity.right   => λ (a, _), cod a
       | Arity.bottom  => λ _, bot,
-    λ z, Empty.elim z)⟩
+    λ z, explode z)⟩
 
   variable (𝒞 : Precategory.{u})
 

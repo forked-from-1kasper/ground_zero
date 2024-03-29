@@ -26,7 +26,7 @@ namespace Generalized
     (glueπ : Π a b, inclπ a =[glue a b] inclπ b) : Π x, B x :=
   begin fapply Quotient.ind; exact inclπ; { intros u v H; induction H; apply glueπ } end
 
-  attribute [eliminator] ind
+  attribute [induction_eliminator] ind
 
   hott definition rec {A : Type u} {B : Type v} (inclπ : A → B)
     (glueπ : Π a b, inclπ a = inclπ b) : {A} → B :=

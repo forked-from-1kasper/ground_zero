@@ -46,7 +46,7 @@ namespace Merely
     Colimit.ind (resp elemπ uniqπ) (λ _ _, uniqπ _ _ _)
   end
 
-  attribute [eliminator] ind
+  attribute [induction_eliminator] ind
 
   hott definition rec {A : Type u} {B : Type v} (H : prop B) (f : A → B) : ∥A∥ → B :=
   ind f (λ _, H)

@@ -43,7 +43,7 @@ namespace Pushout
     { intros u v H; induction H using rel.casesOn; apply glueπ }
   end
 
-  attribute [eliminator] ind
+  attribute [induction_eliminator] ind
 
   hott definition rec {D : Type w} (inlπ : A → D) (inrπ : B → D)
     (glueπ : Π x, inlπ (f x) = inrπ (g x)) : Pushout f g → D :=

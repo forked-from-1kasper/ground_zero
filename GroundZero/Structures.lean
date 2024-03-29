@@ -487,7 +487,7 @@ end
 
 hott lemma lemToDoubleNeg {A : Type u} : dec A → (¬¬A → A)
 | Sum.inl x => λ _, x
-| Sum.inr t => λ g, Proto.Empty.elim (g t)
+| Sum.inr t => λ g, explode (g t)
 
 hott theorem Hedberg {A : Type u} : dec⁼ A → hset A :=
 begin intro H; apply doubleNegEq; intros x y; apply lemToDoubleNeg; apply H x y end
@@ -790,12 +790,11 @@ macro "DNEG₋₁" n:level : term => `(DNEGprop.{$n})
 namespace Structures
   open GroundZero.Types.Coproduct (inl inr)
   open GroundZero.Types.Id (ap)
-  open GroundZero.Proto
 
   hott theorem propSum {A : Type u} {B : Type v} (H₁ : prop A) (H₂ : prop B) (G : ¬(A × B)) : prop (A + B)
   | inl _, inl _ => ap inl (H₁ _ _)
-  | inr x, inl y => Empty.elim (G (y, x))
-  | inl x, inr y => Empty.elim (G (x, y))
+  | inr x, inl y => explode (G (y, x))
+  | inl x, inr y => explode (G (x, y))
   | inr _, inr _ => ap inr (H₂ _ _)
 
   hott corollary propEM {A : Type u} (H : prop A) : prop (A + ¬A) :=

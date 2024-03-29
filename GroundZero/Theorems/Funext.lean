@@ -38,7 +38,7 @@ namespace Interval
        | true,  false, _ => HEq.symm s
        | true,  true,  _ => HEq.refl b₁)
 
-  @[eliminator] hott axiom ind {B : I → Type u} (b₀ : B i₀) (b₁ : B i₁) (s : b₀ =[seg] b₁) (x : I) : B x :=
+  @[induction_eliminator] hott axiom ind {B : I → Type u} (b₀ : B i₀) (b₁ : B i₁) (s : b₀ =[seg] b₁) (x : I) : B x :=
   Quot.withUseOf s (hrec B b₀ b₁ (HEq.fromPathover seg s) x) x
 
   hott opaque axiom indβrule {B : I → Type u} (b₀ : B i₀) (b₁ : B i₁)

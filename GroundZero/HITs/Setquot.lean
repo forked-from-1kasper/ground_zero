@@ -35,7 +35,7 @@ begin
   { intro; apply zeroEqvSet.left; apply set }
 end
 
-attribute [eliminator] Setquot.ind
+attribute [induction_eliminator] Setquot.ind
 
 hott definition Setquot.rec {A : Type u} {R : A → A → Prop u'} {B : Type v}
   (elemπ : A → B) (lineπ : Π x y, (R x y).fst → elemπ x = elemπ y) (set : hset B) : Setquot R → B :=
@@ -76,7 +76,7 @@ hott definition Relquot.ind {A : Type u} {s : eqrel A}
   (set   : Π x, hset (π x)) : Π x, π x :=
 Setquot.ind elemπ lineπ set
 
-attribute [eliminator] Relquot.ind
+attribute [induction_eliminator] Relquot.ind
 
 hott definition Relquot.indProp {A : Type u} {s : eqrel A}
   {π : Relquot s → Type v} (elemπ : Π x, π (Relquot.elem x))

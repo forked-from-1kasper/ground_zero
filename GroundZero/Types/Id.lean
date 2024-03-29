@@ -16,7 +16,7 @@ end
 inductive Id {A : Type u} : A → A → Type u
 | idp (a : A) : Id a a
 
-attribute [eliminator] Id.casesOn
+attribute [induction_eliminator] Id.casesOn
 export Id (idp)
 
 infix:50 (priority := high) " = " => Id

@@ -2,6 +2,7 @@ import GroundZero.Structures
 
 open GroundZero.Types.Equiv (transport)
 open GroundZero.Types.Id (ap)
+open GroundZero.Proto
 open GroundZero.Types
 open GroundZero
 
@@ -73,8 +74,8 @@ transport (code m) p (r m)
 
 hott definition decode : Π {m n : ℕ}, code m n → m = n
 | Nat.zero,   Nat.zero,   p => idp 0
-| Nat.succ m, Nat.zero,   p => Proto.Empty.elim p
-| Nat.zero,   Nat.succ n, p => Proto.Empty.elim p
+| Nat.succ m, Nat.zero,   p => explode p
+| Nat.zero,   Nat.succ n, p => explode p
 | Nat.succ m, Nat.succ n, p => ap Nat.succ (decode p)
 
 hott lemma decodeEncodeIdp : Π m, decode (encode (idp m)) = idp m
@@ -86,8 +87,8 @@ begin induction p; apply decodeEncodeIdp end
 
 hott lemma encodeDecode : Π {m n : ℕ} (p : code m n), encode (decode p) = p
 | Nat.zero,   Nat.zero,   ★ => idp ★
-| Nat.succ m, Nat.zero,   p => Proto.Empty.elim p
-| Nat.zero,   Nat.succ n, p => Proto.Empty.elim p
+| Nat.succ m, Nat.zero,   p => explode p
+| Nat.zero,   Nat.succ n, p => explode p
 | Nat.succ m, Nat.succ n, p =>
 begin
   transitivity; symmetry;

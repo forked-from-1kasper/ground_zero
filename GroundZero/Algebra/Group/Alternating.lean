@@ -28,7 +28,7 @@ namespace Group
   inductive D₃.carrier
   | R₀ | R₁ | R₂
   | S₀ | S₁ | S₂
-  attribute [eliminator] D₃.carrier.casesOn
+  attribute [induction_eliminator] D₃.carrier.casesOn
 
   open D₃.carrier
 

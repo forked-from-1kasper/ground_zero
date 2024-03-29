@@ -4,6 +4,7 @@ import GroundZero.Theorems.Nat
 open GroundZero.Types.Equiv (transport)
 open GroundZero.Types.Id (ap)
 open GroundZero.Types
+open GroundZero.Proto
 
 namespace GroundZero
 universe u v w
@@ -28,7 +29,7 @@ namespace Types.Coproduct
   Σ (x : A), Π y, ¬(x = f y)
 
   hott def Diff.inl : Diff (@Sum.inl A B) → B :=
-  λ | ⟨Sum.inl x, p⟩ => Proto.Empty.elim (p x Id.refl)
+  λ | ⟨Sum.inl x, p⟩ => explode (p x Id.refl)
     | ⟨Sum.inr x, p⟩ => x
 
   hott def Empty.lift : Proto.Empty.{u} → Proto.Empty.{v} :=
@@ -41,7 +42,7 @@ namespace Types.Coproduct
   begin
     existsi Diff.inl; apply Prod.mk <;> existsi Diff.inr;
     { intro ⟨x, p⟩; induction x using Sum.casesOn;
-      { apply Proto.Empty.elim; fapply p; assumption; reflexivity };
+      { apply explode; fapply p; assumption; reflexivity };
       { fapply Types.Sigma.prod; reflexivity;
         { apply Structures.piProp; intro;
           apply Structures.notIsProp } } };
@@ -78,7 +79,7 @@ namespace Types.Coproduct
   begin
     existsi zero; apply Prod.mk <;> existsi Sum.inr <;> intro x;
     { induction x using Sum.casesOn;
-      apply Proto.Empty.elim; assumption;
+      apply explode; assumption;
       reflexivity };
     { reflexivity }
   end
@@ -87,9 +88,9 @@ end Types.Coproduct
 namespace Types.Product
   hott def destroy : 𝟎 × A ≃ 𝟎 := begin
     existsi Prod.fst; apply Prod.mk <;>
-    existsi Proto.Empty.elim <;> intro x;
-    apply Proto.Empty.elim x.1;
-    apply Proto.Empty.elim x
+    existsi explode <;> intro x;
+    apply explode x.1;
+    apply explode x
   end
 
   hott def split : (A + B) × C → (A × C) + (B × C)

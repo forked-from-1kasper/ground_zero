@@ -9,7 +9,7 @@ namespace GroundZero.Algebra
   universe u v
 
   hott def Pregeometry : Type (max u v + 1) :=
-  @Alg.{0, 0, u, v} 𝟎 𝟐 (Coproduct.elim Empty.elim (Bool.rec 3 4))
+  @Alg.{0, 0, u, v} 𝟎 𝟐 (Coproduct.elim explode (Bool.rec 3 4))
 
   namespace Pregeometry
     def between (G : Pregeometry) (a b c : G.carrier) :=

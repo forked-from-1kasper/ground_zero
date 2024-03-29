@@ -13,14 +13,15 @@ open GroundZero.Types
 namespace GroundZero
 namespace HITs
 
-hott definition Suspension.{u} (A : Type u) :=
+universe u v w
+
+hott definition Suspension (A : Type u) :=
 @Pushout.{0, 0, u} 𝟏 𝟏 A (λ _, ★) (λ _, ★)
 
 notation "∑ " => Suspension
 
 namespace Suspension
   -- https://github.com/leanprover/lean2/blob/master/hott/homotopy/susp.hlean
-  universe u v
 
   hott definition north {A : Type u} : ∑ A := Pushout.inl ★
   hott definition south {A : Type u} : ∑ A := Pushout.inr ★
@@ -32,7 +33,7 @@ namespace Suspension
     (m : Π x, n =[merid x] s) : Π x, B x :=
   Pushout.ind (λ ★, n) (λ ★, s) m
 
-  attribute [eliminator] ind
+  attribute [induction_eliminator] ind
 
   hott definition rec {A : Type u} {B : Type v} (n s : B) (m : A → n = s) : ∑ A → B :=
   Pushout.rec (λ _, n) (λ _, s) m

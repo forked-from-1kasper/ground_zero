@@ -33,7 +33,7 @@ namespace K1
     (groupoidπ : Π x, groupoid (C x)) : Π x, C x :=
   λ x, Quot.withUseOf (loopπ, mulπ, groupoidπ) (Opaque.ind (λ ★, baseπ) x) x
 
-  attribute [eliminator] ind
+  attribute [induction_eliminator] ind
 
   hott axiom rec {C : Type v} (baseπ : C) (loopπ : G.carrier → baseπ = baseπ)
     (mulπ : Π x y, loopπ (G.φ x y) = loopπ x ⬝ loopπ y)

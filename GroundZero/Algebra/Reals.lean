@@ -4,6 +4,7 @@ import GroundZero.Theorems.Nat
 open GroundZero.Types.Id (ap)
 open GroundZero.Structures
 open GroundZero.Theorems
+open GroundZero.Proto
 open GroundZero.Types
 open GroundZero.HITs
 
@@ -69,7 +70,7 @@ namespace GroundZero.Algebra
   noncomputable hott def N.incl.lt : Π (n m : ℕ), (n ≤ m : Type) → R.ρ (N.incl n) (N.incl m)
   | Nat.zero,   Nat.zero   => λ _, @reflexive.refl R.κ _ (N.incl 0)
   | Nat.zero,   Nat.succ m => λ _, @transitive.trans R.κ _ (N.incl 0) (N.incl m) (N.incl (m + 1)) (lt 0 m (Nat.max.zeroLeft m)) (leAddOne (N.incl m))
-  | Nat.succ n, Nat.zero   => λ p, GroundZero.Proto.Empty.elim (Nat.max.neZero p)
+  | Nat.succ n, Nat.zero   => λ p, explode (Nat.max.neZero p)
   | Nat.succ n, Nat.succ m => λ p, orfield.leOverAdd (N.incl n) (N.incl m) 1 (lt n m (ap Nat.pred p))
 
   noncomputable hott def R.complete (φ : R.subset) (H : φ.inh) (G : @majorized R.κ φ) :
@@ -138,8 +139,8 @@ namespace GroundZero.Algebra
   begin
     intros p q; match p, q with
     | Sum.inl p₁,      Sum.inl q₁      => { apply ap; apply R.κ.prop }
-    | Sum.inl p₁,      Sum.inr q₂      => { apply GroundZero.Proto.Empty.elim; apply R.notNotTotal x y <;> assumption }
-    | Sum.inr p₂,      Sum.inl q₁      => { apply GroundZero.Proto.Empty.elim; apply R.notNotTotal x y <;> assumption }
+    | Sum.inl p₁,      Sum.inr q₂      => { apply explode; apply R.notNotTotal x y <;> assumption }
+    | Sum.inr p₂,      Sum.inl q₁      => { apply explode; apply R.notNotTotal x y <;> assumption }
     | Sum.inr (p, p'), Sum.inr (q, q') => { apply ap; apply Product.prod; apply notIsProp; apply R.κ.prop }
   end
 
@@ -162,7 +163,7 @@ namespace GroundZero.Algebra
   noncomputable hott def abs.pos {x : ℝ} (p : R.ρ 0 x) : abs x = x :=
   begin
     change Coproduct.elim _ _ _ = _; induction R.total 0 x;
-    reflexivity; apply GroundZero.Proto.Empty.elim;
+    reflexivity; apply explode;
     apply R.notNotTotal 0 x <;> assumption
   end
 
@@ -307,7 +308,7 @@ namespace GroundZero.Algebra
     intro p; induction R.total 0 x;
     case inl q₁ => { apply q₁ };
     case inr q₂ =>
-    { apply GroundZero.Proto.Empty.elim; apply (strictIneqAdd R q₂ q₂).1;
+    { apply explode; apply (strictIneqAdd R q₂ q₂).1;
       apply @antisymmetric.asymm R.κ; apply ineqAdd <;> exact q₂.2;
       apply Equiv.transport (R.ρ · (x + x)); symmetry; apply R.τ⁺.mulOne; exact p }
   end

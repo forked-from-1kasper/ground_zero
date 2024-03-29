@@ -26,7 +26,7 @@ section
   open Suspension (north south rec ind)
 
   hott lemma suspEmpty : ∑ 𝟎 ≃ 𝟐 :=
-  Equiv.intro (rec false true Empty.elim)
+  Equiv.intro (rec false true explode)
               (λ | false => north | true => south)
               (ind (idp north) (idp south) (λ ε, nomatch ε))
               (λ | false => idp false | true => idp true)
@@ -153,7 +153,7 @@ namespace Circle
   hott definition ind {B : S¹ → Type u} (b : B base) (ℓ : b =[loop] b) : Π (x : S¹), B x :=
   ind₂ b (transport B seg₁ b) (idp _) (depPathTransSymm ℓ)
 
-  attribute [eliminator] ind
+  attribute [induction_eliminator] ind
 
   hott definition indβrule₁ {B : S¹ → Type u} (b : B base) (ℓ : b =[loop] b) : ind b ℓ base = b :=
   idp b
@@ -844,11 +844,11 @@ namespace Circle
 
   hott theorem plusEqZeroRight {n : ℕ} : Π {m : ℕ}, n + m = 0 → m = 0
   | Nat.zero,   _ => idp 0
-  | Nat.succ _, H => Empty.elim (succNeqZero H)
+  | Nat.succ _, H => explode (succNeqZero H)
 
   hott theorem multEqOneRight : Π (n m : ℕ), n * m = 1 → m = 1
-  | n,          Nat.zero,   H => Empty.elim (succNeqZero H⁻¹)
-  | Nat.zero,   Nat.succ m, H => Empty.elim (succNeqZero (H⁻¹ ⬝ Theorems.Nat.zeroMul _))
+  | n,          Nat.zero,   H => explode (succNeqZero H⁻¹)
+  | Nat.zero,   Nat.succ m, H => explode (succNeqZero (H⁻¹ ⬝ Theorems.Nat.zeroMul _))
   | Nat.succ n, Nat.succ m, H => (H⁻¹ ⬝ ap (λ k, Nat.succ k * Nat.succ m)
                                            (plusEqZeroRight (Theorems.Nat.succInj H))
                                       ⬝ Theorems.Nat.oneMul _)⁻¹
@@ -1013,7 +1013,7 @@ namespace Circle
     hott theorem absOneDec : Π (z : ℤ), abs z = 1 → (z = 1) + (z = -1)
     | Integer.pos n,            H => Coproduct.inl (ap Integer.pos H)
     | Integer.neg Nat.zero,     _ => Coproduct.inr (idp _)
-    | Integer.neg (Nat.succ n), H => Empty.elim (succNeqZero (Theorems.Nat.succInj H))
+    | Integer.neg (Nat.succ n), H => explode (succNeqZero (Theorems.Nat.succInj H))
 
     hott corollary absOneImplSqrEqOne (z : ℤ) (H : abs z = 1) : z * z = 1 :=
     match absOneDec z H with
@@ -1146,11 +1146,11 @@ namespace Circle
       intro w; apply neqZeroImplNeqMinus; exact H; exact w.1⁻¹ ⬝ w.2;
       { intro G; induction i using Sum.casesOn;
         { left; apply ap pos; exact G };
-        { induction j using Nat.casesOn; left; apply Empty.elim; apply H; reflexivity;
+        { induction j using Nat.casesOn; left; apply explode; apply H; reflexivity;
           right; apply ap Sum.inr; apply Theorems.Nat.succInj; exact G } };
       { intro G; induction G using Sum.casesOn; transitivity; apply ap abs; assumption;
         reflexivity; transitivity; apply ap abs; assumption;
-        induction j using Nat.casesOn; apply Empty.elim;
+        induction j using Nat.casesOn; apply explode;
         apply H; reflexivity; reflexivity }
     end
 

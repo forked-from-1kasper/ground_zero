@@ -203,7 +203,7 @@ def parseSubChar : Lean.Syntax → Char
 | `(subscriptChar| ₓ) => 'x' | _                   => 'a'
 
 def parseIdent (φ : Lean.Syntax → Char) (stx : Array Lean.Syntax) :=
-String.mk (Array.map φ stx).toList
+String.mk (Array.map φ stx).toList |> Lean.Name.str Lean.Name.anonymous
 
 def parseSubIdent := parseIdent parseSubChar
 def parseSupIdent := parseIdent parseSupChar

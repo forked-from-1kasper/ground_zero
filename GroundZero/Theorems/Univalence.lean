@@ -90,7 +90,7 @@ namespace Equiv
   noncomputable hott definition J {A B : Type u} (e : A ≃ B) : C A B e :=
   transport (λ (w : Σ B, A ≃ B), C A w.1 w.2) ((univAlt A).2 ⟨B, e⟩) (Cidp A)
 
-  attribute [eliminator] J
+  attribute [induction_eliminator] J
 
   noncomputable hott lemma Jβrule (A : Type u) : J Cidp (ideqv A) = Cidp A :=
   begin
@@ -208,13 +208,13 @@ begin
     | Sum.inr p₂, Sum.inl q₁ => _
     | Sum.inl p₁, Sum.inr q₂ => _
     | Sum.inr p₂, Sum.inr q₂ => _;
-    { apply Proto.Empty.elim; apply ffNeqTt;
+    { apply explode; apply ffNeqTt;
       apply eqvInj ⟨φ, H⟩; exact p₁ ⬝ q₁⁻¹ };
     { transitivity; apply ap (bool.encode · x); apply p₂;
       symmetry; induction x using Bool.casesOn <;> assumption };
     { transitivity; apply ap (bool.encode · x); apply p₁;
       symmetry; induction x using Bool.casesOn <;> assumption };
-    { apply Proto.Empty.elim; apply ffNeqTt;
+    { apply explode; apply ffNeqTt;
       apply eqvInj ⟨φ, H⟩; exact p₂ ⬝ q₂⁻¹ } }
 end
 

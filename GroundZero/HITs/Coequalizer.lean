@@ -28,7 +28,7 @@ namespace Coeq
     (ρ : Π x, i (f x) =[resp x] i (g x)) : Π x, C x :=
   begin fapply Quotient.ind; apply i; intros x y H; induction H using rel.casesOn; apply ρ end
 
-  attribute [eliminator] ind
+  attribute [induction_eliminator] ind
 
   hott definition indβrule (C : Coeq f g → Type w) (i : Π x, C (iota x))
     (ρ : Π x, i (f x) =[resp x] i (g x)) (x : A) : apd (ind C i ρ) (resp x) = ρ x :=

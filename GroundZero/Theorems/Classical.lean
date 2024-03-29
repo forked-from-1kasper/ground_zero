@@ -4,6 +4,7 @@ open GroundZero.Types.Equiv (transport)
 open GroundZero.Types.Id (ap)
 open GroundZero.Structures
 open GroundZero.Types
+open GroundZero.Proto
 
 namespace GroundZero
 universe u v w
@@ -82,7 +83,7 @@ end
 noncomputable hott definition dneg.decode {A : Type u} (H : prop A) : ¬¬A → A :=
 λ G, match lem H with
 | Sum.inl z => z
-| Sum.inr φ => Proto.Empty.elim (G φ)
+| Sum.inr φ => explode (G φ)
 
 hott definition dneg.encode {A : Type u} : A → ¬¬A :=
 λ x p, p x
@@ -99,7 +100,7 @@ section
   noncomputable hott definition Contrapos.elim : (¬B → ¬A) → (A → B) :=
   λ f p, match lem H with
   | Sum.inl z => z
-  | Sum.inr φ => Proto.Empty.elim (f φ p)
+  | Sum.inr φ => explode (f φ p)
 
   noncomputable hott definition Contrapos : (A → B) ↔ (¬B → ¬A) :=
   ⟨Contrapos.intro, Contrapos.elim H⟩
