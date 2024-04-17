@@ -7,6 +7,34 @@ open GroundZero
 
 universe u v w
 
+-- Exercise 5.1
+
+namespace «5.1»
+  /-
+    Another useful example is the type List(A) of finite lists of elements of some type A,
+    which has constructors
+    • nil : List(A)
+    • cons : A → List(A) → List(A).
+  -/
+
+  variable (List : Type → Type)
+
+  variable (A : Type) (nil : List A) (cons : A → List A → List A)
+
+  hott definition indSig :=
+  Π (C : List A → Type), C nil → (Π (x : A) (xs : List A), C xs → C (cons x xs)) → Π ys, C ys
+
+  variable (ind : indSig List A nil cons)
+
+  variable (C : List A → Type) (cz : C nil) (cs : Π (x : A) (xs : List A), C xs → C (cons x xs))
+
+  hott definition indβruleSig₁ :=
+  ind C cz cs nil = cz
+
+  hott definition indβruleSig₂ :=
+  Π (x : A) (xs : List A), ind C cz cs (cons x xs) = cs x xs (ind C cz cs xs)
+end «5.1»
+
 -- Exercise 5.2
 
 namespace «5.2»
