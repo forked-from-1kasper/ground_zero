@@ -188,17 +188,20 @@ namespace Group
     Group.subgroup.mk (Algebra.im φ.1)
       (HITs.Merely.elem ⟨e, homoUnit φ⟩)
       (begin
-        intro a b (p : ∥_∥); induction p; case elemπ p =>
-        { intro (q : ∥_∥); induction q; case elemπ q =>
-          { apply HITs.Merely.elem; existsi p.1 * q.1;
+        intro a b (p : ∥_∥); induction p;
+        { case elemπ p =>
+          intro (q : ∥_∥); induction q;
+          { case elemπ q =>
+            apply HITs.Merely.elem; existsi p.1 * q.1;
             transitivity; apply homoMul; apply Equiv.bimap H.φ;
             apply p.2; apply q.2 };
           apply HITs.Merely.uniq };
         apply piProp; intro; apply HITs.Merely.uniq
       end)
       (begin
-        intro a (p : ∥_∥); induction p; case elemπ p =>
-        { apply HITs.Merely.elem; existsi p.1⁻¹;
+        intro a (p : ∥_∥); induction p;
+        { case elemπ p =>
+          apply HITs.Merely.elem; existsi p.1⁻¹;
           transitivity; apply homoInv; apply ap _ p.2 };
         apply HITs.Merely.uniq
       end)

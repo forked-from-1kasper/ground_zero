@@ -54,26 +54,29 @@ section
   noncomputable hott theorem lem {A : Type u} (H : prop A) : A + ¬A :=
   begin
     have f := @choiceOfRel inh 𝟐 (λ φ x, φ.fst x) inh.hset boolIsSet (λ x, HITs.Merely.lift id x.2);
-    induction f; case elemπ w =>
-    { let ⟨φ, p⟩ := w;
+    induction f;
+    { case elemπ w =>
+      let ⟨φ, p⟩ := w;
       let U : 𝟐 → Prop := λ x, ⟨∥(x = true) + A∥,  HITs.Merely.uniq⟩;
       let V : 𝟐 → Prop := λ x, ⟨∥(x = false) + A∥, HITs.Merely.uniq⟩;
       have r : ∥_∥ := p ⟨U, HITs.Merely.elem ⟨true,  HITs.Merely.elem (Sum.inl (idp _))⟩⟩;
       have s : ∥_∥ := p ⟨V, HITs.Merely.elem ⟨false, HITs.Merely.elem (Sum.inl (idp _))⟩⟩;
-      induction r; case elemπ r' =>
-      { induction s; case elemπ s' =>
-        { induction r' using Sum.casesOn;
-          case inl r' =>
-          { induction s' using Sum.casesOn;
-            case inl s' =>
-            { right; intro z; apply ffNeqTt;
+      induction r;
+      { case elemπ r' =>
+        induction s;
+        { case elemπ s' =>
+          induction r' using Sum.casesOn;
+          { case inl r' =>
+            induction s' using Sum.casesOn;
+            { case inl s' =>
+              right; intro z; apply ffNeqTt;
               transitivity; exact s'⁻¹; symmetry; transitivity; exact r'⁻¹;
               apply ap; fapply Types.Sigma.prod; apply Theorems.funext;
               intro x; apply Theorems.Equiv.propset.Id; apply propext;
               apply HITs.Merely.uniq; apply HITs.Merely.uniq; apply Prod.mk <;>
               intro <;> apply HITs.Merely.elem <;> right <;> exact z; apply HITs.Merely.uniq };
-            case inr => { left; assumption } };
-          case inr => { left; assumption } };
+            { case inr => left; assumption } };
+          { case inr => left; assumption } };
         apply propEM H };
       apply propEM H };
     apply propEM H

@@ -386,8 +386,8 @@ namespace «3.18»
   begin
     apply Prod.mk; intro lem P H nnp;
     induction lem P H using Sum.casesOn;
-    case inl p  => { exact p };
-    case inr np => { apply explode (nnp np) };
+    { case inl p  => exact p };
+    { case inr np => apply explode (nnp np) };
 
     intro dneg P H; apply dneg; apply propEM H; intro npnp;
     apply npnp; right; intro p; apply npnp; left; exact p
@@ -417,20 +417,20 @@ namespace «3.19»
   hott lemma BSP (n m : ℕ) : P (n + m) → P (BSA G n m) :=
   begin
     intro h; induction m using Nat.casesOn;
-    case zero   => { exact h };
-    case succ m => { show P (Coproduct.elim _ _ _); induction G n using Sum.casesOn;
-                     case inl p  => { exact p };
-                     case inr np => { apply BSP (Nat.succ n) m;
+    { case zero   => exact h };
+    { case succ m => show P (Coproduct.elim _ _ _); induction G n using Sum.casesOn;
+                     { case inl p  => exact p };
+                     { case inr np => apply BSP (Nat.succ n) m;
                                       exact transport P (Nat.succPlus n m)⁻¹ h }; };
   end
 
   hott lemma minimality (n m k : ℕ) : P k → n ≤ k → BSA G n m ≤ k :=
   begin
     intro pk h; induction m using Nat.casesOn;
-    case zero   => { exact h };
-    case succ m => { show Coproduct.elim _ _ _ ≤ _; induction G n using Sum.casesOn;
-                     case inl p  => { exact h };
-                     case inr np => { apply minimality (Nat.succ n) m k pk;
+    { case zero   => exact h };
+    { case succ m => show Coproduct.elim _ _ _ ≤ _; induction G n using Sum.casesOn;
+                     { case inl p  => exact h };
+                     { case inr np => apply minimality (Nat.succ n) m k pk;
                                       apply Nat.le.neqSucc;
                                       { intro ω; apply np; apply transport P;
                                         symmetry; apply ap Nat.pred ω; exact pk };
@@ -457,20 +457,20 @@ namespace «3.19»
   hott lemma upperEstimate (n m : ℕ) : BSA G n m ≤ n + m :=
   begin
     induction m using Nat.casesOn;
-    case zero   => { apply Nat.max.refl };
-    case succ m => { show Coproduct.elim _ _ _ ≤ _; induction G n using Sum.casesOn;
-                     case inl p  => { apply Nat.le.addl Nat.zero; apply Nat.max.zeroLeft };
-                     case inr np => { apply transport (_ ≤ ·); apply Nat.succPlus;
+    { case zero   => apply Nat.max.refl };
+    { case succ m => show Coproduct.elim _ _ _ ≤ _; induction G n using Sum.casesOn;
+                     { case inl p  => apply Nat.le.addl Nat.zero; apply Nat.max.zeroLeft };
+                     { case inr np => apply transport (_ ≤ ·); apply Nat.succPlus;
                                       apply upperEstimate (Nat.succ n) m } }
   end
 
   hott lemma lowerEstimate (n m : ℕ) : n ≤ BSA G n m :=
   begin
     induction m using Nat.casesOn;
-    case zero   => { apply Nat.max.refl };
-    case succ m => { show _ ≤ Coproduct.elim _ _ _; induction G n using Sum.casesOn;
-                     case inl p  => { apply Nat.max.refl };
-                     case inr np => { apply Nat.le.trans; apply Nat.le.succ;
+    { case zero   => apply Nat.max.refl };
+    { case succ m => show _ ≤ Coproduct.elim _ _ _; induction G n using Sum.casesOn;
+                     { case inl p  => apply Nat.max.refl };
+                     { case inr np => apply Nat.le.trans; apply Nat.le.succ;
                                       apply lowerEstimate (Nat.succ n) m } }
   end
 end «3.19»
@@ -521,26 +521,26 @@ namespace «3.23»
   hott definition decMerely.elem {A : Type u} (G : dec A) : A → decMerely G :=
   begin
     intro x; induction G using Sum.casesOn;
-    case inl y => { existsi y; apply idp };
-    case inr φ => { apply explode (φ x) }
+    { case inl y => existsi y; apply idp };
+    { case inr φ => apply explode (φ x) }
   end
 
   hott definition decMerely.uniq {A : Type u} (G : dec A) : prop (decMerely G) :=
   begin
     induction G using Sum.casesOn;
-    case inl _ => { intro w₁ w₂; fapply Sigma.prod;
+    { case inl _ => intro w₁ w₂; fapply Sigma.prod;
                     { transitivity; apply w₁.2; symmetry; apply w₂.2 };
                     { transitivity; apply transportCompositionRev;
                       apply Equiv.rewriteComp; symmetry;
                       apply Id.cancelInvComp } };
-    case inr φ => { intro w₁ w₂; apply explode (φ w₁.1) }
+    { case inr φ => intro w₁ w₂; apply explode (φ w₁.1) }
   end
 
   hott definition decMerely.dec {A : Type u} (G : dec A) : dec (@decMerely A G) :=
   begin
     induction G using Sum.casesOn;
-    case inl x => { left; existsi x; apply idp };
-    case inr φ => { right; intro w; apply φ w.1 }
+    { case inl x => left; existsi x; apply idp };
+    { case inr φ => right; intro w; apply φ w.1 }
   end
 
   -- so for decidable type propositional truncation can be constructed explicitly (i.e. without HITs)

@@ -165,10 +165,9 @@ noncomputable hott corollary hlevel.strongCumulative (n m : hlevel) (ρ : n ≤ 
   Π {A : Type u}, (is-n-type A) → (is-m-type A) :=
 begin
   induction ρ; intros; assumption;
-  case step m ρ ih => {
+  { case step m ρ ih =>
     intros A G; apply @hlevel.cumulative;
-    apply ih; assumption
-  }
+    apply ih; assumption }
 end
 
 hott definition isTruncated {A : Type u} {B : Type v} (n : ℕ₋₂) (f : A → B) :=

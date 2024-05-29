@@ -68,10 +68,10 @@ namespace Group
       { intros a b; apply Relquot.elem; exact G.φ (φ.ap a) (φ.ap b) };
       { apply Relquot.set };
       { intro a₁ a₂ b₁ b₂ (p : ∥_∥); induction p;
-        case elemπ p =>
-        { intro (q : ∥_∥); induction q;
-          case elemπ q =>
-          { apply Id.ap Relquot.elem; apply Equiv.bimap;
+        { case elemπ p =>
+          intro (q : ∥_∥); induction q;
+          { case elemπ q =>
+            apply Id.ap Relquot.elem; apply Equiv.bimap;
             { induction p using Sum.casesOn;
               { apply Id.ap; assumption };
               { transitivity; apply Id.ap; assumption;

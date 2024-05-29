@@ -136,8 +136,8 @@ namespace Reals
   noncomputable hott lemma helixOverCis (x : R) : helix (cis x) = ℤ :=
   begin
     induction x;
-    case cz x => { apply (Integer.shift x)⁻¹ };
-    case sz z => {
+    { case cz x => apply (Integer.shift x)⁻¹ };
+    { case sz z =>
       change _ = _; let p := Integer.shift z; apply calc
             Equiv.transport (λ x, helix (cis x) = ℤ) (glue z) (Integer.shift z)⁻¹
           = @ap R Type _ _ (helix ∘ cis) (glue z)⁻¹ ⬝ (Integer.shift z)⁻¹ :

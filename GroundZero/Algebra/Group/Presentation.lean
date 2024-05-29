@@ -84,9 +84,11 @@ namespace Group
   noncomputable hott theorem abelComm : (Abelianization G).isCommutative :=
   begin
     intro (a : Relquot _) (b : Relquot _);
-    apply @commutes (Abelianization G); induction a; case elemπ a =>
-    { induction b; case elemπ b =>
-      { apply Factor.sound; intros y H; apply H.2.2; apply Merely.elem;
+    apply @commutes (Abelianization G); induction a;
+    { case elemπ a =>
+      induction b;
+      { case elemπ b =>
+        apply Factor.sound; intros y H; apply H.2.2; apply Merely.elem;
         existsi (a, b); reflexivity };
       apply Relquot.set; apply propIsSet; apply Relquot.set };
       apply Relquot.set; apply propIsSet; apply Relquot.set

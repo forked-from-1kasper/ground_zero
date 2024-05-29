@@ -31,8 +31,8 @@ hott definition cut {A : Type u} {B : Type v} (f : A → B) : A → Ran f :=
 hott lemma cutIsSurj {A : Type u} {B : Type v} (f : A → B) : surjective (cut f) :=
 begin
   intro ⟨x, (H : ∥_∥)⟩; induction H;
-  case elemπ G =>
-  { apply Merely.elem; existsi G.1; fapply Sigma.prod;
+  { case elemπ G =>
+    apply Merely.elem; existsi G.1; fapply Sigma.prod;
     exact G.2; apply Merely.uniq };
   apply Merely.uniq
 end
@@ -58,8 +58,8 @@ hott lemma ranConstEqv {A : Type u} (a : A) {B : Type v}
 begin
   existsi (λ _, ★); fapply Prod.mk <;> existsi (λ _, ranConst a b);
   { intro ⟨b', (G : ∥_∥)⟩; fapply Sigma.prod; change b = b';
-    induction G; case elemπ w => { exact w.2 }; apply H;
-    apply Merely.uniq };
+    induction G; { case elemπ w => exact w.2 };
+    apply H; apply Merely.uniq };
   { intro ★; reflexivity }
 end
 

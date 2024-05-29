@@ -35,8 +35,9 @@ namespace Connectedness
     apply Prod.mk;
     { fapply Trunc.ind;
       { intro y; transitivity; apply ap (Trunc.ap _);
-        apply Trunc.recβrule; induction (c y).1; case elemπ w =>
-        { transitivity; apply ap (Trunc.ap f); apply Trunc.recβrule;
+        apply Trunc.recβrule; induction (c y).1;
+        { case elemπ w =>
+          transitivity; apply ap (Trunc.ap f); apply Trunc.recβrule;
           transitivity; apply Trunc.recβrule; apply ap Trunc.elem; exact w.2 };
         { apply hlevel.cumulative; apply Trunc.uniq } };
       { intro; apply hlevel.cumulative; apply Trunc.uniq } };
@@ -63,8 +64,9 @@ namespace Connectedness
     { intro s; apply Theorems.funext; intro a; transitivity;
       apply ap (Trunc.rec _ _); apply (c (f a)).2; apply Trunc.elem;
       exact ⟨a, idp (f a)⟩; apply Trunc.recβrule };
-    { intro s; apply Theorems.funext; intro b; induction (c b).1; case elemπ w =>
-      { transitivity; apply ap (Trunc.rec _ _); apply (c b).2 (Trunc.elem w);
+    { intro s; apply Theorems.funext; intro b; induction (c b).1;
+      { case elemπ w =>
+        transitivity; apply ap (Trunc.rec _ _); apply (c b).2 (Trunc.elem w);
         transitivity; apply Trunc.recβrule; apply apd s w.2 };
       { apply hlevel.cumulative; apply (P b).2 } }
   end

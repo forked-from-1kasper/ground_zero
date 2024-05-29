@@ -122,8 +122,8 @@ namespace K1
   hott definition decode (z : K1 G) : code z → base = z :=
   begin
     induction z; exact loop;
-    case loopπ x =>
-    { change _ = _; transitivity; apply Equiv.transportCharacterization;
+    { case loopπ x =>
+      change _ = _; transitivity; apply Equiv.transportCharacterization;
       apply Theorems.funext; intro y; transitivity;
       apply ap (λ p, Equiv.transport (λ x, base = x) (loop x) (loop p));
       transitivity; apply Equiv.transportToTransportconst;
