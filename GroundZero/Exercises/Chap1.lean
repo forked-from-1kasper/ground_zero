@@ -57,14 +57,14 @@ by reflexivity
 
 hott definition Nat.iter {C : Type u} (c₀ : C) (cₛ : C → C) : ℕ → C
 | Nat.zero   => c₀
-| Nat.succ n => cₛ (iter c₀ cₛ n)
+| Nat.succ n => cₛ (Nat.iter c₀ cₛ n)
 
 hott definition grec {C : Type u} (c₀ : C) (cₛ : ℕ → C → C) : ℕ → ℕ × C :=
 @Nat.iter (ℕ × C) (0, c₀) (λ u, (u.1 + 1, cₛ u.1 u.2))
 
 hott definition grec.stable {C : Type u} (c₀ : C) (cₛ : ℕ → C → C) : Π n, (grec c₀ cₛ n).1 = n
 | Nat.zero   => idp 0
-| Nat.succ n => ap Nat.succ (stable c₀ cₛ n)
+| Nat.succ n => ap Nat.succ (grec.stable c₀ cₛ n)
 
 section
   variable {C : Type u} (c₀ : C) (cₛ : ℕ → C → C)

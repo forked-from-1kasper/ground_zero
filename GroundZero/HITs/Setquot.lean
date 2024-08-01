@@ -17,7 +17,7 @@ Trunc.elem ∘ Quotient.elem
 
 hott definition Setquot.sound {A : Type u} {R : A → A → Prop v} {a b : A} :
   (R a b).1 → @Id (Setquot R) (Setquot.elem a) (Setquot.elem b) :=
-begin intro; dsimp [elem]; apply ap Trunc.elem; apply Quotient.line; assumption end
+begin intro; dsimp [Setquot.elem]; apply ap Trunc.elem; apply Quotient.line; assumption end
 
 hott lemma Setquot.set {A : Type u} {R : A → A → Prop v} : hset (Setquot R) :=
 zeroEqvSet.forward (Trunc.uniq 0)

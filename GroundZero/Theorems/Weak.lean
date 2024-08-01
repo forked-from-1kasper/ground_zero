@@ -25,8 +25,8 @@ namespace GroundZero
 
 hott definition Con.bundle (A : Type u) : ℕ → Σ (X : Type (u + 1)), X → Type (u + 1)
 | Nat.zero   => ⟨𝟏, λ _, 𝟏⟩
-| Nat.succ n => ⟨Σ (w : (bundle A n).1), (bundle A n).2 w → Type⁎ u,
-                 λ T, Σ (Δ : (bundle A n).2 T.1) (y : (T.2 Δ).1), (T.2 Δ).2 = y⟩
+| Nat.succ n => ⟨Σ (w : (Con.bundle A n).1), (Con.bundle A n).2 w → Type⁎ u,
+                 λ T, Σ (Δ : (Con.bundle A n).2 T.1) (y : (T.2 Δ).1), (T.2 Δ).2 = y⟩
 
 /-- Type of *contractible contexts* used to define the coherence operations. -/
 hott definition Con (A : Type u) (n : ℕ) :=

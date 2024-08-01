@@ -110,7 +110,7 @@ namespace Nat
   | Nat.zero,   Nat.zero   => idp _
   | Nat.succ m, Nat.zero   => idp _
   | Nat.zero,   Nat.succ n => idp _
-  | Nat.succ m, Nat.succ n => ap Nat.succ (comm _ _)
+  | Nat.succ m, Nat.succ n => ap Nat.succ (max.comm _ _)
 
   hott definition min : ℕ → ℕ → ℕ
   | Nat.zero,   Nat.zero   => 0
@@ -122,15 +122,15 @@ namespace Nat
   | Nat.zero,   Nat.zero   => idp _
   | Nat.succ m, Nat.zero   => idp _
   | Nat.zero,   Nat.succ n => idp _
-  | Nat.succ m, Nat.succ n => ap Nat.succ (comm _ _)
+  | Nat.succ m, Nat.succ n => ap Nat.succ (min.comm _ _)
 
   hott lemma max.refl : Π n, max n n = n
   | Nat.zero   => idp 0
-  | Nat.succ n => ap Nat.succ (refl n)
+  | Nat.succ n => ap Nat.succ (max.refl n)
 
   hott lemma min.refl : Π n, min n n = n
   | Nat.zero   => idp 0
-  | Nat.succ n => ap Nat.succ (refl n)
+  | Nat.succ n => ap Nat.succ (min.refl n)
 
   hott definition le (n m : ℕ) := max n m = m
   infix:55 (priority := high) " ≤ " => le
@@ -166,7 +166,7 @@ namespace Nat
   | Nat.succ n, Nat.zero,   Nat.zero   => idp _
   | Nat.succ n, Nat.zero,   Nat.succ k => idp _
   | Nat.succ n, Nat.succ m, Nat.zero   => idp _
-  | Nat.succ n, Nat.succ m, Nat.succ k => ap Nat.succ (assoc _ _ _)
+  | Nat.succ n, Nat.succ m, Nat.succ k => ap Nat.succ (max.assoc _ _ _)
 
   hott lemma min.assoc : Π n m k, min n (min m k) = min (min n m) k
   | Nat.zero,   Nat.zero,   Nat.zero   => idp _
@@ -176,7 +176,7 @@ namespace Nat
   | Nat.succ n, Nat.zero,   Nat.zero   => idp _
   | Nat.succ n, Nat.zero,   Nat.succ k => idp _
   | Nat.succ n, Nat.succ m, Nat.zero   => idp _
-  | Nat.succ n, Nat.succ m, Nat.succ k => ap Nat.succ (assoc _ _ _)
+  | Nat.succ n, Nat.succ m, Nat.succ k => ap Nat.succ (min.assoc _ _ _)
 
   hott theorem le.trans {n m k : ℕ} : n ≤ m → m ≤ k → n ≤ k :=
   begin
@@ -199,7 +199,7 @@ namespace Nat
 
   hott lemma le.succ : Π (n : ℕ), n ≤ n + 1
   | Nat.zero   => idp _
-  | Nat.succ n => ap Nat.succ (succ n)
+  | Nat.succ n => ap Nat.succ (le.succ n)
 
   hott definition le.step : Π (n m : ℕ), n ≤ m → n ≤ m + 1
   | Nat.zero,   m, _ => idp _
@@ -224,7 +224,7 @@ namespace Nat
   | Nat.zero,   Nat.zero   => idp _
   | Nat.succ n, Nat.zero   => idp _
   | Nat.zero,   Nat.succ m => idp _
-  | Nat.succ n, Nat.succ m => ap Nat.succ (min n m)
+  | Nat.succ n, Nat.succ m => ap Nat.succ (le.min n m)
 
   hott lemma le.minRev (n m : ℕ) : Nat.min m n ≤ m :=
   @transport ℕ (· ≤ m) (Nat.min n m) (Nat.min m n) (min.comm n m) (le.min n m)
@@ -236,11 +236,11 @@ namespace Nat
   | Nat.zero,   Nat.zero   => Sum.inl (idp _)
   | Nat.succ m, Nat.zero   => Sum.inr (ap Nat.succ (max.zeroLeft m))
   | Nat.zero,   Nat.succ n => Sum.inl (idp _)
-  | Nat.succ m, Nat.succ n => Coproduct.elim (Sum.inl ∘ ap Nat.succ) (Sum.inr ∘ ap Nat.succ) (dec m n)
+  | Nat.succ m, Nat.succ n => Coproduct.elim (Sum.inl ∘ ap Nat.succ) (Sum.inr ∘ ap Nat.succ) (le.dec m n)
 
   hott lemma le.neSucc : Π (n : ℕ), ¬(n + 1 ≤ n)
   | Nat.zero   => max.neZero
-  | Nat.succ n => λ p, neSucc n (le.inj _ _ p)
+  | Nat.succ n => λ p, le.neSucc n (le.inj _ _ p)
 
   hott lemma le.empty (m n : ℕ) : m ≤ n → ¬(n + 1 ≤ m) :=
   begin intros p q; apply le.neSucc n; transitivity; exact q; exact p end
@@ -255,7 +255,7 @@ namespace Nat
 
   hott lemma le.leSucc : Π (n : ℕ), n ≤ n + 1
   | Nat.zero   => idp _
-  | Nat.succ n => ap Nat.succ (leSucc n)
+  | Nat.succ n => ap Nat.succ (le.leSucc n)
 
   hott definition le.elim (ρ : ℕ → ℕ → Type u) (τ : Π n m k, ρ n m → ρ m k → ρ n k)
     (reflρ : Π n, ρ n n) (succρ : Π n, ρ n (n + 1)) {n : ℕ} : Π {m : ℕ}, n ≤ m → ρ n m
@@ -263,7 +263,7 @@ namespace Nat
   | Nat.succ m, p =>
     match natDecEq n (m + 1) with
     | Sum.inl q₁ => transport (ρ n) q₁ (reflρ _)
-    | Sum.inr q₂ => τ n m _ (@elim ρ τ reflρ succρ n m (le.neqSucc q₂ p)) (succρ _)
+    | Sum.inr q₂ => τ n m _ (@le.elim ρ τ reflρ succρ n m (le.neqSucc q₂ p)) (succρ _)
 
   hott definition dist : ℕ → ℕ → ℕ
   | Nat.zero,   Nat.zero   => 0
@@ -273,19 +273,19 @@ namespace Nat
 
   hott lemma dist.refl : Π (n : ℕ), dist n n = 0
   | Nat.zero   => idp 0
-  | Nat.succ n => refl n
+  | Nat.succ n => dist.refl n
 
   hott lemma dist.identity : Π (n m : ℕ) (p : dist n m = 0), n = m
   | Nat.zero,   Nat.zero,   _ => idp 0
   | Nat.succ m, Nat.zero,   p => p
   | Nat.zero,   Nat.succ n, p => p⁻¹
-  | Nat.succ m, Nat.succ n, p => ap Nat.succ (identity m n p)
+  | Nat.succ m, Nat.succ n, p => ap Nat.succ (dist.identity m n p)
 
   hott lemma dist.symm : Π (n m : ℕ), dist n m = dist m n
   | Nat.zero,   Nat.zero   => idp _
   | Nat.succ m, Nat.zero   => idp _
   | Nat.zero,   Nat.succ n => idp _
-  | Nat.succ m, Nat.succ n => symm m n
+  | Nat.succ m, Nat.succ n => dist.symm m n
 
   hott lemma dist.zeroLeft (n : ℕ) : dist n 0 = n :=
   begin induction n using Nat.casesOn <;> reflexivity end
@@ -297,13 +297,13 @@ namespace Nat
   | Nat.zero,   Nat.zero   => idp _
   | Nat.succ n, Nat.zero   => max.refl _
   | Nat.zero,   Nat.succ m => transport (· ≤ m + 2) (dist.zeroRight m)⁻¹ (le.trans (le.leSucc _) (le.leSucc _))
-  | Nat.succ n, Nat.succ m => succLeft n m
+  | Nat.succ n, Nat.succ m => dist.succLeft n m
 
   hott lemma max.leAdd : Π (n m : ℕ), le (max n m) (n + m)
   | Nat.zero,   Nat.zero   => idp _
   | Nat.succ n, Nat.zero   => max.refl _
   | Nat.zero,   Nat.succ m => transport (m + 1 ≤ ·) (zeroPlus _)⁻¹ (max.refl _)
-  | Nat.succ n, Nat.succ m => le.trans (le.map (max n m) (n + m) (leAdd n m))
+  | Nat.succ n, Nat.succ m => le.trans (le.map (max n m) (n + m) (max.leAdd n m))
     (begin
       apply transport (n + m + 1 ≤ ·); symmetry; transitivity;
       apply Nat.assoc n 1; transitivity; transitivity; apply ap;
@@ -316,14 +316,14 @@ namespace Nat
   | Nat.zero,   Nat.zero   => idp 0
   | Nat.succ n, Nat.zero   => max.refl _
   | Nat.zero,   Nat.succ m => max.refl _
-  | Nat.succ n, Nat.succ m => le.trans (max n m) (le.leSucc _)
+  | Nat.succ n, Nat.succ m => le.trans (dist.max n m) (le.leSucc _)
 
   hott corollary dist.le (n m : ℕ) : le (dist n m) (n + m) :=
   le.trans (dist.max n m) (max.leAdd n m)
 
   hott lemma dist.translation (n m : ℕ) : Π k, dist n m = dist (n + k) (m + k)
   | Nat.zero   => idp _
-  | Nat.succ k => translation n m k
+  | Nat.succ k => dist.translation n m k
 
   namespace Example
     hott axiom explode {P : Sort 0} : False → P := @False.rec (λ _, P)

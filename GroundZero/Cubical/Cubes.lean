@@ -21,7 +21,7 @@ hott definition cube (A : Type u) : ℕ → Type u
 
 hott definition cube.tree {A : Type u} : Π {n : ℕ}, cube A n → binary A n
 | Nat.zero,   f => (f 0, f 1)
-| Nat.succ n, f => (tree (f 0), tree (f 1))
+| Nat.succ n, f => (cube.tree (f 0), cube.tree (f 1))
 
 inductive Cube {A : Type u} (n : ℕ) : binary A n → Type u
 | lam (f : cube A n) : Cube n (cube.tree f)

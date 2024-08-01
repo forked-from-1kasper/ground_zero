@@ -56,7 +56,7 @@ namespace GroundZero.Algebra
 
   noncomputable hott def N.incl.add (n : ℕ) : Π m, N.incl (n + m) = N.incl n + N.incl m
   | Nat.zero   => Id.inv (R.τ⁺.mulOne _)
-  | Nat.succ m => @ap ℝ ℝ _ _ (λ r, r + 1) (add n m) ⬝ R.τ⁺.mulAssoc _ _ _
+  | Nat.succ m => @ap ℝ ℝ _ _ (λ r, r + 1) (N.incl.add n m) ⬝ R.τ⁺.mulAssoc _ _ _
 
   noncomputable hott def leAddOne (x : ℝ) : R.ρ x (x + 1) :=
   begin
@@ -69,9 +69,9 @@ namespace GroundZero.Algebra
 
   noncomputable hott def N.incl.lt : Π (n m : ℕ), (n ≤ m : Type) → R.ρ (N.incl n) (N.incl m)
   | Nat.zero,   Nat.zero   => λ _, @reflexive.refl R.κ _ (N.incl 0)
-  | Nat.zero,   Nat.succ m => λ _, @transitive.trans R.κ _ (N.incl 0) (N.incl m) (N.incl (m + 1)) (lt 0 m (Nat.max.zeroLeft m)) (leAddOne (N.incl m))
+  | Nat.zero,   Nat.succ m => λ _, @transitive.trans R.κ _ (N.incl 0) (N.incl m) (N.incl (m + 1)) (N.incl.lt 0 m (Nat.max.zeroLeft m)) (leAddOne (N.incl m))
   | Nat.succ n, Nat.zero   => λ p, explode (Nat.max.neZero p)
-  | Nat.succ n, Nat.succ m => λ p, orfield.leOverAdd (N.incl n) (N.incl m) 1 (lt n m (ap Nat.pred p))
+  | Nat.succ n, Nat.succ m => λ p, orfield.leOverAdd (N.incl n) (N.incl m) 1 (N.incl.lt n m (ap Nat.pred p))
 
   noncomputable hott def R.complete (φ : R.subset) (H : φ.inh) (G : @majorized R.κ φ) :
     Σ M, exact (@Majorant R.κ φ) M :=

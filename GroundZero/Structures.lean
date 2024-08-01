@@ -75,7 +75,7 @@ namespace hlevel
 
   hott definition le.minusTwo : Π (n : ℕ₋₂), −2 ≤ n
   | −2     => le.refl −2
-  | succ n => le.step _ _ (minusTwo n)
+  | succ n => le.step _ _ (le.minusTwo n)
 
   noncomputable hott definition le.succ (a b : ℕ₋₂) (ρ : a ≤ b) : succ a ≤ succ b :=
   begin induction ρ; apply le.refl; apply le.step; assumption end
@@ -159,7 +159,7 @@ macro n:term "-Type" l:level : term => `(nType.{$l} $n)
 
 hott lemma hlevel.cumulative {A : Type u} : Π (n : hlevel), is-n-type A → is-(hlevel.succ n)-type A
 | −2,            H => λ x y, ⟨(H.2 x)⁻¹ ⬝ H.2 y, λ p, begin induction p; apply Id.invComp end⟩
-| hlevel.succ n, H => λ x y, cumulative n (H x y)
+| hlevel.succ n, H => λ x y, hlevel.cumulative n (H x y)
 
 noncomputable hott corollary hlevel.strongCumulative (n m : hlevel) (ρ : n ≤ m) :
   Π {A : Type u}, (is-n-type A) → (is-m-type A) :=
@@ -728,12 +728,12 @@ hott definition vect (A : Type u) : ℕ → Type u
 
 hott definition vect.const {A : Type u} (a : A) : Π n, vect A n
 | Nat.zero   => ★
-| Nat.succ n => (a, const a n)
+| Nat.succ n => (a, vect.const a n)
 
 hott definition vect.map {A : Type u} {B : Type v} (f : A → B) :
   Π {n : ℕ}, vect A n → vect B n
 | Nat.zero   => λ _, ★
-| Nat.succ n => λ v, (f v.1, map f v.2)
+| Nat.succ n => λ v, (f v.1, vect.map f v.2)
 
 section
   open GroundZero.Types.Equiv (transportOverProduct transport)
@@ -747,7 +747,7 @@ end
 hott theorem vect.idfunc {A : Type u} : Π {n : ℕ} (f : A → A)
   (H : f ~ id) (v : vect A n), vect.map f v = v
 | Nat.zero,   f, H, v => idp v
-| Nat.succ n, f, H, v => Product.prod (H v.1) (idfunc f H v.2)
+| Nat.succ n, f, H, v => Product.prod (H v.1) (vect.idfunc f H v.2)
 
 hott corollary vect.id {A : Type u} {n : ℕ} (v : vect A n) : vect.map id v = v :=
 begin apply vect.idfunc; reflexivity end
@@ -755,12 +755,12 @@ begin apply vect.idfunc; reflexivity end
 hott theorem vect.comp {A : Type u} {B : Type v} {γ : Type w} :
   Π {n : ℕ} (f : A → B) (g : B → γ) (v : vect A n), vect.map g (vect.map f v) = vect.map (g ∘ f) v
 | Nat.zero,   f, g, v => idp _
-| Nat.succ n, f, g, v => Product.prod (idp _) (comp f g v.2)
+| Nat.succ n, f, g, v => Product.prod (idp _) (vect.comp f g v.2)
 
 hott lemma vect.constMap {A : Type u} {B : Type v} (a : A) (f : A → B) :
   Π {n : ℕ}, vect.map f (vect.const a n) = vect.const (f a) n
 | Nat.zero   => idp _
-| Nat.succ n => Product.prod (idp _) (constMap a f)
+| Nat.succ n => Product.prod (idp _) (vect.constMap a f)
 
 hott definition Finite := iter 𝟏 𝟎
 

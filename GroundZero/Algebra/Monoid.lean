@@ -43,16 +43,16 @@ inductive Term (A : Type u)
 | e : Term A
 
 hott def Term.toList {A : Type u} : Term A → List A
-| Term.φ x y => toList x ++ toList y
+| Term.φ x y => Term.toList x ++ Term.toList y
 | Term.ι x   => [x]
 | Term.e     => []
 
 hott def Term.ofList {A : Type u} : List A → Term A
 | []      => Term.e
-| x :: xs => Term.φ (Term.ι x) (ofList xs)
+| x :: xs => Term.φ (Term.ι x) (Term.ofList xs)
 
 hott def Term.toMonoid (M : Monoid) : Term M.carrier → M.carrier
-| Term.φ x y => M.φ (toMonoid M x) (toMonoid M y)
+| Term.φ x y => M.φ (Term.toMonoid M x) (Term.toMonoid M y)
 | Term.ι x   => x
 | Term.e     => M.e
 
@@ -60,12 +60,12 @@ hott def Term.ofAppend (M : Monoid) : Π (xs ys : List M.carrier),
     Term.toMonoid M (Term.ofList (xs ++ ys))
   = M.φ (Term.toMonoid M (Term.ofList xs)) (Term.toMonoid M (Term.ofList ys))
 | [],      ys => (M.oneMul _)⁻¹
-| x :: xs, ys => ap (M.φ x) (ofAppend M xs ys) ⬝ (M.mulAssoc _ _ _)⁻¹
+| x :: xs, ys => ap (M.φ x) (Term.ofAppend M xs ys) ⬝ (M.mulAssoc _ _ _)⁻¹
 
 hott def Term.sec (M : Monoid) : Term.toMonoid M ∘ Term.ofList ∘ Term.toList ~ Term.toMonoid M
 | Term.e     => Id.refl
 | Term.ι x   => M.mulOne x
-| Term.φ x y => Term.ofAppend M _ _ ⬝ Equiv.bimap M.φ (sec M x) (sec M y)
+| Term.φ x y => Term.ofAppend M _ _ ⬝ Equiv.bimap M.φ (Term.sec M x) (Term.sec M y)
 
 hott def Term.solve (M : Monoid) (τ₁ τ₂ : Term M.carrier)
   (ρ : τ₁.toList = τ₂.toList) : τ₁.toMonoid M = τ₂.toMonoid M :=
@@ -78,6 +78,6 @@ Term.solve M (Term.φ (Term.φ (Term.φ (Term.ι x) (Term.φ (Term.ι y) Term.e)
 
 hott def Term.ret {A : Type u} : Term.toList ∘ @Term.ofList A ~ id
 | []      => Id.refl
-| x :: xs => ap (List.cons x) (ret xs)
+| x :: xs => ap (List.cons x) (Term.ret xs)
 
 end GroundZero.Algebra

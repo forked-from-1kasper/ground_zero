@@ -1009,7 +1009,7 @@ inductive Resize (A : Type u) : Type (max u v)
 | intro : A → Resize A
 
 hott definition Resize.elim {A : Type u} : Resize A → A
-| intro w => w
+| Resize.intro w => w
 
 hott theorem Resize.equiv (A : Type u) : A ≃ Resize.{u, v} A :=
 Equiv.intro Resize.intro Resize.elim idp idp
