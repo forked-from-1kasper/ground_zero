@@ -1,9 +1,7 @@
 import Lake
 open Lake DSL
 
-def leanArgs := #["-Dlinter.unusedVariables=false", "-DautoImplicit=false"]
-
-package GroundZero { moreGlobalServerArgs := leanArgs, moreLeanArgs := leanArgs }
+package GroundZero { leanOptions := #[⟨`linter.unusedVariables, false⟩, ⟨`autoImplicit, false⟩] }
 
 @[default_target]
 lean_lib GroundZero
