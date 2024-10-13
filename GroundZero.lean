@@ -16,7 +16,6 @@ import GroundZero.Algebra.Group.Free
 import GroundZero.Algebra.Group.Homotopy
 import GroundZero.Algebra.Group.Isomorphism
 import GroundZero.Algebra.Group.Lemmas
-import GroundZero.Algebra.Group.Limited
 import GroundZero.Algebra.Group.Periodic
 import GroundZero.Algebra.Group.Presentation
 import GroundZero.Algebra.Group.Product
