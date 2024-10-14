@@ -4,7 +4,6 @@ import GroundZero.Algebra.Boolean
 import GroundZero.Algebra.Category
 import GroundZero.Algebra.EilenbergMacLane
 import GroundZero.Algebra.Geometry
-import GroundZero.Algebra.Group.Absolutizer
 import GroundZero.Algebra.Group.Action
 import GroundZero.Algebra.Group.Alternating
 import GroundZero.Algebra.Group.Automorphism
