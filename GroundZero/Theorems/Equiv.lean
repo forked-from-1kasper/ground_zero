@@ -116,6 +116,29 @@ hott corollary equivHmtpyLem {A : Type u} {B : Type v}
   (f g : A ≃ B) (H : f.forward ~ g.forward) : f = g :=
 begin fapply Sigma.prod; apply Theorems.funext; exact H; apply biinvProp end
 
+hott corollary equivNType₁ {A : Type u} {B : Type v} {n : ℕ₋₂} :
+  is-(n + 1)-type B → is-(n + 1)-type (A ≃ B) :=
+begin
+  intro H; apply ntypeRespectsSigma; apply piRespectsImpl; exact H;
+  intro; apply propIsNType; apply biinvProp
+end
+
+hott lemma symmSymmIdfun (A : Type u) (B : Type v) : @Equiv.symm A B ∘ Equiv.symm ~ idfun :=
+begin intro f; apply equivHmtpyLem; intro x; reflexivity; end
+
+hott lemma symmQinv (A : Type u) (B : Type v) : qinv (@Equiv.symm A B) :=
+begin existsi @Equiv.symm B A; constructor <;> apply symmSymmIdfun end
+
+hott corollary equivInvEquiv (A : Type u) (B : Type v) : (A ≃ B) ≃ (B ≃ A) :=
+begin existsi Equiv.symm; apply Qinv.toBiinv; apply symmQinv end
+
+hott corollary equivNType₂ {A : Type u} {B : Type v} {n : ℕ₋₂} :
+  is-(n + 1)-type A → is-(n + 1)-type (A ≃ B) :=
+begin
+  intro H; apply ntypeRespectsEquiv;
+  apply equivInvEquiv; apply equivNType₁; exact H
+end
+
 hott corollary propEquivProp {A B : Type u} (G : prop B) : prop (A ≃ B) :=
 begin intros f g; apply equivHmtpyLem; intro x; apply G end
 

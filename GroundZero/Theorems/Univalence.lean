@@ -28,10 +28,10 @@ section
   hott axiom uaweakβ (H : f ∘ g ~ idfun) (G : g ∘ f ~ idfun) : transportconst (uaweak f g H G) ~ f
 end
 
-noncomputable hott def ua {A B : Type u} (e : A ≃ B) : A = B :=
+noncomputable hott definition ua {A B : Type u} (e : A ≃ B) : A = B :=
 uaweak e.forward e.left e.forwardLeft e.leftForward
 
-noncomputable hott def uaε {A B : Type u} (e : A ≃ B) : A = B :=
+noncomputable hott definition uaε {A B : Type u} (e : A ≃ B) : A = B :=
 ua e ⬝ (ua (ideqv B))⁻¹
 
 noncomputable hott lemma idtoeqvua {A B : Type u} (e : A ≃ B) : idtoeqv (ua e) = e :=
@@ -281,6 +281,20 @@ end
 
 noncomputable hott corollary ensIsGroupoid : groupoid (0-Type) :=
 begin apply oneEqvGroupoid.forward; apply ntypeIsSuccNType 0 end
+
+noncomputable hott corollary pathNType₁ {A B : Type u} {n : ℕ₋₂} :
+  is-(n + 1)-type B → is-(n + 1)-type (A = B) :=
+begin
+  intro H; apply ntypeRespectsEquiv.{u, u + 1};
+  apply (univalence A B).symm; apply equivNType₁; exact H
+end
+
+noncomputable hott corollary pathNType₂ {A B : Type u} {n : ℕ₋₂} :
+  is-(n + 1)-type A → is-(n + 1)-type (A = B) :=
+begin
+  intro H; apply ntypeRespectsEquiv.{u, u + 1}; apply symm;
+  apply univalence; apply equivNType₂; exact H
+end
 
 end Theorems.Equiv
 
