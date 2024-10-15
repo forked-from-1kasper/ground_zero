@@ -708,6 +708,9 @@ namespace Structures
   | hlevel.succ n => λ H f g, ntypeRespectsEquiv n (Types.Equiv.symm Theorems.full)
                                 (piRespectsNType n (λ x, H x _ _))
 
+  hott corollary piRespectsImpl (n : ℕ₋₂) {A : Type u} {B : Type v} (H : is-n-type B) : is-n-type (A → B) :=
+  piRespectsNType n (λ _, H)
+
   hott corollary piHset {A : Type u} {B : A → Type v}
     (H : Π x, hset (B x)) : hset (Π x, B x) :=
   begin
