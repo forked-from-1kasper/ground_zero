@@ -51,10 +51,8 @@ import GroundZero.HITs.Pushout
 import GroundZero.HITs.Quotient
 import GroundZero.HITs.Reals
 import GroundZero.HITs.Setquot
-import GroundZero.HITs.Simplicial
 import GroundZero.HITs.Sphere
 import GroundZero.HITs.Suspension
-import GroundZero.HITs.Topologization
 import GroundZero.HITs.Trunc
 import GroundZero.HITs.Wedge
 import GroundZero.Meta.Basic
