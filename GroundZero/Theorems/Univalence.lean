@@ -198,7 +198,8 @@ hott definition bool.encode : 𝟐 → 𝟐 ≃ 𝟐
 | false => ideqv 𝟐
 | true  => negBoolEquiv
 
-hott exercise boolEquivEqvBool : (𝟐 ≃ 𝟐) ≃ 𝟐 :=
+-- TODO: why is there `noncomputable`?
+noncomputable hott exercise boolEquivEqvBool : (𝟐 ≃ 𝟐) ≃ 𝟐 :=
 begin
   existsi bool.decode; fapply Qinv.toBiinv; existsi bool.encode; apply Prod.mk;
   { intro x; induction x using Bool.casesOn <;> reflexivity };
