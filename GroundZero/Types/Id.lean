@@ -195,11 +195,14 @@ namespace Id
       let ε ← SubExpr.getExpr;
       guard (ε.isAppOfArity' `GroundZero.Types.Id.Loop 3);
 
-      let B ← SubExpr.withNaryArg 0 delab;
-      let b ← SubExpr.withNaryArg 1 delab;
-      let n ← SubExpr.withNaryArg 2 delab;
+      let B   ← SubExpr.withNaryArg 0 delab;
+      let b   ← SubExpr.withNaryArg 1 delab;
+      let dim ← SubExpr.withNaryArg 2 delab;
 
-      if isPointOf (ε.getArg! 1) then `(Ω[$n]($B)) else `(Ω[$n]($B, $b))
+      match dim.raw.isNatLit? with
+      | some k => let sup ← Meta.Notation.mkSupNumeral dim k;
+                  if isPointOf (ε.getArg! 1) then `(Ω$sup($B)) else `(Ω$sup($B, $b))
+      | none   => if isPointOf (ε.getArg! 1) then `(Ω[$dim]($B)) else `(Ω[$dim]($B, $b))
     }
   end
 

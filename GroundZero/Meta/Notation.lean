@@ -240,6 +240,45 @@ partial def parseSubscript : Lean.Syntax → Lean.MacroM Lean.Term
 | `(subscript| ₍$stx₎)        => parseSubscript stx
 | stx                         => Lean.Macro.throwError "invalid subscript"
 
+section
+  open Lean
+
+  variable {M : Type → Type} [Monad M] [MonadError M] [MonadQuotation M]
+
+  def delabSupNumeral : Nat → M Syntax
+  | 0 => `(superscriptNumeral| ⁰)
+  | 1 => `(superscriptNumeral| ¹)
+  | 2 => `(superscriptNumeral| ²)
+  | 3 => `(superscriptNumeral| ³)
+  | 4 => `(superscriptNumeral| ⁴)
+  | 5 => `(superscriptNumeral| ⁵)
+  | 6 => `(superscriptNumeral| ⁶)
+  | 7 => `(superscriptNumeral| ⁷)
+  | 8 => `(superscriptNumeral| ⁸)
+  | 9 => `(superscriptNumeral| ⁹)
+  | _ => throwError "invalid numeral"
+
+  def mkSuperscriptNumber (si : SourceInfo) :=
+  λ stx => Lean.Syntax.node si `GroundZero.Meta.Notation.superscriptNumber #[stx]
+
+  def mkManyNumeral (si : SourceInfo) :=
+  Syntax.node si `null
+
+  def mkSupNumeralOfDigits (si : SourceInfo) (xs : Array Nat) : M Syntax :=
+  mkSuperscriptNumber si <$> mkManyNumeral si <$> xs.mapM delabSupNumeral
+
+  def revDigitsOf : Nat → List Nat
+  | Nat.zero   => []
+  | Nat.succ k => (Nat.succ k % 10) :: revDigitsOf (Nat.succ k / 10)
+
+  def digitsOf : Nat → List Nat
+  | 0 => [0]
+  | n => (revDigitsOf n).reverse
+
+  def mkSupNumeral (stx : Syntax) (n : Nat) : M (TSyntax `superscript) :=
+  TSyntax.mk <$> mkSupNumeralOfDigits stx.getHeadInfo (digitsOf n).toArray
+end
+
 namespace Record
   open Lean
 

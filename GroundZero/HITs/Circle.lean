@@ -108,6 +108,20 @@ instance (n : ℕ) : isPointed Sⁿ :=
 
 macro:max "S" : term => `(GroundZero.HITs.S)
 
+section
+  open Lean Lean.PrettyPrinter.Delaborator
+
+  @[delab app.GroundZero.HITs.S]
+  def delabHigherSphere : Delab := whenPPOption Lean.getPPNotation do {
+    let ε ← SubExpr.getExpr; guard (ε.isAppOfArity' `GroundZero.HITs.S 1);
+
+    let dim ← SubExpr.withNaryArg 0 delab;
+    match dim.raw.isNatLit? with
+    | some n => `(S$(← Meta.Notation.mkSupNumeral dim n))
+    | none   => `(S $dim)
+  }
+end
+
 hott abbreviation Circle := S¹
 
 namespace Circle
