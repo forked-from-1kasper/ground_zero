@@ -434,8 +434,7 @@ namespace «4.8»
   open GroundZero.Structures
   open GroundZero.Theorems
 
-  -- TODO: what’s wrong with the code generation here?
-  noncomputable hott theorem injOutOfBoolChar {B : Type u} : (Σ (f : 𝟐 → B), injective f) ≃ (Σ (w : B × B), w.1 ≠ w.2) :=
+  hott theorem injOutOfBoolChar {B : Type u} : (Σ (f : 𝟐 → B), injective f) ≃ (Σ (w : B × B), w.1 ≠ w.2) :=
   begin
     fapply Sigma.mk;
     { intro w; existsi (w.1 false, w.1 true);
@@ -454,7 +453,7 @@ namespace «4.8»
       { apply Theorems.funext; intro b; induction b using Bool.casesOn <;> reflexivity } }
   end
 
-  noncomputable hott theorem embdOutOfBoolChar {B : Type u} :
+  hott theorem embdOutOfBoolChar {B : Type u} :
     (𝟐 ↪ B) ≃ (Σ (w : B × B), w.1 ≠ w.2 × contr (w.1 = w.1) × contr (w.2 = w.2)) :=
   begin
     fapply Sigma.mk;

@@ -198,25 +198,20 @@ hott definition bool.encode : 𝟐 → 𝟐 ≃ 𝟐
 | false => ideqv 𝟐
 | true  => negBoolEquiv
 
--- TODO: why is there `noncomputable`?
-noncomputable hott exercise boolEquivEqvBool : (𝟐 ≃ 𝟐) ≃ 𝟐 :=
+hott exercise boolEquivEqvBool : (𝟐 ≃ 𝟐) ≃ 𝟐 :=
 begin
   existsi bool.decode; fapply Qinv.toBiinv; existsi bool.encode; apply Prod.mk;
   { intro x; induction x using Bool.casesOn <;> reflexivity };
   { intro ⟨φ, H⟩; apply equivHmtpyLem; intro x;
     match boolEqTotal (φ false), boolEqTotal (φ true) with
-    | Sum.inl p₁, Sum.inl q₁ => _
-    | Sum.inr p₂, Sum.inl q₁ => _
-    | Sum.inl p₁, Sum.inr q₂ => _
-    | Sum.inr p₂, Sum.inr q₂ => _;
-    { apply explode; apply ffNeqTt;
-      apply eqvInj ⟨φ, H⟩; exact p₁ ⬝ q₁⁻¹ };
-    { transitivity; apply ap (bool.encode · x); apply p₂;
-      symmetry; induction x using Bool.casesOn <;> assumption };
-    { transitivity; apply ap (bool.encode · x); apply p₁;
-      symmetry; induction x using Bool.casesOn <;> assumption };
-    { apply explode; apply ffNeqTt;
-      apply eqvInj ⟨φ, H⟩; exact p₂ ⬝ q₂⁻¹ } }
+    | Sum.inl p₁, Sum.inl q₁ => { apply explode; apply ffNeqTt;
+                                  apply eqvInj ⟨φ, H⟩; exact p₁ ⬝ q₁⁻¹ }
+    | Sum.inr p₂, Sum.inl q₁ => { transitivity; apply ap (bool.encode · x); apply p₂;
+                                  symmetry; induction x using Bool.casesOn <;> assumption }
+    | Sum.inl p₁, Sum.inr q₂ => { transitivity; apply ap (bool.encode · x); apply p₁;
+                                  symmetry; induction x using Bool.casesOn <;> assumption }
+    | Sum.inr p₂, Sum.inr q₂ => { apply explode; apply ffNeqTt;
+                                  apply eqvInj ⟨φ, H⟩; exact p₂ ⬝ q₂⁻¹ } }
 end
 
 section
