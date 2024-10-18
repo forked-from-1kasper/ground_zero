@@ -245,11 +245,11 @@ namespace Circle
   hott definition succ (l : Ω¹(S¹)) : Ω¹(S¹) := l ⬝ loop
   hott definition pred (l : Ω¹(S¹)) : Ω¹(S¹) := l ⬝ loop⁻¹
 
-  hott abbreviation zero   := idp base
-  hott abbreviation one    := succ zero
-  hott abbreviation two    := succ one
-  hott abbreviation three  := succ two
-  hott abbreviation fourth := succ three
+  hott abbreviation zero  := idp base
+  hott abbreviation one   := succ zero
+  hott abbreviation two   := succ one
+  hott abbreviation three := succ two
+  hott abbreviation four  := succ three
 
   hott definition helix : S¹ → Type :=
   rec ℤ (ua Integer.succEquiv)

@@ -182,9 +182,9 @@ begin
   apply univalence; apply propEquivProp G
 end
 
-noncomputable hott theorem propsetIsSet : hset propset :=
+noncomputable hott theorem propsetIsSet : hset (Prop u) :=
 begin
-  intro ⟨x, H⟩ ⟨y, G⟩; apply transport (λ π, Π (p q : π), p = q);
+  intro ⟨x, H⟩ ⟨y, G⟩; apply transport (λ X, Π (p q : X), p = q);
   symmetry; apply ua; apply Sigma.sigmaPath;
   intro ⟨p, p'⟩ ⟨q, q'⟩; fapply Sigma.prod;
   { apply propEqProp; exact G };
