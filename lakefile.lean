@@ -17,6 +17,8 @@ set_option linter.unusedVariables false
 set_option autoImplicit false
 
 section
+  open System (FilePath)
+
   def hasExtension (e : String) : FilePath → Bool :=
   λ fp => fp.extension = some e
 

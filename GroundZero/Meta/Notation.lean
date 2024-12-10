@@ -122,7 +122,7 @@ def parseSubNumeral : Lean.Syntax → Nat
 | _                      => 0
 
 def parseNumber (φ : Lean.Syntax → Nat) (stx : Array Lean.Syntax) :=
-let ns := Array.mapIdx stx.reverse (fun i s => φ s * 10 ^ i.val)
+let ns := stx.reverse.mapIdx fun i s => φ s * (10 ^ i)
 let n  := Array.foldl (· + ·) 0 ns
 Lean.Syntax.mkNumLit (toString n)
 
@@ -298,7 +298,7 @@ namespace Record
         lctx := lctx.setBinderInfo x.fvarId! BinderInfo.implicit;
       }
     }
-    withReader (λ ctx => {ctx with lctx := lctx}) k
+    Meta.withLCtx' lctx k
   }
 
   def declAccessor (tname fname : Name) (t e : Expr) (lparams : List Name) : Elab.Command.CommandElabM Unit :=
