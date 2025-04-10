@@ -40,8 +40,8 @@ def applyOnBinRel (name : Name) (rel : Name) : Elab.Tactic.TacticM Unit := do
     ε.consumeMData.withApp λ e es => do
       unless (es.size > 1) do Meta.throwTacticEx name mvar s!"expected binary relation, got “{e} {es}”"
 
-      let e₃ := es.back; let es := es.pop;
-      let e₂ := es.back; let es := es.pop;
+      let e₃ := es.back!; let es := es.pop;
+      let e₂ := es.back!; let es := es.pop;
 
       let ty  ← Meta.inferType e₂
       let ty' ← Meta.inferType e₃
@@ -126,7 +126,7 @@ open PrettyPrinter Elab.Term
 def extRelation (e : Expr) : TermElabM (Expr × Expr) :=
   e.withApp λ e es => do
     unless (es.size > 1) do throwError "expected binary relation"
-    return (es.back, mkAppN e es.pop.pop)
+    return (es.back!, mkAppN e es.pop.pop)
 
 def getEqn (e : Syntax) : TermElabM (Syntax × Syntax) := do
   unless (e.getArgs.size > 2) do throwError "expected binary relation"
@@ -138,7 +138,7 @@ elab (priority := high) "calc " ε:term " : " τ:term σ:(calcLHS " : " term)* :
   let ε ← Elab.Term.elabTerm ε none
   let ε ← instantiateMVars ε
 
-  let e₁ := ε.withApp (λ _ es => es.pop.back)
+  let e₁ := ε.withApp (λ _ es => es.pop.back!)
   let ty₁ ← Meta.inferType e₁
   let u₁  ← Meta.getLevel ty₁
 

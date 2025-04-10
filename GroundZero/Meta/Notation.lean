@@ -330,7 +330,7 @@ namespace Record
   do {
     unless (fields.size > 0) do throwErrorAt id "empty record is disallowed";
 
-    let (e, is) := expandBEBinder fields.back;
+    let (e, is) := expandBEBinder fields.back!;
 
     let term ← if is.size > 1 then `(Σ $(fields.pop)* ($is.pop* : $e), $e)
                               else `(Σ $(fields.pop)*, $e);
@@ -351,7 +351,7 @@ namespace Record
       declAccessor tname ident ci.type (sigfst acc) ci.levelParams;
       acc := sigsnd acc;
     }
-    declAccessor tname ids.back ci.type acc ci.levelParams
+    declAccessor tname ids.back! ci.type acc ci.levelParams
   }
 end Record
 

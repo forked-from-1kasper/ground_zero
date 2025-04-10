@@ -110,7 +110,7 @@ section
       tele := tele.tail!;
 
       while !tele.isEmpty do {
-        if tele.length < 2 then throwErrorAt σs.back
+        if tele.length < 2 then throwErrorAt σs.back!
           "contractible context expected to be in the form “... (b : A) (p : u = b)”";
 
         let b₁ := tele.head!;

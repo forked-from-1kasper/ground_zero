@@ -191,24 +191,24 @@ begin
   { apply propIsSet; apply propIsProp }
 end
 
-hott definition bool.decode : 𝟐 ≃ 𝟐 → 𝟐 :=
+hott definition boolDecode : 𝟐 ≃ 𝟐 → 𝟐 :=
 λ e, e false
 
-hott definition bool.encode : 𝟐 → 𝟐 ≃ 𝟐
+hott definition boolEncode : 𝟐 → 𝟐 ≃ 𝟐
 | false => ideqv 𝟐
 | true  => negBoolEquiv
 
 hott exercise boolEquivEqvBool : (𝟐 ≃ 𝟐) ≃ 𝟐 :=
 begin
-  existsi bool.decode; fapply Qinv.toBiinv; existsi bool.encode; apply Prod.mk;
+  existsi boolDecode; fapply Qinv.toBiinv; existsi boolEncode; apply Prod.mk;
   { intro x; induction x using Bool.casesOn <;> reflexivity };
   { intro ⟨φ, H⟩; apply equivHmtpyLem; intro x;
     match boolEqTotal (φ false), boolEqTotal (φ true) with
     | Sum.inl p₁, Sum.inl q₁ => { apply explode; apply ffNeqTt;
                                   apply eqvInj ⟨φ, H⟩; exact p₁ ⬝ q₁⁻¹ }
-    | Sum.inr p₂, Sum.inl q₁ => { transitivity; apply ap (bool.encode · x); apply p₂;
+    | Sum.inr p₂, Sum.inl q₁ => { transitivity; apply ap (boolEncode · x); apply p₂;
                                   symmetry; induction x using Bool.casesOn <;> assumption }
-    | Sum.inl p₁, Sum.inr q₂ => { transitivity; apply ap (bool.encode · x); apply p₁;
+    | Sum.inl p₁, Sum.inr q₂ => { transitivity; apply ap (boolEncode · x); apply p₁;
                                   symmetry; induction x using Bool.casesOn <;> assumption }
     | Sum.inr p₂, Sum.inr q₂ => { apply explode; apply ffNeqTt;
                                   apply eqvInj ⟨φ, H⟩; exact p₂ ⬝ q₂⁻¹ } }
